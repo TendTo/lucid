@@ -1,0 +1,3 @@
+load("//tools:pytest.bzl", "pylucid_py_test")
+
+pylucid_py_test(name = "test_calculator")

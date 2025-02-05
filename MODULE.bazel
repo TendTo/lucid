@@ -1,0 +1,136 @@
+"""lucid module"""
+
+module(name = "lucid")
+
+#################################################################################
+# Available dependencies from the Bazel registry (https://registry.bazel.build/)
+#################################################################################
+
+# Apache License 2.0 | rules_cc for building C++ libraries with Bazel
+bazel_dep(name = "rules_cc", version = "0.1.1")
+
+# Apache License 2.0 | utility rules for Bazel
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+
+# Apache License 2.0 | rules housing all canonical settings for cross-platform builds
+bazel_dep(name = "platforms", version = "0.0.11")
+
+# Mozilla Public License 2.0 | C++ library that handles matrices and vectors
+bazel_dep(name = "eigen", version = "3.4.0.bcr.1")
+
+# MIT | argparse implementation for modern C++
+bazel_dep(name = "argparse", version = "3.0.0")
+
+# MIT | C++ library for formatting text
+bazel_dep(name = "fmt", version = "10.2.1")
+
+# MIT | logging library
+bazel_dep(name = "spdlog", version = "1.15.1")
+
+# Apache License 2.0 | rules_python for building python targets
+bazel_dep(name = "rules_python", version = "1.1.0")
+
+# https://github.com/pybind/pybind11_bazel/blob/master/LICENSE | pybind11 for binding C++ and Python
+bazel_dep(name = "pybind11_bazel", version = "2.13.6")
+
+# Apache License 2.0 | Bazel rules for packaging the project
+bazel_dep(name = "rules_pkg", version = "1.0.1")
+
+# https://github.com/cpplint/cpplint/blob/develop/LICENSE | Google C++ Style Guide
+bazel_dep(name = "cpplint", version = "2.0.0", dev_dependency = True)
+
+# BSD-3-Clause license | C++ test suite by Google
+bazel_dep(name = "googletest", version = "1.15.2", dev_dependency = True)
+
+# Apache License 2.0 | Doxygen documentation generator
+bazel_dep(name = "rules_doxygen", version = "2.2.0", dev_dependency = True)
+
+# MIT | rules for dealing with target dependencies
+bazel_dep(name = "depend_on_what_you_use", version = "0.6.0", dev_dependency = True)
+
+#################################################################################
+# External dependencies not available in the Bazel registry
+#################################################################################
+
+# GitHub repositories
+
+github_archive = use_repo_rule("//tools:git_archive.bzl", "github_archive")
+
+# MIT | logging library
+github_archive(
+    name = "lbfgscpp",
+    build_file = "//third_party:lbfgscpp.BUILD.bazel",  # custom build file
+    commit = "9db7a6d05042cc72851ed6c5e2cd34a0356b7150",
+    repository = "yixuan/LBFGSpp",
+    sha256 = "f3423ddeaed9642959b45d06cad6433444a31a2e21594825a09b914c2794cdac",
+)
+
+#################################################################################
+# Load module extensions
+#################################################################################
+doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
+use_repo(doxygen_extension, "doxygen")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    python_version = "3.8",
+)
+python.toolchain(
+    python_version = "3.9",
+)
+python.toolchain(
+    is_default = True,
+    python_version = "3.10",
+)
+python.toolchain(
+    python_version = "3.11",
+)
+python.toolchain(
+    python_version = "3.12",
+)
+python.toolchain(
+    python_version = "3.13",
+)
+use_repo(
+    python,
+    "python_3_10",
+    "python_3_11",
+    "python_3_12",
+    "python_3_13",
+    "python_3_8",
+    "python_3_9",
+    "python_versions",
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.8",
+    requirements_lock = "//tools:requirements.txt",
+)
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.9",
+    requirements_lock = "//tools:requirements.txt",
+)
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.10",
+    requirements_lock = "//tools:requirements.txt",
+)
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.11",
+    requirements_lock = "//tools:requirements.txt",
+)
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.12",
+    requirements_lock = "//tools:requirements.txt",
+)
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.13",
+    requirements_lock = "//tools:requirements.txt",
+)
+use_repo(pip, "pypi")

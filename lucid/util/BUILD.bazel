@@ -1,0 +1,78 @@
+load("@rules_python//python:pip.bzl", "whl_filegroup")
+load("//tools:cpplint.bzl", "cpplint")
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_srcs")
+load("//tools:rules_py_cc.bzl", "lucid_cc_py_library")
+
+package(default_visibility = [
+    "//lucid:__subpackages__",
+    "//pylucid:__subpackages__",
+    "//tests:__subpackages__",
+])
+
+lucid_srcs(name = "srcs")
+
+lucid_hdrs_tar(
+    name = "hdrs_tar",
+    subfolder = "util",
+)
+
+cpplint()
+
+whl_filegroup(
+    name = "numpy_headers",
+    pattern = "numpy/_core/include",
+    whl = "@pypi//numpy:whl",
+)
+
+lucid_cc_library(
+    name = "matplotlibcpp",
+    srcs = ["matplotlibcpp.cpp"],
+    hdrs = [
+        "matplotlibcpp.h",
+        ":numpy_headers",
+    ],
+    implementation_deps = [":error"],
+    includes = ["numpy_headers/numpy/_core/include"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":concepts",
+        "//lucid/lib:eigen",
+        "@rules_python//python/cc:current_py_cc_headers",
+        "@rules_python//python/cc:current_py_cc_libs",
+    ],
+)
+
+lucid_cc_library(
+    name = "error",
+    hdrs = ["error.h"],
+    deps = [
+        ":exception",
+        ":logging",
+        "@fmt",
+    ],
+)
+
+lucid_cc_library(
+    name = "exception",
+    hdrs = ["exception.h"],
+)
+
+lucid_cc_library(
+    name = "logging",
+    srcs = ["logging.cpp"],
+    hdrs = ["logging.h"],
+    deps = [
+        "@fmt",
+        "@spdlog",
+    ],
+)
+
+lucid_cc_library(
+    name = "concepts",
+    hdrs = ["concept.h"],
+)
+
+lucid_cc_library(
+    name = "math",
+    hdrs = ["math.h"],
+)

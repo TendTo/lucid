@@ -1,0 +1,113 @@
+load("@pypi//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//tools:rules_cc.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION", "lucid_pybind_extension", "lucid_pyblind_library")
+
+lucid_pyblind_library(
+    name = "interrupt",
+    srcs = ["interrupt.cpp"],
+    hdrs = ["interrupt.h"],
+    visibility = ["//lucid:__subpackages__"],
+)
+
+lucid_pybind_extension(
+    name = "_pylucid",
+    srcs = [
+        "pylucid.cpp",
+    ],
+    linkstatic = select({
+        "//tools:static_build": True,
+        "//conditions:default": False,
+    }),
+    deps = [
+        "//lucid:version",
+    ],
+)
+
+py_library(
+    name = "pylucid_lib",
+    srcs = [
+        "__init__.py",
+        "__main__.py",
+    ],
+    data = [":_pylucid.so"],
+    imports = ["."],
+    srcs_version = "PY3",
+)
+
+py_binary(
+    name = "pylucid",
+    srcs = ["__main__.py"],
+    imports = ["."],
+    main = "__main__.py",
+    python_version = "PY3",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":pylucid_lib",
+    ],
+)
+
+py_binary(
+    name = "stubgen_bin",
+    srcs = ["_stubgen.py"],
+    imports = ["."],
+    main = "_stubgen.py",
+    python_version = "PY3",
+    deps = [
+        requirement("pybind11_stubgen"),
+        ":pylucid_lib",
+    ],
+)
+
+genrule(
+    name = "stubgen",
+    outs = [
+        "_pylucid.pyi",
+        "__init__.pyi",
+        "py.typed",
+    ],
+    cmd = "$(location :stubgen_bin) $(OUTS)",
+    tools = [":stubgen_bin"],
+)
+
+filegroup(
+    name = "pylucid_files",
+    srcs = [
+        ":_pylucid",
+        ":pylucid_lib",
+        ":stubgen",
+    ],
+)
+
+py_wheel(
+    name = "pylucid_wheel",
+    abi = "$(PYTHON_ABI_TAG)",
+    author = LUCID_AUTHOR,
+    author_email = LUCID_AUTHOR_EMAIL,
+    classifiers = LUCID_CLASSIFIERS,
+    description_content_type = "text/markdown",
+    description_file = "//:README.md",
+    distribution = "pylucid",
+    entry_points = {
+        "console_scripts": ["pylucid = pylucid.__main__:main"],
+    },
+    homepage = LUCID_HOMEPAGE,
+    license = LUCID_LICENSE,
+    platform = select({
+        "@bazel_tools//src/conditions:windows_x64": "win_amd64",
+        "@bazel_tools//src/conditions:windows_arm64": "win_arm64",
+        "@bazel_tools//src/conditions:darwin_x86_64": "macosx_12_0_x86_64",
+        "@bazel_tools//src/conditions:darwin_arm64": "macosx_12_0_arm64",
+        "@bazel_tools//src/conditions:linux_x86_64": "manylinux_2_34_x86_64",
+        "@bazel_tools//src/conditions:linux_aarch64": "manylinux_2_34_aarch64",
+    }),
+    project_urls = {
+        "Source": LUCID_SOURCE,
+        "Tracker": LUCID_TRACKER,
+    },
+    python_tag = "$(PYTHON_TAG)",
+    summary = LUCID_DESCRIPTION,
+    toolchains = ["//tools:make_var_substitution"],
+    version = LUCID_VERSION,
+    deps = [":pylucid_files"],
+)

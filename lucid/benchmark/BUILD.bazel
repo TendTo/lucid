@@ -1,0 +1,37 @@
+load("//tools:cpplint.bzl", "cpplint")
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_srcs")
+
+package(default_visibility = [
+    "//lucid:__subpackages__",
+    "//pylucid:__subpackages__",
+    "//tests:__subpackages__",
+])
+
+lucid_srcs(name = "srcs")
+
+lucid_hdrs_tar(
+    name = "hdrs_tar",
+    subfolder = "benchmark",
+)
+
+cpplint()
+
+lucid_cc_library(
+    name = "generator",
+    srcs = [
+        "Generator.cpp",
+        "InitBarr3Generator.cpp",
+    ],
+    hdrs = [
+        "Generator.h",
+        "InitBarr3Generator.h",
+    ],
+    implementation_deps = [
+        "//lucid/util:error",
+    ],
+    deps = [
+        "//lucid/lib:eigen",
+        "//lucid/math:set",
+        "//lucid/util:logging",
+    ],
+)

@@ -1,0 +1,74 @@
+load("//tools:cpplint.bzl", "cpplint")
+load("//tools:rules_cc.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION", "lucid_cc_binary", "lucid_cc_library", "lucid_srcs")
+load("//tools:rules_py_cc.bzl", "lucid_cc_py_binary")
+
+lucid_srcs(
+    name = "srcs",
+    deps = [
+        "//lucid/lib:all_srcs",
+        "//lucid/math:all_srcs",
+        "//lucid/util:all_srcs",
+    ],
+)
+
+genrule(
+    name = "generate_version_header",
+    outs = ["version.h"],
+    cmd = "$(location //tools:generate_version_header) %s %s '%s' > $@" % (LUCID_NAME, LUCID_VERSION, LUCID_DESCRIPTION),
+    cmd_bat = "$(location //tools:generate_version_header.bat) %s %s \"%s\" $@" % (LUCID_NAME, LUCID_VERSION, LUCID_DESCRIPTION),
+    stamp = True,
+    tools = [
+        "//tools:generate_version_header",
+        "//tools:generate_version_header.bat",
+    ],
+)
+
+lucid_cc_library(
+    name = "version",
+    hdrs = [":generate_version_header"],
+    visibility = ["//visibility:public"],
+)
+
+lucid_cc_py_binary(
+    name = "lucid",
+    srcs = ["main.cpp"],
+    py_deps = [
+        "@pypi//matplotlib",
+        "@pypi//numpy",
+        "@pypi//tornado",
+    ],
+    deps = [
+        ":version",
+        "//lucid/benchmark:generator",
+        "//lucid/lib:eigen",
+        "//lucid/math:gram_matrix",
+        "//lucid/math:kernel",
+        "//lucid/util:error",
+        "//lucid/util:matplotlibcpp",
+        "@fmt",
+    ],
+)
+
+lucid_cc_py_binary(
+    name = "temp",
+    srcs = ["temp.cpp"],
+    py_deps = [
+        "@pypi//matplotlib",
+        "@pypi//numpy",
+        "@pypi//tornado",
+    ],
+    deps = [
+        ":version",
+        "//lucid/benchmark:generator",
+        "//lucid/lib:eigen",
+        "//lucid/math:gram_matrix",
+        "//lucid/math:kernel",
+        "//lucid/tuning:optimiser",
+        "//lucid/util:error",
+        "//lucid/util:matplotlibcpp",
+        "@fmt",
+        "@lbfgscpp",
+    ],
+)
+
+cpplint()

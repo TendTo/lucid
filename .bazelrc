@@ -1,0 +1,37 @@
+# Workspace status command
+build --enable_platform_specific_config
+build --experimental_cc_shared_library
+build --@spdlog//:header_only=False
+
+# Flag aliases
+build --flag_alias=enable_static_build=//tools:enable_static_build
+build --flag_alias=enable_dynamic_build=//tools:enable_dynamic_build
+build --flag_alias=enable_python_build=//tools:enable_python_build
+build --flag_alias=python_version=@rules_python//python/config_settings:python_version
+
+# Default build
+build:windows --cxxopt=/std:c++20 --cxxopt=/utf-8
+build:windows --workspace_status_command=tools/workspace_status.bat
+
+build:linux --cxxopt=-std=c++20
+build:linux --workspace_status_command=tools/workspace_status.sh
+
+build:macos --cxxopt=-std=c++20
+build:macos --workspace_status_command=tools/workspace_status.sh
+
+# Debug build
+build:dbg --compilation_mode=dbg
+build:dbg --cxxopt=-O0
+build:dbg --cxxopt=-ggdb3
+
+# Optimized build
+build:opt --compilation_mode=opt
+build:opt --cxxopt=-O3
+
+# Building python bindings
+build:python --compilation_mode=opt
+build:python --enable_static_build
+build:python --enable_python_build
+
+# Dependency clean
+build:dwyu --aspects=//tools:dwyu.bzl%dwyu --output_groups=dwyu
