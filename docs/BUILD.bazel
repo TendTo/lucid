@@ -12,8 +12,19 @@ doxygen(
         "*.md",
     ]),
     aliases = [
+        # Header
         "licence=@par Licence:^^",
+        # Math
         "X=@f$ \\mathcal{X} @f$",
+        "n=@f$ n @f$",
+        "s=@f$ s @f$",
+        "U=@f$ \\mathcal{U} @f$",
+        "nvector=@f$ n @f$ dimensional vector",
+        "fx=@f$ f(x) @f$",
+        "nxm=@f$ n \\times m @f$",
+        "nxn=@f$ n \\times m @f$",
+        "sxn=@f$ s \\times n @f$",
+        # Method descriptors
         "constructor{1}=Construct a new \\1 object.^^",
         "getter{2}=Get read-only access to the \\1 of the \\2.^^@return \\1 of the \\2^^",
         "getter{3}=Get read-only access to the \\1 of the \\2.^^^^\\3^^@return \\1 of the \\2^^",
@@ -34,6 +45,7 @@ doxygen(
         "hash{2}=Compute the hash of this \\1.^^^^\\2^^",
         "addref{1}=Method called by an intrusive_ptr every time a new pointer to this \\1 is created.^^^^It increases the number of references.^^",
         "release{1}=Method called by an intrusive_ptr every time a pointer to this \\1 is deleted.^^^^It decreases the number of references and deletes this object if the reference counter reaches 0.^^",
+        # Mermaid support in docstrings
         "mermaid=^^<pre class='mermaid'>",
         "endmermaid=</pre>^^",
     ],
@@ -72,7 +84,9 @@ doxygen(
     project_logo = "docs/_static/logo.svg",
     project_name = LUCID_NAME,
     project_number = LUCID_VERSION,
-    source_browser = True,
+    references_link_source = False,
+    source_browser = False,
     use_mathjax = True,
     use_mdfile_as_mainpage = "README.md",
+    verbatim_headers = False,
 )

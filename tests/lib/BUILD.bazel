@@ -1,0 +1,9 @@
+"""Tests for the util submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_eigen",
+    tags = ["math"],
+    deps = ["//lucid/lib:eigen"],
+)

@@ -10,7 +10,11 @@
 #include <stdexcept>
 #include <string>
 
-namespace lucid {
+/**
+ * @namespace lucid::exception
+ * Collection of exceptions that can be thrown by lucid.
+ */
+namespace lucid::exception {
 
 /** Base class for all exceptions in lucid. */
 class LucidException : public std::runtime_error {
@@ -89,4 +93,4 @@ class LucidPyException final : public LucidException {
   explicit LucidPyException(const std::string& message) : LucidException{message} {}
 };
 
-}  // namespace lucid
+}  // namespace lucid::exception

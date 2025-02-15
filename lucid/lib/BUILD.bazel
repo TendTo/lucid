@@ -11,33 +11,21 @@ lucid_srcs(name = "srcs")
 
 lucid_hdrs_tar(
     name = "hdrs_tar",
-    subfolder = "benchmark",
+    subfolder = "lib",
 )
 
 cpplint()
 
 lucid_cc_library(
-    name = "generator",
-    srcs = [
-        "Scenario.cpp",
-        "InitBarr3Scenario.cpp",
-    ],
-    hdrs = [
-        "Scenario.h",
-        "InitBarr3Scenario.h",
-    ],
+    name = "eigen",
+    srcs = ["eigen.cpp"],
+    hdrs = ["eigen.h"],
     implementation_deps = [
         "//lucid/util:error",
+        "//lucid/util:math",
     ],
     deps = [
-        "//lucid/lib:eigen",
-        "//lucid/math:set",
         "//lucid/util:logging",
+        "@eigen",
     ],
-)
-
-lucid_cc_library(
-    name = "benchmark",
-    hdrs = ["benchmark.h"],
-    deps = [":generator"],
 )

@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * Generator class.
+ * Scenario class.
  */
 #pragma once
 
@@ -14,16 +14,28 @@ namespace lucid::benchmark {
 
 /**
  * Generate a problem for the solver.
- * A generator defines a vector space @X and a function @f$ f: \mathcal{X} \to \mathcal{X} @f$.
+ * A scenario defines a vector space @X and a transition function @f$ f: \mathcal{X} \to \mathcal{X} @f$.
  */
-class Generator {
+class Scenario {
  public:
-  virtual ~Generator() = default;
+  virtual ~Scenario() = default;
   /** @getter{dimension, vector space @X} */
   [[nodiscard]] virtual Dimension dimension() const = 0;
+  /**
+   * Apply the transition function to a vector of the vector space @X.
+   * @param x @nvector from @X
+   * @return @nvector @fx
+   */
   [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x) const = 0;
+  /**
+   * Apply the transition function to a vector of the vector space @X.
+   * @param x @nvector from @X
+   * @return @nvector @fx
+   */
   [[nodiscard]] Matrix transition(ConstMatrixRef x) const { return (*this)(x); }
+  /** @getter{number of steps accounted for, scenario output state} */
   [[nodiscard]] virtual int num_steps() const = 0;
+  /** @getter{desired confidence level, scenario} */
   [[nodiscard]] virtual double desired_confidence() = 0;
   /** @getter{initial set, vector space @X} */
   [[nodiscard]] virtual const Set& initial_set() const = 0;
@@ -32,7 +44,7 @@ class Generator {
   /** @getter{all sets we are interested in considering, vector space @X} */
   [[nodiscard]] virtual const Set& set() const = 0;
   /**
-   * Sample `num_samples` transitions from the generator.
+   * Sample `num_samples` transitions from the scenario.
    * @param num_samples number of samples to generate
    * @param[out] inputs `n` x `num_samples` matrix of samples, where `n` is the dimension of the vector space @X.
    * Each column is a sample from the set.
@@ -41,24 +53,24 @@ class Generator {
    */
   void sample_transition(int num_samples, Matrix& inputs, Matrix& outputs) const;
   /**
-   * Sample a transition from the generator.
-   * @param[out] input `n` vector, a sample from the whole set.
-   * @param[out] output `n` vector obtained by `output = apply(input)`
+   * Sample a transition from the scenario.
+   * @param[out] input @nvector, a sample from the whole set.
+   * @param[out] output @nvector from `apply(input)`
    */
   void sample_transition(Vector& input, Vector& output) const;
   /**
-   * Sample `num_samples` elements from the generator set.
+   * Sample `num_samples` elements from the scenario set.
    * @param num_samples number of samples to generate
    * @return `n` x `num_samples` matrix of samples, where `n` is the dimension of the vector space @X
    */
-  Matrix sample_element(int num_samples) const;
+  [[nodiscard]] Matrix sample_element(int num_samples) const;
   /**
-   * Sample an element from the generator set.
-   * @return `n` vector, a sample from the whole set.
+   * Sample an element from the scenario set.
+   * @return @nvector, a sample from the whole set.
    */
-  Vector sample_element() const;
+  [[nodiscard]] Vector sample_element() const;
 
-  /** Plot the generator information using matplotlib. */
+  /** Plot the scenario information using matplotlib. */
   void plot() const;
 };
 

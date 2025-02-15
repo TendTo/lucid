@@ -13,7 +13,7 @@ namespace lucid {
 
 /**
  * Rectangular set over an arbitrary number of dimensions.
- * A vector @f$ x @f$ is in the set if @f$ lb_i \le x_i \le ub_i @f$ for all components of the vector.
+ * A vector @x is in the set if @f$ lb_i \le x_i \le ub_i @f$ for all components of the vector.
  */
 class RectSet final : public Set {
  public:
@@ -27,9 +27,9 @@ class RectSet final : public Set {
   RectSet(Vector lb, Vector ub, int seed = -1);
 
   [[nodiscard]] Dimension dimension() const override { return lb_.size(); }
-  /** @getter{lower bound, RectSet} */
+  /** @getter{lower bound, rectangular set} */
   [[nodiscard]] const Vector& lower_bound() const { return lb_; }
-  /** @getter{upper bound, RectSet} */
+  /** @getter{upper bound, rectangular set} */
   [[nodiscard]] const Vector& upper_bound() const { return ub_; }
 
   [[nodiscard]] Matrix sample_element(int num_samples) const override;

@@ -20,17 +20,29 @@ lucid_cc_library(
     name = "optimiser",
     srcs = [
         "LbfgsOptimiser.cpp",
+        "MedianHeuristicOptimiser.cpp",
         "Optimiser.cpp",
     ],
     hdrs = [
         "LbfgsOptimiser.h",
+        "MedianHeuristicOptimiser.h",
         "Optimiser.h",
     ],
     implementation_deps = [
         "//lucid/lib:eigen",
+        "//lucid/math:gram_matrix",
         "//lucid/util:error",
         "//lucid/util:logging",
         "@lbfgscpp",
     ],
-    deps = ["//lucid/math:kernel"],
+    deps = [
+        "//lucid/math:kernel",
+        "//lucid/math:sampler",
+    ],
+)
+
+lucid_cc_library(
+    name = "tuning",
+    hdrs = ["tuning.h"],
+    deps = [":optimiser"],
 )

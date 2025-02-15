@@ -3,26 +3,21 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * LbfgsOptimiser class.
+ * Optimiser class.
  */
 #pragma once
 
-#include <memory>
-
-#include "lucid/math/Kernel.h"
 #include "lucid/tuning/Optimiser.h"
 
 namespace lucid::tuning {
 
-/**
- * Optimiser that uses the L-BFGS algorithm.
- */
-class LbfgsOptimiser final : public Optimiser {
+class MedianHeuristicOptimiser final : public Optimiser {
  public:
-  explicit LbfgsOptimiser(const Sampler& sampler, Dimension num_samples = 100);
+  explicit MedianHeuristicOptimiser(const Sampler& sampler, Dimension num_samples = 100);
 
  private:
   [[nodiscard]] std::unique_ptr<Kernel> optimise_impl(const Kernel& kernel) const override;
 };
 
 }  // namespace lucid::tuning
+// lucid

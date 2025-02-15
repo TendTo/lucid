@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <random>
 
 #include "lucid/math/Set.h"
 
@@ -35,7 +36,7 @@ class MultiSet final : public Set {
   explicit MultiSet(std::vector<std::unique_ptr<Set>> sets)
       : sets_{std::move(sets)}, dis_{0, static_cast<int>(sets_.size())} {}
 
-  /** @getter{sets, MultiSet} */
+  /** @getter{sets, multi set} */
   [[nodiscard]] const std::vector<std::unique_ptr<Set>>& sets() const { return sets_; }
 
   [[nodiscard]] Dimension dimension() const override { return sets_.empty() ? 0 : sets_.front()->dimension(); }

@@ -13,70 +13,22 @@
 
 #include "lucid/util/error.h"
 
-namespace matplotlibcpp ::detail {
-
-PyObject* _interpreter::py_get_function(PyObject* const module, const std::string& name) {
-  PyObject* fn = PyObject_GetAttrString(module, name.c_str());
-  if (!fn) LUCID_PY_ERROR_FMT("Couldn't find required function: {}", name);
-  if (!PyFunction_Check(fn)) LUCID_PY_ERROR_FMT("{} is not a Python function", name);
-  return fn;
+namespace matplotlibcpp {
+bool xlim(double left, double right) {
+  return static_cast<bool>(detail::_interpreter::get().xlim()(py::make_tuple(left, right)));
 }
-PyObject* _interpreter::py_import(const std::string& name) {
-  if (imports_.contains(name)) return imports_[name];  // Module previously loaded
-
-  PyObject* const _import_name = PyString_FromString(name.c_str());
-  if (!_import_name) LUCID_PY_ERROR_FMT("Couldn't create string for module name: {}", name);
-  PyObject* const _import = PyImport_Import(_import_name);
-  if (!_import) LUCID_PY_ERROR_FMT("Couldn't import {}", name);
-  Py_DECREF(_import_name);
-  imports_.emplace(name, _import);
-  return _import;
+bool ylim(double bottom, double top) {
+  return static_cast<bool>(detail::_interpreter::get().ylim()(py::make_tuple(bottom, top)));
+}
+std::array<double, 2> xlim() {
+  const py::tuple lims = detail::_interpreter::get().xlim()();
+  if (!lims || lims.is_none() || lims.size() != 2) throw std::runtime_error("Failed to get xlim");
+  return {lims[0].cast<double>(), lims[1].cast<double>()};
+}
+std::array<double, 2> ylim() {
+  const py::tuple lims = detail::_interpreter::get().ylim()();
+  if (!lims || lims.is_none() || lims.size() != 2) throw std::runtime_error("Failed to get ylim");
+  return {lims[0].cast<double>(), lims[1].cast<double>()};
 }
 
-}  // namespace matplotlibcpp::detail
-void matplotlibcpp::ylim(double bottom, double top) {
-  detail::_interpreter::get();
-
-  PyObject* args = detail::PyTuple_Create(bottom, top);
-
-  PyObject* res = PyObject_CallObject(detail::_interpreter::get().s_python_function_ylim, args);
-  if (!res) throw std::runtime_error("Call to ylim() failed.");
-
-  Py_DECREF(args);
-  Py_DECREF(res);
-}
-std::array<double, 2> matplotlibcpp::xlim() {
-  detail::_interpreter::get();
-
-  PyObject* res = PyObject_CallNoArgs(detail::_interpreter::get().s_python_function_xlim);
-  if (!res) throw std::runtime_error("Call to xlim() failed.");
-
-  const double left = PyFloat_AsDouble(PyTuple_GetItem(res, 0));
-  const double right = PyFloat_AsDouble(PyTuple_GetItem(res, 1));
-
-  Py_DECREF(res);
-  return {left, right};
-}
-std::array<double, 2> matplotlibcpp::ylim() {
-  detail::_interpreter::get();
-
-  PyObject* res = PyObject_CallNoArgs(detail::_interpreter::get().s_python_function_ylim);
-  if (!res) throw std::runtime_error("Call to ylim() failed.");
-
-  const double left = PyFloat_AsDouble(PyTuple_GetItem(res, 0));
-  const double right = PyFloat_AsDouble(PyTuple_GetItem(res, 1));
-
-  Py_DECREF(res);
-  return {left, right};
-}
-void matplotlibcpp::xlim(double left, double right) {
-  detail::_interpreter::get();
-
-  PyObject* args = detail::PyTuple_Create(left, right);
-
-  PyObject* res = PyObject_CallObject(detail::_interpreter::get().s_python_function_xlim, args);
-  if (!res) throw std::runtime_error("Call to xlim() failed.");
-
-  Py_DECREF(args);
-  Py_DECREF(res);
-}
+}  // namespace matplotlibcpp

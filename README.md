@@ -1,7 +1,8 @@
 # LUCID: Lifted Uncertainty Control Invariant Dynamics
 
-[![lucid CI](https://github.com/TendTo/bazel-cpp-template/actions/workflows/lucid.yml/badge.svg)](https://github.com/TendTo/bazel-cpp-template/actions/workflows/lucid.yml)
-[![Docs CI](https://github.com/TendTo/bazel-cpp-template/actions/workflows/docs.yml/badge.svg)](https://github.com/TendTo/bazel-cpp-template/actions/workflows/docs.yml)
+[![lucid CI](https://github.com/TendTo/lucid/actions/workflows/myapp.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/myapp.yml)
+[![pylucid CI](https://github.com/TendTo/lucid/actions/workflows/pymyapp.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/pymyapp.yml)
+[![Docs CI](https://github.com/TendTo/lucid/actions/workflows/docs.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docs.yml)
 
 Simple modern template for a C++ project using Bazel with modules.
 

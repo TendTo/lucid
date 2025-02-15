@@ -6,4 +6,16 @@
  */
 #include "lucid/tuning/Optimiser.h"
 
-namespace lucid::tuning {}  // namespace lucid::tuning
+#include "lucid/math/GaussianKernel.h"
+#include "lucid/tuning/LbfgsOptimiser.h"
+
+namespace lucid::tuning {
+
+Optimiser::Optimiser(const Sampler& sampler, const Dimension num_samples)
+    : num_samples_{num_samples}, sampler_{sampler} {}
+
+std::unique_ptr<Kernel> Optimiser::optimise(const Kernel& kernel) const { return optimise_impl(kernel); }
+
+Scalar Optimiser::evaluate(const Kernel&) const { return Scalar(); }
+
+}  // namespace lucid::tuning

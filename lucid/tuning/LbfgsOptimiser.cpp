@@ -15,7 +15,6 @@
 #include "lucid/util/logging.h"
 
 namespace lucid::tuning {
-
 namespace {
 class Rosenbrock {
  private:
@@ -37,7 +36,9 @@ class Rosenbrock {
 };
 }  // namespace
 
-std::unique_ptr<Kernel> LbfgsOptimiser::Optimise(const Kernel& kernel) const {
+LbfgsOptimiser::LbfgsOptimiser(const Sampler& sampler, const Dimension num_samples) : Optimiser{sampler, num_samples} {}
+
+std::unique_ptr<Kernel> LbfgsOptimiser::optimise_impl(const Kernel& kernel) const {
   LUCID_DEBUG_FMT("LbfgsOptimiser::Optimise({})", kernel);
   const int n = 10;
   // Set up parameters

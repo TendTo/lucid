@@ -5,7 +5,9 @@ load("//tools:rules_py_cc.bzl", "lucid_cc_py_binary")
 lucid_srcs(
     name = "srcs",
     deps = [
-        "//lucid/lib:all_srcs",
+        # "//lucid/lib:all_srcs",
+        "//lucid/benchmark:all_srcs",
+        "//lucid/tuning:all_srcs",
         "//lucid/math:all_srcs",
         "//lucid/util:all_srcs",
     ],
@@ -29,6 +31,19 @@ lucid_cc_library(
     visibility = ["//visibility:public"],
 )
 
+lucid_cc_library(
+    name = "lucid_hdr",
+    hdrs = ["lucid.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":version",
+        "//lucid/benchmark",
+        "//lucid/lib:eigen",
+        "//lucid/math",
+        "//lucid/tuning",
+    ],
+)
+
 lucid_cc_py_binary(
     name = "lucid",
     srcs = ["main.cpp"],
@@ -38,11 +53,7 @@ lucid_cc_py_binary(
         "@pypi//tornado",
     ],
     deps = [
-        ":version",
-        "//lucid/benchmark:generator",
-        "//lucid/lib:eigen",
-        "//lucid/math:gram_matrix",
-        "//lucid/math:kernel",
+        ":lucid_hdr",
         "//lucid/util:error",
         "//lucid/util:matplotlibcpp",
         "@fmt",
