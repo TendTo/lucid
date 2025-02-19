@@ -44,6 +44,10 @@ class GaussianKernel final : public Kernel {
   Scalar operator()(const Vector& x1, const Vector& x2) const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone(const Vector& params) const override;
+
+ private:
+  Vector sigma_l_diagonal_;  ///< @f$ \text{diag}(\sigma_l^2) @f$ cached for performance.
+                             ///< Being vector, `.asDiagonal()` is needed to convert it to a diagonal matrix before use
 };
 
 std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel);
