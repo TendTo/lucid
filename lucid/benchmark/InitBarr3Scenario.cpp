@@ -799,6 +799,14 @@ const Matrix& InitBarr3Scenario::xp_samples() const {
         -1.99425024267857;
   return xp_samples_;
 }
+const Matrix& InitBarr3Scenario::x_limits() const {
+  static Matrix x_lim{Matrix::Zero(2, 2)};
+  if (x_lim.isZero()) {
+    x_lim << dynamic_cast<const RectSet*>(&set())->lower_bound(), dynamic_cast<const RectSet*>(&set())->upper_bound();
+    x_lim.transposeInPlace();
+  }
+  return x_lim;
+}
 Matrix InitBarr3Scenario::operator()(ConstMatrixRef x) const { return f_stoch(x); }
 
 Matrix InitBarr3Scenario::f_stoch(ConstMatrixRef x) {

@@ -166,17 +166,17 @@ inline bool annotate(const std::string& text, const double x, const double y) {
  */
 inline long figure(const long fig_number = -1) {
   const py::object res =
-      fig_number >= 0 ? detail::_interpreter::get().figure()(fig_number) : detail::_interpreter::get().figure();
+      fig_number >= 0 ? detail::_interpreter::get().figure()(fig_number) : detail::_interpreter::get().figure()();
   if (!res) throw std::runtime_error("Call to figure() failed.");
   return res.attr("number").cast<long>();
 }
 
 /** Keyword arguments for the plot function */
 struct PlotKwargs {
-  std::string fmt{"bo"};  ///< format string
-  float alpha{1};         ///< transparency
-  bool scalex{true};      ///< scale x-axis
-  bool scaley{true};      ///< scale y-axis
+  std::string fmt{""};  ///< format string
+  float alpha{1};       ///< transparency
+  bool scalex{true};    ///< scale x-axis
+  bool scaley{true};    ///< scale y-axis
 };
 
 /**
@@ -195,7 +195,7 @@ struct PlotKwargs {
 template <class ContainerX, class ContainerY>
 bool plot(const ContainerX& x, const ContainerY& y, const PlotKwargs& kwargs = {}) {
   if (x.size() != y.size()) throw std::invalid_argument("x and y data must have the same size");
-  return static_cast<bool>(detail::_interpreter::get().plot()(x, y, "fmt"_a = kwargs.fmt, "alpha"_a = kwargs.alpha,
+  return static_cast<bool>(detail::_interpreter::get().plot()(x, y, kwargs.fmt, "alpha"_a = kwargs.alpha,
                                                               "scalex"_a = kwargs.scalex, "scaley"_a = kwargs.scaley));
 }
 

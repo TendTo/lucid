@@ -33,6 +33,7 @@ class InitBarr3Scenario final : public Scenario {
 
   [[nodiscard]] const Matrix& x_samples() const;
   [[nodiscard]] const Matrix& xp_samples() const;
+  [[nodiscard]] const Matrix& x_limits() const;
 
   [[nodiscard]] constexpr Dimension dimension() const override { return 2; }
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
