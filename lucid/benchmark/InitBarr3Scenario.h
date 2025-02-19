@@ -18,6 +18,22 @@ namespace lucid::benchmark {
  */
 class InitBarr3Scenario final : public Scenario {
  public:
+  [[nodiscard]] constexpr int num_supp_per_dim() const { return 12; }
+  [[nodiscard]] constexpr int num_freq_per_dim_x() const { return 6; }
+  [[nodiscard]] constexpr double sigma_f() const { return 19.456; }
+  [[nodiscard]] constexpr double b_norm() const { return 25; }
+  [[nodiscard]] constexpr double kappa_b() const { return 1.0; }
+  [[nodiscard]] constexpr double gamma() const { return 18.312; }
+  [[nodiscard]] const Vector& sigma_l() const;
+  [[nodiscard]] constexpr int T() const { return 10; }
+  [[nodiscard]] constexpr double lambda() const { return 1e-5; }
+  [[nodiscard]] constexpr int N() const { return 1000; }
+  [[nodiscard]] constexpr double epsilon() const { return 0.0033; }
+  [[nodiscard]] constexpr bool autonomous() const { return true; }
+
+  [[nodiscard]] const Matrix& x_samples() const;
+  [[nodiscard]] const Matrix& xp_samples() const;
+
   [[nodiscard]] constexpr Dimension dimension() const override { return 2; }
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
   [[nodiscard]] constexpr int num_steps() const override { return 10; }
