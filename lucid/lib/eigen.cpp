@@ -58,10 +58,38 @@ Matrix peaks(const Matrix& x, const Matrix& y) {
 Matrix mvnrnd(const Vector& mu, const Matrix& sigma, const int seed) {
   return normal_random_variable{mu, sigma, seed}();
 }
+Matrix combvec(ConstMatrixRef m) {
+  if (m.rows() <= 1) return m;
+  // Optimised cases for low dimensions
+  switch (m.rows()) {
+    case 2:
+      return combvec(m.row(0), m.row(1));
+    case 3:
+      return combvec(m.row(0), m.row(1), m.row(2));
+    case 4:
+      return combvec(m.row(0), m.row(1), m.row(2), m.row(3));
+    case 5:
+      return combvec(m.row(0), m.row(1), m.row(2), m.row(3), m.row(4));
+    case 6:
+      return combvec(m.row(0), m.row(1), m.row(2), m.row(3), m.row(4), m.row(5));
+  }
+  // Default case for high dimensions
+  LUCID_ASSERT(m.rows() > 6, "m.rows() must be greater than 6");
+  Matrix combinations = combvec(m.row(0), m.row(1), m.row(2), m.row(3), m.row(4), m.row(5));
+  for (Dimension i = 6; i < m.cols(); i++) {
+    combinations = combvec(combinations, m.row(i));
+  }
+  return combinations;
+}
 Scalar rms(ConstMatrixRef x) {
   Scalar sum = 0;
   for (Index i = 0; i < x.size(); i++) sum += x.data()[i] * x.data()[i];
   return std::sqrt(sum / static_cast<double>(x.size()));
+}
+Vector normal_cdf(ConstVectorRef x, const Scalar sigma_f, const Scalar sigma_l) {
+  Vector y{x.size()};
+  for (Index i = 0; i < x.size(); i++) y(i) = normal_cdf(x(i), sigma_f, sigma_l);
+  return y;
 }
 
 }  // namespace lucid

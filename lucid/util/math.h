@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <boost/math/distributions/normal.hpp>
 #include <cmath>
 
 namespace lucid {
@@ -26,5 +27,15 @@ inline double peaks(const double x, const double y) {
   return 3.0 * std::pow((1.0 - x), 2) * std::exp(-std::pow(x, 2) - std::pow(y + 1.0, 2)) -
          10.0 * (x / 5.0 - std::pow(x, 3) - std::pow(y, 5)) * std::exp(-std::pow(x, 2) - std::pow(y, 2)) -
          1.0 / 3.0 * std::exp(-std::pow(x + 1.0, 2) - std::pow(y, 2));
+}
+/**
+ * Compute the Cumulative distribution function (CDF) of the normal distribution at the point `x`.
+ * @param x point at which to compute the CDF
+ * @param sigma_f @f$ \sigma_f @f$ value used in the normal distribution (mean)
+ * @param sigma_l @f$ \sigma_l @f$ value used in the normal distribution (standard deviation)
+ * @return value of the CDF at the given point
+ */
+inline Scalar normal_cdf(const Scalar x, const Scalar sigma_f, const Scalar sigma_l) {
+  return boost::math::cdf(boost::math::normal_distribution<Scalar>{sigma_f, sigma_l}, x);
 }
 }  // namespace lucid

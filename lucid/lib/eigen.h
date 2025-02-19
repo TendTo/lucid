@@ -140,17 +140,17 @@ inline Matrix diff(ConstMatrixRef m, const int n = 1, const bool rowwise = true)
   return diff(m.bottomRows(m.rows() - 1) - m.topRows(m.rows() - 1), n - 1, rowwise);
 }
 /**
- * Given @f$ m @f$ inputs `matrices`, where matrix @f$ A_i @f$ has @f$ n_i @f$ columns, return a matrix
+ * Given @f$ m @f$ inputs `matrices`, where matrix @f$ M_i @f$ has @f$ n_i @f$ columns, return a matrix
  * with @f$ \Prod_{i = 0}^m n_i @f$ column vectors,
  * where the columns consist of all combinations found by combining one column vector from each input matrix.
  * @param m1 first matrix
- * :param m2 second matrix
+ * @param m2 second matrix
  * @param matrices remaining matrices
  * @return matrix with all combinations of column vectors
  * @see https://www.mathworks.com/help/deeplearning/ref/combvec.html
  */
 template <class... Ms>
-inline Matrix combvec(ConstMatrixRef m1, ConstMatrixRef m2, const Ms&... matrices) {
+Matrix combvec(ConstMatrixRef m1, ConstMatrixRef m2, const Ms&... matrices) {
   Matrix res{m1.rows() + m2.rows(), m1.cols() * m2.cols()};
   res.topRows(m1.rows()) = m1.replicate(1, m2.cols());
   for (Index i = 0; i < m2.cols(); i++) {
@@ -161,6 +161,14 @@ inline Matrix combvec(ConstMatrixRef m1, ConstMatrixRef m2, const Ms&... matrice
   else
     return combvec(res, matrices...);
 }
+/**
+ * Given a @mxn matrix `m` treat each row vector as a separate matrix
+ * and return their combination using @ref combvec(m1, m2, matrices...).
+ * @param m matrix
+ * @return matrix with all combinations of column vectors
+ * @see https://www.mathworks.com/help/deeplearning/ref/combvec.html
+ */
+Matrix combvec(ConstMatrixRef m);
 /**
  * Calculate the root mean square of the elements of a vector.
  * @param x vector
@@ -187,6 +195,14 @@ Vector pdist(ConstMatrixRef x) {
   }
   return distances;
 }
+/**
+ * Compute the Cumulative distribution function (CDF) of the normal distribution at oll point listed in @x.
+ * @param x points at which to evaluate the CDF
+ * @param sigma_f @f$ \sigma_f @f$ value used in the normal distribution (mean)
+ * @param sigma_l @f$ \sigma_l @f$ value used in the normal distribution (standard deviation)
+ * @return vector of CDF values at each point in @x
+ */
+Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);
 
 }  // namespace lucid
 
@@ -196,6 +212,10 @@ Vector pdist(ConstMatrixRef x) {
 
 OSTREAM_FORMATTER(lucid::Matrix)
 OSTREAM_FORMATTER(lucid::Vector)
+OSTREAM_FORMATTER(lucid::ConstMatrixRef)
+OSTREAM_FORMATTER(lucid::ConstVectorRef)
+OSTREAM_FORMATTER(Eigen::Block<const lucid::Matrix>)
+OSTREAM_FORMATTER(Eigen::Block<const lucid::Vector>)
 OSTREAM_FORMATTER(lucid::SMatrix)
 OSTREAM_FORMATTER(lucid::SVector)
 

@@ -27,6 +27,9 @@ bazel_dep(name = "fmt", version = "10.2.1")
 # MIT | logging library
 bazel_dep(name = "spdlog", version = "1.15.1")
 
+# https://www.boost.org/users/license.html | Boost C++ Libraries for math
+bazel_dep(name = "boost.math", version = "1.83.0.bcr.1")
+
 # Apache License 2.0 | rules_python for building python targets
 bazel_dep(name = "rules_python", version = "1.1.0")
 
