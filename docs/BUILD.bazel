@@ -15,7 +15,7 @@ doxygen(
         # Header
         "licence=@par Licence:^^",
         # Math
-        "X=@f$ \\mathcal{X} @f$",
+        "X=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} @f$",
         "n=@f$ n @f$",
         "s=@f$ s @f$",
         "U=@f$ \\mathcal{U} @f$",
@@ -79,6 +79,7 @@ doxygen(
     html_header = "docs/_static/header.html",
     javadoc_autobrief = True,
     macro_expansion = True,
+    mathjax_version = "MathJax_3",
     project_brief = LUCID_DESCRIPTION,
     project_icon = "docs/_static/logo.svg",
     project_logo = "docs/_static/logo.svg",
