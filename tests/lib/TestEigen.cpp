@@ -123,3 +123,21 @@ TEST(TestEigen, Pdist3P) {
       7.3986362229914091;
   EXPECT_EQ(dist, expected);
 }
+
+TEST(TestEigen, FftshiftEven) {
+  Vector x{6};
+  x << 1, 2, 3, 4, 5, 6;
+  const Vector y = fftshift(x);
+  Vector expected{6};
+  expected << 4, 5, 6, 1, 2, 3;
+  EXPECT_EQ(y, expected);
+}
+
+TEST(TestEigen, FftshiftOdd) {
+  Vector x{7};
+  x << 1, 2, 3, 4, 5, 6, 7;
+  const Vector y = fftshift(x);
+  Vector expected{7};
+  expected << 5, 6, 7, 1, 2, 3, 4;
+  EXPECT_EQ(y, expected);
+}

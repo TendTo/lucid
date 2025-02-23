@@ -15,6 +15,9 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <Eigen/SparseCore>
+#include <unsupported/Eigen/FFT>
+
+#include "lucid/lib/eigen_extension.h"
 
 namespace lucid {
 using Scalar = double;
@@ -205,6 +208,44 @@ Vector pdist(ConstMatrixRef x) {
  * @return vector of CDF values at each point in @x
  */
 Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);
+
+/**
+ *  Rearranges a Fourier transform @x by shifting the zero-frequency component to the center of the array.
+ * If @x is a vector, then fftshift swaps the left and right halves of @x.
+ * If @x is a matrix, then fftshift swaps the first quadrant of @x with the third, and the second quadrant with the
+ * fourth.
+ * @param x matrix or vector
+ * @param axis axis along which to shift. If negative, the all axes are shifted
+ */
+// void fftshift(MatrixRef x, Index axis = -1);
+// Matrix fftshift(ConstMatrixRef x, Index axis = -1);
+/**
+ * Add `padding_rows` rows and `padding_cols` columns to the matrix `x` with the value `value`.
+ * @param x matrix to pad
+ * @param padding_rows padding rows
+ * @param padding_cols padding columns
+ * @param value padding value
+ * @return padded matrix
+ */
+template <class Derived, class T>
+Eigen::MatrixX<T> pad(const MatrixBase<Derived>& x, const Index padding_rows, const Index padding_cols,
+                      const T& value) {
+  Eigen::MatrixX<T> padded{
+      Eigen::MatrixX<T>::Constant(x.rows() + 2 * padding_rows, x.cols() + 2 * padding_cols, value)};
+  padded.block(padding_rows, padding_cols, x.rows(), x.cols()) = x;
+  return padded;
+}
+/**
+ * Add `padding_size` rows and columns to the matrix `x` with the value `value`.
+ * @param x matrix to pad
+ * @param padding_size padding rows and columns
+ * @param value padding value
+ * @return padded matrix
+ */
+template <class Derived, class T>
+Eigen::MatrixX<T> pad(const MatrixBase<Derived>& x, const Index padding_size, const T& value) {
+  return pad(x, padding_size, padding_size, value);
+}
 
 }  // namespace lucid
 

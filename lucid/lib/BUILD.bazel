@@ -19,7 +19,10 @@ cpplint()
 lucid_cc_library(
     name = "eigen",
     srcs = ["eigen.cpp"],
-    hdrs = ["eigen.h"],
+    hdrs = [
+        "eigen.h",
+        "eigen_extension.h",
+    ],
     implementation_deps = [
         "//lucid/util:error",
         "//lucid/util:math",
