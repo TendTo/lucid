@@ -47,21 +47,51 @@ class GaussianKernel;
  * @f[
  * w = (K + \lambda I)^{-1} y .
  * @f]
+ * Finally, when we want to predict the output for a new input @f$ x @f$, we can just compute
+ * @f[
+ * f^*(x) = k(x, x_1) w_1 + k(x, x_2) w_2 + \cdots + k(x, x_n) w_n
+ * @f]
+ * of, in matrix form
+ * @f[
+ * f^*(x) = K(x, x_\text{traning}) w
+ * @f]
+ * where @f$ K(x, X) @f$ is the vector of kernel evaluations between @f$ x @f$
+ * and the training inputs @f$ x_\text{traning} @f$.
+ * @tparam K type of kernel function
  */
+template <IsAnyOf<GaussianKernel> K>
 class KernelRidgeRegression final : public Regression {
  public:
   /**
-   * @brief Construct a new Kernel Ridge Regression object with the given parameters.
-   * Creating an instance of this regressor will immediately initialise the model to be used for prediction.
+   * Construct a new Kernel Ridge Regression object with the given parameters.
    * @tparam K type of kernel function
-   * @param kernel kernel function
-   * @param training_inputs input data used for training
-   * @param training_outputs output data used for training
-   * @param regularization_constant regularization constant
+   * @param kernel kernel function used to compute the Gram matrix
+   * @param training_inputs input data used for training. Each element should be a row vector
+   * @param training_outputs output data used for training. Each element should be a row vector
+   * @param regularization_constant regularization constant. Avoids overfitting by penalizing large coefficients
    */
-  template <IsAnyOf<GaussianKernel> K>
-  KernelRidgeRegression(K kernel, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
-                        Scalar regularization_constant);
+  KernelRidgeRegression(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
+                        Scalar regularization_constant = 0);
+  /**
+   * Construct a new Kernel Ridge Regression object with the given parameters.
+   * @tparam KernelArgs series of arguments to pass to the kernel constructor
+   * @param training_inputs input data used for training. Each element should be a row vector
+   * @param training_outputs output data used for training. Each element should be a row vector
+   * @param regularization_constant regularization constant. Avoids overfitting by penalizing large coefficients
+   * @param args arguments to pass to the kernel constructor
+   */
+  template <class... KernelArgs>
+  explicit KernelRidgeRegression(Matrix training_inputs, ConstMatrixRef training_outputs,
+                                 Scalar regularization_constant, KernelArgs&&... args)
+      : KernelRidgeRegression{K{std::forward<KernelArgs>(args)...}, training_inputs, training_outputs,
+                              regularization_constant} {}
+
+  [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
+
+ private:
+  K kernel_;                ///< Kernel function
+  Matrix training_inputs_;  ///< Training inputs
+  Matrix coefficients_;     ///< Coefficients of the linear combination describing the regression model
 };
 
 }  // namespace lucid

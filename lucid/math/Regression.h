@@ -14,33 +14,19 @@
 namespace lucid {
 
 /**
- * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X} @f$
- * and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
- * @param input @f$ n \times d_x @f$ matrix of row vectors in @f$ \mathcal{X} @f$
- * @return @f$ n \times d_y @f$ matrix of row vectors in @f$ \mathcal{Y} @f$
- */
-using Model = std::function<Matrix(ConstMatrixRef input)>;
-
-/**
  * Given two vector spaces @f$ \mathcal{X}, \mathcal{Y} @f$ and a map @f$ f: \mathcal{X} \to \mathcal{Y} @f$,
  * the goal is to produce a model @f$ f^*:\mathcal{X} \to \mathcal{Y} @f$ that best approximates @f$ f @f$.
  */
 class Regression {
  public:
   virtual ~Regression() = default;
-
-  /** @getter{model that is the current best approximation of @f$ f @f$, regression} */
-  [[nodiscard]] const Model& model() const { return model_; }
-
   /**
-   * Apply the model to a matrix of input vectors.
+   * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}
+   * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
    * @param x @f$ n \times d_x @f$ matrix of row vectors in @f$ \mathcal{X} @f$
    * @return @f$ n \times d_y @f$ matrix of row vectors in @f$ \mathcal{Y} @f$
    */
-  [[nodiscard]] Matrix operator()(ConstMatrixRef x) const { return model_(x); }
-
- protected:
-  Model model_;  ///< Predictor function
+  [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const Regression&);
