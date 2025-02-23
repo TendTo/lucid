@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <memory>
+
 #include "lucid/tuning/Optimiser.h"
 
 namespace lucid::tuning {

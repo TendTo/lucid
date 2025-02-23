@@ -10,6 +10,8 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "lucid/lucid.h"
@@ -42,6 +44,44 @@ void plot_points(const Matrix& points, const std::string& color = "blue", const 
   const Vector x = points.col(0);
   const Vector y = points.col(1);
   plt::scatter(x, y, {.s = size, .c = color});
+}
+
+void test_barrier_3_old() {
+  // Generic test
+  const benchmark::InitBarr3Scenario scenario;
+  scenario.plot();
+  Matrix inputs, outputs;
+  scenario.sample_transition(1000, inputs, outputs);
+  plot_points(inputs, "blue");
+  plot_points(outputs, "magenta");
+
+  constexpr double regularization_constant = 0.0000001;
+  const GaussianKernel kernel{1, Vector::Constant(scenario.dimension(), 0.3)};
+  const KernelRidgeRegression regression{kernel, inputs, outputs, regularization_constant};
+
+  // const Matrix samples = scenario.sample_element(10);
+  // plot_points(samples, "green");
+  Matrix res = regression(inputs);
+  std::cout << "RMS: " << rms(res - outputs) << std::endl;
+  plot_points(res, "cyan", 2);
+
+  plt::figure(2);
+  scenario.sample_transition(1000, inputs, outputs);
+  scenario.plot();
+  plot_points(inputs, "blue");
+  plot_points(outputs, "magenta");
+
+  res = regression(inputs);
+  std::cout << res.transpose() << std::endl;
+  std::cout << "RMS: " << rms(res - outputs) << std::endl;
+  plot_points(res, "cyan", 2);
+
+  plt::figure(3);
+  plt::scatter(inputs.col(0), inputs.col(1), outputs.col(0));
+
+  plt::figure(4);
+  plt::scatter(static_cast<Vector>(inputs.col(0)), static_cast<Vector>(inputs.col(1)), static_cast<Vector>(res.col(0)));
+  plt::show();
 }
 
 Matrix wavelengths(const Dimension dimension, const int num_frequencies_per_dimension) {
@@ -148,9 +188,9 @@ void cme_2_fourier(const benchmark::Scenario& scenario, const Basis& basis, Gram
     xp_basis_fourier.row(row) = basis(init_barr3.xp_samples().row(row), init_barr3.x_limits()).transpose();
   }
 
-  gram_matrix.compute_coefficients(xp_basis_fourier);
-  auto res = gram_matrix(x_basis_fourier);
-  fmt::println("res:\n{}", res);
+  // gram_matrix.compute_coefficients(xp_basis_fourier);
+  // auto res = gram_matrix(x_basis_fourier);
+  // fmt::println("res:\n{}", res);
 }
 
 void KBCLP(const benchmark::Scenario& scenario, const Basis& basis, const Kernel& kernel, GramMatrix& gram_matrix) {
@@ -172,7 +212,7 @@ std::vector<std::vector<Scalar>> to_vector(const Matrix& matrix) {
 }  // namespace
 
 /**
- * @brief Main function.
+ * Main function.
  * @param argc Number of arguments.
  * @param argv Arguments.
  * @return Execution status.
@@ -183,6 +223,8 @@ int main(int, char**) {
   // Seeded randomness
   std::srand(1);
 
+  test_barrier_3_old();
+#if 0
   benchmark::InitBarr3Scenario scenario;
 
   fmt::println("fake x sampling: {}x{}", scenario.x_samples().rows(), scenario.x_samples().cols());
@@ -205,42 +247,7 @@ int main(int, char**) {
   // auto to_basis = basis(x, x_limits);
   // std::cout << "OUT" << to_basis << std::endl;
 
-#if 0
-  // Generic test
-  const benchmark::InitBarr3Scenario scenario;
-  scenario.plot();
-  Matrix inputs, outputs;
-  scenario.sample_transition(1000, inputs, outputs);
-  plot_points(inputs, "blue");
-  plot_points(outputs, "magenta");
-
-  GaussianKernel kernel{1, Vector::Constant(scenario.dimension(), 0.3)};
-  GramMatrix gram_matrix{kernel, inputs, outputs, 0.0001};
-
-  // const Matrix samples = scenario.sample_element(10);
-  // plot_points(samples, "green");
-  Matrix res = gram_matrix(inputs);
-  std::cout << "RMS: " << rms(res - outputs) << std::endl;
-  plot_points(res, "cyan", 2);
-
-  plt::figure(2);
-  scenario.sample_transition(1000, inputs, outputs);
-  scenario.plot();
-  plot_points(inputs, "blue");
-  plot_points(outputs, "magenta");
-
-  res = gram_matrix(inputs);
-  std::cout << "RMS: " << rms(res - outputs) << std::endl;
-  plot_points(res, "cyan", 2);
-
-  plt::figure(3);
-  plt::scatter(inputs.col(0), inputs.col(1), outputs.col(0));
-
-  plt::figure(4);
-  plt::scatter(static_cast<Vector>(inputs.col(0)), static_cast<Vector>(inputs.col(1)), static_cast<Vector>(res.col(0)));
-
 #endif
-  // plt::show();
 }
 
 #pragma GCC diagnostic pop
