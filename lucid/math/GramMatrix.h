@@ -11,14 +11,25 @@
 #include <utility>
 #include <vector>
 
+#include "lucid/math/InverseGramMatrix.h"
 #include "lucid/math/Kernel.h"
+#include "lucid/util/exception.h"
 
 namespace lucid {
 
 /**
  * Gram Matrix obtained from a kernel function.
  * Given a vector space @X and a kernel function @f$ k: \mathcal{X} \times \mathcal{X} \to \mathbb{R} @f$,
- * the Gram matrix is defined as the matrix @f$ K \in \mathbb{R}^{n \times n} @f$ where @f$ K_{ij} = k(x_i, x_j) @f$.
+ * the Gram matrix is defined as the matrix @f$ K \in \mathbb{R}^{s \times s} @f$ where @f$ K_{ij} = k(x_i, x_j) @f$ or,
+ * equivalently,
+ * @f[
+ * K = \begin{bmatrix}
+ *     k(x_1, x_1) & k(x_1, x_2) & \cdots & k(x_1, x_s) \\
+ *     k(x_2, x_1) & k(x_2, x_2) & \cdots & k(x_2, x_s) \\
+ *     \vdots      & \vdots      & \ddots & \vdots      \\
+ *     k(x_s, x_1) & k(x_s, x_2) & \cdots & k(x_s, x_s)
+ * \end{bmatrix} .
+ * @f]
  */
 class GramMatrix {
  public:
@@ -34,7 +45,18 @@ class GramMatrix {
    * @param initial_states @s initial states used to compute the Gram matrix
    * @param regularization_constant regularization constant added to the diagonal of the Gram matrix
    */
-  GramMatrix(const Kernel& kernel, Matrix initial_states, double regularization_constant = 0);
+  template <class Derived>
+  GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states)
+      : gram_matrix_{initial_states.rows(), initial_states.rows()} {
+    gram_matrix_.diagonal() =
+        Vector::Constant(gram_matrix_.rows(), kernel(initial_states.row(0), initial_states.row(0)));
+    for (Index row_idx = 0; row_idx < gram_matrix_.rows(); ++row_idx) {
+      for (Index col_idx = 0; col_idx < row_idx; ++col_idx) {
+        gram_matrix_(row_idx, col_idx) = kernel(initial_states.row(row_idx), initial_states.row(col_idx));
+      }
+    }
+  }
+
   /**
    * Compute the Gram matrix from the kernel and the initial states and immediately compute the coefficients too.
    * The `initial_states` should be an @sxn matrix where @n is the dimension of the vector space @X
@@ -53,8 +75,7 @@ class GramMatrix {
    * @param transition_states @s row vector states obtained after applying the transition function to each initial state
    * @param regularization_constant regularization constant added to the diagonal of the Gram matrix
    */
-  GramMatrix(const Kernel& kernel, Matrix initial_states, const Matrix& transition_states,
-             double regularization_constant = 0);
+  // GramMatrix(const Kernel& kernel, Matrix initial_states);
 
   /**
    * Given the initial state @f$ x \in \mathcal{X} @f$, compute the coefficients @f$ \alpha \in \mathbb{R}^s @f$.
@@ -63,22 +84,70 @@ class GramMatrix {
    */
   void compute_coefficients(const Matrix& transition_states);
 
-  Vector operator()(const Vector& state) const;
-  Matrix operator()(const Matrix& state) const;
+  [[nodiscard]] InverseGramMatrix inverse() const { return InverseGramMatrix{*this}; }
 
-  /** @checker{ready to be used, i.e. the coefficients have been computed, Gramm matrix} */
-  [[nodiscard]] bool is_computed() const { return coefficients_.size() != 0; }
+  /**
+   * Add a diagonal term to the Gram matrix.
+   * Useful when dealing with ill-conditioned matrices or regularization.
+   * @param diagonal_term term to add to the diagonal
+   * @return reference to the object
+   */
+  GramMatrix& add_diagonal_term(Scalar diagonal_term);
+
+  /**
+   * Right multiply the Gram matrix with another matrix, @f$ KA @f$.
+   * @tparam Derived type of the other matrix
+   * @param A matrix to multiply with the Gram matrix
+   * @return result of the multiplication
+   */
+  template <class Derived>
+  Matrix operator*(const MatrixBase<Derived>& A) const {
+    if (A.rows() != gram_matrix_.rows())
+      throw exception::LucidInvalidArgumentException("A.rows() != gram_matrix.rows()");
+    return gram_matrix_ * A;
+  }
+
+  /**
+   * Right multiply the inverse of the Gram matrix with another matrix, @f$ K^{-1}A @f$.
+   * @tparam Derived type of the other matrix
+   * @param A matrix to multiply with the Gram matrix
+   * @return result of the multiplication
+   */
+  template <class Derived>
+  [[nodiscard]] Matrix inverse_mult(const MatrixBase<Derived>& A) const {
+    if (A.rows() != gram_matrix_.rows())
+      throw exception::LucidInvalidArgumentException("A.rows() != gram_matrix.rows()");
+    return gram_matrix_.selfadjointView<Eigen::Lower>().ldlt().solve(A);
+  }
+
   /** @getter{internal matrix structure, Gramm matrix} */
   [[nodiscard]] const Matrix& gram_matrix() const { return gram_matrix_; }
-  /** @getter{coefficients used to interpolate the transition function, Gramm matrix} */
-  [[nodiscard]] const Matrix& coefficients() const;
+  /** @getter{number of rows, Gramm matrix} */
+  [[nodiscard]] Dimension rows() const { return gram_matrix_.rows(); }
+  /** @getter{number of columns, Gramm matrix} */
+  [[nodiscard]] Dimension cols() const { return gram_matrix_.cols(); }
 
  private:
-  const Kernel& kernel_;   ///< Kernel function
-  Matrix initial_states_;  ///< Initial states
-  Matrix gram_matrix_;     ///< Gram matrix
-  Matrix coefficients_;    ///< Coefficients used to interpolate the transition function
+  Matrix gram_matrix_;  ///< Gram matrix
 };
+
+// Because of templates, we need to define the inverse Gram matrix multiplication in the header file.
+template <class Derived>
+Matrix InverseGramMatrix::operator*(const MatrixBase<Derived>& A) const {
+  return gram_matrix_.inverse_mult(A);
+}
+
+/**
+ * Left multiply the Gram matrix with another matrix, @f$ AK @f$.
+ * @tparam Derived type of the other matrix
+ * @param A matrix to multiply with the Gram matrix
+ * @param gram_matrix Gram matrix to multiply with
+ * @return result of the multiplication
+ */
+template <class Derived>
+Matrix operator*(const MatrixBase<Derived>& A, const GramMatrix& gram_matrix) {
+  return A * gram_matrix.gram_matrix();
+}
 
 std::ostream& operator<<(std::ostream& os, const GramMatrix& gram_matrix);
 

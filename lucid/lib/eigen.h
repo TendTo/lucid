@@ -34,6 +34,8 @@ using ConstMatrixRef = const Eigen::Ref<const Matrix>&;
 using MatrixRef = Eigen::Ref<Matrix>;
 using ConstVectorRef = const Eigen::Ref<const Vector>&;
 using VectorRef = Eigen::Ref<Vector>;
+template <class Derived>
+using MatrixBase = Eigen::MatrixBase<Derived>;
 
 /**
  * Create a 2D grid coordinates based on the coordinates contained in vectors `x` and `y`.
