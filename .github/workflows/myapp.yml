@@ -1,24 +1,24 @@
 name: lucid CI
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "lucid/**"
-      - "test/**"
-  pull_request:
-    branches: [main]
-    paths:
-      - "lucid/**"
-      - "test/**"
   workflow_dispatch:
+#  push:
+#    branches: [main]
+#    paths:
+#      - "lucid/**"
+#      - "test/**"
+#  pull_request:
+#    branches: [main]
+#    paths:
+#      - "lucid/**"
+#      - "test/**"
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     needs: build
 
@@ -70,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     needs: build
 
@@ -95,7 +95,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     needs: build
 
