@@ -29,9 +29,9 @@ lucid_pyblind_library(
     srcs = ["matplotlibcpp.cpp"],
     hdrs = ["matplotlibcpp.h"],
     implementation_deps = [":error"],
+    tags = ["no-dwyu"],
     visibility = ["//visibility:public"],
     deps = [
-        ":concepts",
         "//lucid/lib:eigen",
         "@rules_python//python/cc:current_py_cc_libs",
     ],
@@ -70,4 +70,5 @@ lucid_cc_library(
 lucid_cc_library(
     name = "math",
     hdrs = ["math.h"],
+    deps = ["@boost.math"],
 )

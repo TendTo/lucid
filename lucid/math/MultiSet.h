@@ -10,6 +10,7 @@
 #include <iosfwd>
 #include <memory>
 #include <random>
+#include <string>
 
 #include "lucid/math/Set.h"
 
@@ -18,6 +19,7 @@ namespace lucid {
 /**
  * Set composed of the union of multiple sets.
  * Checking whether a vector is in the set is equivalent to checking if it is in any of the sets.
+ * @todo Simplistic implementation of sampling and dimension.
  */
 class MultiSet final : public Set {
  public:
@@ -55,3 +57,11 @@ class MultiSet final : public Set {
 std::ostream& operator<<(std::ostream& os, const MultiSet& set);
 
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::MultiSet)
+
+#endif

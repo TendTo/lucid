@@ -55,6 +55,7 @@ lucid_cc_py_binary(
     deps = [
         ":lucid_hdr",
         "//lucid/util:error",
+        "//lucid/util:logging",
         "//lucid/util:matplotlibcpp",
         "@fmt",
     ],

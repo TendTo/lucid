@@ -19,6 +19,8 @@ std::uniform_int_distribution<std::size_t> dist;
 Matrix MultiSet::sample_element(const int num_samples) const {
   if (sets_.empty()) return Matrix::Zero(0, 0);
   // TODO(tend): not thread-safe
+  // TODO(tend): A random one is selected uniformly and then the sample is taken from that set.
+  // This is clearly not uniform in terms of the probability distribution of the union of the sets.
   dist.param(std::uniform_int_distribution<std::size_t>::param_type{0, sets_.size() - 1});
   Matrix samples(num_samples, dimension());
   for (int i = 0; i < num_samples; i++) samples.row(i) = sets_.at(dist(gen))->sample_element();

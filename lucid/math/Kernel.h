@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <utility>
 
 #include "lucid/lib/eigen.h"
 

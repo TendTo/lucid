@@ -21,7 +21,7 @@ class Rosenbrock {
   int n;
 
  public:
-  Rosenbrock(int n_) : n(n_) {}
+  explicit Rosenbrock(const int n_) : n(n_) {}
   double operator()(const Vector& x, Vector& grad) {
     double fx = 0.0;
     for (int i = 0; i < n; i += 2) {

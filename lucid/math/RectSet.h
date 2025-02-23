@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <string>
+
 #include "lucid/math/Set.h"
 
 namespace lucid {
@@ -46,3 +48,11 @@ class RectSet final : public Set {
 std::ostream& operator<<(std::ostream& os, const RectSet& set);
 
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::RectSet)
+
+#endif

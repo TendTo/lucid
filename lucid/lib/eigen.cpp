@@ -56,7 +56,7 @@ Matrix peaks(const Matrix& x, const Matrix& y) {
 }
 
 Matrix mvnrnd(const Vector& mu, const Matrix& sigma, const int seed) {
-  return normal_random_variable{mu, sigma, seed}();
+  return normal_random_variable{mu, sigma, seed}();  // NOLINT(whitespace/braces)
 }
 Matrix combvec(ConstMatrixRef m) {
   if (m.rows() <= 1) return m;

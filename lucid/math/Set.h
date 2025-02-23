@@ -8,6 +8,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <string>
 
 #include "lucid/lib/eigen.h"
 
@@ -64,3 +65,11 @@ class Set {
 std::ostream& operator<<(std::ostream& os, const Set& set);
 
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::Set)
+
+#endif

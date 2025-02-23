@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include <boost/math/distributions/normal.hpp>
+#include <boost/math/distributions/normal.hpp>  // NOLINT(build/include_order)
 #include <cmath>
 
 namespace lucid {
