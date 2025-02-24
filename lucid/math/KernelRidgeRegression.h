@@ -19,8 +19,8 @@ class GaussianKernel;
 /**
  * Ridge regression with a kernel function.
  * This is a linear regression with @f$ L_2 @f$ regularization.
- * Given two vector spaces @f$ \mathcal{X}, \mathcal{Y} @f$
- * and the dataset @f$ \{ (x_i, y_i) \}_{i=1}^n @f$, where @f$ x_i \in \mathcal{X} @f$ and @f$ y_i \in \mathcal{Y} @f$,
+ * Given two vector spaces @f$ \mathcal{X}, \mathcal{Y} @f$ and the training datasets @f$ \{ (x_i, y_i) \}_{i=1}^n @f$,
+ * where @f$ x_i \in \mathcal{X} @f$ and @f$ y_i \in \mathcal{Y} @f$,
  * the goal is to find the function @f$ f^*: \mathcal{X} \to \mathcal{Y} @f$ such that the sum of the squared errors is
  * minimized, i.e.
  * @f[
@@ -45,7 +45,7 @@ class GaussianKernel;
  * @f]
  * leads us to the closed-form solution:
  * @f[
- * w = (K + \lambda I)^{-1} y .
+ * w = (K + \lambda n I)^{-1} y .
  * @f]
  * Finally, when we want to predict the output for a new input @f$ x @f$, we can just compute
  * @f[
@@ -55,7 +55,7 @@ class GaussianKernel;
  * @f[
  * f^*(x) = K(x, x_\text{traning}) w
  * @f]
- * where @f$ K(x, X) @f$ is the vector of kernel evaluations between @f$ x @f$
+ * where @f$ K(x,  x_\text{traning}) @f$ is the vector of kernel evaluations between @f$ x @f$
  * and the training inputs @f$ x_\text{traning} @f$.
  * @tparam K type of kernel function
  */

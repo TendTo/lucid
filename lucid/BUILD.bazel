@@ -56,6 +56,7 @@ lucid_cc_py_binary(
         ":lucid_hdr",
         "//lucid/util:error",
         "//lucid/util:logging",
+        "//lucid/util:math",
         "//lucid/util:matplotlibcpp",
         "@fmt",
     ],

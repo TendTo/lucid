@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include "lucid/math/FeatureMap.h"
 #include "lucid/math/GaussianKernel.h"
 #include "lucid/math/GramMatrix.h"
 #include "lucid/math/Kernel.h"
@@ -16,3 +17,4 @@
 #include "lucid/math/Regression.h"
 #include "lucid/math/Sampler.h"
 #include "lucid/math/Set.h"
+#include "lucid/math/TruncatedFourierFeatureMap.h"

@@ -17,11 +17,11 @@ template <IsAnyOf<GaussianKernel> K>
 KernelRidgeRegression<K>::KernelRidgeRegression(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
                                                 const Scalar regularization_constant)
     : kernel_{std::move(kernel)}, training_inputs_{std::move(training_inputs)} {
-  // Compute gram matrix K
+  // Compute gram matrix K (nxn) with elements K_{ij} = k(x_i, x_j)
   GramMatrix gram_matrix{kernel_, training_inputs_};
-  // Add the regularization term to the diagonal K + λI
+  // Add the regularization term to the diagonal K + λnI
   gram_matrix.add_diagonal_term(regularization_constant * static_cast<double>(training_inputs_.rows()));
-  // Invert the gram matrix and compute the coefficients as (K + λI)^-1 y
+  // Invert the gram matrix and compute the coefficients as (K + λnI)^-1 y
   coefficients_ = gram_matrix.inverse() * training_outputs;
 }
 
