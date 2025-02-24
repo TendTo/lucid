@@ -35,19 +35,18 @@ inline double peaks(const double x, const double y) {
  * @param sigma_l @f$ \sigma_l @f$ value used in the normal distribution (standard deviation)
  * @return value of the CDF at the given point
  */
-inline Scalar normal_cdf(const Scalar x, const Scalar sigma_f, const Scalar sigma_l) {
-  return boost::math::cdf(boost::math::normal_distribution<Scalar>{sigma_f, sigma_l}, x);
+inline double normal_cdf(const double x, const double sigma_f, const double sigma_l) {
+  return boost::math::cdf(boost::math::normal_distribution<double>{sigma_f, sigma_l}, x);
 }
 
 /**
  * Raise a base to the power of an exponent: @f$ b^e @f$.
- * The exponent is expected to be a non-negative integer.
  * @param base @f$ b @f$ base
  * @param exp @f$ e @f$ exponent
  * @return base raised to the power of exp
  */
-inline long pow(long base, long exp) {
-  long result = 1;
+inline std::size_t pow(std::size_t base, std::size_t exp) {
+  std::size_t result = 1;
   while (exp) {
     if (exp & 1) result *= base;
     exp >>= 1;

@@ -39,7 +39,7 @@ class InverseGramMatrix {
   [[nodiscard]] const GramMatrix& gram_matrix() const { return gram_matrix_; }
 
   /**
-   * Multiply the inverse of the Gram matrix with another matrix, i.e. @f$ K^{-1}A @f$.
+   * Multiply the inverse of the Gram matrix with another matrix, @f$ K^{-1}A @f$.
    * @param A matrix to multiply with the inverse of the Gram matrix
    * @return result of the multiplication
    */
