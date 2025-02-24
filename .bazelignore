@@ -4,5 +4,4 @@ bazel-lucid
 bazel-out
 bazel-testlogs
 bazel-win-bazel
-.clwb
 .vscode
