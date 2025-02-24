@@ -7,3 +7,12 @@ lucid_cc_googletest(
     tags = ["util"],
     deps = ["//lucid/util:logging"],
 )
+
+lucid_cc_googletest(
+    name = "test_index_iterator",
+    tags = ["util"],
+    deps = [
+        "//lucid/util:exception",
+        "//lucid/util:index_iterator",
+    ],
+)

@@ -72,3 +72,10 @@ lucid_cc_library(
     hdrs = ["math.h"],
     deps = ["@boost.math"],
 )
+
+lucid_cc_library(
+    name = "index_iterator",
+    srcs = ["IndexIterator.cpp"],
+    hdrs = ["IndexIterator.h"],
+    implementation_deps = [":error"],
+)
