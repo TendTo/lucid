@@ -15,6 +15,7 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <Eigen/SparseCore>
+#include <unsupported/Eigen/CXX11/Tensor>
 #include <unsupported/Eigen/FFT>
 
 #include "lucid/lib/eigen_extension.h"
@@ -246,6 +247,12 @@ template <class Derived, class T>
 Eigen::MatrixX<T> pad(const MatrixBase<Derived>& x, const Index padding_size, const T& value) {
   return pad(x, padding_size, padding_size, value);
 }
+
+inline void fftn() {
+  Eigen::Tensor<double, 3> t{};
+  auto res = t.fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array<Index, 4>{0, 1, 2});
+  res.eval();
+};
 
 }  // namespace lucid
 

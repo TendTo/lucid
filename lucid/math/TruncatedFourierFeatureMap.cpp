@@ -13,10 +13,12 @@
 namespace lucid {
 
 TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencies, const Dimension input_dimension,
-                                                       ConstVectorRef sigma_l)
+                                                       ConstVectorRef sigma_l, Scalar sigma_f, Matrix x_limits)
     : num_frequencies_per_dimension_{num_frequencies},
       omega_{::lucid::pow(num_frequencies, input_dimension), input_dimension},
-      weights_{::lucid::pow(num_frequencies, input_dimension) * 2} {
+      weights_{::lucid::pow(num_frequencies, input_dimension) * 2 - 1},
+      sigma_f_{sigma_f},
+      x_limits_{std::move(x_limits)} {
   // Iterate over all possible combinations where the values in the vector can go from 0 to num_frequencies_ - 1
   // [ 0, ..., 0 ] -> [ 0, ..., 1 ] -> ... -> [ num_frequencies_ - 1, ..., num_frequencies_ - 1, ]
   IndexIterator it{static_cast<std::size_t>(input_dimension), num_frequencies_per_dimension_};
@@ -48,10 +50,36 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencie
   // TODO(tend): Repeat each column twice, except the first one, or repeat all?
   for (Index i = 0; i < single_weights.size(); i++) {
     weights_(2 * i) = single_weights(i);
-    weights_(2 * i + 1) = single_weights(i);
+    if (i != 0) weights_(2 * i - 1) = single_weights(i);
   }
 }
 
-Vector TruncatedFourierFeatureMap::operator()(ConstVectorRef x) const { return Vector::Zero(2 * x.size()); }
+Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
+  auto z = (x.transpose() - x_limits_.row(0)).cwiseQuotient(x_limits_.row(1) - x_limits_.row(0));
+
+  Vector z_proj = omega_ * z.transpose();
+  Vector trig{2 * z_proj.size() - 1};
+  trig(0) = 1;
+  for (Index i = 1; i < z_proj.size(); i++) {
+    trig(2 * i - 1) = std::cos(z_proj(i));
+    trig(2 * i) = std::sin(z_proj(i));
+  }
+
+  auto basis = sigma_f_ * weights_.cwiseProduct(trig);
+  if (Scalar checksum = (basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f_).abs().maxCoeff();
+      checksum > 1e-3) {
+    LUCID_WARN_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 1e-3", checksum);
+  }
+  // LUCID_ASSERT((basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f).abs().maxCoeff() <= 1e-3,
+  //              "Checksum failed: Fourier basis frequency bands don't add up");
+  return basis;
+}
+Matrix TruncatedFourierFeatureMap::map_matrix(ConstMatrixRef x) const { return (*this)(x); }
+
+Matrix TruncatedFourierFeatureMap::operator()(ConstMatrixRef x) const {
+  Matrix out{x.rows(), weights_.size()};
+  for (Index row = 0; row < x.rows(); row++) out.row(row) = map_vector(x.row(row)).transpose();
+  return out;
+}
 
 }  // namespace lucid

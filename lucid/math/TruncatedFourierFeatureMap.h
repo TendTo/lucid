@@ -39,10 +39,24 @@ namespace lucid {
  */
 class TruncatedFourierFeatureMap final : public FeatureMap {
  public:
-  TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l);
+  TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
+                             Matrix x_limits);
 
-  // Matrix operator()(ConstMatrixRef x) const;
-  Vector operator()(ConstVectorRef x) const;
+  /**
+   * Given an @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$ to compute the feature map.
+   * @param x input vector
+   * @return @f$ 2 M + 1 @f$ dimensional feature map
+   */
+  [[nodiscard]] Vector map_vector(ConstVectorRef x) const;
+  /**
+   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$
+   * to compute the feature map.
+   * @param x input vector
+   * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
+   */
+  [[nodiscard]] Matrix map_matrix(ConstMatrixRef x) const;
+
+  [[nodiscard]] Matrix operator()(ConstMatrixRef x) const;
 
   /** @getter{frequency matrix, truncated Fourier feature map} */
   [[nodiscard]] const Matrix& omega() const { return omega_; }
@@ -52,9 +66,11 @@ class TruncatedFourierFeatureMap final : public FeatureMap {
   [[nodiscard]] long num_frequencies() const { return num_frequencies_per_dimension_; }
 
  private:
-  const long num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
-  Matrix omega_;                              ///< Frequencies matrix
-  Vector weights_;                            ///< Weights matrix
+  long num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
+  Matrix omega_;                        ///< Frequencies matrix
+  Vector weights_;                      ///< Weights matrix
+  Scalar sigma_f_;                      ///< Sigma_f value
+  Matrix x_limits_;                     ///< Limits of the input space expressed as a matrix. The set is a rectangle
 };
 
 }  // namespace lucid

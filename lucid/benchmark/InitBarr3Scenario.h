@@ -19,7 +19,7 @@ namespace lucid::benchmark {
 class InitBarr3Scenario final : public Scenario {
  public:
   [[nodiscard]] constexpr int num_supp_per_dim() const { return 12; }
-  [[nodiscard]] constexpr int num_freq_per_dim_x() const { return 6; }
+  [[nodiscard]] constexpr int num_freq_per_dim() const { return 6; }
   [[nodiscard]] constexpr double sigma_f() const { return 19.456; }
   [[nodiscard]] constexpr double b_norm() const { return 25; }
   [[nodiscard]] constexpr double kappa_b() const { return 1.0; }
