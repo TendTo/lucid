@@ -109,7 +109,10 @@ class __attribute__((visibility("hidden"))) _interpreter {
   py::object get_3d_axis(const long fig_number) {
     const py::object fig = fig_number >= 0 ? figure()(fig_number) : gcf()();
     if (fig.is_none()) throw std::runtime_error("Call to figure() failed.");
-    return axes()("projection"_a = "3d");
+    const py::list fig_axes = fig.attr("axes");
+    if (fig_axes.empty()) return axes()("projection"_a = "3d");  // There is no axes, create one
+    if (fig_axes[0].attr("name").cast<std::string>() == "3d") return fig_axes[0];
+    throw std::runtime_error("The figure already contains an axis that is not 3D.");
   }
 
  private:
