@@ -21,7 +21,7 @@ template <class ArgType>
 class circulant_functor {
  public:
   explicit circulant_functor(const ArgType& arg) : arg_(arg) {}
-  const typename ArgType::Scalar& operator()(const Eigen::Index row, const Eigen::Index col) const {
+  typename ArgType::Scalar operator()(const Eigen::Index row, const Eigen::Index col) const {
     Eigen::Index index = row - col;
     if (index < 0) index += arg_.size();
     return arg_(index);
@@ -42,7 +42,7 @@ class shift_functor {
   shift_functor(const ArgType& arg, const Eigen::Index shift_rows, const Eigen::Index shift_cols)
       : arg_{arg}, shift_rows_{shift_rows}, shift_cols_{shift_cols} {}
 
-  const typename ArgType::Scalar& operator()(const Eigen::Index row, const Eigen::Index col) const {
+  typename ArgType::Scalar operator()(const Eigen::Index row, const Eigen::Index col) const {
     Eigen::Index shift_row = row + shift_rows_;
     Eigen::Index shift_col = col + shift_cols_;
     if (shift_row < 0) shift_row += arg_.rows();
@@ -76,7 +76,7 @@ class pad_functor {
         pad_right_{pad_right},
         value_{value} {}
 
-  const typename ArgType::Scalar& operator()(const Eigen::Index row, const Eigen::Index col) const {
+  typename ArgType::Scalar operator()(const Eigen::Index row, const Eigen::Index col) const {
     return row < pad_top_ || row >= arg_.rows() + pad_top_ || col < pad_left_ || col >= arg_.cols() + pad_left_
                ? value_
                : arg_(row - pad_top_, col - pad_left_);
@@ -88,7 +88,7 @@ class pad_functor {
   const Eigen::Index pad_bottom_;
   const Eigen::Index pad_left_;
   const Eigen::Index pad_right_;
-  const typename ArgType::Scalar& value_;
+  const typename ArgType::Scalar value_;
 };
 
 }  // namespace internal
