@@ -8,7 +8,6 @@
 #include <fmt/core.h>
 
 #include <chrono>
-#include <cmath>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -16,6 +15,7 @@
 
 #include "lucid/lucid.h"
 #include "lucid/util/logging.h"
+#include "lucid/util/math.h"
 #include "lucid/util/matplotlibcpp.h"
 #include "util/error.h"
 
@@ -84,6 +84,7 @@ void test_barrier_3_old() {
   plt::show();
 }
 
+#if 0
 Matrix wavelengths(const Dimension dimension, const int num_frequencies_per_dimension) {
   if (dimension < 1) throw std::invalid_argument("dimension must be at least 1");
   // Compute the total number of columns of the output matrix
@@ -153,50 +154,116 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, const Sc
   return generate_basis(omega_T, dimension, sigma_f, Vector::Constant(dimension, sigma_l),
                         num_frequencies_per_dimension);
 }
+#endif
 
-void cme_2_fourier(const benchmark::Scenario& scenario, const Basis& basis, GramMatrix& gram_matrix) {
-  const benchmark::InitBarr3Scenario& init_barr3 = dynamic_cast<const benchmark::InitBarr3Scenario&>(scenario);
-  // TODO(tend): double check this. Number of num_freq... and actual number of samples are not the same in matlab
-  const Dimension dim = init_barr3.dimension();
-  if (dim < 1) throw std::invalid_argument("dimension must be at least 1");
-  const int samples_per_dim = 2 * (init_barr3.num_freq_per_dim_x() - 1) + 2;
-  Matrix grid{1, samples_per_dim};
-
+Matrix lattice(const Matrix& x_limits, const Index samples_per_dim) {
+  Matrix x_lattice{1, samples_per_dim};
 #if 1
-  const Matrix delta_per_dim =
-      (init_barr3.x_limits().row(1) - init_barr3.x_limits().row(0)).array() / static_cast<double>(samples_per_dim);
-  grid.row(0) = arange(init_barr3.x_limits()(0, 0), init_barr3.x_limits()(1, 0), delta_per_dim(0));
-  for (Dimension i = 1; i < dim; ++i) {
-    grid =
-        combvec(grid, arange(init_barr3.x_limits()(0, i), init_barr3.x_limits()(1, i), delta_per_dim(i)).transpose());
+  const Matrix delta_per_dim = (x_limits.row(1) - x_limits.row(0)).array() / static_cast<double>(samples_per_dim);
+  x_lattice.row(0) = arange(x_limits(0, 0), x_limits(1, 0), delta_per_dim(0));
+  for (Dimension i = 1; i < x_limits.cols(); ++i) {
+    x_lattice = combvec(x_lattice, arange(x_limits(0, i), x_limits(1, i), delta_per_dim(i)).transpose());
   }
 #else
   // TODO(tend): must we exclude the endpoint?
-  grid.row(0) = Vector::LinSpaced(samples_per_dim, init_barr3.x_limits()(0, 0), init_barr3.x_limits()(1, 0));
-  for (Dimension i = 1; i < dim; ++i) {
-    grid = combvec(
-        grid, Vector::LinSpaced(samples_per_dim, init_barr3.x_limits()(0, i), init_barr3.x_limits()(1, i)).transpose());
+  grid.row(0) = Vector::LinSpaced(samples_per_dim, x_limits(0, 0), init_barr3(1, 0));
+  for (Dimension i = 1; i < x_limits.cols(); ++i) {
+    grid = combvec(grid, Vector::LinSpaced(samples_per_dim, x_limits(0, i), x_limits(1, i)).transpose());
   }
 #endif
-  grid.transposeInPlace();
-  fmt::println("GRID: \n{}", grid);
-
-  Matrix x_basis_fourier{grid.rows(), init_barr3.num_freq_per_dim_x() * init_barr3.num_freq_per_dim_x() * 2 - 1};
-  Matrix xp_basis_fourier{grid.rows(), init_barr3.num_freq_per_dim_x() * init_barr3.num_freq_per_dim_x() * 2 - 1};
-  for (Index row = 0; row < grid.rows(); row++) {
-    x_basis_fourier.row(row) = basis(grid.row(row), init_barr3.x_limits()).transpose();
-    xp_basis_fourier.row(row) = basis(init_barr3.xp_samples().row(row), init_barr3.x_limits()).transpose();
-  }
-
-  // gram_matrix.compute_coefficients(xp_basis_fourier);
-  // auto res = gram_matrix(x_basis_fourier);
-  // fmt::println("res:\n{}", res);
+  x_lattice.transposeInPlace();
+  return x_lattice;
 }
 
-void KBCLP(const benchmark::Scenario& scenario, const Basis& basis, const Kernel& kernel, GramMatrix& gram_matrix) {
+void plotting_fcn(const Matrix& XX_Fourier, const Index x_samples, const Index f_sampling, const Matrix& w_vec_Fourier,
+                  const Matrix& X_limits, const Matrix& w_vec) {
+  // For 2D case
+  const Matrix x1_original = XX_Fourier.col(0).reshaped(x_samples, x_samples);
+  const Matrix x2_original = XX_Fourier.col(1).reshaped(x_samples, x_samples);
+
+  const Matrix XX = lattice(X_limits, f_sampling);
+  const Matrix x1_reconstr = XX.col(0).reshaped(f_sampling, f_sampling);
+  const Matrix x2_reconstr = XX.col(1).reshaped(f_sampling, f_sampling);
+
+  static int fig_number = 0;
+  plt::plot_wireframe(x1_original, x2_original, w_vec_Fourier, {.fig_number = fig_number});
+  plt::plot_surface(x1_reconstr, x2_reconstr, w_vec.transpose(), {.fig_number = fig_number++});
+}
+
+Vector project(const Matrix& f, const Dimension dim, const Index n_per_dim, const Index samples_per_dim) {
+  // TODO(tend): this only works for 2 dimensions
+  const Eigen::MatrixXcd f_fft{fftn(f)};
+  // std::cout << "f" << std::endl << f << std::endl;
+
+  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+  fmt::println("n_pad: {}", n_pad);
+
+  Eigen::MatrixXcd padded_ft{pad(fftshift(f_fft), n_pad, std::complex<double>{})};
+  fmt::println("padded_ft: {}x{}", padded_ft.rows(), padded_ft.cols());
+  // std::cout << "padded_ft\n" << padded_ft << std::endl;
+  // std::cout << "ifftn\n" << ifftn(ifftshift(padded_ft)) << std::endl;
+
+  Matrix f_interp = ifftn(ifftshift(padded_ft)).array() * lucid::pow(n_per_dim / samples_per_dim, dim);
+  // std::cout << "f_interp\n" << f_interp << std::endl;
+  return f_interp.reshaped(Eigen::AutoSize, 1);
+}
+
+void cme_2_fourier(const benchmark::Scenario& scenario, const TruncatedFourierFeatureMap& tfm, const Kernel& kernel) {
+  const auto& init_barr3 = dynamic_cast<const benchmark::InitBarr3Scenario&>(scenario);
+  const auto& gaussian_kernel = dynamic_cast<const GaussianKernel&>(kernel);
+  // TODO(tend): double check this. Number of num_freq... and actual number of samples are not the same in matlab
+  const Dimension dim = init_barr3.dimension();
+  if (dim < 1) throw std::invalid_argument("dimension must be at least 1");
+  const int samples_per_dim = 2 * init_barr3.num_freq_per_dim();  // Should probably add + 1
+  const Matrix x_lattice{lattice(init_barr3.x_limits(), samples_per_dim)};
+  // fmt::println("Lattice: \n{}", x_fourier);
+
+  Matrix x_lattice_fourier{tfm(x_lattice)};
+  Matrix xp_fourier{tfm(init_barr3.xp_samples())};
+
+  // fmt::println("x_lattice_fourier: {}x{}\n{}", x_lattice_fourier.rows(), x_lattice_fourier.cols(),
+  // x_lattice_fourier);
+  // fmt::println("xp_fourier: {}x{}\n{}", xp_fourier.rows(), xp_fourier.cols(), xp_fourier);
+
+  const KernelRidgeRegression regression{gaussian_kernel, init_barr3.x_samples(), xp_fourier, init_barr3.lambda()};
+  Matrix w_vec_fourier = regression(x_lattice);
+  fmt::println("res: {}x{}\n{}", w_vec_fourier.rows(), w_vec_fourier.cols(), w_vec_fourier);
+
+  int factor = std::ceil(init_barr3.num_supp_per_dim() / static_cast<double>(samples_per_dim)) + 1;
+  fmt::println("factor: {}", factor);
+  int n_per_dim = factor * samples_per_dim;
+  fmt::println("n_per_dim: {}", n_per_dim);
+
+  Matrix w_vec{Matrix::Zero(lucid::pow(n_per_dim, dim), xp_fourier.cols())};
+  Matrix phi_vec{Matrix::Zero(lucid::pow(n_per_dim, dim), xp_fourier.cols())};
+  fmt::println("w_vec size: {}x{}", w_vec.rows(), w_vec.cols());
+  fmt::println("phi_vec size: {}x{}", phi_vec.rows(), phi_vec.cols());
+  std::cout << std::endl;
+
+  for (Index i = 0; i < w_vec.cols() && i < 3; ++i) {
+    fmt::println("Progress {}/{}", i + 1, w_vec.cols());
+    // TODO(tend): this only works for 2 dimensions
+    const Matrix w{w_vec_fourier.col(i).reshaped(samples_per_dim, samples_per_dim).transpose()};
+
+    std::cout << std::endl;
+    w_vec.col(i) = project(w, dim, n_per_dim, samples_per_dim);
+    std::cout << "w_vec\n" << w_vec.col(i).transpose() << std::endl;
+
+    const Matrix phi{x_lattice_fourier.col(i).reshaped(samples_per_dim, samples_per_dim).transpose()};
+    phi_vec.col(i) = project(phi, dim, n_per_dim, samples_per_dim);
+    // std::cout << "phi_vec\n" << phi_vec << std::endl;
+
+    Matrix a = w_vec_fourier.col(i).reshaped(samples_per_dim, samples_per_dim).transpose();
+    Matrix p =
+        project(w, dim, n_per_dim, samples_per_dim).reshaped(samples_per_dim * 2, samples_per_dim * 2).transpose();
+    plotting_fcn(x_lattice, samples_per_dim, samples_per_dim * 2, a, init_barr3.x_limits(), p);
+  }
+}
+
+void KBCLP(const benchmark::Scenario& scenario, const TruncatedFourierFeatureMap& tfm, const Kernel& kernel) {
   const benchmark::InitBarr3Scenario& init_barr3 = dynamic_cast<const benchmark::InitBarr3Scenario&>(scenario);
-  const int maxNumFreqPerDim = init_barr3.num_freq_per_dim_x() - 1;  // Deducting the zero frequency level
-  cme_2_fourier(scenario, basis, gram_matrix);
+  const int maxNumFreqPerDim = init_barr3.num_freq_per_dim() - 1;  // Deducting the zero frequency level
+  cme_2_fourier(scenario, tfm, kernel);
 }
 
 std::vector<std::vector<Scalar>> to_vector(const Matrix& matrix) {
@@ -218,30 +285,42 @@ std::vector<std::vector<Scalar>> to_vector(const Matrix& matrix) {
  * @return Execution status.
  */
 int main(int, char**) {
-  LUCID_LOG_INIT_VERBOSITY(3);
+  LUCID_LOG_INIT_VERBOSITY(1);
   plt::backend("WebAgg");
   // Seeded randomness
   std::srand(1);
 
-  test_barrier_3_old();
-#if 0
+#if 1
   benchmark::InitBarr3Scenario scenario;
 
   fmt::println("fake x sampling: {}x{}", scenario.x_samples().rows(), scenario.x_samples().cols());
   fmt::println("fake xp sampling: {}x{}", scenario.xp_samples().rows(), scenario.xp_samples().cols());
   GaussianKernel kernel{scenario.sigma_f(), scenario.sigma_l()};
-  GramMatrix gram_matrix{kernel, scenario.x_samples(), scenario.lambda() * scenario.N()};
-  fmt::print("fake gram matrix: {}x{}\n", gram_matrix.gram_matrix().rows(), gram_matrix.gram_matrix().cols());
 
-  Matrix omega_T = wavelengths(scenario.dimension(), scenario.num_freq_per_dim_x());
-  fmt::println("fake omega_T: {}x{}", omega_T.rows(), omega_T.cols());
-  fmt::println("fake omega_T: {}", omega_T);
+  // Matrix omega_T = wavelengths(scenario.dimension(), scenario.num_freq_per_dim());
+  // // fmt::println("fake omega_T: {}x{}", omega_T.rows(), omega_T.cols());
+  // // fmt::println("fake omega_T: {}", omega_T);
+  //
+  // const Basis basis = generate_basis(omega_T, scenario.dimension(), scenario.sigma_f(), scenario.sigma_l(),
+  //                                    scenario.num_freq_per_dim());
 
-  const Basis basis = generate_basis(omega_T, scenario.dimension(), scenario.sigma_f(), scenario.sigma_l(),
-                                     scenario.num_freq_per_dim_x());
+  // KBCLP(scenario, basis, kernel);
+  TruncatedFourierFeatureMap tfm{scenario.num_freq_per_dim(), scenario.dimension(), scenario.sigma_l(),
+                                 scenario.sigma_f(), scenario.x_limits()};
+  fmt::println("fake omega_T: {}x{}", tfm.omega().rows(), tfm.omega().cols());
+  fmt::println("fake omega_T: {}", tfm.omega());
+  fmt::println("fake weights: {}x{}", tfm.weights().rows(), tfm.weights().cols());
+  fmt::println("fake weights: {}", tfm.weights());
+  fmt::println("scenario.x_samples: {}x{}", scenario.x_samples().rows(), scenario.x_samples().cols());
 
-  KBCLP(scenario, basis, kernel, gram_matrix);
+  // Matrix exp = basis(scenario.x_samples().row(0), scenario.x_limits());
+  // fmt::println("fake exp: {}x{}", exp.rows(), exp.cols());
+  // fmt::println("fake exp: {}", exp);
+  std::cout << std::endl;
 
+  KBCLP(scenario, tfm, kernel);
+
+  plt::show();
   // Matrix omega_T = wavelengths(dim, frequencies).transpose();
   // auto basis = generate_basis(omega_T, dim, sigma_f, sigma_l, frequencies);
   // auto to_basis = basis(x, x_limits);
