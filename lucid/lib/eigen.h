@@ -210,30 +210,76 @@ Vector pdist(ConstMatrixRef x) {
  */
 Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);
 
-template <class Derived>
-Eigen::MatrixXcd fft2(const MatrixBase<Derived>& x) {
+/**
+ * Perform a 2D Fast Fourier Transform (FFT) on the input matrix.
+ * @param x input matrix
+ * @return FFT of the input matrix
+ */
+inline Eigen::MatrixXcd fft2(Matrix x) {
+  Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> tempRow;
+  Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> tempCol;
   Eigen::MatrixXcd f_fft{x.rows(), x.cols()};
-  Eigen::VectorXcd temp_row{f_fft.cols()};
-  Eigen::VectorXcd temp_col{f_fft.rows()};
 
   Eigen::FFT<double> fft;
-  fft.SetFlag(Eigen::FFT<double>::Flag::Unscaled);
-  for (Index row = 0; row < x.rows(); row++) {
-    fft.fwd(temp_row, x.row(row));
-    f_fft.row(row) = temp_row;
+  for (int k = 0; k < x.rows(); k++) {
+    fft.fwd(tempRow, x.row(k));
+    f_fft.row(k) = tempRow;
   }
-  for (Index col = 0; col < f_fft.cols(); ++col) {
-    fft.fwd(temp_col, f_fft.col(col));
-    f_fft.col(col) = temp_col;
+  for (int k = 0; k < x.cols(); k++) {
+    fft.fwd(tempCol, f_fft.col(k));
+    f_fft.col(k) = tempCol;
   }
   return f_fft;
 }
 
-// inline void fftn() {
-//   Eigen::Tensor<double, 3> t{};
-//   auto res = t.fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array<Index, 4>{0, 1, 2});
-//   res.eval();
-// }
+/**
+ * Perform a 2D inverse Fast Fourier Transform (FFT) on the input matrix.
+ * @param x input matrix
+ * @return inverse FFT of the input matrix
+ * @todo Fix the implementation (it is wrong)
+ */
+inline Matrix ifft2(Eigen::MatrixXcd x) {
+  Eigen::Matrix<double, Eigen::Dynamic, 1> tempRow;
+  Eigen::Matrix<double, 1, Eigen::Dynamic> tempCol;
+  Matrix i_fft{x.rows(), x.cols()};
+
+  Eigen::FFT<double> fft;
+  for (int k = 0; k < x.rows(); k++) {
+    fft.inv(tempRow, x.row(k));
+    i_fft.row(k) = tempRow;
+  }
+  for (int k = 0; k < x.cols(); k++) {
+    Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> castedCol{i_fft.col(k).cast<std::complex<double>>()};
+    fft.inv(tempCol, castedCol);
+    i_fft.col(k) = tempCol;
+  }
+  return i_fft;
+}
+
+template <typename T>
+using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+
+template <typename Scalar, int rank, typename sizeType>
+auto MatrixCast(const Eigen::Tensor<Scalar, rank>& tensor, const sizeType rows, const sizeType cols) {
+  return Eigen::Map<const MatrixType<Scalar>>(tensor.data(), rows, cols);
+}
+
+template <typename Scalar>
+auto TensorCast(const MatrixType<Scalar>& matrix) {
+  return Eigen::TensorMap<Eigen::Tensor<const Scalar, 2>>(matrix.data(), std::array{matrix.rows(), matrix.cols()});
+}
+
+inline Eigen::MatrixXcd fftn(const Matrix& x) {
+  Eigen::Tensor<double, 2> t{TensorCast(x)};
+  Eigen::Tensor<std::complex<double>, 2> res = t.fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{0, 1});
+  return MatrixCast(res, x.rows(), x.cols());
+}
+
+inline Matrix ifftn(const Eigen::MatrixXcd& x) {
+  Eigen::Tensor<std::complex<double>, 2> t{TensorCast(x)};
+  Eigen::Tensor<std::complex<double>, 2> res = t.fft<Eigen::BothParts, Eigen::FFT_REVERSE>(std::array{0, 1});
+  return MatrixCast(res, x.rows(), x.cols()).real();
+}
 
 }  // namespace lucid
 
