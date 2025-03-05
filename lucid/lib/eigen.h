@@ -215,14 +215,14 @@ Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);
  * @param x input matrix
  * @return FFT of the input matrix
  */
-inline Eigen::MatrixXcd fft2(Matrix x) {
-  Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> tempRow;
-  Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> tempCol;
+inline Eigen::MatrixXcd fft2(const Matrix& x) {
+  Eigen::VectorXcd tempRow;
+  Eigen::VectorXcd tempCol;
   Eigen::MatrixXcd f_fft{x.rows(), x.cols()};
 
   Eigen::FFT<double> fft;
   for (int k = 0; k < x.rows(); k++) {
-    fft.fwd(tempRow, x.row(k));
+    fft.fwd(tempRow, x.row(k).eval());
     f_fft.row(k) = tempRow;
   }
   for (int k = 0; k < x.cols(); k++) {
@@ -236,24 +236,22 @@ inline Eigen::MatrixXcd fft2(Matrix x) {
  * Perform a 2D inverse Fast Fourier Transform (FFT) on the input matrix.
  * @param x input matrix
  * @return inverse FFT of the input matrix
- * @todo Fix the implementation (it is wrong)
  */
-inline Matrix ifft2(Eigen::MatrixXcd x) {
-  Eigen::Matrix<double, Eigen::Dynamic, 1> tempRow;
-  Eigen::Matrix<double, 1, Eigen::Dynamic> tempCol;
-  Matrix i_fft{x.rows(), x.cols()};
+inline Matrix ifft2(const Eigen::MatrixXcd& x) {
+  Eigen::VectorXcd tempRow;
+  Eigen::VectorXcd tempCol;
+  Eigen::MatrixXcd i_fft{x.rows(), x.cols()};
 
   Eigen::FFT<double> fft;
   for (int k = 0; k < x.rows(); k++) {
-    fft.inv(tempRow, x.row(k));
+    fft.inv(tempRow, x.row(k).eval());
     i_fft.row(k) = tempRow;
   }
   for (int k = 0; k < x.cols(); k++) {
-    Eigen::Matrix<std::complex<double>, 1, Eigen::Dynamic> castedCol{i_fft.col(k).cast<std::complex<double>>()};
-    fft.inv(tempCol, castedCol);
+    fft.inv(tempCol, i_fft.col(k));
     i_fft.col(k) = tempCol;
   }
-  return i_fft;
+  return i_fft.real();
 }
 
 template <typename T>

@@ -10,7 +10,11 @@
 using lucid::circulant;
 using lucid::combvec;
 using lucid::diff;
+using lucid::fft2;
+using lucid::fftn;
 using lucid::fftshift;
+using lucid::ifft2;
+using lucid::ifftn;
 using lucid::ifftshift;
 using lucid::Matrix;
 using lucid::mvnrnd;
@@ -287,6 +291,44 @@ TEST(TestEigen, PadSingleValueMatrixDifferentValueTopBottomLeftRight) {
       9, 9, 9, 9, 9, 9, 9, 9, 9;          //
 
   EXPECT_EQ(y, expected);
+}
+
+TEST(TestEigen, Fft2) {
+  Matrix x{3, 3};
+  x << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  const Eigen::MatrixXcd y = fft2(x);
+  Eigen::MatrixXcd expected{3, 3};
+  expected << std::complex<double>{45, 0}, std::complex<double>{-4.5, 2.59807621135332},
+      std::complex<double>{-4.5, -2.59807621135332}, std::complex<double>{-13.5, 7.79422863405995},
+      std::complex<double>{0, 0}, std::complex<double>{0, 0}, std::complex<double>{-13.5, -7.79422863405995},
+      std::complex<double>{0, 0}, std::complex<double>{0, 0};
+  EXPECT_TRUE(y.isApprox(expected));
+}
+
+TEST(TestEigen, Fftn) {
+  Matrix x{3, 3};
+  x << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  const Eigen::MatrixXcd y = fft2(x);
+  Eigen::MatrixXcd expected{3, 3};
+  expected << std::complex<double>{45, 0}, std::complex<double>{-4.5, 2.59807621135332},
+      std::complex<double>{-4.5, -2.59807621135332}, std::complex<double>{-13.5, 7.79422863405995},
+      std::complex<double>{0, 0}, std::complex<double>{0, 0}, std::complex<double>{-13.5, -7.79422863405995},
+      std::complex<double>{0, 0}, std::complex<double>{0, 0};
+  EXPECT_TRUE(y.isApprox(expected));
+}
+
+TEST(TestEigen, IFft2) {
+  Matrix x{3, 3};
+  x << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  const Matrix y = ifft2(fft2(x));
+  EXPECT_EQ(y, x);
+}
+
+TEST(TestEigen, IFftn) {
+  Matrix x{3, 3};
+  x << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  const Matrix y = ifftn(fftn(x));
+  EXPECT_TRUE(y.isApprox(x));
 }
 
 TEST(TestEigen, StaticAssertions) {
