@@ -52,6 +52,13 @@ void RectSet::plot(const std::string& color) const {
 #endif
 }
 
+RectSet::operator Matrix() const {
+  Matrix x_lim{2, lb_.size()};
+  x_lim << lb_, ub_;
+  x_lim.transposeInPlace();
+  return x_lim;
+}
+
 Matrix RectSet::sample_element(const int num_samples) const {
   Matrix samples(num_samples, lb_.size());
   for (int i = 0; i < num_samples; i++) {

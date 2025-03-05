@@ -40,6 +40,8 @@ class RectSet final : public Set {
 
   void plot(const std::string& color) const override;
 
+  operator Matrix() const;
+
  private:
   Vector lb_;  ///< Lower bound vector
   Vector ub_;  ///< Upper bound vector
