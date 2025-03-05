@@ -28,7 +28,7 @@ class InitBarr3Scenario final : public Scenario {
   [[nodiscard]] constexpr int T() const { return 10; }
   [[nodiscard]] constexpr double lambda() const { return 1e-5; }
   [[nodiscard]] constexpr int N() const { return 1000; }
-  [[nodiscard]] constexpr double epsilon() const { return 0.0033; }
+  [[nodiscard]] constexpr double epsilon() const { return 1e-3; }
   [[nodiscard]] constexpr bool autonomous() const { return true; }
 
   [[nodiscard]] const Matrix& x_samples() const;

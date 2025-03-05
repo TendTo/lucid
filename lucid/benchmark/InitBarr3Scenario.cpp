@@ -11,7 +11,7 @@
 namespace lucid::benchmark {
 
 const Vector& InitBarr3Scenario::sigma_l() const {
-  static Vector sigma_l_{dimension()};
+  static Vector sigma_l_{Vector::Zero(dimension())};
   if (sigma_l_(0) == 0) sigma_l_ << 30, 23.568;
   return sigma_l_;
 }

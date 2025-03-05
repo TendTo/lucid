@@ -58,6 +58,8 @@ class TruncatedFourierFeatureMap final : public FeatureMap {
 
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const;
 
+  [[nodiscard]] Dimension dimension() const { return weights_.size(); }
+
   /** @getter{frequency matrix, truncated Fourier feature map} */
   [[nodiscard]] const Matrix& omega() const { return omega_; }
   /** @getter{weights matrix, truncated Fourier feature map} */

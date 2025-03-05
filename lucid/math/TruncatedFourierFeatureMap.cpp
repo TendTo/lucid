@@ -68,10 +68,9 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   auto basis = sigma_f_ * weights_.cwiseProduct(trig);
   if (Scalar checksum = (basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f_).abs().maxCoeff();
       checksum > 1e-3) {
-    LUCID_WARN_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 1e-3", checksum);
+    // TODO(tend): this will probably need to be a warning. Maybe only put it for the matrix case?
+    LUCID_TRACE_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 1e-3", checksum);
   }
-  // LUCID_ASSERT((basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f).abs().maxCoeff() <= 1e-3,
-  //              "Checksum failed: Fourier basis frequency bands don't add up");
   return basis;
 }
 Matrix TruncatedFourierFeatureMap::map_matrix(ConstMatrixRef x) const { return (*this)(x); }
