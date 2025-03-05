@@ -59,6 +59,7 @@ lucid_cc_py_binary(
         "//lucid/util:math",
         "//lucid/util:matplotlibcpp",
         "@fmt",
+        "@gurobi",
     ],
 )
 

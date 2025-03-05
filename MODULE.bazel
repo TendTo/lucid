@@ -55,6 +55,14 @@ bazel_dep(name = "depend_on_what_you_use", version = "0.7.0", dev_dependency = T
 # External dependencies not available in the Bazel registry
 #################################################################################
 
+new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
+
+new_local_repository(
+    name = "gurobi",
+    build_file = "//third_party:gurobi.BUILD.bazel",
+    path = "/opt/gurobi1201/linux64",
+)
+
 # GitHub repositories
 
 github_archive = use_repo_rule("//tools:git_archive.bzl", "github_archive")

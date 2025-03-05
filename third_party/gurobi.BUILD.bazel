@@ -1,0 +1,28 @@
+"""Gurobi library for Bazel"""
+
+load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+
+licenses(["notice"])
+
+package(default_visibility = ["//visibility:public"])
+
+cc_import(
+    name = "_gurobi_c",
+    hdrs = ["include/gurobi_c.h"],
+    shared_library = "lib/libgurobi120.so",
+    visibility = ["//visibility:private"],
+)
+
+cc_import(
+    name = "_gurobi_cpp",
+    hdrs = ["include/gurobi_c++.h"],
+    static_library = "lib/libgurobi_c++.a",
+    visibility = ["//visibility:private"],
+    deps = [":_gurobi_c"],
+)
+
+cc_library(
+    name = "gurobi",
+    deps = [":_gurobi_cpp"],
+    includes = ["include"],
+)
