@@ -1,4 +1,4 @@
-# LUCID: Lifted Uncertainty Control Invariant Dynamics
+# LUCID: Lifting-based Uncertain Control Invariant Dynamics
 
 [![lucid CI](https://github.com/TendTo/lucid/actions/workflows/myapp.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/myapp.yml)
 [![pylucid CI](https://github.com/TendTo/lucid/actions/workflows/pymyapp.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/pymyapp.yml)
