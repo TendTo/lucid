@@ -6,6 +6,9 @@
 
 Simple modern template for a C++ project using Bazel with modules.
 
+> My integral is your table.  
+> -- _[Oliver Schön](https://oliverschon.com/)_
+
 ## Folder structure
 
 The folder structure is as follows:
