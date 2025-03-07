@@ -23,6 +23,8 @@ flowchart LR
     m1>"(M1) Useful tool"]
     subgraph Extensions
         e1(["(E1) Inductive k barriers"])
+        m2>"(M2) Control synthesis"]
+        e2(["(E2) Reachability specifications"])
     end
     a1 --> a2 --> a3 --> a4
     wp1 --> m1
