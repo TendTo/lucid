@@ -31,7 +31,16 @@ Matrix MultiSet::sample_element(const int num_samples) const {
 bool MultiSet::operator()(ConstMatrixRef x) const {
   return std::ranges::any_of(sets_, [&x](const std::unique_ptr<Set>& set) { return set->contains(x); });
 }
-Matrix MultiSet::lattice(const Eigen::VectorX<Index>&, const bool) const { LUCID_NOT_SUPPORTED("Lattice on MultSet"); }
+Matrix MultiSet::lattice(const Eigen::VectorX<Index>& points_per_dim, const bool include_endpoints) const {
+  Matrix rect_multiset_lattice{0, dimension()};
+  for (const auto& set : sets_) {
+    const Matrix initial_lattice{set->lattice(points_per_dim, include_endpoints)};
+    rect_multiset_lattice.conservativeResize(rect_multiset_lattice.rows() + initial_lattice.rows(),
+                                             initial_lattice.cols());
+    rect_multiset_lattice.bottomRows(initial_lattice.rows()) = initial_lattice;
+  }
+  return rect_multiset_lattice;
+}
 void MultiSet::plot(const std::string& color) const {
   std::ranges::for_each(sets_, [&color](const std::unique_ptr<Set>& set) { set->plot(color); });
 }

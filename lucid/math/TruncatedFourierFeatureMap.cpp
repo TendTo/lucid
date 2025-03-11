@@ -24,7 +24,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencie
   IndexIterator it{static_cast<std::size_t>(input_dimension), num_frequencies_per_dimension_};
   for (Index row = 0; it; ++it, ++row) {
     // For each combination, compute the product of the sines and cosines of the values in the vector
-    // TODO(tend): We can probably remove the revrse
+    // TODO(tend): We can probably remove the reverse
     Index col = 0;
     for (const Index val : std::views::reverse(it.indexes())) omega_(row, col++) = 2 * M_PI * static_cast<double>(val);
   }

@@ -28,6 +28,14 @@ class RectSet final : public Set {
    * @param seed random seed used of the sampling from this moment forward. If negative, the seed is not set
    */
   RectSet(Vector lb, Vector ub, int seed = -1);
+  /**
+   * Construct a rectangular set from lower and upper bounds.
+   * Both bounds must belong to the same vector space.
+   * @param lb lower bound vector
+   * @param ub upper bound vector
+   * @param seed random seed used of the sampling from this moment forward. If negative, the seed is not set
+   */
+  RectSet(std::initializer_list<Scalar> lb, std::initializer_list<Scalar> ub, int seed = -1);
 
   [[nodiscard]] Dimension dimension() const override { return lb_.size(); }
   /** @getter{lower bound, rectangular set} */

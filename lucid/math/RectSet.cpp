@@ -15,21 +15,29 @@
 #include "lucid/util/matplotlibcpp.h"
 #endif
 
+namespace lucid {
+
 namespace {
 
 std::random_device rd;   // Will be used to obtain a seed for the random number engine
 std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
 std::uniform_real_distribution<> dis(0.0, 1.0);
+Vector initializer_list_to_vector(std::initializer_list<Scalar> list) {
+  Vector v(list.size());
+  std::ranges::copy(list, v.data());
+  return v;
+}
 
 }  // namespace
-
-namespace lucid {
 
 RectSet::RectSet(Vector lb, Vector ub, const int seed) : lb_{std::move(lb)}, ub_{std::move(ub)} {
   if (lb_.size() != ub_.size()) LUCID_INVALID_ARGUMENT("lb and ub", "must have the same size");
   if (lb_.size() == 0) LUCID_INVALID_ARGUMENT("lb and ub", "must have at least one element");
   if (seed >= 0) gen.seed(seed);
 }
+RectSet::RectSet(const std::initializer_list<Scalar> lb, const std::initializer_list<Scalar> ub, const int seed)
+    : RectSet{initializer_list_to_vector(lb), initializer_list_to_vector(ub), seed} {}
+
 bool RectSet::operator()(ConstMatrixRef x) const {
   if (x.rows() != lb_.rows() || x.cols() != lb_.cols()) {
     LUCID_INVALID_ARGUMENT_EXPECTED("x shape", fmt::format("{} x {}", x.rows(), x.cols()),

@@ -43,23 +43,28 @@ class TruncatedFourierFeatureMap final : public FeatureMap {
                              Matrix x_limits);
 
   /**
-   * Given an @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$ to compute the feature map.
+   * Given an @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.
    * @param x input vector
    * @return @f$ 2 M + 1 @f$ dimensional feature map
    */
   [[nodiscard]] Vector map_vector(ConstVectorRef x) const;
   /**
-   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$
-   * to compute the feature map.
+   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$,
+   * then compute the feature map.
    * @param x input vector
    * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
    */
   [[nodiscard]] Matrix map_matrix(ConstMatrixRef x) const;
-
+  /**
+   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$,
+   * then compute the feature map.
+   * @param x input vector
+   * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
+   */
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const;
 
+  /** @getter{dimension, the feature map space} */
   [[nodiscard]] Dimension dimension() const { return weights_.size(); }
-
   /** @getter{frequency matrix, truncated Fourier feature map} */
   [[nodiscard]] const Matrix& omega() const { return omega_; }
   /** @getter{weights matrix, truncated Fourier feature map} */

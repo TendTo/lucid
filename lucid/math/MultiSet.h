@@ -23,6 +23,8 @@ namespace lucid {
  */
 class MultiSet final : public Set {
  public:
+  using Set::lattice;
+
   template <class... S>
     requires(std::derived_from<S, Set> && ...)
   explicit MultiSet(S&&... sets) : sets_{}, dis_{0, sizeof...(S)} {
