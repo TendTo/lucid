@@ -19,6 +19,7 @@ namespace lucid {
  */
 class RectSet final : public Set {
  public:
+  using Set::lattice;
   /**
    * Construct a rectangular set from lower and upper bounds.
    * Both bounds must belong to the same vector space.

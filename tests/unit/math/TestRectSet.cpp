@@ -41,3 +41,35 @@ TEST(TestRectSet, MatrixSample) {
     for (Index row = 0; row < x.rows(); row++) EXPECT_TRUE(set(x.row(row).transpose()));
   }
 }
+
+TEST(TestRectSet, LatticeNoEndpointsSamePointsPerDimension) {
+  constexpr int points_per_dim = 3;
+  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
+  const Matrix lattice{set.lattice(points_per_dim)};
+  EXPECT_EQ(lattice.rows(), 9);
+  EXPECT_EQ(lattice.cols(), 2);
+  for (Index row = 0; row < lattice.rows(); row++) EXPECT_TRUE(set(lattice.row(row).transpose()));
+  const auto step{(set.upper_bound() - set.lower_bound()) / points_per_dim};
+  for (Index row = 0; row < lattice.rows(); row++) {
+    EXPECT_DOUBLE_EQ(lattice(row, 0), set.lower_bound()(0) + (row % points_per_dim) * step(0));
+  }
+  for (Index row = 0; row < lattice.rows(); row++) {
+    EXPECT_DOUBLE_EQ(lattice(row, 1), set.lower_bound()(1) + (row / points_per_dim) * step(1));
+  }
+}
+
+TEST(TestRectSet, LatticeEndpointsSamePointsPerDimension) {
+  constexpr int points_per_dim = 3;
+  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
+  const Matrix lattice{set.lattice(points_per_dim, true)};
+  EXPECT_EQ(lattice.rows(), 9);
+  EXPECT_EQ(lattice.cols(), 2);
+  for (Index row = 0; row < lattice.rows(); row++) EXPECT_TRUE(set(lattice.row(row).transpose()));
+  const auto step{(set.upper_bound() - set.lower_bound()) / (points_per_dim - 1)};
+  for (Index row = 0; row < lattice.rows(); row++) {
+    EXPECT_DOUBLE_EQ(lattice(row, 0), set.lower_bound()(0) + (row % points_per_dim) * step(0));
+  }
+  for (Index row = 0; row < lattice.rows(); row++) {
+    EXPECT_DOUBLE_EQ(lattice(row, 1), set.lower_bound()(1) + (row / points_per_dim) * step(1));
+  }
+}
