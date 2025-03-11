@@ -10,6 +10,7 @@
 #include "lucid/math/FeatureMap.h"
 #include "lucid/math/GaussianKernel.h"
 #include "lucid/math/GramMatrix.h"
+#include "lucid/math/GurobiLinearOptimiser.h"
 #include "lucid/math/Kernel.h"
 #include "lucid/math/KernelRidgeRegression.h"
 #include "lucid/math/MultiSet.h"

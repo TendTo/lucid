@@ -33,3 +33,12 @@ lucid_cc_library(
         "@eigen",
     ],
 )
+
+lucid_cc_library(
+    name = "gurobi",
+    srcs = ["gurobi.cpp"],
+    hdrs = ["gurobi.h"],
+    deps = [
+        "@gurobi",
+    ],
+)

@@ -129,6 +129,24 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "optimiser",
+    srcs = [
+        "GurobiLinearOptimiser.cpp",
+    ],
+    hdrs = [
+        "GurobiLinearOptimiser.h",
+    ],
+    implementation_deps = [
+        "//lucid/lib:gurobi",
+        "//lucid/util:error",
+        "//lucid/util:logging",
+    ],
+    deps = [
+        "//lucid/lib:eigen",
+    ],
+)
+
+lucid_cc_library(
     name = "math",
     hdrs = ["math.h"],
     visibility = ["//visibility:public"],
@@ -136,6 +154,7 @@ lucid_cc_library(
         ":feature_map",
         ":gram_matrix",
         ":kernel",
+        ":optimiser",
         ":regression",
         ":sampler",
         ":set",
