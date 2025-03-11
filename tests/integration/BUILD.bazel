@@ -1,0 +1,15 @@
+"""Tests for the util submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_init_barrier_3",
+    data = glob(["init_barrier_3/*"]),
+    tags = ["integration"],
+    deps = [
+        "//lucid:lucid_hdr",
+        "//lucid/lib:eigen",
+        "//lucid/lib:gurobi",
+        "//lucid/util:math",
+    ],
+)
