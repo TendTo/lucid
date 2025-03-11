@@ -26,7 +26,8 @@ std::uniform_real_distribution<> dis(0.0, 1.0);
 namespace lucid {
 
 RectSet::RectSet(Vector lb, Vector ub, const int seed) : lb_{std::move(lb)}, ub_{std::move(ub)} {
-  if (lb_.size() != ub_.size()) LUCID_INVALID_ARGUMENT("lb and ub", "they must have the same size");
+  if (lb_.size() != ub_.size()) LUCID_INVALID_ARGUMENT("lb and ub", "must have the same size");
+  if (lb_.size() == 0) LUCID_INVALID_ARGUMENT("lb and ub", "must have at least one element");
   if (seed >= 0) gen.seed(seed);
 }
 bool RectSet::operator()(ConstMatrixRef x) const {
@@ -52,6 +53,29 @@ void RectSet::plot(const std::string& color) const {
 #endif
 }
 
+void RectSet::plot3d(const std::string&) const { LUCID_NOT_IMPLEMENTED(); }
+
+Matrix RectSet::lattice(const Eigen::VectorX<Index>& points_per_dim, const bool include_endpoints) const {
+  if (points_per_dim.size() != lb_.size()) {
+    LUCID_INVALID_ARGUMENT_EXPECTED("points_per_dim size", points_per_dim.size(), lb_.size());
+  }
+  Matrix x_lattice{1, points_per_dim(0)};
+  if (include_endpoints) {
+    x_lattice.row(0) = Vector::LinSpaced(points_per_dim(0), lb_(0), ub_(0));
+    for (Dimension i = 1; i < dimension(); ++i) {
+      x_lattice = combvec(x_lattice, Vector::LinSpaced(points_per_dim(i), lb_(i), ub_(i)).transpose());
+    }
+  } else {
+    const Vector delta_per_dim = (ub_ - lb_).cwiseQuotient(points_per_dim.cast<Scalar>());
+    x_lattice.row(0) = arange(lb_(0), ub_(0), delta_per_dim(0));
+    for (Dimension i = 1; i < dimension(); ++i) {
+      x_lattice = combvec(x_lattice, arange(lb_(i), ub_(i), delta_per_dim(i)).transpose());
+    }
+  }
+  x_lattice.transposeInPlace();
+  return x_lattice;
+}
+
 RectSet::operator Matrix() const {
   Matrix x_lim{2, lb_.size()};
   x_lim << lb_, ub_;
@@ -60,11 +84,12 @@ RectSet::operator Matrix() const {
 }
 
 Matrix RectSet::sample_element(const int num_samples) const {
-  Matrix samples(num_samples, lb_.size());
+  Matrix samples(num_samples, dimension());
+  const auto diff_vector{ub_ - lb_};
   for (int i = 0; i < num_samples; i++) {
-    Vector random{lb_.size()};
-    for (Index j = 0; j < lb_.size(); j++) random(j) = dis(gen);
-    samples.row(i) = lb_ + (ub_ - lb_).cwiseProduct(random);
+    for (Index j = 0; j < dimension(); j++) {
+      samples(i, j) = diff_vector(j) * dis(gen) + lb_(j);
+    }
   }
   return samples;
 }

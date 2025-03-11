@@ -12,7 +12,10 @@ namespace lucid {
 
 Vector Set::sample_element() const {
   Matrix samples = sample_element(1);
-  return samples.col(0);
+  return samples.row(0);
+}
+Matrix Set::lattice(const Index points_per_dim, const bool include_endpoints) const {
+  return lattice(Eigen::VectorX<Index>::Constant(dimension(), points_per_dim), include_endpoints);
 }
 
 std::ostream& operator<<(std::ostream& os, const Set&) { return os << "Set"; }

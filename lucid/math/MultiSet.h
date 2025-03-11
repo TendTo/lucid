@@ -47,7 +47,10 @@ class MultiSet final : public Set {
 
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override;
 
+  [[nodiscard]] Matrix lattice(const Eigen::VectorX<Index>& points_per_dim, bool include_endpoints) const override;
+
   void plot(const std::string& color) const override;
+  void plot3d(const std::string& color) const override;
 
  private:
   std::vector<std::unique_ptr<Set>> sets_;  ///< Sets in the union

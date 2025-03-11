@@ -40,6 +40,10 @@ class RectSet final : public Set {
 
   void plot(const std::string& color) const override;
 
+  void plot3d(const std::string& color) const override;
+
+  [[nodiscard]] Matrix lattice(const Eigen::VectorX<Index>& points_per_dim, bool include_endpoints) const override;
+
   operator Matrix() const;
 
  private:

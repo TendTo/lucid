@@ -26,6 +26,7 @@ class Set {
   Set& operator=(const Set&) = default;
   Set& operator=(Set&&) = default;
   virtual ~Set() = default;
+
   /** @getter{dimension, set @U} */
   [[nodiscard]] virtual Dimension dimension() const = 0;
   /**
@@ -58,8 +59,37 @@ class Set {
    */
   [[nodiscard]] virtual bool operator()(ConstMatrixRef x) const = 0;
 
+  /**
+   * Generate a lattice of points in the set.
+   * @param points_per_dim number of points per each dimension
+   * @param include_endpoints whether to include the endpoints of the lattice
+   * @return lattice of points in the set
+   */
+  [[nodiscard]] Matrix lattice(Index points_per_dim, bool include_endpoints = false) const;
+  /**
+   * Generate a lattice of points in the set.
+   * @param points_per_dim number of points per each dimension
+   * @param include_endpoints whether to include the endpoints of the lattice
+   * @return lattice of points in the set
+   */
+  [[nodiscard]] virtual Matrix lattice(const Eigen::VectorX<Index>& points_per_dim, bool include_endpoints) const = 0;
+
   /** Plot the set information using matplotlib. */
   virtual void plot(const std::string& color) const = 0;
+  /** Plot the set information using matplotlib in 3D. */
+  virtual void plot3d(const std::string& color) const = 0;
+  /**
+   * Extract @s elements element from @U using some kind of random distribution, where @s is the number of rows in @x.
+   * @param[out] x @sxn matrix to store the elements
+   * @return @sxn matrix of samples, where @n is the dimension of @U.
+   */
+  template <class Derived>
+  Eigen::MatrixBase<Derived>& operator>>(Eigen::MatrixBase<Derived>& x) const {
+    if constexpr (Derived::ColsAtCompileTime != 1) {
+      return x = sample_element(x.rows());
+    }
+    return x = sample_element().transpose();
+  }
 };
 
 std::ostream& operator<<(std::ostream& os, const Set& set);

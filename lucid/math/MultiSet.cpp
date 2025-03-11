@@ -6,6 +6,8 @@
  */
 #include "lucid/math/MultiSet.h"
 
+#include "lucid/util/error.h"
+
 namespace lucid {
 
 namespace {
@@ -29,8 +31,12 @@ Matrix MultiSet::sample_element(const int num_samples) const {
 bool MultiSet::operator()(ConstMatrixRef x) const {
   return std::ranges::any_of(sets_, [&x](const std::unique_ptr<Set>& set) { return set->contains(x); });
 }
+Matrix MultiSet::lattice(const Eigen::VectorX<Index>&, const bool) const { LUCID_NOT_SUPPORTED("Lattice on MultSet"); }
 void MultiSet::plot(const std::string& color) const {
   std::ranges::for_each(sets_, [&color](const std::unique_ptr<Set>& set) { set->plot(color); });
+}
+void MultiSet::plot3d(const std::string& color) const {
+  std::ranges::for_each(sets_, [&color](const std::unique_ptr<Set>& set) { set->plot3d(color); });
 }
 
 std::ostream& operator<<(std::ostream& os, const MultiSet& set) {
