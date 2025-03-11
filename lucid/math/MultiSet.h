@@ -49,6 +49,7 @@ class MultiSet final : public Set {
 
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override;
 
+  /** @todo Improve the naive implementation that only concatenates the lattices from the internal sets (polytopes?) */
   [[nodiscard]] Matrix lattice(const Eigen::VectorX<Index>& points_per_dim, bool include_endpoints) const override;
 
   void plot(const std::string& color) const override;
