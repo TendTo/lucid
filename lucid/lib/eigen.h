@@ -4,9 +4,8 @@
  * @licence BSD 3-Clause License
  * @file
  * Eigen wrapper.
- *
  * This header includes the eigen library and provides a various helpers.
- * Other files in the library should depend on this header instead of the GMP library directly.
+ * Other files in the library should depend on this header instead of the eigen library directly.
  * Instead of including <eigen.h>, include "dlinear/libs/eigen.h".
  */
 #pragma once
