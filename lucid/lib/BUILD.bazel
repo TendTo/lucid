@@ -22,6 +22,7 @@ lucid_cc_library(
     hdrs = [
         "eigen.h",
         "eigen_extension.h",
+        "eigen_matrix_base_plugin.h",
     ],
     implementation_deps = [
         "//lucid/util:error",

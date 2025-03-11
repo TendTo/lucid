@@ -11,10 +11,15 @@
  */
 #pragma once
 
+// The following lines will add the `write` and `read` methods to Eigen matrix class.
+// They must be included before the Eigen library.
+#include <fstream>
+#include <ranges>
+#define EIGEN_MATRIXBASE_PLUGIN "lucid/lib/eigen_matrix_base_plugin.h"
+
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <Eigen/LU>
-#include <Eigen/SparseCore>
 #include <unsupported/Eigen/CXX11/Tensor>
 #include <unsupported/Eigen/FFT>
 
@@ -30,8 +35,6 @@ using ConstVectorBlock = Eigen::VectorBlock<const Vector>;
 using ConstMatrixBlock = Eigen::Block<const Matrix>;
 using Vector2 = Eigen::Vector2d;
 using Vector3 = Eigen::Vector3d;
-using SMatrix = Eigen::SparseMatrix<Scalar>;
-using SVector = Eigen::SparseVector<Scalar>;
 using Index = Eigen::Index;
 using Dimension = Eigen::Index;
 using ConstMatrixRef = const Eigen::Ref<const Matrix>&;
@@ -279,6 +282,38 @@ inline Matrix ifftn(const Eigen::MatrixXcd& x) {
   return MatrixCast(res, x.rows(), x.cols()).real();
 }
 
+/**
+ * Read a matrix from a file.
+ * The file must have the following format:
+ * ```txt
+ * rowsXcols
+ * element_1,element_2,...,element_n
+ * ```
+ * @tparam Scalar type of the matrix
+ * @param file_name name of the file to read
+ * @return matrix read from the file
+ */
+template <class Scalar>
+Eigen::MatrixX<Scalar> read_matrix(const std::string_view file_name) {
+  std::ifstream in_file(file_name.data());
+  if (!in_file.is_open()) return Eigen::MatrixX<Scalar>{};
+  std::string line;
+  std::getline(in_file, line);
+  std::istringstream iss{line};
+  Index rows, cols;
+  char x;
+  iss >> rows >> x >> cols;
+  Eigen::MatrixX<Scalar> m{rows, cols};
+  std::getline(in_file, line);
+  iss = std::istringstream{line};
+  for (Index j = 0; j < cols; ++j) {
+    for (Index i = 0; i < rows; ++i) {
+      iss >> m(i, j) >> x;
+    }
+  }
+  return m;
+}
+
 }  // namespace lucid
 
 #ifdef LUCID_INCLUDE_FMT
@@ -291,7 +326,5 @@ OSTREAM_FORMATTER(lucid::ConstMatrixRef)
 OSTREAM_FORMATTER(lucid::ConstVectorRef)
 OSTREAM_FORMATTER(Eigen::Block<const lucid::Matrix>)
 OSTREAM_FORMATTER(Eigen::Block<const lucid::Vector>)
-OSTREAM_FORMATTER(lucid::SMatrix)
-OSTREAM_FORMATTER(lucid::SVector)
 
 #endif
