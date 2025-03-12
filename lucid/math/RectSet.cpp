@@ -86,8 +86,7 @@ Matrix RectSet::lattice(const Eigen::VectorX<Index>& points_per_dim, const bool 
 
 RectSet::operator Matrix() const {
   Matrix x_lim{2, lb_.size()};
-  x_lim << lb_, ub_;
-  x_lim.transposeInPlace();
+  x_lim << lb_.transpose(), ub_.transpose();
   return x_lim;
 }
 
