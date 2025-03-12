@@ -34,6 +34,7 @@
       fmt::format("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected))
 #define LUCID_PY_ERROR(message) throw ::lucid::exception::LucidPyException(message)
 #define LUCID_PY_ERROR_FMT(msg, ...) throw ::lucid::exception::LucidPyException(fmt::format(msg, __VA_ARGS__))
+#define LUCID_NOT_SUPPORTED(msg) throw ::lucid::exception::LucidNotSupportedException(msg)
 
 #else
 
