@@ -35,7 +35,7 @@ class TestInitBarrier3 : public ::testing::Test {
   TestInitBarrier3() {
     x_samples = read_matrix<double>("tests/integration/init_barrier_3/x_samples.matrix");
     xp_samples = read_matrix<double>("tests/integration/init_barrier_3/xp_samples.matrix");
-    sigma_l = Vector{2};
+    sigma_l = Vector{dimension};
     sigma_l << 30, 23.568;
 
     expected_f0_lattice = read_matrix<double>("tests/integration/init_barrier_3/f0_lattice.matrix");
@@ -84,12 +84,12 @@ class TestInitBarrier3 : public ::testing::Test {
   Matrix expected_xu_lattice;
 };
 
-Vector project(const Matrix& f, const Dimension dim, const Index n_per_dim, const Index samples_per_dim) {
+Vector project(const Matrix& f, const Index n_per_dim, const Index samples_per_dim) {
   // TODO(tend): this only works for 2 dimensions
   const Eigen::MatrixXcd f_fft{fft2(f)};
   const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
   Eigen::MatrixXcd padded_ft{pad(fftshift(f_fft), n_pad, std::complex<double>{})};
-  Matrix f_interp = ifft2(ifftshift(padded_ft)).array() * lucid::pow(n_per_dim / samples_per_dim, dim);
+  Matrix f_interp = ifft2(ifftshift(padded_ft)).array() * lucid::pow(n_per_dim / samples_per_dim, dimension);
   return f_interp.reshaped(Eigen::AutoSize, 1);
 }
 
@@ -122,18 +122,18 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
     LUCID_INFO_FMT("Progress {}/{}", i + 1, w_mat.cols());
     // TODO(tend): this only works for 2 dimensions
     const Matrix w{if_lattice.col(i).reshaped(samples_per_dim, samples_per_dim).transpose()};
-    w_mat.col(i) = project(w, dimension, n_per_dim, samples_per_dim);
+    w_mat.col(i) = project(w, n_per_dim, samples_per_dim);
 
     const Matrix phi{f_lattice.col(i).reshaped(samples_per_dim, samples_per_dim).transpose()};
-    phi_mat.col(i) = project(phi, dimension, n_per_dim, samples_per_dim);
+    phi_mat.col(i) = project(phi, n_per_dim, samples_per_dim);
   }
   ASSERT_TRUE(phi_mat.isApprox(expected_phi_mat, tolerance));
   ASSERT_TRUE(w_mat.isApprox(expected_w_mat, tolerance));
 
   // Sample initial regions
-  const Matrix x0_lattice{initial_set.lattice(2 * num_supp_per_dim - 1, true)};
+  const Matrix x0_lattice{initial_set.lattice(n_per_dim - 1, true)};
   ASSERT_TRUE(x0_lattice.isApprox(expected_x0_lattice, tolerance));
-  const Matrix xu_lattice{unsafe_set.lattice(2 * num_supp_per_dim - 1, true)};
+  const Matrix xu_lattice{unsafe_set.lattice(n_per_dim - 1, true)};
   ASSERT_TRUE(xu_lattice.isApprox(expected_xu_lattice, tolerance));
 
   // Construct bases
@@ -145,7 +145,7 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   // Since it needs a licence, we cannot test the GurobiLinearOptimiser class
 
   // GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
-  // optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, num_supp_per_dim,
+  // optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim,
   //                 dimension, [](bool success, double obj_val, double eta, double c, double norm) {
   //                   EXPECT_TRUE(success);
   //                   EXPECT_DOUBLE_EQ(obj_val, 0.83752674401056304);

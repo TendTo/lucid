@@ -13,3 +13,16 @@ lucid_cc_googletest(
         "//lucid/util:math",
     ],
 )
+
+lucid_cc_googletest(
+    name = "test_init_c_s_overtaking",
+    data = glob(["init_cs_overtaking/*"]),
+    tags = ["integration"],
+    deps = [
+        "//lucid:lucid_hdr",
+        "//lucid/lib:eigen",
+        "//lucid/lib:gurobi",
+        "//lucid/util:error",
+        "//lucid/util:math",
+    ],
+)
