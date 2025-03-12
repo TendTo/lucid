@@ -22,8 +22,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   constexpr double min_num = 0;  // %1e-13; % Minimum variable value for numerical stability
   constexpr double max_num = std::numeric_limits<double>::infinity();
   constexpr double min_eta = 0;
-  const double C =
-      pow((1 - 2.0 * num_frequencies_per_dim / (2.0 * num_frequency_samples_per_dim)), -original_dim / 2.0);
+  const double C = pow((1 - 2.0 * num_frequencies_per_dim / num_frequency_samples_per_dim), -original_dim / 2.0);
   // What if we make C as big as it can be?
   // const double C = pow((1 - 2.0 * num_freq_per_dim / (2.0 * num_freq_per_dim + 1)), -original_dim / 2.0);
   LUCID_DEBUG_FMT("C: {}", C);
@@ -140,6 +139,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   // Objective function
   model.setObjective(GRBLinExpr{T_ / gamma_ * c + 1 / gamma_ * eta});
 
+  LUCID_INFO("Optimizing");
   model.optimize();
 
   if (model.get(GRB_IntAttr_SolCount) == 0) {
