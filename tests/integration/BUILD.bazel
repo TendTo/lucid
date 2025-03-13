@@ -4,8 +4,8 @@ load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 
 lucid_cc_googletest(
     name = "test_init_barrier_3",
-    data = glob(["init_barrier_3/*"]),
-    tags = ["integration"],
+    data = glob(["init_barrier_3/*"]) + ["gurobi.lic"],
+    env = {"GRB_LICENSE_FILE": "$(location gurobi.lic)"},
     deps = [
         "//lucid:lucid_hdr",
         "//lucid/lib:eigen",
@@ -16,8 +16,9 @@ lucid_cc_googletest(
 
 lucid_cc_googletest(
     name = "test_init_c_s_overtaking",
-    data = glob(["init_cs_overtaking/*"]),
-    tags = ["integration"],
+    size = "medium",
+    data = glob(["init_cs_overtaking/*"]) + ["gurobi.lic"],
+    env = {"GRB_LICENSE_FILE": "$(location gurobi.lic)"},
     deps = [
         "//lucid:lucid_hdr",
         "//lucid/lib:eigen",

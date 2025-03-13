@@ -86,4 +86,7 @@ temp.*
 # Checks
 valgrind-out.txt
 
+# Licence
+*.lic
+
 !.gitkeep

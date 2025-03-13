@@ -4,19 +4,13 @@ load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 
 lucid_cc_googletest(
     name = "test_logging",
-    tags = [
-        "unit",
-        "util",
-    ],
+    tags = ["util"],
     deps = ["//lucid/util:logging"],
 )
 
 lucid_cc_googletest(
     name = "test_index_iterator",
-    tags = [
-        "unit",
-        "util",
-    ],
+    tags = ["util"],
     deps = [
         "//lucid/util:exception",
         "//lucid/util:index_iterator",

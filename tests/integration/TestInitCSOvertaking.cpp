@@ -176,15 +176,13 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   const Matrix f0_lattice{tffm(x0_lattice)};
   const Matrix fu_lattice{tffm(xu_lattice)};
 
-  // Since it needs a licence, we cannot test the GurobiLinearOptimiser class
-  // GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
-  // optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim,
-  // dimension,
-  //                 [](bool success, double obj_val, double eta, double c, double norm) {
-  //                   EXPECT_TRUE(success);
-  //                   EXPECT_DOUBLE_EQ(obj_val, 0.76609867952450517);
-  //                   EXPECT_DOUBLE_EQ(eta, 0.38304933976225258);
-  //                   EXPECT_DOUBLE_EQ(c, 0.0);
-  //                   EXPECT_DOUBLE_EQ(norm, 0.52365992867425826);
-  //                 });
+  GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
+  optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
+                  [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
+                    EXPECT_TRUE(success);
+                    EXPECT_DOUBLE_EQ(obj_val, 0.76609867952450517);
+                    EXPECT_DOUBLE_EQ(eta, 0.38304933976225258);
+                    EXPECT_DOUBLE_EQ(c, 0.0);
+                    EXPECT_DOUBLE_EQ(norm, 0.52365992867425826);
+                  });
 }

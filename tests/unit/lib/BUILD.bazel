@@ -4,9 +4,6 @@ load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 
 lucid_cc_googletest(
     name = "test_eigen",
-    tags = [
-        "lib",
-        "unit",
-    ],
+    tags = ["lib"],
     deps = ["//lucid/lib:eigen"],
 )
