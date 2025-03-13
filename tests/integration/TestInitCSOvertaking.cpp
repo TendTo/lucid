@@ -87,9 +87,16 @@ Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const
   const double coeff = lucid::pow(n_per_dim / samples_per_dim, dimension);
   if (dimension == 1 || dimension == 2) {
     const Eigen::MatrixXcd f_fft{fft2(f.derived().reshaped(samples_per_dim, samples_per_dim).transpose())};
-    const auto padded_ft{pad(fftshift(f_fft), n_pad, std::complex<double>{})};
-    const auto f_interp = ifft2(ifftshift(padded_ft)).array() * coeff;
-    return f_interp.reshaped(Eigen::AutoSize, 1);
+    // We do, in order:
+    // 1. Shift the zero frequency to the center
+    // 2. Pad the frequencies to increase the resolution
+    // 3. Unshift the zero frequency to the corner
+    // 4. Inverse FFT to get the interpolated function
+    // 5. Scale the function by the ratio of the number of samples to the number of frequencies
+    // 6. Reshape the matrix to a vector
+    return (ifft2(ifftshift(pad(fftshift(f_fft), n_pad, std::complex<double>{}))).array() *
+            lucid::pow(n_per_dim / samples_per_dim, dimension))
+        .reshaped(Eigen::AutoSize, 1);
   }
   if (dimension == 3) {
     const Eigen::Tensor<std::complex<double>, 3> t{Eigen::TensorMap<Eigen::Tensor<const std::complex<double>, 3>>{
@@ -180,9 +187,9 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
                   [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
                     EXPECT_TRUE(success);
-                    EXPECT_DOUBLE_EQ(obj_val, 0.76609867952450517);
-                    EXPECT_DOUBLE_EQ(eta, 0.38304933976225258);
+                    EXPECT_DOUBLE_EQ(obj_val, 0.76609867952476407);
+                    EXPECT_DOUBLE_EQ(eta, 0.38304933976238204);
                     EXPECT_DOUBLE_EQ(c, 0.0);
-                    EXPECT_DOUBLE_EQ(norm, 0.52365992867425826);
+                    EXPECT_DOUBLE_EQ(norm, 0.52365992867299227);
                   });
 }

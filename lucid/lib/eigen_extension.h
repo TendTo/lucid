@@ -45,10 +45,10 @@ class shift_functor {
   typename ArgType::Scalar operator()(const Eigen::Index row, const Eigen::Index col) const {
     Eigen::Index shift_row = row + shift_rows_;
     Eigen::Index shift_col = col + shift_cols_;
-    if (shift_row < 0) shift_row += arg_.rows();
-    if (shift_col < 0) shift_col += arg_.cols();
-    if (shift_row >= arg_.rows()) shift_row -= arg_.rows();
-    if (shift_col >= arg_.cols()) shift_col -= arg_.cols();
+    while (shift_row < 0) shift_row += arg_.rows();
+    while (shift_col < 0) shift_col += arg_.cols();
+    while (shift_row >= arg_.rows()) shift_row -= arg_.rows();
+    while (shift_col >= arg_.cols()) shift_col -= arg_.cols();
     return arg_(shift_row, shift_col);
   }
 
@@ -110,13 +110,11 @@ circulant(const Eigen::MatrixBase<ArgType>& arg) {
 /**
  * Shift the rows and columns of a matrix or vector `x` by `shift_rows` and `shift_cols` respectively.
  * The sign of the shift determines the direction of the shift.
- * Overflows are wrapped around, as long as the shift is at most the size of the matrix or vector in that direction.
+ * Overflows are wrapped around.
  * @tparam ArgType type of the matrix or vector
  * @param x matrix or vector
  * @param shift_rows shift rows. If negative, the rows are shifted up.
- * Must be in the range [-x.rows(), x.rows()).
  * @param shift_cols shift columns. If negative, the columns are shifted left.
- * Must be in the range [-x.cols(), x.cols()).
  * @return shifted matrix or vector
  */
 template <class ArgType>

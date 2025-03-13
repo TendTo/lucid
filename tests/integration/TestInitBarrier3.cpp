@@ -86,56 +86,18 @@ class TestInitBarrier3 : public ::testing::Test {
 
 template <class Derived>
 Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const Index samples_per_dim) {
+  const Eigen::MatrixXcd f_fft{fft2(f.reshaped(samples_per_dim, samples_per_dim).transpose())};
   const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
-  const double coeff = lucid::pow(n_per_dim / samples_per_dim, dimension);
-  if (dimension == 1 || dimension == 2) {
-    const Eigen::MatrixXcd f_fft{fft2(f.derived().reshaped(samples_per_dim, samples_per_dim).transpose())};
-    const auto padded_ft{pad(fftshift(f_fft), n_pad, std::complex<double>{})};
-    const auto f_interp = ifft2(ifftshift(padded_ft)).array() * coeff;
-    return f_interp.reshaped(Eigen::AutoSize, 1);
-  }
-  if (dimension == 3) {
-    const Eigen::Tensor<std::complex<double>, 3> t{Eigen::TensorMap<Eigen::Tensor<const std::complex<double>, 3>>{
-        f.template cast<std::complex<double>>().eval().data(),
-        std::array{samples_per_dim, samples_per_dim, samples_per_dim}}};
-    Eigen::Tensor<std::complex<double>, 3> temp =
-        t.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{1, 0, 2})
-            .pad(std::array{std::pair<Index, Index>{0, 2 * n_pad}, std::pair<Index, Index>{0, 2 * n_pad},
-                            std::pair<Index, Index>{0, 2 * n_pad}});
-
-    // Dim 0
-    const Index total_dim = samples_per_dim + 2 * n_pad;
-    temp.slice(std::array<Index, 3>{samples_per_dim / 2 + 2 * n_pad, 0, 0},
-               std::array<Index, 3>{samples_per_dim / 2, total_dim, total_dim}) =
-        temp.slice(std::array<Index, 3>{samples_per_dim / 2, 0, 0},
-                   std::array<Index, 3>{samples_per_dim / 2, total_dim, total_dim})
-            .eval();
-    temp.slice(std::array<Index, 3>{samples_per_dim / 2, 0, 0},
-               std::array<Index, 3>{samples_per_dim / 2, total_dim, total_dim})
-        .setZero();
-    // Dim 1
-    temp.slice(std::array<Index, 3>{0, samples_per_dim / 2 + n_pad, 0},
-               std::array<Index, 3>{total_dim, samples_per_dim / 2, total_dim}) =
-        temp.slice(std::array<Index, 3>{0, samples_per_dim / 2, 0},
-                   std::array<Index, 3>{total_dim, samples_per_dim / 2, total_dim})
-            .eval();
-    temp.slice(std::array<Index, 3>{0, samples_per_dim / 2, 0},
-               std::array<Index, 3>{total_dim, samples_per_dim / 2, total_dim})
-        .setZero();
-    // Dim 2
-    temp.slice(std::array<Index, 3>{0, 0, samples_per_dim / 2 + n_pad},
-               std::array<Index, 3>{total_dim, total_dim, samples_per_dim / 2}) =
-        temp.slice(std::array<Index, 3>{0, 0, samples_per_dim / 2},
-                   std::array<Index, 3>{total_dim, total_dim, samples_per_dim / 2})
-            .eval();
-    temp.slice(std::array<Index, 3>{0, 0, samples_per_dim / 2},
-               std::array<Index, 3>{total_dim, total_dim, samples_per_dim / 2})
-        .setZero();
-    const Eigen::Tensor<double, 3> temp2 =
-        temp.template fft<Eigen::BothParts, Eigen::FFT_REVERSE>(std::array{0, 1, 2}).real() * coeff;
-    return Vector::Map(temp2.data(), temp2.size());
-  }
-  throw std::runtime_error("Only 2D and 3D are supported");
+  // We do, in order:
+  // 1. Shift the zero frequency to the center
+  // 2. Pad the frequencies to increase the resolution
+  // 3. Unshift the zero frequency to the corner
+  // 4. Inverse FFT to get the interpolated function
+  // 5. Scale the function by the ratio of the number of samples to the number of frequencies
+  // 6. Reshape the matrix to a vector
+  return (ifft2(ifftshift(pad(fftshift(f_fft), n_pad, std::complex<double>{}))).array() *
+          lucid::pow(n_per_dim / samples_per_dim, dimension))
+      .reshaped(Eigen::AutoSize, 1);
 }
 
 TEST_F(TestInitBarrier3, InitBarrier3) {
