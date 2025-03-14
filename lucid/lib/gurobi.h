@@ -6,7 +6,7 @@
  * Gurobi wrapper.
  * This header includes the gurobi library and provides a various helpers.
  * Other files in the library should depend on this header instead of the gurobi library directly.
- * Instead of including <gurobi_c++.h>, include "dlinear/libs/gurobi.h".
+ * Instead of including <gurobi_c++.h>, include "lucid/lib/gurobi.h".
  */
 #pragma once
 

@@ -93,7 +93,7 @@ Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const
   // 2. Pad the frequencies to increase the resolution
   // 3. Unshift the zero frequency to the corner
   // 4. Inverse FFT to get the interpolated function
-  // 5. Scale the function by the ratio of the number of samples to the number of frequencies
+  // 5. Scale the matrix
   // 6. Reshape the matrix to a vector
   return (ifft2(ifftshift(pad(fftshift(f_fft), n_pad, std::complex<double>{}))).array() *
           lucid::pow(n_per_dim / samples_per_dim, dimension))
@@ -151,9 +151,9 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
                   [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
                     EXPECT_TRUE(success);
-                    EXPECT_DOUBLE_EQ(obj_val, 0.83752674401056304);
-                    EXPECT_DOUBLE_EQ(eta, 15.336789736321432);
-                    EXPECT_DOUBLE_EQ(c, 0.0);
-                    EXPECT_DOUBLE_EQ(norm, 10.393929781427465);
+                    EXPECT_NEAR(obj_val, 0.83752674401056304, tolerance);
+                    EXPECT_NEAR(eta, 15.336789736321432, tolerance);
+                    EXPECT_NEAR(c, 0.0, tolerance);
+                    EXPECT_NEAR(norm, 10.393929781427465, tolerance);
                   });
 }

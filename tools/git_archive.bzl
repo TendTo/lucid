@@ -121,7 +121,7 @@ _github_archive_attrs = {
 }
 
 _gitlab_archive_attrs = {
-    "repository": attr.string(mandatory = True, doc = "The github repository to download from."),
+    "repository": attr.string(mandatory = True, doc = "The gitlab repository to download from."),
     "commit": attr.string(mandatory = True, doc = "The git commit hash to download."),
     "sha256": attr.string(default = "0" * 64, doc = "The sha256 checksum of the downloaded archive."),
     "build_file": attr.label(doc = "The BUILD file label to use for building this external."),

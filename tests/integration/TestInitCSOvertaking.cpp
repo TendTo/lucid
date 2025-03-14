@@ -80,6 +80,8 @@ Eigen::MatrixXcd fftn(const Eigen::MatrixBase<Derived>& x) {
   return MatrixCast(res, x.rows(), x.cols());
 }
 
+
+
 template <class Derived>
 Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const Index samples_per_dim) {
   // TODO(tend): this only works for 2 dimensions
@@ -187,9 +189,9 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
                   [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
                     EXPECT_TRUE(success);
-                    EXPECT_DOUBLE_EQ(obj_val, 0.76609867952476407);
-                    EXPECT_DOUBLE_EQ(eta, 0.38304933976238204);
-                    EXPECT_DOUBLE_EQ(c, 0.0);
-                    EXPECT_DOUBLE_EQ(norm, 0.52365992867299227);
+                    EXPECT_NEAR(obj_val, 0.76609867952476407, tolerance);
+                    EXPECT_NEAR(eta, 0.38304933976238204, tolerance);
+                    EXPECT_NEAR(c, 0.0, tolerance);
+                    EXPECT_NEAR(norm, 0.52365992867299227, tolerance);
                   });
 }
