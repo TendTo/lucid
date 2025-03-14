@@ -123,6 +123,9 @@ class TensorView {
    */
   template <int Dim, class I, class... Is>
   [[nodiscard]] Index index(I i, Is... is) const {
+#ifndef NDEBUG
+    if (i >= static_cast<I>(dims_[Dim])) throw exception::LucidInvalidArgumentException("Index out of bounds");
+#endif
     return strides_[Dim] * i + index<Dim + 1>(is...);
   }
   /**
@@ -146,7 +149,12 @@ class TensorView {
       throw exception::LucidInvalidArgumentException("Number of indices must match the number of dimensions");
     }
     std::size_t idx = 0;
-    for (std::size_t i = 0; i < indices.size(); i++) idx += indices[i] * strides_[i];
+    for (std::size_t i = 0; i < indices.size(); i++) {
+#ifndef NDEBUG
+      if (indices[i] >= static_cast<I>(dims_[i])) throw exception::LucidInvalidArgumentException("Index out of bounds");
+#endif
+      idx += indices[i] * strides_[i];
+    }
     return idx;
   }
 

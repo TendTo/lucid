@@ -5,9 +5,13 @@
 ### Activity 1
 
 - [x] Complete initial implementation reproducing the results of the paper for the first test case
-- [ ] Rename variables
-- [ ] Fix current implementation correctness with integration testing
-- [ ] Implement second test case
+- [x] Rename variables
+- [x] Fix current implementation correctness with integration testing
+- [x] Implement second test case
+- [x] Implement a proper fftn
+- [ ] Check whether it is possible to avoid the padding to get the same information
+    - If it is, implement the alternative
+    - Otherwise, implement the padding
 
 ### Activity 2
 

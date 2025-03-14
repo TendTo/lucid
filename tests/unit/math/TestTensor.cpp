@@ -24,90 +24,86 @@ using lucid::exception::LucidNotSupportedException;
   } while (0)
 
 TEST(TestTensor, Constructor0D) {
-  const Tensor<double> t{std::vector<double>{}, std::vector<std::size_t>{}};
+  const Tensor t{std::vector<double>{}, std::vector<std::size_t>{}};
   EXPECT_EQ(t.size(), 0u);
 }
 
 TEST(TestTensor, Constructor0DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector<double>{1.0}, std::vector<std::size_t>{}), LucidInvalidArgumentException);
+  EXPECT_THROW(Tensor(std::vector{1.0}, std::vector<std::size_t>{}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick0D) {
-  const Tensor<double> t{std::vector<double>{}, std::vector<std::size_t>{}};
+  const Tensor t{std::vector<double>{}, std::vector<std::size_t>{}};
   EXPECT_THROW(t(std::vector{0l}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Constructor1D) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0}, std::vector<std::size_t>{2ul}};
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul}), 1.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul}), 2.0);
+  const Tensor t{std::vector{1.0, 2.0}, std::vector{2ul}};
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul}), 1.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul}), 2.0);
 }
 
 TEST(TestTensor, Constructor1DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector<double>{1.0}, std::vector<std::size_t>{2ul}), LucidInvalidArgumentException);
+  EXPECT_THROW(Tensor(std::vector{1.0}, std::vector{2ul}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick1D) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0}, std::vector<std::size_t>{2ul}};
-  EXPECT_THROW(t(std::vector<std::size_t>{0ul, 0ul}), LucidInvalidArgumentException);
+  const Tensor t{std::vector{1.0, 2.0}, std::vector{2ul}};
+  EXPECT_THROW(t(std::vector{0ul, 0ul}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Constructor2D) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0},
-                         std::vector<std::size_t>{2ul, 4ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector{2ul, 4ul}};
   EXPECT_EQ(t.size(), 8u);
 }
 
 TEST(TestTensor, Constructor2DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector<std::size_t>{2ul, 4ul}),
-               LucidInvalidArgumentException);
+  EXPECT_THROW(Tensor(std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 4ul}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick2D) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0},
-                         std::vector<std::size_t>{2ul, 4ul}};
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 0ul}), 1.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 1ul}), 2.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 2ul}), 3.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 3ul}), 4.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 0ul}), 5.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 1ul}), 6.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 2ul}), 7.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 3ul}), 8.0);
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector{2ul, 4ul}};
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 0ul}), 1.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 1ul}), 2.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 2ul}), 3.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 3ul}), 4.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 0ul}), 5.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul}), 6.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul}), 7.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 3ul}), 8.0);
 }
 
 TEST(TestTensor, Constructor3D) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 3ul, 2ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector{2ul, 3ul, 2ul}};
   EXPECT_EQ(t.size(), 12u);
 }
 
 TEST(TestTensor, Constructor3DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0},
-                      std::vector<std::size_t>{2ul, 3ul, 2ul}),
+  EXPECT_THROW(Tensor(std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0}, std::vector{2ul, 3ul, 2ul}),
                LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick3D) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 3ul, 2ul}};
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 0ul, 0ul}), 1.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 0ul, 1ul}), 2.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 1ul, 0ul}), 3.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 1ul, 1ul}), 4.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 2ul, 0ul}), 5.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0ul, 2ul, 1ul}), 6.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 0ul, 0ul}), 7.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 0ul, 1ul}), 8.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 1ul, 0ul}), 9.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 1ul, 1ul}), 10.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 2ul, 0ul}), 11.0);
-  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1ul, 2ul, 1ul}), 12.0);
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector{2ul, 3ul, 2ul}};
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 0ul, 0ul}), 1.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 0ul, 1ul}), 2.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 1ul, 0ul}), 3.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 1ul, 1ul}), 4.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 2ul, 0ul}), 5.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 2ul, 1ul}), 6.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 0ul, 0ul}), 7.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 0ul, 1ul}), 8.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul, 0ul}), 9.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul, 1ul}), 10.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul, 0ul}), 11.0);
+  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul, 1ul}), 12.0);
 }
 
 TEST(TestTensor, Pick3DTemplate) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 3ul, 2ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector{2ul, 3ul, 2ul}};
   EXPECT_DOUBLE_EQ(t(0ul, 0ul, 0l), 1.0);
   EXPECT_DOUBLE_EQ(t(0ul, 0ul, 1l), 2.0);
   EXPECT_DOUBLE_EQ(t(0ul, 1ul, 0l), 3.0);
@@ -122,9 +118,59 @@ TEST(TestTensor, Pick3DTemplate) {
   EXPECT_DOUBLE_EQ(t(1ul, 2ul, 1l), 12.0);
 }
 
+TEST(TestTensor, Reshape) {
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2ul, 3ul}};
+  const std::vector<std::size_t> new_dims{3ul, 2ul};
+  tensor.reshape(new_dims);
+  EXPECT_EQ(tensor.dimensions(), new_dims);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(2ul, 0ul), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
+}
+
+TEST(TestTensor, ReshapeReduceRank) {
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2ul, 3ul}};
+  const std::vector<std::size_t> new_dims{6ul};
+  tensor.reshape(new_dims);
+  EXPECT_EQ(tensor.dimensions(), new_dims);
+  EXPECT_DOUBLE_EQ(tensor(0ul), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(2ul), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(3ul), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(4ul), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(5ul), 6.0);
+}
+
+TEST(TestTensor, ReshapeIncreaseRank) {
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, {3ul, 4ul}};
+  const std::vector<std::size_t> new_dims{2ul, 3ul, 2ul, 1ul, 1ul};
+  tensor.reshape(new_dims);
+  EXPECT_EQ(tensor.dimensions(), new_dims);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul, 0ul, 0ul, 0ul), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul, 1ul, 0ul, 0ul), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul, 0ul, 0ul, 0ul), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul, 1ul, 0ul, 0ul), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 2ul, 0ul, 0ul, 0ul), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(0ul, 2ul, 1ul, 0ul, 0ul), 6.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul, 0ul, 0ul, 0ul), 7.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul, 1ul, 0ul, 0ul), 8.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul, 0ul, 0ul, 0ul), 9.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul, 1ul, 0ul, 0ul), 10.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 2ul, 0ul, 0ul, 0ul), 11.0);
+  EXPECT_DOUBLE_EQ(tensor(1ul, 2ul, 1ul, 0ul, 0ul), 12.0);
+}
+
+TEST(TestTensor, ReshapeInvalidSize) {
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2ul, 3ul}};
+  const std::vector<std::size_t> new_dims{3ul};
+  EXPECT_THROW(tensor.reshape(new_dims), LucidInvalidArgumentException);
+}
+
 TEST(TestTensor, FFT1) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0},
-                         std::vector<std::size_t>{10ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{10ul}};
   const Tensor<std::complex<double>> fft = t.fft();
   EXPECT_EQ(fft.size(), 10u);
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul), std::complex<double>(55.0, 0.0));
@@ -136,8 +182,7 @@ TEST(TestTensor, FFT1) {
 }
 
 TEST(TestTensor, IFFT1) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0},
-                         std::vector<std::size_t>{10ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{10ul}};
   const Tensor<double> ifft = t.fft().ifft();
   EXPECT_EQ(ifft.size(), 10u);
   EXPECT_DOUBLE_EQ(ifft(0ul), 1.0);
@@ -153,8 +198,7 @@ TEST(TestTensor, IFFT1) {
 }
 
 TEST(TestTensor, FFT2) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0},
-                         std::vector<std::size_t>{2ul, 5ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{2ul, 5ul}};
   const Tensor<std::complex<double>> fft = t.fft();
   EXPECT_EQ(fft.size(), 10u);
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul), std::complex<double>(55.0, 0.0));
@@ -170,8 +214,7 @@ TEST(TestTensor, FFT2) {
 }
 
 TEST(TestTensor, IFFT2) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0},
-                         std::vector<std::size_t>{2ul, 5ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{2ul, 5ul}};
   const Tensor<double> fft = t.fft().ifft();
   EXPECT_EQ(fft.size(), 10u);
   EXPECT_DOUBLE_EQ(fft(0ul, 0ul), 1.0);
@@ -187,8 +230,8 @@ TEST(TestTensor, IFFT2) {
 }
 
 TEST(TestTensor, FFT3) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 2ul, 3ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector{2ul, 2ul, 3ul}};
   const Tensor<std::complex<double>> fft = t.fft();
   EXPECT_EQ(fft.size(), 12u);
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 0ul), std::complex<double>(78.0, 0.0));
@@ -205,8 +248,8 @@ TEST(TestTensor, FFT3) {
 }
 
 TEST(TestTensor, IFFT3) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 2ul, 3ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector{2ul, 2ul, 3ul}};
   const Tensor<double> fft = t.fft().ifft();
   EXPECT_EQ(fft.size(), 12u);
   EXPECT_DOUBLE_EQ(fft(0ul, 0ul, 0ul), 1.0);
@@ -224,8 +267,8 @@ TEST(TestTensor, IFFT3) {
 }
 
 TEST(TestTensor, ToVector) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 2ul, 3ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector{2ul, 2ul, 3ul}};
   const Eigen::Map<const Eigen::VectorX<double>> v{t};
   EXPECT_EQ(v.size(), 12);
   EXPECT_DOUBLE_EQ(v(0), 1.0);
@@ -243,8 +286,7 @@ TEST(TestTensor, ToVector) {
 }
 
 TEST(TestTensor, ToMatrix) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 6ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, std::vector{2ul, 6ul}};
   const Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> m{t};
   EXPECT_EQ(m.size(), 12);
   EXPECT_DOUBLE_EQ(m(0, 0), 1.0);
@@ -262,8 +304,8 @@ TEST(TestTensor, ToMatrix) {
 }
 
 TEST(TestTensor, ToMatrixInvalid) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                         std::vector<std::size_t>{2ul, 2ul, 3ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector{2ul, 2ul, 3ul}};
   EXPECT_THROW(
       (static_cast<Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(t)),
       LucidNotSupportedException);
