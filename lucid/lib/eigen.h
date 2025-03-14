@@ -6,7 +6,7 @@
  * Eigen wrapper.
  * This header includes the eigen library and provides a various helpers.
  * Other files in the library should depend on this header instead of the eigen library directly.
- * Instead of including <eigen.h>, include "dlinear/libs/eigen.h".
+ * Instead of including <eigen.h>, include "lucid/lib/eigen.h".
  */
 #pragma once
 
@@ -26,8 +26,10 @@
 
 namespace lucid {
 using Scalar = double;
-using Matrix = Eigen::MatrixX<Scalar>;
+using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using Vector = Eigen::VectorX<Scalar>;
+using MatrixC = Eigen::Matrix<std::complex<Scalar>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+using VectorC = Eigen::VectorX<std::complex<Scalar>>;
 using VectorBlock = Eigen::VectorBlock<Vector>;
 using MatrixBlock = Eigen::Block<Matrix>;
 using ConstVectorBlock = Eigen::VectorBlock<const Vector>;
@@ -257,7 +259,7 @@ inline Matrix ifft2(const Eigen::MatrixXcd& x) {
 }
 
 template <typename T>
-using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 template <typename Scalar, int rank, typename sizeType>
 auto MatrixCast(const Eigen::Tensor<Scalar, rank>& tensor, const sizeType rows, const sizeType cols) {
@@ -275,7 +277,7 @@ inline Eigen::MatrixXcd fftn(const Matrix& x) {
   return MatrixCast(res, x.rows(), x.cols());
 }
 
-inline Matrix ifftn(const Eigen::MatrixXcd& x) {
+inline Matrix ifftn(const MatrixC& x) {
   Eigen::Tensor<std::complex<double>, 2> t{TensorCast(x)};
   Eigen::Tensor<std::complex<double>, 2> res = t.fft<Eigen::BothParts, Eigen::FFT_REVERSE>(std::array{0, 1});
   return MatrixCast(res, x.rows(), x.cols()).real();

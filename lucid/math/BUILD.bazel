@@ -147,6 +147,28 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "tensor",
+    srcs = [
+        "Tensor.cpp",
+        "TensorView.cpp",
+    ],
+    hdrs = [
+        "Tensor.h",
+        "TensorView.h",
+    ],
+    implementation_deps = [
+        "//lucid/lib:pocketfft",
+        "//lucid/util:error",
+        "//lucid/util:logging",
+    ],
+    deps = [
+        "//lucid/lib:eigen",
+        "//lucid/util:concepts",
+        "//lucid/util:exception",
+    ],
+)
+
+lucid_cc_library(
     name = "math",
     hdrs = ["math.h"],
     visibility = ["//visibility:public"],

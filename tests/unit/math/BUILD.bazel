@@ -13,3 +13,12 @@ lucid_cc_googletest(
     tags = ["math"],
     deps = ["//lucid/math:set"],
 )
+
+lucid_cc_googletest(
+    name = "test_tensor",
+    tags = ["math"],
+    deps = [
+        "//lucid/math:tensor",
+        "//lucid/util:exception",
+    ],
+)
