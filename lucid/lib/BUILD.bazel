@@ -42,3 +42,11 @@ lucid_cc_library(
         "@gurobi",
     ],
 )
+
+lucid_cc_library(
+    name = "pocketfft",
+    hdrs = ["pocketfft.h"],
+    deps = [
+        "@pocketfft",
+    ],
+)

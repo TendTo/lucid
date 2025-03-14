@@ -70,10 +70,19 @@ github_archive = use_repo_rule("//tools:git_archive.bzl", "github_archive")
 # MIT | logging library
 github_archive(
     name = "lbfgscpp",
-    build_file = "//third_party:lbfgscpp.BUILD.bazel",  # custom build file
+    build_file = "//third_party:lbfgscpp.BUILD.bazel",
     commit = "9db7a6d05042cc72851ed6c5e2cd34a0356b7150",
     repository = "yixuan/LBFGSpp",
     sha256 = "f3423ddeaed9642959b45d06cad6433444a31a2e21594825a09b914c2794cdac",
+)
+
+# MIT | logging library
+github_archive(
+    name = "pocketfft",
+    build_file = "//third_party:pocketfft.BUILD.bazel",
+    commit = "0fa0ef591e38c2758e3184c6c23e497b9f732ffa",
+    repository = "mreineck/pocketfft",
+    sha256 = "1cfd0494ac6fe88e034579cb655b0ef9731b39a0432558e50fe41c4abd6d8684",
 )
 
 #################################################################################
