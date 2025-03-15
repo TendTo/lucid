@@ -12,6 +12,7 @@ build --flag_alias=python_version=@rules_python//python/config_settings:python_v
 # Default build
 build:windows --cxxopt=/std:c++20 --cxxopt=/utf-8
 build:windows --workspace_status_command=tools/workspace_status.bat
+build:windows --enable_runfiles
 
 build:linux --cxxopt=-std=c++20
 build:linux --workspace_status_command=tools/workspace_status.sh

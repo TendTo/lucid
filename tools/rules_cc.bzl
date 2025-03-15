@@ -75,6 +75,7 @@ GCC_FLAGS = CXX_FLAGS + [
 # The MSVC_CL_FLAGS will be enabled for all C++ rules in the project when
 # building with MSVC.
 MSVC_CL_FLAGS = [
+    "/std:c++20",
     "-W4",
     "-WX",
     # "-wd4068",  # unknown pragma
@@ -249,6 +250,8 @@ def lucid_cc_binary(
 def lucid_cc_test(
         name,
         srcs = None,
+        data = [],
+        deps = None,
         copts = [],
         tags = [],
         defines = [],
@@ -265,6 +268,8 @@ def lucid_cc_test(
     Args:
         name: The name of the test.
         srcs: A list of source files to compile.
+        data: A list of data files to include in the test. Can be used to provide input files.
+        deps: A list of dependencies.
         copts: A list of compiler options.
         tags: A list of tags to add to the test. Allows for test filtering.
         defines: A list of compiler defines used when compiling this target.
@@ -272,9 +277,15 @@ def lucid_cc_test(
     """
     if srcs == None:
         srcs = ["".join([word.capitalize() for word in name.split("_")]) + ".cpp"]
+    if deps == None:
+        deps = []
+    if len(data) > 0:
+        deps.append("@rules_cc//cc/runfiles")
     cc_test(
         name = name,
         srcs = srcs,
+        data = data,
+        deps = deps,
         copts = _get_copts(copts, cc_test = True),
         linkstatic = True,
         tags = tags + ["lucid", "".join([word.lower() for word in name.split("_")][1:])],
