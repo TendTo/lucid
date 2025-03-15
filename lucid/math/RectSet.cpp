@@ -90,7 +90,7 @@ RectSet::operator Matrix() const {
   return x_lim;
 }
 
-Matrix RectSet::sample_element(const int num_samples) const {
+Matrix RectSet::sample_element(const Index num_samples) const {
   Matrix samples(num_samples, dimension());
   const auto diff_vector{ub_ - lb_};
   for (int i = 0; i < num_samples; i++) {

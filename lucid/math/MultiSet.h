@@ -45,7 +45,7 @@ class MultiSet final : public Set {
 
   [[nodiscard]] Dimension dimension() const override { return sets_.empty() ? 0 : sets_.front()->dimension(); }
 
-  [[nodiscard]] Matrix sample_element(int num_samples) const override;
+  [[nodiscard]] Matrix sample_element(Index num_samples) const override;
 
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override;
 

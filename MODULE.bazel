@@ -57,10 +57,11 @@ bazel_dep(name = "depend_on_what_you_use", version = "0.7.0", dev_dependency = T
 
 new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 
+GUROBI_HOME = "/opt/gurobi1201/linux64"
 new_local_repository(
     name = "gurobi",
     build_file = "//third_party:gurobi.BUILD.bazel",
-    path = "/opt/gurobi1201/linux64",
+    path = GUROBI_HOME,
 )
 
 # GitHub repositories

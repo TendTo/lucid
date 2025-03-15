@@ -35,7 +35,9 @@ class Tensor {
    * @param dims shape of the tensor. Each element is the size of the corresponding dimension
    */
   explicit Tensor(std::vector<std::size_t> dims)
-      : Tensor(std::vector<T>(std::accumulate(dims.begin(), dims.end(), 1, std::multiplies{})), dims) {}
+      : Tensor(
+            std::vector<T>(std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{})),
+            dims) {}
   /**
    * Construct a new Tensor object.
    * The rank of the tensor is determined by the size of the dimensions vector.

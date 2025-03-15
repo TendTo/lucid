@@ -35,7 +35,7 @@ class Set {
    * @return @sxn matrix of samples, where @n is the dimension of @U.
    * In other words, the samples are stored as rows vectors in the matrix
    */
-  [[nodiscard]] virtual Matrix sample_element(int num_samples) const = 0;
+  [[nodiscard]] virtual Matrix sample_element(Index num_samples) const = 0;
   /**
    * Extract an element from @U using some kind of random distribution.
    * @return element of the set

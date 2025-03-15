@@ -20,9 +20,10 @@ TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims
     }
     return;
   }
-  if (static_cast<Index>(data_.size()) != std::accumulate(dims_.begin(), dims_.end(), 1, std::multiplies{})) {
-    LUCID_INVALID_ARGUMENT_EXPECTED("data size", data_.size(),
-                                    std::accumulate(dims_.begin(), dims_.end(), 1, std::multiplies{}));
+  if (std::accumulate(dims_.begin(), dims_.end(), static_cast<std::size_t>(1), std::multiplies{}) != data_.size()) {
+    LUCID_INVALID_ARGUMENT_EXPECTED(
+        "data size", std::accumulate(dims_.begin(), dims_.end(), static_cast<std::size_t>(1), std::multiplies{}),
+        data_.size());
   }
   strides_.back() = 1;
   for (std::size_t i = 1; i < dims_.size(); i++)
@@ -73,9 +74,9 @@ TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen:
 
 template <IsAnyOf<double, std::complex<double>> T>
 TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
-  if (std::accumulate(dims.begin(), dims.end(), 1ul, std::multiplies{}) != size())
-    LUCID_INVALID_ARGUMENT_EXPECTED("new size", std::accumulate(dims.begin(), dims.end(), 1, std::multiplies{}),
-                                    size());
+  if (std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}) != size())
+    LUCID_INVALID_ARGUMENT_EXPECTED(
+        "new size", std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}), size());
   dims_ = std::move(dims);
   strides_.resize(dims_.size());
   strides_.back() = 1;

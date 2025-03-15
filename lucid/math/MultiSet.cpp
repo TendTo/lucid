@@ -18,7 +18,7 @@ std::uniform_int_distribution<std::size_t> dist;
 
 }  // namespace
 
-Matrix MultiSet::sample_element(const int num_samples) const {
+Matrix MultiSet::sample_element(const Index num_samples) const {
   if (sets_.empty()) return Matrix::Zero(0, 0);
   // TODO(tend): not thread-safe
   // TODO(tend): A random one is selected uniformly and then the sample is taken from that set.

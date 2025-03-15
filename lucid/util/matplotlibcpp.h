@@ -39,7 +39,13 @@ namespace detail {
 
 static std::string backend_;
 
-class __attribute__((visibility("hidden"))) _interpreter {
+#if __GNUC__ >= 4
+#define HIDDEN __attribute__((visibility("hidden")))
+#else
+#define HIDDEN
+#endif
+
+class HIDDEN _interpreter {
  public:
   static _interpreter& get() { return interkeeper(false); }
   static _interpreter& kill() { return interkeeper(true); }
@@ -426,7 +432,7 @@ struct SaveKwargs {
                             ///< color of the Axes and Figure patches are unchanged
   int dpi{-1};              ///< The resolution in dots per inch.
   std::optional<std::string> format{};  ///< The file format to use. By default it is inferred from the file name.
-  float pad_inches{0.1};                ///< Amount of padding around the figure.
+  double pad_inches{0.1};               ///< Amount of padding around the figure.
   std::string facecolor{"auto"};        ///< The facecolor of the figure.
   std::string edgecolor{"auto"};        ///< The edgecolor of the figure.
 };

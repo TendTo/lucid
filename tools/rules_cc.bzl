@@ -78,6 +78,11 @@ MSVC_CL_FLAGS = [
     "-W4",
     "-WX",
     # "-wd4068",  # unknown pragma
+    "-wd4673",  # the following types will not be considered at the catch site
+    "-wd4670",  # the base class is inaccessible
+    "-wd4702",  # unreachable code
+    "-external:anglebrackets",  # Treat angle brackets headers as external headers
+    "-external:W0",  # Disable warnings for external headers
 ]
 
 # The CLANG_CL_FLAGS will be enabled for all C++ rules in the project when

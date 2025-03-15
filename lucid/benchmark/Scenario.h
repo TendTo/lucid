@@ -63,7 +63,7 @@ class Scenario {
    * @param num_samples number of samples to generate
    * @return `n` x `num_samples` matrix of samples, where `n` is the dimension of the vector space @X
    */
-  [[nodiscard]] Matrix sample_element(int num_samples) const;
+  [[nodiscard]] Matrix sample_element(Index num_samples) const;
   /**
    * Sample an element from the scenario set.
    * @return @nvector, a sample from the whole set.

@@ -8,7 +8,7 @@
 
 namespace lucid::benchmark {
 
-void Scenario::sample_transition(const int num_samples, Matrix& inputs, Matrix& outputs) const {
+void Scenario::sample_transition(const Index num_samples, Matrix& inputs, Matrix& outputs) const {
   inputs = set().sample_element(num_samples);
   outputs = Matrix::Zero(num_samples, dimension());
   for (int i = 0; i < num_samples; i++) outputs.row(i) = transition(inputs.row(i)).transpose();
@@ -20,7 +20,7 @@ void Scenario::sample_transition(Vector& input, Vector& output) const {
   input = inputs.col(0);
   output = outputs.col(0);
 }
-Matrix Scenario::sample_element(const int num_samples) const { return set().sample_element(num_samples); }
+Matrix Scenario::sample_element(const Index num_samples) const { return set().sample_element(num_samples); }
 Vector Scenario::sample_element() const { return set().sample_element(); }
 
 void Scenario::plot() const {
