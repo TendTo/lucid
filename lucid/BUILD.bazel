@@ -1,14 +1,13 @@
 load("//tools:cpplint.bzl", "cpplint")
-load("//tools:rules_cc.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION", "lucid_cc_binary", "lucid_cc_library", "lucid_srcs")
+load("//tools:rules_cc.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION", "lucid_cc_library", "lucid_srcs")
 load("//tools:rules_py_cc.bzl", "lucid_cc_py_binary")
 
 lucid_srcs(
     name = "srcs",
     deps = [
-        # "//lucid/lib:all_srcs",
-        "//lucid/benchmark:all_srcs",
-        "//lucid/tuning:all_srcs",
+        "//lucid/lib:all_srcs",
         "//lucid/math:all_srcs",
+        "//lucid/tuning:all_srcs",
         "//lucid/util:all_srcs",
     ],
 )
@@ -37,7 +36,6 @@ lucid_cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":version",
-        "//lucid/benchmark",
         "//lucid/lib:eigen",
         "//lucid/math",
         "//lucid/tuning",

@@ -96,15 +96,15 @@ Matrix wavelengths(const Dimension dimension, const int num_frequencies_per_dime
   for (Dimension i = 1; i < dimension; i++) {
     frequency_combination = combvec(frequency_combination, frequencies.transpose());
   }
-  return (frequency_combination.rightCols(frequency_combination.cols() - 1) * 2 * M_PI).transpose();
+  return (frequency_combination.rightCols(frequency_combination.cols() - 1) * 2 * std::numbers::pi).transpose();
 }
 
 Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, Scalar sigma_f, ConstVectorRef sigma_l,
                      const int num_frequencies_per_dimension) {
   if (sigma_l.size() < 1) throw std::invalid_argument("sigma_l must have at least one element");
 
-  const Vector omega_dim_wise_lb = (2 * M_PI * arange(0, num_frequencies_per_dimension)).array() - M_PI;
-  const Vector omega_dim_wise_ub = omega_dim_wise_lb.array() + 2 * M_PI;
+  const Vector omega_dim_wise_lb = (2 * std::numbers::pi * arange(0, num_frequencies_per_dimension)).array() - std::numbers::pi;
+  const Vector omega_dim_wise_ub = omega_dim_wise_lb.array() + 2 * std::numbers::pi;
 
   Matrix prob_dim_wise{dimension, num_frequencies_per_dimension};
   for (Dimension i = 0; i < dimension; i++) {

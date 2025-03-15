@@ -7,7 +7,6 @@
  */
 #pragma once
 
-#include "lucid/benchmark/benchmark.h"
 #include "lucid/lib/eigen.h"
 #include "lucid/math/math.h"
 #include "lucid/tuning/tuning.h"
