@@ -30,6 +30,16 @@ const MultiSet initial_set{RectSet{Vector2{1, -0.5}, Vector2{2, 0.5}},         /
 const MultiSet unsafe_set{RectSet{Vector2{0.4, 0.1}, Vector2{0.6, 0.5}},       //
                           RectSet{Vector2{0.4, 0.1}, Vector2{0.8, 0.3}}};      ///< Unsafe set.
 
+// Matrix f_stoch(ConstMatrixRef x) {
+//   if (x.size() != 2) LUCID_INVALID_ARGUMENT_EXPECTED("x.size()", x.size(), 2);
+//   return f_det(x) + mvnrnd(Vector::Zero(2), Matrix::Identity(x.size(), x.size()) * 0.01);
+// }
+
+// Matrix f_det(ConstMatrixRef x) {
+//   if (x.size() != 2) LUCID_INVALID_ARGUMENT_EXPECTED("x.size()", x.size(), 2);
+//   return Vector2{x.data()[1], -x.data()[0] - x.data()[1] + 1.0 / 3.0 * std::pow(x.data()[0], 3)};
+// }
+
 class TestInitBarrier3 : public ::testing::Test {
  protected:
   TestInitBarrier3() {
@@ -87,7 +97,7 @@ class TestInitBarrier3 : public ::testing::Test {
 template <class Derived>
 Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const Index samples_per_dim) {
   const Eigen::MatrixXcd f_fft{fft2(f.reshaped(samples_per_dim, samples_per_dim).transpose())};
-  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+  const int n_pad = static_cast<int>(std::floor((n_per_dim / 2 - samples_per_dim / 2)));
   // We do, in order:
   // 1. Shift the zero frequency to the center
   // 2. Pad the frequencies to increase the resolution
@@ -122,7 +132,7 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   const Matrix if_lattice = regression(x_lattice);
   ASSERT_TRUE(if_lattice.isApprox(expected_if_lattice, tolerance));
 
-  const int factor = std::ceil(num_supp_per_dim / static_cast<double>(samples_per_dim)) + 1;
+  const int factor = static_cast<int>(std::ceil(num_supp_per_dim / static_cast<double>(samples_per_dim)) + 1);
   const int n_per_dim = factor * samples_per_dim;
 
   Matrix w_mat = Matrix::Zero(lucid::pow(n_per_dim, dimension), fp_samples.cols());

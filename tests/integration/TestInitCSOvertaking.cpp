@@ -5,6 +5,8 @@
  */
 #include <gtest/gtest.h>
 
+#include <numbers>
+
 #include "lucid/lucid.h"
 #include "lucid/util/error.h"
 #include "lucid/util/math.h"
@@ -26,11 +28,12 @@ constexpr double lambda = 1e-5;
 constexpr int N = 1000;
 constexpr double epsilon = .1 / 30;
 constexpr bool autonomous = true;
-const RectSet limit_set{Vector3{1, -7, -M_PI}, Vector3{90, 19, M_PI}};                  ///< Set.
-const MultiSet initial_set{RectSet{Vector3{1, -0.5, -0.005}, Vector3{2, 0.5, 0.005}}};  ///< Initial set.
-const MultiSet unsafe_set{RectSet{Vector3{1, -7, -M_PI}, Vector3{90, -6, M_PI}},
-                          RectSet{Vector3{1, 18, -M_PI}, Vector3{90, 19, M_PI}},
-                          RectSet{Vector3{40, -6, -M_PI}, Vector3{45, 6, M_PI}}};  ///< Unsafe set.
+const RectSet limit_set{Vector3{1, -7, -std::numbers::pi}, Vector3{90, 19, std::numbers::pi}};  ///< Set.
+const MultiSet initial_set{RectSet{Vector3{1, -0.5, -0.005}, Vector3{2, 0.5, 0.005}}};          ///< Initial set.
+const MultiSet unsafe_set{
+    RectSet{Vector3{1, -7, -std::numbers::pi}, Vector3{90, -6, std::numbers::pi}},
+    RectSet{Vector3{1, 18, -std::numbers::pi}, Vector3{90, 19, std::numbers::pi}},
+    RectSet{Vector3{40, -6, -std::numbers::pi}, Vector3{45, 6, std::numbers::pi}}};  ///< Unsafe set.
 
 class TestInitCSOvertaking : public ::testing::Test {
  protected:
@@ -80,14 +83,12 @@ Eigen::MatrixXcd fftn(const Eigen::MatrixBase<Derived>& x) {
   return MatrixCast(res, x.rows(), x.cols());
 }
 
-
-
 template <class Derived>
 Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const Index samples_per_dim) {
   // TODO(tend): this only works for 2 dimensions
-  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
-  const double coeff = lucid::pow(n_per_dim / samples_per_dim, dimension);
-  if (dimension == 1 || dimension == 2) {
+  const int n_pad = static_cast<int>(std::floor((n_per_dim / 2 - samples_per_dim / 2)));
+  const double coeff = static_cast<double>(lucid::pow(n_per_dim / samples_per_dim, dimension));
+  if constexpr (dimension == 1 || dimension == 2) {
     const Eigen::MatrixXcd f_fft{fft2(f.derived().reshaped(samples_per_dim, samples_per_dim).transpose())};
     // We do, in order:
     // 1. Shift the zero frequency to the center
@@ -100,7 +101,7 @@ Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const
             lucid::pow(n_per_dim / samples_per_dim, dimension))
         .reshaped(Eigen::AutoSize, 1);
   }
-  if (dimension == 3) {
+  if constexpr (dimension == 3) {
     const Eigen::Tensor<std::complex<double>, 3> t{Eigen::TensorMap<Eigen::Tensor<const std::complex<double>, 3>>{
         f.template cast<std::complex<double>>().eval().data(),
         std::array{samples_per_dim, samples_per_dim, samples_per_dim}}};
@@ -164,7 +165,7 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   const Matrix if_lattice = regression(x_lattice);
   ASSERT_TRUE(if_lattice.isApprox(expected_if_lattice, tolerance));
 
-  const int factor = std::ceil(num_supp_per_dim / static_cast<double>(samples_per_dim)) + 1;
+  const int factor = static_cast<int>(std::ceil(num_supp_per_dim / static_cast<double>(samples_per_dim)) + 1);
   const int n_per_dim = factor * samples_per_dim;
 
   Matrix w_mat = Matrix::Zero(lucid::pow(n_per_dim, dimension), fp_samples.cols());

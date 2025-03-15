@@ -40,7 +40,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   // Variables [b_1, ..., b_nBasis_x, c, eta, ...
   // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
   // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
-  Index nVars = rkhs_dim + 2 + 4;
+  int nVars = static_cast<int>(rkhs_dim + 2 + 4);
   std::unique_ptr<GRBVar> vars_{model.addVars(nVars)};
   const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(nVars)};
   GRBVar& c = vars[vars.size() - 6];
@@ -83,7 +83,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
       "hatxi = (C - 1) / (C + 1) * maxXX");
   for (Index row = 0; row < phi_mat.rows(); ++row) {
     GRBLinExpr expr{};
-    expr.addTerms(phi_mat.row(row).eval().data(), vars_.get(), phi_mat.cols());
+    expr.addTerms(phi_mat.row(row).eval().data(), vars_.get(), static_cast<int>(phi_mat.cols()));
     expr += maxXX * maxXX_coeff;
     model.addConstr(expr, GRB_GREATER_EQUAL, 0);
     expr -= maxXX * maxXX_coeff;
@@ -97,7 +97,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
       "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0");
   for (Index row = 0; row < f0_lattice.rows(); ++row) {
     GRBLinExpr expr{};
-    expr.addTerms(f0_lattice.row(row).eval().data(), vars_.get(), f0_lattice.cols());
+    expr.addTerms(f0_lattice.row(row).eval().data(), vars_.get(), static_cast<int>(f0_lattice.cols()));
     expr += -fctr1 * eta - fctr2 * minX0;
     model.addConstr(expr, GRB_LESS_EQUAL, 0);
     expr -= -fctr1 * eta - fctr2 * minX0;
@@ -111,7 +111,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
       "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU");
   for (Index row = 0; row < fu_lattice.rows(); ++row) {
     GRBLinExpr expr{};
-    expr.addTerms(fu_lattice.row(row).eval().data(), vars_.get(), fu_lattice.cols());
+    expr.addTerms(fu_lattice.row(row).eval().data(), vars_.get(), static_cast<int>(fu_lattice.cols()));
     expr += -fctr2 * maxXU;
     model.addConstr(expr, GRB_GREATER_EQUAL, unsafe_rhs);
     expr -= -fctr2 * maxXU;
@@ -126,13 +126,13 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   auto mult = w_mat - b_kappa_ * phi_mat;
   for (Index row = 0; row < w_mat.rows(); ++row) {
     GRBLinExpr expr{};
-    expr.addTerms(mult.row(row).eval().data(), vars_.get(), mult.cols());
+    expr.addTerms(mult.row(row).eval().data(), vars_.get(), static_cast<int>(mult.cols()));
     expr += -fctr1 * c - fctr2 * minDelta;
     model.addConstr(expr, GRB_LESS_EQUAL, kushner_rhs);
   }
   for (Index row = 0; row < phi_mat.rows(); ++row) {
     GRBLinExpr expr{-minDelta};
-    expr.addTerms(phi_mat.row(row).eval().data(), vars_.get(), phi_mat.cols());
+    expr.addTerms(phi_mat.row(row).eval().data(), vars_.get(), static_cast<int>(phi_mat.cols()));
     model.addConstr(expr, GRB_GREATER_EQUAL, 0);
   }
 

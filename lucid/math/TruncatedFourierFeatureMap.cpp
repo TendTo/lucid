@@ -6,6 +6,8 @@
  */
 #include "lucid/math/TruncatedFourierFeatureMap.h"
 
+#include <numbers>
+
 #include "lucid/util/IndexIterator.h"
 #include "lucid/util/logging.h"
 #include "lucid/util/math.h"
@@ -26,12 +28,14 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencie
     // For each combination, compute the product of the sines and cosines of the values in the vector
     // TODO(tend): We can probably remove the reverse
     Index col = 0;
-    for (const Index val : std::views::reverse(it.indexes())) omega_(row, col++) = 2 * M_PI * static_cast<double>(val);
+    for (const Index val : std::views::reverse(it.indexes()))
+      omega_(row, col++) = 2 * std::numbers::pi * static_cast<double>(val);
   }
 
   // Compute the weights for the feature map
-  const Vector omega_dim_wise_lb = (2 * M_PI * arange(0, num_frequencies_per_dimension_)).array() - M_PI;
-  const Vector omega_dim_wise_ub = omega_dim_wise_lb.array() + 2 * M_PI;
+  const Vector omega_dim_wise_lb =
+      (2 * std::numbers::pi * arange(0, num_frequencies_per_dimension_)).array() - std::numbers::pi;
+  const Vector omega_dim_wise_ub = omega_dim_wise_lb.array() + 2 * std::numbers::pi;
 
   Matrix prob_dim_wise{input_dimension, num_frequencies_per_dimension_};
   for (Dimension i = 0; i < input_dimension; i++) {
