@@ -7,22 +7,52 @@ licenses(["notice"])
 package(default_visibility = ["//visibility:public"])
 
 cc_import(
-    name = "_gurobi_c",
+    name = "_gurobi_c_unix",
     hdrs = ["include/gurobi_c.h"],
     shared_library = "lib/libgurobi120.so",
     visibility = ["//visibility:private"],
 )
 
 cc_import(
-    name = "_gurobi_cpp",
+    name = "_gurobi_cpp_unix",
     hdrs = ["include/gurobi_c++.h"],
     static_library = "lib/libgurobi_c++.a",
     visibility = ["//visibility:private"],
-    deps = [":_gurobi_c"],
+)
+
+cc_import(
+    name = "_gurobi_dll_windows",
+    shared_library = "bin/gurobi120.dll",
+    visibility = ["//visibility:private"],
+)
+
+cc_import(
+    name = "_gurobi_dll_netstandard_windows",
+    shared_library = "lib/gurobi120.netstandard20.dll",
+    visibility = ["//visibility:private"],
+)
+
+cc_import(
+    name = "_gurobi_lib_windows",
+    hdrs = ["include/gurobi_c++.h", "include/gurobi_c.h"],
+    static_library = "lib/gurobi120.lib",
+    visibility = ["//visibility:private"],
+)
+
+cc_import(
+    name = "_gurobi_lib_md_windows",
+    static_library = select({
+        "@lucid//tools:release_build": "lib/gurobi_c++md2017.lib",
+        "//conditions:default": "lib/gurobi_c++mdd2017.lib",
+    }),
+    visibility = ["//visibility:private"],
 )
 
 cc_library(
     name = "gurobi",
-    deps = [":_gurobi_cpp"],
+    deps = select({
+        "@platforms//os:windows": [":_gurobi_dll_windows", ":_gurobi_dll_netstandard_windows", ":_gurobi_lib_windows", ":_gurobi_lib_md_windows"],
+        "//conditions:default": [":_gurobi_c_unix", ":_gurobi_cpp_unix"],
+    }),
     includes = ["include"],
 )
