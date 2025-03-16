@@ -36,7 +36,7 @@ class IndexIterator {
    * Each of the indexes will go from [0 to `max_value[i]` - 1] (inclusive).
    * @param max_value maximum value for each index
    */
-  explicit IndexIterator(std::vector<long> max_value)
+  explicit IndexIterator(T max_value)
     requires std::is_same_v<T, std::vector<long>>;
   /**
    * Construct an index iterator with `size` given by `max_value.size()`.
@@ -44,7 +44,7 @@ class IndexIterator {
    * @param min_value minimum value for each index
    * @param max_value maximum value for each index
    */
-  IndexIterator(std::vector<long> min_value, std::vector<long> max_value)
+  IndexIterator(T min_value, T max_value)
     requires std::is_same_v<T, std::vector<long>>;
   /**
    * Construct an index iterator with the given `size`.
@@ -52,7 +52,7 @@ class IndexIterator {
    * @param size number of indexes
    * @param max_value maximum value for each index
    */
-  IndexIterator(std::size_t size, long max_value)
+  IndexIterator(std::size_t size, T max_value)
     requires std::is_same_v<T, long>;
   /**
    * Construct an index iterator with the given `size`.
@@ -61,7 +61,7 @@ class IndexIterator {
    * @param min_value minimum value for each index
    * @param max_value maximum value for each index
    */
-  IndexIterator(std::size_t size, long min_value, long max_value)
+  IndexIterator(std::size_t size, T min_value, T max_value)
     requires std::is_same_v<T, long>;
 
   /**
@@ -99,5 +99,6 @@ extern template class IndexIterator<std::vector<long>>;
 #include "lucid/util/logging.h"
 
 OSTREAM_FORMATTER(lucid::IndexIterator<long>)
+OSTREAM_FORMATTER(lucid::IndexIterator<std::vector<long>>)
 
 #endif

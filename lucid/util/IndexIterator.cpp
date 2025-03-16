@@ -15,7 +15,12 @@
 namespace lucid {
 
 template <IsAnyOf<long, std::vector<long>> T>
-IndexIterator<T>::IndexIterator(const std::size_t size, long min_value, long max_value)
+IndexIterator<T>::IndexIterator(std::size_t size, T max_value)
+  requires std::is_same_v<T, long>
+    : IndexIterator{size, 0, max_value} {}
+
+template <IsAnyOf<long, std::vector<long>> T>
+IndexIterator<T>::IndexIterator(const std::size_t size, T min_value, T max_value)
   requires std::is_same_v<T, long>
     : min_value_{min_value}, max_value_{max_value}, indexes_(size, min_value) {
   if (size == 0) LUCID_INVALID_ARGUMENT_EXPECTED("size", size, "greater than 0");
@@ -23,12 +28,12 @@ IndexIterator<T>::IndexIterator(const std::size_t size, long min_value, long max
 }
 
 template <IsAnyOf<long, std::vector<long>> T>
-IndexIterator<T>::IndexIterator(std::vector<long> max_value)
+IndexIterator<T>::IndexIterator(T max_value)
   requires std::is_same_v<T, std::vector<long>>
     : IndexIterator{std::vector<long>(max_value.size(), 0), std::move(max_value)} {}
 
 template <IsAnyOf<long, std::vector<long>> T>
-IndexIterator<T>::IndexIterator(std::vector<long> min_value, std::vector<long> max_value)
+IndexIterator<T>::IndexIterator(T min_value, T max_value)
   requires std::is_same_v<T, std::vector<long>>
     : min_value_{std::move(min_value)}, max_value_{std::move(max_value)}, indexes_{min_value_} {
   if (min_value_.empty()) LUCID_INVALID_ARGUMENT_EXPECTED("min_value.size()", min_value_.size(), "greater than 0");
@@ -41,11 +46,6 @@ IndexIterator<T>::IndexIterator(std::vector<long> min_value, std::vector<long> m
     }
   }
 }
-
-template <IsAnyOf<long, std::vector<long>> T>
-IndexIterator<T>::IndexIterator(std::size_t size, long max_value)
-  requires std::is_same_v<T, long>
-    : IndexIterator{size, 0, max_value} {}
 
 template <IsAnyOf<long, std::vector<long>> T>
 IndexIterator<T>& IndexIterator<T>::operator++() {
