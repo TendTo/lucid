@@ -12,7 +12,8 @@ namespace lucid {
 
 template <IsAnyOf<double, std::complex<double>> T>
 Tensor<T>::Tensor(std::vector<std::size_t> dims)
-    : Tensor(std::vector<T>(std::accumulate(dims.begin(), dims.end(), 1, std::multiplies{})), dims) {}
+    : Tensor(std::vector<T>(std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{})),
+             dims) {}
 template <IsAnyOf<double, std::complex<double>> T>
 Tensor<T>::Tensor(std::vector<T> data, std::vector<std::size_t> dims) : data_{std::move(data)}, view_{data_, dims} {}
 template <IsAnyOf<double, std::complex<double>> T>

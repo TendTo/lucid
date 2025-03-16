@@ -34,14 +34,18 @@ class Tensor {
    * The rank of the tensor is determined by the size of the dimensions vector.
    * @param dims shape of the tensor. Each element is the size of the corresponding dimension
    */
-  explicit Tensor(std::vector<std::size_t> dims)
-      : Tensor(
-            std::vector<T>(std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{})),
-            dims) {}
+  explicit Tensor(std::vector<std::size_t> dims);
   /**
    * Construct a new Tensor object.
    * The rank of the tensor is determined by the size of the dimensions vector.
-   * @param data data of the tensor
+   * @param value value of all the elements in the tensor
+   * @param dims shape of the tensor. Each element is the size of the corresponding dimension
+   */
+  Tensor(const T& value, std::vector<std::size_t> dims);
+  /**
+   * Construct a new Tensor object.
+   * The rank of the tensor is determined by the size of the dimensions vector.
+   * @param data data of the tensor. It will be copied
    * @param dims shape of the tensor. Each element is the size of the corresponding dimension
    */
   Tensor(std::vector<T> data, std::vector<std::size_t> dims);
@@ -101,6 +105,16 @@ class Tensor {
   [[nodiscard]] const TensorView<T>& view() const { return view_; }
 
   /**
+   * Pad the tensor with a value.
+   * The padding is applied to each dimension, and it is specified by a pair of indices,
+   * one for the beginning and one for the end of the dimension.
+   * @param padding padding for each dimension
+   * @param value value to fill the padding
+   * @return padded tensor
+   */
+  Tensor<T> pad(const std::vector<std::pair<Index, Index>>& padding, const T& value = {}) const;
+
+  /**
    * Apply the Fast Fourier Transform to the tensor.
    * It is just the application of the FFT to each dimension of the tensor.
    * @param axes axes to apply the FFT. Can be used to specify a different order of the dimensions
@@ -115,7 +129,7 @@ class Tensor {
    * @return tensor with the IFFT applied to each dimension
    * @see fft
    */
-  [[nodiscard]] Tensor<double> ifft(const std::vector<std::size_t>& axes) const;
+  [[nodiscard]] Tensor<double> ifft(const std::vector<std::size_t>& axes = {}) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return view_; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const { return view_; }
