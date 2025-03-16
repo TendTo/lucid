@@ -78,4 +78,8 @@ lucid_cc_library(
     srcs = ["IndexIterator.cpp"],
     hdrs = ["IndexIterator.h"],
     implementation_deps = [":error"],
+    deps = [
+        ":concepts",
+        ":logging",
+    ],
 )

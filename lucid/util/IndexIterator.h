@@ -7,29 +7,52 @@
  */
 #pragma once
 
-#include <iostream>
+#include <iosfwd>
 #include <ranges>
 #include <vector>
 
-namespace lucid {
+#include "lucid/util/concept.h"
 
+namespace lucid {
 /**
  * Iterator over all possible indexes in a given range.
+ * It also supports individual range for each index.
  * @code
- * for (IndexIterator it{3, 0, 2}; it; ++it) {
+ * for (IndexIterator<long> it{3, 0, 2}; it; ++it) {
  *  std::cout << it[0] << it[1] << it[2] << std::endl;
  * }
+ * for (IndexIterator<std::vector<long>> it{{0, -1, 0}, {4, 2, 2}}; it; ++it) {
+ *    std::cout << it[0] << it[1] << it[2] << std::endl;
+ * }
  * @endcode
+ * @tparam T type of the range. It can be a single value or a vector of values.
  */
+template <IsAnyOf<long, std::vector<long>> T>
 class IndexIterator {
  public:
+  /**
+   * Construct an index iterator with `size` given by `max_value.size()`.
+   * Each of the indexes will go from [0 to `max_value[i]` - 1] (inclusive).
+   * @param max_value maximum value for each index
+   */
+  explicit IndexIterator(std::vector<long> max_value)
+    requires std::is_same_v<T, std::vector<long>>;
+  /**
+   * Construct an index iterator with `size` given by `max_value.size()`.
+   * Each of the indexes will go from [`min_value[i]` to `max_value[i]` - 1] (inclusive).
+   * @param min_value minimum value for each index
+   * @param max_value maximum value for each index
+   */
+  IndexIterator(std::vector<long> min_value, std::vector<long> max_value)
+    requires std::is_same_v<T, std::vector<long>>;
   /**
    * Construct an index iterator with the given `size`.
    * Each of the indexes will go from [0 to `max_value` - 1] (inclusive).
    * @param size number of indexes
    * @param max_value maximum value for each index
    */
-  IndexIterator(const std::size_t size, const long max_value) : IndexIterator{size, 0, max_value} {}
+  IndexIterator(std::size_t size, long max_value)
+    requires std::is_same_v<T, long>;
   /**
    * Construct an index iterator with the given `size`.
    * Each of the indexes will go from [`min_value` to `max_value` - 1] (inclusive).
@@ -37,30 +60,41 @@ class IndexIterator {
    * @param min_value minimum value for each index
    * @param max_value maximum value for each index
    */
-  IndexIterator(std::size_t size, long min_value, long max_value);
+  IndexIterator(std::size_t size, long min_value, long max_value)
+    requires std::is_same_v<T, long>;
 
-  IndexIterator& operator++() {
-    indexes_.back()++;
-    if (indexes_.back() < max_value_) return *this;
-    for (std::size_t i = indexes_.size() - 1; i > 0; i--) {
-      if (indexes_[i] >= max_value_) {
-        indexes_[i] = min_value_;
-        indexes_[i - 1]++;
-      }
-    }
-    return *this;
-  }
-
+  /**
+   * Increment the iterator.
+   * Go to the next index.
+   * @return reference to the iterator
+   */
+  IndexIterator& operator++();
+  /** @getter{whole vector of indexes, index iterator} */
   [[nodiscard]] const std::vector<long>& indexes() const { return indexes_; }
-
+  /** @getter{index element, index iterator} */
   [[nodiscard]] long operator[](const std::size_t index) const { return indexes_[index]; }
 
-  operator bool() const { return indexes_.front() < max_value_; }
+  /** @checker{done iterating\, having gone over all valid indexes, index iterator} */
+  operator bool() const;
 
  private:
-  long min_value_;             ///< Minimum value for each index. Inclusive
-  long max_value_;             ///< Maximum value for each index. Exclusive
+  T min_value_;                ///< Minimum value for each index. Inclusive
+  T max_value_;                ///< Maximum value for each index. Exclusive
   std::vector<long> indexes_;  ///< Current indexes
 };
 
+template <IsAnyOf<long, std::vector<long>> T>
+std::ostream& operator<<(std::ostream& os, const IndexIterator<T>& index_iterator);
+
+extern template class IndexIterator<long>;
+extern template class IndexIterator<std::vector<long>>;
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::IndexIterator<long>)
+
+#endif

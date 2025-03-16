@@ -12,10 +12,10 @@ using lucid::IndexIterator;
 using lucid::exception::LucidInvalidArgumentException;
 
 TEST(IndexIterator, Constructor) {
-  const std::size_t size = 3;
-  const long min_value = 0;
-  const long max_value = 2;
-  IndexIterator it(size, min_value, max_value);
+  constexpr std::size_t size = 3;
+  constexpr long min_value = 0;
+  constexpr long max_value = 2;
+  const IndexIterator<long> it(size, min_value, max_value);
   EXPECT_EQ(it[0], min_value);
   EXPECT_EQ(it[1], min_value);
   EXPECT_EQ(it[2], min_value);
@@ -26,7 +26,7 @@ TEST(IndexIterator, AllIterations) {
   std::vector<std::vector<long>> expected{{0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {0, 1, 1},
                                           {1, 0, 0}, {1, 0, 1}, {1, 1, 0}, {1, 1, 1}};
   std::vector<std::vector<long>> result;
-  for (IndexIterator it(3, 0, 2); it; ++it) {
+  for (IndexIterator<long> it(3, 0, 2); it; ++it) {
     result.push_back({it[0], it[1], it[2]});
   }
   EXPECT_EQ(result, expected);
@@ -35,7 +35,7 @@ TEST(IndexIterator, AllIterations) {
 TEST(IndexIterator, SingleIndex) {
   std::vector<long> expected{0, 1, 2};
   std::vector<long> result;
-  for (IndexIterator it(1, 0, 3); it; ++it) {
+  for (IndexIterator<long> it(1, 0, 3); it; ++it) {
     result.push_back(it[0]);
   }
   EXPECT_EQ(result, expected);
@@ -44,14 +44,87 @@ TEST(IndexIterator, SingleIndex) {
 TEST(IndexIterator, NegativeValues) {
   std::vector<std::vector<long>> expected{{-1, -1}, {-1, 0}, {0, -1}, {0, 0}};
   std::vector<std::vector<long>> result;
-  for (IndexIterator it(2, -1, 1); it; ++it) {
+  for (IndexIterator<long> it(2, -1, 1); it; ++it) {
     result.push_back({it[0], it[1]});
   }
   EXPECT_EQ(result, expected);
 }
 
-TEST(IndexIterator, EmptyRange) { EXPECT_THROW(IndexIterator it(0, 0, 2), LucidInvalidArgumentException); }
+TEST(IndexIterator, EmptyRange) { EXPECT_THROW(IndexIterator<long> it(0, 0, 2), LucidInvalidArgumentException); }
 
 TEST(IndexIterator, MinValueGreaterThanMaxValue) {
-  EXPECT_THROW(IndexIterator it(3, 2, 0), LucidInvalidArgumentException);
+  EXPECT_THROW(IndexIterator<long> it(3, 2, 0), LucidInvalidArgumentException);
+}
+
+TEST(IndexIterator, ConstructorVector) {
+  const std::vector<long> min_value{0, 0, 0};
+  const std::vector<long> max_value{2, 2, 2};
+  IndexIterator<std::vector<long>> it(min_value, max_value);
+  EXPECT_EQ(it[0], min_value[0]);
+  EXPECT_EQ(it[1], min_value[1]);
+  EXPECT_EQ(it[2], min_value[2]);
+  EXPECT_TRUE(it);
+}
+
+TEST(IndexIterator, AllIterationsVector) {
+  std::vector<std::vector<long>> expected{{0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {0, 1, 1},
+                                          {1, 0, 0}, {1, 0, 1}, {1, 1, 0}, {1, 1, 1}};
+  std::vector<std::vector<long>> result;
+  for (IndexIterator<std::vector<long>> it(std ::vector<long>{2, 2, 2}); it; ++it) {
+    result.push_back({it[0], it[1], it[2]});
+  }
+  EXPECT_EQ(result, expected);
+}
+
+TEST(IndexIterator, SingleIndexVector) {
+  std::vector<long> expected{0, 1, 2};
+  std::vector<long> result;
+  for (IndexIterator<std::vector<long>> it(std::vector<long>{3}); it; ++it) {
+    result.push_back(it[0]);
+  }
+  EXPECT_EQ(result, expected);
+}
+
+TEST(IndexIterator, NegativeValuesVector) {
+  std::vector<std::vector<long>> expected{{-1, -1}, {-1, 0}, {0, -1}, {0, 0}};
+  std::vector<std::vector<long>> result;
+  for (IndexIterator<std::vector<long>> it(std::vector<long>{-1, -1}, std::vector<long>{1, 1}); it; ++it) {
+    result.push_back({it[0], it[1]});
+  }
+  EXPECT_EQ(result, expected);
+}
+
+TEST(IndexIterator, DifferentMinMaxElementsVector) {
+  std::vector<std::vector<long>> expected{{1, 2, 3}, {1, 2, 4}, {1, 3, 3}, {1, 3, 4},
+                                          {2, 2, 3}, {2, 2, 4}, {2, 3, 3}, {2, 3, 4}};
+  std::vector<std::vector<long>> result;
+  for (IndexIterator<std::vector<long>> it(std::vector<long>{1, 2, 3}, std::vector<long>{3, 4, 5}); it; ++it) {
+    result.push_back({it[0], it[1], it[2]});
+  }
+  EXPECT_EQ(result, expected);
+}
+
+TEST(IndexIterator, DifferentSizeMinMaxElementsVector) {
+  std::vector<std::vector<long>> expected{{1, -2, 3}, {1, -1, 3}, {1, 0, 3}, {1, 1, 3},
+                                          {2, -2, 3}, {2, -1, 3}, {2, 0, 3}, {2, 1, 3}};
+  std::vector<std::vector<long>> result;
+  for (IndexIterator<std::vector<long>> it(std::vector<long>{1, -2, 3}, std::vector<long>{3, 2, 4}); it; ++it) {
+    result.push_back({it[0], it[1], it[2]});
+  }
+  EXPECT_EQ(result, expected);
+}
+
+TEST(IndexIterator, EmptyRangeVector) {
+  EXPECT_THROW(IndexIterator<std::vector<long>> it(std::vector<long>{}, std::vector<long>{}),
+               LucidInvalidArgumentException);
+}
+
+TEST(IndexIterator, DifferentRangeSizeVector) {
+  EXPECT_THROW(IndexIterator<std::vector<long>> it(std::vector<long>{1}, std::vector<long>{2, 3}),
+               LucidInvalidArgumentException);
+}
+
+TEST(IndexIterator, MinValueGreaterThanMaxValueVector) {
+  EXPECT_THROW(IndexIterator<std::vector<long>> it(std::vector<long>{2, 2, 2}, std::vector<long>{0, 0, 0}),
+               LucidInvalidArgumentException);
 }
