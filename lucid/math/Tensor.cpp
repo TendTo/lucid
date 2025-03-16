@@ -26,16 +26,16 @@ Tensor<T>& Tensor<T>::reshape(std::vector<std::size_t> dims) {
 }
 
 template <IsAnyOf<double, std::complex<double>> T>
-Tensor<std::complex<double>> Tensor<T>::fft() const {
+Tensor<std::complex<double>> Tensor<T>::fft(const std::vector<std::size_t>& axes) const {
   Tensor<std::complex<double>> out{view_.dimensions()};
-  view_.fft(out.view_);
+  view_.fft(out.view_, axes);
   return out;
 }
 
 template <IsAnyOf<double, std::complex<double>> T>
-Tensor<double> Tensor<T>::ifft() const {
+Tensor<double> Tensor<T>::ifft(const std::vector<std::size_t>& axes) const {
   Tensor<double> out{view_.dimensions()};
-  view_.ifft(out.view_);
+  view_.ifft(out.view_, axes);
   return out;
 }
 

@@ -33,7 +33,7 @@ TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims
 }
 
 template <IsAnyOf<double, std::complex<double>> T>
-void TensorView<T>::fft(TensorView<std::complex<double>>& out) const {
+void TensorView<T>::fft(TensorView<std::complex<double>>& out, const std::vector<std::size_t>& axes) const {
   LUCID_ASSERT(dims_ == out.dims_, "Output tensor must have the same dimensions as the input tensor");
   T* const in_data = const_cast<T*>(data_.data());
   auto* const out_data = const_cast<std::complex<double>*>(out.data_.data());
@@ -41,19 +41,19 @@ void TensorView<T>::fft(TensorView<std::complex<double>>& out) const {
   for (Index& i : strides) i *= sizeof(T);
   if constexpr (std::is_same_v<T, std::complex<double>>) {
     for (std::size_t axis = 0; axis < dims_.size(); axis++) {
-      pocketfft::c2c(dims_, strides, strides, axes_, pocketfft::FORWARD, in_data, out_data, 1.);
+      pocketfft::c2c(dims_, strides, strides, axes.empty() ? axes_ : axes, pocketfft::FORWARD, in_data, out_data, 1.);
     }
   } else if constexpr (std::is_same_v<T, double>) {
     std::vector<Index> strides_out{strides_};
     for (Index& i : strides_out) i *= sizeof(std::complex<double>);
-    pocketfft::r2c(dims_, strides, strides_out, axes_, pocketfft::FORWARD, in_data, out_data, 1.);
+    pocketfft::r2c(dims_, strides, strides_out, axes.empty() ? axes_ : axes, pocketfft::FORWARD, in_data, out_data, 1.);
   } else {
     LUCID_NOT_SUPPORTED("Tensor which is not double or std::complex<double>");
   }
 }
 
 template <IsAnyOf<double, std::complex<double>> T>
-void TensorView<T>::ifft(TensorView<double>& out) const {
+void TensorView<T>::ifft(TensorView<double>& out, const std::vector<std::size_t>& axes) const {
   LUCID_ASSERT(dims_ == out.dims_, "Output tensor must have the same dimensions as the input tensor");
   T* const in_data = const_cast<T*>(data_.data());
   auto* const out_data = const_cast<double*>(out.data_.data());
@@ -62,7 +62,8 @@ void TensorView<T>::ifft(TensorView<double>& out) const {
   std::vector<Index> strides_out{strides_};
   for (Index& i : strides_out) i *= sizeof(double);
   if constexpr (std::is_same_v<T, std::complex<double>>) {
-    pocketfft::c2r(dims_, strides_in, strides_out, axes_, pocketfft::BACKWARD, in_data, out_data, 1. / size());
+    pocketfft::c2r(dims_, strides_in, strides_out, axes.empty() ? axes_ : axes, pocketfft::BACKWARD, in_data, out_data,
+                   1. / size());
   } else {
     LUCID_NOT_SUPPORTED("Tensor which is not double or std::complex<double>");
   }
@@ -124,6 +125,14 @@ std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
   for (const auto& dim : tensor.dimensions()) std::cout << dim << " ";
   std::cout << "]\n";
 
+  if (tensor.rank() == 1) {
+    return os << Eigen::Map<const Eigen::RowVectorX<T>>{tensor.data().data(), static_cast<Index>(tensor.size())};
+  }
+  if (tensor.rank() == 2) {
+    return os << Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>{
+               tensor.data().data(), static_cast<Index>(tensor.dimensions()[0]),
+               static_cast<Index>(tensor.dimensions()[1])};
+  }
   for (std::size_t i = 0; i < tensor.size(); ++i) {
     std::cout << tensor.data()[i] << " ";
     if ((i + 1) % tensor.dimensions().back() == 0) {

@@ -99,7 +99,7 @@ class TensorView {
    * @param[out] out tensor with the FFT applied to each dimension
    * @see ifft
    */
-  void fft(TensorView<std::complex<double>>& out) const;
+  void fft(TensorView<std::complex<double>>& out, const std::vector<std::size_t>& axes = {}) const;
   /**
    * Apply the Inverse Fast Fourier Transform to the tensor.
    * It is just the application of the IFFT to each dimension of the tensor.
@@ -107,7 +107,7 @@ class TensorView {
    * @param[out] out tensor with the IFFT applied to each dimension
    * @see fft
    */
-  void ifft(TensorView<double>& out) const;
+  void ifft(TensorView<double>& out, const std::vector<std::size_t>& axes = {}) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
@@ -174,3 +174,12 @@ extern template class TensorView<double>;
 extern template class TensorView<std::complex<double>>;
 
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::TensorView<double>)
+OSTREAM_FORMATTER(lucid::TensorView<std::complex<double>>)
+
+#endif

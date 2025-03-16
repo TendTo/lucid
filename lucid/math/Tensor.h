@@ -103,17 +103,19 @@ class Tensor {
   /**
    * Apply the Fast Fourier Transform to the tensor.
    * It is just the application of the FFT to each dimension of the tensor.
+   * @param axes axes to apply the FFT. Can be used to specify a different order of the dimensions
    * @return tensor with the FFT applied to each dimension
    * @see ifft
    */
-  [[nodiscard]] Tensor<std::complex<double>> fft() const;
+  [[nodiscard]] Tensor<std::complex<double>> fft(const std::vector<std::size_t>& axes = {}) const;
   /**
    * Apply the Inverse Fast Fourier Transform to the tensor.
    * It is just the application of the IFFT to each dimension of the tensor.
+   * @param axes axes to apply the IFFT. Can be used to specify a different order of the dimensions
    * @return tensor with the IFFT applied to each dimension
    * @see fft
    */
-  [[nodiscard]] Tensor<double> ifft() const;
+  [[nodiscard]] Tensor<double> ifft(const std::vector<std::size_t>& axes) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return view_; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const { return view_; }
@@ -127,3 +129,12 @@ extern template class Tensor<double>;
 extern template class Tensor<std::complex<double>>;
 
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::Tensor<double>)
+OSTREAM_FORMATTER(lucid::Tensor<std::complex<double>>)
+
+#endif
