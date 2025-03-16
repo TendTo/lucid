@@ -18,4 +18,6 @@
 #include "lucid/math/Regression.h"
 #include "lucid/math/Sampler.h"
 #include "lucid/math/Set.h"
+#include "lucid/math/Tensor.h"
+#include "lucid/math/TensorView.h"
 #include "lucid/math/TruncatedFourierFeatureMap.h"

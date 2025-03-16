@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <ranges>
+#include <span>
 #include <vector>
 
 #include "lucid/util/concept.h"
@@ -76,6 +77,8 @@ class IndexIterator {
 
   /** @checker{done iterating\, having gone over all valid indexes, index iterator} */
   operator bool() const;
+
+  operator std::span<const long>() const;
 
  private:
   T min_value_;                ///< Minimum value for each index. Inclusive

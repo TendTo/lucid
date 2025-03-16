@@ -8,6 +8,7 @@
 #pragma once
 
 #include <complex>
+#include <iosfwd>
 #include <numeric>
 #include <span>
 #include <vector>
@@ -111,6 +112,8 @@ class TensorView {
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
 
+  void pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const;
+
  private:
   /**
    * Get the linear index of an element in the data vector using the indices in each dimension.
@@ -163,6 +166,9 @@ class TensorView {
   std::vector<std::size_t> axes_;  ///< Axes of the tensor. Goes from 0 to rank - 1
   std::vector<Index> strides_{};   ///< Strides of the tensor. Used to calculate the index of an element
 };
+
+template <IsAnyOf<double, std::complex<double>> T>
+std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor);
 
 extern template class TensorView<double>;
 extern template class TensorView<std::complex<double>>;

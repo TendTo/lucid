@@ -303,6 +303,66 @@ TEST(TestTensor, ToMatrix) {
   EXPECT_DOUBLE_EQ(m(1, 5), 12.0);
 }
 
+TEST(Tensor, PadWithZeros) {
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
+  Tensor<double> padded_tensor = tensor.pad({{1, 1}, {1, 1}}, 0.0);
+  EXPECT_THAT(padded_tensor.data(),
+              ::testing::ElementsAre(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 3.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+  EXPECT_EQ(padded_tensor.dimensions(), (std::vector<std::size_t>{4, 4}));
+}
+
+TEST(Tensor, PadWithConstantValue) {
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
+  Tensor<double> padded_tensor = tensor.pad({{1, 1}, {1, 1}}, 5.0);
+  EXPECT_THAT(padded_tensor.data(),
+              ::testing::ElementsAre(5.0, 5.0, 5.0, 5.0, 5.0, 1.0, 2.0, 5.0, 5.0, 3.0, 4.0, 5.0, 5.0, 5.0, 5.0, 5.0));
+  EXPECT_EQ(padded_tensor.dimensions(), (std::vector<std::size_t>{4, 4}));
+}
+
+TEST(Tensor, PadWithDifferentPadding) {
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
+  Tensor<double> padded_tensor = tensor.pad({{1, 2}, {2, 1}}, 0.0);
+  EXPECT_THAT(padded_tensor.data(),
+              ::testing::ElementsAre(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 3.0, 4.0, 0.0, 0.0,
+                                     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+  EXPECT_EQ(padded_tensor.dimensions(), (std::vector<std::size_t>{5, 5}));
+}
+
+TEST(Tensor, Pad3D) {
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, {2ul, 2ul, 3ul});
+  Tensor<double> padded_tensor = tensor.pad({{1, 0}, {0, 2}, {2, 1}}, 0.0);
+  EXPECT_THAT(padded_tensor.data(),
+              ::testing::ElementsAre(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
+                                     3, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0,
+                                     10, 11, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+}
+
+TEST(Tensor, PadHighRank) {
+  Tensor<double> tensor(
+      {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0},
+      {3ul, 1ul, 3ul, 2ul, 1ul});
+  const Tensor<double> padded_tensor = tensor.pad({{1, 0}, {0, 2}, {2, 1}, {0, 0}, {1, 1}}, 0.0);
+  std::array<double, 432> expected_value{
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  0, 0, 2,  0, 0, 3,  0, 0, 4,  0, 0, 5,  0, 0, 6,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,  0, 0, 8,  0, 0, 9,  0, 0, 10, 0, 0, 11, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 14, 0, 0, 15, 0, 0, 16, 0, 0, 17, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0};
+  EXPECT_THAT(padded_tensor.data(), ::testing::ElementsAreArray(expected_value));
+}
+
+TEST(Tensor, PadWithNegativePadding) {
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
+  EXPECT_THROW(tensor.pad({{-1, 1}, {1, 1}}, 0.0), LucidInvalidArgumentException);
+}
+
 TEST(TestTensor, ToMatrixInvalid) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
                  std::vector{2ul, 2ul, 3ul}};

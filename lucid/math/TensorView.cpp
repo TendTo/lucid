@@ -6,7 +6,10 @@
  */
 #include "lucid/math/TensorView.h"
 
+#include <ostream>
+
 #include "lucid/lib/pocketfft.h"
+#include "lucid/util/IndexIterator.h"
 #include "lucid/util/error.h"
 
 namespace lucid {
@@ -15,9 +18,7 @@ template <IsAnyOf<double, std::complex<double>> T>
 TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims)
     : data_{std::move(data)}, dims_{std::move(dims)}, axes_(dims_.size()), strides_(dims_.size()) {
   if (dims_.empty()) {
-    if (!data_.empty()) {
-      LUCID_INVALID_ARGUMENT_EXPECTED("data", data_.size(), "empty");
-    }
+    if (!data_.empty()) LUCID_INVALID_ARGUMENT_EXPECTED("data", data_.size(), "empty");
     return;
   }
   if (std::accumulate(dims_.begin(), dims_.end(), static_cast<std::size_t>(1), std::multiplies{}) != data_.size()) {
@@ -73,6 +74,38 @@ TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen:
 }
 
 template <IsAnyOf<double, std::complex<double>> T>
+void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const {
+  if (std::ranges::any_of(padding, [](const std::pair<Index, Index>& p) { return p.first < 0 || p.second < 0; })) {
+    LUCID_INVALID_ARGUMENT("Padding must be non-negative", padding);
+  }
+  LUCID_ASSERT(dims_.size() == out.dims_.size(), "Output tensor must have the same dimensions as the input tensor");
+  LUCID_ASSERT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
+                                   [padding, &out, this](std::size_t i) {
+                                     return dims_[i] + padding[i].first + padding[i].second == out.dims_[i];
+                                   }),
+               "Output tensor dimensions must be equal to input tensor dimensions plus padding");
+  std::span<T> out_data{const_cast<T*>(out.data_.data()), out.data_.size()};
+  std::vector<long> min_idx_out(dims_.size());
+  std::vector<long> max_idx_out(dims_.begin(), dims_.end());
+  std::vector<long> max_idx_in(dims_.begin(), dims_.end());
+  max_idx_out.back() = 1;
+  max_idx_in.back() = 1;
+  for (std::size_t i = 0; i < dims_.size(); i++) {
+    min_idx_out[i] = padding[i].first;
+    max_idx_out[i] += padding[i].first;
+  }
+  IndexIterator<std::vector<long>> it_in{std::move(max_idx_in)};
+  IndexIterator<std::vector<long>> it_out{std::move(min_idx_out), std::move(max_idx_out)};
+  for (; it_out && it_in; ++it_out, ++it_in) {
+    const std::span<const long> indexes_in{it_in};
+    const std::span<const long> indexes_out{it_out};
+    const std::span<const T> in_data = data_.subspan(index(indexes_in), dims_[dims_.size() - 1]);
+    std::copy(in_data.begin(), in_data.end(), out_data.subspan(out.index(indexes_out)).begin());
+  }
+  LUCID_ASSERT(!it_in && !it_out, "Both iterators must have the same number of elements");
+}
+
+template <IsAnyOf<double, std::complex<double>> T>
 TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
   if (std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}) != size())
     LUCID_INVALID_ARGUMENT_EXPECTED(
@@ -85,7 +118,24 @@ TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
   return *this;
 }
 
+template <IsAnyOf<double, std::complex<double>> T>
+std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
+  std::cout << "[ ";
+  for (const auto& dim : tensor.dimensions()) std::cout << dim << " ";
+  std::cout << "]\n";
+
+  for (std::size_t i = 0; i < tensor.size(); ++i) {
+    std::cout << tensor.data()[i] << " ";
+    if ((i + 1) % tensor.dimensions().back() == 0) {
+      std::cout << "\n";
+    }
+  }
+  return os;
+}
+
 template class TensorView<double>;
 template class TensorView<std::complex<double>>;
+template std::ostream& operator<<(std::ostream& os, const TensorView<double>& tensor);
+template std::ostream& operator<<(std::ostream& os, const TensorView<std::complex<double>>& tensor);
 
 }  // namespace lucid

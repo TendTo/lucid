@@ -78,6 +78,10 @@ IndexIterator<T>::operator bool() const {
     return indexes_.front() < max_value_.front();
   }
 }
+template <IsAnyOf<long, std::vector<long>> T>
+IndexIterator<T>::operator std::span<const long>() const {
+  return std::span<const long>{indexes_};
+}
 
 template <IsAnyOf<long, std::vector<long>> T>
 std::ostream& operator<<(std::ostream& os, const IndexIterator<T>& index_iterator) {

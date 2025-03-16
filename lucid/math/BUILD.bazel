@@ -159,12 +159,13 @@ lucid_cc_library(
     implementation_deps = [
         "//lucid/lib:pocketfft",
         "//lucid/util:error",
-        "//lucid/util:logging",
+        "//lucid/util:index_iterator",
     ],
     deps = [
         "//lucid/lib:eigen",
         "//lucid/util:concepts",
         "//lucid/util:exception",
+        "//lucid/util:logging",
     ],
 )
 
@@ -180,5 +181,6 @@ lucid_cc_library(
         ":regression",
         ":sampler",
         ":set",
+        ":tensor",
     ],
 )
