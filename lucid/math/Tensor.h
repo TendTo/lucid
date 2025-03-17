@@ -137,7 +137,7 @@ class Tensor {
    * Tensor<int> t{std::vector<int>{1, 2, 3, 4}, std::vector<std::size_t>{2, 2}};
    * // 1  2
    * // 3  4
-   * Tensor<int> padded{t.pad({{1, 2}, {0, 3}}, 0)};
+   * t.pad({{1, 2}, {0, 3}}, 0);
    * // 0  0  0  0  0
    * // 1  2  0  0  0
    * // 3  4  0  0  0
@@ -151,13 +151,50 @@ class Tensor {
   [[nodiscard]] Tensor<T> pad(const std::vector<std::pair<Index, Index>>& padding, const T& value = {}) const;
 
   /**
+   * Pad the tensor with a value.
+   * The `padding` is applied to each dimension starting at the respective `start_padding` index.
+   * This allows the `padding` to be placed in the middle of the tensor.
+   * @note setting `start_padding` to 0 (the size of that dimension)
+   * will place all the padding at the start (the end) of the dimension.
+   * @code
+   * Tensor<int> t{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
+   * // 1  2
+   * // 3  4
+   * // 5  6
+   * t.pad({2, 3}, {2, 1}, 0);
+   * // 1  0  0  0  2
+   * // 3  0  0  0  4
+   * // 0  0  0  0  0
+   * // 0  0  0  0  0
+   * // 5  0  0  0  6
+   * t.pad({2, 3}, {0, 2}, 0);
+   * // 0  0  0  0  0
+   * // 0  0  0  0  0
+   * // 1  2  0  0  0
+   * // 3  4  0  0  0
+   * // 5  6  0  0  0
+   * t.pad({1, 1}, {1, 1}, 0);
+   * // 1  0  2
+   * // 0  0  0
+   * // 3  0  4
+   * // 5  0  6
+   * @endcode
+   * @param padding padding for each dimension
+   * @param start_padding the index where the padding starts for each dimension
+   * @param value value to fill the padding
+   * @return padded tensor
+   */
+  [[nodiscard]] Tensor<T> pad(const std::vector<Index>& padding, const std::vector<Index>& start_padding = {},
+                              const T& value = {}) const;
+
+  /**
    * Apply the Fast Fourier Transform to the tensor.
    * It is just the application of the FFT to each dimension of the tensor.
    * @code
    * Tensor<double> t{std::vector<double>{1, 2, 3, 4}, std::vector<std::size_t>{2, 2}};
    * // 1  2
    * // 3  4
-   * Tensor<std::complex<double>> fft{t.fft()};
+   * t.fft();
    * // (10 + 0i)  (-2 + 0i)
    * // (-4 + 0i)  (0 + 0i)
    * @endcode
@@ -176,7 +213,7 @@ class Tensor {
    * Tensor<std::complex<double>> fft{t.fft()};
    * // (10 + 0i)  (-2 + 0i)
    * // (-4 + 0i)  (0 + 0i)
-   * Tensor<double> ifft{fft.ifft()};
+   * fft.ifft();
    * // 1  2
    * // 3  4
    * @endcode

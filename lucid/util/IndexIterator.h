@@ -77,7 +77,6 @@ class IndexIterator {
 
   /** @checker{done iterating\, having gone over all valid indexes, index iterator} */
   operator bool() const;
-
   operator std::span<const long>() const;
 
  private:

@@ -120,10 +120,32 @@ class TensorView {
    */
   void ifft(TensorView<double>& out, const std::vector<std::size_t>& axes = {}) const;
 
+  /**
+   * Pad the tensor with a value.
+   * The padding is applied to each dimension, and it is specified by a pair of indices,
+   * one for the beginning and one for the end of the dimension.
+   * @pre The `out` tensor must have the same dimensions as the input tensor plus `padding`
+   * @param[out] out padded output tensor
+   * @param padding padding for each dimension
+   * @return padded tensor
+   */
+  void pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const;
+  /**
+   * Pad the tensor with a value.
+   * The `padding` is applied to each dimension starting at the respective `start_padding` index.
+   * This allows the `padding` to be placed in the middle of the tensor.
+   * @note Setting `start_padding` to 0 (the size of that dimension)
+   * will place all the padding at the start (the end) of the dimension.
+   * @pre The `out` tensor must have the same dimensions as the input tensor plus `padding`
+   * @param[out] out padded output tensor
+   * @param padding padding for each dimension
+   * @param start_padding the index where the padding starts for each dimension
+   * @return padded tensor
+   */
+  void pad(TensorView<T>& out, const std::vector<Index>& padding, const std::vector<Index>& start_padding) const;
+
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
-
-  void pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const;
 
  private:
   /**
@@ -143,7 +165,7 @@ class TensorView {
     return strides_[Dim] * i + index<Dim + 1>(is...);
   }
   /**
-   * Termination of the recursive index function.
+   * Base case for the recursive `index` function.
    * @return 0
    */
   template <int>

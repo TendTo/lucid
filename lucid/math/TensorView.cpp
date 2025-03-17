@@ -105,6 +105,43 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, I
   }
   LUCID_ASSERT(!it_in && !it_out, "Both iterators must have the same number of elements");
 }
+template <IsAnyOf<int, float, double, std::complex<double>> T>
+void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
+                        const std::vector<Index>& start_padding) const {
+  if (std::ranges::any_of(padding, [](const Index p) { return p < 0; }) ||
+      std::ranges::any_of(start_padding, [](const Index sp) { return sp < 0; })) {
+    LUCID_INVALID_ARGUMENT("Padding must be non-negative", padding);
+  }
+  if (std::ranges::any_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
+                          [&start_padding, &out, this](std::size_t i) {
+                            return static_cast<std::size_t>(start_padding[i]) > dims_[i];
+                          })) {
+    LUCID_INVALID_ARGUMENT("Start padding must not be greater than the size of the dimension", start_padding);
+  }
+  LUCID_ASSERT(dims_.size() == out.dims_.size(), "Output tensor must have the same dimensions as the input tensor");
+  LUCID_ASSERT(
+      std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
+                          [&padding, &out, this](std::size_t i) { return dims_[i] + padding[i] == out.dims_[i]; }),
+      "Output tensor dimensions must be equal to input tensor dimensions plus padding");
+
+  std::span<T> out_data{const_cast<T*>(out.data_.data()), out.data_.size()};
+  std::vector<long> max_idx(dims_.begin(), dims_.end());
+  max_idx.back() = 1;
+  for (IndexIterator<std::vector<long>> it{std::move(max_idx)}; it; ++it) {
+    std::vector<long> output_idx{it.indexes()};
+    for (std::size_t i = 0; i < dims_.size() - 1; i++) {
+      if (output_idx[i] >= start_padding[i]) output_idx[i] += padding[i];
+    }
+    const std::span<const T> in_data_start_half = data_.subspan(index(std::span<const long>{it}), start_padding.back());
+    const std::span<const T> in_data_end_half =
+        data_.subspan(index(std::span<const long>{it}) + start_padding.back(), dims_.back() - start_padding.back());
+    std::copy(in_data_start_half.begin(), in_data_start_half.end(),
+              out_data.subspan(out.index(std::span<const long>{output_idx})).begin());
+    std::copy(
+        in_data_end_half.begin(), in_data_end_half.end(),
+        out_data.subspan(out.index(std::span<const long>{output_idx})).begin() + padding.back() + start_padding.back());
+  }
+}
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {

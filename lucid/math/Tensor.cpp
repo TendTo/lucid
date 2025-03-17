@@ -48,6 +48,15 @@ Tensor<T> Tensor<T>::pad(const std::vector<std::pair<Index, Index>>& padding, co
   view_.pad(out.view_, padding);
   return out;
 }
+template <IsAnyOf<int, float, double, std::complex<double>> T>
+Tensor<T> Tensor<T>::pad(const std::vector<Index>& padding, const std::vector<Index>& start_padding,
+                         const T& value) const {
+  std::vector<std::size_t> new_dims{view_.dimensions()};
+  for (std::size_t i = 0; i < view_.rank(); ++i) new_dims[i] += padding[i];
+  Tensor<T> out{value, new_dims};
+  view_.pad(out.view_, padding, start_padding);
+  return out;
+}
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
