@@ -26,9 +26,9 @@ namespace lucid {
  * If you need an owning data structure use the Tensor class instead.
  * @tparam T type of the elements in the tensor
  */
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 class TensorView {
-  template <IsAnyOf<double, std::complex<double>> TT>
+  template <IsAnyOf<int, float, double, std::complex<double>> TT>
   friend class TensorView;
 
  public:
@@ -56,20 +56,21 @@ class TensorView {
    * @param is indices in the remaining dimensions
    * @return element in the tensor
    */
-  template <class I, class... Is>
+  template <std::convertible_to<const std::size_t> I, class... Is>
   const T& operator()(I i, Is... is) const {
     return data_[index<0>(i, is...)];
   }
-
   /**
    * Get the element in the tensor using the indices in each dimension.
    * @tparam I index type
-   * @param indices indices in each dimension
+   * @tparam Is variadic index types
+   * @param i index in the first dimension
+   * @param is indices in the remaining dimensions
    * @return element in the tensor
    */
-  template <class I>
-  const T& operator()(const std::vector<I>& indices) const {
-    return operator()(std::span{indices});
+  template <std::convertible_to<const std::size_t> I, class... Is>
+  T& operator()(I i, Is... is) {
+    return const_cast<T&>(data_[index<0>(i, is...)]);
   }
   /**
    * Get the element in the tensor using the indices in each dimension.
@@ -77,9 +78,19 @@ class TensorView {
    * @param indices indices in each dimension
    * @return element in the tensor
    */
-  template <class I>
-  const T& operator()(const std::span<const I> indices) const {
-    return data_[index(indices)];
+  template <template <class...> class Container, std::convertible_to<const std::size_t> I>
+  const T& operator()(const Container<I>& indices) const {
+    return data_[index(std::span<const I>{indices})];
+  }
+  /**
+   * Get the element in the tensor using the indices in each dimension.
+   * @tparam I index type
+   * @param indices indices in each dimension
+   * @return element in the tensor
+   */
+  template <template <class...> class Container, std::convertible_to<const std::size_t> I>
+  T& operator()(const Container<I>& indices) {
+    return data_[index(std::span<const I>{indices})];
   }
 
   /** @getter{size, tensor} */
@@ -124,7 +135,7 @@ class TensorView {
    * @param is indices in the remaining dimensions
    * @return linear index of the element in the data vector
    */
-  template <int Dim, class I, class... Is>
+  template <int Dim, std::convertible_to<const std::size_t> I, class... Is>
   [[nodiscard]] Index index(I i, Is... is) const {
 #ifndef NDEBUG
     if (i >= static_cast<I>(dims_[Dim])) throw exception::LucidInvalidArgumentException("Index out of bounds");
@@ -133,10 +144,9 @@ class TensorView {
   }
   /**
    * Termination of the recursive index function.
-   * @tparam Dim index of the current dimension + 1
    * @return 0
    */
-  template <int Dim>
+  template <int>
   [[nodiscard]] Index index() const {
     return 0;
   }
@@ -146,7 +156,7 @@ class TensorView {
    * @param indices indices in each dimension
    * @return linear index of the element in the data vector
    */
-  template <class I>
+  template <std::convertible_to<const std::size_t> I>
   [[nodiscard]] std::size_t index(std::span<const I> indices) const {
     if (indices.size() != dims_.size()) {
       throw exception::LucidInvalidArgumentException("Number of indices must match the number of dimensions");
@@ -167,9 +177,11 @@ class TensorView {
   std::vector<Index> strides_{};   ///< Strides of the tensor. Used to calculate the index of an element
 };
 
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor);
 
+extern template class TensorView<int>;
+extern template class TensorView<float>;
 extern template class TensorView<double>;
 extern template class TensorView<std::complex<double>>;
 
@@ -179,6 +191,8 @@ extern template class TensorView<std::complex<double>>;
 
 #include "lucid/util/logging.h"
 
+OSTREAM_FORMATTER(lucid::TensorView<int>)
+OSTREAM_FORMATTER(lucid::TensorView<float>)
 OSTREAM_FORMATTER(lucid::TensorView<double>)
 OSTREAM_FORMATTER(lucid::TensorView<std::complex<double>>)
 

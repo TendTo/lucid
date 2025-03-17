@@ -14,7 +14,7 @@
 
 namespace lucid {
 
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims)
     : data_{std::move(data)}, dims_{std::move(dims)}, axes_(dims_.size()), strides_(dims_.size()) {
   if (dims_.empty()) {
@@ -32,7 +32,7 @@ TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims
   std::iota(axes_.begin(), axes_.end(), 0);
 }
 
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::fft(TensorView<std::complex<double>>& out, const std::vector<std::size_t>& axes) const {
   LUCID_ASSERT(dims_ == out.dims_, "Output tensor must have the same dimensions as the input tensor");
   T* const in_data = const_cast<T*>(data_.data());
@@ -52,7 +52,7 @@ void TensorView<T>::fft(TensorView<std::complex<double>>& out, const std::vector
   }
 }
 
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::ifft(TensorView<double>& out, const std::vector<std::size_t>& axes) const {
   LUCID_ASSERT(dims_ == out.dims_, "Output tensor must have the same dimensions as the input tensor");
   T* const in_data = const_cast<T*>(data_.data());
@@ -68,13 +68,13 @@ void TensorView<T>::ifft(TensorView<double>& out, const std::vector<std::size_t>
     LUCID_NOT_SUPPORTED("Tensor which is not double or std::complex<double>");
   }
 }
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const {
   if (dims_.size() != 2) LUCID_NOT_SUPPORTED("Only 2D tensors are supported. Use reshape to convert to 2D");
   return {data_.data(), static_cast<Index>(dims_.at(0)), static_cast<Index>(dims_.at(1))};
 }
 
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const {
   if (std::ranges::any_of(padding, [](const std::pair<Index, Index>& p) { return p.first < 0 || p.second < 0; })) {
     LUCID_INVALID_ARGUMENT("Padding must be non-negative", padding);
@@ -106,7 +106,7 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, I
   LUCID_ASSERT(!it_in && !it_out, "Both iterators must have the same number of elements");
 }
 
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
   if (std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}) != size())
     LUCID_INVALID_ARGUMENT_EXPECTED(
@@ -119,7 +119,7 @@ TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
   return *this;
 }
 
-template <IsAnyOf<double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
   std::cout << "[ ";
   for (const auto& dim : tensor.dimensions()) std::cout << dim << " ";
@@ -142,8 +142,12 @@ std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
   return os;
 }
 
+template class TensorView<int>;
+template class TensorView<float>;
 template class TensorView<double>;
 template class TensorView<std::complex<double>>;
+template std::ostream& operator<<(std::ostream& os, const TensorView<int>& tensor);
+template std::ostream& operator<<(std::ostream& os, const TensorView<float>& tensor);
 template std::ostream& operator<<(std::ostream& os, const TensorView<double>& tensor);
 template std::ostream& operator<<(std::ostream& os, const TensorView<std::complex<double>>& tensor);
 
