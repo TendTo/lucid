@@ -33,6 +33,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "enable_benchmark_build",
+    build_setting_default = False,
+)
+
+bool_flag(
     name = "enable_python_build",
     build_setting_default = False,
 )
@@ -102,6 +107,11 @@ config_setting(
 config_setting(
     name = "release_build",
     values = {"compilation_mode": "opt"},
+)
+
+config_setting(
+    name = "benchmark_build",
+    flag_values = {":enable_benchmark_build": "True"},
 )
 
 ###########################################

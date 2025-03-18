@@ -7,6 +7,7 @@ build --@spdlog//:header_only=False
 build --flag_alias=enable_static_build=//tools:enable_static_build
 build --flag_alias=enable_dynamic_build=//tools:enable_dynamic_build
 build --flag_alias=enable_python_build=//tools:enable_python_build
+build --flag_alias=enable_benchmark_build=//tools:enable_benchmark_build
 build --flag_alias=python_version=@rules_python//python/config_settings:python_version
 
 # Default build
@@ -24,15 +25,24 @@ build:macos --workspace_status_command=tools/workspace_status.sh
 build:dbg --compilation_mode=dbg
 build:dbg --cxxopt=-O0
 build:dbg --cxxopt=-ggdb3
+build:dbg --strip=never
+build:dbg --fission=yes
+build:dbg --dynamic_mode=off
 
 # Optimized build
 build:opt --compilation_mode=opt
 build:opt --cxxopt=-O3
 
 # Building python bindings
-build:python --compilation_mode=opt
-build:python --enable_static_build
-build:python --enable_python_build
+build:py --compilation_mode=opt
+build:py --enable_static_build
+build:py --enable_python_build
+
+# Benchmark build
+build:bench --compilation_mode=opt
+build:bench --cxxopt=-O3
+build:bench --enable_static_build
+build:bench --enable_benchmark_build
 
 # Dependency clean
 build:dwyu --aspects=//tools:dwyu.bzl%dwyu --output_groups=dwyu
