@@ -18,14 +18,12 @@ template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims)
     : data_{std::move(data)}, dims_{std::move(dims)}, axes_(dims_.size()), strides_(dims_.size()) {
   if (dims_.empty()) {
-    if (!data_.empty()) LUCID_INVALID_ARGUMENT_EXPECTED("data", data_.size(), "empty");
+    LUCID_CHECK_ARGUMENT(data_.empty(), "data", "must be empty if dims is empty");
     return;
   }
-  if (std::accumulate(dims_.begin(), dims_.end(), static_cast<std::size_t>(1), std::multiplies{}) != data_.size()) {
-    LUCID_INVALID_ARGUMENT_EXPECTED(
-        "data size", std::accumulate(dims_.begin(), dims_.end(), static_cast<std::size_t>(1), std::multiplies{}),
-        data_.size());
-  }
+  LUCID_CHECK_ARGUMENT(
+      std::accumulate(dims_.begin(), dims_.end(), static_cast<std::size_t>(1), std::multiplies{}) == data_.size(),
+      "data", "size must be equal to the product of the dimensions");
   strides_.back() = 1;
   for (std::size_t i = 1; i < dims_.size(); i++)
     strides_[strides_.size() - i - 1] = (strides_[strides_.size() - i] * dims_[dims_.size() - i]);
@@ -34,7 +32,7 @@ TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::fft(TensorView<std::complex<double>>& out, const std::vector<std::size_t>& axes) const {
-  LUCID_ASSERT(dims_ == out.dims_, "Output tensor must have the same dimensions as the input tensor");
+  LUCID_CHECK_ARGUMENT_EXPECTED(dims_ == out.dims_, "out.dimensions()", out.dims_, dims_);
   T* const in_data = const_cast<T*>(data_.data());
   auto* const out_data = const_cast<std::complex<double>*>(out.data_.data());
   std::vector<Index> strides{strides_};
@@ -54,7 +52,7 @@ void TensorView<T>::fft(TensorView<std::complex<double>>& out, const std::vector
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::ifft(TensorView<double>& out, const std::vector<std::size_t>& axes) const {
-  LUCID_ASSERT(dims_ == out.dims_, "Output tensor must have the same dimensions as the input tensor");
+  LUCID_CHECK_ARGUMENT_EXPECTED(dims_ == out.dims_, "out.dimensions()", out.dims_, dims_);
   T* const in_data = const_cast<T*>(data_.data());
   auto* const out_data = const_cast<double*>(out.data_.data());
   std::vector<Index> strides_in{strides_};
@@ -76,15 +74,15 @@ TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen:
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const {
-  if (std::ranges::any_of(padding, [](const std::pair<Index, Index>& p) { return p.first < 0 || p.second < 0; })) {
-    LUCID_INVALID_ARGUMENT("Padding must be non-negative", padding);
-  }
-  LUCID_ASSERT(dims_.size() == out.dims_.size(), "Output tensor must have the same dimensions as the input tensor");
-  LUCID_ASSERT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
-                                   [padding, &out, this](std::size_t i) {
-                                     return dims_[i] + padding[i].first + padding[i].second == out.dims_[i];
-                                   }),
-               "Output tensor dimensions must be equal to input tensor dimensions plus padding");
+  LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
+  LUCID_CHECK_ARGUMENT(
+      std::ranges::all_of(padding, [&out, this](const auto& p) { return p.first >= 0 && p.second >= 0; }), "padding",
+      "must be non-negative");
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
+                                           [padding, &out, this](std::size_t i) {
+                                             return dims_[i] + padding[i].first + padding[i].second == out.dims_[i];
+                                           }),
+                       "out", "dimensions must be equal to input tensor dimensions plus padding");
   std::span<T> out_data{const_cast<T*>(out.data_.data()), out.data_.size()};
   std::vector<long> min_idx_out(dims_.size());
   std::vector<long> max_idx_out(dims_.begin(), dims_.end());
@@ -108,21 +106,22 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, I
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
                         const std::vector<Index>& start_padding) const {
-  if (std::ranges::any_of(padding, [](const Index p) { return p < 0; }) ||
-      std::ranges::any_of(start_padding, [](const Index sp) { return sp < 0; })) {
-    LUCID_INVALID_ARGUMENT("Padding must be non-negative", padding);
-  }
-  if (std::ranges::any_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
-                          [&start_padding, &out, this](std::size_t i) {
-                            return static_cast<std::size_t>(start_padding[i]) > dims_[i];
-                          })) {
-    LUCID_INVALID_ARGUMENT("Start padding must not be greater than the size of the dimension", start_padding);
-  }
-  LUCID_ASSERT(dims_.size() == out.dims_.size(), "Output tensor must have the same dimensions as the input tensor");
-  LUCID_ASSERT(
+  LUCID_CHECK_ARGUMENT_EXPECTED(padding.size() == rank(), "padding.size()", padding.size(), rank());
+  LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
+  LUCID_CHECK_ARGUMENT_EXPECTED(start_padding.size() == rank(), "start_padding.size()", start_padding.size(), rank());
+  LUCID_CHECK_ARGUMENT_EXPECTED(
       std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
                           [&padding, &out, this](std::size_t i) { return dims_[i] + padding[i] == out.dims_[i]; }),
-      "Output tensor dimensions must be equal to input tensor dimensions plus padding");
+      "out.dimensions()", out.dimensions(), "input.dimensions() + padding");
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(padding, [](const Index p) { return p >= 0; }), "padding",
+                       "must be non-negative");
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(start_padding, [](const Index sp) { return sp >= 0; }), "start_padding",
+                       "must be non-negative");
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
+                                           [&start_padding, &out, this](const std::size_t i) {
+                                             return static_cast<std::size_t>(start_padding.at(i)) <= dims_.at(i);
+                                           }),
+                       "start_padding", "must be less than or equal to input tensor dimensions");
 
   std::span<T> out_data{const_cast<T*>(out.data_.data()), out.data_.size()};
   std::vector<long> max_idx(dims_.begin(), dims_.end());
@@ -145,9 +144,9 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
-  if (std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}) != size())
-    LUCID_INVALID_ARGUMENT_EXPECTED(
-        "new size", std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}), size());
+  LUCID_CHECK_ARGUMENT(
+      std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}) == size(), "new size",
+      "must be equal to the current size");
   dims_ = std::move(dims);
   strides_.resize(dims_.size());
   strides_.back() = 1;

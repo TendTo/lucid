@@ -303,7 +303,7 @@ TEST(TestTensor, ToMatrix) {
   EXPECT_DOUBLE_EQ(m(1, 5), 12.0);
 }
 
-TEST(Tensor, PadWithZeros) {
+TEST(TestTensor, PadWithZeros) {
   Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
   Tensor<double> padded_tensor = tensor.pad({{1, 1}, {1, 1}}, 0.0);
   EXPECT_THAT(padded_tensor.data(),
@@ -311,7 +311,7 @@ TEST(Tensor, PadWithZeros) {
   EXPECT_EQ(padded_tensor.dimensions(), (std::vector<std::size_t>{4, 4}));
 }
 
-TEST(Tensor, PadWithConstantValue) {
+TEST(TestTensor, PadWithConstantValue) {
   Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
   Tensor<double> padded_tensor = tensor.pad({{1, 1}, {1, 1}}, 5.0);
   EXPECT_THAT(padded_tensor.data(),
@@ -319,7 +319,7 @@ TEST(Tensor, PadWithConstantValue) {
   EXPECT_EQ(padded_tensor.dimensions(), (std::vector<std::size_t>{4, 4}));
 }
 
-TEST(Tensor, PadWithDifferentPadding) {
+TEST(TestTensor, PadWithDifferentPadding) {
   Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
   Tensor<double> padded_tensor = tensor.pad({{1, 2}, {2, 1}}, 0.0);
   EXPECT_THAT(tensor.pad({{1, 2}, {2, 1}}).data(),
@@ -328,7 +328,7 @@ TEST(Tensor, PadWithDifferentPadding) {
   EXPECT_EQ(padded_tensor.dimensions(), (std::vector<std::size_t>{5, 5}));
 }
 
-TEST(Tensor, Pad3D) {
+TEST(TestTensor, Pad3D) {
   Tensor<double> tensor({1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, {2ul, 2ul, 3ul});
   EXPECT_THAT(tensor.pad({{1, 0}, {0, 2}, {2, 1}}).data(),
               ::testing::ElementsAre(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
@@ -336,29 +336,29 @@ TEST(Tensor, Pad3D) {
                                      10, 11, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
 }
 
-TEST(Tensor, PadMiddle) {
+TEST(TestTensor, PadMiddle) {
   Tensor<double> t{std::vector<double>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
   EXPECT_THAT(t.pad({2, 3}, {2, 1}).data(),
               ::testing::ElementsAre(1, 0, 0, 0, 2, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 6));
 }
 
-TEST(Tensor, PadCross) {
+TEST(TestTensor, PadCross) {
   Tensor<double> t{std::vector<double>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
   EXPECT_THAT(t.pad({1, 1}, {1, 1}).data(), ::testing::ElementsAre(1, 0, 2, 0, 0, 0, 3, 0, 4, 5, 0, 6));
 }
 
-TEST(Tensor, PadMiddleExtremes) {
+TEST(TestTensor, PadMiddleExtremes) {
   Tensor<double> t{std::vector<double>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
   EXPECT_THAT(t.pad({2, 3}, {0, 2}).data(),
               ::testing::ElementsAre(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 3, 4, 0, 0, 0, 5, 6, 0, 0, 0));
 }
 
-TEST(Tensor, PadMiddleInvalid) {
+TEST(TestTensor, PadMiddleInvalid) {
   Tensor<double> t{std::vector<double>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
   EXPECT_THROW(t.pad({2, 3}, {10, 11}), LucidInvalidArgumentException);
 }
 
-TEST(Tensor, PadHighRank) {
+TEST(TestTensor, PadHighRank) {
   Tensor<double> tensor(
       {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0},
       {3ul, 1ul, 3ul, 2ul, 1ul});
@@ -379,7 +379,7 @@ TEST(Tensor, PadHighRank) {
   EXPECT_THAT(padded_tensor.data(), ::testing::ElementsAreArray(expected_value));
 }
 
-TEST(Tensor, PadWithNegativePadding) {
+TEST(TestTensor, PadWithNegativePadding) {
   Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
   EXPECT_THROW(tensor.pad({{-1, 1}, {1, 1}}, 0.0), LucidInvalidArgumentException);
 }
