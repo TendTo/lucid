@@ -39,6 +39,13 @@ Tensor<double> Tensor<T>::ifft(const std::vector<std::size_t>& axes) const {
   view_.ifft(out.view_, axes);
   return out;
 }
+template <IsAnyOf<int, float, double, std::complex<double>> T>
+Tensor<double> Tensor<T>::fft_upsample(const std::vector<std::size_t>& new_dims,
+                                       const std::vector<std::size_t>& axes) const {
+  Tensor<double> out{new_dims};
+  view_.fft_upsample(out.view_, new_dims, axes);
+  return out;
+}
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 Tensor<T> Tensor<T>::pad(const std::vector<std::pair<Index, Index>>& padding, const T& value) const {

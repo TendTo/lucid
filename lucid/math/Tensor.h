@@ -128,6 +128,8 @@ class Tensor {
   [[nodiscard]] const std::vector<T>& data() const { return data_; }
   /** @getter{view, tensor} */
   [[nodiscard]] const TensorView<T>& view() const { return view_; }
+  /** @getsetter{data, tensor} */
+  [[nodiscard]] std::vector<T>& data() { return data_; }
 
   /**
    * Pad the tensor with a value.
@@ -222,6 +224,9 @@ class Tensor {
    * @see fft
    */
   [[nodiscard]] Tensor<double> ifft(const std::vector<std::size_t>& axes = {}) const;
+
+  [[nodiscard]] Tensor<double> fft_upsample(const std::vector<std::size_t>& new_dims,
+                                            const std::vector<std::size_t>& axes = {}) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return view_; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const { return view_; }

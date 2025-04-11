@@ -144,6 +144,9 @@ class TensorView {
    */
   void pad(TensorView<T>& out, const std::vector<Index>& padding, const std::vector<Index>& start_padding) const;
 
+  void fft_upsample(TensorView<double>& out, const std::vector<std::size_t>& new_dims,
+                    const std::vector<std::size_t>& axes) const;
+
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
 

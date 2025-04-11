@@ -384,6 +384,23 @@ TEST(TestTensor, PadWithNegativePadding) {
   EXPECT_THROW(tensor.pad({{-1, 1}, {1, 1}}, 0.0), LucidInvalidArgumentException);
 }
 
+TEST(TestTensor, UpsampleEven1D) {
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {4ul});
+  const Tensor<double> upsampled_tensor = tensor.fft_upsample({6ul});
+  EXPECT_EQ(upsampled_tensor.size(), 6u);
+  EXPECT_THAT(upsampled_tensor.data(), ::testing::ElementsAre(1.0, 1.3839745962155614, 2.3839745962155616, 3.0,
+                                                              4.1160254037844384, 3.1160254037844379));
+}
+
+TEST(TestTensor, UpsampleOdd1D) {
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0, 5.0}, {5ul});
+  const Tensor<double> upsampled_tensor = tensor.fft_upsample({7ul});
+  EXPECT_EQ(upsampled_tensor.size(), 7u);
+  EXPECT_THAT(upsampled_tensor.data(),
+              ::testing::ElementsAre(0.99999999999999978, 1.2061591336983095, 2.9225940224834375, 2.9343217797246823,
+                                     3.620636352362689, 5.3243855812340284, 3.9919031304968517));
+}
+
 TEST(TestTensor, ToMatrixInvalid) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
                  std::vector{2ul, 2ul, 3ul}};
