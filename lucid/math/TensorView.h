@@ -144,8 +144,7 @@ class TensorView {
    */
   void pad(TensorView<T>& out, const std::vector<Index>& padding, const std::vector<Index>& start_padding) const;
 
-  void fft_upsample(TensorView<double>& out, const std::vector<std::size_t>& new_dims,
-                    const std::vector<std::size_t>& axes) const;
+  void fft_upsample(TensorView<double>& out, const std::vector<std::size_t>& axes = {}) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
@@ -162,7 +161,7 @@ class TensorView {
    */
   template <int Dim, std::convertible_to<const std::size_t> I, class... Is>
   [[nodiscard]] Index index(I i, Is... is) const {
-#ifndef NDEBUG
+#ifndef NCHECK
     if (i >= static_cast<I>(dims_[Dim])) throw exception::LucidInvalidArgumentException("Index out of bounds");
 #endif
     return strides_[Dim] * i + index<Dim + 1>(is...);
@@ -188,7 +187,7 @@ class TensorView {
     }
     std::size_t idx = 0;
     for (std::size_t i = 0; i < indices.size(); i++) {
-#ifndef NDEBUG
+#ifndef NCHECK
       if (indices[i] >= static_cast<I>(dims_[i])) throw exception::LucidInvalidArgumentException("Index out of bounds");
 #endif
       idx += indices[i] * strides_[i];

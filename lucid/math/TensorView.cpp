@@ -143,44 +143,37 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
   }
 }
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-void TensorView<T>::fft_upsample(TensorView<double>& out, const std::vector<std::size_t>& new_dims,
-                                 const std::vector<std::size_t>& axes) const {
+void TensorView<T>::fft_upsample(TensorView<double>& out, const std::vector<std::size_t>& axes) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
-  LUCID_CHECK_ARGUMENT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
-                                           [&new_dims, this](const std::size_t i) {
-                                             return static_cast<std::size_t>(new_dims.at(i)) >= dims_.at(i);
-                                           }),
-                       "new_dims", "must be greater than or equal to input tensor corresponding dimensions");
+  LUCID_CHECK_ARGUMENT(
+      std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
+                          [&out, this](const std::size_t i) { return out.dims_.at(i) >= dims_.at(i); }),
+      "new_dims", "must be greater than or equal to input tensor corresponding dimensions");
   Tensor<std::complex<double>> fft_out{dims_};
   fft(const_cast<TensorView<std::complex<double>>&>(fft_out.view()), axes);
-  std::cout << "fft_out: " << fft_out << "\n";
 
-  std::vector<Index> padding, start_padding;
-  padding.reserve(dims_.size());
-  start_padding.reserve(dims_.size());
+  // Determine how much padding is needed and where it is going to be placed
+  std::vector<Index> padding(dims_.size()), start_padding(dims_.size());
   for (std::size_t i = 0; i < dims_.size(); ++i) {
-    padding.push_back(new_dims[i] - dims_[i]);
-    start_padding.push_back(dims_[i] / 2 + 1);
+    padding[i] = out.dims_[i] - dims_[i];
+    start_padding[i] = dims_[i] / 2 + 1;
   }
-
-  fmt::println("padding: {}", padding);
-  fmt::println("start_padding: {}", start_padding);
 
   const Tensor<std::complex<double>> pad_out = fft_out.pad(padding, start_padding);
-  std::cout << "pad_out: " << pad_out << "\n";
 
-  for (const std::size_t dim : dims_) {
-    if (dim & 1) continue;
-    const_cast<std::complex<double>*>(pad_out.view().data_.data())[dim / 2] /= 2;
-  }
+  // TODO(tend): Do we need this or not?? It does not seem to change anything in the interpolation, at least for reals
+  // for (const std::size_t dim : dims_) {
+  //   if (dim & 1) continue;
+  //   const_cast<std::complex<double>*>(pad_out.view().data_.data())[dim / 2] /= 2;
+  // }
 
+  // Compute the inverse FFT of the padded tensor to interpolate the signal, resulting in an upsampled tensor
   pad_out.view().ifft(out, axes);
-  std::cout << "out: " << out << "\n";
 
-  // Scaling
+  // Correct the scaling, since only the original tensor size should be used. The padding does not add any information
   for (std::span<double> out_data{const_cast<double*>(out.data_.data()), out.data_.size()}; double& d : out_data) {
     for (std::size_t rank = 0; rank < dims_.size(); ++rank) {
-      d *= static_cast<double>(new_dims[rank]) / static_cast<double>(dims_[rank]);
+      d *= static_cast<double>(out.dims_[rank]) / static_cast<double>(dims_[rank]);
     }
   }
 }

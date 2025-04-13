@@ -48,7 +48,7 @@ class Tensor {
    * @param data data of the tensor. It will be copied
    * @param dims shape of the tensor. Each element is the size of the corresponding dimension
    */
-  Tensor(std::vector<T> data, std::vector<std::size_t> dims);
+  explicit Tensor(std::vector<T> data, std::vector<std::size_t> dims = {});
 
   /**
    * Reshape the tensor to the new dimensions.

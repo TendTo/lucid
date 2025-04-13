@@ -23,13 +23,80 @@ using lucid::exception::LucidNotSupportedException;
     EXPECT_DOUBLE_EQ((a).imag(), (b).imag()); \
   } while (0)
 
+#define EXPECT_VECTOR_NEAR_P(a, b, p)              \
+  do {                                             \
+    ASSERT_EQ((a).size(), (b).size());             \
+    for (std::size_t i = 0; i < (a).size(); ++i) { \
+      EXPECT_NEAR((a)[i], (b)[i], p);              \
+    }                                              \
+  } while (0)
+
+#define EXPECT_VECTOR_NEAR(a, b)                   \
+  do {                                             \
+    ASSERT_EQ((a).size(), (b).size());             \
+    for (std::size_t i = 0; i < (a).size(); ++i) { \
+      EXPECT_NEAR((a)[i], (b)[i], 1e-14);          \
+    }                                              \
+  } while (0)
+
+template <int Dim>
+Tensor<double> trigonometric_tensor(std::size_t n_samples);
+template <>
+inline Tensor<double> trigonometric_tensor<1>(const std::size_t n_samples) {
+  constexpr double frequency = 2.0;
+  constexpr double max = 2 * std::numbers::pi;
+  Tensor<double> out(std::vector<std::size_t>{n_samples});
+  const double coeff = max / static_cast<double>(n_samples);
+  for (std::size_t i = 0; i < n_samples; ++i) {
+    const double x = frequency * static_cast<double>(i) * coeff;
+    out(i) = std::sin(x) + 0.5 * std::cos(x);
+  }
+  return out;
+}
+template <>
+inline Tensor<double> trigonometric_tensor<2>(const std::size_t n_samples) {
+  constexpr double frequency_x = 2.0;
+  constexpr double frequency_y = 1.0;
+  constexpr double max = 2 * std::numbers::pi;
+  Tensor<double> out(std::vector<std::size_t>{n_samples, n_samples});
+  const double coeff = max / static_cast<double>(n_samples);
+  for (std::size_t i = 0; i < n_samples; ++i) {
+    for (std::size_t j = 0; j < n_samples; ++j) {
+      const double x = frequency_x * static_cast<double>(i) * coeff;
+      const double y = frequency_y * static_cast<double>(j) * coeff;
+      out(i, j) = 0.5 * std::sin(x) + std::cos(y);
+    }
+  }
+  return out;
+}
+template <>
+inline Tensor<double> trigonometric_tensor<3>(const std::size_t n_samples) {
+  constexpr double frequency_x = 2.0;
+  constexpr double frequency_y = 1.0;
+  constexpr double frequency_z = 3.0;
+  const double max = 2 * std::numbers::pi;
+  Tensor<double> out(std::vector<std::size_t>{n_samples, n_samples, n_samples});
+  const double coeff = max / static_cast<double>(n_samples);
+  for (std::size_t i = 0; i < n_samples; ++i) {
+    for (std::size_t j = 0; j < n_samples; ++j) {
+      for (std::size_t k = 0; k < n_samples; ++k) {
+        const double x = frequency_x * static_cast<double>(i) * coeff;
+        const double y = frequency_y * static_cast<double>(j) * coeff;
+        const double z = frequency_z * static_cast<double>(k) * coeff;
+        out(i, j, k) = 0.5 * std::sin(x) + std::cos(y) + 2 * std::sin(z) + 0.1 * std::cos(z);
+      }
+    }
+  }
+  return out;
+}
+
 TEST(TestTensor, Constructor0D) {
   const Tensor t{std::vector<double>{}, std::vector<std::size_t>{}};
   EXPECT_EQ(t.size(), 0u);
 }
 
 TEST(TestTensor, Constructor0DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector{1.0}, std::vector<std::size_t>{}), LucidInvalidArgumentException);
+  EXPECT_THROW(Tensor(std::vector{1.0}, std::vector<std::size_t>{2}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick0D) {
@@ -384,21 +451,73 @@ TEST(TestTensor, PadWithNegativePadding) {
   EXPECT_THROW(tensor.pad({{-1, 1}, {1, 1}}, 0.0), LucidInvalidArgumentException);
 }
 
-TEST(TestTensor, UpsampleEven1D) {
-  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {4ul});
-  const Tensor<double> upsampled_tensor = tensor.fft_upsample({6ul});
-  EXPECT_EQ(upsampled_tensor.size(), 6u);
-  EXPECT_THAT(upsampled_tensor.data(), ::testing::ElementsAre(1.0, 1.3839745962155614, 2.3839745962155616, 3.0,
-                                                              4.1160254037844384, 3.1160254037844379));
+TEST(TestTensor, UpsampleEvenToEven1D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(6ul).fft_upsample({42ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(42ul).data());
 }
 
-TEST(TestTensor, UpsampleOdd1D) {
-  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0, 5.0}, {5ul});
-  const Tensor<double> upsampled_tensor = tensor.fft_upsample({7ul});
-  EXPECT_EQ(upsampled_tensor.size(), 7u);
-  EXPECT_THAT(upsampled_tensor.data(),
-              ::testing::ElementsAre(0.99999999999999978, 1.2061591336983095, 2.9225940224834375, 2.9343217797246823,
-                                     3.620636352362689, 5.3243855812340284, 3.9919031304968517));
+TEST(TestTensor, UpsampleEvenToOdd1D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(6ul).fft_upsample({43ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(43ul).data());
+}
+
+TEST(TestTensor, UpsampleOddToOdd1D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(7ul).fft_upsample({43ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(43ul).data());
+}
+
+TEST(TestTensor, UpsampleOddToEven1D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(7ul).fft_upsample({44ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(44ul).data());
+}
+
+TEST(TestTensor, UpsampleEvenToEven2D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(6ul).fft_upsample({20ul, 20ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(20ul).data());
+}
+
+TEST(TestTensor, UpsampleEvenToOdd2D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(6ul).fft_upsample({21ul, 21ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(21ul).data());
+}
+
+TEST(TestTensor, UpsampleOddToOdd2D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(7ul).fft_upsample({21ul, 21ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(21ul).data());
+}
+
+TEST(TestTensor, UpsampleOddToEven2D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(7ul).fft_upsample({26ul, 26ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(26ul).data());
+}
+
+TEST(TestTensor, UpsampleEvenToEven3D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(8ul).fft_upsample({16ul, 16ul, 16ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(16ul).data());
+}
+
+TEST(TestTensor, UpsampleEvenToOdd3D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(8l).fft_upsample({17ul, 17ul, 17ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(17ul).data());
+}
+
+TEST(TestTensor, UpsampleOddToOdd3D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(7ul).fft_upsample({17ul, 17ul, 17ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(17ul).data());
+}
+
+TEST(TestTensor, UpsampleOddToEven3D) {
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(7ul).fft_upsample({18ul, 18ul, 18ul});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(18ul).data());
+}
+
+TEST(TestTensor, UpsampleDownsampleInvalid) {
+  EXPECT_THROW(Tensor<double>{trigonometric_tensor<3>(7ul).fft_upsample({1ul, 1ul, 1ul})},
+               LucidInvalidArgumentException);
+}
+
+TEST(TestTensor, UpsampleRankInvalid) {
+  EXPECT_THROW(Tensor<double>{trigonometric_tensor<3>(7ul).fft_upsample({18ul})}, LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, ToMatrixInvalid) {

@@ -15,7 +15,8 @@ Tensor<T>::Tensor(std::vector<std::size_t> dims)
     : Tensor(std::vector<T>(std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{})),
              dims) {}
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-Tensor<T>::Tensor(std::vector<T> data, std::vector<std::size_t> dims) : data_{std::move(data)}, view_{data_, dims} {}
+Tensor<T>::Tensor(std::vector<T> data, std::vector<std::size_t> dims)
+    : data_{std::move(data)}, view_{data_, dims.empty() ? std::vector<std::size_t>{data_.size()} : dims} {}
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 Tensor<T>::Tensor(const T& value, std::vector<std::size_t> dims)
     : Tensor(std::vector<T>(std::accumulate(dims.begin(), dims.end(), 1, std::multiplies{}), value), dims) {}
@@ -43,7 +44,7 @@ template <IsAnyOf<int, float, double, std::complex<double>> T>
 Tensor<double> Tensor<T>::fft_upsample(const std::vector<std::size_t>& new_dims,
                                        const std::vector<std::size_t>& axes) const {
   Tensor<double> out{new_dims};
-  view_.fft_upsample(out.view_, new_dims, axes);
+  view_.fft_upsample(out.view_, axes);
   return out;
 }
 
