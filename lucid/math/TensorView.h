@@ -93,6 +93,18 @@ class TensorView {
     return data_[index(std::span<const I>{indices})];
   }
 
+  /**
+   * Get the element in the underlying data vector using its index.
+   * @note This is not the same as the tensor index, rather the linearized index
+   * @tparam I index type
+   * @param i index in the data vector
+   * @return element in the tensor
+   */
+  template <std::convertible_to<const std::size_t> I>
+  const T& operator[](I i) const {
+    return data_[i];
+  }
+
   /** @getter{size, tensor} */
   [[nodiscard]] std::size_t size() const { return data_.size(); }
   /** @getter{rank, tensor} */
@@ -108,17 +120,28 @@ class TensorView {
    * It is just the application of the FFT to each dimension of the tensor.
    * @pre The output tensor must have the same shape as the input tensor
    * @param[out] out tensor with the FFT applied to each dimension
+   * @param coeff coefficient applied to the FFT. If NaN, the default coefficient, 1.0, is used
    * @see ifft
    */
-  void fft(TensorView<std::complex<double>>& out, const std::vector<std::size_t>& axes = {}) const;
+  void fft(TensorView<std::complex<double>>& out, double coeff = std::numeric_limits<double>::quiet_NaN()) const;
   /**
    * Apply the Inverse Fast Fourier Transform to the tensor.
    * It is just the application of the IFFT to each dimension of the tensor.
    * @pre The output tensor must have the same shape as the input tensor
    * @param[out] out tensor with the IFFT applied to each dimension
+   * @param coeff coefficient applied to the FFT. If NaN, the default coefficient, 1.0 / size(), is used
    * @see fft
    */
-  void ifft(TensorView<double>& out, const std::vector<std::size_t>& axes = {}) const;
+  void ifft(TensorView<double>& out, double coeff = std::numeric_limits<double>::quiet_NaN()) const;
+  /**
+   * Apply the Inverse Fast Fourier Transform to the tensor.
+   * It is just the application of the IFFT to each dimension of the tensor.
+   * @pre The output tensor must have the same shape as the input tensor
+   * @param[out] out tensor with the IFFT applied to each dimension
+   * @param coeff coefficient applied to the FFT. If NaN, the default coefficient, 1.0 / size(), is used
+   * @see fft
+   */
+  void ifft(TensorView<std::complex<double>>& out, double coeff = std::numeric_limits<double>::quiet_NaN()) const;
 
   /**
    * Pad the tensor with a value.
@@ -144,7 +167,17 @@ class TensorView {
    */
   void pad(TensorView<T>& out, const std::vector<Index>& padding, const std::vector<Index>& start_padding) const;
 
-  void fft_upsample(TensorView<double>& out, const std::vector<std::size_t>& axes = {}) const;
+  /**
+   * Use the Fast Fourier Transform to upsample the tensor.
+   * This procedure will interpolate the signal in the frequency domain and then apply the inverse FFT.
+   * @pre The `out` tensor must have the same shape as the input tensor plus a non-negative `padding`
+   * @warning If the functions making up the signal are not periodic or their frequency is too high
+   * (> Nyquist frequency), the result will not be inaccurate.
+   * @param[out[ out upsampled tensor
+   * @see fft
+   * @see ifft
+   */
+  void fft_upsample(TensorView<double>& out) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
@@ -164,16 +197,13 @@ class TensorView {
 #ifndef NCHECK
     if (i >= static_cast<I>(dims_[Dim])) throw exception::LucidInvalidArgumentException("Index out of bounds");
 #endif
-    return strides_[Dim] * i + index<Dim + 1>(is...);
+    if constexpr (sizeof...(is) == 0) {
+      return strides_[Dim] * i;
+    } else {
+      return strides_[Dim] * i + index<Dim + 1>(is...);
+    }
   }
-  /**
-   * Base case for the recursive `index` function.
-   * @return 0
-   */
-  template <int>
-  [[nodiscard]] Index index() const {
-    return 0;
-  }
+
   /**
    * Get the linear index of an element in the data vector using the indices in each dimension.
    * @tparam I index type
@@ -198,7 +228,7 @@ class TensorView {
   std::span<const T> data_;        ///< Data of the tensor
   std::vector<std::size_t> dims_;  ///< Shape of the tensor. Each element is the size of the corresponding dimension
   std::vector<std::size_t> axes_;  ///< Axes of the tensor. Goes from 0 to rank - 1
-  std::vector<Index> strides_{};   ///< Strides of the tensor. Used to calculate the index of an element
+  std::vector<Index> strides_;     ///< Strides of the tensor. Used to calculate the index of an element
 };
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>

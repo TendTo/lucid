@@ -95,10 +95,9 @@ class TestInitBarrier3 : public ::testing::Test {
   Matrix expected_xu_lattice;
 };
 
-template <class Derived>
-Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const Index samples_per_dim) {
-  const Eigen::MatrixXcd f_fft{fft2(f.reshaped(samples_per_dim, samples_per_dim).transpose())};
-  const int n_pad = static_cast<int>(std::floor((n_per_dim / 2 - samples_per_dim / 2)));
+#if 0
+Vector project(const Matrix& f, const Index n_per_dim, const Index samples_per_dim) {
+  // TODO(tend): this only works for 2 dimensions
   // We do, in order:
   // 1. Shift the zero frequency to the center
   // 2. Pad the frequencies to increase the resolution
@@ -106,33 +105,26 @@ Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const
   // 4. Inverse FFT to get the interpolated function
   // 5. Scale the matrix
   // 6. Reshape the matrix to a vector
-  std::cout << "PAD:\n" << ifftshift(pad(fftshift(f_fft), n_pad, std::complex<double>{})) << std::endl;
-  return (ifft2(ifftshift(pad(fftshift(f_fft), n_pad, std::complex<double>{}))).array() *
-          lucid::pow(n_per_dim / samples_per_dim, dimension))
-      .reshaped(Eigen::AutoSize, 1);
+  const Eigen::MatrixXcd f_fft{fft2(f.reshaped(samples_per_dim, samples_per_dim).transpose())};
+  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+  Eigen::MatrixXcd padded_ft{pad(fftshift(f_fft), n_pad, std::complex<double>{})};
+  Matrix f_interp = ifft2(ifftshift(padded_ft)).array() * lucid::pow(n_per_dim / samples_per_dim, dimension);
+  // std::cout << "PAD:\n" << ifftshift(padded_ft) << std::endl;
+  return f_interp.reshaped(Eigen::AutoSize, 1);
 }
+#endif
 
-Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim, bool) {
+inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim) {
   const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
 
-  // 1. Create a tensor view of the matrix
-  TensorView<double> t{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
-                       std::vector<std::size_t>(dimension, samples_per_dim)};
-  // 2. Apply the FFT to the tensor
-  Tensor<std::complex<double>> fft{t.dimensions()};
-  t.fft(const_cast<TensorView<std::complex<double>>&>(fft.view()), std::vector<std::size_t>{1, 0});
-  // 3. Add padding to the end of the tensor, representing very high frequencies with no contribution
-  std::cout << "FFT: " << fft << std::endl;
-  std::vector<std::pair<Index, Index>> padding(dimension, {0, 2 * n_pad});
-  Tensor<std::complex<double>> pad{fft.pad(padding)};
-  // 4. Apply the IFFT to the tensor
-  for (Index i = 0; i < static_cast<Index>(pad.dimensions()[1]); ++i) pad(6, i) = 0;
-  std::cout << "PAD: " << pad << std::endl;
-
+  // No transpose for some reason??
+  Matrix f_trans{f.reshaped(samples_per_dim, samples_per_dim)};
+  TensorView<double> in_view{std::span<const double>{f_trans.data(), static_cast<std::size_t>(f.size())},
+                             std::vector<std::size_t>(dimension, samples_per_dim)};
   Vector out{static_cast<Index>(lucid::pow(samples_per_dim + 2 * n_pad, dimension))};
-  TensorView<double> out_view{std::span{out.data(), static_cast<std::size_t>(out.size())}, pad.dimensions()};
-  pad.view().ifft(out_view);
-  out.array() *= lucid::pow(n_per_dim / samples_per_dim, dimension);
+  TensorView<double> out_view{std::span{out.data(), static_cast<std::size_t>(out.size())},
+                              std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)};
+  in_view.fft_upsample(out_view);
   return out;
 }
 
@@ -166,13 +158,10 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   for (Index i = 0; i < w_mat.cols(); ++i) {
     LUCID_INFO_FMT("Progress {}/{}", i + 1, w_mat.cols());
     w_mat.col(i) = project(if_lattice.col(i), n_per_dim, samples_per_dim);
-    // std::cout << "Original: " << w_mat.col(i) << std::endl;
-    w_mat.col(i) = project(if_lattice.col(i), n_per_dim, samples_per_dim, true);
-    // std::cout << "Tensor: " << w_mat.col(i) << std::endl;
-    phi_mat.col(i) = project(f_lattice.col(i), n_per_dim, samples_per_dim, true);
+    phi_mat.col(i) = project(f_lattice.col(i), n_per_dim, samples_per_dim);
   }
-  // ASSERT_TRUE(phi_mat.isApprox(expected_phi_mat, tolerance));
-  // ASSERT_TRUE(w_mat.isApprox(expected_w_mat, tolerance));
+  ASSERT_TRUE(w_mat.isApprox(expected_w_mat, tolerance));
+  ASSERT_TRUE(phi_mat.isApprox(expected_phi_mat, tolerance));
 
   // Sample initial regions
   const Matrix x0_lattice{initial_set.lattice(n_per_dim - 1, true)};
@@ -187,12 +176,14 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   ASSERT_TRUE(fu_lattice.isApprox(expected_fu_lattice, tolerance));
 
   GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
-  optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
-                  [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
-                    EXPECT_TRUE(success);
-                    EXPECT_NEAR(obj_val, 0.83752674401056304, tolerance);
-                    EXPECT_NEAR(eta, 15.336789736321432, tolerance);
-                    EXPECT_NEAR(c, 0.0, tolerance);
-                    EXPECT_NEAR(norm, 10.393929781427465, tolerance);
-                  });
+  const bool res = optimiser.solve(
+      f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
+      [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
+        EXPECT_TRUE(success);
+        EXPECT_NEAR(obj_val, 0.83752674401056304, tolerance);
+        EXPECT_NEAR(eta, 15.336789736321432, tolerance);
+        EXPECT_NEAR(c, 0.0, tolerance);
+        EXPECT_NEAR(norm, 10.393929781427465, tolerance);
+      });
+  EXPECT_TRUE(res);
 }

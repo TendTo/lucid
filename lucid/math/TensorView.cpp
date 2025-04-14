@@ -32,41 +32,64 @@ TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-void TensorView<T>::fft(TensorView<std::complex<double>>& out, const std::vector<std::size_t>& axes) const {
+void TensorView<T>::fft(TensorView<std::complex<double>>& out, const double coeff) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(dims_ == out.dims_, "out.dimensions()", out.dims_, dims_);
-  T* const in_data = const_cast<T*>(data_.data());
-  auto* const out_data = const_cast<std::complex<double>*>(out.data_.data());
+
+  // Compute strides on complex data. They are the same for input and output
   std::vector<Index> strides{strides_};
-  for (Index& i : strides) i *= sizeof(T);
-  if constexpr (std::is_same_v<T, std::complex<double>>) {
-    for (std::size_t axis = 0; axis < dims_.size(); axis++) {
-      pocketfft::c2c(dims_, strides, strides, axes.empty() ? axes_ : axes, pocketfft::FORWARD, in_data, out_data, 1.);
-    }
-  } else if constexpr (std::is_same_v<T, double>) {
-    std::vector<Index> strides_out{strides_};
-    for (Index& i : strides_out) i *= sizeof(std::complex<double>);
-    pocketfft::r2c(dims_, strides, strides_out, axes.empty() ? axes_ : axes, pocketfft::FORWARD, in_data, out_data, 1.);
-  } else {
-    LUCID_NOT_SUPPORTED("Tensor which is not double or std::complex<double>");
+  for (Index& i : strides) i *= sizeof(std::complex<double>);
+  // The pointer to the input data only accepts complex data. If the input is not complex, we must first cast it
+  std::complex<double>* in_data;
+  std::vector<std::complex<double>> cast_vector;  // Only used as temporary storage if the input is not complex
+  // Output data is always complex. Get the pointer where to store the result
+  auto* const out_data = const_cast<std::complex<double>*>(out.data_.data());
+
+  if constexpr (std::is_same_v<T, std::complex<double>>) {  // If the input was already complex, no need to cast it
+    in_data = const_cast<T*>(data_.data());
+  } else {  // Otherwise, cast it to complex
+    cast_vector.reserve(data_.size());
+    for (std::size_t i = 0; i < data_.size(); ++i) cast_vector.push_back(static_cast<std::complex<double>>(data_[i]));
+    in_data = cast_vector.data();
   }
+
+  pocketfft::c2c(dims_, strides, strides, axes_, pocketfft::FORWARD, in_data, out_data, std::isnan(coeff) ? 1. : coeff);
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-void TensorView<T>::ifft(TensorView<double>& out, const std::vector<std::size_t>& axes) const {
+void TensorView<T>::ifft(TensorView<std::complex<double>>& out, const double coeff) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(dims_ == out.dims_, "out.dimensions()", out.dims_, dims_);
-  T* const in_data = const_cast<T*>(data_.data());
-  auto* const out_data = const_cast<double*>(out.data_.data());
-  std::vector<Index> strides_in{strides_};
-  for (Index& i : strides_in) i *= sizeof(T);
-  std::vector<Index> strides_out{strides_};
-  for (Index& i : strides_out) i *= sizeof(double);
-  if constexpr (std::is_same_v<T, std::complex<double>>) {
-    pocketfft::c2r(dims_, strides_in, strides_out, axes.empty() ? axes_ : axes, pocketfft::BACKWARD, in_data, out_data,
-                   1. / size());
-  } else {
-    LUCID_NOT_SUPPORTED("Tensor which is not double or std::complex<double>");
+
+  // Compute strides on complex data. They are the same for input and output
+  std::vector<Index> strides{strides_};
+  for (Index& i : strides) i *= sizeof(std::complex<double>);
+  // The pointer to the input data only accepts complex data. If the input is not complex, we must first cast it
+  std::complex<double>* in_data;
+  std::vector<std::complex<double>> cast_vector;  // Only used as temporary storage if the input is not complex
+  // Output data is always complex. Get the pointer where to store the result
+  auto* const out_data = const_cast<std::complex<double>*>(out.data_.data());
+
+  if constexpr (std::is_same_v<T, std::complex<double>>) {  // If the input was already complex, no need to cast it
+    in_data = const_cast<T*>(data_.data());
+  } else {  // Otherwise, cast it to complex
+    cast_vector.reserve(data_.size());
+    for (std::size_t i = 0; i < data_.size(); ++i) cast_vector.push_back(static_cast<std::complex<double>>(data_[i]));
+    in_data = cast_vector.data();
+  }
+
+  pocketfft::c2c(dims_, strides, strides, axes_, pocketfft::BACKWARD, in_data, out_data,
+                 std::isnan(coeff) ? 1. / size() : coeff);
+}
+
+template <IsAnyOf<int, float, double, std::complex<double>> T>
+void TensorView<T>::ifft(TensorView<double>& out, const double coeff) const {
+  Tensor<std::complex<double>> out_complex{out.dims_};
+  ifft(const_cast<TensorView<std::complex<double>>&>(out_complex.view()), coeff);
+  std::span<double> out_data{const_cast<double*>(out.data_.data()), out.data_.size()};
+  for (std::size_t i = 0; i < out_data.size(); ++i) {
+    out_data[i] = out_complex[i].real();
   }
 }
+
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const {
   if (dims_.size() != 2) LUCID_NOT_SUPPORTED("Only 2D tensors are supported. Use reshape to convert to 2D");
@@ -143,14 +166,20 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
   }
 }
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-void TensorView<T>::fft_upsample(TensorView<double>& out, const std::vector<std::size_t>& axes) const {
+void TensorView<T>::fft_upsample(TensorView<double>& out) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
+  LUCID_CHECK_ARGUMENT_EXPECTED(!dims_.empty(), "dimensions()", 0, "> 0");
+  LUCID_CHECK_ARGUMENT_EXPECTED(!out.dims_.empty(), "out.dimensions()", 0, "> 0");
   LUCID_CHECK_ARGUMENT(
       std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
                           [&out, this](const std::size_t i) { return out.dims_.at(i) >= dims_.at(i); }),
-      "new_dims", "must be greater than or equal to input tensor corresponding dimensions");
+      "out.dimensions()", "must be greater than or equal to input tensor corresponding dimensions");
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(dims_, [this](const std::size_t d) { return d == dims_[0]; }),
+                       "dimensions()", "all dimensions must be equal");
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(out.dims_, [&out](const std::size_t d) { return d == out.dims_[0]; }),
+                       "out.dimensions()", "all dimensions must be equal");
   Tensor<std::complex<double>> fft_out{dims_};
-  fft(const_cast<TensorView<std::complex<double>>&>(fft_out.view()), axes);
+  fft(const_cast<TensorView<std::complex<double>>&>(fft_out.view()));
 
   // Determine how much padding is needed and where it is going to be placed
   std::vector<Index> padding(dims_.size()), start_padding(dims_.size());
@@ -159,7 +188,7 @@ void TensorView<T>::fft_upsample(TensorView<double>& out, const std::vector<std:
     start_padding[i] = dims_[i] / 2 + 1;
   }
 
-  const Tensor<std::complex<double>> pad_out = fft_out.pad(padding, start_padding);
+  Tensor<std::complex<double>> pad_out = fft_out.pad(padding, start_padding);
 
   // TODO(tend): Do we need this or not?? It does not seem to change anything in the interpolation, at least for reals
   // for (const std::size_t dim : dims_) {
@@ -168,7 +197,17 @@ void TensorView<T>::fft_upsample(TensorView<double>& out, const std::vector<std:
   // }
 
   // Compute the inverse FFT of the padded tensor to interpolate the signal, resulting in an upsampled tensor
-  pad_out.view().ifft(out, axes);
+  pad_out.view().ifft(out);
+
+  Tensor<std::complex<double>> ifft_out{out.dims_};
+  pad_out.view().ifft(const_cast<TensorView<std::complex<double>>&>(ifft_out.view()));
+  Tensor<double> temp{out.dims_};
+  {
+    std::span<double> out_data{const_cast<double*>(temp.view().data_.data()), temp.view().data_.size()};
+    for (std::size_t i = 0; i < out.size(); ++i) {
+      out_data[i] = ifft_out[i].real() * pow(static_cast<double>(out.dims_[0]) / static_cast<double>(dims_[0]), 2);
+    }
+  }
 
   // Correct the scaling, since only the original tensor size should be used. The padding does not add any information
   for (std::span<double> out_data{const_cast<double*>(out.data_.data()), out.data_.size()}; double& d : out_data) {

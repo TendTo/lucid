@@ -116,6 +116,18 @@ class Tensor {
     return view_(indices);
   }
 
+  /**
+   * Get the element in the underlying data vector using its index.
+   * @note This is not the same as the tensor index, rather the linearized index
+   * @tparam I index type
+   * @param i index in the data vector
+   * @return element in the tensor
+   */
+  template <std::convertible_to<const std::size_t> I>
+  const T& operator[](I i) const {
+    return view_[i];
+  }
+
   /** @getter{size, tensor} */
   [[nodiscard]] std::size_t size() const { return data_.size(); }
   /** @getter{rank, tensor} */
@@ -200,11 +212,11 @@ class Tensor {
    * // (10 + 0i)  (-2 + 0i)
    * // (-4 + 0i)  (0 + 0i)
    * @endcode
-   * @param axes axes to apply the FFT. Can be used to specify a different order of the dimensions
+   * @param coeff coefficient applied to the FFT. If NaN, the default coefficient, 1.0, is used
    * @return tensor with the FFT applied to each dimension
    * @see ifft
    */
-  [[nodiscard]] Tensor<std::complex<double>> fft(const std::vector<std::size_t>& axes = {}) const;
+  [[nodiscard]] Tensor<std::complex<double>> fft(double coeff = std::numeric_limits<double>::quiet_NaN()) const;
   /**
    * Apply the Inverse Fast Fourier Transform to the tensor.
    * It is just the application of the IFFT to each dimension of the tensor.
@@ -219,17 +231,34 @@ class Tensor {
    * // 1  2
    * // 3  4
    * @endcode
-   * @param axes axes to apply the IFFT. Can be used to specify a different order of the dimensions
+   * @param coeff coefficient applied to the FFT. If NaN, the default coefficient, 1.0 / size(), is used
    * @return tensor with the IFFT applied to each dimension
    * @see fft
    */
-  [[nodiscard]] Tensor<double> ifft(const std::vector<std::size_t>& axes = {}) const;
+  [[nodiscard]] Tensor<double> ifft(double coeff = std::numeric_limits<double>::quiet_NaN()) const;
 
-  [[nodiscard]] Tensor<double> fft_upsample(const std::vector<std::size_t>& new_dims,
-                                            const std::vector<std::size_t>& axes = {}) const;
+  /**
+   * Use the Fast Fourier Transform to upsample the tensor.
+   * This procedure will interpolate the signal in the frequency domain and then apply the inverse FFT.
+   * @pre The `new_dims` must have the same shape as the original tensor plus a non-negative `padding`
+   * @warning If the functions making up the signal are not periodic or their frequency is too high
+   * (> Nyquist frequency), the result will not be inaccurate.
+   * @param new_dims new dimensions of the tensor
+   * @return tensor with the upsampled signal
+   * @see fft
+   * @see ifft
+   */
+  [[nodiscard]] Tensor<double> fft_upsample(const std::vector<std::size_t>& new_dims) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return view_; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const { return view_; }
+  template <IsAnyOf<int, float, double, std::complex<double>> TT>
+  operator Tensor<TT>() const {
+    if constexpr (std::is_same_v<T, TT>) return *this;
+    std::vector<TT> data(data_.size());
+    for (std::size_t i = 0; i < size(); ++i) data[i] = static_cast<TT>(data_[i]);
+    return Tensor<TT>{data, view_.dimensions()};
+  }
 
  private:
   std::vector<T> data_;  ///< Data of the tensor

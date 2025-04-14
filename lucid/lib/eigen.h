@@ -19,6 +19,7 @@
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <Eigen/LU>
+#include <span>
 #include <unsupported/Eigen/CXX11/Tensor>
 #include <unsupported/Eigen/FFT>
 
@@ -271,10 +272,27 @@ auto TensorCast(const MatrixType<Scalar>& matrix) {
   return Eigen::TensorMap<Eigen::Tensor<const Scalar, 2>>(matrix.data(), std::array{matrix.rows(), matrix.cols()});
 }
 
+template <typename Scalar>
+auto TensorCast(const std::span<Scalar>& data, std::array<Index, 2> shape) {
+  return Eigen::TensorMap<Eigen::Tensor<const Scalar, 2>>(data.data(), shape);
+}
+
 inline Eigen::MatrixXcd fftn(const Matrix& x) {
   Eigen::Tensor<double, 2> t{TensorCast(x)};
   Eigen::Tensor<std::complex<double>, 2> res = t.fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{0, 1});
   return MatrixCast(res, x.rows(), x.cols());
+}
+
+inline Eigen::MatrixXcd fftn(const std::span<const double>& x, const std::array<Index, 2> shape) {
+  Eigen::Tensor<double, 2> t{TensorCast(x, shape)};
+  Eigen::Tensor<std::complex<double>, 2> res = t.fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{0, 1});
+  return MatrixCast(res, shape[0], shape[1]);
+}
+
+inline Matrix ifftn(const std::span<const std::complex<double>>& x, const std::array<Index, 2> shape) {
+  Eigen::Tensor<std::complex<double>, 2> t{TensorCast(x, shape)};
+  Eigen::Tensor<std::complex<double>, 2> res = t.fft<Eigen::BothParts, Eigen::FFT_REVERSE>(std::array{0, 1});
+  return MatrixCast(res, shape[0], shape[1]).real();
 }
 
 inline Matrix ifftn(const MatrixC& x) {

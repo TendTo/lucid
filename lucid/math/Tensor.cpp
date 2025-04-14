@@ -28,23 +28,22 @@ Tensor<T>& Tensor<T>::reshape(std::vector<std::size_t> dims) {
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-Tensor<std::complex<double>> Tensor<T>::fft(const std::vector<std::size_t>& axes) const {
+Tensor<std::complex<double>> Tensor<T>::fft(const double coeff) const {
   Tensor<std::complex<double>> out{view_.dimensions()};
-  view_.fft(out.view_, axes);
+  view_.fft(out.view_, coeff);
   return out;
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-Tensor<double> Tensor<T>::ifft(const std::vector<std::size_t>& axes) const {
+Tensor<double> Tensor<T>::ifft(const double coeff) const {
   Tensor<double> out{view_.dimensions()};
-  view_.ifft(out.view_, axes);
+  view_.ifft(out.view_, coeff);
   return out;
 }
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-Tensor<double> Tensor<T>::fft_upsample(const std::vector<std::size_t>& new_dims,
-                                       const std::vector<std::size_t>& axes) const {
+Tensor<double> Tensor<T>::fft_upsample(const std::vector<std::size_t>& new_dims) const {
   Tensor<double> out{new_dims};
-  view_.fft_upsample(out.view_, axes);
+  view_.fft_upsample(out.view_);
   return out;
 }
 

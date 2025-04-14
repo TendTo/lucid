@@ -271,11 +271,11 @@ TEST(TestTensor, FFT2) {
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul), std::complex<double>(55.0, 0.0));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul), std::complex<double>(-5.0, 6.8819096023558677));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 2ul), std::complex<double>(-5.0, 1.6245984811645311));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 3ul), std::complex<double>(0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 4ul), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 3ul), std::complex<double>(-5.0, -1.6245984811645311));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 4ul), std::complex<double>(-5.0, -6.8819096023558677));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 0ul), std::complex<double>(-25.0, 0.0));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 1ul), std::complex<double>(0.0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 2ul), std::complex<double>(-8.8817841970012523e-16, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 2ul), std::complex<double>(0, 0.0));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 3ul), std::complex<double>(0, 0.0));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 4ul), std::complex<double>(0.0, 0.0));
 }
@@ -303,7 +303,7 @@ TEST(TestTensor, FFT3) {
   EXPECT_EQ(fft.size(), 12u);
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 0ul), std::complex<double>(78.0, 0.0));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 1ul), std::complex<double>(-6.0, 3.4641016151377544));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 2ul), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 2ul), std::complex<double>(-6.0, -3.4641016151377544));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul, 0ul), std::complex<double>(-18.0, 0));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul, 1ul), std::complex<double>(0, 0));
   EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul, 2ul), std::complex<double>(0, 0));
