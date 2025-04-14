@@ -229,6 +229,22 @@ TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
     strides_[strides_.size() - i - 1] = (strides_[strides_.size() - i] * dims_[dims_.size() - i]);
   return *this;
 }
+template <IsAnyOf<int, float, double, std::complex<double>> T>
+TensorView<T>& TensorView<T>::permute(const std::vector<std::size_t>& permutation) {
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(permutation, [this](const std::size_t i) { return i < dims_.size(); }),
+                       "permutation values", "must not exceed the rank of the tensor");
+  std::vector<std::size_t> permuted_axes{axes_}, permuted_dims{dims_};
+  std::vector<Index> permuted_strides{strides_};
+  for (std::size_t i = 0; i < permutation.size() && i < dims_.size(); ++i) {
+    permuted_axes[i] = permutation[i];
+    permuted_dims[i] = dims_[permutation[i]];
+    permuted_strides[i] = strides_[permutation[i]];
+  }
+  axes_ = std::move(permuted_axes);
+  dims_ = std::move(permuted_dims);
+  strides_ = std::move(permuted_strides);
+  return *this;
+}
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {

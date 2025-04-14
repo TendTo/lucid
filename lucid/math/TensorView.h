@@ -22,8 +22,10 @@ namespace lucid {
 /**
  * Lightweight wrapper that provides a view of a tensor.
  * It uses a strided vector to support any number of dimensions.
- * @note The data is not copied, so it must be kept alive and unchanged while the tensor is in use.
- * If you need an owning data structure use the Tensor class instead.
+ * @note Most methods in this class contain the implementation of methods in the Tensor class.
+ * Check its documentation for more information about the corresponding methods.
+ * @warning The data is not copied, so it must be kept alive and unchanged while the tensor is in use.
+ * If you need an owning data structure, use the Tensor class instead.
  * @tparam T type of the elements in the tensor
  */
 template <IsAnyOf<int, float, double, std::complex<double>> T>
@@ -47,6 +49,31 @@ class TensorView {
    * @return reference to this object
    */
   TensorView& reshape(std::vector<std::size_t> dims);
+
+  /**
+   * Permute the axes of the tensor.
+   * Namely, the axes are rearranged according to the permutation vector.
+   * If an axis is not specified, it will be left unchanged.
+   * @pre All values in `permutation` must be in the range [0, rank() - 1]
+   * @param permutation permutation of the axes
+   * @return reference to this object
+   */
+  TensorView& permute(const std::vector<std::size_t>& permutation);
+  /**
+   * Permute the axes of the tensor.
+   * Namely, the axes are rearranged according to the permutation vector.
+   * If an axis is not specified, it will be left unchanged.
+   * @pre All values in `permutation` must be in the range [0, rank() - 1]
+   * @tparam I axis to put in the first dimension type
+   * @tparam Is varadic remaining permuted axis types
+   * @param i axis to put in the first dimension
+   * @param is remaining permuted axes
+   * @return reference to this object
+   */
+  template <std::convertible_to<const std::size_t> I, class... Is>
+  TensorView& permute(I i, Is... is) {
+    return permute(std::vector<std::size_t>{static_cast<std::size_t>(i), static_cast<std::size_t>(is)...});
+  }
 
   /**
    * Get the element in the tensor using the indices in each dimension.

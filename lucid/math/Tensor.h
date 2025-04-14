@@ -21,6 +21,8 @@ namespace lucid {
 /**
  * Lightweight tensor class.
  * It uses a strided vector to support any number of dimensions.
+ * @note Most methods in this class are implemented by the TensorView class.
+ * Its direct use is discouraged unless you can ensure proper memory management.
  * @tparam T type of the elements in the tensor
  */
 template <IsAnyOf<int, float, double, std::complex<double>> T>
@@ -68,6 +70,50 @@ class Tensor {
    * @return reference to this object
    */
   Tensor& reshape(std::vector<std::size_t> dims);
+  /**
+   * Permute the axes of the tensor.
+   * Namely, the axes are rearranged according to the permutation vector.
+   * If an axis is not specified, it will be left unchanged.
+   * @pre All values in `permutation` must be in the range [0, rank() - 1]
+   * @code
+   * Tensor<int> t{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{2, 3}};
+   * // 1  2  3
+   * // 4  5  6
+   * t.permute(std::vector<std::size_t>{0, 1});
+   * // 1  2
+   * // 3  4
+   * // 5  6
+   * @endcode
+   * @param permutation permutation of the axes
+   * @return reference to this object
+   */
+  Tensor& permute(const std::vector<std::size_t>& permutation);
+  /**
+   * Permute the axes of the tensor.
+   * Namely, the axes are rearranged according to the permutation vector.
+   * If an axis is not specified, it will be left unchanged.
+   * @pre All values in `permutation` must be in the range [0, rank() - 1]
+   * @code
+   * Tensor<int> t{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{2, 3}};
+   * // 1  2  3
+   * // 4  5  6
+   * t.permute(0, 1);
+   * // 1  2
+   * // 3  4
+   * // 5  6
+   * @endcode
+   * @tparam I axis to put in the first dimension type
+   * @tparam Is varadic remaining permuted axis types
+   * @param i axis to put in the first dimension
+   * @param is remaining permuted axes
+   * @return reference to this object
+   */
+  template <std::convertible_to<const std::size_t> I, class... Is>
+  Tensor& permute(I i, Is... is) {
+    view_.permute(i, is...);
+    return *this;
+  }
+
   /**
    * Get the element in the tensor using the indices in each dimension.
    * @tparam I index type

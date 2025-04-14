@@ -26,6 +26,11 @@ Tensor<T>& Tensor<T>::reshape(std::vector<std::size_t> dims) {
   view_.reshape(std::move(dims));
   return *this;
 }
+template <IsAnyOf<int, float, double, std::complex<double>> T>
+Tensor<T>& Tensor<T>::permute(const std::vector<std::size_t>& permutation) {
+  view_.permute(permutation);
+  return *this;
+}
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 Tensor<std::complex<double>> Tensor<T>::fft(const double coeff) const {
