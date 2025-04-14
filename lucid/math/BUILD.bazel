@@ -118,7 +118,7 @@ lucid_cc_library(
     implementation_deps = [
         "//lucid/util:error",
     ] + select({
-        "//tools:matplotlib_build": ["//lucid/util:matplotlibcpp"],
+        "//tools:matplotlib_build": ["//lucid/util:matplotlib"],
         "//conditions:default": [],
     }),
     deps = [

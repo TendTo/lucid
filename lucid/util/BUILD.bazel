@@ -25,9 +25,9 @@ whl_filegroup(
 )
 
 lucid_pyblind_library(
-    name = "matplotlibcpp",
-    srcs = ["matplotlibcpp.cpp"],
-    hdrs = ["matplotlibcpp.h"],
+    name = "matplotlib",
+    srcs = ["matplotlib.cpp"],
+    hdrs = ["matplotlib.h"],
     implementation_deps = [":error"],
     tags = ["no-dwyu"],
     visibility = ["//visibility:public"],

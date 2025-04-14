@@ -12,7 +12,7 @@
 
 #include "lucid/util/error.h"
 #ifdef LUCID_MATPLOTLIB_BUILD
-#include "lucid/util/matplotlibcpp.h"
+#include "lucid/util/matplotlib.h"
 #endif
 
 namespace lucid {
@@ -48,7 +48,6 @@ bool RectSet::operator()(ConstMatrixRef x) const {
 
 void RectSet::plot(const std::string& color) const {
 #ifdef LUCID_MATPLOTLIB_BUILD
-  namespace plt = matplotlibcpp;
   Vector x(lb_.size());
   x << lb_(0), ub_(0);
   Vector y1(1);
