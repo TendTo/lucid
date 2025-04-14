@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/math/TensorIterator.h"
 #include "lucid/util/concept.h"
 #include "lucid/util/exception.h"
 
@@ -55,24 +56,26 @@ class TensorView {
    * Namely, the axes are rearranged according to the permutation vector.
    * If an axis is not specified, it will be left unchanged.
    * @pre All values in `permutation` must be in the range [0, rank() - 1]
+   * @param out permuted output tensor
    * @param permutation permutation of the axes
-   * @return reference to this object
    */
-  TensorView& permute(const std::vector<std::size_t>& permutation);
+  template <IsAnyOf<int, float, double, std::complex<double>> TT>
+  void permute(TensorView<TT>& out, const std::vector<std::size_t>& permutation) const;
   /**
    * Permute the axes of the tensor.
    * Namely, the axes are rearranged according to the permutation vector.
    * If an axis is not specified, it will be left unchanged.
    * @pre All values in `permutation` must be in the range [0, rank() - 1]
+   * @param out permuted output tensor
    * @tparam I axis to put in the first dimension type
    * @tparam Is varadic remaining permuted axis types
    * @param i axis to put in the first dimension
    * @param is remaining permuted axes
    * @return reference to this object
    */
-  template <std::convertible_to<const std::size_t> I, class... Is>
-  TensorView& permute(I i, Is... is) {
-    return permute(std::vector<std::size_t>{static_cast<std::size_t>(i), static_cast<std::size_t>(is)...});
+  template <IsAnyOf<int, float, double, std::complex<double>> TT, std::convertible_to<const std::size_t> I, class... Is>
+  void permute(TensorView<TT>& out, I i, Is... is) const {
+    permute(out, std::vector<std::size_t>{static_cast<std::size_t>(i), static_cast<std::size_t>(is)...});
   }
 
   /**
@@ -142,6 +145,13 @@ class TensorView {
   [[nodiscard]] const std::vector<std::size_t>& dimensions() const { return dims_; }
   /** @getter{data, tensor} */
   [[nodiscard]] const std::span<const T>& data() const { return data_; }
+  /** @getter{data, tensor} */
+  [[nodiscard]] std::span<T> m_data() { return std::span<T>{const_cast<T*>(data_.data()), data_.size()}; }
+  /** @getter{iterator pointing at the beginning, tensor} */
+  [[nodiscard]] TensorIterator<T> begin() const;
+  /** @getter{iterator pointing at the end, tensor} */
+  [[nodiscard]] TensorIterator<T> end() const;
+
   /**
    * Apply the Fast Fourier Transform to the tensor.
    * It is just the application of the FFT to each dimension of the tensor.

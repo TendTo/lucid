@@ -12,8 +12,9 @@
 #include <span>
 #include <vector>
 
-#include "TensorView.h"
 #include "lucid/lib/eigen.h"
+#include "lucid/math/TensorIterator.h"
+#include "lucid/math/TensorView.h"
 #include "lucid/util/concept.h"
 
 namespace lucid {
@@ -87,7 +88,12 @@ class Tensor {
    * @param permutation permutation of the axes
    * @return reference to this object
    */
-  Tensor& permute(const std::vector<std::size_t>& permutation);
+  template <IsAnyOf<int, float, double, std::complex<double>> TT = T>
+  [[nodiscard]] Tensor<TT> permute(const std::vector<std::size_t>& permutation) const {
+    Tensor<TT> out{view_.dimensions()};
+    view_.permute(out.view_, permutation);
+    return out;
+  }
   /**
    * Permute the axes of the tensor.
    * Namely, the axes are rearranged according to the permutation vector.
@@ -108,10 +114,12 @@ class Tensor {
    * @param is remaining permuted axes
    * @return reference to this object
    */
-  template <std::convertible_to<const std::size_t> I, class... Is>
-  Tensor& permute(I i, Is... is) {
-    view_.permute(i, is...);
-    return *this;
+  template <IsAnyOf<int, float, double, std::complex<double>> TT = T, std::convertible_to<const std::size_t> I,
+            class... Is>
+  [[nodiscard]] Tensor<TT> permute(I i, Is... is) const {
+    Tensor<TT> out{view_.dimensions()};
+    view_.permute(out.view_, i, is...);
+    return out;
   }
 
   /**
@@ -186,8 +194,14 @@ class Tensor {
   [[nodiscard]] const std::vector<T>& data() const { return data_; }
   /** @getter{view, tensor} */
   [[nodiscard]] const TensorView<T>& view() const { return view_; }
+  /** @getsetter{view, tensor} */
+  TensorView<T>& m_view() { return view_; }
   /** @getsetter{data, tensor} */
-  [[nodiscard]] std::vector<T>& data() { return data_; }
+  [[nodiscard]] std::vector<T>& m_data() { return data_; }
+  /** @getter{iterator pointing at the beginning, tensor} */
+  [[nodiscard]] TensorIterator<T> begin() const;
+  /** @getter{iterator pointing at the end, tensor} */
+  [[nodiscard]] TensorIterator<T> end() const;
 
   /**
    * Pad the tensor with a value.

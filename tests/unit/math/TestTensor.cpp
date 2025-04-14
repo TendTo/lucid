@@ -236,17 +236,16 @@ TEST(TestTensor, ReshapeInvalidSize) {
   EXPECT_THROW(tensor.reshape(new_dims), LucidInvalidArgumentException);
 }
 
-TEST(TestTensor, Permute1D) {
-  Tensor<double> tensor{std::vector{1.0, 2.0, 3.0}, std::vector{3ul}};
-  tensor.permute(0ul);  // Identity permutation
+TEST(TestTensor, PermuteIdentity1D) {
+  Tensor<double> tensor{Tensor<double>{std::vector{1.0, 2.0, 3.0}, std::vector{3ul}}.permute(0ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul}));
   EXPECT_DOUBLE_EQ(tensor(0ul), 1.0);
   EXPECT_DOUBLE_EQ(tensor(1ul), 2.0);
   EXPECT_DOUBLE_EQ(tensor(2ul), 3.0);
 }
 TEST(TestTensor, Permute2D) {
-  Tensor<double> tensor{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}};
-  tensor.permute(1ul, 0ul);
+  Tensor<double> tensor{
+      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}}.permute(1ul, 0ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul}));
   EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
   EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 4.0);
@@ -256,8 +255,8 @@ TEST(TestTensor, Permute2D) {
   EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
 }
 TEST(TestTensor, PermuteVector2D) {
-  Tensor<double> tensor{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}};
-  tensor.permute({1ul, 0ul});
+  Tensor<double> tensor{
+      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}}.permute({1ul, 0ul})};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul}));
   EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
   EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 4.0);
@@ -268,8 +267,8 @@ TEST(TestTensor, PermuteVector2D) {
 }
 // 2D tensor, identity permutation
 TEST(TestTensor, PermuteIdentity2D) {
-  Tensor<double> tensor{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}};
-  tensor.permute(0ul, 1ul);
+  Tensor<double> tensor{
+      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}}.permute(0ul, 1ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2ul, 3ul}));
   EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
   EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 2.0);
@@ -280,14 +279,13 @@ TEST(TestTensor, PermuteIdentity2D) {
 }
 
 TEST(TestTensor, PermuteVector3D) {
-  Tensor<int> tensor{std::vector<int>{1, 2, 3,  //
-                                      4, 5, 6,  //
-                                      //
-                                      7, 8, 9,  //
-                                      10, 11, 12},
-                     std::vector{2ul, 2ul, 3ul}};
-
-  tensor.permute(2ul, 0ul, 1ul);
+  Tensor<int> tensor{Tensor<int>{std::vector<int>{1, 2, 3,  //
+                                                  4, 5, 6,  //
+                                                  //
+                                                  7, 8, 9,  //
+                                                  10, 11, 12},
+                                 std::vector{2ul, 2ul, 3ul}}
+                         .permute(2ul, 0ul, 1ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul, 2ul}));
   EXPECT_EQ(tensor(0, 0, 0), 1);
   EXPECT_EQ(tensor(0, 0, 1), 4);
@@ -303,7 +301,7 @@ TEST(TestTensor, PermuteVector3D) {
   EXPECT_EQ(tensor(2, 1, 1), 12);
 }
 TEST(TestTensor, PermuteAllDifferent3D) {
-  Tensor<int> tensor{
+  Tensor<int> tensor{Tensor<int>{
       std::vector<int>{
           1, 2, 3, 4,     //
           5, 6, 7, 8,     //
@@ -314,9 +312,8 @@ TEST(TestTensor, PermuteAllDifferent3D) {
           21, 22, 23, 24   //
       },
       std::vector{2ul, 3ul, 4ul}  // Shape: (2, 3, 4)
-  };
-
-  tensor.permute(2ul, 0ul, 1ul);
+  }
+                         .permute(2ul, 0ul, 1ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({4ul, 2ul, 3ul}));
   EXPECT_EQ(tensor(0, 0, 0), 1);
   EXPECT_EQ(tensor(0, 0, 1), 5);
@@ -344,18 +341,17 @@ TEST(TestTensor, PermuteAllDifferent3D) {
   EXPECT_EQ(tensor(3, 1, 2), 24);
 }
 TEST(TestTensor, PermutePartial4D) {
-  Tensor<int> tensor{std::vector<int>{
-                         1, 2, 3, 4,     //
-                         5, 6, 7, 8,     //
-                         9, 10, 11, 12,  //
-                         //
-                         13, 14, 15, 16,  //
-                         17, 18, 19, 20,  //
-                         21, 22, 23, 24   //
-                     },
-                     std::vector{2ul, 3ul, 4ul, 1ul}};
-
-  tensor.permute(1ul, 0ul);
+  Tensor<int> tensor{Tensor<int>{std::vector<int>{
+                                     1, 2, 3, 4,     //
+                                     5, 6, 7, 8,     //
+                                     9, 10, 11, 12,  //
+                                     //
+                                     13, 14, 15, 16,  //
+                                     17, 18, 19, 20,  //
+                                     21, 22, 23, 24   //
+                                 },
+                                 std::vector{2ul, 3ul, 4ul, 1ul}}
+                         .permute(1ul, 0ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul, 4ul, 1ul}));
   EXPECT_EQ(tensor(0, 0, 0, 0), 1);
   EXPECT_EQ(tensor(0, 0, 1, 0), 2);
@@ -385,10 +381,9 @@ TEST(TestTensor, PermutePartial4D) {
 
 // Permute with repeated application (round-trip)
 TEST(TestTensor, PermuteRoundTrip3D) {
-  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8}, std::vector{2ul, 2ul, 2ul}};
-
-  tensor.permute(2ul, 0ul, 1ul);  // Permute
-  tensor.permute(1ul, 2ul, 0ul);  // Inverse permute
+  Tensor<int> tensor{Tensor<int>{std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8}, std::vector{2ul, 2ul, 2ul}}
+                         .permute(2ul, 0ul, 1ul)
+                         .permute(1ul, 2ul, 0ul)};  // Inverse permute
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2ul, 2ul, 2ul}));
 
   // Check values preserved
@@ -402,13 +397,12 @@ TEST(TestTensor, PermuteRoundTrip3D) {
   EXPECT_EQ(tensor(1, 1, 1), 8);
 }
 TEST(TestTensor, PermuteEmpty) {
-  Tensor<float> tensor{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul}};
-  tensor.permute(1ul, 0ul);
+  Tensor<float> tensor{Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul}}.permute(1ul, 0ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({0ul, 2ul}));
 }
 TEST(TestTensor, PermuteHighDimemsion) {
-  Tensor<float> tensor{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul, 5ul}};
-  tensor.permute(2ul, 0ul, 1ul);
+  Tensor<float> tensor{
+      Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul, 5ul}}.permute(2ul, 0ul, 1ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({5ul, 2ul, 0ul}));
 }
 
@@ -694,6 +688,21 @@ TEST(TestTensor, UpsampleDownsampleInvalid) {
 
 TEST(TestTensor, UpsampleRankInvalid) {
   EXPECT_THROW(Tensor<double>{trigonometric_tensor<3>(7ul).fft_upsample({18ul})}, LucidInvalidArgumentException);
+}
+
+TEST(TestTensor, TensorIterator1D) {
+  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{6l}};
+  EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1, 2, 3, 4, 5, 6));
+}
+
+TEST(TestTensor, TensorIterator2D) {
+  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3ul, 2ul}};
+  EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1, 2, 3, 4, 5, 6));
+}
+
+TEST(TestTensor, TensorIterator3D) {
+  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3ul, 1ul, 2ul}};
+  EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1, 2, 3, 4, 5, 6));
 }
 
 TEST(TestTensor, ToMatrixInvalid) {

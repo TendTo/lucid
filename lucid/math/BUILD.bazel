@@ -150,21 +150,23 @@ lucid_cc_library(
     name = "tensor",
     srcs = [
         "Tensor.cpp",
+        "TensorIterator.cpp",
         "TensorView.cpp",
     ],
     hdrs = [
         "Tensor.h",
+        "TensorIterator.h",
         "TensorView.h",
     ],
     implementation_deps = [
         "//lucid/lib:pocketfft",
         "//lucid/util:error",
-        "//lucid/util:index_iterator",
     ],
     deps = [
         "//lucid/lib:eigen",
         "//lucid/util:concepts",
         "//lucid/util:exception",
+        "//lucid/util:index_iterator",
         "//lucid/util:logging",
     ],
 )

@@ -7,6 +7,7 @@
 #include "lucid/math/TensorView.h"
 
 #include <ostream>
+#include <set>
 
 #include "lucid/lib/pocketfft.h"
 #include "lucid/math/Tensor.h"
@@ -32,20 +33,34 @@ TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
+TensorIterator<T> TensorView<T>::begin() const {
+  return {*this};
+}
+template <IsAnyOf<int, float, double, std::complex<double>> T>
+TensorIterator<T> TensorView<T>::end() const {
+  return {*this, true};
+}
+
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::fft(TensorView<std::complex<double>>& out, const double coeff) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(dims_ == out.dims_, "out.dimensions()", out.dims_, dims_);
+  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
+
+  // Set output dimensions and strides
+  out.dims_ = dims_;
+  out.strides_ = strides_;
+  out.axes_ = axes_;
 
   // Compute strides on complex data. They are the same for input and output
   std::vector<Index> strides{strides_};
   for (Index& i : strides) i *= sizeof(std::complex<double>);
   // The pointer to the input data only accepts complex data. If the input is not complex, we must first cast it
-  std::complex<double>* in_data;
+  const std::complex<double>* in_data;
   std::vector<std::complex<double>> cast_vector;  // Only used as temporary storage if the input is not complex
   // Output data is always complex. Get the pointer where to store the result
-  auto* const out_data = const_cast<std::complex<double>*>(out.data_.data());
+  std::complex<double>* const out_data = out.m_data().data();
 
   if constexpr (std::is_same_v<T, std::complex<double>>) {  // If the input was already complex, no need to cast it
-    in_data = const_cast<T*>(data_.data());
+    in_data = data_.data();
   } else {  // Otherwise, cast it to complex
     cast_vector.reserve(data_.size());
     for (std::size_t i = 0; i < data_.size(); ++i) cast_vector.push_back(static_cast<std::complex<double>>(data_[i]));
@@ -57,19 +72,24 @@ void TensorView<T>::fft(TensorView<std::complex<double>>& out, const double coef
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::ifft(TensorView<std::complex<double>>& out, const double coeff) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(dims_ == out.dims_, "out.dimensions()", out.dims_, dims_);
+  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
 
-  // Compute strides on complex data. They are the same for input and output
+  // Set output dimensions and strides
+  out.dims_ = dims_;
+  out.strides_ = strides_;
+  out.axes_ = axes_;
+
+  // Compute strides on complex data. They are the same for both input and output
   std::vector<Index> strides{strides_};
   for (Index& i : strides) i *= sizeof(std::complex<double>);
   // The pointer to the input data only accepts complex data. If the input is not complex, we must first cast it
-  std::complex<double>* in_data;
+  const std::complex<double>* in_data;
   std::vector<std::complex<double>> cast_vector;  // Only used as temporary storage if the input is not complex
   // Output data is always complex. Get the pointer where to store the result
-  auto* const out_data = const_cast<std::complex<double>*>(out.data_.data());
+  std::complex<double>* const out_data = out.m_data().data();
 
   if constexpr (std::is_same_v<T, std::complex<double>>) {  // If the input was already complex, no need to cast it
-    in_data = const_cast<T*>(data_.data());
+    in_data = data_.data();
   } else {  // Otherwise, cast it to complex
     cast_vector.reserve(data_.size());
     for (std::size_t i = 0; i < data_.size(); ++i) cast_vector.push_back(static_cast<std::complex<double>>(data_[i]));
@@ -83,10 +103,9 @@ void TensorView<T>::ifft(TensorView<std::complex<double>>& out, const double coe
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::ifft(TensorView<double>& out, const double coeff) const {
   Tensor<std::complex<double>> out_complex{out.dims_};
-  ifft(const_cast<TensorView<std::complex<double>>&>(out_complex.view()), coeff);
-  std::span<double> out_data{const_cast<double*>(out.data_.data()), out.data_.size()};
-  for (std::size_t i = 0; i < out_data.size(); ++i) {
-    out_data[i] = out_complex[i].real();
+  ifft(out_complex.m_view(), coeff);
+  for (std::size_t i = 0; i < out.data_.size(); ++i) {
+    out.m_data()[i] = out_complex[i].real();
   }
 }
 
@@ -99,15 +118,13 @@ TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen:
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
-  LUCID_CHECK_ARGUMENT(
-      std::ranges::all_of(padding, [&out, this](const auto& p) { return p.first >= 0 && p.second >= 0; }), "padding",
-      "must be non-negative");
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(padding, [this](const auto& p) { return p.first >= 0 && p.second >= 0; }),
+                       "padding", "must be non-negative");
   LUCID_CHECK_ARGUMENT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
                                            [padding, &out, this](std::size_t i) {
                                              return dims_[i] + padding[i].first + padding[i].second == out.dims_[i];
                                            }),
                        "out", "dimensions must be equal to input tensor dimensions plus padding");
-  std::span<T> out_data{const_cast<T*>(out.data_.data()), out.data_.size()};
   std::vector<long> min_idx_out(dims_.size());
   std::vector<long> max_idx_out(dims_.begin(), dims_.end());
   std::vector<long> max_idx_in(dims_.begin(), dims_.end());
@@ -123,7 +140,7 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, I
     const std::span<const long> indexes_in{it_in};
     const std::span<const long> indexes_out{it_out};
     const std::span<const T> in_data = data_.subspan(index(indexes_in), dims_[dims_.size() - 1]);
-    std::copy(in_data.begin(), in_data.end(), out_data.subspan(out.index(indexes_out)).begin());
+    std::copy(in_data.begin(), in_data.end(), out.m_data().subspan(out.index(indexes_out)).begin());
   }
   LUCID_ASSERT(!it_in && !it_out, "Both iterators must have the same number of elements");
 }
@@ -147,7 +164,6 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
                                            }),
                        "start_padding", "must be less than or equal to input tensor dimensions");
 
-  std::span<T> out_data{const_cast<T*>(out.data_.data()), out.data_.size()};
   std::vector<long> max_idx(dims_.begin(), dims_.end());
   max_idx.back() = 1;
   for (IndexIterator<std::vector<long>> it{std::move(max_idx)}; it; ++it) {
@@ -159,10 +175,10 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
     const std::span<const T> in_data_end_half =
         data_.subspan(index(std::span<const long>{it}) + start_padding.back(), dims_.back() - start_padding.back());
     std::copy(in_data_start_half.begin(), in_data_start_half.end(),
-              out_data.subspan(out.index(std::span<const long>{output_idx})).begin());
-    std::copy(
-        in_data_end_half.begin(), in_data_end_half.end(),
-        out_data.subspan(out.index(std::span<const long>{output_idx})).begin() + padding.back() + start_padding.back());
+              out.m_data().subspan(out.index(std::span<const long>{output_idx})).begin());
+    std::copy(in_data_end_half.begin(), in_data_end_half.end(),
+              out.m_data().subspan(out.index(std::span<const long>{output_idx})).begin() + padding.back() +
+                  start_padding.back());
   }
 }
 template <IsAnyOf<int, float, double, std::complex<double>> T>
@@ -179,7 +195,7 @@ void TensorView<T>::fft_upsample(TensorView<double>& out) const {
   LUCID_CHECK_ARGUMENT(std::ranges::all_of(out.dims_, [&out](const std::size_t d) { return d == out.dims_[0]; }),
                        "out.dimensions()", "all dimensions must be equal");
   Tensor<std::complex<double>> fft_out{dims_};
-  fft(const_cast<TensorView<std::complex<double>>&>(fft_out.view()));
+  fft(fft_out.m_view());
 
   // Determine how much padding is needed and where it is going to be placed
   std::vector<Index> padding(dims_.size()), start_padding(dims_.size());
@@ -197,22 +213,14 @@ void TensorView<T>::fft_upsample(TensorView<double>& out) const {
   // }
 
   // Compute the inverse FFT of the padded tensor to interpolate the signal, resulting in an upsampled tensor
-  pad_out.view().ifft(out);
+  // We need to adjust the scaling coefficient accordingly
+  const double coeff = std::pow(1.0 / static_cast<double>(dims_[0]), rank());
+  pad_out.view().ifft(out, coeff);
 
-  Tensor<std::complex<double>> ifft_out{out.dims_};
-  pad_out.view().ifft(const_cast<TensorView<std::complex<double>>&>(ifft_out.view()));
-  Tensor<double> temp{out.dims_};
-  {
-    std::span<double> out_data{const_cast<double*>(temp.view().data_.data()), temp.view().data_.size()};
-    for (std::size_t i = 0; i < out.size(); ++i) {
-      out_data[i] = ifft_out[i].real() * pow(static_cast<double>(out.dims_[0]) / static_cast<double>(dims_[0]), 2);
-    }
-  }
-
-  // Correct the scaling, since only the original tensor size should be used. The padding does not add any information
-  for (std::span<double> out_data{const_cast<double*>(out.data_.data()), out.data_.size()}; double& d : out_data) {
-    for (std::size_t rank = 0; rank < dims_.size(); ++rank) {
-      d *= static_cast<double>(out.dims_[rank]) / static_cast<double>(dims_[rank]);
+  // If we are dealing with a tensor where the dimensions have different sizes, we need to correct the scaling
+  if (std::ranges::any_of(dims_, [this](const std::size_t d) { return d != dims_[0]; })) {
+    for (double& d : out.m_data()) {
+      for (const std::size_t dim : dims_) d *= coeff / static_cast<double>(dim);
     }
   }
 }
@@ -229,42 +237,51 @@ TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
     strides_[strides_.size() - i - 1] = (strides_[strides_.size() - i] * dims_[dims_.size() - i]);
   return *this;
 }
+
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-TensorView<T>& TensorView<T>::permute(const std::vector<std::size_t>& permutation) {
-  LUCID_CHECK_ARGUMENT(std::ranges::all_of(permutation, [this](const std::size_t i) { return i < dims_.size(); }),
-                       "permutation values", "must not exceed the rank of the tensor");
-  std::vector<std::size_t> permuted_axes{axes_}, permuted_dims{dims_};
-  std::vector<Index> permuted_strides{strides_};
+template <IsAnyOf<int, float, double, std::complex<double>> TT>
+void TensorView<T>::permute(TensorView<TT>& out, const std::vector<std::size_t>& permutation) const {
+  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(permutation, [&](const std::size_t p) { return p < rank(); }),
+                       "permutation values", "must be in [0, rank - 1]");
+
+  // Create a temporary view to the input data, just so we can assert this method is const.
+  // Its dimensions and strides get permuted
+  TensorView<T> temp_view{data_, dims_};
   for (std::size_t i = 0; i < permutation.size() && i < dims_.size(); ++i) {
-    permuted_axes[i] = permutation[i];
-    permuted_dims[i] = dims_[permutation[i]];
-    permuted_strides[i] = strides_[permutation[i]];
+    temp_view.dims_[i] = dims_[permutation[i]];
+    temp_view.strides_[i] = strides_[permutation[i]];
   }
-  axes_ = std::move(permuted_axes);
-  dims_ = std::move(permuted_dims);
-  strides_ = std::move(permuted_strides);
-  return *this;
+
+  // Set output dimensions. Doing so will also update the strides accondingly
+  out.reshape(temp_view.dims_);
+
+  std::size_t i = 0;
+  if constexpr (!std::is_same_v<T, TT> && std::is_same_v<T, std::complex<double>>) {
+    for (const T& val : temp_view) out.m_data()[i++] = static_cast<TT>(val.real());
+  } else {
+    for (const T& val : temp_view) out.m_data()[i++] = static_cast<TT>(val);
+  }
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
-  std::cout << "[ ";
-  for (const auto& dim : tensor.dimensions()) std::cout << dim << " ";
-  std::cout << "]\n";
+  os << "[ ";
+  for (const auto& dim : tensor.dimensions()) os << dim << " ";
+  os << "]\n";
 
   if (tensor.rank() == 1) {
-    return os << Eigen::Map<const Eigen::RowVectorX<T>>{tensor.data().data(), static_cast<Index>(tensor.size())};
+    return os << static_cast<Eigen::Map<const Eigen::VectorX<T>>>(tensor);
   }
   if (tensor.rank() == 2) {
-    return os << Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>{
-               tensor.data().data(), static_cast<Index>(tensor.dimensions()[0]),
-               static_cast<Index>(tensor.dimensions()[1])};
+    return os << static_cast<Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(
+               tensor);
   }
-  for (std::size_t i = 0; i < tensor.size(); ++i) {
-    std::cout << tensor.data()[i] << " ";
-    if ((i + 1) % tensor.dimensions().back() == 0) {
-      std::cout << "\n";
-    }
+  std::size_t i = 0;
+  for (const T& val : tensor) {
+    os << val << " ";
+    if ((i + 1) % tensor.dimensions().back() == 0) os << "\n";
+    ++i;
   }
   return os;
 }
@@ -273,6 +290,25 @@ template class TensorView<int>;
 template class TensorView<float>;
 template class TensorView<double>;
 template class TensorView<std::complex<double>>;
+
+template void TensorView<int>::permute(TensorView<int>&, const std::vector<std::size_t>&) const;
+template void TensorView<float>::permute(TensorView<int>&, const std::vector<std::size_t>&) const;
+template void TensorView<double>::permute(TensorView<int>&, const std::vector<std::size_t>&) const;
+template void TensorView<std::complex<double>>::permute(TensorView<int>&, const std::vector<std::size_t>&) const;
+template void TensorView<int>::permute(TensorView<float>&, const std::vector<std::size_t>&) const;
+template void TensorView<float>::permute(TensorView<float>&, const std::vector<std::size_t>&) const;
+template void TensorView<double>::permute(TensorView<float>&, const std::vector<std::size_t>&) const;
+template void TensorView<std::complex<double>>::permute(TensorView<float>&, const std::vector<std::size_t>&) const;
+template void TensorView<int>::permute(TensorView<double>&, const std::vector<std::size_t>&) const;
+template void TensorView<float>::permute(TensorView<double>&, const std::vector<std::size_t>&) const;
+template void TensorView<double>::permute(TensorView<double>&, const std::vector<std::size_t>&) const;
+template void TensorView<std::complex<double>>::permute(TensorView<double>&, const std::vector<std::size_t>&) const;
+template void TensorView<int>::permute(TensorView<std::complex<double>>&, const std::vector<std::size_t>&) const;
+template void TensorView<float>::permute(TensorView<std::complex<double>>&, const std::vector<std::size_t>&) const;
+template void TensorView<double>::permute(TensorView<std::complex<double>>&, const std::vector<std::size_t>&) const;
+template void TensorView<std::complex<double>>::permute(TensorView<std::complex<double>>&,
+                                                        const std::vector<std::size_t>&) const;
+
 template std::ostream& operator<<(std::ostream& os, const TensorView<int>& tensor);
 template std::ostream& operator<<(std::ostream& os, const TensorView<float>& tensor);
 template std::ostream& operator<<(std::ostream& os, const TensorView<double>& tensor);

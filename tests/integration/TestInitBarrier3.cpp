@@ -117,15 +117,12 @@ Vector project(const Matrix& f, const Index n_per_dim, const Index samples_per_d
 inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim) {
   const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
 
-  // No transpose for some reason??
-  Matrix f_trans{f.reshaped(samples_per_dim, samples_per_dim)};
-  TensorView<double> in_view{std::span<const double>{f_trans.data(), static_cast<std::size_t>(f.size())},
-                             std::vector<std::size_t>(dimension, samples_per_dim)};
-  Vector out{static_cast<Index>(lucid::pow(samples_per_dim + 2 * n_pad, dimension))};
-  TensorView<double> out_view{std::span{out.data(), static_cast<std::size_t>(out.size())},
-                              std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)};
-  in_view.fft_upsample(out_view);
-  return out;
+  const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
+                                   std::vector<std::size_t>(dimension, samples_per_dim)};
+  Tensor<std::complex<double>> fft_in{in_view.dimensions()};
+  in_view.permute(fft_in.m_view(), 1, 0);
+  return static_cast<Eigen::Map<const Vector>>(
+      fft_in.fft_upsample(std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)));
 }
 
 TEST_F(TestInitBarrier3, InitBarrier3) {
