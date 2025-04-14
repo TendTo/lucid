@@ -15,6 +15,15 @@
 namespace lucid {
 
 template <IsAnyOf<long, std::vector<long>> T>
+IndexIterator<T> IndexIterator<T>::end() {
+  if constexpr (std::is_same_v<T, long>) {
+    return {1, 0, 0};
+  } else {
+    return {std::vector<long>{0}, std::vector<long>{0}};
+  }
+}
+
+template <IsAnyOf<long, std::vector<long>> T>
 IndexIterator<T>::IndexIterator(std::size_t size, T max_value)
   requires std::is_same_v<T, long>
     : IndexIterator{size, 0, max_value} {}
@@ -23,8 +32,8 @@ template <IsAnyOf<long, std::vector<long>> T>
 IndexIterator<T>::IndexIterator(const std::size_t size, T min_value, T max_value)
   requires std::is_same_v<T, long>
     : min_value_{min_value}, max_value_{max_value}, indexes_(size, min_value) {
-  if (size == 0) LUCID_INVALID_ARGUMENT_EXPECTED("size", size, "greater than 0");
-  if (min_value_ > max_value_) LUCID_INVALID_ARGUMENT_EXPECTED("min_value", min_value, "less than max_value");
+  LUCID_CHECK_ARGUMENT_EXPECTED(size > 0, "size", size, "greater than 0");
+  LUCID_CHECK_ARGUMENT_EXPECTED(min_value_ <= max_value_, "min_value", min_value, "less than max_value");
 }
 
 template <IsAnyOf<long, std::vector<long>> T>
@@ -36,15 +45,16 @@ template <IsAnyOf<long, std::vector<long>> T>
 IndexIterator<T>::IndexIterator(T min_value, T max_value)
   requires std::is_same_v<T, std::vector<long>>
     : min_value_{std::move(min_value)}, max_value_{std::move(max_value)}, indexes_{min_value_} {
-  if (min_value_.empty()) LUCID_INVALID_ARGUMENT_EXPECTED("min_value.size()", min_value_.size(), "greater than 0");
-  if (min_value_.size() != max_value_.size()) {
-    LUCID_INVALID_ARGUMENT_EXPECTED("min_value.size()", min_value_.size(), max_value_.size());
-  }
+  LUCID_CHECK_ARGUMENT_EXPECTED(!min_value_.empty(), "min_value.size()", min_value_.size(), "greater than 0");
+  LUCID_CHECK_ARGUMENT_EXPECTED(min_value_.size() == max_value_.size(), "min_value.size()", min_value_.size(),
+                                max_value_.size());
+#ifndef NCHECK
   for (std::size_t i = 0; i < min_value_.size(); i++) {
-    if (min_value_[i] >= max_value_[i]) {
-      LUCID_INVALID_ARGUMENT_EXPECTED("min_value < max_value", min_value_[i], max_value_[i] - 1);
+    if (min_value_[i] > max_value_[i]) {
+      LUCID_INVALID_ARGUMENT_EXPECTED("min_value", min_value_[i], max_value_[i] - 1);
     }
   }
+#endif
 }
 
 template <IsAnyOf<long, std::vector<long>> T>

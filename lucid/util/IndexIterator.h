@@ -32,6 +32,13 @@ template <IsAnyOf<long, std::vector<long>> T>
 class IndexIterator {
  public:
   /**
+   * Create an exhausted index iterator by assigning the same value to both min and max: 0.
+   * Useful to create something cheap to indicate that there is nothing to iterate.
+   * @return index iterator already exhausted
+   */
+  static IndexIterator<T> end();
+
+  /**
    * Construct an index iterator with `size` given by `max_value.size()`.
    * Each of the indexes will go from [0 to `max_value[i]` - 1] (inclusive).
    * @param max_value maximum value for each index
