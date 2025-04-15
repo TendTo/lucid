@@ -9,9 +9,13 @@
 - [x] Fix current implementation correctness with integration testing
 - [x] Implement second test case
 - [x] Implement a proper fftn
-- [ ] Check whether it is possible to avoid the padding to get the same information
+- [x] Check whether it is possible to avoid the padding to get the same information
     - If it is, implement the alternative
-    - Otherwise, implement the padding
+    - [x] Otherwise, implement the padding
+- [x] Handle permutations
+- [x] Keep track of permutations
+    - Is it better to do a lazy permutation, carrying the updated strides and axes (and dims?)
+    - [x] Or just eagerly update the data structure?
 
 ### Activity 2
 

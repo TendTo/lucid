@@ -137,8 +137,10 @@ def _get_defines(rule_defines):
     """
     return rule_defines + LUCID_DEFINES + select({
         "//tools:debug_build": [],
-        "//tools:release_build": [],
-        "//tools:benchmark_build": ["NCHECK", "EIGEN_NO_IO"],
+        "//tools:release_build": ["NDEBUG"],
+        "//conditions:default": [],
+    }) + select({
+        "//tools:benchmark_build": ["NCHECK"],
         "//conditions:default": [],
     }) + select({
         "//tools:python_build": ["LUCID_PYTHON_BUILD"],

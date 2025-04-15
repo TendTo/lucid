@@ -356,7 +356,7 @@ TEST(TestTensor, PermutePartial3D) {
                                  },
                                  std::vector{2ul, 3ul, 4ul}}
                          .permute(0, 2, 1)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul, 4ul}));
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2ul, 4ul, 3ul}));
   EXPECT_THAT(tensor.data(), ::testing::ElementsAre(1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12, 13, 17, 21, 14, 18, 22, 15,
                                                     19, 23, 16, 20, 24));
 }
