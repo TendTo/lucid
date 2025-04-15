@@ -340,6 +340,26 @@ TEST(TestTensor, PermuteAllDifferent3D) {
   EXPECT_EQ(tensor(3, 1, 1), 20);
   EXPECT_EQ(tensor(3, 1, 2), 24);
 }
+TEST(TestTensor, PermutePartial3D) {
+  Tensor<int> tensor{Tensor<int>{std::vector<int>{
+                                     1, 2, 3,     //
+                                     4, 5, 6,     //
+                                                  //
+                                     7, 8, 9,     //
+                                     10, 11, 12,  //
+                                                  //
+                                     13, 14, 15,  //
+                                     16, 17, 18,  //
+                                                  //
+                                     19, 20, 21,  //
+                                     22, 23, 24   //
+                                 },
+                                 std::vector{2ul, 3ul, 4ul}}
+                         .permute(0, 2, 1)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul, 4ul}));
+  EXPECT_THAT(tensor.data(), ::testing::ElementsAre(1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12, 13, 17, 21, 14, 18, 22, 15,
+                                                    19, 23, 16, 20, 24));
+}
 TEST(TestTensor, PermutePartial4D) {
   Tensor<int> tensor{Tensor<int>{std::vector<int>{
                                      1, 2, 3, 4,     //

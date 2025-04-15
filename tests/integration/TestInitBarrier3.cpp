@@ -115,12 +115,18 @@ Vector project(const Matrix& f, const Index n_per_dim, const Index samples_per_d
 #endif
 
 inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim) {
-  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+  if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
 
+  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+  // Get a view of the input data
   const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
                                    std::vector<std::size_t>(dimension, samples_per_dim)};
+  // Permute the last two axes and create a complex tensor
   Tensor<std::complex<double>> fft_in{in_view.dimensions()};
-  in_view.permute(fft_in.m_view(), 1, 0);
+  std::vector<std::size_t> axes{fft_in.axes()};
+  std::swap(axes[axes.size() - 2], axes[axes.size() - 1]);
+  in_view.permute(fft_in.m_view(), axes);
+  // Perform FFT upsampling on the data and return the result
   return static_cast<Eigen::Map<const Vector>>(
       fft_in.fft_upsample(std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)));
 }

@@ -75,6 +75,7 @@ class TestInitCSOvertaking : public ::testing::Test {
   Matrix expected_xu_lattice;
 };
 
+#if 0
 template <class Derived, int NumIndices>
 Eigen::MatrixXcd fftn(const Eigen::MatrixBase<Derived>& x) {
   Eigen::Tensor<Scalar, NumIndices> t{
@@ -105,10 +106,12 @@ Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const
     const Eigen::Tensor<std::complex<double>, 3> t{Eigen::TensorMap<Eigen::Tensor<const std::complex<double>, 3>>{
         f.template cast<std::complex<double>>().eval().data(),
         std::array{samples_per_dim, samples_per_dim, samples_per_dim}}};
+    std::cout << t << std::endl;
     Eigen::Tensor<std::complex<double>, 3> temp =
-        t.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{1, 0, 2})
+        t.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{2, 1, 0})
             .pad(std::array{std::pair<Index, Index>{0, 2 * n_pad}, std::pair<Index, Index>{0, 2 * n_pad},
                             std::pair<Index, Index>{0, 2 * n_pad}});
+
 
     // Dim 0
     const Index total_dim = samples_per_dim + 2 * n_pad;
@@ -143,6 +146,24 @@ Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const
     return Vector::Map(temp2.data(), temp2.size());
   }
   LUCID_NOT_SUPPORTED("Only 2D and 3D are supported");
+}
+#endif
+
+inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim) {
+  if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
+
+  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+  // Get a view of the input data
+  const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
+                                   std::vector<std::size_t>(dimension, samples_per_dim)};
+  // Permute the last two axes and create a complex tensor
+  Tensor<std::complex<double>> fft_in{in_view.dimensions()};
+  std::vector<std::size_t> axes{fft_in.axes()};
+  std::swap(axes[axes.size() - 2], axes[axes.size() - 1]);
+  in_view.permute(fft_in.m_view(), axes);
+  // Perform FFT upsampling on the data and return the result
+  return static_cast<Eigen::Map<const Vector>>(
+      fft_in.fft_upsample(std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)));
 }
 
 TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
@@ -187,12 +208,14 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   const Matrix fu_lattice{tffm(xu_lattice)};
 
   GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
-  optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
-                  [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
-                    EXPECT_TRUE(success);
-                    EXPECT_NEAR(obj_val, 0.76609867952476407, tolerance);
-                    EXPECT_NEAR(eta, 0.38304933976238204, tolerance);
-                    EXPECT_NEAR(c, 0.0, tolerance);
-                    EXPECT_NEAR(norm, 0.52365992867299227, tolerance);
-                  });
+  const bool res = optimiser.solve(
+      f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
+      [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
+        EXPECT_TRUE(success);
+        EXPECT_NEAR(obj_val, 0.76609867952476407, tolerance);
+        EXPECT_NEAR(eta, 0.38304933976238204, tolerance);
+        EXPECT_NEAR(c, 0.0, tolerance);
+        EXPECT_NEAR(norm, 0.52365992867299227, tolerance);
+      });
+  EXPECT_TRUE(res);
 }

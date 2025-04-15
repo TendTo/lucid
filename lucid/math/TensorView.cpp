@@ -253,7 +253,7 @@ void TensorView<T>::permute(TensorView<TT>& out, const std::vector<std::size_t>&
     temp_view.strides_[i] = strides_[permutation[i]];
   }
 
-  // Set output dimensions. Doing so will also update the strides accondingly
+  // Set output dimensions. Doing so will also update the strides accordingly
   out.reshape(temp_view.dims_);
 
   std::size_t i = 0;
@@ -276,6 +276,19 @@ std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
   if (tensor.rank() == 2) {
     return os << static_cast<Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(
                tensor);
+  }
+  if (tensor.rank() == 3) {
+    for (long i = 0; i < static_cast<long>(tensor.dimensions().back()); ++i) {
+      os << "z: " << i << "\n";
+      Eigen::MatrixX<T> vector{tensor.dimensions()[0], tensor.dimensions()[1]};
+      for (IndexIterator<std::vector<long>> it{
+               {0, 0, i}, {static_cast<long>(tensor.dimensions()[0]), static_cast<long>(tensor.dimensions()[1]), i}};
+           it; ++it) {
+        vector(it.indexes()[0], it.indexes()[1]) = tensor(it.indexes());
+      }
+      os << vector << "\n";
+    }
+    return os;
   }
   std::size_t i = 0;
   for (const T& val : tensor) {
