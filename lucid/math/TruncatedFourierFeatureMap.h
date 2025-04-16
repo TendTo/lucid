@@ -9,6 +9,7 @@
 
 #include "lucid/lib/eigen.h"
 #include "lucid/math/FeatureMap.h"
+#include "lucid/math/RectSet.h"
 
 namespace lucid {
 
@@ -41,6 +42,8 @@ class TruncatedFourierFeatureMap final : public FeatureMap {
  public:
   TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
                              Matrix x_limits);
+  TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
+                             const RectSet& x_limits);
 
   /**
    * Given an @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.

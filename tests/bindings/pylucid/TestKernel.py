@@ -1,17 +1,20 @@
 from pylucid import GaussianKernel, Kernel
 import numpy as np
 
+
 class TestKernel:
     class TestGaussianKernel:
 
         def test_init_params(self):
             k = GaussianKernel(params=[1, 2, 3, 4])
+            assert isinstance(k, Kernel)
             assert np.allclose(k.parameters, [1, 2, 3, 4])
             assert k.sigma_f == 1
             assert np.allclose(k.sigma_l, [2.0, 3.0, 4.0])
 
         def test_init_sigmas(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
+            assert isinstance(k, Kernel)
             assert np.allclose(k.parameters, [2.0, 3.0, 4.0, 5.0])
             assert k.sigma_f == 2
             assert np.allclose(k.sigma_l, [3.0, 4.0, 5.0])

@@ -57,6 +57,9 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencie
     if (i != 0) weights_(2 * i - 1) = single_weights(i);
   }
 }
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension,
+                                                       ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& x_limits)
+    : TruncatedFourierFeatureMap{num_frequencies, input_dimension, sigma_l, sigma_f, static_cast<Matrix>(x_limits)} {}
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   auto z = (x.transpose() - x_limits_.row(0)).cwiseQuotient(x_limits_.row(1) - x_limits_.row(0));

@@ -80,6 +80,7 @@ lucid_cc_library(
     ],
     deps = [
         ":kernel",
+        ":set",
         "//lucid/lib:eigen",
         "//lucid/util:logging",
     ],

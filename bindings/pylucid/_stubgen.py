@@ -1,5 +1,7 @@
 import sys
 import os
+from pydoc import replace
+
 from pybind11_stubgen import main as stubgen_main
 
 
@@ -18,8 +20,12 @@ def generate_stub_files(out_dir):
         content = content.replace(b"__mpq_struct [1]>", b"float") \
             .replace(b"__gmp_expr<__mpq_struct [1]", b"float") \
             .replace(b"__gmp_expr<__mpq_struct [1], __mpq_struct [1]>", b"float") \
-            .replace(b"numpy.ndarray[numpy.float64[m, 1]]",
-                     b"typing.Annotated[numpy.typing.ArrayLike, numpy.float64, \"[m, 1]\", \"flags.writable\"]")
+            .replace(b"numpy.ndarray[numpy.float64[m, 1]]", b"numpy.typing.ArrayLike") \
+            .replace(
+            b"numpy.ndarray[numpy.float64[m, n], numpy.ndarray.flags.c_contiguous]",
+            b"numpy.typing.ArrayLike") \
+            .replace(b"numpy.ndarray[numpy.float64[m, n]]", b"numpy.typing.ArrayLike")
+
     with open(sys.argv[1], "wb") as f:
         f.write(content)
 

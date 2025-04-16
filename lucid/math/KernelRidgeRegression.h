@@ -88,6 +88,13 @@ class KernelRidgeRegression final : public Regression {
 
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
 
+  /** @getter{kernel, regression} */
+  [[nodiscard]] const K& kernel() const { return kernel_; }
+  /** @getter{training inputs, regression} */
+  [[nodiscard]] const Matrix& training_inputs() const { return training_inputs_; }
+  /** @getter{coefficients, regression} */
+  [[nodiscard]] const Matrix& coefficients() const { return coefficients_; }
+
  private:
   K kernel_;                ///< Kernel function
   Matrix training_inputs_;  ///< Training inputs

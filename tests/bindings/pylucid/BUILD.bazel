@@ -3,3 +3,19 @@ load("//tools:pytest.bzl", "pylucid_py_test")
 pylucid_py_test(name = "test_main")
 
 pylucid_py_test(name = "test_kernel")
+
+pylucid_py_test(name = "test_optimiser")
+
+pylucid_py_test(name = "test_regression")
+
+pylucid_py_test(
+    name = "test_integration",
+    data = [
+        "gurobi.lic",
+        "x_samples.matrix",
+        "xp_samples.matrix",
+    ],
+    env = {"GRB_LICENSE_FILE": "$(location gurobi.lic)"},
+)
+
+pylucid_py_test(name = "test_set")

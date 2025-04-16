@@ -53,9 +53,10 @@ class GurobiLinearOptimiser {
    * @return true if the optimisation was successful
    * @return false if no solution was found
    */
-  bool solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat, ConstMatrixRef w_mat,
-             Dimension rkhs_dim, Dimension num_frequencies_per_dim, Dimension num_frequency_samples_per_dim,
-             Dimension original_dim, const SolutionCallback& callback) const;
+  [[nodiscard]] bool solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
+                           ConstMatrixRef w_mat, Dimension rkhs_dim, Dimension num_frequencies_per_dim,
+                           Dimension num_frequency_samples_per_dim, Dimension original_dim,
+                           const SolutionCallback& callback) const;
 
  private:
   const int T_;           ///< Time horizon

@@ -12,6 +12,7 @@
 #include "lucid/math/math.h"
 
 #include <pybind11/eigen.h>
+#include <pybind11/functional.h>
 #include <pybind11/stl.h>
 
 #include "bindings/pylucid/pylucid.h"
@@ -36,7 +37,39 @@ class PyKernel : public Kernel {
   }
 };
 
+class PyRegression : public Regression {
+ public:
+  /* Inherit the constructors */
+  using Regression::Regression;
+
+  [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override {
+    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Regression, "__call__", operator(), x);
+  }
+};
+
+class PySet : public Set {
+ public:
+  /* Inherit the constructors */
+  using Set::Set;
+
+  [[nodiscard]] Dimension dimension() const override { PYBIND11_OVERRIDE_PURE(Dimension, Set, dimension); }
+  [[nodiscard]] Matrix sample_element(Index num_samples) const override {
+    PYBIND11_OVERRIDE_PURE(Matrix, Set, sample_element, num_samples);
+  }
+
+  [[nodiscard]] bool operator()(ConstMatrixRef x) const override {
+    PYBIND11_OVERRIDE_PURE_NAME(bool, Set, "__call__", operator(), x);
+  }
+
+  [[nodiscard]] Matrix lattice(const Eigen::VectorX<Index> &points_per_dim, bool include_endpoints) const override {
+    PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, include_endpoints);
+  }
+  void plot(const std::string &color) const override { PYBIND11_OVERRIDE_PURE(void, Set, plot, color); }
+  void plot3d(const std::string &color) const override { PYBIND11_OVERRIDE_PURE(void, Set, plot3d, color); }
+};
+
 void init_math(py::module_ &m) {
+  /**************************** Kernel ****************************/
   py::class_<Kernel, PyKernel>(m, "Kernel")
       .def(py::init<Dimension>(), py::arg("num_params") = 0)
       .def(py::init<Vector>(), py::arg("params"))
@@ -44,11 +77,102 @@ void init_math(py::module_ &m) {
       .def("__call__", &Kernel::operator())
       .def("clone", py::overload_cast<>(&Kernel::clone, py::const_))
       .def("clone", py::overload_cast<const Vector &>(&Kernel::clone, py::const_), py::arg("params"));
-
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
       .def(py::init<Vector>(), py::arg("params"))
       .def(py::init<double, const Vector &>(), py::arg("sigma_f"), py::arg("sigma_l"))
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l)
       .def("__str__", STRING_LAMBDA(GaussianKernel));
+
+  /**************************** FeatureMap ****************************/
+  py::class_<FeatureMap>(m, "FeatureMap");
+  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap", py::is_final())
+      .def(py::init<long, Dimension, ConstVectorRef, Scalar, Matrix>(), py::arg("num_frequencies"),
+           py::arg("input_dimension"), py::arg("sigma_l"), py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Dimension, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"),
+           py::arg("input_dimension"), py::arg("sigma_l"), py::arg("sigma_f"), py::arg("x_limits"))
+      .def("map_vector", &TruncatedFourierFeatureMap::map_vector, py::arg("x"))
+      .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, py::arg("x"))
+      .def("__call__", &TruncatedFourierFeatureMap::operator(), py::arg("x"))
+      .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension)
+      .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega)
+      .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights)
+      .def_property_readonly("num_frequencies", &TruncatedFourierFeatureMap::num_frequencies);
+
+  /**************************** Regression ****************************/
+  py::class_<Regression, PyRegression>(m, "Regression").def("__call__", &Regression::operator(), py::arg("x"));
+  py::class_<KernelRidgeRegression<GaussianKernel>, Regression>(m, "GaussianKernelRidgeRegression")
+      .def(py::init<GaussianKernel, Matrix, ConstMatrixRef, Scalar>(), py::arg("kernel"), py::arg("training_inputs"),
+           py::arg("training_outputs"), py::arg("regularization_constant") = 0)
+      .def_property_readonly("kernel", &KernelRidgeRegression<GaussianKernel>::kernel)
+      .def_property_readonly("training_inputs", &KernelRidgeRegression<GaussianKernel>::training_inputs)
+      .def_property_readonly("coefficients", &KernelRidgeRegression<GaussianKernel>::coefficients);
+
+  /**************************** Optimiser ****************************/
+  py::class_<GurobiLinearOptimiser>(m, "GurobiLinearOptimiser")
+      .def(py::init<int, double, double, double, double, double>(), py::arg("T"), py::arg("gamma"), py::arg("epsilon"),
+           py::arg("b_norm"), py::arg("b_kappa"), py::arg("sigma_f"))
+      .def("solve", &GurobiLinearOptimiser::solve, py::arg("f0_lattice"), py::arg("fu_lattice"), py::arg("phi_mat"),
+           py::arg("w_mat"), py::arg("rkhs_dim"), py::arg("num_frequencies_per_dim"),
+           py::arg("num_frequency_samples_per_dim"), py::arg("original_dim"), py::arg("callback"));
+
+  /**************************** Set ****************************/
+  py::class_<Set, PySet>(m, "Set")
+      .def(py::init<>())
+      .def_property_readonly("dimension", &Set::dimension)
+      .def("sample_element", py::overload_cast<Index>(&Set::sample_element, py::const_), py::arg("num_samples"))
+      .def("sample_element", py::overload_cast<>(&Set::sample_element, py::const_))
+      .def("lattice", py::overload_cast<Index, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
+           py::arg("include_endpoints") = false)
+      .def("lattice", py::overload_cast<const Eigen::VectorX<Index> &, bool>(&Set::lattice, py::const_),
+           py::arg("points_per_dim"), py::arg("include_endpoints"))
+      .def("plot", &Set::plot, py::arg("color"))
+      .def("plot3d", &Set::plot3d, py::arg("color"))
+      .def("__contains__", &Set::contains, py::arg("x"))
+      .def("__call__", &Set::operator(), py::arg("x"))
+      .def("__str__", STRING_LAMBDA(Set));
+  py::class_<RectSet, Set>(m, "RectSet")
+      .def(py::init<Vector, Vector, int>(), py::arg("lb"), py::arg("ub"), py::arg("seed") = -1)
+      .def_property_readonly("lower_bound", &RectSet::lower_bound)
+      .def_property_readonly("upper_bound", &RectSet::upper_bound)
+      .def("__str__", STRING_LAMBDA(RectSet));
+  py::class_<MultiSet, Set>(m, "MultiSet")
+      .def(py::init([](const py::args &sets) {
+        std::vector<std::unique_ptr<Set>> unique_sets;
+        for (const auto &set : sets) {
+          if (py::isinstance<RectSet>(set)) {
+            unique_sets.emplace_back(std::make_unique<RectSet>(set.cast<RectSet>()));
+          } else {
+            throw std::runtime_error("Unsupported set type");
+          }
+        }
+        return MultiSet(std::move(unique_sets));
+      }))
+      // .def_property_readonly("sets", [](const MultiSet &self) { return self.sets(); })
+      .def("__str__", STRING_LAMBDA(MultiSet));
+
+  /**************************** Project ****************************/
+  // TODO(tend): it would be nice to encapsulate this in a class
+  m.def(
+      "project",
+      [](ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim, const Index dimension) {
+        if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
+
+        const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+        // Get a view of the input data
+        const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
+                                         std::vector<std::size_t>(dimension, samples_per_dim)};
+        // Permute the last two axes and create a complex tensor
+        Tensor<std::complex<double>> fft_in{in_view.dimensions()};
+        std::vector<std::size_t> axes{fft_in.axes()};
+        std::swap(axes[axes.size() - 2], axes[axes.size() - 1]);
+        in_view.permute(fft_in.m_view(), axes);
+        // Perform FFT upsampling on the data and return the result
+        return Vector{static_cast<Eigen::Map<const Vector>>(
+            fft_in.fft_upsample(std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)))};
+      },
+      py::arg("f"), py::arg("dimension"), py::arg("n_per_dim"), py::arg("samples_per_dim"));
+
+  /**************************** Misc ****************************/
+  m.def("read_matrix", &read_matrix<double>, py::arg("filename"));
 }

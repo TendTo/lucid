@@ -17,6 +17,8 @@ template <IsAnyOf<GaussianKernel> K>
 KernelRidgeRegression<K>::KernelRidgeRegression(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
                                                 const Scalar regularization_constant)
     : kernel_{std::move(kernel)}, training_inputs_{std::move(training_inputs)} {
+  LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs_.rows() == training_outputs.rows(), "training_inputs.rows()",
+                                training_inputs_.rows(), training_outputs.rows());
   // Compute gram matrix K (nxn) with elements K_{ij} = k(x_i, x_j)
   GramMatrix gram_matrix{kernel_, training_inputs_};
   // Add the regularization term to the diagonal K + λnI

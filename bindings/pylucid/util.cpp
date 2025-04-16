@@ -16,7 +16,7 @@
 namespace py = pybind11;
 using namespace lucid;
 
-void init_util(py::module_ &m) {
+void init_util(py::module_& m) {
   m.attr("LOG_NONE") = -1;
   m.attr("LOG_CRITICAL") = 0;
   m.attr("LOG_ERROR") = 1;
@@ -25,4 +25,18 @@ void init_util(py::module_ &m) {
   m.attr("LOG_DEBUG") = 4;
   m.attr("LOG_TRACE") = 5;
   m.def("set_verbosity", [](const int value) { LUCID_LOG_INIT_VERBOSITY(value); });
+
+  py::register_exception<exception::LucidException>(m, "LucidException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidInvalidArgumentException>(m, "LucidInvalidArgumentException",
+                                                                   PyExc_ValueError);
+  py::register_exception<exception::LucidAssertionException>(m, "LucidAssertionException", PyExc_AssertionError);
+  py::register_exception<exception::LucidParserException>(m, "LucidParserException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidNotImplementedException>(m, "LucidNotImplementedException",
+                                                                  PyExc_NotImplementedError);
+  py::register_exception<exception::LucidNotSupportedException>(m, "LucidNotSupportedException",
+                                                                PyExc_NotImplementedError);
+  py::register_exception<exception::LucidOutOfRangeException>(m, "LucidOutOfRangeException", PyExc_IndexError);
+  py::register_exception<exception::LucidUnreachableException>(m, "LucidUnreachableException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidPyException>(m, "LucidPyException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidLpSolverException>(m, "LucidLpSolverException", PyExc_RuntimeError);
 }

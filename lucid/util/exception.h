@@ -42,6 +42,7 @@ class LucidNotSupportedException final : public LucidException {
 /** Exception for invalid arguments. */
 class LucidInvalidArgumentException final : public LucidException, private std::invalid_argument {
  public:
+  using std::invalid_argument::what;
   LucidInvalidArgumentException() : LucidException("Invalid argument"), std::invalid_argument{""} {}
   explicit LucidInvalidArgumentException(const char* const message)
       : LucidException{message}, std::invalid_argument{message} {}
@@ -73,6 +74,7 @@ class LucidParserException final : public LucidException {
 /** Exception for out of range errors. */
 class LucidOutOfRangeException final : public LucidException, private std::out_of_range {
  public:
+  using std::out_of_range::what;
   explicit LucidOutOfRangeException(const char* const message) : LucidException{message}, std::out_of_range{message} {}
   explicit LucidOutOfRangeException(const std::string& message) : LucidException{message}, std::out_of_range{message} {}
 };
