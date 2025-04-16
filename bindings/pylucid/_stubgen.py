@@ -14,9 +14,12 @@ def generate_stub_files(out_dir):
 
     with open(sys.argv[1], "rb") as f:
         content = f.read()
-        content.replace(b"__mpq_struct [1]>", b"float")
-        content.replace(b"__gmp_expr<__mpq_struct [1]", b"float")
-        content.replace(b"__gmp_expr<__mpq_struct [1], __mpq_struct [1]>", b"float")
+        content = b"import numpy\n" + content
+        content = content.replace(b"__mpq_struct [1]>", b"float") \
+            .replace(b"__gmp_expr<__mpq_struct [1]", b"float") \
+            .replace(b"__gmp_expr<__mpq_struct [1], __mpq_struct [1]>", b"float") \
+            .replace(b"numpy.ndarray[numpy.float64[m, 1]]",
+                     b"typing.Annotated[numpy.typing.ArrayLike, numpy.float64, \"[m, 1]\", \"flags.writable\"]")
     with open(sys.argv[1], "wb") as f:
         f.write(content)
 
