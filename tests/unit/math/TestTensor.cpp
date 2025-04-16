@@ -108,6 +108,7 @@ TEST(TestTensor, Constructor1D) {
   const Tensor t{std::vector{1.0, 2.0}, std::vector{2ul}};
   EXPECT_DOUBLE_EQ(t(std::vector{0ul}), 1.0);
   EXPECT_DOUBLE_EQ(t(std::vector{1ul}), 2.0);
+  EXPECT_THAT(std::vector<double>(t.begin(), t.end()), ::testing::ElementsAre(1.0, 2.0));
 }
 
 TEST(TestTensor, Constructor1DInvalidElements) {
@@ -138,6 +139,7 @@ TEST(TestTensor, Pick2D) {
   EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul}), 6.0);
   EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul}), 7.0);
   EXPECT_DOUBLE_EQ(t(std::vector{1ul, 3ul}), 8.0);
+  EXPECT_THAT(std::vector<double>(t.begin(), t.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0));
 }
 
 TEST(TestTensor, Constructor3D) {
@@ -166,6 +168,8 @@ TEST(TestTensor, Pick3D) {
   EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul, 1ul}), 10.0);
   EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul, 0ul}), 11.0);
   EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul, 1ul}), 12.0);
+  EXPECT_THAT(std::vector<double>(t.begin(), t.end()),
+              ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0));
 }
 
 TEST(TestTensor, Pick3DTemplate) {
@@ -183,6 +187,8 @@ TEST(TestTensor, Pick3DTemplate) {
   EXPECT_DOUBLE_EQ(t(1ul, 1ul, 1l), 10.0);
   EXPECT_DOUBLE_EQ(t(1ul, 2ul, 0l), 11.0);
   EXPECT_DOUBLE_EQ(t(1ul, 2ul, 1l), 12.0);
+  EXPECT_THAT(std::vector<double>(t.begin(), t.end()),
+              ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0));
 }
 
 TEST(TestTensor, Reshape) {
@@ -196,6 +202,7 @@ TEST(TestTensor, Reshape) {
   EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 4.0);
   EXPECT_DOUBLE_EQ(tensor(2ul, 0ul), 5.0);
   EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
+  EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0));
 }
 
 TEST(TestTensor, ReshapeReduceRank) {
@@ -209,6 +216,7 @@ TEST(TestTensor, ReshapeReduceRank) {
   EXPECT_DOUBLE_EQ(tensor(3ul), 4.0);
   EXPECT_DOUBLE_EQ(tensor(4ul), 5.0);
   EXPECT_DOUBLE_EQ(tensor(5ul), 6.0);
+  EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0));
 }
 
 TEST(TestTensor, ReshapeIncreaseRank) {
@@ -228,6 +236,8 @@ TEST(TestTensor, ReshapeIncreaseRank) {
   EXPECT_DOUBLE_EQ(tensor(1ul, 1ul, 1ul, 0ul, 0ul), 10.0);
   EXPECT_DOUBLE_EQ(tensor(1ul, 2ul, 0ul, 0ul, 0ul), 11.0);
   EXPECT_DOUBLE_EQ(tensor(1ul, 2ul, 1ul, 0ul, 0ul), 12.0);
+  EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()),
+              ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0));
 }
 
 TEST(TestTensor, ReshapeInvalidSize) {
@@ -242,6 +252,7 @@ TEST(TestTensor, PermuteIdentity1D) {
   EXPECT_DOUBLE_EQ(tensor(0ul), 1.0);
   EXPECT_DOUBLE_EQ(tensor(1ul), 2.0);
   EXPECT_DOUBLE_EQ(tensor(2ul), 3.0);
+  EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0));
 }
 TEST(TestTensor, Permute2D) {
   Tensor<double> tensor{
@@ -253,6 +264,7 @@ TEST(TestTensor, Permute2D) {
   EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 5.0);
   EXPECT_DOUBLE_EQ(tensor(2ul, 0ul), 3.0);
   EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
+  EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 4.0, 2.0, 5.0, 3.0, 6.0));
 }
 TEST(TestTensor, PermuteVector2D) {
   Tensor<double> tensor{
@@ -264,6 +276,7 @@ TEST(TestTensor, PermuteVector2D) {
   EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 5.0);
   EXPECT_DOUBLE_EQ(tensor(2ul, 0ul), 3.0);
   EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
+  EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 4.0, 2.0, 5.0, 3.0, 6.0));
 }
 // 2D tensor, identity permutation
 TEST(TestTensor, PermuteIdentity2D) {
@@ -276,6 +289,7 @@ TEST(TestTensor, PermuteIdentity2D) {
   EXPECT_DOUBLE_EQ(tensor(1ul, 0ul), 4.0);
   EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 5.0);
   EXPECT_DOUBLE_EQ(tensor(1ul, 2ul), 6.0);
+  EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0));
 }
 
 TEST(TestTensor, PermuteVector3D) {
@@ -295,6 +309,8 @@ TEST(TestTensor, PermuteVector3D) {
   EXPECT_EQ(tensor(2, 0, 1), 6);
   EXPECT_EQ(tensor(2, 1, 0), 9);
   EXPECT_EQ(tensor(2, 1, 1), 12);
+  EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()),
+              ::testing::ElementsAre(1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12));
 }
 TEST(TestTensor, PermuteAllDifferent3D) {
   Tensor<int> tensor{Tensor<int>{
@@ -326,6 +342,9 @@ TEST(TestTensor, PermuteAllDifferent3D) {
   EXPECT_EQ(tensor(3, 1, 0), 16);
   EXPECT_EQ(tensor(3, 1, 1), 20);
   EXPECT_EQ(tensor(3, 1, 2), 24);
+  EXPECT_THAT(
+      std::vector<int>(tensor.begin(), tensor.end()),
+      ::testing::ElementsAre(1, 5, 9, 13, 17, 21, 2, 6, 10, 14, 18, 22, 3, 7, 11, 15, 19, 23, 4, 8, 12, 16, 20, 24));
 }
 TEST(TestTensor, PermutePartial3D) {
   Tensor<int> tensor{Tensor<int>{
@@ -366,6 +385,9 @@ TEST(TestTensor, PermutePartial4D) {
   EXPECT_EQ(tensor(2, 1, 1, 0), 22);
   EXPECT_EQ(tensor(2, 1, 2, 0), 23);
   EXPECT_EQ(tensor(2, 1, 3, 0), 24);
+  EXPECT_THAT(
+      std::vector<int>(tensor.begin(), tensor.end()),
+      ::testing::ElementsAre(1, 2, 3, 4, 13, 14, 15, 16, 5, 6, 7, 8, 17, 18, 19, 20, 9, 10, 11, 12, 21, 22, 23, 24));
 }
 
 // Permute with repeated application (round-trip)
@@ -383,15 +405,18 @@ TEST(TestTensor, PermuteRoundTrip3D) {
   EXPECT_EQ(tensor(1, 0, 1), 6);
   EXPECT_EQ(tensor(1, 1, 0), 7);
   EXPECT_EQ(tensor(1, 1, 1), 8);
+  EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1, 2, 3, 4, 5, 6, 7, 8));
 }
 TEST(TestTensor, PermuteEmpty) {
   Tensor<float> tensor{Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul}}.permute(1ul, 0ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({0ul, 2ul}));
+  EXPECT_EQ(tensor.size(), 0ul);
 }
 TEST(TestTensor, PermuteHighDimemsion) {
   Tensor<float> tensor{
       Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul, 5ul}}.permute(2ul, 0ul, 1ul)};
   EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({5ul, 2ul, 0ul}));
+  EXPECT_EQ(tensor.size(), 0ul);
 }
 
 TEST(TestTensor, FFT1) {
