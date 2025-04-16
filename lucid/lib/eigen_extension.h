@@ -5,8 +5,8 @@
  * @file
  * Eigen extensions and expressions.
  */
-
 #pragma once
+
 #include <Eigen/Core>
 
 namespace lucid {

@@ -13,7 +13,7 @@ LUCID_NAME = "lucid"
 LUCID_VERSION = "0.0.1"
 LUCID_AUTHOR = "Ernesto Casablanca"
 LUCID_AUTHOR_EMAIL = "casablancaernesto@gmail.com"
-LUCID_DESCRIPTION = "Myapp description"
+LUCID_DESCRIPTION = "Lifting-based Uncertain Control Invariant Dynamics"
 LUCID_HOMEPAGE = "https://github.com/TendTo/bazel-cpp-template"
 LUCID_SOURCE = "https://github.com/TendTo/bazel-cpp-template"
 LUCID_TRACKER = "https://github.com/TendTo/bazel-cpp-template/issues"
@@ -408,7 +408,7 @@ def lucid_hdrs_tar(name, hdrs = None, deps = [], subfolder = "", visibility = ["
         visibility = visibility,
     )
 
-def lucid_pyblind_library(
+def lucid_pybind_library(
         name,
         srcs = None,
         deps = [],

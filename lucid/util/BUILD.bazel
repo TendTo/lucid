@@ -1,11 +1,11 @@
 load("@rules_python//python:pip.bzl", "whl_filegroup")
 load("//tools:cpplint.bzl", "cpplint")
-load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_pyblind_library", "lucid_srcs")
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_pybind_library", "lucid_srcs")
 load("//tools:rules_py_cc.bzl", "lucid_cc_py_library")
 
 package(default_visibility = [
+    "//bindings:__subpackages__",
     "//lucid:__subpackages__",
-    "//pylucid:__subpackages__",
     "//tests:__subpackages__",
 ])
 
@@ -24,7 +24,7 @@ whl_filegroup(
     whl = "@pypi//numpy:whl",
 )
 
-lucid_pyblind_library(
+lucid_pybind_library(
     name = "matplotlib",
     srcs = ["matplotlib.cpp"],
     hdrs = ["matplotlib.h"],
@@ -81,5 +81,18 @@ lucid_cc_library(
     deps = [
         ":concepts",
         ":logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "util",
+    hdrs = ["util.h"],
+    deps = [
+        ":concepts",
+        ":error",
+        ":exception",
+        ":index_iterator",
+        ":logging",
+        ":math",
     ],
 )

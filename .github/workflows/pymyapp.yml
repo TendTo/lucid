@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir -p dist
           for py_version in 3.8 3.9 3.10 3.11 3.12 3.13; do
-            bazel test --config=python --python_version=$py_version //pylucid/tests/...
+            bazel test --config=python --python_version=$py_version //bindings/pylucid/tests/...
           done
 
   build:
@@ -81,8 +81,8 @@ jobs:
         run: |
           mkdir -p dist
           for py_version in 3.8 3.9 3.10 3.11 3.12 3.13; do
-            bazel build --config=python --python_version=$py_version //pylucid:pylucid_wheel
-            cp $(bazel cquery --output=files --config=python --python_version=$py_version //pylucid:pylucid_wheel) dist/
+            bazel build --config=python --python_version=$py_version //bindings/pylucid:pylucid_wheel
+            cp $(bazel cquery --output=files --config=python --python_version=$py_version //bindings/pylucid:pylucid_wheel) dist/
           done
 
       - name: Build source distribution

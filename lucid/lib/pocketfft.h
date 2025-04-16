@@ -8,6 +8,7 @@
  * Other files in the library should depend on this header instead of the pocketfft library directly.
  * Instead of including <pocketfft_hdronly.h>, include "lucid/lib/pocketfft.h".
  */
+#pragma once
 
 #include <pocketfft_hdronly.h>
 

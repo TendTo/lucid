@@ -1,3 +1,5 @@
 load("//tools:pytest.bzl", "pylucid_py_test")
 
 pylucid_py_test(name = "test_main")
+
+pylucid_py_test(name = "test_kernel")

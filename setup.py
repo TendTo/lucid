@@ -25,10 +25,10 @@ class GlobalVariables:
             lines = f.readlines()
         reading_global_variables = False
         for line in lines:
-            if line.strip() == ("# GLOBAL VARIABLES"):
+            if line.strip() == "# GLOBAL VARIABLES":
                 reading_global_variables = True
                 continue
-            if line.strip() == ("# END GLOBAL VARIABLES"):
+            if line.strip() == "# END GLOBAL VARIABLES":
                 break
             if reading_global_variables:
                 key, value = line.strip().split(" = ")
@@ -40,7 +40,7 @@ class BazelExtension(setuptools.Extension):
 
     def __init__(self, ext_name, bazel_target):
         self.bazel_target = bazel_target
-        folders = ("lucid", "pylucid", "tools")
+        folders = ("lucid", "bindings/pylucid", "tools")
         files = []
         for folder in folders:
             files += glob.glob(f"{folder}/**/*", recursive=True)
@@ -86,10 +86,10 @@ class BuildBazelExtension(build_ext.build_ext):
         shutil.copyfile(path, ext_dest_path)
 
         # Add python stubs for type checking
-        bazel_argv = [*get_bazel_target_args("build"), "//pylucid:stubgen"]
+        bazel_argv = [*get_bazel_target_args("build"), "//bindings/pylucid:stubgen"]
         self.spawn(bazel_argv)
         paths = (
-            subprocess.check_output([*get_bazel_target_args("cquery"), "//pylucid:stubgen"])
+            subprocess.check_output([*get_bazel_target_args("cquery"), "//bindings/pylucid:stubgen"])
             .decode("utf-8")
             .strip()
             .split("\n")
@@ -110,7 +110,7 @@ setuptools.setup(
     author_email=config_vars.LUCID_AUTHOR_EMAIL,
     url=config_vars.LUCID_HOMEPAGE,
     license=config_vars.LUCID_LICENSE,
-    keywords=["smt", "delta-complete", "qf_lra", "neural network"],
+    keywords=["neural network", "kernel"],
     entry_points={"console_scripts": ["pylucid=pylucid.__main__:main"]},
     classifiers=[
         "Development Status :: 1 - Planning",
@@ -128,8 +128,9 @@ setuptools.setup(
     ],
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    ext_modules=[BazelExtension("pylucid._pylucid", "//pylucid:_pylucid")],
+    ext_modules=[BazelExtension("pylucid._pylucid", "//bindings/pylucid:_pylucid")],
     cmdclass={"build_ext": BuildBazelExtension},
     packages=[config_vars.LUCID_NAME],
     install_requires=["setuptools"],
+    requires=["numpy"],
 )

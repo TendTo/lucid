@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * Math namespace.
+ * Math module.
  */
 #pragma once
 
@@ -19,5 +19,6 @@
 #include "lucid/math/Sampler.h"
 #include "lucid/math/Set.h"
 #include "lucid/math/Tensor.h"
+#include "lucid/math/TensorIterator.h"
 #include "lucid/math/TensorView.h"
 #include "lucid/math/TruncatedFourierFeatureMap.h"

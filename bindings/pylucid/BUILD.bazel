@@ -1,9 +1,9 @@
 load("@pypi//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
-load("//tools:rules_cc.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION", "lucid_pybind_extension", "lucid_pyblind_library")
+load("//tools:rules_cc.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION", "lucid_pybind_extension", "lucid_pybind_library")
 
-lucid_pyblind_library(
+lucid_pybind_library(
     name = "interrupt",
     srcs = ["interrupt.cpp"],
     hdrs = ["interrupt.h"],
@@ -13,7 +13,10 @@ lucid_pyblind_library(
 lucid_pybind_extension(
     name = "_pylucid",
     srcs = [
+        "math.cpp",
         "pylucid.cpp",
+        "pylucid.h",
+        "util.cpp",
     ],
     linkstatic = select({
         "//tools:static_build": True,
@@ -21,6 +24,8 @@ lucid_pybind_extension(
     }),
     deps = [
         "//lucid:version",
+        "//lucid/math",
+        "//lucid/util",
     ],
 )
 
@@ -31,18 +36,19 @@ py_library(
         "__main__.py",
     ],
     data = [":_pylucid.so"],
-    imports = ["."],
+    imports = ["bindings"],
     srcs_version = "PY3",
+    visibility = ["//visibility:public"],
 )
 
 py_binary(
     name = "pylucid",
     srcs = ["__main__.py"],
-    imports = ["."],
+    imports = ["bindings"],
     main = "__main__.py",
     python_version = "PY3",
-    visibility = ["//visibility:public"],
     deps = [
+        requirement("numpy"),
         ":pylucid_lib",
     ],
 )
@@ -50,7 +56,7 @@ py_binary(
 py_binary(
     name = "stubgen_bin",
     srcs = ["_stubgen.py"],
-    imports = ["."],
+    imports = [".."],
     main = "_stubgen.py",
     python_version = "PY3",
     deps = [

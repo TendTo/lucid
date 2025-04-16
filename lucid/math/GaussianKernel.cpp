@@ -38,9 +38,9 @@ std::unique_ptr<Kernel> GaussianKernel::clone(const Vector& params) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel) {
-  return os << "GaussianKernel\n"
-            << "Sigma_f: " << kernel.sigma_f() << "\n"
-            << "Sigma_l: \n[" << kernel.sigma_l() << "]";
+  return os << "GaussianKernel( "
+            << "Sigma_f( " << kernel.sigma_f()  << " ), "
+            << "Sigma_l( " << kernel.sigma_l().transpose() << " ) )";
 }
 
 }  // namespace lucid
