@@ -159,7 +159,6 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   Matrix w_mat = Matrix::Zero(lucid::pow(n_per_dim, dimension), fp_samples.cols());
   Matrix phi_mat = Matrix::Zero(lucid::pow(n_per_dim, dimension), fp_samples.cols());
   for (Index i = 0; i < w_mat.cols(); ++i) {
-    LUCID_INFO_FMT("Progress {}/{}", i + 1, w_mat.cols());
     w_mat.col(i) = project(if_lattice.col(i), n_per_dim, samples_per_dim);
     phi_mat.col(i) = project(f_lattice.col(i), n_per_dim, samples_per_dim);
   }

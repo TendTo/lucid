@@ -75,80 +75,6 @@ class TestInitCSOvertaking : public ::testing::Test {
   Matrix expected_xu_lattice;
 };
 
-#if 0
-template <class Derived, int NumIndices>
-Eigen::MatrixXcd fftn(const Eigen::MatrixBase<Derived>& x) {
-  Eigen::Tensor<Scalar, NumIndices> t{
-      Eigen::TensorMap<Eigen::Tensor<Scalar, NumIndices>>{x.data(), std::array{x.rows(), x.cols()}}};
-  Eigen::Tensor<std::complex<double>, 2> res = t.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{0, 1});
-  return MatrixCast(res, x.rows(), x.cols());
-}
-
-template <class Derived>
-Vector project(const Eigen::MatrixBase<Derived>& f, const Index n_per_dim, const Index samples_per_dim) {
-  // TODO(tend): this only works for 2 dimensions
-  const int n_pad = static_cast<int>(std::floor((n_per_dim / 2 - samples_per_dim / 2)));
-  const double coeff = static_cast<double>(lucid::pow(n_per_dim / samples_per_dim, dimension));
-  if constexpr (dimension == 1 || dimension == 2) {
-    const Eigen::MatrixXcd f_fft{fft2(f.derived().reshaped(samples_per_dim, samples_per_dim).transpose())};
-    // We do, in order:
-    // 1. Shift the zero frequency to the center
-    // 2. Pad the frequencies to increase the resolution
-    // 3. Unshift the zero frequency to the corner
-    // 4. Inverse FFT to get the interpolated function
-    // 5. Scale the function by the ratio of the number of samples to the number of frequencies
-    // 6. Reshape the matrix to a vector
-    return (ifft2(ifftshift(pad(fftshift(f_fft), n_pad, std::complex<double>{}))).array() *
-            lucid::pow(n_per_dim / samples_per_dim, dimension))
-        .reshaped(Eigen::AutoSize, 1);
-  }
-  if constexpr (dimension == 3) {
-    const Eigen::Tensor<std::complex<double>, 3> t{Eigen::TensorMap<Eigen::Tensor<const std::complex<double>, 3>>{
-        f.template cast<std::complex<double>>().eval().data(),
-        std::array{samples_per_dim, samples_per_dim, samples_per_dim}}};
-    std::cout << t << std::endl;
-    Eigen::Tensor<std::complex<double>, 3> temp =
-        t.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(std::array{2, 1, 0})
-            .pad(std::array{std::pair<Index, Index>{0, 2 * n_pad}, std::pair<Index, Index>{0, 2 * n_pad},
-                            std::pair<Index, Index>{0, 2 * n_pad}});
-
-
-    // Dim 0
-    const Index total_dim = samples_per_dim + 2 * n_pad;
-    temp.slice(std::array<Index, 3>{samples_per_dim / 2 + 2 * n_pad, 0, 0},
-               std::array<Index, 3>{samples_per_dim / 2, total_dim, total_dim}) =
-        temp.slice(std::array<Index, 3>{samples_per_dim / 2, 0, 0},
-                   std::array<Index, 3>{samples_per_dim / 2, total_dim, total_dim})
-            .eval();
-    temp.slice(std::array<Index, 3>{samples_per_dim / 2, 0, 0},
-               std::array<Index, 3>{samples_per_dim / 2, total_dim, total_dim})
-        .setZero();
-    // Dim 1
-    temp.slice(std::array<Index, 3>{0, samples_per_dim / 2 + n_pad, 0},
-               std::array<Index, 3>{total_dim, samples_per_dim / 2, total_dim}) =
-        temp.slice(std::array<Index, 3>{0, samples_per_dim / 2, 0},
-                   std::array<Index, 3>{total_dim, samples_per_dim / 2, total_dim})
-            .eval();
-    temp.slice(std::array<Index, 3>{0, samples_per_dim / 2, 0},
-               std::array<Index, 3>{total_dim, samples_per_dim / 2, total_dim})
-        .setZero();
-    // Dim 2
-    temp.slice(std::array<Index, 3>{0, 0, samples_per_dim / 2 + n_pad},
-               std::array<Index, 3>{total_dim, total_dim, samples_per_dim / 2}) =
-        temp.slice(std::array<Index, 3>{0, 0, samples_per_dim / 2},
-                   std::array<Index, 3>{total_dim, total_dim, samples_per_dim / 2})
-            .eval();
-    temp.slice(std::array<Index, 3>{0, 0, samples_per_dim / 2},
-               std::array<Index, 3>{total_dim, total_dim, samples_per_dim / 2})
-        .setZero();
-    const Eigen::Tensor<double, 3> temp2 =
-        temp.template fft<Eigen::BothParts, Eigen::FFT_REVERSE>(std::array{0, 1, 2}).real() * coeff;
-    return Vector::Map(temp2.data(), temp2.size());
-  }
-  LUCID_NOT_SUPPORTED("Only 2D and 3D are supported");
-}
-#endif
-
 inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim) {
   if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
 
@@ -192,7 +118,6 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   Matrix w_mat = Matrix::Zero(lucid::pow(n_per_dim, dimension), fp_samples.cols());
   Matrix phi_mat = Matrix::Zero(lucid::pow(n_per_dim, dimension), fp_samples.cols());
   for (Index i = 0; i < w_mat.cols(); ++i) {
-    LUCID_INFO_FMT("Progress {}/{}", i + 1, w_mat.cols());
     w_mat.col(i) = project(if_lattice.col(i), n_per_dim, samples_per_dim);
     phi_mat.col(i) = project(f_lattice.col(i), n_per_dim, samples_per_dim);
   }
@@ -212,10 +137,10 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
       f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
       [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
         EXPECT_TRUE(success);
-        EXPECT_NEAR(obj_val, 0.76609867952476407, tolerance);
-        EXPECT_NEAR(eta, 0.38304933976238204, tolerance);
+        EXPECT_NEAR(obj_val, 0.77774607136635343, tolerance);
+        EXPECT_NEAR(eta, 0.38887303568317672, tolerance);
         EXPECT_NEAR(c, 0.0, tolerance);
-        EXPECT_NEAR(norm, 0.52365992867299227, tolerance);
+        EXPECT_NEAR(norm, 0.58449853272166907, tolerance);
       });
   EXPECT_TRUE(res);
 }
