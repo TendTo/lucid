@@ -12,6 +12,7 @@
 #include <span>
 #include <vector>
 
+#include "lucid/lib/eigen.h"
 #include "lucid/util/concept.h"
 
 namespace lucid {
@@ -19,16 +20,16 @@ namespace lucid {
  * Iterator over all possible indexes in a given range.
  * It also supports individual range for each index.
  * @code
- * for (IndexIterator<long> it{3, 0, 2}; it; ++it) {
+ * for (IndexIterator<Index> it{3, 0, 2}; it; ++it) {
  *  std::cout << it[0] << it[1] << it[2] << std::endl;
  * }
- * for (IndexIterator<std::vector<long>> it{{0, -1, 0}, {4, 2, 2}}; it; ++it) {
+ * for (IndexIterator<std::vector<Index>> it{{0, -1, 0}, {4, 2, 2}}; it; ++it) {
  *    std::cout << it[0] << it[1] << it[2] << std::endl;
  * }
  * @endcode
  * @tparam T type of the range. It can be a single value or a vector of values.
  */
-template <IsAnyOf<long, std::vector<long>> T>
+template <IsAnyOf<Index, std::vector<Index>> T>
 class IndexIterator {
  public:
   /**
@@ -44,7 +45,7 @@ class IndexIterator {
    * @param max_value maximum value for each index
    */
   explicit IndexIterator(T max_value)
-    requires std::is_same_v<T, std::vector<long>>;
+    requires std::is_same_v<T, std::vector<Index>>;
   /**
    * Construct an index iterator with `size` given by `max_value.size()`.
    * Each of the indexes will go from [`min_value[i]` to `max_value[i]` - 1] (inclusive).
@@ -52,7 +53,7 @@ class IndexIterator {
    * @param max_value maximum value for each index
    */
   IndexIterator(T min_value, T max_value)
-    requires std::is_same_v<T, std::vector<long>>;
+    requires std::is_same_v<T, std::vector<Index>>;
   /**
    * Construct an index iterator with the given `size`.
    * Each of the indexes will go from [0 to `max_value` - 1] (inclusive).
@@ -60,7 +61,7 @@ class IndexIterator {
    * @param max_value maximum value for each index
    */
   IndexIterator(std::size_t size, T max_value)
-    requires std::is_same_v<T, long>;
+    requires std::is_same_v<T, Index>;
   /**
    * Construct an index iterator with the given `size`.
    * Each of the indexes will go from [`min_value` to `max_value` - 1] (inclusive).
@@ -69,7 +70,7 @@ class IndexIterator {
    * @param max_value maximum value for each index
    */
   IndexIterator(std::size_t size, T min_value, T max_value)
-    requires std::is_same_v<T, long>;
+    requires std::is_same_v<T, Index>;
 
   /**
    * Increment the iterator.
@@ -78,25 +79,25 @@ class IndexIterator {
    */
   IndexIterator& operator++();
   /** @getter{whole vector of indexes, index iterator} */
-  [[nodiscard]] const std::vector<long>& indexes() const { return indexes_; }
+  [[nodiscard]] const std::vector<Index>& indexes() const { return indexes_; }
   /** @getter{index element, index iterator} */
-  [[nodiscard]] long operator[](const std::size_t index) const { return indexes_[index]; }
+  [[nodiscard]] Index operator[](const std::size_t index) const { return indexes_[index]; }
 
   /** @checker{done iterating\, having gone over all valid indexes, index iterator} */
   operator bool() const;
-  operator std::span<const long>() const;
+  operator std::span<const Index>() const;
 
  private:
-  T min_value_;                ///< Minimum value for each index. Inclusive
-  T max_value_;                ///< Maximum value for each index. Exclusive
-  std::vector<long> indexes_;  ///< Current indexes
+  T min_value_;                 ///< Minimum value for each index. Inclusive
+  T max_value_;                 ///< Maximum value for each index. Exclusive
+  std::vector<Index> indexes_;  ///< Current indexes
 };
 
-template <IsAnyOf<long, std::vector<long>> T>
+template <IsAnyOf<Index, std::vector<Index>> T>
 std::ostream& operator<<(std::ostream& os, const IndexIterator<T>& index_iterator);
 
-extern template class IndexIterator<long>;
-extern template class IndexIterator<std::vector<long>>;
+extern template class IndexIterator<Index>;
+extern template class IndexIterator<std::vector<Index>>;
 
 }  // namespace lucid
 
@@ -104,7 +105,7 @@ extern template class IndexIterator<std::vector<long>>;
 
 #include "lucid/util/logging.h"
 
-OSTREAM_FORMATTER(lucid::IndexIterator<long>)
-OSTREAM_FORMATTER(lucid::IndexIterator<std::vector<long>>)
+OSTREAM_FORMATTER(lucid::IndexIterator<lucid::Index>)
+OSTREAM_FORMATTER(lucid::IndexIterator<std::vector<lucid::Index>>)
 
 #endif

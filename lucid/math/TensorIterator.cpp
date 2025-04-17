@@ -14,10 +14,10 @@
 namespace lucid {
 
 namespace {
-std::vector<long> to_indexes(const std::vector<std::size_t>& dims) {
-  std::vector<long> indexes(dims.size());
+std::vector<Index> to_indexes(const std::vector<std::size_t>& dims) {
+  std::vector<Index> indexes(dims.size());
   for (std::size_t i = 0; i < indexes.size(); ++i) {
-    indexes[i] = static_cast<long>(dims[i]);
+    indexes[i] = static_cast<Index>(dims[i]);
     if (indexes[i] == 0) return {0};
   }
   return indexes;
@@ -26,7 +26,7 @@ std::vector<long> to_indexes(const std::vector<std::size_t>& dims) {
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorIterator<T>::TensorIterator(const TensorView<T>& tensor, const bool end)
-    : indexes_{end ? std::vector<long>{0} : to_indexes(tensor.dimensions())}, tensor_{tensor} {}
+    : indexes_{end ? std::vector<Index>{0} : to_indexes(tensor.dimensions())}, tensor_{tensor} {}
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 const T& TensorIterator<T>::operator*() const {

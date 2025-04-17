@@ -41,9 +41,9 @@ class TensorIterator {
   explicit TensorIterator(const TensorView<T>& tensor, bool end = false);
 
   /** @getter{indexes, tensor} */
-  [[nodiscard]] const std::vector<long>& indexes() const { return indexes_.indexes(); }
+  [[nodiscard]] const std::vector<Index>& indexes() const { return indexes_.indexes(); }
   /** @getter{index iterator, tensor} */
-  [[nodiscard]] const IndexIterator<std::vector<long>>& index_iterator() const { return indexes_; }
+  [[nodiscard]] const IndexIterator<std::vector<Index>>& index_iterator() const { return indexes_; }
 
   [[nodiscard]] const T& operator*() const;
   pointer operator->() const;
@@ -52,7 +52,7 @@ class TensorIterator {
   bool operator==(const TensorIterator<T>& o) const;
 
  private:
-  IndexIterator<std::vector<long>> indexes_;  ///< Iterator used to go through all elements of the tensor
+  IndexIterator<std::vector<Index>> indexes_;  ///< Iterator used to go through all elements of the tensor
   const TensorView<T>& tensor_;               ///< Tensor to iterate over
 };
 

@@ -128,20 +128,20 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, I
                                              return dims_[i] + padding[i].first + padding[i].second == out.dims_[i];
                                            }),
                        "out", "dimensions must be equal to input tensor dimensions plus padding");
-  std::vector<long> min_idx_out(dims_.size());
-  std::vector<long> max_idx_out(dims_.begin(), dims_.end());
-  std::vector<long> max_idx_in(dims_.begin(), dims_.end());
+  std::vector<Index> min_idx_out(dims_.size());
+  std::vector<Index> max_idx_out(dims_.begin(), dims_.end());
+  std::vector<Index> max_idx_in(dims_.begin(), dims_.end());
   max_idx_out.back() = 1;
   max_idx_in.back() = 1;
   for (std::size_t i = 0; i < dims_.size(); i++) {
     min_idx_out[i] = padding[i].first;
     max_idx_out[i] += padding[i].first;
   }
-  IndexIterator<std::vector<long>> it_in{std::move(max_idx_in)};
-  IndexIterator<std::vector<long>> it_out{std::move(min_idx_out), std::move(max_idx_out)};
+  IndexIterator<std::vector<Index>> it_in{std::move(max_idx_in)};
+  IndexIterator<std::vector<Index>> it_out{std::move(min_idx_out), std::move(max_idx_out)};
   for (; it_out && it_in; ++it_out, ++it_in) {
-    const std::span<const long> indexes_in{it_in};
-    const std::span<const long> indexes_out{it_out};
+    const std::span<const Index> indexes_in{it_in};
+    const std::span<const Index> indexes_out{it_out};
     const std::span<const T> in_data = data_.subspan(index(indexes_in), dims_[dims_.size() - 1]);
     std::copy(in_data.begin(), in_data.end(), out.m_data().subspan(out.index(indexes_out)).begin());
   }
@@ -167,20 +167,20 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
                                            }),
                        "start_padding", "must be less than or equal to input tensor dimensions");
 
-  std::vector<long> max_idx(dims_.begin(), dims_.end());
+  std::vector<Index> max_idx(dims_.begin(), dims_.end());
   max_idx.back() = 1;
-  for (IndexIterator<std::vector<long>> it{std::move(max_idx)}; it; ++it) {
-    std::vector<long> output_idx{it.indexes()};
+  for (IndexIterator<std::vector<Index>> it{std::move(max_idx)}; it; ++it) {
+    std::vector<Index> output_idx{it.indexes()};
     for (std::size_t i = 0; i < dims_.size() - 1; i++) {
       if (output_idx[i] >= start_padding[i]) output_idx[i] += padding[i];
     }
-    const std::span<const T> in_data_start_half = data_.subspan(index(std::span<const long>{it}), start_padding.back());
+    const std::span<const T> in_data_start_half = data_.subspan(index(std::span<const Index>{it}), start_padding.back());
     const std::span<const T> in_data_end_half =
-        data_.subspan(index(std::span<const long>{it}) + start_padding.back(), dims_.back() - start_padding.back());
+        data_.subspan(index(std::span<const Index>{it}) + start_padding.back(), dims_.back() - start_padding.back());
     std::copy(in_data_start_half.begin(), in_data_start_half.end(),
-              out.m_data().subspan(out.index(std::span<const long>{output_idx})).begin());
+              out.m_data().subspan(out.index(std::span<const Index>{output_idx})).begin());
     std::copy(in_data_end_half.begin(), in_data_end_half.end(),
-              out.m_data().subspan(out.index(std::span<const long>{output_idx})).begin() + padding.back() +
+              out.m_data().subspan(out.index(std::span<const Index>{output_idx})).begin() + padding.back() +
                   start_padding.back());
   }
 }
@@ -282,11 +282,11 @@ std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
                tensor);
   }
   if (tensor.rank() == 3) {
-    for (long i = 0; i < static_cast<long>(tensor.dimensions().back()); ++i) {
+    for (Index i = 0; i < static_cast<Index>(tensor.dimensions().back()); ++i) {
       os << "z: " << i << "\n";
       Eigen::MatrixX<T> vector{tensor.dimensions()[0], tensor.dimensions()[1]};
-      for (IndexIterator<std::vector<long>> it{
-               {0, 0, i}, {static_cast<long>(tensor.dimensions()[0]), static_cast<long>(tensor.dimensions()[1]), i}};
+      for (IndexIterator<std::vector<Index>> it{
+               {0, 0, i}, {static_cast<Index>(tensor.dimensions()[0]), static_cast<Index>(tensor.dimensions()[1]), i}};
            it; ++it) {
         vector(it.indexes()[0], it.indexes()[1]) = tensor(it.indexes());
       }

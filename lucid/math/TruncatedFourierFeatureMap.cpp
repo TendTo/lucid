@@ -24,7 +24,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencie
       x_limits_{std::move(x_limits)} {
   // Iterate over all possible combinations where the values in the vector can go from 0 to num_frequencies_ - 1
   // [ 0, ..., 0 ] -> [ 0, ..., 1 ] -> ... -> [ num_frequencies_ - 1, ..., num_frequencies_ - 1, ]
-  IndexIterator<long> it{static_cast<std::size_t>(input_dimension), num_frequencies_per_dimension_};
+  IndexIterator<Index> it{static_cast<std::size_t>(input_dimension), num_frequencies_per_dimension_};
   for (Index row = 0; it; ++it, ++row) {
     // For each combination, compute the product of the sines and cosines of the values in the vector
     // TODO(tend): We can probably remove the reverse

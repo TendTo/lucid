@@ -23,8 +23,6 @@ build:macos --workspace_status_command=tools/workspace_status.sh
 
 # Debug build
 build:dbg --compilation_mode=dbg
-build:dbg --cxxopt=-O0
-build:dbg --cxxopt=-ggdb3
 build:dbg --strip=never
 build:dbg --fission=yes
 build:dbg --dynamic_mode=off

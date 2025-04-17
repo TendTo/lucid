@@ -6,6 +6,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <numbers>
+
 #include "lucid/math/Tensor.h"
 #include "lucid/util/exception.h"
 
@@ -91,7 +93,7 @@ inline Tensor<double> trigonometric_tensor<3>(const std::size_t n_samples) {
 }
 
 TEST(TestTensor, Constructor0D) {
-  const Tensor t{std::vector<double>{}, std::vector<std::size_t>{}};
+  const Tensor<double> t{std::vector<double>{}, std::vector<std::size_t>{}};
   EXPECT_EQ(t.size(), 0u);
 }
 
@@ -100,203 +102,205 @@ TEST(TestTensor, Constructor0DInvalidElements) {
 }
 
 TEST(TestTensor, Pick0D) {
-  const Tensor t{std::vector<double>{}, std::vector<std::size_t>{}};
+  const Tensor<double> t{std::vector<double>{}, std::vector<std::size_t>{}};
   EXPECT_THROW(t(std::vector{0l}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Constructor1D) {
-  const Tensor t{std::vector{1.0, 2.0}, std::vector{2ul}};
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul}), 1.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul}), 2.0);
+  const Tensor t{std::vector<double>{1.0, 2.0}, std::vector<std::size_t>{2}};
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0}), 1.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1}), 2.0);
   EXPECT_THAT(std::vector<double>(t.begin(), t.end()), ::testing::ElementsAre(1.0, 2.0));
 }
 
 TEST(TestTensor, Constructor1DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector{1.0}, std::vector{2ul}), LucidInvalidArgumentException);
+  EXPECT_THROW(Tensor(std::vector{1.0}, std::vector<std::size_t>{2l}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick1D) {
-  const Tensor t{std::vector{1.0, 2.0}, std::vector{2ul}};
-  EXPECT_THROW(t(std::vector{0ul, 0ul}), LucidInvalidArgumentException);
+  const Tensor<double> t(std::vector{1.0, 2.0}, std::vector<std::size_t>{2});
+  EXPECT_THROW(t(std::vector<std::size_t>{0, 0}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Constructor2D) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector{2ul, 4ul}};
+  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector<std::size_t>{2, 4}};
   EXPECT_EQ(t.size(), 8u);
 }
 
 TEST(TestTensor, Constructor2DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 4ul}), LucidInvalidArgumentException);
+  EXPECT_THROW(Tensor(std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector<std::size_t>{2, 4}),
+               LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick2D) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector{2ul, 4ul}};
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 0ul}), 1.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 1ul}), 2.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 2ul}), 3.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 3ul}), 4.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 0ul}), 5.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul}), 6.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul}), 7.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 3ul}), 8.0);
+  const Tensor<double> t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector<std::size_t>{2, 4}};
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 0}), 1.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 1}), 2.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 2}), 3.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 3}), 4.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 0}), 5.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 1}), 6.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 2}), 7.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 3}), 8.0);
   EXPECT_THAT(std::vector<double>(t.begin(), t.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0));
 }
 
 TEST(TestTensor, Constructor3D) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                 std::vector{2ul, 3ul, 2ul}};
+  const Tensor<double> t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                         std::vector<std::size_t>{2, 3, 2}};
   EXPECT_EQ(t.size(), 12u);
 }
 
 TEST(TestTensor, Constructor3DInvalidElements) {
-  EXPECT_THROW(Tensor(std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0}, std::vector{2ul, 3ul, 2ul}),
+  EXPECT_THROW(Tensor<double>(std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0},
+                              std::vector<std::size_t>{2, 3, 2}),
                LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Pick3D) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                 std::vector{2ul, 3ul, 2ul}};
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 0ul, 0ul}), 1.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 0ul, 1ul}), 2.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 1ul, 0ul}), 3.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 1ul, 1ul}), 4.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 2ul, 0ul}), 5.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{0ul, 2ul, 1ul}), 6.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 0ul, 0ul}), 7.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 0ul, 1ul}), 8.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul, 0ul}), 9.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 1ul, 1ul}), 10.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul, 0ul}), 11.0);
-  EXPECT_DOUBLE_EQ(t(std::vector{1ul, 2ul, 1ul}), 12.0);
+  const Tensor<double> t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                         std::vector<std::size_t>{2, 3, 2}};
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 0, 0}), 1.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 0, 1}), 2.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 1, 0}), 3.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 1, 1}), 4.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 2, 0}), 5.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{0, 2, 1}), 6.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 0, 0}), 7.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 0, 1}), 8.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 1, 0}), 9.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 1, 1}), 10.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 2, 0}), 11.0);
+  EXPECT_DOUBLE_EQ(t(std::vector<std::size_t>{1, 2, 1}), 12.0);
   EXPECT_THAT(std::vector<double>(t.begin(), t.end()),
               ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0));
 }
 
 TEST(TestTensor, Pick3DTemplate) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                 std::vector{2ul, 3ul, 2ul}};
-  EXPECT_DOUBLE_EQ(t(0ul, 0ul, 0l), 1.0);
-  EXPECT_DOUBLE_EQ(t(0ul, 0ul, 1l), 2.0);
-  EXPECT_DOUBLE_EQ(t(0ul, 1ul, 0l), 3.0);
-  EXPECT_DOUBLE_EQ(t(0ul, 1ul, 1l), 4.0);
-  EXPECT_DOUBLE_EQ(t(0ul, 2ul, 0l), 5.0);
-  EXPECT_DOUBLE_EQ(t(0ul, 2ul, 1l), 6.0);
-  EXPECT_DOUBLE_EQ(t(1ul, 0ul, 0l), 7.0);
-  EXPECT_DOUBLE_EQ(t(1ul, 0ul, 1l), 8.0);
-  EXPECT_DOUBLE_EQ(t(1ul, 1ul, 0l), 9.0);
-  EXPECT_DOUBLE_EQ(t(1ul, 1ul, 1l), 10.0);
-  EXPECT_DOUBLE_EQ(t(1ul, 2ul, 0l), 11.0);
-  EXPECT_DOUBLE_EQ(t(1ul, 2ul, 1l), 12.0);
+  const Tensor<double> t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                         std::vector<std::size_t>{2, 3, 2}};
+  EXPECT_DOUBLE_EQ(t(0, 0, 0l), 1.0);
+  EXPECT_DOUBLE_EQ(t(0, 0, 1l), 2.0);
+  EXPECT_DOUBLE_EQ(t(0, 1, 0l), 3.0);
+  EXPECT_DOUBLE_EQ(t(0, 1, 1l), 4.0);
+  EXPECT_DOUBLE_EQ(t(0, 2, 0l), 5.0);
+  EXPECT_DOUBLE_EQ(t(0, 2, 1l), 6.0);
+  EXPECT_DOUBLE_EQ(t(1, 0, 0l), 7.0);
+  EXPECT_DOUBLE_EQ(t(1, 0, 1l), 8.0);
+  EXPECT_DOUBLE_EQ(t(1, 1, 0l), 9.0);
+  EXPECT_DOUBLE_EQ(t(1, 1, 1l), 10.0);
+  EXPECT_DOUBLE_EQ(t(1, 2, 0l), 11.0);
+  EXPECT_DOUBLE_EQ(t(1, 2, 1l), 12.0);
   EXPECT_THAT(std::vector<double>(t.begin(), t.end()),
               ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0));
 }
 
 TEST(TestTensor, Reshape) {
-  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2ul, 3ul}};
-  const std::vector<std::size_t> new_dims{3ul, 2ul};
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2, 3}};
+  const std::vector<std::size_t> new_dims{3, 2};
   tensor.reshape(new_dims);
   EXPECT_EQ(tensor.dimensions(), new_dims);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 2.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul), 3.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 4.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul, 0ul), 5.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 0), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 1), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 0), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 1), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(2, 0), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(2, 1), 6.0);
   EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0));
 }
 
 TEST(TestTensor, ReshapeReduceRank) {
-  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2ul, 3ul}};
-  const std::vector<std::size_t> new_dims{6ul};
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2, 3}};
+  const std::vector<std::size_t> new_dims{6};
   tensor.reshape(new_dims);
   EXPECT_EQ(tensor.dimensions(), new_dims);
-  EXPECT_DOUBLE_EQ(tensor(0ul), 1.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul), 2.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul), 3.0);
-  EXPECT_DOUBLE_EQ(tensor(3ul), 4.0);
-  EXPECT_DOUBLE_EQ(tensor(4ul), 5.0);
-  EXPECT_DOUBLE_EQ(tensor(5ul), 6.0);
+  EXPECT_DOUBLE_EQ(tensor(0), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(1), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(2), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(3), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(4), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(5), 6.0);
   EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0));
 }
 
 TEST(TestTensor, ReshapeIncreaseRank) {
-  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, {3ul, 4ul}};
-  const std::vector<std::size_t> new_dims{2ul, 3ul, 2ul, 1ul, 1ul};
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, {3, 4}};
+  const std::vector<std::size_t> new_dims{2, 3, 2, 1, 1};
   tensor.reshape(new_dims);
   EXPECT_EQ(tensor.dimensions(), new_dims);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul, 0ul, 0ul, 0ul), 1.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul, 1ul, 0ul, 0ul), 2.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul, 0ul, 0ul, 0ul), 3.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul, 1ul, 0ul, 0ul), 4.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 2ul, 0ul, 0ul, 0ul), 5.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 2ul, 1ul, 0ul, 0ul), 6.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul, 0ul, 0ul, 0ul), 7.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul, 1ul, 0ul, 0ul), 8.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul, 0ul, 0ul, 0ul), 9.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul, 1ul, 0ul, 0ul), 10.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 2ul, 0ul, 0ul, 0ul), 11.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 2ul, 1ul, 0ul, 0ul), 12.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 0, 0, 0, 0), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 0, 1, 0, 0), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 1, 0, 0, 0), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 1, 1, 0, 0), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 2, 0, 0, 0), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 2, 1, 0, 0), 6.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 0, 0, 0, 0), 7.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 0, 1, 0, 0), 8.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 1, 0, 0, 0), 9.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 1, 1, 0, 0), 10.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 2, 0, 0, 0), 11.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 2, 1, 0, 0), 12.0);
   EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()),
               ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0));
 }
 
 TEST(TestTensor, ReshapeInvalidSize) {
-  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2ul, 3ul}};
-  const std::vector<std::size_t> new_dims{3ul};
+  Tensor<double> tensor{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, {2, 3}};
+  const std::vector<std::size_t> new_dims{3};
   EXPECT_THROW(tensor.reshape(new_dims), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, PermuteIdentity1D) {
-  Tensor<double> tensor{Tensor<double>{std::vector{1.0, 2.0, 3.0}, std::vector{3ul}}.permute(0ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul}));
-  EXPECT_DOUBLE_EQ(tensor(0ul), 1.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul), 2.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul), 3.0);
+  Tensor<double> tensor{Tensor<double>{std::vector{1.0, 2.0, 3.0}, std::vector<std::size_t>{3}}.permute(0)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3}));
+  EXPECT_DOUBLE_EQ(tensor(0), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(1), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(2), 3.0);
   EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0));
 }
 TEST(TestTensor, Permute2D) {
   Tensor<double> tensor{
-      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}}.permute(1ul, 0ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul}));
-  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 4.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul), 2.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 5.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul, 0ul), 3.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
+      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector<std::size_t>{2, 3}}.permute(1, 0)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3, 2}));
+  EXPECT_DOUBLE_EQ(tensor(0, 0), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 1), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 0), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 1), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(2, 0), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(2, 1), 6.0);
   EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 4.0, 2.0, 5.0, 3.0, 6.0));
 }
 TEST(TestTensor, PermuteVector2D) {
   Tensor<double> tensor{
-      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}}.permute({1ul, 0ul})};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul}));
-  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 4.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul), 2.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 5.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul, 0ul), 3.0);
-  EXPECT_DOUBLE_EQ(tensor(2ul, 1ul), 6.0);
+      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector<std::size_t>{2, 3}}.permute({1, 0})};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3, 2}));
+  EXPECT_DOUBLE_EQ(tensor(0, 0), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 1), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 0), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 1), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(2, 0), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(2, 1), 6.0);
   EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 4.0, 2.0, 5.0, 3.0, 6.0));
 }
 // 2D tensor, identity permutation
 TEST(TestTensor, PermuteIdentity2D) {
   Tensor<double> tensor{
-      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector{2ul, 3ul}}.permute(0ul, 1ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2ul, 3ul}));
-  EXPECT_DOUBLE_EQ(tensor(0ul, 0ul), 1.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 1ul), 2.0);
-  EXPECT_DOUBLE_EQ(tensor(0ul, 2ul), 3.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 0ul), 4.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 1ul), 5.0);
-  EXPECT_DOUBLE_EQ(tensor(1ul, 2ul), 6.0);
+      Tensor<double>{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0}, std::vector<std::size_t>{2, 3}}.permute(0, 1)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2, 3}));
+  EXPECT_DOUBLE_EQ(tensor(0, 0), 1.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 1), 2.0);
+  EXPECT_DOUBLE_EQ(tensor(0, 2), 3.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 0), 4.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 1), 5.0);
+  EXPECT_DOUBLE_EQ(tensor(1, 2), 6.0);
   EXPECT_THAT(std::vector<double>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1.0, 2.0, 3.0, 4.0, 5.0, 6.0));
 }
 
 TEST(TestTensor, PermuteVector3D) {
   Tensor<int> tensor{
-      Tensor<int>{std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, std::vector{2ul, 2ul, 3ul}}.permute(2ul, 0ul,
-                                                                                                               1ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul, 2ul}));
+      Tensor<int>{std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, std::vector<std::size_t>{2, 2, 3}}.permute(
+          2, 0, 1)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3, 2, 2}));
   EXPECT_EQ(tensor(0, 0, 0), 1);
   EXPECT_EQ(tensor(0, 0, 1), 4);
   EXPECT_EQ(tensor(0, 1, 0), 7);
@@ -315,9 +319,9 @@ TEST(TestTensor, PermuteVector3D) {
 TEST(TestTensor, PermuteAllDifferent3D) {
   Tensor<int> tensor{Tensor<int>{
       std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24},
-      std::vector{2ul, 3ul, 4ul}}
-                         .permute(2ul, 0ul, 1ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({4ul, 2ul, 3ul}));
+      std::vector<std::size_t>{2, 3, 4}}
+                         .permute(2, 0, 1)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({4, 2, 3}));
   EXPECT_EQ(tensor(0, 0, 0), 1);
   EXPECT_EQ(tensor(0, 0, 1), 5);
   EXPECT_EQ(tensor(0, 0, 2), 9);
@@ -349,18 +353,18 @@ TEST(TestTensor, PermuteAllDifferent3D) {
 TEST(TestTensor, PermutePartial3D) {
   Tensor<int> tensor{Tensor<int>{
       std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24},
-      std::vector{2ul, 3ul, 4ul}}
+      std::vector<std::size_t>{2, 3, 4}}
                          .permute(0, 2, 1)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2ul, 4ul, 3ul}));
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2, 4, 3}));
   EXPECT_THAT(tensor.data(), ::testing::ElementsAre(1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12, 13, 17, 21, 14, 18, 22, 15,
                                                     19, 23, 16, 20, 24));
 }
 TEST(TestTensor, PermutePartial4D) {
   Tensor<int> tensor{Tensor<int>{
       std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24},
-      std::vector{2ul, 3ul, 4ul, 1ul}}
-                         .permute(1ul, 0ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3ul, 2ul, 4ul, 1ul}));
+      std::vector<std::size_t>{2, 3, 4, 1}}
+                         .permute(1, 0)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({3, 2, 4, 1}));
   EXPECT_EQ(tensor(0, 0, 0, 0), 1);
   EXPECT_EQ(tensor(0, 0, 1, 0), 2);
   EXPECT_EQ(tensor(0, 0, 2, 0), 3);
@@ -392,10 +396,10 @@ TEST(TestTensor, PermutePartial4D) {
 
 // Permute with repeated application (round-trip)
 TEST(TestTensor, PermuteRoundTrip3D) {
-  Tensor<int> tensor{Tensor<int>{std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8}, std::vector{2ul, 2ul, 2ul}}
-                         .permute(2ul, 0ul, 1ul)
-                         .permute(1ul, 2ul, 0ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2ul, 2ul, 2ul}));
+  Tensor<int> tensor{
+      Tensor<int>{std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8}, std::vector<std::size_t>{2, 2, 2}}.permute(2, 0, 1).permute(
+          1, 2, 0)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({2, 2, 2}));
 
   EXPECT_EQ(tensor(0, 0, 0), 1);
   EXPECT_EQ(tensor(0, 0, 1), 2);
@@ -408,117 +412,116 @@ TEST(TestTensor, PermuteRoundTrip3D) {
   EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1, 2, 3, 4, 5, 6, 7, 8));
 }
 TEST(TestTensor, PermuteEmpty) {
-  Tensor<float> tensor{Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul}}.permute(1ul, 0ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({0ul, 2ul}));
-  EXPECT_EQ(tensor.size(), 0ul);
+  Tensor<float> tensor{Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2, 0}}.permute(1, 0)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({0, 2}));
+  EXPECT_EQ(tensor.size(), 0);
 }
 TEST(TestTensor, PermuteHighDimemsion) {
-  Tensor<float> tensor{
-      Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2ul, 0ul, 5ul}}.permute(2ul, 0ul, 1ul)};
-  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({5ul, 2ul, 0ul}));
-  EXPECT_EQ(tensor.size(), 0ul);
+  Tensor<float> tensor{Tensor<float>{std::vector<float>{}, std::vector<std::size_t>{2, 0, 5}}.permute(2, 0, 1)};
+  EXPECT_EQ(tensor.dimensions(), std::vector<std::size_t>({5, 2, 0}));
+  EXPECT_EQ(tensor.size(), 0);
 }
 
 TEST(TestTensor, FFT1) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{10ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector<std::size_t>{10}};
   const Tensor<std::complex<double>> fft = t.fft();
   EXPECT_EQ(fft.size(), 10u);
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul), std::complex<double>(55.0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul), std::complex<double>(-5.0, 15.388417685876265));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(2ul), std::complex<double>(-5.0, 6.8819096023558677));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(3ul), std::complex<double>(-5.0, 3.6327126400268037));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(4ul), std::complex<double>(-5.0, 1.6245984811645311));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(5ul), std::complex<double>(-5.0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0), std::complex<double>(55.0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1), std::complex<double>(-5.0, 15.388417685876265));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(2), std::complex<double>(-5.0, 6.8819096023558677));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(3), std::complex<double>(-5.0, 3.6327126400268037));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(4), std::complex<double>(-5.0, 1.6245984811645311));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(5), std::complex<double>(-5.0, 0.0));
 }
 
 TEST(TestTensor, IFFT1) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{10ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector<std::size_t>{10}};
   const Tensor<double> ifft = t.fft().ifft();
   EXPECT_EQ(ifft.size(), 10u);
-  EXPECT_DOUBLE_EQ(ifft(0ul), 1.0);
-  EXPECT_DOUBLE_EQ(ifft(1ul), 2.0);
-  EXPECT_DOUBLE_EQ(ifft(2ul), 3.0);
-  EXPECT_DOUBLE_EQ(ifft(3ul), 4.0);
-  EXPECT_DOUBLE_EQ(ifft(4ul), 5.0);
-  EXPECT_DOUBLE_EQ(ifft(5ul), 6.0);
-  EXPECT_DOUBLE_EQ(ifft(6ul), 7.0);
-  EXPECT_DOUBLE_EQ(ifft(7ul), 8.0);
-  EXPECT_DOUBLE_EQ(ifft(8ul), 9.0);
-  EXPECT_DOUBLE_EQ(ifft(9ul), 10.0);
+  EXPECT_DOUBLE_EQ(ifft(0), 1.0);
+  EXPECT_DOUBLE_EQ(ifft(1), 2.0);
+  EXPECT_DOUBLE_EQ(ifft(2), 3.0);
+  EXPECT_DOUBLE_EQ(ifft(3), 4.0);
+  EXPECT_DOUBLE_EQ(ifft(4), 5.0);
+  EXPECT_DOUBLE_EQ(ifft(5), 6.0);
+  EXPECT_DOUBLE_EQ(ifft(6), 7.0);
+  EXPECT_DOUBLE_EQ(ifft(7), 8.0);
+  EXPECT_DOUBLE_EQ(ifft(8), 9.0);
+  EXPECT_DOUBLE_EQ(ifft(9), 10.0);
 }
 
 TEST(TestTensor, FFT2) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{2ul, 5ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector<std::size_t>{2, 5}};
   const Tensor<std::complex<double>> fft = t.fft();
   EXPECT_EQ(fft.size(), 10u);
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul), std::complex<double>(55.0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul), std::complex<double>(-5.0, 6.8819096023558677));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 2ul), std::complex<double>(-5.0, 1.6245984811645311));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 3ul), std::complex<double>(-5.0, -1.6245984811645311));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 4ul), std::complex<double>(-5.0, -6.8819096023558677));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 0ul), std::complex<double>(-25.0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 1ul), std::complex<double>(0.0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 2ul), std::complex<double>(0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 3ul), std::complex<double>(0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 4ul), std::complex<double>(0.0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 0), std::complex<double>(55.0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 1), std::complex<double>(-5.0, 6.8819096023558677));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 2), std::complex<double>(-5.0, 1.6245984811645311));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 3), std::complex<double>(-5.0, -1.6245984811645311));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 4), std::complex<double>(-5.0, -6.8819096023558677));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 0), std::complex<double>(-25.0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 1), std::complex<double>(0.0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 2), std::complex<double>(0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 3), std::complex<double>(0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 4), std::complex<double>(0.0, 0.0));
 }
 
 TEST(TestTensor, IFFT2) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector{2ul, 5ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, std::vector<std::size_t>{2, 5}};
   const Tensor<double> fft = t.fft().ifft();
   EXPECT_EQ(fft.size(), 10u);
-  EXPECT_DOUBLE_EQ(fft(0ul, 0ul), 1.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 1ul), 2.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 2ul), 3.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 3ul), 4.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 4ul), 5.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 0ul), 6.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 1ul), 7.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 2ul), 8.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 3ul), 9.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 4ul), 10.0);
+  EXPECT_DOUBLE_EQ(fft(0, 0), 1.0);
+  EXPECT_DOUBLE_EQ(fft(0, 1), 2.0);
+  EXPECT_DOUBLE_EQ(fft(0, 2), 3.0);
+  EXPECT_DOUBLE_EQ(fft(0, 3), 4.0);
+  EXPECT_DOUBLE_EQ(fft(0, 4), 5.0);
+  EXPECT_DOUBLE_EQ(fft(1, 0), 6.0);
+  EXPECT_DOUBLE_EQ(fft(1, 1), 7.0);
+  EXPECT_DOUBLE_EQ(fft(1, 2), 8.0);
+  EXPECT_DOUBLE_EQ(fft(1, 3), 9.0);
+  EXPECT_DOUBLE_EQ(fft(1, 4), 10.0);
 }
 
 TEST(TestTensor, FFT3) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                 std::vector{2ul, 2ul, 3ul}};
+                 std::vector<std::size_t>{2, 2, 3}};
   const Tensor<std::complex<double>> fft = t.fft();
   EXPECT_EQ(fft.size(), 12u);
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 0ul), std::complex<double>(78.0, 0.0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 1ul), std::complex<double>(-6.0, 3.4641016151377544));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 0ul, 2ul), std::complex<double>(-6.0, -3.4641016151377544));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul, 0ul), std::complex<double>(-18.0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul, 1ul), std::complex<double>(0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(0ul, 1ul, 2ul), std::complex<double>(0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 0ul, 0ul), std::complex<double>(-36.0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 0ul, 1ul), std::complex<double>(0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 0ul, 2ul), std::complex<double>(0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 1ul, 0ul), std::complex<double>(0, 0));
-  EXPECT_COMPLEX_DOUBLE_EQ(fft(1ul, 1ul, 1ul), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 0, 0), std::complex<double>(78.0, 0.0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 0, 1), std::complex<double>(-6.0, 3.4641016151377544));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 0, 2), std::complex<double>(-6.0, -3.4641016151377544));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 1, 0), std::complex<double>(-18.0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 1, 1), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(0, 1, 2), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 0, 0), std::complex<double>(-36.0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 0, 1), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 0, 2), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 1, 0), std::complex<double>(0, 0));
+  EXPECT_COMPLEX_DOUBLE_EQ(fft(1, 1, 1), std::complex<double>(0, 0));
 }
 
 TEST(TestTensor, IFFT3) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                 std::vector{2ul, 2ul, 3ul}};
+                 std::vector<std::size_t>{2, 2, 3}};
   const Tensor<double> fft = t.fft().ifft();
   EXPECT_EQ(fft.size(), 12u);
-  EXPECT_DOUBLE_EQ(fft(0ul, 0ul, 0ul), 1.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 0ul, 1ul), 2.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 0ul, 2ul), 3.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 1ul, 0ul), 4.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 1ul, 1ul), 5.0);
-  EXPECT_DOUBLE_EQ(fft(0ul, 1ul, 2ul), 6.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 0ul, 0ul), 7.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 0ul, 1ul), 8.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 0ul, 2ul), 9.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 1ul, 0ul), 10.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 1ul, 1ul), 11.0);
-  EXPECT_DOUBLE_EQ(fft(1ul, 1ul, 2ul), 12.0);
+  EXPECT_DOUBLE_EQ(fft(0, 0, 0), 1.0);
+  EXPECT_DOUBLE_EQ(fft(0, 0, 1), 2.0);
+  EXPECT_DOUBLE_EQ(fft(0, 0, 2), 3.0);
+  EXPECT_DOUBLE_EQ(fft(0, 1, 0), 4.0);
+  EXPECT_DOUBLE_EQ(fft(0, 1, 1), 5.0);
+  EXPECT_DOUBLE_EQ(fft(0, 1, 2), 6.0);
+  EXPECT_DOUBLE_EQ(fft(1, 0, 0), 7.0);
+  EXPECT_DOUBLE_EQ(fft(1, 0, 1), 8.0);
+  EXPECT_DOUBLE_EQ(fft(1, 0, 2), 9.0);
+  EXPECT_DOUBLE_EQ(fft(1, 1, 0), 10.0);
+  EXPECT_DOUBLE_EQ(fft(1, 1, 1), 11.0);
+  EXPECT_DOUBLE_EQ(fft(1, 1, 2), 12.0);
 }
 
 TEST(TestTensor, ToVector) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                 std::vector{2ul, 2ul, 3ul}};
+                 std::vector<std::size_t>{2, 2, 3}};
   const Eigen::Map<const Eigen::VectorX<double>> v{t};
   EXPECT_EQ(v.size(), 12);
   EXPECT_DOUBLE_EQ(v(0), 1.0);
@@ -536,7 +539,8 @@ TEST(TestTensor, ToVector) {
 }
 
 TEST(TestTensor, ToMatrix) {
-  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, std::vector{2ul, 6ul}};
+  const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
+                 std::vector<std::size_t>{2, 6}};
   const Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> m{t};
   EXPECT_EQ(m.size(), 12);
   EXPECT_DOUBLE_EQ(m(0, 0), 1.0);
@@ -554,7 +558,7 @@ TEST(TestTensor, ToMatrix) {
 }
 
 TEST(TestTensor, PadWithZeros) {
-  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2, 2});
   Tensor<double> padded_tensor = tensor.pad({{1, 1}, {1, 1}}, 0.0);
   EXPECT_THAT(padded_tensor.data(),
               ::testing::ElementsAre(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 3.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0));
@@ -562,7 +566,7 @@ TEST(TestTensor, PadWithZeros) {
 }
 
 TEST(TestTensor, PadWithConstantValue) {
-  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2, 2});
   Tensor<double> padded_tensor = tensor.pad({{1, 1}, {1, 1}}, 5.0);
   EXPECT_THAT(padded_tensor.data(),
               ::testing::ElementsAre(5.0, 5.0, 5.0, 5.0, 5.0, 1.0, 2.0, 5.0, 5.0, 3.0, 4.0, 5.0, 5.0, 5.0, 5.0, 5.0));
@@ -570,7 +574,7 @@ TEST(TestTensor, PadWithConstantValue) {
 }
 
 TEST(TestTensor, PadWithDifferentPadding) {
-  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2, 2});
   Tensor<double> padded_tensor = tensor.pad({{1, 2}, {2, 1}}, 0.0);
   EXPECT_THAT(tensor.pad({{1, 2}, {2, 1}}).data(),
               ::testing::ElementsAre(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 3.0, 4.0, 0.0, 0.0,
@@ -579,7 +583,7 @@ TEST(TestTensor, PadWithDifferentPadding) {
 }
 
 TEST(TestTensor, Pad3D) {
-  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, {2ul, 2ul, 3ul});
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, {2, 2, 3});
   EXPECT_THAT(tensor.pad({{1, 0}, {0, 2}, {2, 1}}).data(),
               ::testing::ElementsAre(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
                                      3, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0,
@@ -605,13 +609,13 @@ TEST(TestTensor, PadMiddleExtremes) {
 
 TEST(TestTensor, PadMiddleInvalid) {
   Tensor<double> t{std::vector<double>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
-  EXPECT_THROW(t.pad({2, 3}, {10, 11}), LucidInvalidArgumentException);
+  EXPECT_THROW(static_cast<void>(t.pad({2, 3}, {10, 11})), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, PadHighRank) {
   Tensor<double> tensor(
       {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0},
-      {3ul, 1ul, 3ul, 2ul, 1ul});
+      {3, 1, 3, 2, 1});
   const Tensor<double> padded_tensor = tensor.pad({{1, 0}, {0, 2}, {2, 1}, {0, 0}, {1, 1}}, 0.0);
   std::array<double, 432> expected_value{
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0, 0,
@@ -630,77 +634,76 @@ TEST(TestTensor, PadHighRank) {
 }
 
 TEST(TestTensor, PadWithNegativePadding) {
-  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2ul, 2ul});
-  EXPECT_THROW(tensor.pad({{-1, 1}, {1, 1}}, 0.0), LucidInvalidArgumentException);
+  Tensor<double> tensor({1.0, 2.0, 3.0, 4.0}, {2, 2});
+  EXPECT_THROW(static_cast<void>(tensor.pad({{-1, 1}, {1, 1}}, 0.0)), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, UpsampleEvenToEven1D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(6ul).fft_upsample({42ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(42ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(6).fft_upsample({42});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(42).data());
 }
 
 TEST(TestTensor, UpsampleEvenToOdd1D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(6ul).fft_upsample({43ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(43ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(6).fft_upsample({43});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(43).data());
 }
 
 TEST(TestTensor, UpsampleOddToOdd1D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(7ul).fft_upsample({43ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(43ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(7).fft_upsample({43});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(43).data());
 }
 
 TEST(TestTensor, UpsampleOddToEven1D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(7ul).fft_upsample({44ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(44ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<1>(7).fft_upsample({44});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<1>(44).data());
 }
 
 TEST(TestTensor, UpsampleEvenToEven2D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(6ul).fft_upsample({20ul, 20ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(20ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(6).fft_upsample({20, 20});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(20).data());
 }
 
 TEST(TestTensor, UpsampleEvenToOdd2D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(6ul).fft_upsample({21ul, 21ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(21ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(6).fft_upsample({21, 21});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(21).data());
 }
 
 TEST(TestTensor, UpsampleOddToOdd2D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(7ul).fft_upsample({21ul, 21ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(21ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(7).fft_upsample({21, 21});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(21).data());
 }
 
 TEST(TestTensor, UpsampleOddToEven2D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(7ul).fft_upsample({26ul, 26ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(26ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<2>(7).fft_upsample({26, 26});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<2>(26).data());
 }
 
 TEST(TestTensor, UpsampleEvenToEven3D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(8ul).fft_upsample({16ul, 16ul, 16ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(16ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(8).fft_upsample({16, 16, 16});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(16).data());
 }
 
 TEST(TestTensor, UpsampleEvenToOdd3D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(8l).fft_upsample({17ul, 17ul, 17ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(17ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(8l).fft_upsample({17, 17, 17});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(17).data());
 }
 
 TEST(TestTensor, UpsampleOddToOdd3D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(7ul).fft_upsample({17ul, 17ul, 17ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(17ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(7).fft_upsample({17, 17, 17});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(17).data());
 }
 
 TEST(TestTensor, UpsampleOddToEven3D) {
-  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(7ul).fft_upsample({18ul, 18ul, 18ul});
-  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(18ul).data());
+  const Tensor<double> upsampled_tensor = trigonometric_tensor<3>(7).fft_upsample({18, 18, 18});
+  EXPECT_VECTOR_NEAR(upsampled_tensor.data(), trigonometric_tensor<3>(18).data());
 }
 
 TEST(TestTensor, UpsampleDownsampleInvalid) {
-  EXPECT_THROW(Tensor<double>{trigonometric_tensor<3>(7ul).fft_upsample({1ul, 1ul, 1ul})},
-               LucidInvalidArgumentException);
+  EXPECT_THROW(static_cast<void>(trigonometric_tensor<3>(7).fft_upsample({1, 1, 1})), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, UpsampleRankInvalid) {
-  EXPECT_THROW(Tensor<double>{trigonometric_tensor<3>(7ul).fft_upsample({18ul})}, LucidInvalidArgumentException);
+  EXPECT_THROW(static_cast<void>(trigonometric_tensor<3>(7).fft_upsample({18})), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, TensorIterator1D) {
@@ -709,18 +712,18 @@ TEST(TestTensor, TensorIterator1D) {
 }
 
 TEST(TestTensor, TensorIterator2D) {
-  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3ul, 2ul}};
+  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
   EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1, 2, 3, 4, 5, 6));
 }
 
 TEST(TestTensor, TensorIterator3D) {
-  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3ul, 1ul, 2ul}};
+  Tensor<int> tensor{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 1, 2}};
   EXPECT_THAT(std::vector<int>(tensor.begin(), tensor.end()), ::testing::ElementsAre(1, 2, 3, 4, 5, 6));
 }
 
 TEST(TestTensor, ToMatrixInvalid) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
-                 std::vector{2ul, 2ul, 3ul}};
+                 std::vector<std::size_t>{2, 2, 3}};
   EXPECT_THROW(
       (static_cast<Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(t)),
       LucidNotSupportedException);

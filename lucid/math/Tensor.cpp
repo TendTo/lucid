@@ -23,7 +23,9 @@ Tensor<T>::Tensor(std::vector<T> data, std::vector<std::size_t> dims)
       view_{data_, dims.empty() && !data_.empty() ? std::vector<std::size_t>{data_.size()} : std::move(dims)} {}
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 Tensor<T>::Tensor(const T& value, std::vector<std::size_t> dims)
-    : Tensor(std::vector<T>(std::accumulate(dims.begin(), dims.end(), 1, std::multiplies{}), value), dims) {}
+    : Tensor(std::vector<T>(std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}),
+                            value),
+             dims) {}
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 Tensor<T>& Tensor<T>::reshape(std::vector<std::size_t> dims) {

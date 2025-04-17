@@ -1,7 +1,6 @@
 load("@rules_python//python:pip.bzl", "whl_filegroup")
 load("//tools:cpplint.bzl", "cpplint")
 load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_pybind_library", "lucid_srcs")
-load("//tools:rules_py_cc.bzl", "lucid_cc_py_library")
 
 package(default_visibility = [
     "//bindings:__subpackages__",
@@ -81,6 +80,7 @@ lucid_cc_library(
     deps = [
         ":concepts",
         ":logging",
+        "//lucid/lib:eigen",
     ],
 )
 
