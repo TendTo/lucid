@@ -6,7 +6,7 @@
  * Math module.
  */
 #ifndef LUCID_PYTHON_BUILD
-#error LUCID_PYTHON_BUILD is not defined. Ensure you are building with the option '--config=python'
+#error LUCID_PYTHON_BUILD is not defined. Ensure you are building with the option '--config=py'
 #endif
 
 #include "lucid/math/math.h"
@@ -149,7 +149,7 @@ void init_math(py::module_ &m) {
       [](ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim, const Index dimension) {
         if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
 
-        const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+        const int n_pad = static_cast<int>(std::floor((n_per_dim / 2 - samples_per_dim / 2)));
         // Get a view of the input data
         const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
                                          std::vector<std::size_t>(dimension, samples_per_dim)};

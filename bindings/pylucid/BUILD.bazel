@@ -35,7 +35,10 @@ py_library(
         "__init__.py",
         "__main__.py",
     ],
-    data = [":_pylucid.so"],
+    data = [
+        ":_pylucid.pyd",
+        ":_pylucid.so",
+    ],
     imports = [".."],
     srcs_version = "PY3",
     visibility = ["//visibility:public"],

@@ -76,6 +76,7 @@ GCC_FLAGS = CXX_FLAGS + [
 # building with MSVC.
 MSVC_CL_FLAGS = [
     "/std:c++20",
+    "/utf-8",
     "-W4",
     "-WX",
     # "-wd4068",  # unknown pragma
@@ -392,8 +393,8 @@ def lucid_hdrs_tar(name, hdrs = None, deps = [], subfolder = "", visibility = ["
     Args:
         name: The name of the target. If the name is "srcs", the default "srcs", "hdrs", and "all_srcs" will be used.
             Otherwise, "srcs_" + name, "hdrs_" + name, and "all_srcs_" + name will be used.
-        srcs: A list of source files include in the filegroup. If None, common c++ source files extensions will be used.
         hdrs: A list of header files to include in the filegroup. If None, common c++ header files extensions will be used.
+        subfolder: The subfolder to use for the tarball.
         deps: A list of dependencies. Used for the all_srcs filegroup.
         visibility: A list of visibility labels to apply to the filegroups.
     """
@@ -436,6 +437,7 @@ def lucid_pybind_library(
         copts = _get_copts(copts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
+        features = _get_features(features),
         **kwargs
     )
 
@@ -459,5 +461,6 @@ def lucid_pybind_extension(name, srcs, deps = [], copts = [], linkstatic = None,
         copts = _get_copts(copts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
+        features = _get_features(features),
         **kwargs
     )
