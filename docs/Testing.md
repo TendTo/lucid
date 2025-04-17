@@ -1,6 +1,6 @@
 # Testing
 
-Lucid includes unit tests and integration tests. 
+Lucid includes unit tests and integration tests.
 All tests use the [Google Test framework](https://github.com/google/googletest) and are run using [Bazel](https://bazel.build/).
 
 ## Running the tests
@@ -20,10 +20,8 @@ bazel test //tests/unit/...
 bazel test //tests/integration/...
 # Run a specific test (the logging test in this case)
 bazel test //tests/unit/util:test_logging
-# Run all the tests with a specific tag (the util module tests in this case)
-bazel test --test_tag_filters=util //tests/... 
 ```
 
 > [!NOTE]  
-> Integration tests use Gurobi, and therefore need a valid Gurobi license to run.
-> Just copy the licence `gurobi.lic` in the `tests/integration` directory.
+> Integration tests and bindings tests use Gurobi, and therefore need a valid Gurobi license to run.
+> Just copy the licence `gurobi.lic` in the `tests/integration` and `tests/bindings` directories respectively.
