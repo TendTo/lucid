@@ -51,13 +51,13 @@ class BazelExtension(setuptools.Extension):
 
 def get_bazel_target_args(command):
     if command == "build":
-        return ["bazel", "build", "--config=python", "--python_version=" + sysconfig.get_python_version()]
+        return ["bazel", "build", "--config=py", "--python_version=" + sysconfig.get_python_version()]
     if command == "cquery":
         return [
             "bazel",
             "cquery",
             "--output=files",
-            "--config=python",
+            "--config=py",
             "--python_version=" + sysconfig.get_python_version(),
         ]
 
@@ -68,32 +68,25 @@ class BuildBazelExtension(build_ext.build_ext):
     def run(self):
         for ext in self.extensions:
             self.bazel_build(ext)
-        build_ext.build_ext.run(self)
+        # Run the Bazel shutdown command to clean up
+        self.spawn(["bazel", "shutdown"])
 
-    def bazel_build(self, ext):
+    def bazel_build(self, ext: BazelExtension):
         if shutil.which("bazel") is None:
             raise setuptools.errors.CompileError(
                 "Bazel not found (https://bazel.build/). It is required to install this package from source."
             )
 
-        bazel_argv = [*get_bazel_target_args("build"), ext.bazel_target]
-        self.spawn(bazel_argv)
-        path = subprocess.check_output([*get_bazel_target_args("cquery"), ext.bazel_target]).decode("utf-8").strip()
-
-        ext_dest_path = self.get_ext_fullpath(ext.name)
-        ext_dest_dir = os.path.dirname(ext_dest_path)
-        os.makedirs(ext_dest_dir, exist_ok=True)
-        shutil.copyfile(path, ext_dest_path)
-
-        # Add python stubs for type checking
-        bazel_argv = [*get_bazel_target_args("build"), "//bindings/pylucid:stubgen"]
+        # Build all needed files
+        bazel_argv = [*get_bazel_target_args("build"), "//bindings/pylucid:pylucid_files"]
         self.spawn(bazel_argv)
         paths = (
-            subprocess.check_output([*get_bazel_target_args("cquery"), "//bindings/pylucid:stubgen"])
+            subprocess.check_output([*get_bazel_target_args("cquery"), "//bindings/pylucid:pylucid_files"])
             .decode("utf-8")
             .strip()
             .split("\n")
         )
+        # Copy the built files to the extension directory
         for path in paths:
             file = os.path.basename(path)
             ext_dest_dir = os.path.dirname(self.get_ext_fullpath(ext.name))
