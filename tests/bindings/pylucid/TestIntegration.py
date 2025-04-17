@@ -1,8 +1,8 @@
-import numpy as np
+import math
 
+import numpy as np
 from pylucid import read_matrix, GaussianKernel, TruncatedFourierFeatureMap, RectSet, MultiSet, \
     GaussianKernelRidgeRegression, project, GurobiLinearOptimiser
-import math
 
 
 class TestIntegration:

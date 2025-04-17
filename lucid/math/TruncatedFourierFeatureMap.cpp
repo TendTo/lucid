@@ -7,6 +7,7 @@
 #include "lucid/math/TruncatedFourierFeatureMap.h"
 
 #include <numbers>
+#include <utility>
 
 #include "lucid/util/IndexIterator.h"
 #include "lucid/util/logging.h"

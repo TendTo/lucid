@@ -8,6 +8,7 @@
 
 #include <ostream>
 #include <random>
+#include <string>
 #include <utility>
 
 #include "lucid/util/error.h"

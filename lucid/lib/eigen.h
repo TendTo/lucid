@@ -10,18 +10,20 @@
  */
 #pragma once
 
-// The following lines will add the `write` and `read` methods to Eigen matrix class.
-// They must be included before the Eigen library.
 #include <fstream>
 #include <ranges>
+#include <span>
+#include <string>
+
+// The following lines will add the `write` and `read` methods to Eigen matrix class.
+// They must be included before the Eigen library.
 #define EIGEN_MATRIXBASE_PLUGIN "lucid/lib/eigen_matrix_base_plugin.h"
 
-#include <Eigen/Cholesky>
-#include <Eigen/Core>
-#include <Eigen/LU>
-#include <span>
-#include <unsupported/Eigen/CXX11/Tensor>
-#include <unsupported/Eigen/FFT>
+#include <Eigen/Cholesky>                  // NOLINT(build/include_order): must be after the plugin
+#include <Eigen/Core>                      // NOLINT(build/include_order): must be after the plugin
+#include <Eigen/LU>                        // NOLINT(build/include_order): must be after the plugin
+#include <unsupported/Eigen/CXX11/Tensor>  // NOLINT(build/include_order): must be after the plugin
+#include <unsupported/Eigen/FFT>           // NOLINT(build/include_order): must be after the plugin
 
 #include "lucid/lib/eigen_extension.h"
 

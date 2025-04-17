@@ -36,7 +36,7 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
 
 #define LUCID_FORMAT(message, ...) fmt::format(message, __VA_ARGS__)
 
-#define LUCID_VERBOSITY_TO_LOG_LEVEL(verbosity)                         \
+#define LUCID_VERBOSITY_TO_LOG_LEVEL(verbosity)                        \
   ((verbosity) == 0                                                    \
        ? spdlog::level::critical                                       \
        : ((verbosity) == 1                                             \
@@ -48,8 +48,8 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
                             : ((verbosity) == 4 ? spdlog::level::debug \
                                                 : ((verbosity) == 5 ? spdlog::level::trace : spdlog::level::off))))))
 #define LUCID_LOG_INIT_VERBOSITY(verbosity) LUCID_LOG_INIT_LEVEL(LUCID_VERBOSITY_TO_LOG_LEVEL(verbosity))
-#define LUCID_LOG_INIT_LEVEL(level)                                 \
-  do {                                                             \
+#define LUCID_LOG_INIT_LEVEL(level)                                  \
+  do {                                                               \
     ::lucid::get_logger(::lucid::LoggerType::OUT)->set_level(level); \
     ::lucid::get_logger(::lucid::LoggerType::ERR)->set_level(level); \
   } while (0)
@@ -73,20 +73,18 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
 #include <iostream>
 #include <thread>
 
-#define LUCID_DEV(msg)                                                                                           \
+#define LUCID_DEV(msg)                                                                                          \
   do {                                                                                                          \
-    if (::lucid::get_logger(::lucid::LoggerType::ERR)->should_log(spdlog::level::err))                            \
+    if (::lucid::get_logger(::lucid::LoggerType::ERR)->should_log(spdlog::level::err))                          \
       fmt::println("[{:%Y-%m-%d %H:%M:%S}] [\033[1m\033[35mDEV\033[0m] [thread {}] " msg "",                    \
                    std::chrono::system_clock::now(), std::hash<std::thread::id>{}(std::this_thread::get_id())); \
-    std::cout << std::flush;                                                                                    \
   } while (0)
-#define LUCID_DEV_FMT(msg, ...)                                                                                 \
+#define LUCID_DEV_FMT(msg, ...)                                                                                \
   do {                                                                                                         \
-    if (::lucid::get_logger(::lucid::LoggerType::ERR)->should_log(spdlog::level::err))                           \
+    if (::lucid::get_logger(::lucid::LoggerType::ERR)->should_log(spdlog::level::err))                         \
       fmt::println("[{:%Y-%m-%d %H:%M:%S}] [\033[1m\033[35mDEV\033[0m] [thread {}] " msg "",                   \
                    std::chrono::system_clock::now(), std::hash<std::thread::id>{}(std::this_thread::get_id()), \
                    __VA_ARGS__);                                                                               \
-    std::cout << std::flush;                                                                                   \
   } while (0)
 
 #define LUCID_DEV_TRACE(msg) LUCID_DEV(msg)

@@ -7,6 +7,7 @@
 #include "lucid/math/TensorIterator.h"
 
 #include <ostream>
+#include <vector>
 
 #include "lucid/math/TensorView.h"
 

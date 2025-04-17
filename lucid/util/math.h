@@ -7,8 +7,8 @@
  */
 #pragma once
 
-#include <boost/math/distributions/normal.hpp>  // NOLINT(build/include_order)
-#include <cmath>
+#include <boost/math/distributions/normal.hpp>  // NOLINT(build/include_order): sorting non-issue
+#include <cmath>                                // NOLINT(build/include_order): sorting non-issue
 
 namespace lucid {
 /**

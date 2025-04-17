@@ -6,6 +6,9 @@
  */
 #include "lucid/math/MultiSet.h"
 
+#include <memory>
+#include <string>
+
 #include "lucid/util/error.h"
 
 namespace lucid {

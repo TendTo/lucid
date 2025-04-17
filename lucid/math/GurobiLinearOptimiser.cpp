@@ -6,7 +6,10 @@
  */
 #include "lucid/math/GurobiLinearOptimiser.h"
 
+#include <limits>
+#include <memory>
 #include <span>
+#include <utility>
 
 #include "lucid/lib/gurobi.h"
 #include "lucid/util/error.h"

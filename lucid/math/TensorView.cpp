@@ -6,8 +6,11 @@
  */
 #include "lucid/math/TensorView.h"
 
+#include <algorithm>
 #include <ostream>
 #include <set>
+#include <utility>
+#include <vector>
 
 #include "lucid/lib/pocketfft.h"
 #include "lucid/math/Tensor.h"
@@ -34,11 +37,11 @@ TensorView<T>::TensorView(std::span<const T> data, std::vector<std::size_t> dims
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorIterator<T> TensorView<T>::begin() const {
-  return {*this};
+  return TensorIterator<T>{*this};
 }
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorIterator<T> TensorView<T>::end() const {
-  return {*this, true};
+  return TensorIterator<T>{*this, true};
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
@@ -218,6 +221,7 @@ void TensorView<T>::fft_upsample(TensorView<double>& out) const {
   pad_out.view().ifft(out, coeff);
 
   // If we are dealing with a tensor where the dimensions have different sizes, we need to correct the scaling
+  // NOLINTNEXTLINE(whitespace/newline): false positive
   if (std::ranges::any_of(dims_, [this](const std::size_t d) { return d != dims_[0]; })) {
     for (double& d : out.m_data()) {
       for (const std::size_t dim : dims_) d *= coeff / static_cast<double>(dim);

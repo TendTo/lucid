@@ -9,6 +9,7 @@
 
 #include <complex>
 #include <iosfwd>
+#include <limits>
 #include <numeric>
 #include <span>
 #include <vector>

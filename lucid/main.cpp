@@ -99,7 +99,8 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, Scalar s
                      const int num_frequencies_per_dimension) {
   if (sigma_l.size() < 1) throw std::invalid_argument("sigma_l must have at least one element");
 
-  const Vector omega_dim_wise_lb = (2 * std::numbers::pi * arange(0, num_frequencies_per_dimension)).array() - std::numbers::pi;
+  const Vector omega_dim_wise_lb =
+      (2 * std::numbers::pi * arange(0, num_frequencies_per_dimension)).array() - std::numbers::pi;
   const Vector omega_dim_wise_ub = omega_dim_wise_lb.array() + 2 * std::numbers::pi;
 
   Matrix prob_dim_wise{dimension, num_frequencies_per_dimension};
@@ -187,8 +188,7 @@ int main(int, char**) {
     std::cout << val << std::endl;
   }
 
-  t.permute(1, 0);
-  std::cout << t << std::endl;
+  std::cout << t.permute(1, 0) << std::endl;
 
   for (const auto& val : t) {
     std::cout << val << std::endl;

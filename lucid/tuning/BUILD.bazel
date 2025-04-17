@@ -30,11 +30,10 @@ lucid_cc_library(
     ],
     implementation_deps = [
         "//lucid/lib:eigen",
-        "//lucid/math:gram_matrix",
-        "//lucid/util:error",
         "//lucid/util:logging",
         "@lbfgscpp",
     ],
+    tags = ["no-dwyu"],
     deps = [
         "//lucid/math:kernel",
         "//lucid/math:sampler",

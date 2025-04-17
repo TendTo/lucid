@@ -6,6 +6,9 @@
  */
 #include "lucid/math/Tensor.h"
 
+#include <utility>
+#include <vector>
+
 #include "lucid/util/error.h"
 
 namespace lucid {

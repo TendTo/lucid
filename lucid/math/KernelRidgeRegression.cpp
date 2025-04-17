@@ -6,6 +6,8 @@
  */
 #include "KernelRidgeRegression.h"
 
+#include <utility>
+
 #include "lucid/math/GaussianKernel.h"
 #include "lucid/math/GramMatrix.h"
 #include "lucid/util/error.h"

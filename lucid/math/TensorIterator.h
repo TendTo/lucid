@@ -9,6 +9,7 @@
 
 #include <complex>
 #include <iosfwd>
+#include <vector>
 
 #include "lucid/util/IndexIterator.h"
 #include "lucid/util/concept.h"
@@ -37,7 +38,7 @@ class TensorIterator {
    * @param tensor tensor to iterate over
    * @param end if true, the iterator will be exhausted immediately, indicating that there is nothing else to iterate
    */
-  TensorIterator(const TensorView<T>& tensor, bool end = false);
+  explicit TensorIterator(const TensorView<T>& tensor, bool end = false);
 
   /** @getter{indexes, tensor} */
   [[nodiscard]] const std::vector<long>& indexes() const { return indexes_.indexes(); }

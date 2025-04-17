@@ -6,6 +6,8 @@
  */
 #include "lucid/tuning/MedianHeuristicOptimiser.h"
 
+#include <memory>
+
 #include "lucid/lib/eigen.h"
 #include "lucid/util/logging.h"
 

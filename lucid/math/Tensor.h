@@ -8,6 +8,7 @@
 #pragma once
 
 #include <complex>
+#include <limits>
 #include <numeric>
 #include <span>
 #include <vector>

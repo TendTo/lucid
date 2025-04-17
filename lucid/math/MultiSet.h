@@ -11,6 +11,8 @@
 #include <memory>
 #include <random>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "lucid/math/Set.h"
 

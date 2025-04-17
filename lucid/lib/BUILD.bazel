@@ -38,15 +38,12 @@ lucid_cc_library(
     name = "gurobi",
     srcs = ["gurobi.cpp"],
     hdrs = ["gurobi.h"],
-    deps = [
-        "@gurobi",
-    ],
+    tags = ["no-dwyu"],
+    deps = ["@gurobi"],
 )
 
 lucid_cc_library(
     name = "pocketfft",
     hdrs = ["pocketfft.h"],
-    deps = [
-        "@pocketfft",
-    ],
+    deps = ["@pocketfft"],
 )

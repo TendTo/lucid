@@ -10,6 +10,7 @@
 #include <LBFGS.h>
 
 #include <iostream>
+#include <memory>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/util/logging.h"

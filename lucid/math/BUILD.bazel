@@ -74,15 +74,13 @@ lucid_cc_library(
         "TruncatedFourierFeatureMap.h",
     ],
     implementation_deps = [
-        "//lucid/util:error",
         "//lucid/util:index_iterator",
+        "//lucid/util:logging",
         "//lucid/util:math",
     ],
     deps = [
-        ":kernel",
         ":set",
         "//lucid/lib:eigen",
-        "//lucid/util:logging",
     ],
 )
 
@@ -123,7 +121,6 @@ lucid_cc_library(
         "//conditions:default": [],
     }),
     deps = [
-        ":kernel",
         "//lucid/lib:eigen",
         "//lucid/util:logging",
     ],

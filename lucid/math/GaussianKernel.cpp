@@ -7,6 +7,7 @@
 #include "lucid/math/GaussianKernel.h"
 
 #include <cmath>
+#include <memory>
 #include <utility>
 
 #include "lucid/util/error.h"

@@ -6,6 +6,8 @@
  */
 #include "lucid/tuning/Optimiser.h"
 
+#include <memory>
+
 #include "lucid/math/GaussianKernel.h"
 #include "lucid/tuning/LbfgsOptimiser.h"
 

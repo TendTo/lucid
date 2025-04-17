@@ -4,7 +4,6 @@
  * @licence BSD 3-Clause License
  * @file
  */
-
 #include "lucid/util/logging.h"
 
 #ifndef NLOG

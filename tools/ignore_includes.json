@@ -4,6 +4,7 @@
     "gmpxx.h",
     "soplex.h",
     "qsopt_ex/QSopt_ex.h",
-    "FlexLexer.h"
+    "FlexLexer.h",
+    "gurobi_c++.h"
   ]
 }

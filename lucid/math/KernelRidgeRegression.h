@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <utility>
+
 #include "lucid/math/Kernel.h"
 #include "lucid/math/Regression.h"
 #include "lucid/util/concept.h"

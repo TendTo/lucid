@@ -22,13 +22,10 @@ using namespace lucid;
 
 class PyKernel : public Kernel {
  public:
-  /* Inherit the constructors */
   using Kernel::Kernel;
-
   Scalar operator()(const Vector &x1, const Vector &x2) const override {
     PYBIND11_OVERRIDE_PURE_NAME(Scalar, Kernel, "__call__", operator(), x1, x2);
   }
-
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override {
     pybind11::pybind11_fail("Tried to call pure virtual function \"Kernel::clone\"");
   }
@@ -39,9 +36,7 @@ class PyKernel : public Kernel {
 
 class PyRegression : public Regression {
  public:
-  /* Inherit the constructors */
   using Regression::Regression;
-
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(Matrix, Regression, "__call__", operator(), x);
   }
@@ -49,18 +44,14 @@ class PyRegression : public Regression {
 
 class PySet : public Set {
  public:
-  /* Inherit the constructors */
   using Set::Set;
-
   [[nodiscard]] Dimension dimension() const override { PYBIND11_OVERRIDE_PURE(Dimension, Set, dimension); }
   [[nodiscard]] Matrix sample_element(Index num_samples) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, sample_element, num_samples);
   }
-
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(bool, Set, "__call__", operator(), x);
   }
-
   [[nodiscard]] Matrix lattice(const Eigen::VectorX<Index> &points_per_dim, bool include_endpoints) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, include_endpoints);
   }
