@@ -10,6 +10,8 @@ from pylucid import (
     GaussianKernelRidgeRegression,
     project,
     GurobiLinearOptimiser,
+    LucidNotSupportedException,
+    GUROBI_BUILD
 )
 
 
@@ -55,9 +57,9 @@ class TestIntegration:
         assert x_lattice is not None
 
         f_lattice = tffm(x_lattice)
-        assert f_lattice.shape == (samples_per_dim**dimension, num_freq_per_dim**dimension * 2 - 1)
+        assert f_lattice.shape == (samples_per_dim ** dimension, num_freq_per_dim ** dimension * 2 - 1)
         fp_samples = tffm(xp_samples)
-        assert fp_samples.shape == (xp_samples.shape[0], num_freq_per_dim**dimension * 2 - 1)
+        assert fp_samples.shape == (xp_samples.shape[0], num_freq_per_dim ** dimension * 2 - 1)
 
         r = GaussianKernelRidgeRegression(k, x_samples, fp_samples, lmda)
         assert r is not None
@@ -65,8 +67,8 @@ class TestIntegration:
         if_lattice = r(x_lattice)
         assert if_lattice.shape == (144, 71)
 
-        w_mat = np.zeros((n_per_dim**dimension, fp_samples.shape[1]))
-        phi_mat = np.zeros((n_per_dim**dimension, fp_samples.shape[1]))
+        w_mat = np.zeros((n_per_dim ** dimension, fp_samples.shape[1]))
+        phi_mat = np.zeros((n_per_dim ** dimension, fp_samples.shape[1]))
         assert w_mat.shape == (576, 71)
         assert phi_mat.shape == (576, 71)
         for i in range(w_mat.shape[1]):
@@ -79,9 +81,9 @@ class TestIntegration:
         assert xu_lattice.shape == (1058, 2)
 
         f0_lattice = tffm(x0_lattice)
-        assert f0_lattice.shape == (1587, num_freq_per_dim**dimension * 2 - 1)
+        assert f0_lattice.shape == (1587, num_freq_per_dim ** dimension * 2 - 1)
         fu_lattice = tffm(xu_lattice)
-        assert fu_lattice.shape == (1058, num_freq_per_dim**dimension * 2 - 1)
+        assert fu_lattice.shape == (1058, num_freq_per_dim ** dimension * 2 - 1)
 
         o = GurobiLinearOptimiser(T, gamma, epsilon, b_norm, kappa_b, sigma_f)
 
@@ -92,6 +94,18 @@ class TestIntegration:
             assert math.isclose(c, 0, rel_tol=tolerance)
             assert math.isclose(norm, 10.39392985811301, rel_tol=tolerance)
 
-        assert o.solve(
-            f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension, num_freq_per_dim - 1, n_per_dim, dimension, check_cb
-        )
+        try:
+            assert o.solve(
+                f0_lattice,
+                fu_lattice,
+                phi_mat,
+                w_mat,
+                tffm.dimension,
+                num_freq_per_dim - 1,
+                n_per_dim,
+                dimension,
+                check_cb,
+            )
+            assert GUROBI_BUILD
+        except LucidNotSupportedException:
+            assert not GUROBI_BUILD  # Did not compile against Gurobi. Ignore this test.

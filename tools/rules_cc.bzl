@@ -149,6 +149,9 @@ def _get_defines(rule_defines):
     }) + select({
         "//tools:matplotlib_build": ["LUCID_MATPLOTLIB_BUILD"],
         "//conditions:default": [],
+    }) + select({
+        "//tools:gurobi_build": ["LUCID_GUROBI_BUILD"],
+        "//conditions:default": [],
     })
 
 def _get_static(rule_linkstatic):

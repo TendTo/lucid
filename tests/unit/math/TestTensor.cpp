@@ -118,12 +118,12 @@ TEST(TestTensor, Constructor1DInvalidElements) {
 }
 
 TEST(TestTensor, Pick1D) {
-  const Tensor<double> t(std::vector{1.0, 2.0}, std::vector<std::size_t>{2});
+  const Tensor<double> t{std::vector{1.0, 2.0}, std::vector<std::size_t>{2}};
   EXPECT_THROW(t(std::vector<std::size_t>{0, 0}), LucidInvalidArgumentException);
 }
 
 TEST(TestTensor, Constructor2D) {
-  const Tensor<double> t{std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector<std::size_t>{2, 4}};
+  const Tensor<double> t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}, std::vector<std::size_t>{2, 4}};
   EXPECT_EQ(t.size(), 8u);
 }
 

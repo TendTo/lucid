@@ -17,6 +17,7 @@
 
 namespace lucid {
 
+#ifdef LUCID_GUROBI_BUILD
 bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
                                   ConstMatrixRef w_mat, const Dimension rkhs_dim,
                                   const Dimension num_frequencies_per_dim,
@@ -168,5 +169,12 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   cb(true, model.get(GRB_DoubleAttr_ObjVal), eta.get(GRB_DoubleAttr_X), c.get(GRB_DoubleAttr_X), actual_norm);
   return true;
 }
+#else
+bool GurobiLinearOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
+                                  Dimension, Dimension, const SolutionCallback&) const {
+  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiLinearOptimiser::solve", "Gurobi");
+  return false;
+}
+#endif  // LUCID_GUROBI_BUILD
 
 }  // namespace lucid

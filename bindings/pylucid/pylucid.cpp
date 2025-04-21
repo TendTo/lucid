@@ -28,4 +28,16 @@ PYBIND11_MODULE(_pylucid, m) {
 #else
 #error "LUCID_VERSION_STRING is not defined"
 #endif
+  m.attr("MATPLOTLIB_BUILD")
+#ifdef LUCID_MATPLOTLIB_BUILD
+      = true;
+#else
+      = false;
+#endif
+  m.attr("GUROBI_BUILD")
+#ifdef LUCID_GUROBI_BUILD
+      = true;
+#else
+      = false;
+#endif
 }

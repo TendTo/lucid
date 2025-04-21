@@ -14,6 +14,11 @@ Other versions may work as well, but they have not been tested.
   - [msvc](https://visualstudio.microsoft.com/) 19.32.31332
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
+> [!NOTE]  
+> Both a Gurobi installation and a valid license are required to build and run Lucid.  
+> To indicate the location of the Gurobi installation, ensure that the `GUROBI_HOME` environment variable is set correctly.
+> Alternatively, provide the flag `--repo_env=GUROBI_HOME=/path/to/gurobi` when running Bazel.
+
 ### Building Lucid
 
 Assuming all requirements have been met, the first step is to obtain the source code by cloning the repository.
@@ -41,6 +46,24 @@ If you also want to run it immediately, taking advantage of the environment prov
 # Build and run lucid
 bazel run //lucid -- [args]
 ```
+
+### Build options
+
+Lucid comes with a few predefined build configuration for the most common use cases.
+
+- **default**: Default mode. Uses the default Bazel configuration for the current platform and compiler.
+- `--config=dbg`: Debug mode. It includes debug symbols, assertions and other general debugging information.
+- `--config=opt`: Release mode. It includes optimizations and no debug information.
+- `--config=bench`: Benchmark mode. It includes optimizations, a fully static and remove additional checks, further improving performance at the cost of safety.
+- `--config=py`: Python mode. It includes optimizations and a fully static build. Used to build the Python bindings.
+
+| Configuration | Optimisations | Debug symbols | Assertions | Checks | Static linking | Used for              |
+| ------------- | ------------- | ------------- | ---------- | ------ | -------------- | --------------------- |
+| **default**   | ?             | ?             | Yes        | Yes    | No             | A fast build          |
+| `dbg`         | No            | Yes           | Yes        | Yes    | No             | Testing and debugging |
+| `opt`         | Yes           | No            | No         | Yes    | No             | Production            |
+| `bench`       | Yes           | No            | No         | No     | Yes            | Benchmarking          |
+| `py`          | Yes           | No            | No         | No     | Yes            | Python bindings       |
 
 ## From Docker
 

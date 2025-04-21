@@ -39,7 +39,10 @@ lucid_cc_library(
     srcs = ["gurobi.cpp"],
     hdrs = ["gurobi.h"],
     tags = ["no-dwyu"],
-    deps = ["@gurobi"],
+    deps = select({
+        "//tools:gurobi_build": ["@gurobi"],
+        "//conditions:default": [],
+    }),
 )
 
 lucid_cc_library(
