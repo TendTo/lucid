@@ -28,6 +28,8 @@ class Optimiser {
    * @param num_samples number of samples to generate
    */
   explicit Optimiser(const Sampler& sampler, Dimension num_samples = 100);
+  Optimiser(const Optimiser&) = default;
+  Optimiser(Optimiser&&) = default;
   virtual ~Optimiser() = default;
   /**
    * Optimise the kernel hyperparameters.
