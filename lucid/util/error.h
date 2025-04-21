@@ -141,3 +141,12 @@
     LUCID_ERROR_FMT("{} is not supported.", msg);                                                   \
     throw ::lucid::exception::LucidNotSupportedException(fmt::format("{} is not supported.", msg)); \
   } while (false)
+
+#define LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY(msg, dependency)                                                        \
+  do {                                                                                                                 \
+    LUCID_ERROR_FMT("{} is not supported because the following dependency was not included during compilation: '{}'.", \
+                    msg, dependency);                                                                                  \
+    throw ::lucid::exception::LucidNotSupportedException(                                                              \
+        fmt::format("{} is not supported because the following dependency was not included during compilation: '{}'.", \
+                    msg, dependency));                                                                                 \
+  } while (false)

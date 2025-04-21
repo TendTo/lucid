@@ -31,16 +31,6 @@ const MultiSet initial_set{RectSet{Vector2{1, -0.5}, Vector2{2, 0.5}},         /
 const MultiSet unsafe_set{RectSet{Vector2{0.4, 0.1}, Vector2{0.6, 0.5}},       //
                           RectSet{Vector2{0.4, 0.1}, Vector2{0.8, 0.3}}};      ///< Unsafe set.
 
-// Matrix f_stoch(ConstMatrixRef x) {
-//   if (x.size() != 2) LUCID_INVALID_ARGUMENT_EXPECTED("x.size()", x.size(), 2);
-//   return f_det(x) + mvnrnd(Vector::Zero(2), Matrix::Identity(x.size(), x.size()) * 0.01);
-// }
-
-// Matrix f_det(ConstMatrixRef x) {
-//   if (x.size() != 2) LUCID_INVALID_ARGUMENT_EXPECTED("x.size()", x.size(), 2);
-//   return Vector2{x.data()[1], -x.data()[0] - x.data()[1] + 1.0 / 3.0 * std::pow(x.data()[0], 3)};
-// }
-
 class TestInitBarrier3 : public ::testing::Test {
  protected:
   TestInitBarrier3() {
@@ -94,25 +84,6 @@ class TestInitBarrier3 : public ::testing::Test {
   Matrix expected_x0_lattice;
   Matrix expected_xu_lattice;
 };
-
-#if 0
-Vector project(const Matrix& f, const Index n_per_dim, const Index samples_per_dim) {
-  // TODO(tend): this only works for 2 dimensions
-  // We do, in order:
-  // 1. Shift the zero frequency to the center
-  // 2. Pad the frequencies to increase the resolution
-  // 3. Unshift the zero frequency to the corner
-  // 4. Inverse FFT to get the interpolated function
-  // 5. Scale the matrix
-  // 6. Reshape the matrix to a vector
-  const Eigen::MatrixXcd f_fft{fft2(f.reshaped(samples_per_dim, samples_per_dim).transpose())};
-  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
-  Eigen::MatrixXcd padded_ft{pad(fftshift(f_fft), n_pad, std::complex<double>{})};
-  Matrix f_interp = ifft2(ifftshift(padded_ft)).array() * lucid::pow(n_per_dim / samples_per_dim, dimension);
-  // std::cout << "PAD:\n" << ifftshift(padded_ft) << std::endl;
-  return f_interp.reshaped(Eigen::AutoSize, 1);
-}
-#endif
 
 inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim) {
   if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
@@ -177,6 +148,7 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   const Matrix fu_lattice{tffm(xu_lattice)};
   ASSERT_TRUE(fu_lattice.isApprox(expected_fu_lattice, tolerance));
 
+#ifdef LUCID_GUROBI_BUILD
   GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
   const bool res = optimiser.solve(
       f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
@@ -188,4 +160,5 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
         EXPECT_NEAR(norm, 10.393929781427465, tolerance);
       });
   EXPECT_TRUE(res);
+#endif
 }

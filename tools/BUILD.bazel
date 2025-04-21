@@ -47,6 +47,11 @@ bool_flag(
     build_setting_default = True,
 )
 
+bool_flag(
+    name = "enable_gurobi_build",
+    build_setting_default = True,
+)
+
 ###########################################
 # Configuration settings
 ###########################################
@@ -69,6 +74,11 @@ config_setting(
 config_setting(
     name = "matplotlib_build",
     flag_values = {":enable_matplotlib_build": "True"},
+)
+
+config_setting(
+    name = "gurobi_build",
+    flag_values = {":enable_gurobi_build": "True"},
 )
 
 config_setting(
