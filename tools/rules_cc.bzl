@@ -359,6 +359,7 @@ def lucid_srcs(name, srcs = None, hdrs = None, deps = [], subfolder = "", visibi
         srcs: A list of source files include in the filegroup. If None, common c++ source files extensions will be used.
         hdrs: A list of header files to include in the filegroup. If None, common c++ header files extensions will be used.
         deps: A list of dependencies. Used for the all_srcs filegroup.
+        subfolder: The subfolder to use for the tarball.
         visibility: A list of visibility labels to apply to the filegroups.
     """
     if name == "srcs":
@@ -437,7 +438,7 @@ def lucid_pybind_library(
         copts = _get_copts(copts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
-        features = _get_features(features),
+        features = features,  # Do not use _get_features here, as it will add fully_static_link and that is not supported
         **kwargs
     )
 
@@ -461,6 +462,6 @@ def lucid_pybind_extension(name, srcs, deps = [], copts = [], linkstatic = None,
         copts = _get_copts(copts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
-        features = _get_features(features),
+        features = features,  # Do not use _get_features here, as it will add fully_static_link and that is not supported
         **kwargs
     )
