@@ -287,7 +287,7 @@ def lucid_cc_test(
         srcs = ["".join([word.capitalize() for word in name.split("_")]) + ".cpp"]
     if deps == None:
         deps = []
-    if len(data) > 0:
+    if data:
         deps.append("@rules_cc//cc/runfiles")
     cc_test(
         name = name,
