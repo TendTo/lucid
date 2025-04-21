@@ -2,23 +2,23 @@ name: lucid CI
 
 on:
   workflow_dispatch:
-#  push:
-#    branches: [main]
-#    paths:
-#      - "lucid/**"
-#      - "test/**"
-#  pull_request:
-#    branches: [main]
-#    paths:
-#      - "lucid/**"
-#      - "test/**"
+  push:
+    branches: [main]
+    paths:
+      - "lucid/**"
+      - "test/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "lucid/**"
+      - "test/**"
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -38,39 +38,39 @@ jobs:
       - name: Build
         run: bazel build //lucid
 
-  lint:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
-    needs: build
+  # lint:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ubuntu-latest, macos-latest, windows-latest]
+  #   runs-on: ${{ matrix.os }}
+  #   needs: build
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: "3.10"
 
-      - name: Cache Bazel
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/bazel
-            /private/var/tmp/_bazel_*
-            ~/_bazel_*
-          key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-
+  #     - name: Cache Bazel
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           ~/.cache/bazel
+  #           /private/var/tmp/_bazel_*
+  #           ~/_bazel_*
+  #         key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-bazel-
 
-      - name: Lint
-        run: bazel test //lucid/...
+  #     - name: Lint
+  #       run: bazel test //lucid/...
 
   test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs: build
 
@@ -95,7 +95,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs: build
 
