@@ -19,6 +19,10 @@ namespace lucid {
  */
 class Regression {
  public:
+  Regression(const Regression&) = default;
+  Regression(Regression&&) = default;
+  Regression& operator=(const Regression&) = default;
+  Regression& operator=(Regression&&) = default;
   virtual ~Regression() = default;
   /**
    * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}

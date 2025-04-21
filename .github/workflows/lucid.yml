@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Build
-        run: bazel build //lucid --enable_gurobi_build=False
+        run: bazel build --enable_gurobi_build=False //lucid
 
   # lint:
   #   strategy:
@@ -90,6 +90,7 @@ jobs:
 
       - name: Test
         run: bazel test //tests/unit/... --enable_gurobi_build=False
+        run: bazel test --enable_gurobi_build=False //tests/unit/...
 
   integration-test:
     strategy:
@@ -114,7 +115,7 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Test
-        run: bazel test //tests/integration/... --enable_gurobi_build=False
+        run: bazel test --enable_gurobi_build=False //tests/integration/...
 
   dwyu:
     strategy:
@@ -139,4 +140,4 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Test
-        run: bazel build //lucid --enable_gurobi_build=False --config=dwyu
+        run: bazel build --enable_gurobi_build=False --config=dwyu //lucid

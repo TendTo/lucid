@@ -22,6 +22,10 @@ class Kernel {
  public:
   explicit Kernel(const Dimension num_params = 0) : parameters_{num_params} {}
   explicit Kernel(Vector params) : parameters_{std::move(params)} {}
+  Kernel(const Kernel&) = default;
+  Kernel(Kernel&&) = default;
+  Kernel& operator=(const Kernel&) = default;
+  Kernel& operator=(Kernel&&) = default;
   virtual ~Kernel() = default;
 
   /** @getter{hyperparameters, kernel} */

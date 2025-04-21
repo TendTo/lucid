@@ -121,7 +121,7 @@ TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen:
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
-  LUCID_CHECK_ARGUMENT(std::ranges::all_of(padding, [this](const auto& p) { return p.first >= 0 && p.second >= 0; }),
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(padding, [](const auto& p) { return p.first >= 0 && p.second >= 0; }),
                        "padding", "must be non-negative");
   LUCID_CHECK_ARGUMENT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
                                            [padding, &out, this](std::size_t i) {
@@ -174,7 +174,8 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
     for (std::size_t i = 0; i < dims_.size() - 1; i++) {
       if (output_idx[i] >= start_padding[i]) output_idx[i] += padding[i];
     }
-    const std::span<const T> in_data_start_half = data_.subspan(index(std::span<const Index>{it}), start_padding.back());
+    const std::span<const T> in_data_start_half =
+        data_.subspan(index(std::span<const Index>{it}), start_padding.back());
     const std::span<const T> in_data_end_half =
         data_.subspan(index(std::span<const Index>{it}) + start_padding.back(), dims_.back() - start_padding.back());
     std::copy(in_data_start_half.begin(), in_data_start_half.end(),

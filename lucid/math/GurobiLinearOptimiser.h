@@ -26,6 +26,19 @@ class GurobiLinearOptimiser {
    */
   using SolutionCallback = std::function<void(bool, double, double, double, double)>;
 
+  /* @getter{time horizon, solver} */
+  [[nodiscard]] int T() const { return T_; }
+  /* @getter{gamma, solver} */
+  [[nodiscard]] double gamma() const { return gamma_; }
+  /* @getter{epsilon, solver} */
+  [[nodiscard]] double epsilon() const { return epsilon_; }
+  /* @getter{b_norm, solver} */
+  [[nodiscard]] double b_norm() const { return b_norm_; }
+  /* @getter{kappa, solver} */
+  [[nodiscard]] double b_kappa() const { return b_kappa_; }
+  /* @getter{sigma_f, solver} */
+  [[nodiscard]] double sigma_f() const { return sigma_f_; }
+
   /**
    * Construct a new GurobiLinearOptimiser object.
    * @param T time horizon

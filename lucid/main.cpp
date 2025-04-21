@@ -6,7 +6,6 @@
  * @file
  */
 #include <fmt/core.h>
-#include <gurobi_c++.h>
 
 #include <chrono>
 #include <iostream>
@@ -23,10 +22,10 @@
 
 using namespace lucid;  // NOLINT
 
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#pragma GCC diagnostic ignored "-Wunused-function"
+// #pragma GCC diagnostic ignored "-Wunused-variable"
+// #pragma GCC diagnostic ignored "-Wunused-parameter"
+// #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+// #pragma GCC diagnostic ignored "-Wunused-function"
 
 namespace {
 
@@ -201,4 +200,4 @@ int main(int, char**) {
 #endif
 }
 
-#pragma GCC diagnostic pop
+// #pragma GCC diagnostic pop
