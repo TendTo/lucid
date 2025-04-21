@@ -725,6 +725,7 @@ TEST(TestTensor, ToMatrixInvalid) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
                  std::vector<std::size_t>{2, 2, 3}};
   EXPECT_THROW(
-      (static_cast<Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(t)),
+      static_cast<void>(
+          (static_cast<Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(t))),
       LucidNotSupportedException);
 }

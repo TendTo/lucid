@@ -11,11 +11,16 @@ pylucid_py_test(name = "test_regression")
 pylucid_py_test(
     name = "test_integration",
     data = [
-        "gurobi.lic",
         "x_samples.matrix",
         "xp_samples.matrix",
-    ],
-    env = {"GRB_LICENSE_FILE": "$(location gurobi.lic)"},
+    ] + select({
+        "//tools:gurobi_build": ["gurobi.lic"],
+        "//conditions:default": [],
+    }),
+    env = select({
+        "//tools:gurobi_build": {"GRB_LICENSE_FILE": "$(location gurobi.lic)"},
+        "//conditions:default": {},
+    }),
 )
 
 pylucid_py_test(name = "test_set")
