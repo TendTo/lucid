@@ -26,7 +26,7 @@ class GurobiLinearOptimiser {
    */
   using SolutionCallback = std::function<void(bool, double, double, double, double)>;
 
-  /* @getter{time horizon, solver} */
+  /** @getter{time horizon, solver} */
   [[nodiscard]] int T() const { return T_; }
   /* @getter{gamma, solver} */
   [[nodiscard]] double gamma() const { return gamma_; }

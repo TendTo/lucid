@@ -58,8 +58,8 @@ concept MapFromTo = requires(T t) {
  */
 template <class T>
 concept SelfReferenceCounter = requires(T t) {
-  { t.AddRef() };   // NOLINT(readability/braces) per C++ standard concept definition
-  { t.Release() };  // NOLINT(readability/braces) per C++ standard concept definition
+  { t.add_ref() } -> std::same_as<void>;
+  { t.release() } -> std::same_as<void>;
 };  // NOLINT(readability/braces) per C++ standard concept definition
 
 /**
@@ -158,7 +158,7 @@ template <class T>
 concept Arithmetic = requires(T a, T b) {
   { a + b } -> std::convertible_to<T>;
   { a - b } -> std::convertible_to<T>;
-  { a* b } -> std::convertible_to<T>;
+  { a * b } -> std::convertible_to<T>;
   { a / b } -> std::convertible_to<T>;
 };  // NOLINT(readability/braces) per C++ standard concept definition
 
