@@ -30,10 +30,12 @@ def _gurobi_repository_impl(rctx):
     Args:
         rctx: The context object for the repository rule.
     """
-    gurobi_home = rctx.getenv("GUROBI_HOME")
-    if gurobi_home == None or gurobi_home == "":
+    gurobi_home = rctx.getenv("GUROBI_HOME") or rctx.attr.default_gurobi_home
+    if gurobi_home == _UNSET:
         fail("The environment variable GUROBI_HOME is not set. " +
-             "Please set it to the path of your Gurobi installation or add the flag --repo_env=GUROBI_HOME=<gurobi/installation/path>")
+             "Please set it to the path of your Gurobi installation," +
+             "add the flag --repo_env=GUROBI_HOME=<gurobi/installation/path>" +
+             "or use the 'default_gurobi_home' param in the repository rule")
 
     if (rctx.attr.build_file == None) == (rctx.attr.build_file_content == _UNSET):
         fail("exactly one of `build_file` and `build_file_content` must be specified")
@@ -77,6 +79,10 @@ gurobi_repository = repository_rule(
         ),
         "build_file_content": attr.string(
             doc = "The content of the BUILD file to be created for this repo.\n\nExactly one of `build_file` and `build_file_content` must be specified.",
+            default = _UNSET,
+        ),
+        "default_gurobi_home": attr.string(
+            doc = "The default Gurobi installation path.\n\nThis is used if the GUROBI_HOME environment variable is not set.",
             default = _UNSET,
         ),
     },
