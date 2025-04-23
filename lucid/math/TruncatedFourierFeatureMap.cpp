@@ -15,7 +15,7 @@
 
 namespace lucid {
 
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencies, const Dimension input_dimension,
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Dimension input_dimension,
                                                        ConstVectorRef sigma_l, Scalar sigma_f, Matrix x_limits)
     : num_frequencies_per_dimension_{num_frequencies},
       omega_{::lucid::pow(num_frequencies, input_dimension), input_dimension},
@@ -58,7 +58,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const long num_frequencie
     if (i != 0) weights_(2 * i - 1) = single_weights(i);
   }
 }
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension,
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension,
                                                        ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& x_limits)
     : TruncatedFourierFeatureMap{num_frequencies, input_dimension, sigma_l, sigma_f, static_cast<Matrix>(x_limits)} {}
 

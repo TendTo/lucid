@@ -19,6 +19,7 @@ namespace lucid {
 std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type) {
   // Checks if there exists a logger with the name. If it exists, return it.
   const char *logger_name = logger_type == LoggerType::OUT ? "lucid_out" : "lucid_err";
+  // NOLINTNEXTLINE(build/include_what_you_use): false positive
   std::shared_ptr<spdlog::logger> logger{spdlog::get(logger_name)};
   if (logger) return logger;
 

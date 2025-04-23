@@ -76,9 +76,9 @@ class TestInitCSOvertaking : public ::testing::Test {
 };
 
 inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim) {
-  if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
+  if constexpr (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
 
-  const int n_pad = floor((n_per_dim / 2 - samples_per_dim / 2));
+  const int n_pad = static_cast<int>(floor(static_cast<double>(n_per_dim / 2 - samples_per_dim / 2)));
   // Get a view of the input data
   const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
                                    std::vector<std::size_t>(dimension, samples_per_dim)};
@@ -132,8 +132,8 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   const Matrix f0_lattice{tffm(x0_lattice)};
   const Matrix fu_lattice{tffm(xu_lattice)};
 
+  [[maybe_unused]] GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
 #ifdef LUCID_GUROBI_BUILD
-  GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
   const bool res = optimiser.solve(
       f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
       [](const bool success, const double obj_val, const double eta, const double c, const double norm) {

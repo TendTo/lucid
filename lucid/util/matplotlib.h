@@ -27,20 +27,22 @@
 #endif
 
 #include <array>
+#include <map>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #ifndef WITHOUT_EIGEN
 #include "lucid/lib/eigen.h"
 #endif
 
 namespace py = pybind11;
-using namespace py::literals;
+using namespace py::literals;  // NOLINT(build/namespaces_literals): standard use of literals
 
 namespace lucid::plt {
 namespace internal {
 
-static std::string backend_;
+static std::string backend_;  // NOLINT(runtime/string): the backend string is a global variable
 
 #if __GNUC__ >= 4
 #define HIDDEN __attribute__((visibility("hidden")))
@@ -120,7 +122,7 @@ class HIDDEN Interpreter {
   auto rcParams() const { return pyplot_.attr("rcParams"); }
   py::function spy() const { return pyplot_.attr("spy"); }
 
-  py::object get_3d_axis(const long fig_number) {
+  py::object get_3d_axis(const int fig_number) {
     const py::object fig = fig_number >= 0 ? figure()(fig_number) : gcf()();
     if (fig.is_none()) throw std::runtime_error("Call to figure() failed.");
     const py::list fig_axes = fig.attr("axes");
@@ -160,7 +162,7 @@ class HIDDEN Interpreter {
  * @param name The name of the backend to use.
  * @see https://matplotlib.org/stable/users/explain/figure/backends.html
  */
-inline void backend(const std::string& name) { internal::backend_ = name; }
+inline void backend(const std::string& name) { internal::Interpreter::set_backend(name); }
 
 /**
  * Annotate the point xy with `text`.
@@ -181,11 +183,11 @@ inline bool annotate(const std::string& text, const double x, const double y) {
  * @param fig_number number of the figure to select. If negative, a new figure is created.
  * @return the figure number
  */
-inline long figure(const long fig_number = -1) {
+inline int figure(const int fig_number = -1) {
   const py::object res =
       fig_number >= 0 ? internal::Interpreter::get().figure()(fig_number) : internal::Interpreter::get().figure()();
   if (!res) throw std::runtime_error("Call to figure() failed.");
-  return res.attr("number").cast<long>();
+  return res.attr("number").cast<int>();
 }
 
 /** Keyword arguments for the plot function */
@@ -228,7 +230,7 @@ template <template <class NumericX> class ContainerX, class NumericX, template <
 void plot_surface(const std::vector<std::vector<Numeric>>& x, const std::vector<std::vector<Numeric>>& y,
                   const std::vector<std::vector<Numeric>>& z,
                   const std::map<std::string, std::string>& keywords = std::map<std::string, std::string>(),
-                  const long fig_number = 0) {
+                  const int fig_number = 0) {
   internal::_interpreter::get();
 
   // We lazily load the modules here the first time this function is called
@@ -579,7 +581,7 @@ struct ScatterKwargs {
   double s = 1.0;          ///< The marker size in points**2.
   std::string c = "b";     ///< The marker color.
   std::string zdir = "z";  ///< The direction to use as z (‘x’, ‘y’ or ‘z’).
-  long fig_number = -1;    ///< The figure number.
+  int fig_number = -1;     ///< The figure number.
   char marker = 'o';       ///< The marker style.
 };
 
@@ -620,7 +622,6 @@ bool scatter(const ContainerX& x, const ContainerY& y, const ContainerZ& z, cons
   if (!scatter) throw std::runtime_error("No 3D line plot");
   return static_cast<bool>(
       scatter(x, y, z, "zdir"_a = kwargs.zdir, "s"_a = kwargs.s, "c"_a = kwargs.c, "marker"_a = kwargs.marker));
-  ;
 }
 
 }  // namespace lucid::plt

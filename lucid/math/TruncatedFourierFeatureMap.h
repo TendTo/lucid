@@ -40,9 +40,9 @@ namespace lucid {
  */
 class TruncatedFourierFeatureMap final : public FeatureMap {
  public:
-  TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
+  TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
                              Matrix x_limits);
-  TruncatedFourierFeatureMap(long num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
+  TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
                              const RectSet& x_limits);
 
   /**
@@ -73,14 +73,14 @@ class TruncatedFourierFeatureMap final : public FeatureMap {
   /** @getter{weights matrix, truncated Fourier feature map} */
   [[nodiscard]] const Vector& weights() const { return weights_; }
   /** @getter{number of frequencies per dimension, truncated Fourier feature map} */
-  [[nodiscard]] long num_frequencies() const { return num_frequencies_per_dimension_; }
+  [[nodiscard]] int num_frequencies() const { return num_frequencies_per_dimension_; }
 
  private:
-  long num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
-  Matrix omega_;                        ///< Frequencies matrix
-  Vector weights_;                      ///< Weights matrix
-  Scalar sigma_f_;                      ///< Sigma_f value
-  Matrix x_limits_;                     ///< Limits of the input space expressed as a matrix. The set is a rectangle
+  int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
+  Matrix omega_;                       ///< Frequencies matrix
+  Vector weights_;                     ///< Weights matrix
+  Scalar sigma_f_;                     ///< Sigma_f value
+  Matrix x_limits_;                    ///< Limits of the input space expressed as a matrix. The set is a rectangle
 };
 
 }  // namespace lucid
