@@ -1,3 +1,5 @@
+"""Test the pylucid bindings."""
+
 load("@pypi//:requirements.bzl", "requirement")
 load("//tools:pytest.bzl", "pylucid_gurobi_py_test", "pylucid_py_test")
 

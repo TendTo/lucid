@@ -1,0 +1,66 @@
+load("//tools:cpplint.bzl", "cpplint")
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_srcs")
+
+package(default_visibility = [
+    "//bindings:__subpackages__",
+    "//lucid:__subpackages__",
+    "//tests:__subpackages__",
+])
+
+lucid_srcs(name = "srcs")
+
+lucid_hdrs_tar(
+    name = "hdrs_tar",
+    subfolder = "ltl",
+)
+
+cpplint()
+
+lucid_cc_library(
+    name = "atomic_proposition",
+    srcs = ["AtomicProposition.cpp"],
+    hdrs = ["AtomicProposition.h"],
+    implementation_deps = ["//lucid/util:error"],
+    deps = ["//lucid/util:logging"],
+)
+
+lucid_cc_library(
+    name = "operator",
+    srcs = ["Operator.cpp"],
+    hdrs = ["Operator.h"],
+    implementation_deps = ["//lucid/util:error"],
+    deps = ["//lucid/util:logging"],
+)
+
+lucid_cc_library(
+    name = "formula",
+    srcs = [
+        "Formula.cpp",
+        "FormulaImpl.cpp",
+        "FormulaPair.cpp",
+    ],
+    hdrs = [
+        "Formula.h",
+        "FormulaImpl.h",
+        "FormulaPair.h",
+    ],
+    implementation_deps = ["//lucid/util:error"],
+    deps = [
+        ":atomic_proposition",
+        ":operator",
+        "//lucid/util:hash",
+        "//lucid/util:intrusize_ptr",
+        "//lucid/util:logging",
+        "//lucid/util:self_reference_counting_object",
+    ],
+)
+
+lucid_cc_library(
+    name = "ltl",
+    hdrs = ["ltl.h"],
+    deps = [
+        ":atomic_proposition",
+        ":formula",
+        ":operator",
+    ],
+)

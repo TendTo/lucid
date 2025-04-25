@@ -1,4 +1,4 @@
-"""Tests for the util submodule."""
+"""Tests for the math submodule."""
 
 load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 

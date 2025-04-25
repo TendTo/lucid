@@ -14,6 +14,20 @@
 namespace lucid {
 
 /**
+ * Check if the type `T` is an object that has a `hash()` method.
+ * The `hash()` method must return a value convertible to `std::size_t`.
+ * @code
+ * template <Hashable T>
+ * void foo(T t); // T has to have a hash() method returning an std::size_t
+ * @endcode
+ * @tparam T type to check
+ */
+template <class T>
+concept Hashable = requires(T t) {
+  { t.hash() } -> std::convertible_to<std::size_t>;
+};  // NOLINT(readability/braces) per C++ standard concept definition
+
+/**
  * Check if the type `T` is a data container of type `U` having a `data()` method which returns a raw pointer
  * and a `size()` method which returns the size of the container.
  * @code
@@ -158,7 +172,7 @@ template <class T>
 concept Arithmetic = requires(T a, T b) {
   { a + b } -> std::convertible_to<T>;
   { a - b } -> std::convertible_to<T>;
-  { a * b } -> std::convertible_to<T>;
+  { a* b } -> std::convertible_to<T>;
   { a / b } -> std::convertible_to<T>;
 };  // NOLINT(readability/braces) per C++ standard concept definition
 

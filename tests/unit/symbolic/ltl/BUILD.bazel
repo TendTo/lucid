@@ -1,0 +1,16 @@
+"""Tests for the symbolic/ltl submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_atomic_proposition",
+    deps = ["//lucid/symbolic/ltl:atomic_proposition"],
+)
+
+lucid_cc_googletest(
+    name = "test_formula",
+    deps = [
+        "//lucid/symbolic/ltl:formula",
+        "//lucid/util:exception",
+    ],
+)
