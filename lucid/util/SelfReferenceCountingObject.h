@@ -34,7 +34,7 @@ namespace lucid {
 class SelfReferenceCountingObject {
  public:
   /** @addref{object} */
-  void add_ref() {
+  void add_ref() const {
 #ifdef LUCID_THREAD_SAFE
     ref_count_.fetch_add(1);
 #else
@@ -42,7 +42,7 @@ class SelfReferenceCountingObject {
 #endif
   }
   /** @release{object} */
-  void release() {
+  void release() const {
 #ifdef LUCID_THREAD_SAFE
     if (ref_count_.fetch_sub(1) == 1) {
 #else
@@ -70,9 +70,9 @@ class SelfReferenceCountingObject {
 
  private:
 #ifdef LUCID_THREAD_SAFE
-  std::atomic<std::size_t> ref_count_;  ///< Thread safe reference counter
+  mutable std::atomic<std::size_t> ref_count_;  ///< Thread safe reference counter
 #else
-  std::size_t ref_count_{0};  ///< Reference counter
+  mutable std::size_t ref_count_{0};  ///< Reference counter
 #endif
 };  // NOLINT(readability/braces) per C++ standard concept definition
 
