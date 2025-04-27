@@ -52,15 +52,13 @@ void MultiSet::plot3d(const std::string& color) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const MultiSet& set) {
-  os << "MultiSet\n";
-  bool first = false;
+  os << "MultiSet(";
+  bool first = true;
   for (const std::unique_ptr<Set>& s : set.sets()) {
-    if (!first) {
-      os << '\n';
-      first = true;
-    }
+    if (!first) os << ', ';
     os << *s;
+    first = false;
   }
-  return os;
+  return os << ")";
 }
 }  // namespace lucid

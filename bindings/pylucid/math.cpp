@@ -124,6 +124,7 @@ void init_math(py::module_ &m) {
       .def("__str__", STRING_LAMBDA(Set));
   py::class_<RectSet, Set>(m, "RectSet")
       .def(py::init<Vector, Vector, int>(), py::arg("lb"), py::arg("ub"), py::arg("seed") = -1)
+      .def(py::init<std::vector<std::pair<Scalar, Scalar>>, int>(), py::arg("bounds"), py::arg("seed") = -1)
       .def_property_readonly("lower_bound", &RectSet::lower_bound)
       .def_property_readonly("upper_bound", &RectSet::upper_bound)
       .def("__str__", STRING_LAMBDA(RectSet));

@@ -10,6 +10,7 @@
 using lucid::Index;
 using lucid::Matrix;
 using lucid::RectSet;
+using lucid::Scalar;
 using lucid::Vector;
 using lucid::Vector2;
 
@@ -22,6 +23,24 @@ TEST(TestRectSet, Contains) {
   EXPECT_FALSE(set(Vector2{1.1, 1}));
   EXPECT_FALSE(set(Vector2{0, 1.1}));
   EXPECT_FALSE(set(Vector2{0, -1.1}));
+}
+
+TEST(TestRectSet, ContainsPairs) {
+  const RectSet set{std::pair<Scalar, Scalar>{-1, 1}, std::pair<Scalar, Scalar>{-1, 1}};
+  EXPECT_TRUE(set(Vector2{0, 0}));
+  EXPECT_TRUE(set(Vector2{-1, -1}));
+  EXPECT_TRUE(set(Vector2{1, 1}));
+  EXPECT_FALSE(set(Vector2{-1.1, -1}));
+  EXPECT_FALSE(set(Vector2{1.1, 1}));
+  EXPECT_FALSE(set(Vector2{0, 1.1}));
+  EXPECT_FALSE(set(Vector2{0, -1.1}));
+}
+
+TEST(TestRectSet, Multidimensional) {
+  const RectSet set_vectors{Eigen::Vector<Scalar, 5>{-1, -2, -3, -4, -5}, Eigen::Vector<Scalar, 5>{2, 3, 4, 5, 6}};
+  const RectSet set_pairs{{-1.0, 2.0}, {-2.0, 3.0}, {-3.0, 4.0}, {-4.0, 5.0}, {-5.0, 6.0}};
+  EXPECT_EQ(set_vectors.lower_bound(), set_pairs.lower_bound());
+  EXPECT_EQ(set_vectors.upper_bound(), set_pairs.upper_bound());
 }
 
 TEST(TestRectSet, VectorSample) {

@@ -28,6 +28,19 @@ Vector initializer_list_to_vector(std::initializer_list<Scalar> list) {
   std::ranges::copy(list, v.data());
   return v;
 }
+template <int I, template <class> class T>
+Vector bounds_to_vector(const T<std::pair<Scalar, Scalar>>& bounds) {
+  Vector v(bounds.size());
+  Index i = 0;
+  for (const std::pair<Scalar, Scalar> bound : bounds) {
+    if constexpr (I == 0) {
+      v(i++) = bound.first;
+    } else {
+      v(i++) = bound.second;
+    }
+  }
+  return v;
+}
 
 }  // namespace
 
@@ -38,6 +51,10 @@ RectSet::RectSet(Vector lb, Vector ub, const int seed) : lb_{std::move(lb)}, ub_
 }
 RectSet::RectSet(const std::initializer_list<Scalar> lb, const std::initializer_list<Scalar> ub, const int seed)
     : RectSet{initializer_list_to_vector(lb), initializer_list_to_vector(ub), seed} {}
+RectSet::RectSet(std::vector<std::pair<Scalar, Scalar>> bounds, const int seed)
+    : RectSet{bounds_to_vector<0, std::vector>(bounds), bounds_to_vector<1, std::vector>(bounds), seed} {}
+RectSet::RectSet(std::initializer_list<std::pair<Scalar, Scalar>> bounds, const int seed)
+    : RectSet{bounds_to_vector<0>(bounds), bounds_to_vector<1>(bounds), seed} {}
 
 bool RectSet::operator()(ConstMatrixRef x) const {
   if (x.rows() != lb_.rows() || x.cols() != lb_.cols()) {
@@ -102,7 +119,7 @@ Matrix RectSet::sample_element(const Index num_samples) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const RectSet& set) {
-  return os << fmt::format("RectInterval[[{}], [{}]]", set.lower_bound(), set.upper_bound());
+  return os << fmt::format("RectInterval([{}], [{}])", set.lower_bound().transpose(), set.upper_bound().transpose());
 }
 
 }  // namespace lucid
