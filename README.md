@@ -113,17 +113,17 @@ bazel query --noimplicit_deps --notool_deps 'deps(//lucid)'
 ```bash
 # Build the wheel for the python bindings
 # The wheel can be found in the bazel-bin/pylucid directory
-bazel build --config=python --python_version=3.13 //bindings/pylucid:pylucid_wheel
+bazel build --config=py --python_version=3.13 //bindings/pylucid:pylucid_wheel
 ```
 
 ```bash
 # Run the python bindings tests
-bazel test --config=python --python_version=3.13 //bindings/pylucid/tests/...
+bazel test --config=py --python_version=3.13 //bindings/pylucid/tests/...
 ```
 
 ```bash
 # Run the python bindings main application
-bazel run //bindings/pylucid --config=python --python_version=3.13
+bazel run //bindings/pylucid --config=py --python_version=3.13
 ```
 
 ## Troubleshooting
