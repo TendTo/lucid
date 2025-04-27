@@ -6,10 +6,38 @@ licenses(["notice"])
 
 package(default_visibility = ["//visibility:public"])
 
+filegroup(
+    name = "libgurobi.so",
+    srcs = glob(["lib/libgurobi*.so"], allow_empty = True),
+)
+
+filegroup(
+    name = "gurobi.dll",
+    srcs = glob(["bin/gurobi*.dll"], allow_empty = True, exclude = ["bin/gurobi*_light.dll"]),
+)
+
+filegroup(
+    name = "gurobi.lib",
+    srcs = glob(["lib/gurobi*.lib"], allow_empty = True, exclude = ["lib/gurobi_c++*.lib"]),
+)
+
+filegroup(
+    name = "gurobi.netstandard.lib",
+    srcs = glob(["lib/gurobi*.netstandard*.dll"], allow_empty = True),
+)
+
+filegroup(
+    name = "gurobi_c++md.lib",
+    srcs = select({
+        "@lucid//tools:release_build": glob(["lib/gurobi_c++md*.lib"], allow_empty = True, exclude = ["lib/gurobi_c++mdd*.lib"]),
+        "//conditions:default": glob(["lib/gurobi_c++mdd*.lib"], allow_empty = True),
+    }),
+)
+
 cc_import(
     name = "_gurobi_c_unix",
     hdrs = ["include/gurobi_c.h"],
-    shared_library = "lib/libgurobi120.so",
+    shared_library = ":libgurobi.so",
     visibility = ["//visibility:private"],
 )
 
@@ -22,29 +50,26 @@ cc_import(
 
 cc_import(
     name = "_gurobi_dll_windows",
-    shared_library = "bin/gurobi120.dll",
+    shared_library = ":gurobi.dll",
     visibility = ["//visibility:private"],
 )
 
 cc_import(
     name = "_gurobi_dll_netstandard_windows",
-    shared_library = "lib/gurobi120.netstandard20.dll",
+    shared_library = ":gurobi.netstandard.lib",
     visibility = ["//visibility:private"],
 )
 
 cc_import(
     name = "_gurobi_lib_windows",
     hdrs = ["include/gurobi_c++.h", "include/gurobi_c.h"],
-    static_library = "lib/gurobi120.lib",
+    static_library = ":gurobi.lib",
     visibility = ["//visibility:private"],
 )
 
 cc_import(
     name = "_gurobi_lib_md_windows",
-    static_library = select({
-        "@lucid//tools:release_build": "lib/gurobi_c++md2017.lib",
-        "//conditions:default": "lib/gurobi_c++mdd2017.lib",
-    }),
+    static_library = ":gurobi_c++md.lib",
     visibility = ["//visibility:private"],
 )
 
