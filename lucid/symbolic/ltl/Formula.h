@@ -35,6 +35,18 @@ class FormulaImpl;
  *
  */
 class Formula {
+  friend Formula F(const Formula &f);
+  friend Formula F(const AtomicProposition &ap);
+  friend Formula operator!(const AtomicProposition &ap);
+  friend Formula operator&&(const AtomicProposition &lhs, const AtomicProposition &rhs);
+  friend Formula operator||(const AtomicProposition &lhs, const AtomicProposition &rhs);
+  friend Formula operator%(const AtomicProposition &lhs, const AtomicProposition &rhs);
+  friend Formula operator&&(const AtomicProposition &lhs, const Formula &rhs);
+  friend Formula operator||(const AtomicProposition &lhs, const Formula &rhs);
+  friend Formula operator%(const AtomicProposition &lhs, const Formula &rhs);
+  friend Formula operator~(const AtomicProposition &ap);
+  friend Formula operator++(const AtomicProposition &ap);
+
  public:
   /**
    * Construct a new Formula object initialised with the given atomic proposition.
@@ -69,15 +81,15 @@ class Formula {
   [[nodiscard]] const FormulaImpl &impl() const noexcept;
 
   /** Create a new formula that is the negation of the current formula. */
-  Formula operator!() const;
+  [[nodiscard]] Formula operator!() const;
   /** Combines the current formula with another formula using the logical AND operator. */
-  Formula operator&&(const Formula &o) const;
+  [[nodiscard]] Formula operator&&(const Formula &o) const;
   /** Combines the current formula with another formula using the logical OR operator. */
-  Formula operator||(const Formula &o) const;
+  [[nodiscard]] Formula operator||(const Formula &o) const;
   /** Creates a new formula obtained by applying the `next` operator. */
-  Formula operator~() const;
+  [[nodiscard]] Formula operator++() const;
   /** Creates a new formula obtained by applying the `until` operator. */
-  Formula operator%(const Formula &o) const;
+  [[nodiscard]] Formula operator%(const Formula &o) const;
 
  private:
   /**
@@ -89,6 +101,20 @@ class Formula {
 
   intrusive_ptr<FormulaImpl> ptr_;  ///< Internal smart pointer to the FormulaImpl
 };
+
+/** Create a new formula obtained by applying the `finally` operator. */
+Formula F(const Formula &f);
+Formula F(const AtomicProposition &ap);
+
+Formula operator!(const AtomicProposition &ap);
+Formula operator&&(const AtomicProposition &lhs, const AtomicProposition &rhs);
+Formula operator||(const AtomicProposition &lhs, const AtomicProposition &rhs);
+Formula operator%(const AtomicProposition &lhs, const AtomicProposition &rhs);
+Formula operator++(const AtomicProposition &ap);
+
+Formula operator&&(const AtomicProposition &lhs, const Formula &rhs);
+Formula operator||(const AtomicProposition &lhs, const Formula &rhs);
+Formula operator%(const AtomicProposition &lhs, const Formula &rhs);
 
 std::ostream &operator<<(std::ostream &os, const Formula &f);
 

@@ -65,4 +65,11 @@ bool BinaryFormulaImpl::equal_to(const Formula& o) const noexcept {
 void UnaryFormulaImpl::compute_hash() const { hash::hash_combine(0, op_, f_); }
 void BinaryFormulaImpl::compute_hash() const { hash::hash_combine(0, lhs_, op_, rhs_); }
 
+std::ostream& UnaryFormulaImpl::print(std::ostream& os) const { return os << "(" << op_ << f_ << ")"; }
+std::ostream& BinaryFormulaImpl::print(std::ostream& os) const {
+  return os << "(" << lhs_ << " " << op_ << " " << rhs_ << ")";
+}
+
+std::ostream& operator<<(std::ostream& os, const FormulaImpl& f) { return f.print(os); }
+
 }  // namespace lucid::ltl

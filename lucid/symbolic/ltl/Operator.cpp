@@ -9,21 +9,21 @@ namespace lucid::ltl {
 std::ostream& operator<<(std::ostream& os, const Operator& op) {
   switch (op) {
     case Operator::NOT:
-      return os << "NOT";
+      return os << "!";
     case Operator::AND:
-      return os << "AND";
+      return os << "&";
     case Operator::OR:
-      return os << "OR";
+      return os << "|";
     case Operator::UNTIL:
-      return os << "UNTIL";
+      return os << "U";
     case Operator::NEXT:
-      return os << "NEXT";
+      return os << "X";
     case Operator::ALWAYS:
-      return os << "ALWAYS";
-    case Operator::EVENTUALLY:
-      return os << "EVENTUALLY";
+      return os << "G";
     case Operator::IMPLIES:
-      return os << "IMPLIES";
+      return os << "->";
+    case Operator::FINALLY:
+      return os << "F";
     default:
       LUCID_UNREACHABLE();
   }

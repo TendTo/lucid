@@ -61,6 +61,14 @@ class FormulaImpl : public SelfReferenceCountingObject {
   /** @less{formula} */
   [[nodiscard]] virtual bool less(const Formula& o) const noexcept = 0;
 
+  /**
+   * Utility function used to print the formula on the output stream `os`.
+   * Instead of upcasting to the derived class,
+   * this function is used to force the derived classes to provide their own printing method.
+   * @param os output stream
+   */
+  virtual std::ostream& print(std::ostream& os) const = 0;
+
  protected:
   mutable std::optional<std::size_t> hash_;  ///< Hash value of the formula. Computed on demand and cached
   Operator op_;                              ///< Operator that created the formula
@@ -80,6 +88,7 @@ class UnaryFormulaImpl : public FormulaImpl {
 
  protected:
   void compute_hash() const override;
+  std::ostream& print(std::ostream& os) const override;
 
   Formula f_;
 };
@@ -105,6 +114,7 @@ class BinaryFormulaImpl : public FormulaImpl {
 
  protected:
   void compute_hash() const override;
+  std::ostream& print(std::ostream& os) const override;
 
   Formula lhs_;
   Formula rhs_;
@@ -125,6 +135,7 @@ class AtomicPropositionFormulaImpl final : public FormulaImpl {
  protected:
   explicit AtomicPropositionFormulaImpl(const AtomicProposition& ap) : FormulaImpl{Operator::VARIABLE}, ap_{ap} {}
   void compute_hash() const override { hash_ = ap_.id(); }
+  std::ostream& print(std::ostream& os) const override { return os << ap_; }
 
   AtomicProposition ap_;
 };
@@ -189,22 +200,24 @@ class AlwaysFormulaImpl final : public UnaryFormulaImpl {
   explicit AlwaysFormulaImpl(const Formula& f) : UnaryFormulaImpl{f, Operator::ALWAYS} {}
 };
 
-class EventuallyFormulaImpl final : public UnaryFormulaImpl {
+class FinallyFormulaImpl final : public UnaryFormulaImpl {
  public:
   [[nodiscard]] static intrusive_ptr<FormulaImpl> instantiate(const Formula& f) {
-    return intrusive_ptr<FormulaImpl>{new EventuallyFormulaImpl{f}};
+    return intrusive_ptr<FormulaImpl>{new FinallyFormulaImpl{f}};
   }
 
  protected:
-  explicit EventuallyFormulaImpl(const Formula& f) : UnaryFormulaImpl{f, Operator::EVENTUALLY} {}
+  explicit FinallyFormulaImpl(const Formula& f) : UnaryFormulaImpl{f, Operator::FINALLY} {}
 };
+
+std::ostream& operator<<(std::ostream& os, const FormulaImpl& f);
 
 }  // namespace lucid::ltl
 
-// #ifdef LUCID_INCLUDE_FMT
-//
-// #include "lucid/util/logging.h"
-//
-// OSTREAM_FORMATTER(lucid::ltl::FormulaImpl);
-//
-// #endif
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::ltl::FormulaImpl);
+
+#endif

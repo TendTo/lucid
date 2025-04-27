@@ -41,6 +41,7 @@ TEST_F(TestFormula, ConstructorWithAtomicProposition) {
   EXPECT_THROW(static_cast<void>(formula.operands()), lucid::exception::LucidNotSupportedException);
   EXPECT_THROW(static_cast<void>(formula.operand()), lucid::exception::LucidNotSupportedException);
   EXPECT_AP_ITERATOR_EQ(formula.atomic_propositions(), std::set<AtomicProposition>{ap1_});
+  EXPECT_FALSE((std::stringstream{} << formula).str().empty());
 }
 
 TEST_F(TestFormula, NegationOperator) {
@@ -53,6 +54,7 @@ TEST_F(TestFormula, NegationOperator) {
   EXPECT_THROW(static_cast<void>(negated.operands()), lucid::exception::LucidNotSupportedException);
   EXPECT_THROW(static_cast<void>(negated.atomic_proposition()), lucid::exception::LucidNotSupportedException);
   EXPECT_AP_ITERATOR_EQ(negated.atomic_propositions(), std::set<AtomicProposition>{ap1_});
+  EXPECT_FALSE((std::stringstream{} << negated).str().empty());
 }
 
 TEST_F(TestFormula, ConjunctionOperator) {
@@ -68,6 +70,7 @@ TEST_F(TestFormula, ConjunctionOperator) {
   EXPECT_THROW(static_cast<void>(conjunction.operand()), lucid::exception::LucidNotSupportedException);
   EXPECT_THROW(static_cast<void>(conjunction.atomic_proposition()), lucid::exception::LucidNotSupportedException);
   EXPECT_AP_ITERATOR_EQ(conjunction.atomic_propositions(), std::set<AtomicProposition>({ap1_, ap2_}));
+  EXPECT_FALSE((std::stringstream{} << conjunction).str().empty());
 }
 
 TEST_F(TestFormula, DisjunctionOperator) {
@@ -83,6 +86,7 @@ TEST_F(TestFormula, DisjunctionOperator) {
   EXPECT_THROW(static_cast<void>(disjunction.operand()), lucid::exception::LucidNotSupportedException);
   EXPECT_THROW(static_cast<void>(disjunction.atomic_proposition()), lucid::exception::LucidNotSupportedException);
   EXPECT_AP_ITERATOR_EQ(disjunction.atomic_propositions(), std::set<AtomicProposition>({ap1_, ap2_}));
+  EXPECT_FALSE((std::stringstream{} << disjunction).str().empty());
 }
 
 TEST_F(TestFormula, UntilOperator) {
@@ -98,22 +102,25 @@ TEST_F(TestFormula, UntilOperator) {
   EXPECT_THROW(static_cast<void>(until.operand()), lucid::exception::LucidNotSupportedException);
   EXPECT_THROW(static_cast<void>(until.atomic_proposition()), lucid::exception::LucidNotSupportedException);
   EXPECT_AP_ITERATOR_EQ(until.atomic_propositions(), std::set<AtomicProposition>({ap1_, ap2_}));
+  EXPECT_FALSE((std::stringstream{} << until).str().empty());
 }
 
 TEST_F(TestFormula, NextOperator) {
   const Formula formula{ap1_};
-  const Formula next = ~formula;
+  const Formula next = ++formula;
 
   EXPECT_EQ(next.op(), Operator::NEXT);
   EXPECT_NE(formula.hash(), next.hash());
+  EXPECT_FALSE((std::stringstream{} << next).str().empty());
 }
 
 TEST_F(TestFormula, NestedLogicalOperations) {
   const Formula formula1{ap1_};
   const Formula formula2{ap2_};
-  const Formula nested = !(formula1 && formula2) || ~formula1;
+  const Formula nested = !(formula1 && formula2) || ++formula1;
 
   EXPECT_EQ(nested.op(), Operator::OR);
+  EXPECT_FALSE((std::stringstream{} << nested).str().empty());
 }
 
 TEST_F(TestFormula, EqualityOperator) {
@@ -135,6 +142,18 @@ TEST_F(TestFormula, HashFunction) {
   const Formula formula2{!formula1};
 
   EXPECT_NE(formula1.hash(), formula2.hash());
+}
+
+TEST_F(TestFormula, Exp) {
+  const Formula formula1{ap1_};
+  const Formula formula2{!formula1};
+  const AtomicProposition p1{"p1"}, p2{"p2"}, p3{"p3"};
+  const Formula phi{!p2 % p1};
+  fmt::print("phi: {}\n", phi);
+  const Formula phi2{F(p1 && (!p2 % p3))};
+  fmt::print("phi2: {}\n", phi2);
+  fmt::print("phi3: {}\n", (p1 && ++p1 && ++(++p1) && ++(++(++p1))));
+  FAIL();
 }
 
 // TEST_F(TestFormula, StreamOutput) {

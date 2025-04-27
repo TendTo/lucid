@@ -19,8 +19,8 @@ enum class Operator {
   UNTIL,
   NEXT,
   ALWAYS,
-  EVENTUALLY,
   IMPLIES,
+  FINALLY,
 };
 
 std::ostream& operator<<(std::ostream& os, const Operator& op);
