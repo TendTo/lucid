@@ -55,7 +55,7 @@ std::ostream& operator<<(std::ostream& os, const MultiSet& set) {
   os << "MultiSet(";
   bool first = true;
   for (const std::unique_ptr<Set>& s : set.sets()) {
-    if (!first) os << ', ';
+    if (!first) os << ", ";
     os << *s;
     first = false;
   }

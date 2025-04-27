@@ -32,7 +32,7 @@ template <int I, template <class> class T>
 Vector bounds_to_vector(const T<std::pair<Scalar, Scalar>>& bounds) {
   Vector v(bounds.size());
   Index i = 0;
-  for (const std::pair<Scalar, Scalar> bound : bounds) {
+  for (const std::pair<Scalar, Scalar>& bound : bounds) {
     if constexpr (I == 0) {
       v(i++) = bound.first;
     } else {
