@@ -76,6 +76,7 @@ genrule(
         "py.typed",
     ],
     cmd = "$(location :stubgen_bin) $(OUTS)",
+    cmd_bat = "$(location :stubgen_bin) $(OUTS)",
     tools = [":stubgen_bin"],
 )
 

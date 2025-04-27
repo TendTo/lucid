@@ -1,4 +1,4 @@
-load("//tools:pytest.bzl", "pylucid_py_test")
+load("//tools:pytest.bzl", "pylucid_gurobi_py_test", "pylucid_py_test")
 
 pylucid_py_test(name = "test_main")
 
@@ -8,19 +8,14 @@ pylucid_py_test(name = "test_optimiser")
 
 pylucid_py_test(name = "test_regression")
 
-pylucid_py_test(
-    name = "test_integration",
+pylucid_py_test(name = "test_set")
+
+pylucid_gurobi_py_test(
+    name = "test_barrier_3",
     data = [
         "x_samples.matrix",
         "xp_samples.matrix",
-    ] + select({
-        "//tools:gurobi_build": ["gurobi.lic"],
-        "//conditions:default": [],
-    }),
-    env = select({
-        "//tools:gurobi_build": {"GRB_LICENSE_FILE": "$(location gurobi.lic)"},
-        "//conditions:default": {},
-    }),
+    ],
 )
 
-pylucid_py_test(name = "test_set")
+pylucid_gurobi_py_test(name = "test_automated_anasthesia")
