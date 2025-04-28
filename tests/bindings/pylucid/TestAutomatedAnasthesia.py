@@ -86,6 +86,22 @@ def test_automated_anesthesia():
     sigma_f = 19.456
     sigma_l = [30, 23.568, 14.0]
 
+    from sklearn.metrics import euclidean_distances
+
+    def median_heuristic(X, Y):
+        # https://github.com/jj-zhu/kdro/blob/main/kdro/lsq_util.py
+        '''
+        the famous kernel median heuristic
+        '''
+        distsqr = euclidean_distances(X, Y, squared=True)
+        #     print(distsqr.shape)
+        kernel_width = np.sqrt(0.5 * np.median(distsqr))
+
+        '''in sklearn, kernel is done by K(x, y) = exp(-gamma ||x-y||^2)'''
+        kernel_gamma = 1.0 / (2 * kernel_width ** 2)
+
+        return kernel_width, kernel_gamma
+
     ######## Lucid ########
     print(f"Running anesthesia benchmark (LUCID version: {__version__})")
 
