@@ -8,7 +8,7 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "libgurobi.so",
-    srcs = glob(["lib/libgurobi*.so"], allow_empty = True),
+    srcs = glob(["lib/libgurobi*.so"], allow_empty = True, exclude = ["lib/libgurobi*_light.so"]),
 )
 
 filegroup(
