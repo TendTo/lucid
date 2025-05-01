@@ -124,6 +124,6 @@ setuptools.setup(
     ext_modules=[BazelExtension("pylucid._pylucid", "//bindings/pylucid:_pylucid")],
     cmdclass={"build_ext": BuildBazelExtension},
     packages=[config_vars.LUCID_NAME],
-    install_requires=["setuptools"],
-    requires=["numpy"],
+    setup_requires=["setuptools"],
+    install_requires=["numpy<=2.2.5"],
 )
