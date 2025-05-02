@@ -37,3 +37,8 @@ flowchart LR
     a1 --> a2 --> a3 --> a4
     wp1 --> m1
 ```
+
+
+## Notes
+
+- Expectation oracle: given a set of pairs (input, output), produce an oracle such that $\mathbb{E}_{x^+\approx\bar{t}(\cdot|x,u)}[\cdot(x^+)] = y$ for all pairs $(x,y)$

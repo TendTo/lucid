@@ -17,7 +17,10 @@
 #include "lucid/lucid.h"
 #include "lucid/util/logging.h"
 #include "lucid/util/math.h"
+
+#ifdef LUCID_MATPLOTLIB_BUILD
 #include "lucid/util/matplotlib.h"
+#endif
 #include "util/error.h"
 
 using namespace lucid;  // NOLINT
@@ -164,9 +167,11 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, const Sc
  */
 int main(int, char**) {
   LUCID_LOG_INIT_VERBOSITY(4);
+#ifdef LUCID_MATPLOTLIB_BUILD
   plt::backend("WebAgg");
   // Seeded randomness
   std::srand(1);
+#endif
 
 #if 0
 
@@ -178,7 +183,9 @@ int main(int, char**) {
   const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
   std::cout << set.lattice(3) << std::endl;
   std::cout << set.lattice(3, true) << std::endl;
+#ifdef LUCID_MATPLOTLIB_BUILD
   plt::plot(Vector::LinSpaced(100, -1, 1), Vector::Random(100), {.fmt = "r--"});
+#endif
 
   Tensor<double> t{{1, 2, 3, 4, 5, 6}, {2, 3}};
   std::cout << t << std::endl;

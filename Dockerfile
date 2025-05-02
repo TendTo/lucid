@@ -41,15 +41,16 @@ COPY . .
 RUN sed 's/python.toolchain(/python.toolchain(\nignore_root_user_error = True,/g' MODULE.bazel -i
 
 # Fetch dependencies. Useful to avoid downloading them every time
-RUN bazel fetch --config=opt //lucid
+# RUN bazel fetch --config=opt //lucid
 
 # Build lucid
-RUN bazel build --config=opt //lucid
+# RUN bazel build --config=opt //lucid
 
-# Install pylucid bindings
-RUN pip install .
+# Install pylucid bindings and clean up bazel
+RUN pip install . && \
+    bazel clean --expunge
 
-ENTRYPOINT [ "/app/bazel-bin/lucid/lucid" ]
+ENTRYPOINT [ "python3" ]
 
 # RUN bazel build --config=opt --//tools:enable_static_build=True //lucid
 

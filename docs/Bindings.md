@@ -10,6 +10,9 @@ Lucid provides a thin wrapper around the C++ library, called **pylucid**, allowi
 There are multiple ways to use it.
 You can either run it withing the Bazel environment, or you can install it in your Python environment.
 
+> [!NOTE]  
+> All bindings use the C++ Lucid library under the hood, which means that you need to ensure all the requirements listed in the [Installation](Installation.md) section are met.
+
 ### Running with Bazel
 
 Write your script somewhere in the `lucid` directory.
@@ -39,6 +42,7 @@ bazel run //path/to/your/script:your_script
 You can install the bindings in your Python environment using the following command:
 
 ```bash
+# Make sure you are in the lucid directory root directory and install pylucid
 pip install .
 ```
 
@@ -53,9 +57,7 @@ python -c "import pylucid; print(pylucid.__version__)"
 
 <details>
 <summary>
-
-#### ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory
-
+<b>ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory</b>
 </summary>
 
 This error occurs when the expected Python shared library is not found in the expected location on the system

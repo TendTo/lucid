@@ -45,37 +45,38 @@ lucid_cc_library(
 lucid_cc_py_binary(
     name = "lucid",
     srcs = ["main.cpp"],
-    py_deps = [
-        "@pypi//matplotlib",
-        "@pypi//numpy",
-        "@pypi//tornado",
-    ],
+    py_deps = select({
+        "//tools:matplotlib_build": [
+            "@pypi//matplotlib",
+            "@pypi//numpy",
+            "@pypi//tornado",
+        ],
+        "//conditions:default": [],
+    }),
     deps = [
         ":lucid_hdr",
         "//lucid/util:error",
         "//lucid/util:logging",
         "//lucid/util:math",
-        "//lucid/util:matplotlib",
         "@fmt",
-    ],
+    ] + select({
+        "//tools:matplotlib_build": ["//lucid/util:matplotlib"],
+        "//conditions:default": [],
+    }),
 )
 
-#lucid_cc_py_binary(
-#    name = "temp",
-#    srcs = ["temp.cpp"],
-#    py_deps = [
-#        "@pypi//matplotlib",
-#        "@pypi//numpy",
-#        "@pypi//tornado",
-#    ],
-#    deps = [
-#        ":lucid_hdr",
-#        "//lucid/util:matplotlib",
-#        "@eigen",
-#        "@fmt",
-#        "@lbfgscpp",
-#        "@pocketfft",
-#    ],
-#)
+# lucid_cc_binary(
+#     name = "temp",
+#     srcs = ["temp.cpp"],
+#     deps = [
+#         ":lucid_hdr",
+#         ":version",
+#         "//lucid/util",
+#         "//lucid/util:error",
+#         "//lucid/util:logging",
+#         "@fmt",
+#         "@spdlog",
+#     ],
+# )
 
 cpplint()

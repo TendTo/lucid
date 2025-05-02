@@ -1,5 +1,19 @@
 # Installation
 
+## From Docker
+
+A pre-build Docker image is available on the [GitHub repository](https://github.com/TendTo/lucid/pkgs/container/lucid).
+To use it, run the following command:
+
+```bash
+# Pull the image
+docker pull ghcr.io/tendto/lucid:main
+# Run the image
+# Mount the script you want to run (e.g. /path/to/script.py) somewhere in the container (e.g. /scripts)
+# Keep in mind that you need to mount a Gurobi Web License (gurobi.lic) in the container
+docker run --name lucid -it --rm -v/path/to/my/scripts:/scripts --volume=/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro ghcr.io/tendto/lucid:main /scripts/script.py
+```
+
 ## From source
 
 ### Requirements
@@ -9,7 +23,7 @@ Other versions may work as well, but they have not been tested.
 
 - [Bazel](https://bazel.build/) 8.1.1
   - We suggest using [bazelisk](https://github.com/bazelbuild/bazelisk) to manage Bazel's version.
-- C++ compiler
+- C++ compiler with C++20 support
   - [gcc](https://gcc.gnu.org/) 11.4.0
   - [msvc](https://visualstudio.microsoft.com/) 19.32.31332
 - [Gurobi](https://www.gurobi.com/) 12.0.1
@@ -17,7 +31,7 @@ Other versions may work as well, but they have not been tested.
 > [!NOTE]  
 > Both a Gurobi installation and a valid license are required to build and run Lucid.  
 > To indicate the location of the Gurobi installation, ensure that the `GUROBI_HOME` environment variable is set correctly.
-> Alternatively, provide the flag `--repo_env=GUROBI_HOME=/path/to/gurobi` when running Bazel.
+> Alternatively, provide the flag `--repo_env=GUROBI_HOME=/path/to/gurobi` when running Bazel or set the `default_gurobi_home` parameter in the `MODULE.bazel` file.
 
 ### Building Lucid
 
@@ -30,8 +44,6 @@ git clone https://github.com/TendTo/lucid.git
 cd lucid
 ```
 
-Before starting the build process, you will need to specify the directory where Gurobi is installed.
-In the `MODULE.build` file, change the `GUROBI_HOME` variable to the correct path (e.g., `/opt/gurobi912/linux64` or `C:/gurobi912/win64`).  
 Then, run the following command to build the software:
 
 ```bash
@@ -50,29 +62,12 @@ bazel run //lucid -- [args]
 ### Build options
 
 Lucid comes with a few predefined build configuration for the most common use cases.
-
-- **default**: Default mode. Uses the default Bazel configuration for the current platform and compiler.
-- `--config=dbg`: Debug mode. It includes debug symbols, assertions and other general debugging information.
-- `--config=opt`: Release mode. It includes optimizations and no debug information.
-- `--config=bench`: Benchmark mode. It includes optimizations, a fully static and remove additional checks, further improving performance at the cost of safety.
-- `--config=py`: Python mode. It includes optimizations and a fully static build. Used to build the Python bindings.
+Just add the `--config` flag to the build command to use one of them.
 
 | Configuration | Optimisations | Debug symbols | Assertions | Checks | Static linking | Used for              |
 | ------------- | ------------- | ------------- | ---------- | ------ | -------------- | --------------------- |
-| **default**   | ?             | ?             | Yes        | Yes    | No             | A fast build          |
+| **default**   | ?             | ?             | Yes        | Yes    | No             | A fast, default build |
 | `dbg`         | No            | Yes           | Yes        | Yes    | No             | Testing and debugging |
 | `opt`         | Yes           | No            | No         | Yes    | No             | Production            |
 | `bench`       | Yes           | No            | No         | No     | Yes            | Benchmarking          |
 | `py`          | Yes           | No            | No         | No     | Yes            | Python bindings       |
-
-## From Docker
-
-A pre-build Docker image is available on the [GitHub repository](https://github.com/TendTo/lucid/pkgs/container/lucid).
-To use it, run the following command:
-
-```bash
-# Pull the image
-docker pull ghcr.io/tendto/lucid:main
-# Run the image
-docker run -it ghcr.io/tendto/lucid:main
-```
