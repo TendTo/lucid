@@ -92,7 +92,9 @@ def test_barrier_3():
 
     o = GurobiLinearOptimiser(T, gamma, epsilon, b_norm, kappa_b, sigma_f)
 
-    def check_cb(success: bool, obj_val: float, eta: float, c: float, norm: float):
+    def check_cb(
+        success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
+    ):
         tolerance = 1e-3
         assert success
         assert math.isclose(obj_val, 0.8375267440200334, rel_tol=tolerance)
