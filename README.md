@@ -17,7 +17,7 @@ Simple modern template for a C++ project using Bazel with modules.
 
 ## Quick installation
 
-For more details, see the [installation instructions](docs/installation.md).
+For more details, see the [installation instructions](docs/Installation.md).
 
 ### Docker
 
