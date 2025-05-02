@@ -64,7 +64,7 @@ bool RectSet::operator()(ConstMatrixRef x) const {
   return (x.array() >= lb_.array()).all() && (x.array() <= ub_.array()).all();
 }
 
-void RectSet::plot(const std::string& color) const {
+void RectSet::plot([[maybe_unused]] const std::string& color) const {
 #ifdef LUCID_MATPLOTLIB_BUILD
   Vector x(lb_.size());
   x << lb_(0), ub_(0);

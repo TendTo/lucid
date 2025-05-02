@@ -8,7 +8,7 @@ from pylucid import (
     RectSet,
     MultiSet,
     GaussianKernelRidgeRegression,
-    project,
+    fft_upsample,
     GurobiLinearOptimiser,
     LucidNotSupportedException,
     GUROBI_BUILD,
@@ -37,9 +37,7 @@ def test_barrier_3():
         RectSet((-1.8, -0.1), (-1.2, 0.1)),
         RectSet((-1.4, -0.5), (-1.2, 0.1)),
     )
-    unsafe_set = MultiSet(
-        RectSet((0.4, 0.1), (0.6, 0.5)), RectSet((0.4, 0.1), (0.8, 0.3))
-    )
+    unsafe_set = MultiSet(RectSet((0.4, 0.1), (0.6, 0.5)), RectSet((0.4, 0.1), (0.8, 0.3)))
 
     samples_per_dim = 2 * num_freq_per_dim
     factor = math.ceil(num_supp_per_dim / samples_per_dim) + 1
@@ -51,9 +49,7 @@ def test_barrier_3():
     ######## CODE ########
     k = GaussianKernel(sigma_f, sigma_l)
     assert k is not None
-    tffm = TruncatedFourierFeatureMap(
-        num_freq_per_dim, dimension, sigma_l, sigma_f, limit_set
-    )
+    tffm = TruncatedFourierFeatureMap(num_freq_per_dim, dimension, sigma_l, sigma_f, limit_set)
     assert tffm is not None
 
     x_lattice = limit_set.lattice(samples_per_dim)
@@ -81,8 +77,8 @@ def test_barrier_3():
     assert w_mat.shape == (576, 71)
     assert phi_mat.shape == (576, 71)
     for i in range(w_mat.shape[1]):
-        w_mat[:, i] = project(if_lattice[:, i], n_per_dim, samples_per_dim, dimension)
-        phi_mat[:, i] = project(f_lattice[:, i], n_per_dim, samples_per_dim, dimension)
+        w_mat[:, i] = fft_upsample(if_lattice[:, i], n_per_dim, samples_per_dim, dimension)
+        phi_mat[:, i] = fft_upsample(f_lattice[:, i], n_per_dim, samples_per_dim, dimension)
 
     x0_lattice = initial_set.lattice(n_per_dim - 1, True)
     assert x0_lattice.shape == (1587, 2)
@@ -96,13 +92,14 @@ def test_barrier_3():
 
     o = GurobiLinearOptimiser(T, gamma, epsilon, b_norm, kappa_b, sigma_f)
 
-    def check_cb(success, obj_val, eta, c, norm):
+    def check_cb(success: bool, obj_val: float, eta: float, c: float, norm: float):
         tolerance = 1e-3
         assert success
         assert math.isclose(obj_val, 0.8375267440200334, rel_tol=tolerance)
         assert math.isclose(eta, 15.336789736494852, rel_tol=tolerance)
         assert math.isclose(c, 0, rel_tol=tolerance)
         assert math.isclose(norm, 10.39392985811301, rel_tol=tolerance)
+        print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }")
 
     try:
         assert o.solve(
@@ -125,11 +122,6 @@ if __name__ == "__main__":
     import time
 
     start = time.time()
-    result = test_barrier_3()
+    test_barrier_3()
     end = time.time()
-
     print("elapsed time:", end - start)
-    if len(result) == 0:
-        print("Results dictionary is empty.")
-    else:
-        print(result)

@@ -3,7 +3,6 @@ import math
 import numpy as np
 from pylucid import (
     __version__,
-    read_matrix,
     GaussianKernel,
     TruncatedFourierFeatureMap,
     RectSet,
@@ -34,71 +33,55 @@ def median_heuristic(X, Y):
     return kernel_gamma, kernel_width
 
 
-def test_automated_anesthesia():
+def test_building_automation_system():
     """
-    Automated Anaesthesia Delivery System Benchmark
+    Building Automation System 2D Benchmark
 
-    The concentration of Propofol in different compartments of the body are modelled using the three-compartment pharmacokinetic system.
-    An automated system controls the basal dosage of Propofol to the patient, while an anaesthesiologist can administer a bolus dose.
-    The system model includes a stochastic model of the anaesthesiologist behavior based on the concentration and the number of bolus
-    doses administered. The hybrid system behavior arises from this anaesthesiologist behavior.
+    A building automation system (BAS) with two zones, each heated by one radiator and with a shared air supply.
 
-    First presented in Abate, A., Blom, H., Cauchi, N., Hartmanns, A., Lesser, K., Oishi, M., ... & Vinod, A. P. (2018). ARCH-COMP18 category report: Stochastic modelling. In 5th International Workshop on Applied Verification of Continuous and Hybrid Systems, ARCH 2018 (pp. 71-103). EasyChair.
+    First presented in Abate, A., Blom, H., Cauchi, N., Hartmanns, A., Lesser, K., Oishi, M., ... & Vinod, A. P. (2018). ARCH-COMP19 category report: Stochastic modelling. In 5th International Workshop on Applied Verification of Continuous and Hybrid Systems, ARCH 2018 (pp. 71-103). EasyChair.
+    Concrete values taken from Abate, A., Blom, H., Cauchi, N., Degiorgio, K., Fraenzle, M., Hahn, E. M., ... & Vinod, A. P. (2019). ARCH-COMP19 category report: Stochastic modelling. In 6th International Workshop on Applied Verification of Continuous and Hybrid Systems, ARCH 2019 (pp. 62-102). EasyChair.
 
     ## Mathematical Model
 
     $$
     \\begin{aligned}
-        \\bar{x}[k + 1] &= \\begin{bmatrix} 0.8192 & 0.03412 & 0.01265 \\\\ 0.01646 & 0.9822 & 0.0001 \\\\ 0.0009 & 0.00002 & 0.9989 \\end{bmatrix} \\bar{x}[k] + \\begin{bmatrix} 0.01883 \\\\ 0.0002 \\\\ 0.00001 \\end{bmatrix} (v[k] + \\sigma[k]) + w[k] \\\\
-                        &= A \\bar{x}[k] + B (v[k] + \\sigma[k]) + w[k]
+        x[k + 1] &= (1 − \\beta − \\theta \\nu)x[k] + \\theta T_h \\nu + \\beta T_e + R \\zeta
+        \\nu &= -0.0120155x + 0.8
     \\end{aligned}
     $$
-
-    where $\\bar{x}[k]$ is the continuous state vector, $v[k]$ is the automated delivery system control input, $w[k] \\sim \\mathcal{N}(0, M)$ is the process noise, and $\\sigma[k]$ is the noise from the anaesthesiologist.
-    $\\sigma[k]$ is a semi-Markov random variable taking values in $\\{0, 30\\}$ that represents the anaesthesiologist's decision to administer a bolus dose.
-    To make the stochastic system Markovian, a binary state vector $q[k]$ is introduced that represents the anaesthesiologist's decision to administer a bolus dose at time $k$.
-    Then the stochastic decision to administer a bolus dose is conditioned on $\\bar{x}_1[k]$ and $q[k]$.
     """
     ######## System dynamics ########
 
-    # Deterministic part of the linear dynamics x[t+1] = A * x[t]
-    A = np.array(
-        [
-            [0.8192, 0.03412, 0.01265],
-            [0.01646, 0.9822, 0.0001],
-            [0.0009, 0.00002, 0.9989],
-        ]
-    )
-    f_det = lambda x: A @ x
-    dim = 3  # Dimensionality of the state space
+    th = 45
+    te = -15
+    r = 0.1
+    beta = 0.06
+    theta = 0.145
+
+    # Deterministic part of the linear dynamics x[k + 1] = (1 − β − θν)x[k] + θThν + βTe + Rς
+    # where ν is -0.0120155x + 0.8
+    f_det = lambda x: (1 - beta - theta * -0.0120155 * x + 0.8) * x + theta * th * -0.0120155 * x + 0.8 + beta * te
+
+    dim = 1  # Dimensionality of the state space
 
     # Add process noise
-    mean = np.array([0, 0, 0])  # Mean vector
-    cov = np.diag([5, 5, 5])  # Covariance matrix
-    f = lambda x: f_det(x) + np.random.multivariate_normal(mean, cov, x.shape[1]).T
+    f = lambda x: f_det(x) + r * np.random.exponential(1)
 
     ######## Safety specification ########
 
     # Time horizon
-    T = 10
-    # State space X := [0, 7] × [−1, 11]^2
-    X_bounds = RectSet([[0, 7], [-1, 11], [-1, 11]])
-    # np.array([[0, 7], [-1, 11], [-1, 11]])
+    T = 5
+    # State space X := [1, 50]
+    X_bounds = RectSet(((1, 50),))
 
-    # Initial set X_I := [4, 6] × [8, 10]^2
-    X_init = RectSet([[4.5, 5.5], [5, 7], [5, 7]])
+    # Initial set X_I := [19.5, 20]
+    X_init = RectSet(((19.5, 20),))
 
-    # Unsafe set X_U := X \ ( [1, 6] × [0, 10]^2 )
-    # The set is broken down into 8 hyperrectangular sets
+    # Unsafe set X_U := [1, 17] U [23, 50]
     X_unsafe = MultiSet(
-        RectSet([[0, 0.9], [-1, -0.1], [-1, -0.1]]),
-        RectSet([[0, 0.9], [-1, -0.1], [10.1, 11]]),
-        RectSet([[0, 0.9], [10.1, 11], [-1, -0.1]]),
-        RectSet([[0, 0.9], [10.1, 11], [10.1, 11]]),
-        RectSet([[6.1, 7], [-1, -0.1], [-1, -0.1]]),
-        RectSet([[6.1, 7], [-1, -0.1], [10.1, 11]]),
-        RectSet([[6.1, 7], [10.1, 11], [-1, -0.1]]),
-        RectSet([[6.1, 7], [10.1, 11], [10.1, 11]]),
+        RectSet(((1, 17),)),
+        RectSet(((23, 50),)),
     )
 
     ######## Parameters ########
@@ -120,7 +103,6 @@ def test_automated_anesthesia():
     xp_samples = f(x_samples.T).T
     n_per_dim = factor * samples_per_dim
     sigma_f, sigma_l = median_heuristic(x_samples, x_samples)
-    sigma_f /= 2.0
     print(f"Median heuristic: {sigma_f = }, {sigma_l = }")
 
     k = GaussianKernel(sigma_f, sigma_l)
@@ -171,6 +153,6 @@ if __name__ == "__main__":
     import time
 
     start = time.time()
-    test_automated_anesthesia()
+    test_building_automation_system()
     end = time.time()
     print("elapsed time:", end - start)

@@ -23,3 +23,8 @@ pylucid_gurobi_py_test(
     name = "test_automated_anasthesia",
     deps = [requirement("scikit-learn")],
 )
+
+pylucid_gurobi_py_test(
+    name = "test_building_automation_system_1",
+    deps = [requirement("scikit-learn")],
+)

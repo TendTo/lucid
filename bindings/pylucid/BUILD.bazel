@@ -26,6 +26,7 @@ lucid_pybind_extension(
         "//lucid:version",
         "//lucid/math",
         "//lucid/util",
+        "//lucid/util:error",
     ],
 )
 

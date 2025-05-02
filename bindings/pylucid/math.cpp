@@ -16,6 +16,7 @@
 #include <pybind11/stl.h>
 
 #include "bindings/pylucid/pylucid.h"
+#include "lucid/util/error.h"
 
 namespace py = pybind11;
 using namespace lucid;
@@ -146,9 +147,9 @@ void init_math(py::module_ &m) {
   /**************************** Project ****************************/
   // TODO(tend): it would be nice to encapsulate this in a class
   m.def(
-      "project",
+      "fft_upsample",
       [](ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim, const Index dimension) {
-        if (dimension <= 1) throw std::runtime_error("Dimension must be greater than 1");
+        LUCID_CHECK_ARGUMENT_EXPECTED(dimension > 0, "dimension", dimension, "must be greater than 0");
 
         const int n_pad = static_cast<int>(std::floor((n_per_dim / 2 - samples_per_dim / 2)));
         // Get a view of the input data
@@ -156,9 +157,11 @@ void init_math(py::module_ &m) {
                                          std::vector<std::size_t>(dimension, samples_per_dim)};
         // Permute the last two axes and create a complex tensor
         Tensor<std::complex<double>> fft_in{in_view.dimensions()};
-        std::vector<std::size_t> axes{fft_in.axes()};
-        std::swap(axes[axes.size() - 2], axes[axes.size() - 1]);
-        in_view.permute(fft_in.m_view(), axes);
+        if (dimension > 1) {  // If the dimension is greater than 1, swap the last two axes
+          std::vector<std::size_t> axes{fft_in.axes()};
+          std::swap(axes[axes.size() - 2], axes[axes.size() - 1]);
+          in_view.permute(fft_in.m_view(), axes);
+        }
         // Perform FFT upsampling on the data and return the result
         return Vector{static_cast<Eigen::Map<const Vector>>(
             fft_in.fft_upsample(std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)))};
