@@ -37,7 +37,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   model.set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
   model.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
   model.set(GRB_DoubleParam_TimeLimit, 10000);
-  model.set(GRB_IntParam_OutputFlag, 0);
+  // model.set(GRB_IntParam_OutputFlag, 0);
 
   // Specify constraints
   // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
