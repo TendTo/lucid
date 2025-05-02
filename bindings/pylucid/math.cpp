@@ -141,7 +141,8 @@ void init_math(py::module_ &m) {
         }
         return MultiSet(std::move(unique_sets));
       }))
-      // .def_property_readonly("sets", [](const MultiSet &self) { return self.sets(); })
+      .def("__len__", [](const MultiSet &self) { return self.sets().size(); })
+      .def("__getitem__", [](const MultiSet &self, const Index index) -> const Set & { return *self.sets()[index]; })
       .def("__str__", STRING_LAMBDA(MultiSet));
 
   /**************************** Project ****************************/
