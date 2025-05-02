@@ -14,16 +14,24 @@
 
 namespace lucid {
 
-GaussianKernel::GaussianKernel(Vector params) : Kernel{std::move(params)}, sigma_l_diagonal_{parameters_.size() - 1} {
+GaussianKernel::GaussianKernel(Vector params) : Kernel{std::move(params)}, sigma_l_diagonal_{} {
   LUCID_CHECK_ARGUMENT_EXPECTED(parameters_.size() > 1, "params.size()", parameters_.size(), "at least 2");
   const auto sigma_l_diagonal = parameters_.tail(parameters_.size() - 1);
   sigma_l_diagonal_ = sigma_l_diagonal.cwiseProduct(sigma_l_diagonal).cwiseInverse();
 }
-GaussianKernel::GaussianKernel(const double sigma_f, const Vector& sigma_l) : Kernel{sigma_l.size() + 1} {
+GaussianKernel::GaussianKernel(const double sigma_f, const Vector& sigma_l)
+    : Kernel{sigma_l.size() + 1}, sigma_l_diagonal_{} {
   LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
   parameters_(0) = sigma_f;
   parameters_.tail(sigma_l.size()) = sigma_l;
   sigma_l_diagonal_ = sigma_l.cwiseProduct(sigma_l).cwiseInverse();
+}
+GaussianKernel::GaussianKernel(const double sigma_f, const double sigma_l, Dimension size)
+    : Kernel{size + 1}, sigma_l_diagonal_{} {
+  LUCID_CHECK_ARGUMENT_EXPECTED(size > 0, "size", size, "at least 1");
+  parameters_(0) = sigma_f;
+  parameters_.tail(size) = Vector::Constant(size, sigma_l);
+  sigma_l_diagonal_ = Vector::Constant(size, sigma_l * sigma_l).cwiseInverse();
 }
 
 Scalar GaussianKernel::operator()(const Vector& x1, const Vector& x2) const {

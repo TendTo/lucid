@@ -37,6 +37,13 @@ class GaussianKernel final : public Kernel {
    * @param sigma_l @f$ \sigma_l @f$ value
    */
   GaussianKernel(double sigma_f, const Vector& sigma_l);
+  /**
+   * Construct a new GaussianKernel object with the given parameters.
+   * @param sigma_f @f$ \sigma_f @f$ value
+   * @param sigma_l @f$ \sigma_l @f$ value. Is equal for all dimensions.
+   * @param size dimension of the vector space
+   */
+  GaussianKernel(double sigma_f, double sigma_l, Dimension size);
   /** @getter{@f$ \sigma_f @f$ value, kernel} */
   [[nodiscard]] Scalar sigma_f() const { return parameters_(0); }
   /** @getter{@f$ \sigma_l @f$ value, kernel} */
