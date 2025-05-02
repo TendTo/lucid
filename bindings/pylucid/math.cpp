@@ -143,8 +143,8 @@ void init_math(py::module_ &m) {
       }))
       .def("__len__", [](const MultiSet &self) { return self.sets().size(); })
       .def(
-          "__getitem__", [](const MultiSet &self, const Index index) -> const Set & { return *self.sets()[index]; },
-          py::return_value_policy::reference)
+          "__getitem__", [](const MultiSet &self, const Index index) { return self.sets()[index].get(); },
+          py::return_value_policy::reference_internal)
       .def("__str__", STRING_LAMBDA(MultiSet));
 
   /**************************** Project ****************************/

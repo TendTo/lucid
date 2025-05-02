@@ -1,4 +1,3 @@
-import sys
 import math
 import numpy as np
 from pylucid import (
@@ -14,6 +13,51 @@ from pylucid import (
     GUROBI_BUILD,
 )
 from scipy.spatial.distance import cdist
+
+
+def print_solution(
+    X_bounds: RectSet,
+    X_init: RectSet,
+    X_unsafe: MultiSet,
+    tffm: TruncatedFourierFeatureMap,
+    eta: float,
+    gamma: float,
+    sol: "np.typing.NDArray[np.float64]",
+):
+    if __name__ != "__main__":  # only plot if run as script
+        return
+
+    import matplotlib.pyplot as plt
+
+    plt.xlim(X_bounds.lower_bound, X_bounds.upper_bound)
+    # Draw the unsafe set
+    for i in range(len(X_unsafe)):
+        unsafe_set = X_unsafe[i]
+        plt.plot(
+            [unsafe_set.lower_bound, unsafe_set.upper_bound],
+            [0, 0],
+            color="red",
+            label="unsafe set" if i == 0 else "",
+        )
+
+    plt.plot(
+        [X_init.lower_bound, X_init.upper_bound],
+        [0, 0],
+        color="blue",
+        label="initial set",
+    )
+    x_lattice = X_bounds.lattice(100)
+    f_lattice = tffm(x_lattice)
+    values = f_lattice @ sol.T
+    plt.plot(x_lattice, values, color="green")
+    plt.plot((X_bounds.lower_bound, X_bounds.upper_bound), (eta, eta), color="green", linestyle="dotted", label="eta")
+    plt.plot(
+        (X_bounds.lower_bound, X_bounds.upper_bound), (gamma, gamma), color="red", linestyle="dotted", label="gamma"
+    )
+    plt.title("Barrier certificate")
+    plt.xlabel("State space")
+    plt.legend()
+    plt.show()
 
 
 def median_heuristic(X, Y):
@@ -126,8 +170,11 @@ def test_building_automation_system():
 
     o = GurobiLinearOptimiser(T, gamma, 0, 1, 1, sigma_f)
 
-    def check_cb(success: bool, obj_val: float, eta: float, c: float, norm: float):
+    def check_cb(
+        success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
+    ):
         print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }")
+        print_solution(X_bounds, X_init, X_unsafe, tffm, eta, gamma, sol)
         assert success
 
     try:
@@ -145,8 +192,6 @@ def test_building_automation_system():
         assert GUROBI_BUILD
     except LucidNotSupportedException:
         assert not GUROBI_BUILD  # Did not compile against Gurobi. Ignore this test.
-
-    sys.exit(1)
 
 
 if __name__ == "__main__":
