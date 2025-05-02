@@ -10,12 +10,12 @@
 - [x] Implement second test case
 - [x] Implement a proper fftn
 - [x] Check whether it is possible to avoid the padding to get the same information
-    - If it is, implement the alternative
-    - [x] Otherwise, implement the padding
+  - If it is, implement the alternative
+  - [x] Otherwise, implement the padding
 - [x] Handle permutations
 - [x] Keep track of permutations
-    - Is it better to do a lazy permutation, carrying the updated strides and axes (and dims?)
-    - [x] Or just eagerly update the data structure?
+  - Is it better to do a lazy permutation, carrying the updated strides and axes (and dims?)
+  - [x] Or just eagerly update the data structure?
 
 ### Activity 2
 
@@ -37,7 +37,6 @@ flowchart LR
     a1 --> a2 --> a3 --> a4
     wp1 --> m1
 ```
-
 
 ## Notes
 

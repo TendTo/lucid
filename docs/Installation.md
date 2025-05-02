@@ -3,15 +3,23 @@
 ## From Docker
 
 A pre-build Docker image is available on the [GitHub repository](https://github.com/TendTo/lucid/pkgs/container/lucid).
-To use it, run the following command:
+First, pull the image from the repository's container registry:
 
 ```bash
 # Pull the image
 docker pull ghcr.io/tendto/lucid:main
+```
+
+Then, simply run the image with the following command:
+
+```bash
 # Run the image
 # Mount the script you want to run (e.g. /path/to/script.py) somewhere in the container (e.g. /scripts)
 # Keep in mind that you need to mount a Gurobi Web License (gurobi.lic) in the container
-docker run --name lucid -it --rm -v/path/to/my/scripts:/scripts --volume=/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro ghcr.io/tendto/lucid:main /scripts/script.py
+docker run --name lucid -it --rm \
+  -v/path/to/script.py:/scripts \
+  -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
+  ghcr.io/tendto/lucid:main /scripts/script.py
 ```
 
 ## From source
@@ -62,12 +70,12 @@ bazel run //lucid -- [args]
 ### Build options
 
 Lucid comes with a few predefined build configuration for the most common use cases.
-Just add the `--config` flag to the build command to use one of them.
+Just add the `--config` flag followed by the desired configuration when running Bazel.
 
-| Configuration | Optimisations | Debug symbols | Assertions | Checks | Static linking | Used for              |
-| ------------- | ------------- | ------------- | ---------- | ------ | -------------- | --------------------- |
-| **default**   | ?             | ?             | Yes        | Yes    | No             | A fast, default build |
-| `dbg`         | No            | Yes           | Yes        | Yes    | No             | Testing and debugging |
-| `opt`         | Yes           | No            | No         | Yes    | No             | Production            |
-| `bench`       | Yes           | No            | No         | No     | Yes            | Benchmarking          |
-| `py`          | Yes           | No            | No         | No     | Yes            | Python bindings       |
+| Configuration | Optimisations | Debug symbols | Assertions | Input checks | Used for              |
+| ------------- | ------------- | ------------- | ---------- | ------------ | --------------------- |
+| **default**   | ?             | ?             | Yes        | Yes          | A fast, default build |
+| `dbg`         | No            | Yes           | Yes        | Yes          | Testing and debugging |
+| `opt`         | Yes           | No            | No         | Yes          | Production            |
+| `bench`       | Yes           | No            | No         | No           | Benchmarking          |
+| `py`          | Yes           | No            | No         | Yes          | Python bindings       |

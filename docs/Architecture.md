@@ -109,8 +109,8 @@ flowchart TD
     Syn -- "Deploy Robust <br> Controller" --> C
     Ver -- Feedback --> RL
     Spec["Specification Block"] -- Automaton --> Ver
-    A@{ shape: rounded}
-    Env@{ shape: rounded}
+    A["Agent"]
+    Env["Environment"]
      A:::Rose
      Env:::Sky
     classDef Rose stroke-width:1px, stroke-dasharray:none, stroke:#FF5978, fill:#FFDFE5, color:#8E2236

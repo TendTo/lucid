@@ -1,0 +1,25 @@
+div.header {
+  background-color: transparent;
+  border: 0;
+}
+
+#doc-content {
+  position: relative;
+}
+
+#doc-content::before {
+  content: "";
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  width: 100%;
+  height: 100%;
+  background-image: url("./lucid-banner.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: -1;
+}
+
+html.light-mode #doc-content::before {
+  filter: invert(1);
+}
