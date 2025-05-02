@@ -24,7 +24,7 @@ class GurobiLinearOptimiser {
    * @param c c value. 0 if no solution was found
    * @param norm actual norm of the barrier function. 0 if no solution was found
    */
-  using SolutionCallback = std::function<void(bool, double, double, double, double)>;
+  using SolutionCallback = std::function<void(bool, double, const Vector&, double, double, double)>;
 
   /* @getter{time horizon, solver} */
   [[nodiscard]] int T() const { return T_; }
@@ -62,14 +62,14 @@ class GurobiLinearOptimiser {
    * @param num_frequencies_per_dim number of frequencies per dimension
    * @param num_frequency_samples_per_dim number of frequency samples per dimension
    * @param original_dim original dimension
-   * @param callback callback function
+   * @param cb callback function
    * @return true if the optimisation was successful
    * @return false if no solution was found
    */
   [[nodiscard]] bool solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
                            ConstMatrixRef w_mat, Dimension rkhs_dim, Dimension num_frequencies_per_dim,
                            Dimension num_frequency_samples_per_dim, Dimension original_dim,
-                           const SolutionCallback& callback) const;
+                           const SolutionCallback& cb) const;
 
  private:
   const int T_;           ///< Time horizon

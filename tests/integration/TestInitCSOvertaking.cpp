@@ -134,15 +134,17 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
 
   [[maybe_unused]] GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
 #ifdef LUCID_GUROBI_BUILD
-  const bool res = optimiser.solve(
-      f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1, n_per_dim, dimension,
-      [](const bool success, const double obj_val, const double eta, const double c, const double norm) {
-        EXPECT_TRUE(success);
-        EXPECT_NEAR(obj_val, 0.77774607136635343, tolerance);
-        EXPECT_NEAR(eta, 0.38887303568317672, tolerance);
-        EXPECT_NEAR(c, 0.0, tolerance);
-        EXPECT_NEAR(norm, 0.58449853272166907, tolerance);
-      });
+  const bool res = optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1,
+                                   n_per_dim, dimension,
+                                   [](const bool success, const double obj_val, const Vector& sol, const double eta,
+                                      const double c, const double norm) {
+                                     EXPECT_TRUE(success);
+                                     EXPECT_NEAR(obj_val, 0.77774607136635343, tolerance);
+                                     EXPECT_NEAR(eta, 0.38887303568317672, tolerance);
+                                     EXPECT_NEAR(c, 0.0, tolerance);
+                                     EXPECT_NEAR(norm, 0.58449853272166907, tolerance);
+                                     EXPECT_EQ(sol.size(), 127);
+                                   });
   EXPECT_TRUE(res);
 #endif
 }

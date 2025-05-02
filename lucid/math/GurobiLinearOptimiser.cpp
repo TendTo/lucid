@@ -54,7 +54,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   GRBVar& maxXX = vars[vars.size() - 2];
   GRBVar& minDelta = vars[vars.size() - 1];
 
-  // Variables related to the feature map [0, 71)
+  // Variables related to the feature map
   for (GRBVar& var : vars.subspan(0, rkhs_dim)) {
     var.set(GRB_DoubleAttr_LB, -max_num);
     var.set(GRB_DoubleAttr_UB, max_num);
@@ -147,8 +147,8 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   model.optimize();
 
   if (model.get(GRB_IntAttr_SolCount) == 0) {
-    LUCID_WARN_FMT("No solution found, optimization status = {}", model.get(GRB_IntAttr_Status));
-    cb(false, 0, 0, 0, 0);
+    LUCID_INFO_FMT("No solution found, optimization status = {}", model.get(GRB_IntAttr_Status));
+    cb(false, 0, Vector{}, 0, 0, 0);
     return false;
   }
 
@@ -161,12 +161,8 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   if (actual_norm > b_norm_) {
     LUCID_WARN_FMT("Actual norm exceeds bound: {} > {} (diff: {})", actual_norm, b_norm_, actual_norm - b_norm_);
   }
-  double eta_result = eta.get(GRB_DoubleAttr_X);
-  double c_result = c.get(GRB_DoubleAttr_X);
-  LUCID_INFO_FMT("eta: {}", eta_result);
-  LUCID_INFO_FMT("c: {}", c_result);
 
-  cb(true, model.get(GRB_DoubleAttr_ObjVal), eta.get(GRB_DoubleAttr_X), c.get(GRB_DoubleAttr_X), actual_norm);
+  cb(true, model.get(GRB_DoubleAttr_ObjVal), solution, eta.get(GRB_DoubleAttr_X), c.get(GRB_DoubleAttr_X), actual_norm);
   return true;
 }
 #else
