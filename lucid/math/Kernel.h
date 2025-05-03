@@ -32,7 +32,7 @@ class Kernel {
   [[nodiscard]] const Vector& parameters() const { return parameters_; }
 
   /**
-   * Apply the kernel function to two vectors.
+   * Compute the kernel function to two vectors.
    * @param x1 first vector
    * @param x2 second vector
    * @return kernel value
@@ -45,13 +45,6 @@ class Kernel {
    * @return new instance of the kernel
    */
   [[nodiscard]] virtual std::unique_ptr<Kernel> clone() const = 0;
-  /**
-   * Clone the kernel with new parameters.
-   * Create a new instance of the kernel with the given `params`.
-   * @param params new parameters to use for the cloned kernel
-   * @return new instance of the kernel
-   */
-  [[nodiscard]] virtual std::unique_ptr<Kernel> clone(const Vector& params) const = 0;
 
  protected:
   Vector parameters_;  ///< Kernel parameters

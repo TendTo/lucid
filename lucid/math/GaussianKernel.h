@@ -51,12 +51,14 @@ class GaussianKernel final : public Kernel {
 
   Scalar operator()(const Vector& x1, const Vector& x2) const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
-  [[nodiscard]] std::unique_ptr<Kernel> clone(const Vector& params) const override;
 
  private:
   Vector sigma_l_sq_diagonal_inv_;  ///< @f$ \text{diag}(\sigma_l^2) @f$ cached for performance.
                              ///< Being vector, `.asDiagonal()` is needed to convert it to a diagonal matrix before use
 };
+
+using RadialBasisFunction = GaussianKernel;       ///< Alias for Gaussian kernel.
+using SquaredExponentialKernel = GaussianKernel;  ///< Alias for Gaussian kernel.
 
 std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel);
 

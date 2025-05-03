@@ -23,6 +23,22 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "kernel_hyper_parameter",
+    srcs = [
+        "KernelHyperParameter.cpp",
+    ],
+    hdrs = [
+        "KernelHyperParameter.h",
+    ],
+    implementation_deps = [
+        "//lucid/util:error",
+    ],
+    deps = [
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
     name = "kernel",
     srcs = [
         "GaussianKernel.cpp",
