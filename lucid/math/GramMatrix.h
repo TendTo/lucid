@@ -35,14 +35,14 @@ class GramMatrix {
  public:
   /**
    * Compute the Gram matrix from the kernel and the initial states.
-   * The initial states should be an @sxn matrix where @n is the dimension of the vector space @X
-   * and @s is the number of states used to compute the Gram matrix, i.e.
+   * The initial states should be an @Nxn matrix where @n is the dimension of the vector space @X
+   * and @N is the number of states used to compute the Gram matrix, i.e.
    * @f[
    * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
    * @f]
    * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
    * @param kernel rkhs kernel used to compute the Gram matrix
-   * @param initial_states @s initial states used to compute the Gram matrix
+   * @param initial_states @N initial states used to compute the Gram matrix
    * @param regularization_constant regularization constant added to the diagonal of the Gram matrix
    */
   template <class Derived>
@@ -59,20 +59,20 @@ class GramMatrix {
 
   /**
    * Compute the Gram matrix from the kernel and the initial states and immediately compute the coefficients too.
-   * The `initial_states` should be an @sxn matrix where @n is the dimension of the vector space @X
-   * and @s is the number of states used to compute the Gram matrix, i.e.
+   * The `initial_states` should be an @Nxn matrix where @n is the dimension of the vector space @X
+   * and @N is the number of states used to compute the Gram matrix, i.e.
    * @f[
    * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
    * @f]
    * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
-   * In a similar fashion, the `transition_states` should be an @sxn matrix
+   * In a similar fashion, the `transition_states` should be an @Nxn matrix
    * @f[
    * \text{transition_states} = \begin{bmatrix} t(x_1) \\ t(x_2) \\ \vdots \\ t(x_s) \end{bmatrix}
    * @f]
    * where @f$ t: \mathcal{X} \to \mathcal{X} @f$ is some transition function.
    * @param kernel rhks kernel used to compute the Gram matrix
-   * @param initial_states @s row vector initial states used to compute the Gram matrix
-   * @param transition_states @s row vector states obtained after applying the transition function to each initial state
+   * @param initial_states @N row vector initial states used to compute the Gram matrix
+   * @param transition_states @N row vector states obtained after applying the transition function to each initial state
    * @param regularization_constant regularization constant added to the diagonal of the Gram matrix
    */
   // GramMatrix(const Kernel& kernel, Matrix initial_states);
@@ -80,7 +80,7 @@ class GramMatrix {
   /**
    * Given the initial state @f$ x \in \mathcal{X} @f$, compute the coefficients @f$ \alpha \in \mathbb{R}^s @f$.
    * The coefficients will be stored to be used later to interpolate the transition function on an arbitrary state.
-   * @param transition_states @s row vector states obtained after applying the transition function to each initial state
+   * @param transition_states @N row vector states obtained after applying the transition function to each initial state
    */
   void compute_coefficients(const Matrix& transition_states);
 

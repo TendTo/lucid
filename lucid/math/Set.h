@@ -30,9 +30,9 @@ class Set {
   /** @getter{dimension, set @U} */
   [[nodiscard]] virtual Dimension dimension() const = 0;
   /**
-   * Extract @s elements from @U using some kind of random distribution.
+   * Extract @N elements from @U using some kind of random distribution.
    * @param num_samples number of samples to generate @s
-   * @return @sxn matrix of samples, where @n is the dimension of @U.
+   * @return @Nxn matrix of samples, where @n is the dimension of @U.
    * In other words, the samples are stored as rows vectors in the matrix
    */
   [[nodiscard]] virtual Matrix sample_element(Index num_samples) const = 0;
@@ -79,9 +79,9 @@ class Set {
   /** Plot the set information using matplotlib in 3D. */
   virtual void plot3d(const std::string& color) const = 0;
   /**
-   * Extract @s elements element from @U using some kind of random distribution, where @s is the number of rows in @x.
-   * @param[out] x @sxn matrix to store the elements
-   * @return @sxn matrix of samples, where @n is the dimension of @U.
+   * Extract @N elements element from @U using some kind of random distribution, where @N is the number of rows in @x.
+   * @param[out] x @Nxn matrix to store the elements
+   * @return @Nxn matrix of samples, where @n is the dimension of @U.
    */
   template <class Derived>
   Eigen::MatrixBase<Derived>& operator>>(Eigen::MatrixBase<Derived>& x) const {
