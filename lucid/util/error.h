@@ -112,6 +112,13 @@
         fmt::format("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected)); \
   } while (false)
 
+#define LUCID_INVALID_KERNEL_PARAMETER(kernel, parameter)                       \
+  do {                                                                          \
+    LUCID_ERROR_FMT("Invalid kernel parameter for {}: {}", kernel, parameter);  \
+    throw ::lucid::exception::LucidInvalidArgumentException(                    \
+        fmt::format("Invalid kernel parameter for {}: {}", kernel, parameter)); \
+  } while (false)
+
 #define LUCID_PY_ERROR(msg)                          \
   do {                                               \
     LUCID_ERROR(msg);                                \

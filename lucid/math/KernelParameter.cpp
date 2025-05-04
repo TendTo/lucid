@@ -4,19 +4,19 @@
  * @licence BSD 3-Clause License
  * @file
  */
-#include "lucid/math/KernelHyperParameter.h"
+#include "lucid/math/KernelParameter.h"
 
 #include <ostream>
 
 #include "lucid/util/error.h"
 
 namespace lucid {
-std::ostream& operator<<(std::ostream& os, const KernelHyperParameter name) {
+std::ostream& operator<<(std::ostream& os, const KernelParameter name) {
   switch (name) {
-    case KernelHyperParameter::LENGTH_SCALE:
+    case KernelParameter::LENGTH_SCALE:
       return os << "Length scale";
-    case KernelHyperParameter::VARIANCE:
-      return os << "Variance";
+    case KernelParameter::MEAN:
+      return os << "Mean";
     default:
       LUCID_UNREACHABLE();
   }

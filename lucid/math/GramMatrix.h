@@ -43,7 +43,6 @@ class GramMatrix {
    * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
    * @param kernel rkhs kernel used to compute the Gram matrix
    * @param initial_states @N initial states used to compute the Gram matrix
-   * @param regularization_constant regularization constant added to the diagonal of the Gram matrix
    */
   template <class Derived>
   GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states)
