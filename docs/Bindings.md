@@ -50,15 +50,12 @@ This will install the bindings in your Python environment, allowing you to use t
 After installing, you can run the following command to check if everything is working correctly:
 
 ```bash
-python -c "import pylucid; print(pylucid.__version__)"
+python3 -c "import pylucid; print(pylucid.__version__)"
 ```
 
 ### Troubleshooting
 
-<details>
-<summary>
-<b>ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory</b>
-</summary>
+#### ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory</b>
 
 This error occurs when the expected Python shared library is not found in the expected location on the system
 To fix this, you need to set the `LD_LIBRARY_PATH` environment variable to include the path to the Python library.
@@ -76,4 +73,3 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(conda info --base)/envs/your_env/lib
 
 This change will only last for the current session.
 
-</details>

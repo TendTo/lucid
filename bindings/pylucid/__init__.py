@@ -2,9 +2,9 @@
 
 import os
 
-if os.name == "nt":
+if os.name == "nt" and os.environ.get("GUROBI_HOME", "") != "":
     # Windows
-    os.add_dll_directory(f'{os.environ.get("GUROBI_HOME", "")}/bin')
+    os.add_dll_directory(os.path.join(os.environ.get("GUROBI_HOME", ""), "bin"))
 
 from ._pylucid import *
 from ._pylucid import __version__ as __pylucid_version__, __doc__ as __pylucid_doc__

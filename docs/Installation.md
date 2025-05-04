@@ -2,6 +2,13 @@
 
 ## From Docker
 
+### Requirements
+
+- [Docker](https://www.docker.com/)
+- [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+
+### Using Lucid with Docker
+
 A pre-build Docker image is available on the [GitHub repository](https://github.com/TendTo/lucid/pkgs/container/lucid).
 First, pull the image from the repository's container registry:
 
@@ -15,7 +22,7 @@ Then, simply run the image with the following command:
 ```bash
 # Run the image
 # Mount the script you want to run (e.g. /path/to/script.py) somewhere in the container (e.g. /scripts)
-# Keep in mind that you need to mount a Gurobi Web License (gurobi.lic) in the container
+# Keep in mind that you need to mount a Gurobi WS License (gurobi.lic) in the container
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
@@ -32,8 +39,8 @@ Other versions may work as well, but they have not been tested.
 - [Bazel](https://bazel.build/) 8.1.1
   - We suggest using [bazelisk](https://github.com/bazelbuild/bazelisk) to manage Bazel's version.
 - C++ compiler with C++20 support
-  - [gcc](https://gcc.gnu.org/) 11.4.0
-  - [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+  - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
+  - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
 > [!NOTE]  

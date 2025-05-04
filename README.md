@@ -21,10 +21,14 @@ For more details, see the [installation instructions](docs/Installation.md).
 
 ### Docker
 
+> [!Note]  
+> You will need a [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+
 ```bash
 # Pull the image
 docker pull ghcr.io/tendto/lucid:main
-# Run the image on script/path/to/script.py while providing the Gurobi license /path/to/gurobi.lic
+# Run the image on script/path/to/script.py.
+# Needs the Gurobi WS licence /path/to/gurobi.lic
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
@@ -51,8 +55,12 @@ git clone https://github.com/TendTo/lucid.git
 cd lucid
 # Create a virtual environment (optional)
 python3 -m venv .venv
-# Activate the virtual environment (optional)
+# Activate the virtual environment on Linux (optional)
 source .venv/bin/activate
+# Activate the virtual environment on Windows (optional)
+.\.venv\Scripts\activate
 # Install the python wrapper (pylucid)
 pip install .
+# Ensure pylucid is installed
+python3 -c "import pylucid; print(pylucid.__version__)"
 ```
