@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Build
-        run: bazel build --enable_gurobi_build=False //lucid
+        run: bazel build --enable_gurobi_build=False --enable_matplotlib_build=False //lucid
 
   lint:
     strategy:
@@ -64,7 +64,7 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Lint
-        run: bazel test --enable_gurobi_build=False //lucid/...
+        run: bazel test --enable_gurobi_build=False --enable_matplotlib_build=False //lucid/...
 
   unit-test:
     strategy:
@@ -89,7 +89,7 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Test
-        run: bazel test --enable_gurobi_build=False //tests/unit/...
+        run: bazel test --enable_gurobi_build=False --enable_matplotlib_build=False //tests/unit/...
 
   integration-test:
     strategy:
@@ -114,7 +114,7 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Test
-        run: bazel test --enable_gurobi_build=False //tests/integration/...
+        run: bazel test --enable_gurobi_build=False --enable_matplotlib_build=False //tests/integration/...
 
   dwyu:
     strategy:
@@ -139,4 +139,4 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Test
-        run: bazel build --enable_gurobi_build=False --config=dwyu //lucid
+        run: bazel build --enable_gurobi_build=False --enable_matplotlib_build=False --config=dwyu //lucid
