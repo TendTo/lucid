@@ -22,7 +22,7 @@ bazel_dep(name = "eigen", version = "3.4.0.bcr.3")
 bazel_dep(name = "argparse", version = "3.0.0")
 
 # MIT | C++ library for formatting text
-bazel_dep(name = "fmt", version = "10.2.1")
+bazel_dep(name = "fmt", version = "11.1.4")
 
 # MIT | logging library
 bazel_dep(name = "spdlog", version = "1.15.2")
