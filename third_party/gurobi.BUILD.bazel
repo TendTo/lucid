@@ -1,5 +1,6 @@
 """Gurobi library for Bazel"""
 
+load("@lucid//tools:make_var_substitution.bzl", "make_var_substitution")
 load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
 
 licenses(["notice"])
@@ -71,6 +72,8 @@ cc_import(
     visibility = ["//visibility:private"],
 )
 
+make_var_substitution(name = "env_vars")
+
 cc_library(
     name = "gurobi",
     deps = select({
@@ -79,5 +82,9 @@ cc_library(
     }),
     includes = ["include"],
     visibility = ["//visibility:public"],
-    linkopts = ["-Wl,-rpath,$GUROBI_HOME/lib"],
+    linkopts = select({
+        "@platforms//os:windows": [],
+        "//conditions:default": ["-Wl,-rpath,$(GUROBI_HOME)/lib"],
+    }),
+    toolchains = [":env_vars"],
 )

@@ -27,6 +27,7 @@ def _make_var_substitution_impl(ctx):
     vars["LUCID_LICENSE"] = LUCID_LICENSE
     vars["LUCID_SOURCE"] = LUCID_SOURCE
     vars["LUCID_TRACKER"] = LUCID_TRACKER
+    vars["GUROBI_HOME"] = ctx.configuration.default_shell_env.get("GUROBI_HOME", "/opt/gurobi") 
 
     return [platform_common.TemplateVariableInfo(vars)]
 

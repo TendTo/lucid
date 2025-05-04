@@ -40,6 +40,7 @@ Other versions may work as well, but they have not been tested.
 > Both a Gurobi installation and a valid license are required to build and run Lucid.  
 > To indicate the location of the Gurobi installation, ensure that the `GUROBI_HOME` environment variable is set correctly.
 > Alternatively, provide the flag `--repo_env=GUROBI_HOME=/path/to/gurobi` when running Bazel or set the `default_gurobi_home` parameter in the `MODULE.bazel` file.
+> You can also add the `--action_env=GUROBI_HOME=/path/to/gurobi` flag so that the gurobi installation is added to the `rpath` of the binary.
 
 ### Building Lucid
 
