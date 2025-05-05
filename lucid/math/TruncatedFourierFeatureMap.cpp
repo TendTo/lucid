@@ -45,13 +45,13 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
   }
 
   const Matrix comb = combvec(prob_dim_wise);
-  auto prod = comb.colwise().prod().transpose();
+  const auto prod = comb.colwise().prod();
   if (Scalar sum = prod.sum(); sum > 0.9)
     LUCID_INFO_FMT("Probability captured by Fourier expansion is {:.3f} percent", sum);
   else
     LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", sum);
 
-  const auto single_weights = prod.transpose().cwiseSqrt();
+  const auto single_weights = prod.cwiseSqrt();
   // TODO(tend): Repeat each column twice, except the first one, or repeat all?
   for (Index i = 0; i < single_weights.size(); i++) {
     weights_(2 * i) = single_weights(i);
