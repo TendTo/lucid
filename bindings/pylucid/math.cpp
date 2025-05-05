@@ -60,6 +60,21 @@ class PySet : public Set {
   void plot3d(const std::string &color) const override { PYBIND11_OVERRIDE_PURE(void, Set, plot3d, color); }
 };
 
+class MultiSetIterator {
+ public:
+  explicit MultiSetIterator(const MultiSet &multi_set, std::size_t index = 0) : multi_set_{multi_set}, index_{index} {}
+  const Set &operator*() const { return *multi_set_.sets().at(index_); }
+  MultiSetIterator &operator++() {
+    ++index_;
+    return *this;
+  }
+  bool operator==(const MultiSetIterator &o) const { return &multi_set_ == &o.multi_set_ && index_ == o.index_; }
+
+ private:
+  const MultiSet &multi_set_;
+  std::size_t index_;
+};
+
 void init_math(py::module_ &m) {
   /**************************** Kernel ****************************/
   py::class_<Kernel, PyKernel>(m, "Kernel")
@@ -141,9 +156,15 @@ void init_math(py::module_ &m) {
         }
         return MultiSet(std::move(unique_sets));
       }))
+      .def(
+          "__iter__",
+          [](const MultiSet &self) {
+            return py::make_iterator(MultiSetIterator{self}, MultiSetIterator{self, self.sets().size()});
+          },
+          py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
       .def("__len__", [](const MultiSet &self) { return self.sets().size(); })
       .def(
-          "__getitem__", [](const MultiSet &self, const Index index) { return self.sets()[index].get(); },
+          "__getitem__", [](const MultiSet &self, const Index index) -> const Set & { return *self.sets()[index]; },
           py::return_value_policy::reference_internal)
       .def("__str__", STRING_LAMBDA(MultiSet));
 
