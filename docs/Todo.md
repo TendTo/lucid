@@ -10,12 +10,12 @@
 - [x] Implement second test case
 - [x] Implement a proper fftn
 - [x] Check whether it is possible to avoid the padding to get the same information
-  - If it is, implement the alternative
-  - [x] Otherwise, implement the padding
+    - If it is, implement the alternative
+    - [x] Otherwise, implement the padding
 - [x] Handle permutations
 - [x] Keep track of permutations
-  - Is it better to do a lazy permutation, carrying the updated strides and axes (and dims?)
-  - [x] Or just eagerly update the data structure?
+    - Is it better to do a lazy permutation, carrying the updated strides and axes (and dims?)
+    - [x] Or just eagerly update the data structure?
 
 ### Activity 2
 
@@ -30,9 +30,15 @@ flowchart LR
     end
     m1>"(M1) Useful tool"]
     subgraph Extensions
+        direction RL
         e1(["(E1) Inductive k barriers"])
         m2>"(M2) Control synthesis"]
         e2(["(E2) Reachability specifications"])
+        e3(["(E3) Verification with dreal (or Z3 / CVC5)"])
+        e4(["(E4) Change of the LP solver"])
+        e5(["(E5) Non linear optimizer for the synthesis"])
+        e6(["(E6) Guiding the optimizing process via heuristics"])
+        e7(["(E7) Pipeline of kernels"])
     end
     a1 --> a2 --> a3 --> a4
     wp1 --> m1
@@ -40,4 +46,5 @@ flowchart LR
 
 ## Notes
 
-- Expectation oracle: given a set of pairs (input, output), produce an oracle such that $\mathbb{E}_{x^+\approx\bar{t}(\cdot|x,u)}[\cdot(x^+)] = y$ for all pairs $(x,y)$
+- Expectation oracle: given a set of pairs (input, output), produce an oracle such
+  that $\mathbb{E}_{x^+\approx\bar{t}(\cdot|x,u)}[\cdot(x^+)] = y$ for all pairs $(x,y)$

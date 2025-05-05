@@ -21,8 +21,12 @@ For more details, see the [installation instructions](docs/Installation.md).
 
 ### Docker
 
-> [!Note]  
-> You will need a [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+#### Requirements
+
+- [Docker](https://www.docker.com/)
+- [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+
+#### Command
 
 ```bash
 # Pull the image
@@ -35,18 +39,18 @@ docker run --name lucid -it --rm \
   ghcr.io/tendto/lucid:main /scripts/script.py
 ```
 
-### Source
-
-```bash
-# Clone the repository
-git clone https://github.com/TendTo/lucid.git
-# Change directory
-cd lucid
-# Compile and run lucid
-bazel run //lucid -- [args]
-```
-
 ### Python (from source)
+
+#### Requirements
+
+- [Bazel](https://bazel.build/) 8.1.1
+- [Python](https://www.python.org/) 3.8 or higher
+- C++ compiler with C++20 support
+    - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
+    - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+- [Gurobi](https://www.gurobi.com/) 12.0.1
+
+#### Command
 
 ```bash
 # Clone the repository
@@ -63,4 +67,29 @@ source .venv/bin/activate
 pip install .
 # Ensure pylucid is installed
 python3 -c "import pylucid; print(pylucid.__version__)"
+```
+
+### Source
+
+#### Requirements
+
+- [Bazel](https://bazel.build/) 8.1.1
+- C++ compiler with C++20 support
+    - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
+    - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+- [Gurobi](https://www.gurobi.com/) 12.0.1
+
+> [!Important]  
+> While it is possible to run the Lucid binary following the instructions below,
+> right now it does nothing but print some random numbers.
+
+#### Command
+
+```bash
+# Clone the repository
+git clone https://github.com/TendTo/lucid.git
+# Change directory
+cd lucid
+# Compile and run lucid
+bazel run //lucid -- [args]
 ```
