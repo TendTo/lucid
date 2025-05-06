@@ -15,6 +15,66 @@ from pylucid import (
 )
 
 
+from cvc5.pythonic import Real, solve, Solver, sat, Cosine, Sine, ArithRef, BoolVal, And, Or, Implies, ExprRef, Not
+import sys
+
+
+def set_contraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef":
+    if isinstance(X_set, RectSet):
+        return And(*(b for i, x in enumerate(xs) for b in (x >= X_set.lower_bound[i], x <= X_set.upper_bound[i])))
+    if isinstance(X_set, MultiSet):
+        expr = None
+        for rect in X_set:
+            expr = Or(expr, set_contraint(xs, rect)) if expr is not None else set_contraint(xs, rect)
+        return expr
+    raise ValueError("X_set must be a RectSet or MultiSet.")
+
+
+def verify_barrier_certificate(
+    X_bounds: RectSet,
+    X_init: RectSet,
+    X_unsafe: MultiSet,
+    eta: float,
+    gamma: float,
+    tffm: TruncatedFourierFeatureMap,
+    sol: "np.typing.NDArray[np.float64]",
+):
+    if __name__ != "__main__":  # only verify if run as script
+        return
+
+    # Create symbolic variables for the input dimensions
+    xs = [Real(f"x{i}") for i in range(X_bounds.dimension)]
+
+    # Encode the truncated Fourier feature map as a symbolic expression in terms of xs
+    sym_tffm = [tffm.weights[0]]
+    for row in tffm.omega[1:]:
+        sym_tffm.append(Cosine(sum(o * x for o, x in zip(row, xs, strict=True))))
+        sym_tffm.append(Sine(sum(o * x for o, x in zip(row, xs, strict=True))))
+    for i, w in enumerate(tffm.weights):
+        sym_tffm[i] *= w
+
+    barrier: ArithRef = sum(sym_t * s for sym_t, s in zip(sym_tffm, sol, strict=True))
+
+    s = Solver()
+    # Bounds on the input variables (X_bounds)
+    s.add(set_contraint(xs, X_bounds))
+    constraints = [
+        True,
+        # Non-negativity of the barrier function
+        barrier >= 0,
+        # Implies(set_contraint(xs, X_init), barrier <= eta),
+        # Implies(set_contraint(xs, X_unsafe), barrier >= gamma),
+    ]
+    s.add(Not(And(*constraints)))
+    # s.add(Implies(set_contraint(xs, X_init), barrier <= eta))
+    # s.add(Implies(set_contraint(xs, X_unsafe), barrier >= gamma))
+
+    # print(s.sexpr(), file=sys.stderr)
+    assert sat == s.check()
+    m = s.model()
+    print("Model:", m)
+
+
 def test_barrier_3():
     ######## PARAMS ########
     num_supp_per_dim = 12
@@ -102,6 +162,10 @@ def test_barrier_3():
         assert math.isclose(c, 0, rel_tol=tolerance)
         assert math.isclose(norm, 10.39392985811301, rel_tol=tolerance)
         print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }")
+        verify_barrier_certificate(
+            X_bounds=limit_set, X_init=initial_set, X_unsafe=unsafe_set, eta=1, gamma=gamma, tffm=tffm, sol=sol
+        )
+        exit(1)
 
     try:
         assert o.solve(
