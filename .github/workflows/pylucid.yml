@@ -36,12 +36,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bazel-
 
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
       - name: Run tests
         shell: bash
         run: |
           mkdir -p dist
           for py_version in 3.8 3.9 3.10 3.11 3.12 3.13; do
-            bazel test --config=py --python_version=$py_version --enable_gurobi_build=False //bindings/pylucid/tests/...
+            bazel test --config=py --python_version=$py_version --enable_gurobi_build=False //tests/bindings/pylucid/...
           done
 
   build:
@@ -114,3 +120,4 @@ jobs:
         with:
           skip-existing: true
           verbose: true
+          repository-url: https://test.pypi.org/legacy/
