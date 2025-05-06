@@ -23,7 +23,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
                                   const Dimension num_frequencies_per_dim,
                                   const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
                                   const SolutionCallback& cb) const {
-  constexpr double min_num = 0;  // %1e-13; % Minimum variable value for numerical stability
+  constexpr double min_num = 1e-8; // Minimum variable value for numerical stability
   constexpr double max_num = std::numeric_limits<double>::infinity();
   constexpr double min_eta = 0;
   const double C = pow((1 - 2.0 * num_frequencies_per_dim / num_frequency_samples_per_dim), -original_dim / 2.0);
