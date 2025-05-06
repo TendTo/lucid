@@ -28,7 +28,7 @@ Vector initializer_list_to_vector(std::initializer_list<Scalar> list) {
   std::ranges::copy(list, v.data());
   return v;
 }
-template <int I, template <class> class T>
+template <int I, template <class, class...> class T>
 Vector bounds_to_vector(const T<std::pair<Scalar, Scalar>>& bounds) {
   Vector v(bounds.size());
   Index i = 0;

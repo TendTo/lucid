@@ -13,8 +13,6 @@
 
 using namespace lucid;
 
-using Vector3 = Eigen::Matrix<double, 3, 1>;
-
 constexpr double tolerance = 1e-3;
 constexpr Dimension dimension = 3;
 constexpr int num_supp_per_dim = 31;
@@ -25,9 +23,9 @@ constexpr double kappa_b = 1.0;
 constexpr double gmma = 0.5;
 constexpr int T = 50;
 constexpr double lambda = 1e-5;
-constexpr int N = 1000;
 constexpr double epsilon = .1 / 30;
-constexpr bool autonomous = true;
+[[maybe_unused]] constexpr int N = 1000;
+[[maybe_unused]] constexpr bool autonomous = true;
 const RectSet limit_set{Vector3{1, -7, -std::numbers::pi}, Vector3{90, 19, std::numbers::pi}};  ///< Set.
 const MultiSet initial_set{RectSet{Vector3{1, -0.5, -0.005}, Vector3{2, 0.5, 0.005}}};          ///< Initial set.
 const MultiSet unsafe_set{

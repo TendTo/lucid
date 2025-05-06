@@ -21,9 +21,9 @@ constexpr double kappa_b = 1.0;
 constexpr double gmma = 18.312;
 constexpr int T = 10;
 constexpr double lambda = 1e-5;
-constexpr int N = 1000;
 constexpr double epsilon = 1e-3;
-constexpr bool autonomous = true;
+[[maybe_unused]] constexpr int N = 1000;
+[[maybe_unused]] constexpr bool autonomous = true;
 const RectSet limit_set{Vector2{-3, -2}, Vector2{2.5, 1}};                     ///< Set.
 const MultiSet initial_set{RectSet{Vector2{1, -0.5}, Vector2{2, 0.5}},         //
                            RectSet{Vector2{-1.8, -0.1}, Vector2{-1.2, 0.1}},   //
