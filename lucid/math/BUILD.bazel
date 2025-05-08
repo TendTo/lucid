@@ -56,6 +56,7 @@ lucid_cc_library(
         "//lucid/util:error",
     ],
     deps = [
+        ":feature_map",
         ":kernel",
         "//lucid/lib:eigen",
         "//lucid/util:concepts",

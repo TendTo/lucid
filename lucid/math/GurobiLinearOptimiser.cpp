@@ -23,7 +23,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
                                   const Dimension num_frequencies_per_dim,
                                   const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
                                   const SolutionCallback& cb) const {
-  constexpr double min_num = 1e-8; // Minimum variable value for numerical stability
+  constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
   constexpr double max_num = std::numeric_limits<double>::infinity();
   constexpr double min_eta = 0;
   const double C = pow((1 - 2.0 * num_frequencies_per_dim / num_frequency_samples_per_dim), -original_dim / 2.0);
@@ -37,7 +37,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   model.set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
   model.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
   model.set(GRB_DoubleParam_TimeLimit, 10000);
-  // model.set(GRB_IntParam_OutputFlag, 0);
+  model.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
 
   // Specify constraints
   // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case

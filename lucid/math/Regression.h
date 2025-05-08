@@ -10,6 +10,7 @@
 #include <iosfwd>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/math/FeatureMap.h"
 
 namespace lucid {
 
@@ -32,6 +33,7 @@ class Regression {
    * @return @f$ n \times d_y @f$ matrix of row vectors in @f$ \mathcal{Y} @f$
    */
   [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x) const = 0;
+  [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x, const FeatureMap& feature_map) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const Regression&);

@@ -9,6 +9,7 @@
 
 #include <utility>
 
+#include "lucid/math/FeatureMap.h"
 #include "lucid/math/Kernel.h"
 #include "lucid/math/Regression.h"
 #include "lucid/util/concept.h"
@@ -89,6 +90,7 @@ class KernelRidgeRegression final : public Regression {
                               regularization_constant} {}
 
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
+  [[nodiscard]] Matrix operator()(ConstMatrixRef x, const FeatureMap& feature_map) const override;
 
   /** @getter{kernel, regression} */
   [[nodiscard]] const K& kernel() const { return kernel_; }

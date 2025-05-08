@@ -66,6 +66,7 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
 #define LUCID_CRITICAL(msg) ::lucid::get_logger(::lucid::LoggerType::ERR)->critical(msg)
 #define LUCID_CRITICAL_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::ERR)->critical(msg, __VA_ARGS__)
 #define LUCID_INFO_ENABLED (::lucid::get_logger(::lucid::LoggerType::OUT)->should_log(spdlog::level::info))
+#define LUCID_DEBUG_ENABLED (::lucid::get_logger(::lucid::LoggerType::OUT)->should_log(spdlog::level::debug))
 #define LUCID_TRACE_ENABLED (::lucid::get_logger(::lucid::LoggerType::OUT)->should_log(spdlog::level::trace))
 
 #ifndef NDEBUG
@@ -119,6 +120,7 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
 #define LUCID_CRITICAL(msg) void(0)
 #define LUCID_CRITICAL_FMT(msg, ...) void(0)
 #define LUCID_INFO_ENABLED false
+#define LUCID_DEBUG_ENABLED false
 #define LUCID_TRACE_ENABLED false
 #define LUCID_DEV(msg) void(0)
 #define LUCID_DEV_FMT(msg, ...) void(0)

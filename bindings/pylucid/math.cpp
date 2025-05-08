@@ -41,6 +41,9 @@ class PyRegression : public Regression {
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(Matrix, Regression, "__call__", operator(), x);
   }
+  [[nodiscard]] Matrix operator()(ConstMatrixRef x, const FeatureMap &feature_map) const override {
+    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Regression, "__call__", operator(), x, feature_map);
+  }
 };
 
 class PySet : public Set {
@@ -107,7 +110,10 @@ void init_math(py::module_ &m) {
       .def_property_readonly("num_frequencies", &TruncatedFourierFeatureMap::num_frequencies);
 
   /**************************** Regression ****************************/
-  py::class_<Regression, PyRegression>(m, "Regression").def("__call__", &Regression::operator(), py::arg("x"));
+  py::class_<Regression, PyRegression>(m, "Regression")
+      .def("__call__", py::overload_cast<ConstMatrixRef>(&Regression::operator(), py::const_), py::arg("x"))
+      .def("__call__", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&Regression::operator(), py::const_),
+           py::arg("x"), py::arg("feature_map"));
   py::class_<KernelRidgeRegression<GaussianKernel>, Regression>(m, "GaussianKernelRidgeRegression")
       .def(py::init<GaussianKernel, Matrix, ConstMatrixRef, Scalar>(), py::arg("kernel"), py::arg("training_inputs"),
            py::arg("training_outputs"), py::arg("regularization_constant") = 0)
