@@ -39,17 +39,15 @@ class RectSet final : public Set {
   /**
    * Construct a rectangular set from lower and upper bounds.
    * Both bounds must belong to the same vector space.
-   * @param lb lower bound vector
-   * @param ub upper bound vector
+   * @param bounds vector of pairs of lower and upper bounds
    * @param seed random seed used of the sampling from this moment forward. If negative, the seed is not set
    */
-   RectSet(std::vector<std::pair<Scalar, Scalar>> bounds, int seed = -1);
+  explicit RectSet(std::vector<std::pair<Scalar, Scalar>> bounds, int seed = -1);
 
   /**
    * Construct a rectangular set from lower and upper bounds.
    * Both bounds must belong to the same vector space.
-   * @param lb lower bound vector
-   * @param ub upper bound vector
+   * @param bounds vector of pairs of lower and upper bounds
    * @param seed random seed used of the sampling from this moment forward. If negative, the seed is not set
    */
   RectSet(std::initializer_list<std::pair<Scalar, Scalar>> bounds, int seed = -1);
