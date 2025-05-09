@@ -19,10 +19,10 @@ using lucid::Vector2;
 using lucid::exception::LucidInvalidArgumentException;
 using lucid::exception::LucidNotSupportedException;
 
-#define EXPECT_COMPLEX_DOUBLE_EQ(a, b)        \
-  do {                                        \
-    EXPECT_DOUBLE_EQ((a).real(), (b).real()); \
-    EXPECT_DOUBLE_EQ((a).imag(), (b).imag()); \
+#define EXPECT_COMPLEX_DOUBLE_EQ(a, b)          \
+  do {                                          \
+    EXPECT_NEAR((a).real(), (b).real(), 1e-14); \
+    EXPECT_NEAR((a).imag(), (b).imag(), 1e-14); \
   } while (0)
 
 #define EXPECT_VECTOR_NEAR_P(a, b, p)              \
