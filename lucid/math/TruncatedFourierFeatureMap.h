@@ -44,6 +44,8 @@ class TruncatedFourierFeatureMap final : public FeatureMap {
                              Matrix x_limits);
   TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
                              const RectSet& x_limits);
+  TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension, double sigma_l, Scalar sigma_f,
+                             const RectSet& x_limits);
 
   /**
    * Given an @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.

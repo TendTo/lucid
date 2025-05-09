@@ -58,14 +58,20 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
     if (i != 0) weights_(2 * i - 1) = single_weights(i);
   }
 }
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension,
-                                                       ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& x_limits)
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Dimension input_dimension,
+                                                       ConstVectorRef sigma_l, const Scalar sigma_f,
+                                                       const RectSet& x_limits)
     : TruncatedFourierFeatureMap{num_frequencies, input_dimension, sigma_l, sigma_f, static_cast<Matrix>(x_limits)} {}
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Dimension input_dimension,
+                                                       const double sigma_l, const Scalar sigma_f,
+                                                       const RectSet& x_limits)
+    : TruncatedFourierFeatureMap{num_frequencies, input_dimension, Vector::Constant(input_dimension, sigma_l), sigma_f,
+                                 static_cast<Matrix>(x_limits)} {}
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   auto z = (x.transpose() - x_limits_.row(0)).cwiseQuotient(x_limits_.row(1) - x_limits_.row(0));
 
-  Vector z_proj = omega_ * z.transpose();
+  Vector z_proj = omega_ * z.transpose();  // It is also computing the 0th frequency, although it is not used later
   Vector trig{2 * z_proj.size() - 1};
   trig(0) = 1;
   for (Index i = 1; i < z_proj.size(); i++) {
