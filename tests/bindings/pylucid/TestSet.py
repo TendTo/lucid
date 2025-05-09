@@ -20,14 +20,12 @@ class TestSet:
 
     class TestMultiSet:
         def test_init(self):
-            s = MultiSet(RectSet([-1, -4], [2, 3]),
-                         RectSet([5, 5], [6, 6]))
+            s = MultiSet(RectSet([-1, -4], [2, 3]), RectSet([5, 5], [6, 6]))
             assert s is not None
             assert isinstance(s, Set)
 
         def test_contains(self):
-            s = MultiSet(RectSet([-1, -4], [2, 3]),
-                         RectSet([5, 5], [6, 6]))
+            s = MultiSet(RectSet([-1, -4], [2, 3]), RectSet([5, 5], [6, 6]))
             assert [0, 0] in s
             assert [-1, -2] in s
             assert [1, 3] in s

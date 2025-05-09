@@ -29,7 +29,7 @@ def median_heuristic(X, Y):
     """in sklearn, kernel is done by K(x, y) = exp(-gamma ||x-y||^2)"""
     distsqr = cdist(X, X, "euclidean") ** 2
     all_width = np.sqrt(0.5 * np.median(distsqr))
-    kernel_gamma = 1.0 / (2 * all_width ** 2)
+    kernel_gamma = 1.0 / (2 * all_width**2)
 
     return kernel_gamma, kernel_width
 
@@ -130,8 +130,8 @@ def test_automated_anesthesia():
     fp_samples = tffm(xp_samples)
     r = GaussianKernelRidgeRegression(k, x_samples, fp_samples, regularization_constant=1e-6)
     if_lattice = r(x_lattice)
-    w_mat = np.zeros((n_per_dim ** dim, fp_samples.shape[1]))
-    phi_mat = np.zeros((n_per_dim ** dim, fp_samples.shape[1]))
+    w_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))
+    phi_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))
     for i in range(w_mat.shape[1]):
         w_mat[:, i] = fft_upsample(if_lattice[:, i], n_per_dim, samples_per_dim, dim)
         phi_mat[:, i] = fft_upsample(f_lattice[:, i], n_per_dim, samples_per_dim, dim)
@@ -145,7 +145,7 @@ def test_automated_anesthesia():
     o = GurobiLinearOptimiser(T, gamma, 0, 1, 1, sigma_f)
 
     def check_cb(
-            success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
+        success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
     ):
         print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }")
         assert success
