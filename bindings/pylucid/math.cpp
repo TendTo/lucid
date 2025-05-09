@@ -90,6 +90,7 @@ void init_math(py::module_ &m) {
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
       .def(py::init<Vector>(), py::arg("params"))
       .def(py::init<double, const Vector &>(), py::arg("sigma_f"), py::arg("sigma_l"))
+      .def(py::init<double, double, Dimension>(), py::arg("sigma_f"), py::arg("sigma_l"), py::arg("dimension"))
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l)
       .def("__str__", STRING_LAMBDA(GaussianKernel));
