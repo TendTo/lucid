@@ -231,6 +231,19 @@ void TensorView<T>::fft_upsample(TensorView<double>& out) const {
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
+template <IsAnyOf<int, float, double, std::complex<double>> TT>
+void TensorView<T>::copy(TensorView<TT>& out) const {
+  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
+
+  std::size_t i = 0;
+  if constexpr (!std::is_same_v<T, TT> && std::is_same_v<T, std::complex<double>>) {
+    for (const T& val : out) out.m_data()[i++] = static_cast<TT>(val.real());
+  } else {
+    for (const T& val : out) out.m_data()[i++] = static_cast<TT>(val);
+  }
+}
+
+template <IsAnyOf<int, float, double, std::complex<double>> T>
 TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
   LUCID_CHECK_ARGUMENT(
       std::accumulate(dims.begin(), dims.end(), static_cast<std::size_t>(1), std::multiplies{}) == size(), "new size",
@@ -326,6 +339,23 @@ template void TensorView<float>::permute(TensorView<std::complex<double>>&, cons
 template void TensorView<double>::permute(TensorView<std::complex<double>>&, const std::vector<std::size_t>&) const;
 template void TensorView<std::complex<double>>::permute(TensorView<std::complex<double>>&,
                                                         const std::vector<std::size_t>&) const;
+
+template void TensorView<int>::copy(TensorView<int>&) const;
+template void TensorView<float>::copy(TensorView<int>&) const;
+template void TensorView<double>::copy(TensorView<int>&) const;
+template void TensorView<std::complex<double>>::copy(TensorView<int>&) const;
+template void TensorView<int>::copy(TensorView<float>&) const;
+template void TensorView<float>::copy(TensorView<float>&) const;
+template void TensorView<double>::copy(TensorView<float>&) const;
+template void TensorView<std::complex<double>>::copy(TensorView<float>&) const;
+template void TensorView<int>::copy(TensorView<double>&) const;
+template void TensorView<float>::copy(TensorView<double>&) const;
+template void TensorView<double>::copy(TensorView<double>&) const;
+template void TensorView<std::complex<double>>::copy(TensorView<double>&) const;
+template void TensorView<int>::copy(TensorView<std::complex<double>>&) const;
+template void TensorView<float>::copy(TensorView<std::complex<double>>&) const;
+template void TensorView<double>::copy(TensorView<std::complex<double>>&) const;
+template void TensorView<std::complex<double>>::copy(TensorView<std::complex<double>>&) const;
 
 template std::ostream& operator<<(std::ostream& os, const TensorView<int>& tensor);
 template std::ostream& operator<<(std::ostream& os, const TensorView<float>& tensor);

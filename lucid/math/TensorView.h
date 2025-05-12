@@ -185,7 +185,7 @@ class TensorView {
    * Pad the tensor with a value.
    * The padding is applied to each dimension, and it is specified by a pair of indices,
    * one for the beginning and one for the end of the dimension.
-   * @pre The `out` tensor must have the same dimensions as the input tensor plus `padding`
+   * @pre The `out` tensor must have the same shape as the input tensor plus `padding`
    * @param[out] out padded output tensor
    * @param padding padding for each dimension
    * @return padded tensor
@@ -197,7 +197,7 @@ class TensorView {
    * This allows the `padding` to be placed in the middle of the tensor.
    * @note Setting `start_padding` to 0 (the size of that dimension)
    * will place all the padding at the start (the end) of the dimension.
-   * @pre The `out` tensor must have the same dimensions as the input tensor plus `padding`
+   * @pre The `out` tensor must have the same shape as the input tensor plus `padding`
    * @param[out] out padded output tensor
    * @param padding padding for each dimension
    * @param start_padding the index where the padding starts for each dimension
@@ -216,6 +216,15 @@ class TensorView {
    * @see ifft
    */
   void fft_upsample(TensorView<double>& out) const;
+
+  /**
+   * Copy the tensor to another tensor.
+   * This method also allows to cast the tensor to another type.
+   * @pre The `out` tensor must have enough space to accommodate the data
+   * @param out permuted output tensor
+   */
+  template <IsAnyOf<int, float, double, std::complex<double>> TT>
+  void copy(TensorView<TT>& out) const;
 
   operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
   operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
