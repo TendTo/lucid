@@ -184,7 +184,7 @@ void init_math(py::module_ &m) {
         LUCID_CHECK_ARGUMENT_EXPECTED(to_num_samples > from_num_samples, "to_num_samples > from_num_samples",
                                       to_num_samples, from_num_samples);
 
-        const int n_pad = static_cast<int>(std::floor((to_num_samples / 2 - from_num_samples / 2)));
+        const int n_pad = static_cast<int>(std::floor((to_num_samples - from_num_samples) / 2.0));
         // Get a view of the input data
         const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
                                          std::vector<std::size_t>(dimension, from_num_samples)};
@@ -194,6 +194,8 @@ void init_math(py::module_ &m) {
           std::vector<std::size_t> axes{fft_in.axes()};
           std::swap(axes[axes.size() - 2], axes[axes.size() - 1]);
           in_view.permute(fft_in.m_view(), axes);
+        } else {
+          in_view.copy(fft_in.m_view());
         }
         // Perform FFT upsampling on the data and return the result
         return Vector{static_cast<Eigen::Map<const Vector>>(

@@ -237,9 +237,9 @@ void TensorView<T>::copy(TensorView<TT>& out) const {
 
   std::size_t i = 0;
   if constexpr (!std::is_same_v<T, TT> && std::is_same_v<T, std::complex<double>>) {
-    for (const T& val : out) out.m_data()[i++] = static_cast<TT>(val.real());
+    for (const T& val : data_) out.m_data()[i++] = static_cast<TT>(val.real());
   } else {
-    for (const T& val : out) out.m_data()[i++] = static_cast<TT>(val);
+    for (const T& val : data_) out.m_data()[i++] = static_cast<TT>(val);
   }
 }
 
