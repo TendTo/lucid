@@ -54,7 +54,7 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] std::unique_ptr<Kernel> clone(const Vector& params) const override;
 
  private:
-  Vector sigma_l_diagonal_;  ///< @f$ \text{diag}(\sigma_l^2) @f$ cached for performance.
+  Vector sigma_l_sq_diagonal_inv_;  ///< @f$ \text{diag}(\sigma_l^2) @f$ cached for performance.
                              ///< Being vector, `.asDiagonal()` is needed to convert it to a diagonal matrix before use
 };
 
