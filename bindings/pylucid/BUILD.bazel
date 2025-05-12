@@ -36,6 +36,7 @@ py_library(
         "__init__.py",
         "__main__.py",
         "dreal.py",
+        "plot.py",
     ],
     data = [
         ":_pylucid.pyd",
