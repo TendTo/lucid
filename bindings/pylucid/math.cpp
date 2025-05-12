@@ -179,13 +179,15 @@ void init_math(py::module_ &m) {
   // TODO(tend): it would be nice to encapsulate this in a class
   m.def(
       "fft_upsample",
-      [](ConstMatrixRef f, const Index n_per_dim, const Index samples_per_dim, const Index dimension) {
+      [](ConstMatrixRef f, const Index from_num_samples, const Index to_num_samples, const Index dimension) {
         LUCID_CHECK_ARGUMENT_EXPECTED(dimension > 0, "dimension", dimension, "must be greater than 0");
+        LUCID_CHECK_ARGUMENT_EXPECTED(to_num_samples > from_num_samples, "to_num_samples > from_num_samples",
+                                      to_num_samples, from_num_samples);
 
-        const int n_pad = static_cast<int>(std::floor((n_per_dim / 2 - samples_per_dim / 2)));
+        const int n_pad = static_cast<int>(std::floor((to_num_samples / 2 - from_num_samples / 2)));
         // Get a view of the input data
         const TensorView<double> in_view{std::span<const double>{f.data(), static_cast<std::size_t>(f.size())},
-                                         std::vector<std::size_t>(dimension, samples_per_dim)};
+                                         std::vector<std::size_t>(dimension, from_num_samples)};
         // Permute the last two axes and create a complex tensor
         Tensor<std::complex<double>> fft_in{in_view.dimensions()};
         if (dimension > 1) {  // If the dimension is greater than 1, swap the last two axes
@@ -195,9 +197,9 @@ void init_math(py::module_ &m) {
         }
         // Perform FFT upsampling on the data and return the result
         return Vector{static_cast<Eigen::Map<const Vector>>(
-            fft_in.fft_upsample(std::vector<std::size_t>(dimension, samples_per_dim + 2 * n_pad)))};
+            fft_in.fft_upsample(std::vector<std::size_t>(dimension, from_num_samples + 2 * n_pad)))};
       },
-      py::arg("f"), py::arg("dimension"), py::arg("n_per_dim"), py::arg("samples_per_dim"));
+      py::arg("f"), py::arg("from_num_samples"), py::arg("to_num_samples"), py::arg("dimension"));
 
   /**************************** Misc ****************************/
   m.def("read_matrix", &read_matrix<double>, py::arg("filename"));
