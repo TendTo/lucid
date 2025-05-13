@@ -10,38 +10,30 @@
 #include <utility>
 
 #include "lucid/util/IndexIterator.h"
+#include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 #include "lucid/util/math.h"
 
 namespace lucid {
 
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Dimension input_dimension,
-                                                       ConstVectorRef sigma_l, Scalar sigma_f, Matrix x_limits)
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_dim_wise,
+                                                       const Scalar sigma_f, const RectSet& x_limits)
     : num_frequencies_per_dimension_{num_frequencies},
-      omega_{::lucid::pow(num_frequencies, input_dimension), input_dimension},
-      weights_{::lucid::pow(num_frequencies, input_dimension) * 2 - 1},
+      omega_{::lucid::pow(num_frequencies, x_limits.dimension()), x_limits.dimension()},
+      weights_{::lucid::pow(num_frequencies, x_limits.dimension()) * 2 - 1},
       sigma_f_{sigma_f},
-      x_limits_{std::move(x_limits)} {
+      x_limits_{x_limits} {
+  LUCID_CHECK_ARGUMENT_EXPECTED(prob_dim_wise.rows() == x_limits.dimension(), "sigma_l.size() == x_limits.dimension()",
+                                prob_dim_wise.rows(), x_limits.dimension());
   // Iterate over all possible combinations where the values in the vector can go from 0 to num_frequencies_ - 1
   // [ 0, ..., 0 ] -> [ 0, ..., 1 ] -> ... -> [ num_frequencies_ - 1, ..., num_frequencies_ - 1, ]
-  IndexIterator<Index> it{static_cast<std::size_t>(input_dimension), num_frequencies_per_dimension_};
+  IndexIterator<Index> it{static_cast<std::size_t>(x_limits_.dimension()), num_frequencies_per_dimension_};
   for (Index row = 0; it; ++it, ++row) {
     // For each combination, compute the product of the sines and cosines of the values in the vector
     // TODO(tend): We can probably remove the reverse
     Index col = 0;
     for (const Index val : std::views::reverse(it.indexes()))
       omega_(row, col++) = 2 * std::numbers::pi * static_cast<double>(val);
-  }
-
-  // Compute the weights for the feature map
-  const Vector omega_dim_wise_lb =
-      (2 * std::numbers::pi * arange(0, num_frequencies_per_dimension_)).array() - std::numbers::pi;
-  const Vector omega_dim_wise_ub = omega_dim_wise_lb.array() + 2 * std::numbers::pi;
-
-  Matrix prob_dim_wise{input_dimension, num_frequencies_per_dimension_};
-  for (Dimension i = 0; i < input_dimension; i++) {
-    prob_dim_wise.row(i) = normal_cdf(omega_dim_wise_ub, 0, sigma_l(i)) - normal_cdf(omega_dim_wise_lb, 0, sigma_l(i));
-    prob_dim_wise.row(i).rightCols(prob_dim_wise.cols() - 1) *= 2;
   }
 
   const Matrix comb = combvec(prob_dim_wise);
@@ -58,20 +50,11 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
     if (i != 0) weights_(2 * i - 1) = single_weights(i);
   }
 }
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Dimension input_dimension,
-                                                       ConstVectorRef sigma_l, const Scalar sigma_f,
-                                                       const RectSet& x_limits)
-    : TruncatedFourierFeatureMap{num_frequencies, input_dimension, sigma_l, sigma_f, static_cast<Matrix>(x_limits)} {}
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Dimension input_dimension,
-                                                       const double sigma_l, const Scalar sigma_f,
-                                                       const RectSet& x_limits)
-    : TruncatedFourierFeatureMap{num_frequencies, input_dimension, Vector::Constant(input_dimension, sigma_l), sigma_f,
-                                 static_cast<Matrix>(x_limits)} {}
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
-  auto z = (x.transpose() - x_limits_.row(0)).cwiseQuotient(x_limits_.row(1) - x_limits_.row(0));
+  auto z = (x - x_limits_.lower_bound()).cwiseQuotient(x_limits_.upper_bound() - x_limits_.lower_bound());
 
-  Vector z_proj = omega_ * z.transpose();  // It is also computing the 0th frequency, although it is not used later
+  Vector z_proj = omega_ * z;  // It is also computing the 0th frequency, although it is not used later
   Vector trig{2 * z_proj.size() - 1};
   trig(0) = 1;
   for (Index i = 1; i < z_proj.size(); i++) {

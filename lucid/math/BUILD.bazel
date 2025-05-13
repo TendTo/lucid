@@ -67,14 +67,19 @@ lucid_cc_library(
 lucid_cc_library(
     name = "feature_map",
     srcs = [
+        "ConstantTruncatedFourierFeatureMap.cpp",
         "FeatureMap.cpp",
+        "LinearTruncatedFourierFeatureMap.cpp",
         "TruncatedFourierFeatureMap.cpp",
     ],
     hdrs = [
+        "ConstantTruncatedFourierFeatureMap.h",
         "FeatureMap.h",
+        "LinearTruncatedFourierFeatureMap.h",
         "TruncatedFourierFeatureMap.h",
     ],
     implementation_deps = [
+        "//lucid/util:error",
         "//lucid/util:index_iterator",
         "//lucid/util:logging",
         "//lucid/util:math",

@@ -38,14 +38,9 @@ namespace lucid {
  *  w_j^2 \coloneqq \int_{(2\zeta_j-1)\pi}^{(2\zeta_j+1)\pi}\mathcal{N}(d\xi|0,\Sigma), 1 \le j \le M .
  * @f]
  */
-class TruncatedFourierFeatureMap final : public FeatureMap {
+class TruncatedFourierFeatureMap : public FeatureMap {
  public:
-  TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
-                             Matrix x_limits);
-  TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension, ConstVectorRef sigma_l, Scalar sigma_f,
-                             const RectSet& x_limits);
-  TruncatedFourierFeatureMap(int num_frequencies, Dimension input_dimension, double sigma_l, Scalar sigma_f,
-                             const RectSet& x_limits);
+  TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_dim_wise, Scalar sigma_f, const RectSet& x_limits);
 
   /**
    * Given an @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.
@@ -72,12 +67,12 @@ class TruncatedFourierFeatureMap final : public FeatureMap {
   /** @getter{number of frequencies per dimension, truncated Fourier feature map} */
   [[nodiscard]] int num_frequencies() const { return num_frequencies_per_dimension_; }
 
- private:
+ protected:
   int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
   Matrix omega_;                       ///< Frequencies matrix
   Vector weights_;                     ///< Weights matrix
   Scalar sigma_f_;                     ///< Sigma_f value
-  Matrix x_limits_;                    ///< Limits of the input space expressed as a matrix. The set is a rectangle
+  RectSet x_limits_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
 };
 
 }  // namespace lucid
