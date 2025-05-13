@@ -38,10 +38,10 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
 
   const Matrix comb = combvec(prob_dim_wise);
   const auto prod = comb.colwise().prod();
-  if (Scalar sum = prod.sum(); sum > 0.9)
-    LUCID_INFO_FMT("Probability captured by Fourier expansion is {:.3f} percent", sum);
+  if (captured_probability_ = prod.sum(); captured_probability_ > 0.9)
+    LUCID_INFO_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
   else
-    LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", sum);
+    LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", captured_probability_);
 
   const auto single_weights = prod.cwiseSqrt();
   // TODO(tend): Repeat each column twice, except the first one, or repeat all?

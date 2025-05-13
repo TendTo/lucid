@@ -66,6 +66,8 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] const Vector& weights() const { return weights_; }
   /** @getter{number of frequencies per dimension, truncated Fourier feature map} */
   [[nodiscard]] int num_frequencies() const { return num_frequencies_per_dimension_; }
+  /** @getter{probability captured by the Fourier expansion, truncated Fourier feature map, NaN if not computed} */
+  [[nodiscard]] Scalar captured_probability() const { return captured_probability_; }
 
  protected:
   int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
@@ -73,6 +75,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   Vector weights_;                     ///< Weights matrix
   Scalar sigma_f_;                     ///< Sigma_f value
   RectSet x_limits_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
+  Scalar captured_probability_;        ///< Probability captured by the Fourier expansion. NaN if not computed
 };
 
 }  // namespace lucid
