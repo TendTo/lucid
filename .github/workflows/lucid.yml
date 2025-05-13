@@ -64,7 +64,7 @@ jobs:
             ${{ runner.os }}-bazel-
 
       - name: Lint
-        run: bazel test --enable_gurobi_build=False --enable_matplotlib_build=False //lucid/...
+        run: bazel test --build_tests_only --enable_gurobi_build=False --enable_matplotlib_build=False //lucid/...
 
   unit-test:
     strategy:
