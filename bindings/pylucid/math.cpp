@@ -97,11 +97,9 @@ void init_math(py::module_ &m) {
 
   /**************************** FeatureMap ****************************/
   py::class_<FeatureMap>(m, "FeatureMap");
-  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap", py::is_final())
-      .def(py::init<long, Dimension, ConstVectorRef, Scalar, Matrix>(), py::arg("num_frequencies"),
-           py::arg("input_dimension"), py::arg("sigma_l"), py::arg("sigma_f"), py::arg("x_limits"))
-      .def(py::init<long, Dimension, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"),
-           py::arg("input_dimension"), py::arg("sigma_l"), py::arg("sigma_f"), py::arg("x_limits"))
+  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("prob_dim_wise"),
+           py::arg("sigma_f"), py::arg("x_limits"))
       .def("map_vector", &TruncatedFourierFeatureMap::map_vector, py::arg("x"))
       .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, py::arg("x"))
       .def("__call__", &TruncatedFourierFeatureMap::operator(), py::arg("x"))
@@ -109,6 +107,18 @@ void init_math(py::module_ &m) {
       .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega)
       .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights)
       .def_property_readonly("num_frequencies", &TruncatedFourierFeatureMap::num_frequencies);
+  py::class_<ConstantTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "ConstantTruncatedFourierFeatureMap",
+                                                                             py::is_final())
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"));
+  py::class_<LinearTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LinearTruncatedFourierFeatureMap",
+                                                                           py::is_final())
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"));
 
   /**************************** Regression ****************************/
   py::class_<Regression, PyRegression>(m, "Regression")

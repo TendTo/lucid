@@ -5,7 +5,7 @@ from pylucid import (
     __version__,
     read_matrix,
     GaussianKernel,
-    TruncatedFourierFeatureMap,
+    ConstantTruncatedFourierFeatureMap,
     RectSet,
     MultiSet,
     GaussianKernelRidgeRegression,
@@ -124,7 +124,7 @@ def test_automated_anesthesia():
     print(f"Median heuristic: {sigma_f = }, {sigma_l = }")
 
     k = GaussianKernel(sigma_f, sigma_l)
-    tffm = TruncatedFourierFeatureMap(num_freq_per_dim, dim, sigma_l, sigma_f, X_bounds)
+    tffm = ConstantTruncatedFourierFeatureMap(num_freq_per_dim, sigma_l, sigma_f, X_bounds)
     x_lattice = X_bounds.lattice(samples_per_dim)
     f_lattice = tffm(x_lattice)
     fp_samples = tffm(xp_samples)
@@ -133,8 +133,8 @@ def test_automated_anesthesia():
     w_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))
     phi_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))
     for i in range(w_mat.shape[1]):
-        w_mat[:, i] = fft_upsample(if_lattice[:, i], n_per_dim, samples_per_dim, dim)
-        phi_mat[:, i] = fft_upsample(f_lattice[:, i], n_per_dim, samples_per_dim, dim)
+        w_mat[:, i] = fft_upsample(if_lattice[:, i], samples_per_dim, n_per_dim, dim)
+        phi_mat[:, i] = fft_upsample(f_lattice[:, i], samples_per_dim, n_per_dim, dim)
 
     x0_lattice = X_init.lattice(n_per_dim - 1, True)
     xu_lattice = X_unsafe.lattice(n_per_dim - 1, True)
