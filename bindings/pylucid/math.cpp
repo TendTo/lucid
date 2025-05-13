@@ -119,7 +119,12 @@ void init_math(py::module_ &m) {
            py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"));
-
+  py::class_<LogTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LogTruncatedFourierFeatureMap",
+                                                                        py::is_final())
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"));
   /**************************** Regression ****************************/
   py::class_<Regression, PyRegression>(m, "Regression")
       .def("__call__", py::overload_cast<ConstMatrixRef>(&Regression::operator(), py::const_), py::arg("x"))

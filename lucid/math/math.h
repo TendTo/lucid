@@ -15,6 +15,7 @@
 #include "lucid/math/Kernel.h"
 #include "lucid/math/KernelRidgeRegression.h"
 #include "lucid/math/LinearTruncatedFourierFeatureMap.h"
+#include "lucid/math/LogTruncatedFourierFeatureMap.h"
 #include "lucid/math/MultiSet.h"
 #include "lucid/math/RectSet.h"
 #include "lucid/math/Regression.h"
