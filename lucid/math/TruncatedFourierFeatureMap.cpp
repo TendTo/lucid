@@ -35,6 +35,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
     for (const Index val : std::views::reverse(it.indexes()))
       omega_(row, col++) = 2 * std::numbers::pi * static_cast<double>(val);
   }
+  LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
 
   const Matrix comb = combvec(prob_dim_wise);
   const auto prod = comb.colwise().prod();
@@ -44,6 +45,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
     LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", captured_probability_);
 
   const auto single_weights = prod.cwiseSqrt();
+  LUCID_ASSERT((single_weights.array() >= 0).all(), "single_weights >= 0");
   // TODO(tend): Repeat each column twice, except the first one, or repeat all?
   for (Index i = 0; i < single_weights.size(); i++) {
     weights_(2 * i) = single_weights(i);
@@ -53,6 +55,8 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   auto z = (x - x_limits_.lower_bound()).cwiseQuotient(x_limits_.upper_bound() - x_limits_.lower_bound());
+  LUCID_ASSERT(z.size() == omega_.cols(), "z.size() == omega_.cols()");
+  LUCID_ASSERT((z.array() >= 0).all() && (z.array() <= 1).all(), "0 <= z <= 1");
 
   Vector z_proj = omega_ * z;  // It is also computing the 0th frequency, although it is not used later
   Vector trig{2 * z_proj.size() - 1};
@@ -61,6 +65,7 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
     trig(2 * i - 1) = std::cos(z_proj(i));
     trig(2 * i) = std::sin(z_proj(i));
   }
+  LUCID_ASSERT((trig.array() >= -1).all() && (trig.array() <= 1).all(), "-1 <= trig <= 1");
 
   auto basis = sigma_f_ * weights_.cwiseProduct(trig);
   if (Scalar checksum = (basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f_).abs().maxCoeff();
