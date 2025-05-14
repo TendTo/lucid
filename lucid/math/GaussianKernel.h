@@ -51,8 +51,8 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
  private:
-  double get_parameter_d(KernelParameter parameter) const override;
-  const Vector& get_parameter_v(KernelParameter parameter) const override;
+  double get_parameter_d(KernelHyperParameter parameter) const override;
+  const Vector& get_parameter_v(KernelHyperParameter parameter) const override;
 
   double sigma_f_;           ///< @f$ \sigma_f @f$ value
   Vector sigma_l_;           ///< @f$ \sigma_l @f$ value

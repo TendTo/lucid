@@ -13,7 +13,7 @@
 #include "lucid/math/GramMatrix.h"
 #include "lucid/math/GurobiLinearOptimiser.h"
 #include "lucid/math/Kernel.h"
-#include "lucid/math/KernelParameter.h"
+#include "lucid/math/KernelHyperParameter.h"
 #include "lucid/math/KernelRidgeRegression.h"
 #include "lucid/math/LinearTruncatedFourierFeatureMap.h"
 #include "lucid/math/LogTruncatedFourierFeatureMap.h"

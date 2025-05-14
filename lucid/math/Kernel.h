@@ -12,7 +12,7 @@
 #include <utility>
 
 #include "lucid/lib/eigen.h"
-#include "lucid/math/KernelParameter.h"
+#include "lucid/math/KernelHyperParameter.h"
 #include "lucid/util/concept.h"
 
 namespace lucid {
@@ -40,7 +40,7 @@ class Kernel {
    * @throw LucidInvalidArgument if the parameter is not valid for this kernel
    */
   template <IsAnyOf<int, double, const Vector&> T>
-  [[nodiscard]] T get_parameter(KernelParameter parameter) const;
+  [[nodiscard]] T get_parameter(KernelHyperParameter parameter) const;
 
   /**
    * Set an integer parameter for the kernel.
@@ -48,21 +48,21 @@ class Kernel {
    * @param value integer value to assign to the specified parameter
    * @throw LucidInvalidArgument if the parameter is not valid for this kernel
    */
-  virtual void set_parameter(KernelParameter parameter, int value);
+  virtual void set_parameter(KernelHyperParameter parameter, int value);
   /**
    * Set the specified kernel parameter to a double value.
    * @param parameter The kernel parameter to be set
    * @param value double value to assign to the specified parameter
    * @throw LucidInvalidArgument if the parameter is not valid for this kernel
    */
-  virtual void set_parameter(KernelParameter parameter, double value);
+  virtual void set_parameter(KernelHyperParameter parameter, double value);
   /**
    * Set the specified parameter of the kernel to the provided vector.
    * @param parameter kernel parameter to be set or modified
    * @param value vector value to be assigned to the specified kernel parameter
    * @throw LucidInvalidArgument if the parameter is not valid for this kernel
    */
-  virtual void set_parameter(KernelParameter parameter, Vector value);
+  virtual void set_parameter(KernelHyperParameter parameter, Vector value);
 
   /**
    * Compute the kernel function on `x1` and `x2`.
@@ -98,21 +98,21 @@ class Kernel {
    * @return value of the specified kernel parameter
    * @throw LucidInvalidArgument if the parameter is not valid for this kernel
    */
-  [[nodiscard]] virtual int get_parameter_i(KernelParameter parameter) const;
+  [[nodiscard]] virtual int get_parameter_i(KernelHyperParameter parameter) const;
   /**
    * Retrieves the value of the specified kernel parameter.
    * @param parameter kernel parameter to retrieve
    * @return value of the specified kernel parameter
    * @throw LucidInvalidArgument if the parameter is not valid for this kernel
    */
-  [[nodiscard]] virtual double get_parameter_d(KernelParameter parameter) const;
+  [[nodiscard]] virtual double get_parameter_d(KernelHyperParameter parameter) const;
   /**
    * Retrieves the value of the specified kernel parameter.
    * @param parameter kernel parameter to retrieve
    * @return value of the specified kernel parameter
    * @throw LucidInvalidArgument if the parameter is not valid for this kernel
    */
-  [[nodiscard]] virtual const Vector& get_parameter_v(KernelParameter parameter) const;
+  [[nodiscard]] virtual const Vector& get_parameter_v(KernelHyperParameter parameter) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel);

@@ -55,18 +55,18 @@ Matrix GaussianKernel::apply(const Matrix& x1, const Matrix& x2) const {
 
 std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_f_, sigma_l_); }
 
-double GaussianKernel::get_parameter_d(const KernelParameter parameter) const {
+double GaussianKernel::get_parameter_d(const KernelHyperParameter parameter) const {
   switch (parameter) {
-    case KernelParameter::SIGMA_F:
+    case KernelHyperParameter::SIGMA_F:
       return sigma_f_;
     default:
       return Kernel::get_parameter_d(parameter);
   }
 }
 
-const Vector& GaussianKernel::get_parameter_v(const KernelParameter parameter) const {
+const Vector& GaussianKernel::get_parameter_v(const KernelHyperParameter parameter) const {
   switch (parameter) {
-    case KernelParameter::SIGMA_L:
+    case KernelHyperParameter::SIGMA_L:
       return sigma_l_;
     default:
       return Kernel::get_parameter_v(parameter);

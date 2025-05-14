@@ -9,7 +9,7 @@
 #include "lucid/math/GaussianKernel.h"
 
 using lucid::GaussianKernel;
-using lucid::KernelParameter;
+using lucid::KernelHyperParameter;
 using lucid::Matrix;
 using lucid::Vector;
 
@@ -33,11 +33,11 @@ TEST_F(TestGaussianKernel, VectorConstructor) {
   EXPECT_EQ(kernel.sigma_f(), 1.0);
   EXPECT_EQ(kernel.sigma_l().size(), 3);
   EXPECT_THAT(kernel.sigma_l(), ::testing::Each(1.0));
-  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelParameter::MEAN));
-  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelParameter::SIGMA_F));
-  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelParameter::LENGTH_SCALE));
-  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelParameter::COVARIANCE));
-  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelParameter::SIGMA_L));
+  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelHyperParameter::MEAN));
+  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelHyperParameter::SIGMA_F));
+  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelHyperParameter::LENGTH_SCALE));
+  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelHyperParameter::COVARIANCE));
+  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelHyperParameter::SIGMA_L));
 }
 
 TEST_F(TestGaussianKernel, DimensionConstructor) {
@@ -45,11 +45,11 @@ TEST_F(TestGaussianKernel, DimensionConstructor) {
   EXPECT_EQ(kernel.sigma_f(), 1.0);
   EXPECT_EQ(kernel.sigma_l().size(), 4);
   EXPECT_THAT(kernel.sigma_l(), ::testing::Each(3.0));
-  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelParameter::MEAN));
-  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelParameter::SIGMA_F));
-  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelParameter::LENGTH_SCALE));
-  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelParameter::COVARIANCE));
-  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelParameter::SIGMA_L));
+  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelHyperParameter::MEAN));
+  EXPECT_EQ(kernel.sigma_f(), kernel.get_parameter<double>(KernelHyperParameter::SIGMA_F));
+  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelHyperParameter::LENGTH_SCALE));
+  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelHyperParameter::COVARIANCE));
+  EXPECT_EQ(kernel.sigma_l(), kernel.get_parameter<const Vector&>(KernelHyperParameter::SIGMA_L));
 }
 
 TEST_F(TestGaussianKernel, ApplyVector) {
