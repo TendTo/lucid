@@ -28,15 +28,6 @@
     }                                                                                                    \
   } while (false)
 
-#define LUCID_ASSERT_FMT(condition, message, ...)                                                                  \
-  do {                                                                                                             \
-    if (!(condition)) {                                                                                            \
-      LUCID_CRITICAL_FMT("Assertion `{}` failed in {}:{}\n" message, #condition, __FILE__, __LINE__, __VA_ARGS__); \
-      throw ::lucid::exception::LucidAssertionException(                                                           \
-          fmt::format("Assertion `{}` failed in {}:{}: " message, #condition, __FILE__, __LINE__, __VA_ARGS__));   \
-    }                                                                                                              \
-  } while (false)
-
 #define LUCID_UNREACHABLE()                                                   \
   do {                                                                        \
     LUCID_CRITICAL_FMT("{}:{} Should not be reachable.", __FILE__, __LINE__); \
@@ -47,7 +38,6 @@
 #else
 
 #define LUCID_ASSERT(condition, msg) ((void)0)
-#define LUCID_ASSERT_FMT(condition, msg, ...) ((void)0)
 #define LUCID_UNREACHABLE() std::terminate()
 
 #endif
