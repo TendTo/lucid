@@ -65,7 +65,7 @@ def test_building_automation_system():
     Q = np.array((3.3378, 2.9272, 13.0207, 10.4166))
     # Deterministic part of the linear dynamics x[k + 1] = A x[k] + B u[k] + Q
     # u[k] is the control input and it is set to 0
-    f_det = lambda x: A @ x + Q # + B * u
+    f_det = lambda x: A @ x + Q  # + B * u
 
     dim = 4  # Dimensionality of the state space
 

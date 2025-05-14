@@ -18,6 +18,7 @@ from pylucid import (
 )
 from pylucid.plot import plot_solution
 from scipy.spatial.distance import cdist
+from matplotlib import pyplot as plt
 
 np.set_printoptions(linewidth=200, suppress=True)
 
@@ -90,7 +91,6 @@ def verify_barrier_certificate(
     r: float,
     c: float,
     regressor: GaussianKernelRidgeRegression,
-    r_features: GaussianKernelRidgeRegression,
     tffm: TruncatedFourierFeatureMap,
     sol: "np.typing.NDArray[np.float64]",
 ):
@@ -99,7 +99,7 @@ def verify_barrier_certificate(
 
     # Create symbolic variables for the input dimensions
     xs = [Real(f"x{i}") for i in range(X_bounds.dimension)]
-    xsp = [f_det(x) + r * (1 / 1) for x in xs]
+    xsp = [f_det(x) for x in xs]
     barrier = barrier_expression(xs=xs, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
     barrier_p = barrier_expression(xs=xsp, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
 
@@ -130,117 +130,66 @@ def verify_barrier_certificate(
         print("Found counter example")
         print("Model", res)
         point = np.array([res[xs[0]].lb()])
-        pointp = f_det(point) + r * np.random.exponential(1)
-        pointr = regressor(point)
+        pointp = f_det(point)
         print(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
         print(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
-        print(f"Xpr: {pointr}, barrier value: {tffm(pointr) @ sol.T}")
-        print(f"Xpemb: ?, barrier value: {r_features(point) @ sol.T}")
-        print((tffm(point), r_features(point)))
+        print(f"Xpemb: ?, barrier value: {regressor(point) @ sol.T}")
+        print((tffm(point), regressor(point)))
 
 
-def median_heuristic(X, Y):
-    """
-    the famous kernel median heuristic
-    """
-    kernel_width = np.zeros(X.shape[1])
-    for i in range(X.shape[1]):
-        distsqr = cdist(X[:, i].reshape(X.shape[0], 1), X[:, i].reshape(X.shape[0], 1), "euclidean") ** 2
-        kernel_width[i] = np.sqrt(0.5 * np.median(distsqr))
-
-    """in sklearn, kernel is done by K(x, y) = exp(-gamma ||x-y||^2)"""
-    distsqr = cdist(X, X, "euclidean") ** 2
-    all_width = np.sqrt(0.5 * np.median(distsqr))
-    kernel_gamma = 1.0 / (2 * all_width**2)
-    print(f"{kernel_gamma = }, {kernel_width = }")
-    return kernel_gamma, kernel_width
-
-
-def test_building_automation_system():
-    """
-    Building Automation System 2D Benchmark
-
-    A building automation system (BAS) with two zones, each heated by one radiator and with a shared air supply.
-
-    First presented in Abate, A., Blom, H., Cauchi, N., Hartmanns, A., Lesser, K., Oishi, M., ... & Vinod, A. P. (2018). ARCH-COMP19 category report: Stochastic modelling. In 5th International Workshop on Applied Verification of Continuous and Hybrid Systems, ARCH 2018 (pp. 71-103). EasyChair.
-    Concrete values taken from Abate, A., Blom, H., Cauchi, N., Degiorgio, K., Fraenzle, M., Hahn, E. M., ... & Vinod, A. P. (2019). ARCH-COMP19 category report: Stochastic modelling. In 6th International Workshop on Applied Verification of Continuous and Hybrid Systems, ARCH 2019 (pp. 62-102). EasyChair.
-
-    ## Mathematical Model
-
-    $$
-    \\begin{aligned}
-        x[k + 1] &= (1 − \\beta − \\theta \\nu)x[k] + \\theta T_h \\nu + \\beta T_e + R \\zeta
-        \\nu &= -0.0120155x + 0.8
-    \\end{aligned}
-    $$
-    """
+def experiments():
     ######## System dynamics ########
 
-    th = 45
-    te = -15
     r_coeff = 0.1
-    beta = 0.06
-    theta = 0.145
 
-    # Deterministic part of the linear dynamics x[k + 1] = (1 − β − θν)x[k] + θThν + βTe + Rς
-    # where ν is -0.0120155x + 0.8
-    f_det = lambda x: (1 - beta - theta * -0.0120155 * x + 0.8) * x + theta * th * -0.0120155 * x + 0.8 + beta * te
+    f_det = lambda x: 1 / 2 * x
+    # Add process noise
+    f = lambda x: f_det(x) * (np.random.standard_normal())
+    # f = lambda x: f_det(x) + r_coeff * (np.random.standard_normal())
 
     dim = 1  # Dimensionality of the state space
-
-    # Add process noise
-    f = lambda x: f_det(x) + r_coeff * np.random.exponential(1)
 
     ######## Safety specification ########
 
     # Time horizon
     T = 5
-    # State space X := [1, 50]
-    X_bounds = RectSet(((1, 50),))
+    # State space X
+    X_bounds = RectSet(((-1, 1),))
 
-    # Initial set X_I := [19.5, 20]
-    X_init = RectSet(((19.5, 20),))
+    # Initial set X_I
+    X_init = RectSet(((-0.5, 0.5),))
 
-    # Unsafe set X_U := [1, 17] U [23, 50]
+    # Unsafe set X_U
     X_unsafe = MultiSet(
-        RectSet(((1, 17),)),
-        RectSet(((23, 50),)),
+        RectSet(((-1, -0.9),)),
+        RectSet(((0.9, 1),)),
     )
 
     ######## Parameters ########
     gamma = 1
-    eta = 1.1e-6
-    c = 1.25e-6
     N = 1000
 
     # Kernel Basis
-    num_freq_per_dim = 8  # Number of frequencies per dimension. Includes the zero frequency.
+    num_freq_per_dim = 2  # Number of frequencies per dimension. Includes the zero frequency.
 
     ######## Lucid ########
-    print(f"Running anesthesia benchmark (LUCID version: {__version__})")
-
     samples_per_dim = 2 * num_freq_per_dim
     x_samples: "np.typing.ArrayLike" = X_bounds.sample_element(N)
     xp_samples: "np.typing.ArrayLike" = f(x_samples.T).T
     n_per_dim = samples_per_dim * 2
     print(f"{n_per_dim = }, {samples_per_dim = }")
-    sigma_f, sigma_l = median_heuristic(x_samples, x_samples)
     # sigma_f, sigma_l = 1, np.array([3.0]) # Works for the standard kernel (no explicit tffm)
-    sigma_f, sigma_l = 1, np.array([15.0])
+    sigma_f, sigma_l = 1, np.array([.5])
     print(f"Median heuristic: {sigma_f = }, {sigma_l = }")
 
     k = GaussianKernel(sigma_f, sigma_l)
-    tffm = LogTruncatedFourierFeatureMap(num_freq_per_dim, sigma_l, sigma_f, X_bounds)
-    print(tffm.omega.shape, tffm.weights.shape)
-    print(tffm.omega, tffm.weights)
-    print(tffm.dimension, tffm.num_frequencies)
+    tffm = ConstantTruncatedFourierFeatureMap(num_freq_per_dim, sigma_l, sigma_f, X_bounds)
 
     x_lattice = X_bounds.lattice(samples_per_dim)
     f_x_lattice = tffm(x_lattice)
     f_xp_samples = tffm(xp_samples)  # Used to train the f_xp regressor
 
     f_xp_regressor = GaussianKernelRidgeRegression(k, x_samples, f_xp_samples, regularization_constant=1e-6)
-    xp_regressor = GaussianKernelRidgeRegression(k, x_samples, xp_samples, regularization_constant=1e-6)
 
     # values = tffm(f(x_lattice.T).T)
     # for i in range(values.shape[1]):
@@ -268,42 +217,55 @@ def test_building_automation_system():
     # plt.show()
     # exit(1)
 
-    f_xp_lattice_via_regressor = f_xp_regressor(x_lattice)
-
-    if False:
-        w_mat = np.zeros((n_per_dim**dim, f_xp_samples.shape[1]))
-        phi_mat = np.zeros((n_per_dim**dim, f_xp_samples.shape[1]))
-        for i in range(w_mat.shape[1]):
-            w_mat[:, i] = fft_upsample(
-                f_xp_lattice_via_regressor[:, i], to_num_samples=n_per_dim, from_num_samples=samples_per_dim, dimension=dim
+    if True:
+        f_xp_lattice_via_regressor = f_xp_regressor(x_lattice)
+        print(
+            f"RMSE on f_xp_lattice_via_regressor (x -> tffm(xp)) {rmse(f_xp_lattice_via_regressor, tffm(f_det(x_lattice.T).T))}"
+        )
+        # We are fixing the zero frequency to the constant value we computed in the feature map
+        # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
+        u_f_xp_lattice_via_regressor = np.full((n_per_dim**dim, f_xp_samples.shape[1]), tffm.weights[0])
+        u_f_x_lattice = np.full((n_per_dim**dim, f_xp_samples.shape[1]), tffm.weights[0])
+        for i in range(1, u_f_xp_lattice_via_regressor.shape[1]):
+            u_f_xp_lattice_via_regressor[:, i] = fft_upsample(
+                f_xp_lattice_via_regressor[:, i],
+                to_num_samples=n_per_dim,
+                from_num_samples=samples_per_dim,
+                dimension=dim,
             )
-            phi_mat[:, i] = fft_upsample(
+            u_f_x_lattice[:, i] = fft_upsample(
                 f_x_lattice[:, i], to_num_samples=n_per_dim, from_num_samples=samples_per_dim, dimension=dim
             )
+        print(
+            f"RMSE on u_f_xp_lattice_via_regressor {rmse(u_f_xp_lattice_via_regressor, tffm(f_det(X_bounds.lattice(n_per_dim).T).T))}"
+        )
+        print(f"RMSE on u_f_x_lattice {rmse(u_f_x_lattice, tffm(X_bounds.lattice(n_per_dim).T))}")
+
     else:
-        w_mat = f_xp_regressor(X_bounds.lattice(n_per_dim - 1, True))
-        phi_mat = tffm(X_bounds.lattice(n_per_dim - 1, True))
+        _x_lattice = X_bounds.lattice(n_per_dim, True)
 
+        u_f_xp_lattice_via_regressor = f_xp_regressor(_x_lattice)  # What we want to do
+        # We are fixing the zero frequency to the constant value we computed in the feature map
+        # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
+        u_f_xp_lattice_via_regressor[:, 0] = tffm.weights[0]
 
-    x0_lattice = X_init.lattice(n_per_dim - 1, True)
-    xu_lattice = X_unsafe.lattice(n_per_dim - 1, True)
+        u_f_x_lattice = tffm(_x_lattice)
+
+    x0_lattice = X_init.lattice(n_per_dim, True)
+    xu_lattice = X_unsafe.lattice(n_per_dim, True)
 
     f_x0_lattice = tffm(x0_lattice)
     f_xu_lattice = tffm(xu_lattice)
 
-    new_data = X_bounds.sample_element(500)
-    print(f"RMSE on state space (x -> xp) [training data] {rmse(xp_regressor(x_samples), xp_samples)}")
-    print(f"RMSE on state space (x -> xp) [new data] {rmse(xp_regressor(new_data), f_det(new_data.T).T)}")
-    print(f"RMSE on Fourier features (x -> tffm(xp)) [training data] {rmse(f_xp_regressor(x_samples), f_xp_samples)}")
-    print(
-        f"RMSE on Fourier features (x -> tffm(xp)) [new data] {rmse(f_xp_regressor(new_data), tffm(f_det(new_data.T).T))}"
-    )
-    print(
-        f"RMSE on Fourier features (x -> tffm(xp)) [training data] {rmse(f_xp_regressor(x_samples, tffm), f_xp_samples)}"
-    )
-    print(
-        f"RMSE on Fourier features (x -> tffm(xp)) [new data] {rmse(f_xp_regressor(new_data, tffm), tffm(f_det(new_data.T).T))}"
-    )
+    new_data = np.linspace(-1, 1, 1000)
+    for i in range(num_freq_per_dim * 2 - 1):
+        plt.subplot(num_freq_per_dim * 2 - 1, 1, i + 1)
+        plt.scatter(new_data, tffm(f_det(new_data.T).T)[:, i], color="lightblue", linestyle=":", label="tffm(xp)")
+        plt.scatter(new_data, tffm(new_data)[:, i], color="lightgreen", linestyle=":", label="tffm(x)")
+        plt.scatter(new_data, f_xp_regressor(new_data)[:, i], color="red", marker="+", label="f_xp_regressor(x)")
+        plt.title(f"Fourier feature {i}")
+    plt.legend()
+    plt.show()
 
     o = GurobiLinearOptimiser(T, gamma, 0, 1, b_kappa=1, sigma_f=sigma_f)
 
@@ -312,9 +274,6 @@ def test_building_automation_system():
     ):
         assert success
         print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }\n{sol = }")
-        # print("H", f_xp_regressor.coefficients.shape, f_xp_regressor.coefficients)
-        # print("K X H", f_xp_regressor(new_data).shape, f_xp_regressor(new_data))
-        # print("old K X H", f_xp_regressor(new_data).shape, f_xp_regressor(new_data))
         verify_barrier_certificate(
             X_bounds=X_bounds,
             X_init=X_init,
@@ -325,8 +284,7 @@ def test_building_automation_system():
             f_det=f_det,
             r=r_coeff,
             gamma=gamma,
-            regressor=xp_regressor,
-            r_features=f_xp_regressor,
+            regressor=f_xp_regressor,
             tffm=tffm,
             sol=sol,
         )
@@ -348,8 +306,8 @@ def test_building_automation_system():
         assert o.solve(
             f_x0_lattice,
             f_xu_lattice,
-            phi_mat,
-            w_mat,
+            u_f_x_lattice,
+            u_f_xp_lattice_via_regressor,
             tffm.dimension,
             num_freq_per_dim - 1,
             n_per_dim,
@@ -364,7 +322,8 @@ def test_building_automation_system():
 if __name__ == "__main__":
     import time
 
+    print(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    test_building_automation_system()
+    experiments()
     end = time.time()
     print("elapsed time:", end - start)

@@ -137,8 +137,12 @@ def test_barrier_3():
     assert w_mat.shape == (576, 71)
     assert phi_mat.shape == (576, 71)
     for i in range(w_mat.shape[1]):
-        w_mat[:, i] = fft_upsample(if_lattice[:, i], n_per_dim, samples_per_dim, dimension)
-        phi_mat[:, i] = fft_upsample(f_lattice[:, i], n_per_dim, samples_per_dim, dimension)
+        w_mat[:, i] = fft_upsample(
+            if_lattice[:, i], to_num_samples=n_per_dim, from_num_samples=samples_per_dim, dimension=dimension
+        )
+        phi_mat[:, i] = fft_upsample(
+            f_lattice[:, i], to_num_samples=n_per_dim, from_num_samples=samples_per_dim, dimension=dimension
+        )
 
     x0_lattice = initial_set.lattice(n_per_dim - 1, True)
     assert x0_lattice.shape == (1587, 2)
