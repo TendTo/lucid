@@ -62,7 +62,7 @@ def plot_solution_1d(
         if regression is not None:
             plt.plot(
                 x_lattice,
-                regression(x_lattice, feature_map) @ sol.T,
+                regression(x_lattice) @ sol.T,  # TODO(tend): Should this be regression(x_lattice, feature_map) @ sol.T?
                 color="purple",
                 label="B(xp) via approx. regression",
             )
