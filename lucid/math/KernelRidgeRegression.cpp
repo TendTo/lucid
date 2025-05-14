@@ -43,6 +43,7 @@ Matrix KernelRidgeRegression<K>::operator()(ConstMatrixRef x) const {
 
 template <IsAnyOf<GaussianKernel> K>
 Matrix KernelRidgeRegression<K>::operator()(ConstMatrixRef x, const FeatureMap& feature_map) const {
+  LUCID_WARN("Experts only. We do not know what will happen to your interpolation. And you may die. Sorry about that.");
   if (x.cols() != training_inputs_.cols())
     LUCID_INVALID_ARGUMENT_EXPECTED("input.cols()", x.cols(), training_inputs_.cols());
   Matrix kernel_input{Matrix::NullaryExpr(
