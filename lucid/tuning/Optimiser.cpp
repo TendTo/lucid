@@ -13,11 +13,10 @@
 
 namespace lucid::tuning {
 
-Optimiser::Optimiser(const Sampler& sampler, const Dimension num_samples)
-    : num_samples_{num_samples}, sampler_{sampler} {}
+Optimiser::Optimiser(const Kernel& estimator) : estimator_{estimator} {}
 
-std::unique_ptr<Kernel> Optimiser::optimise(const Kernel& kernel) const { return optimise_impl(kernel); }
+Vector Optimiser::optimise(const Matrix& x, const Matrix& y) const { return optimise_impl(x, y); }
 
-Scalar Optimiser::evaluate(const Kernel&) const { return Scalar(); }
+// Scalar Optimiser::evaluate(const Kernel&) const { return Scalar(); }
 
 }  // namespace lucid::tuning

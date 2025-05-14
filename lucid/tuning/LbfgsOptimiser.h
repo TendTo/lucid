@@ -19,10 +19,10 @@ namespace lucid::tuning {
  */
 class LbfgsOptimiser final : public Optimiser {
  public:
-  explicit LbfgsOptimiser(const Sampler& sampler, Dimension num_samples = 100);
+  explicit LbfgsOptimiser(const Kernel& estimator);
 
  private:
-  [[nodiscard]] std::unique_ptr<Kernel> optimise_impl(const Kernel& kernel) const override;
+  [[nodiscard]] Vector optimise_impl(const Matrix& x, const Matrix& y) const override;
 };
 
 }  // namespace lucid::tuning

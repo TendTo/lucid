@@ -30,14 +30,12 @@ Scalar median(Vector& d) {
 
 }  // namespace
 
-MedianHeuristicOptimiser::MedianHeuristicOptimiser(const Sampler& sampler, const Dimension num_samples)
-    : Optimiser{sampler, num_samples} {}
+MedianHeuristicOptimiser::MedianHeuristicOptimiser(const Kernel& estimator) : Optimiser{estimator} {}
 
-std::unique_ptr<Kernel> MedianHeuristicOptimiser::optimise_impl(const Kernel& kernel) const {
-  const Matrix samples = sampler_();
-  Vector dist = pdist(samples);
+Vector MedianHeuristicOptimiser::optimise_impl(const Matrix& x, const Matrix&) const {
+  Vector dist = pdist(x);
   median(dist);
-  return kernel.clone();
+  return dist;
 }
 
 }  // namespace lucid::tuning

@@ -1,0 +1,11 @@
+"""Tests for the util submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_median_heuristic_optimiser",
+    deps = [
+        "//lucid/math",
+        "//lucid/tuning:optimiser",
+    ],
+)

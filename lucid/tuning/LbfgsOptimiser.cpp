@@ -37,10 +37,10 @@ class Rosenbrock {
 };
 }  // namespace
 
-LbfgsOptimiser::LbfgsOptimiser(const Sampler& sampler, const Dimension num_samples) : Optimiser{sampler, num_samples} {}
+LbfgsOptimiser::LbfgsOptimiser(const Kernel& estimator) : Optimiser{estimator} {}
 
-std::unique_ptr<Kernel> LbfgsOptimiser::optimise_impl(const Kernel& kernel) const {
-  LUCID_DEBUG_FMT("LbfgsOptimiser::Optimise({})", kernel);
+Vector LbfgsOptimiser::optimise_impl(const Matrix& x, const Matrix& y) const {
+  LUCID_DEBUG_FMT("LbfgsOptimiser::Optimise({}, {})", x, y);
   const int n = 10;
   // Set up parameters
   LBFGSpp::LBFGSParam<double> param;
@@ -52,16 +52,16 @@ std::unique_ptr<Kernel> LbfgsOptimiser::optimise_impl(const Kernel& kernel) cons
   Rosenbrock fun(n);
 
   // Initial guess
-  Vector x = Vector::Zero(n);
+  Vector x_out = Vector::Zero(n);
   // x will be overwritten to be the best point found
   double fx;
-  const int niter = solver.minimize(fun, x, fx);
+  const int niter = solver.minimize(fun, x_out, fx);
 
   std::cout << niter << " iterations" << std::endl;
   std::cout << "x = \n" << x.transpose() << std::endl;
   std::cout << "f(x) = " << fx << std::endl;
 
-  return std::unique_ptr<Kernel>{};
+  return {};
 }
 
 }  // namespace lucid::tuning

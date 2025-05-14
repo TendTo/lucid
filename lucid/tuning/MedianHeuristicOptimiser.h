@@ -15,10 +15,10 @@ namespace lucid::tuning {
 
 class MedianHeuristicOptimiser final : public Optimiser {
  public:
-  explicit MedianHeuristicOptimiser(const Sampler& sampler, Dimension num_samples = 100);
+  explicit MedianHeuristicOptimiser(const Kernel& estimator);
 
  private:
-  [[nodiscard]] std::unique_ptr<Kernel> optimise_impl(const Kernel& kernel) const override;
+  [[nodiscard]] Vector optimise_impl(const Matrix& kernel, const Matrix& y) const override;
 };
 
 }  // namespace lucid::tuning
