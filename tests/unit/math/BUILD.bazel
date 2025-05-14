@@ -13,6 +13,19 @@ lucid_cc_googletest(
 )
 
 lucid_cc_googletest(
+    name = "test_kernel_ridge_regression",
+    deps = ["//lucid/math:regression"],
+)
+
+lucid_cc_googletest(
+    name = "test_feature_map",
+    deps = [
+        "//lucid/math:feature_map",
+        "//lucid/util:math",
+    ],
+)
+
+lucid_cc_googletest(
     name = "test_tensor",
     deps = [
         "//lucid/math:tensor",
