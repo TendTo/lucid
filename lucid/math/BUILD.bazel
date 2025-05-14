@@ -70,12 +70,14 @@ lucid_cc_library(
         "ConstantTruncatedFourierFeatureMap.cpp",
         "FeatureMap.cpp",
         "LinearTruncatedFourierFeatureMap.cpp",
+        "LogTruncatedFourierFeatureMap.cpp",
         "TruncatedFourierFeatureMap.cpp",
     ],
     hdrs = [
         "ConstantTruncatedFourierFeatureMap.h",
         "FeatureMap.h",
         "LinearTruncatedFourierFeatureMap.h",
+        "LogTruncatedFourierFeatureMap.h",
         "TruncatedFourierFeatureMap.h",
     ],
     implementation_deps = [
