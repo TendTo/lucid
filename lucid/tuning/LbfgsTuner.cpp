@@ -5,14 +5,13 @@
  * @file
  * LbfgsOptimiser class.
  */
-#include "lucid/tuning/LbfgsOptimiser.h"
-
 #include <LBFGS.h>
 
 #include <iostream>
 #include <memory>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/tuning/LbfgsTuner.h"
 #include "lucid/util/logging.h"
 
 namespace lucid::tuning {
@@ -37,9 +36,9 @@ class Rosenbrock {
 };
 }  // namespace
 
-LbfgsOptimiser::LbfgsOptimiser(const Kernel& estimator) : Optimiser{estimator} {}
+LbfgsTuner::LbfgsTuner(const Kernel& estimator) : Tuner{estimator} {}
 
-Vector LbfgsOptimiser::optimise_impl(const Matrix& x, const Matrix& y) const {
+Vector LbfgsTuner::optimise_impl(const Matrix& x, const Matrix& y) const {
   LUCID_DEBUG_FMT("LbfgsOptimiser::Optimise({}, {})", x, y);
   const int n = 10;
   // Set up parameters

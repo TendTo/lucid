@@ -17,16 +17,16 @@ lucid_hdrs_tar(
 cpplint()
 
 lucid_cc_library(
-    name = "optimiser",
+    name = "tuner",
     srcs = [
-        "LbfgsOptimiser.cpp",
-        "MedianHeuristicOptimiser.cpp",
-        "Optimiser.cpp",
+        "LbfgsTuner.cpp",
+        "MedianHeuristicTuner.cpp",
+        "Tuner.cpp",
     ],
     hdrs = [
-        "LbfgsOptimiser.h",
-        "MedianHeuristicOptimiser.h",
-        "Optimiser.h",
+        "LbfgsTuner.h",
+        "MedianHeuristicTuner.h",
+        "Tuner.h",
     ],
     implementation_deps = [
         "//lucid/lib:eigen",
@@ -43,5 +43,5 @@ lucid_cc_library(
 lucid_cc_library(
     name = "tuning",
     hdrs = ["tuning.h"],
-    deps = [":optimiser"],
+    deps = [":tuner"],
 )

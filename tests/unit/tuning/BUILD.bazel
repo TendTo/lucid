@@ -3,9 +3,9 @@
 load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 
 lucid_cc_googletest(
-    name = "test_median_heuristic_optimiser",
+    name = "test_median_heuristic_tuner",
     deps = [
         "//lucid/math",
-        "//lucid/tuning:optimiser",
+        "//lucid/tuning:tuner",
     ],
 )

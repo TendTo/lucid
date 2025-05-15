@@ -19,13 +19,13 @@ namespace lucid::tuning {
  * Given a kernel, the optimiser finds the best hyperparameters for the kernel.
  * The optimiser subclass determines the optimisation algorithm.
  */
-class Optimiser {
+class Tuner {
  public:
   /** Construct a new Optimiser object. */
-  explicit Optimiser(const Kernel& estimator);
-  Optimiser(const Optimiser&) = default;
-  Optimiser(Optimiser&&) = default;
-  virtual ~Optimiser() = default;
+  explicit Tuner(const Kernel& estimator);
+  Tuner(const Tuner&) = default;
+  Tuner(Tuner&&) = default;
+  virtual ~Tuner() = default;
   /**
    * Optimise the kernel hyperparameters.
    * Starting from the initial guess, the optimiser finds the best hyperparameters for the kernel.

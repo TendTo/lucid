@@ -10,16 +10,16 @@
 #include <memory>
 
 #include "lucid/math/Kernel.h"
-#include "lucid/tuning/Optimiser.h"
+#include "lucid/tuning/Tuner.h"
 
 namespace lucid::tuning {
 
 /**
  * Optimiser that uses the L-BFGS algorithm.
  */
-class LbfgsOptimiser final : public Optimiser {
+class LbfgsTuner final : public Tuner {
  public:
-  explicit LbfgsOptimiser(const Kernel& estimator);
+  explicit LbfgsTuner(const Kernel& estimator);
 
  private:
   [[nodiscard]] Vector optimise_impl(const Matrix& x, const Matrix& y) const override;

@@ -7,12 +7,12 @@
  */
 #pragma once
 
-#include "lucid/tuning/LbfgsOptimiser.h"
-#include "lucid/tuning/MedianHeuristicOptimiser.h"
-#include "lucid/tuning/Optimiser.h"
+#include "lucid/tuning/LbfgsTuner.h"
+#include "lucid/tuning/MedianHeuristicTuner.h"
+#include "lucid/tuning/Tuner.h"
 
 /**
  * @namespace lucid::tuning
- * Collection of utilities used to tune kernels' hyerparameters before using them.
+ * Collection of utilities used to tune the estimator's hyerparameters before using them.
  */
 namespace lucid::tuning {}  // namespace lucid::tuning

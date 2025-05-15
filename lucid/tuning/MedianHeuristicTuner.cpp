@@ -4,11 +4,10 @@
  * @licence BSD 3-Clause License
  * @file
  */
-#include "lucid/tuning/MedianHeuristicOptimiser.h"
-
 #include <memory>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/tuning/MedianHeuristicTuner.h"
 #include "lucid/util/logging.h"
 
 namespace lucid::tuning {
@@ -30,9 +29,9 @@ Scalar median(Vector& d) {
 
 }  // namespace
 
-MedianHeuristicOptimiser::MedianHeuristicOptimiser(const Kernel& estimator) : Optimiser{estimator} {}
+MedianHeuristicTuner::MedianHeuristicTuner(const Kernel& estimator) : Tuner{estimator} {}
 
-Vector MedianHeuristicOptimiser::optimise_impl(const Matrix& x, const Matrix&) const {
+Vector MedianHeuristicTuner::optimise_impl(const Matrix& x, const Matrix&) const {
   Vector dist = pdist(x);
   median(dist);
   return dist;

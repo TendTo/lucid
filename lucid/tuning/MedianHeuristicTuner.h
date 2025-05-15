@@ -9,13 +9,13 @@
 
 #include <memory>
 
-#include "lucid/tuning/Optimiser.h"
+#include "lucid/tuning/Tuner.h"
 
 namespace lucid::tuning {
 
-class MedianHeuristicOptimiser final : public Optimiser {
+class MedianHeuristicTuner final : public Tuner {
  public:
-  explicit MedianHeuristicOptimiser(const Kernel& estimator);
+  explicit MedianHeuristicTuner(const Kernel& estimator);
 
  private:
   [[nodiscard]] Vector optimise_impl(const Matrix& kernel, const Matrix& y) const override;
