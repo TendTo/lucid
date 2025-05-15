@@ -26,38 +26,45 @@ namespace lucid {
  */
 class GaussianKernel final : public Kernel {
  public:
+  using Kernel::set;
   /**
    * Construct a new GaussianKernel object with the given parameters.
-   * @param sigma_f @f$ \sigma_f @f$ value
    * @param sigma_l @f$ \sigma_l @f$ value
+   * @param sigma_f @f$ \sigma_f @f$ value
    */
-  GaussianKernel(double sigma_f, Vector sigma_l);
+  explicit GaussianKernel(const Vector& sigma_l, double sigma_f = 1.0);
   /**
    * Construct a new GaussianKernel object with the given parameters.
-   * @param sigma_f @f$ \sigma_f @f$ value
+   * @param dim dimension of the vector space
    * @param sigma_l @f$ \sigma_l @f$ value. It is equal for all dimensions.
-   * @param size dimension of the vector space
+   * @param sigma_f @f$ \sigma_f @f$ value
    */
-  GaussianKernel(double sigma_f, double sigma_l, Dimension size);
+  GaussianKernel(Dimension dim, double sigma_l, double sigma_f = 1.0);
 
   /** @getter{@f$ \sigma_f @f$ value, kernel} */
   [[nodiscard]] Scalar sigma_f() const { return sigma_f_; }
   /** @getter{@f$ \sigma_l @f$ value, kernel} */
   [[nodiscard]] const Vector& sigma_l() const { return sigma_l_; }
+  /** @getter{dimension, kernel} */
+  [[nodiscard]] Dimension dimension() const { return sigma_l_.size(); }
+  /** @getter{cached @f$ \text{diag}(0.5 \sigma_l^2) @f$ value, kernel} */
+  [[nodiscard]] const Vector& gamma() const { return gamma_; }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
   Scalar operator()(const Vector& x1, const Vector& x2) const override;
-  Matrix apply(const Matrix& x1, const Matrix& x2) const;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
- private:
-  double get_parameter_d(KernelHyperParameter parameter) const override;
-  const Vector& get_parameter_v(KernelHyperParameter parameter) const override;
+  void set(Parameter parameter, double value) override;
+  void set(Parameter parameter, const Vector& value) override;
 
-  double sigma_f_;           ///< @f$ \sigma_f @f$ value
-  Vector sigma_l_;           ///< @f$ \sigma_l @f$ value
-  Vector sigma_l_diagonal_;  ///< @f$ \text{diag}(\sigma_l^2) @f$ cached for performance.
-                             ///< Being vector, `.asDiagonal()` is needed to convert it to a diagonal matrix before use
+ private:
+  [[nodiscard]] double get_d(Parameter parameter) const override;
+  [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
+
+  Vector sigma_l_;  ///< @f$ \sigma_l @f$ value
+  double sigma_f_;  ///< @f$ \sigma_f @f$ value
+  Vector gamma_;    ///< @f$ \text{diag}(0.5 \sigma_l^2) @f$ cached for performance.
+                    ///< Being vector, `.asDiagonal()` is needed to convert it to a diagonal matrix before use
 };
 
 using RadialBasisFunction = GaussianKernel;       ///< Alias for Gaussian kernel.

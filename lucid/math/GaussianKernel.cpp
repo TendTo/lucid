@@ -14,62 +14,59 @@
 
 namespace lucid {
 
-GaussianKernel::GaussianKernel(Vector params) : Kernel{std::move(params)}, sigma_l_sq_diagonal_inv_{} {
-  LUCID_CHECK_ARGUMENT_EXPECTED(parameters_.size() > 1, "params.size()", parameters_.size(), "at least 2");
-  const auto sigma_l_diagonal = parameters_.tail(parameters_.size() - 1);
-  sigma_l_sq_diagonal_inv_ = sigma_l_diagonal.cwiseProduct(sigma_l_diagonal).cwiseInverse();
-}
-GaussianKernel::GaussianKernel(const double sigma_f, const Vector& sigma_l)
-    : Kernel{sigma_l.size() + 1}, sigma_l_sq_diagonal_inv_{} {
+GaussianKernel::GaussianKernel(const Vector& sigma_l, const double sigma_f)
+    : sigma_l_{sigma_l}, sigma_f_{sigma_f}, gamma_{sigma_l.size()} {
   LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
-  parameters_(0) = sigma_f;
-  parameters_.tail(sigma_l.size()) = sigma_l;
-  sigma_l_sq_diagonal_inv_ = sigma_l.cwiseProduct(sigma_l).cwiseInverse();
+  gamma_ = -0.5 * sigma_l.cwiseProduct(sigma_l).cwiseInverse();
 }
-GaussianKernel::GaussianKernel(const double sigma_f, const double sigma_l, Dimension size)
-    : Kernel{size + 1}, sigma_l_sq_diagonal_inv_{} {
-  LUCID_CHECK_ARGUMENT_EXPECTED(size > 0, "size", size, "at least 1");
-  parameters_(0) = sigma_f;
-  parameters_.tail(size) = Vector::Constant(size, sigma_l);
-  sigma_l_sq_diagonal_inv_ = Vector::Constant(size, sigma_l * sigma_l).cwiseInverse();
-}
-GaussianKernel::GaussianKernel(const double sigma_f, const double sigma_l, const Dimension size)
-    : GaussianKernel{sigma_f, Vector::Constant(size, sigma_l)} {}
+GaussianKernel::GaussianKernel(const Dimension dim, const double sigma_l, const double sigma_f)
+    : GaussianKernel{Vector::Constant(dim, sigma_l), sigma_f} {}
 
 Scalar GaussianKernel::operator()(const Vector& x1, const Vector& x2) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == x2.size(), "x1.size() != x2.size()", x1.size(), x2.size());
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == sigma_l_sq_diagonal_inv_.size(), "x1.size() != sigma_l().size()",
-                                x1.size(), sigma_l_sq_diagonal_inv_.size());
+  LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == gamma_.size(), "x1.size() != sigma_l().size()", x1.size(), gamma_.size());
   const auto diff = x1 - x2;
-  LUCID_ASSERT((diff.transpose() * sigma_l_sq_diagonal_inv_.asDiagonal() * diff).size() == 1u, "scalar result");
-  return sigma_f() * sigma_f() *
-         std::exp(-0.5 * (diff.transpose() * sigma_l_sq_diagonal_inv_.asDiagonal() * diff).value());
-}
-Matrix GaussianKernel::apply(const Matrix& x1, const Matrix& x2) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == x2.cols(), "x1.cols() != x2.cols()", x1.cols(), x2.cols());
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == sigma_l_diagonal_.size(), "x1.cols() != sigma_l().size()", x1.cols(),
-                                sigma_l_diagonal_.size());
-  const auto diff = x1 - x2;
-  return sigma_f_ * sigma_f_ * (-0.5 * (diff * sigma_l_diagonal_.asDiagonal() * diff.transpose())).array().exp();
+  LUCID_ASSERT((diff.transpose() * gamma_.asDiagonal() * diff).size() == 1u, "scalar result");
+  return sigma_f() * sigma_f() * std::exp((diff.transpose() * gamma_.asDiagonal() * diff).value());
 }
 
-std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_f_, sigma_l_); }
+std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_l_, sigma_f_); }
 
-double GaussianKernel::get_parameter_d(const KernelHyperParameter parameter) const {
+void GaussianKernel::set(const Parameter parameter, const double value) {
   switch (parameter) {
-    case KernelHyperParameter::SIGMA_F:
-      return sigma_f_;
+    case Parameter::SIGMA_F:
+      sigma_f_ = value;
+      break;
     default:
-      return Kernel::get_parameter_d(parameter);
+      Kernel::set(parameter, value);
+  }
+}
+void GaussianKernel::set(const Parameter parameter, const Vector& value) {
+  switch (parameter) {
+    case Parameter::SIGMA_L:
+      sigma_l_ = value;
+      gamma_ = -0.5 * sigma_l_.cwiseProduct(sigma_l_).cwiseInverse();
+      break;
+    default:
+      Kernel::set(parameter, value);
   }
 }
 
-const Vector& GaussianKernel::get_parameter_v(const KernelHyperParameter parameter) const {
+double GaussianKernel::get_d(const Parameter parameter) const {
   switch (parameter) {
-    case KernelHyperParameter::SIGMA_L:
+    case Parameter::SIGMA_F:
+      return sigma_f_;
+    default:
+      return Kernel::get_d(parameter);
+  }
+}
+
+const Vector& GaussianKernel::get_v(const Parameter parameter) const {
+  switch (parameter) {
+    case Parameter::SIGMA_L:
       return sigma_l_;
     default:
-      return Kernel::get_parameter_v(parameter);
+      return Kernel::get_v(parameter);
   }
 }
 

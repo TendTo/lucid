@@ -74,7 +74,7 @@ TYPED_TEST(TestFeatureMap, TruncatedFourierFeatureMapApplyVector) {
 }
 
 TYPED_TEST(TestFeatureMap, TruncatedFourierFeatureMapApply1D) {
-  RectSet x_limits{std::vector<std::pair<Scalar, Scalar>>{{1, 50}}};
+  RectSet x_limits{std::vector<std::pair<Scalar, Scalar>>{{-1, 1}}};
   TypeParam feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
   const Vector x{Vector::Random(x_limits.dimension())};
   const Matrix features{feature_map(x.transpose())};

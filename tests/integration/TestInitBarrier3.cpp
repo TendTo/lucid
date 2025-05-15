@@ -103,7 +103,7 @@ inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index sampl
 }
 
 TEST_F(TestInitBarrier3, InitBarrier3) {
-  const GaussianKernel kernel{sigma_f, sigma_l};
+  const GaussianKernel kernel{sigma_l, sigma_f};
   const ConstantTruncatedFourierFeatureMap tffm{num_freq_per_dim, sigma_l, sigma_f, limit_set};
 
   // With n frequencies, the highest frequency is n-1 (they go from 0 to n-1).

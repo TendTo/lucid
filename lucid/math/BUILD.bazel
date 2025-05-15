@@ -23,17 +23,24 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
-    name = "kernel_hyper_parameter",
+    name = "parameter",
     srcs = [
-        "KernelHyperParameter.cpp",
+        "Parameter.cpp",
+        "ParameterValue.cpp",
+        "ParameterValues.cpp",
+        "Parametrizable.cpp",
     ],
     hdrs = [
-        "KernelHyperParameter.h",
+        "Parameter.h",
+        "ParameterValue.h",
+        "ParameterValues.h",
+        "Parametrizable.h",
     ],
-    implementation_deps = [
-        "//lucid/util:error",
-    ],
+    implementation_deps = ["//lucid/util:error"],
     deps = [
+        "//lucid/lib:eigen",
+        "//lucid/util:concepts",
+        "//lucid/util:exception",
         "//lucid/util:logging",
     ],
 )
@@ -52,7 +59,7 @@ lucid_cc_library(
         "//lucid/util:error",
     ],
     deps = [
-        ":kernel_hyper_parameter",
+        ":parameter",
         "//lucid/lib:eigen",
         "//lucid/util:concepts",
         "//lucid/util:logging",
@@ -203,8 +210,8 @@ lucid_cc_library(
         ":feature_map",
         ":gram_matrix",
         ":kernel",
-        ":kernel_hyper_parameter",
         ":optimiser",
+        ":parameter",
         ":regression",
         ":sampler",
         ":set",

@@ -32,7 +32,7 @@ class TestKernelRidgeRegression : public ::testing::Test {
 
   [[nodiscard]] std::pair<KernelRidgeRegression<GaussianKernel>, ConstantTruncatedFourierFeatureMap>
   get_regression_and_feature_map(const double sigma_l, const int num_frequencies) const {
-    const GaussianKernel kernel{sigma_f_, sigma_l, dim_};
+    const GaussianKernel kernel{dim_, sigma_l, sigma_f_};
     const Matrix training_inputs{Matrix::Random(n_samples_, dim_)};
     const Matrix training_outputs{Matrix::Random(n_samples_, dim_)};
     return {KernelRidgeRegression<GaussianKernel>(kernel, training_inputs, training_outputs),

@@ -112,11 +112,11 @@
         fmt::format("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected)); \
   } while (false)
 
-#define LUCID_INVALID_KERNEL_PARAMETER(kernel, parameter)                       \
+#define LUCID_INVALID_HYPER_PARAMETER(parameter, type)                          \
   do {                                                                          \
-    LUCID_ERROR_FMT("Invalid kernel parameter for {}: {}", kernel, parameter);  \
+    LUCID_ERROR_FMT("Invalid hyper parameter {} of type {}", parameter, type);  \
     throw ::lucid::exception::LucidInvalidArgumentException(                    \
-        fmt::format("Invalid kernel parameter for {}: {}", kernel, parameter)); \
+        fmt::format("Invalid hyper parameter {} of type {}", parameter, type)); \
   } while (false)
 
 #define LUCID_PY_ERROR(msg)                          \

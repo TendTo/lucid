@@ -19,6 +19,6 @@ using lucid::tuning::MedianHeuristicTuner;
 TEST(TestMedianHeuristicTuner, Constructor) {
   Vector sigma_l{3};
   sigma_l << 1, 2, 3;
-  const MedianHeuristicTuner o{GaussianKernel{1.0, sigma_l}};
+  const MedianHeuristicTuner o{GaussianKernel{sigma_l}};
   // FAIL();
 }

@@ -91,8 +91,8 @@ inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index sampl
 }
 
 TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
-  const GaussianKernel kernel{sigma_f, sigma_l};
-  const TruncatedFourierFeatureMap tffm{num_freq_per_dim, dimension, sigma_l, sigma_f, limit_set};
+  const GaussianKernel kernel{sigma_l, sigma_f};
+  const TruncatedFourierFeatureMap tffm{num_freq_per_dim, sigma_l, sigma_f, limit_set};
 
   // With n frequencies, the highest frequency is n-1 (they go from 0 to n-1).
   // So, by Shannon's theorem, we need 2n - 1 samples to avoid aliasing. 2n will do.
