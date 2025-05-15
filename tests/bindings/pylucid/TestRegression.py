@@ -18,6 +18,21 @@ class TestRegression:
             assert o.training_inputs.shape == (2, 3)
             assert o.coefficients.shape == (2, 3)
 
+        def test_data(self):
+            k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
+            o = GaussianKernelRidgeRegression(
+                kernel=k,
+                training_inputs=np.array([[1, 2, 3], [4, 5, 6]]),
+                training_outputs=np.array([[1, 2, 3], [5, 6, 1]]),
+            )
+            assert o.training_inputs.flags.c_contiguous
+            assert not o.training_inputs.flags.writeable
+            assert not o.training_inputs.flags.owndata
+            assert o.coefficients.flags.c_contiguous
+            assert not o.coefficients.flags.writeable
+            assert not o.coefficients.flags.owndata
+            assert o.kernel is not k
+
         def test_call(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
             o = GaussianKernelRidgeRegression(

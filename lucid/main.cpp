@@ -60,7 +60,7 @@ void test_barrier_3_old() {
   const GaussianKernel kernel{1, Vector::Constant(scenario.dimension(), 0.3)};
   const KernelRidgeRegression regression{kernel, inputs, outputs, regularization_constant};
 
-  // const Matrix samples = scenario.sample_element(10);
+  // const Matrix samples = scenario.sample(10);
   // plot_points(samples, "green");
   Matrix res = regression(inputs);
   std::cout << "RMS: " << rms(res - outputs) << std::endl;

@@ -113,7 +113,7 @@ def test_building_automation_system():
 
     samples_per_dim = 2 * num_freq_per_dim
     factor = math.ceil(num_supp_per_dim / samples_per_dim) + 1
-    x_samples: "np.typing.ArrayLike" = X_bounds.sample_element(N)
+    x_samples: "np.typing.ArrayLike" = X_bounds.sample(N)
     xp_samples = f(x_samples.T).T
     n_per_dim = factor * samples_per_dim
     sigma_f, sigma_l = median_heuristic(x_samples, x_samples)

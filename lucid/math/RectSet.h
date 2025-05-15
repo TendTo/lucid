@@ -58,7 +58,7 @@ class RectSet final : public Set {
   /** @getter{upper bound, rectangular set} */
   [[nodiscard]] const Vector& upper_bound() const { return ub_; }
 
-  [[nodiscard]] Matrix sample_element(Index num_samples) const override;
+  [[nodiscard]] Matrix sample(Index num_samples) const override;
 
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override;
 

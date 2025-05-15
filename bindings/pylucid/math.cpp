@@ -47,8 +47,8 @@ class PySet : public Set {
  public:
   using Set::Set;
   [[nodiscard]] Dimension dimension() const override { PYBIND11_OVERRIDE_PURE(Dimension, Set, dimension); }
-  [[nodiscard]] Matrix sample_element(Index num_samples) const override {
-    PYBIND11_OVERRIDE_PURE(Matrix, Set, sample_element, num_samples);
+  [[nodiscard]] Matrix sample(Index num_samples) const override {
+    PYBIND11_OVERRIDE_PURE(Matrix, Set, sample, num_samples);
   }
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(bool, Set, "__call__", operator(), x);
@@ -168,8 +168,8 @@ void init_math(py::module_ &m) {
   py::class_<Set, PySet>(m, "Set")
       .def(py::init<>())
       .def_property_readonly("dimension", &Set::dimension)
-      .def("sample_element", py::overload_cast<Index>(&Set::sample_element, py::const_), py::arg("num_samples"))
-      .def("sample_element", py::overload_cast<>(&Set::sample_element, py::const_))
+      .def("sample", py::overload_cast<Index>(&Set::sample, py::const_), py::arg("num_samples"))
+      .def("sample", py::overload_cast<>(&Set::sample, py::const_))
       .def("lattice", py::overload_cast<Index, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("include_endpoints") = false)
       .def("lattice", py::overload_cast<const Eigen::VectorX<Index> &, bool>(&Set::lattice, py::const_),

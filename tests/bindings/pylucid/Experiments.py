@@ -174,7 +174,7 @@ def experiments():
 
     ######## Lucid ########
     samples_per_dim = 2 * num_freq_per_dim
-    x_samples: "np.typing.ArrayLike" = X_bounds.sample_element(N)
+    x_samples: "np.typing.ArrayLike" = X_bounds.sample(N)
     xp_samples: "np.typing.ArrayLike" = f(x_samples.T).T
     n_per_dim = samples_per_dim * 2
     print(f"{n_per_dim = }, {samples_per_dim = }")

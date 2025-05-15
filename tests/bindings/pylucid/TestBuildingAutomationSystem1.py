@@ -220,7 +220,7 @@ def test_building_automation_system():
     print(f"Running anesthesia benchmark (LUCID version: {__version__})")
 
     samples_per_dim = 2 * num_freq_per_dim
-    x_samples: "np.typing.ArrayLike" = X_bounds.sample_element(N)
+    x_samples: "np.typing.ArrayLike" = X_bounds.sample(N)
     xp_samples: "np.typing.ArrayLike" = f(x_samples.T).T
     n_per_dim = samples_per_dim * 2
     print(f"{n_per_dim = }, {samples_per_dim = }")
@@ -291,7 +291,7 @@ def test_building_automation_system():
     f_x0_lattice = tffm(x0_lattice)
     f_xu_lattice = tffm(xu_lattice)
 
-    new_data = X_bounds.sample_element(500)
+    new_data = X_bounds.sample(500)
     print(f"RMSE on state space (x -> xp) [training data] {rmse(xp_regressor(x_samples), xp_samples)}")
     print(f"RMSE on state space (x -> xp) [new data] {rmse(xp_regressor(new_data), f_det(new_data.T).T)}")
     print(f"RMSE on Fourier features (x -> tffm(xp)) [training data] {rmse(f_xp_regressor(x_samples), f_xp_samples)}")

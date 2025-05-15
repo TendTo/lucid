@@ -35,12 +35,12 @@ class Set {
    * @return @Nxn matrix of samples, where @n is the dimension of @U.
    * In other words, the samples are stored as rows vectors in the matrix
    */
-  [[nodiscard]] virtual Matrix sample_element(Index num_samples) const = 0;
+  [[nodiscard]] virtual Matrix sample(Index num_samples) const = 0;
   /**
    * Extract an element from @U using some kind of random distribution.
    * @return element of the set
    */
-  [[nodiscard]] Vector sample_element() const;
+  [[nodiscard]] Vector sample() const;
   /**
    * Check if a vector is in @U.
    * @param x vector to test
@@ -86,9 +86,9 @@ class Set {
   template <class Derived>
   Eigen::MatrixBase<Derived>& operator>>(Eigen::MatrixBase<Derived>& x) const {
     if constexpr (Derived::ColsAtCompileTime != 1) {
-      return x = sample_element(x.rows());
+      return x = sample(x.rows());
     }
-    return x = sample_element().transpose();
+    return x = sample().transpose();
   }
 };
 
