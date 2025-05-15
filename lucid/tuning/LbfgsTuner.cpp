@@ -3,15 +3,15 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * LbfgsOptimiser class.
  */
+#include "lucid/tuning/LbfgsTuner.h"
+
 #include <LBFGS.h>
 
 #include <iostream>
 #include <memory>
 
 #include "lucid/lib/eigen.h"
-#include "lucid/tuning/LbfgsTuner.h"
 #include "lucid/util/logging.h"
 
 namespace lucid::tuning {
@@ -36,10 +36,9 @@ class Rosenbrock {
 };
 }  // namespace
 
-LbfgsTuner::LbfgsTuner(const Kernel& estimator) : Tuner{estimator} {}
-
-Vector LbfgsTuner::optimise_impl(const Matrix& x, const Matrix& y) const {
-  LUCID_DEBUG_FMT("LbfgsOptimiser::Optimise({}, {})", x, y);
+void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                           ConstMatrixRef training_outputs) const {
+  LUCID_DEBUG_FMT("LbfgsOptimiser::Optimise({}, {})", training_inputs, training_outputs);
   const int n = 10;
   // Set up parameters
   LBFGSpp::LBFGSParam<double> param;
@@ -57,10 +56,8 @@ Vector LbfgsTuner::optimise_impl(const Matrix& x, const Matrix& y) const {
   const int niter = solver.minimize(fun, x_out, fx);
 
   std::cout << niter << " iterations" << std::endl;
-  std::cout << "x = \n" << x.transpose() << std::endl;
+  std::cout << "x = \n" << training_inputs.transpose() << std::endl;
   std::cout << "f(x) = " << fx << std::endl;
-
-  return {};
 }
 
 }  // namespace lucid::tuning

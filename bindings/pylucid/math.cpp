@@ -21,6 +21,20 @@
 namespace py = pybind11;
 using namespace lucid;
 
+template <class T>
+py::object get(const T &self, const Parameter parameter) {
+  return dispatch<py::object>(
+      parameter, [&self, parameter]() { return py::int_{self.template get<int>(parameter)}; },
+      [&self, parameter]() { return py::float_{self.template get<double>(parameter)}; },
+      [&self, parameter]() {
+        const Vector &v = self.template get<const Vector &>(parameter);
+        const py::array array{v.size(), v.data(), py::none{}};
+        // https://github.com/pybind/pybind11/issues/481
+        reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &= ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
+        return array;
+      });
+}
+
 class PyKernel : public Kernel {
  public:
   using Kernel::Kernel;
@@ -86,22 +100,7 @@ void init_math(py::module_ &m) {
   py::class_<Kernel, PyKernel>(m, "Kernel")
       .def("__call__", py::overload_cast<const Vector &>(&Kernel::operator(), py::const_))
       .def("__call__", py::overload_cast<const Vector &, const Vector &>(&Kernel::operator(), py::const_))
-      .def(
-          "get",
-          [](const Kernel &self, const Parameter parameter) -> py::object {
-            return dispatch<py::object>(
-                parameter, [&self, parameter]() { return py::int_{self.get<int>(parameter)}; },
-                [&self, parameter]() { return py::float_{self.get<double>(parameter)}; },
-                [&self, parameter]() {
-                  const Vector &v = self.get<const Vector &>(parameter);
-                  const py::array array{v.size(), v.data(), py::none{}};
-                  // https://github.com/pybind/pybind11/issues/481
-                  reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &=
-                      ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
-                  return array;
-                });
-          },
-          py::arg("parameter"), py::return_value_policy::reference_internal)
+      .def("get", get<Kernel>, py::arg("parameter"), py::return_value_policy::reference_internal)
       .def("set", py::overload_cast<Parameter, int>(&Kernel::set), py::arg("parameter"), py::arg("value"))
       .def("set", py::overload_cast<Parameter, double>(&Kernel::set), py::arg("parameter"), py::arg("value"))
       .def("set", py::overload_cast<Parameter, const Vector &>(&Kernel::set), py::arg("parameter"), py::arg("value"))
@@ -148,13 +147,20 @@ void init_math(py::module_ &m) {
   py::class_<Estimator, PyEstimator>(m, "Estimator")
       .def("__call__", py::overload_cast<ConstMatrixRef>(&Estimator::operator(), py::const_), py::arg("x"))
       .def("__call__", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&Estimator::operator(), py::const_),
-           py::arg("x"), py::arg("feature_map"));
-  py::class_<KernelRidgeRegressor<GaussianKernel>, Estimator>(m, "GaussianKernelRidgeRegression")
+           py::arg("x"), py::arg("feature_map"))
+      .def("get", get<Estimator>, py::arg("parameter"), py::return_value_policy::reference_internal)
+      .def("set", py::overload_cast<Parameter, int>(&Kernel::set), py::arg("parameter"), py::arg("value"))
+      .def("set", py::overload_cast<Parameter, double>(&Kernel::set), py::arg("parameter"), py::arg("value"))
+      .def("set", py::overload_cast<Parameter, const Vector &>(&Kernel::set), py::arg("parameter"), py::arg("value"));
+  py::class_<KernelRidgeRegressor, Estimator>(m, "GaussianKernelRidgeRegression")
       .def(py::init<GaussianKernel, Matrix, ConstMatrixRef, Scalar>(), py::arg("kernel"), py::arg("training_inputs"),
            py::arg("training_outputs"), py::arg("regularization_constant") = 0)
-      .def_property_readonly("kernel", &KernelRidgeRegressor<GaussianKernel>::kernel)
-      .def_property_readonly("training_inputs", &KernelRidgeRegressor<GaussianKernel>::training_inputs)
-      .def_property_readonly("coefficients", &KernelRidgeRegressor<GaussianKernel>::coefficients);
+      .def_property_readonly(
+          "kernel", [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); },
+          py::return_value_policy::reference_internal)
+      .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs)
+      .def_property_readonly("coefficients", &KernelRidgeRegressor::coefficients)
+      .def_property_readonly("coefficients", &KernelRidgeRegressor::regularization_constant);
 
   /**************************** Optimiser ****************************/
   py::class_<GurobiLinearOptimiser>(m, "GurobiLinearOptimiser")
@@ -188,6 +194,7 @@ void init_math(py::module_ &m) {
   py::class_<MultiSet, Set>(m, "MultiSet")
       .def(py::init([](const py::args &sets) {
         std::vector<std::unique_ptr<Set>> unique_sets;
+        unique_sets.reserve(sets.size());
         for (const auto &set : sets) {
           if (py::isinstance<RectSet>(set)) {
             unique_sets.emplace_back(std::make_unique<RectSet>(set.cast<RectSet>()));

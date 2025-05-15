@@ -13,10 +13,8 @@
 
 namespace lucid::tuning {
 
-Tuner::Tuner(const Kernel& estimator) : estimator_{estimator} {}
-
-Vector Tuner::optimise(const Matrix& x, const Matrix& y) const { return optimise_impl(x, y); }
-
-// Scalar Optimiser::evaluate(const Kernel&) const { return Scalar(); }
+void Tuner::tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const {
+  tune_impl(estimator, training_inputs, training_outputs);
+}
 
 }  // namespace lucid::tuning

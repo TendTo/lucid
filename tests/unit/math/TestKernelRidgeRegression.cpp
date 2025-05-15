@@ -30,13 +30,13 @@ class TestKernelRidgeRegression : public ::testing::Test {
   const double regularization_constant_{1e-6};  //< Regularization constant for the kernel ridge regressor
   const RectSet x_limits_{std::vector<std::pair<double, double>>(dim_, {-1.0, 1.0})};  //< Limits of the input space
 
-  [[nodiscard]] std::pair<KernelRidgeRegressor<GaussianKernel>, ConstantTruncatedFourierFeatureMap>
-  get_regression_and_feature_map(const double sigma_l, const int num_frequencies) const {
-    const GaussianKernel kernel{dim_, sigma_l, sigma_f_};
+  [[nodiscard]] std::pair<KernelRidgeRegressor, ConstantTruncatedFourierFeatureMap> get_regression_and_feature_map(
+      const double sigma_l, const int num_frequencies) const {
     const Matrix training_inputs{Matrix::Random(n_samples_, dim_)};
     const Matrix training_outputs{Matrix::Random(n_samples_, dim_)};
-    return {KernelRidgeRegressor<GaussianKernel>(kernel, training_inputs, training_outputs),
-            ConstantTruncatedFourierFeatureMap(num_frequencies, sigma_l, sigma_f_, x_limits_)};
+    KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(dim_, sigma_l, sigma_f_)};
+    regressor.fit(training_inputs, training_outputs);
+    return {std::move(regressor), ConstantTruncatedFourierFeatureMap(num_frequencies, sigma_l, sigma_f_, x_limits_)};
   }
 };
 

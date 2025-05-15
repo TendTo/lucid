@@ -23,6 +23,8 @@ enum class Parameter {
   LENGTH_SCALE = 1,  ///< Length scale parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::COVARIANCE)
   COVARIANCE = 1,    ///< Covariance parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::LENGTH_SCALE)
   SIGMA_L = 1,       ///< Sigma_l parameter (@see HyperParameter::LENGTH_SCALE, @see HyperParameter::COVARIANCE)
+  // Regularization parameter
+  REGULARIZATION_CONSTANT = 2,
 };
 
 using HP = Parameter;  ///< Alias for HyperParameter

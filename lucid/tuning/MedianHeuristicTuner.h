@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * Optimiser class.
+ * MedianHeuristicTuner class.
  */
 #pragma once
 
@@ -14,11 +14,7 @@
 namespace lucid::tuning {
 
 class MedianHeuristicTuner final : public Tuner {
- public:
-  explicit MedianHeuristicTuner(const Kernel& estimator);
-
- private:
-  [[nodiscard]] Vector optimise_impl(const Matrix& kernel, const Matrix& y) const override;
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 };
 
 }  // namespace lucid::tuning

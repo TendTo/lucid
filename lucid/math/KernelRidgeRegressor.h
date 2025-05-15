@@ -7,17 +7,13 @@
  */
 #pragma once
 
-#include <utility>
+#include <memory>
 
 #include "lucid/math/Estimator.h"
 #include "lucid/math/FeatureMap.h"
 #include "lucid/math/Kernel.h"
-#include "lucid/util/concept.h"
 
 namespace lucid {
-
-// Forward declaration
-class GaussianKernel;
 
 /**
  * Ridge regressor with a kernel function.
@@ -60,49 +56,75 @@ class GaussianKernel;
  * @f]
  * where @f$ K(x,  x_\text{traning}) @f$ is the vector of kernel evaluations between @f$ x @f$
  * and the training inputs @f$ x_\text{traning} @f$.
- * @tparam K type of kernel function
  */
-template <IsAnyOf<GaussianKernel> K>
 class KernelRidgeRegressor final : public Estimator {
  public:
+  using Estimator::fit;
+  using Estimator::operator();
   /**
    * Construct a new Kernel Ridge Regressor object with the given parameters.
-   * @tparam K type of kernel function
    * @param kernel kernel function used to compute the Gram matrix
-   * @param training_inputs input data used for training. Each element should be a row vector
-   * @param training_outputs output data used for training. Each element should be a row vector
    * @param regularization_constant regularization constant. Avoids overfitting by penalizing large coefficients
    */
-  KernelRidgeRegressor(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
-                       Scalar regularization_constant = 0);
+  explicit KernelRidgeRegressor(const Kernel& kernel, Scalar regularization_constant = 0);
   /**
    * Construct a new Kernel Ridge Regressor object with the given parameters.
-   * @tparam KernelArgs series of arguments to pass to the kernel constructor
-   * @param training_inputs input data used for training. Each element should be a row vector
-   * @param training_outputs output data used for training. Each element should be a row vector
+   * @param kernel kernel function used to compute the Gram matrix
    * @param regularization_constant regularization constant. Avoids overfitting by penalizing large coefficients
-   * @param args arguments to pass to the kernel constructor
    */
-  template <class... KernelArgs>
-  explicit KernelRidgeRegressor(Matrix training_inputs, ConstMatrixRef training_outputs, Scalar regularization_constant,
-                                KernelArgs&&... args)
-      : KernelRidgeRegressor{K{std::forward<KernelArgs>(args)...}, training_inputs, training_outputs,
-                             regularization_constant} {}
+  explicit KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, Scalar regularization_constant = 0);
 
-  [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
-  [[nodiscard]] Matrix operator()(ConstMatrixRef x, const FeatureMap& feature_map) const override;
+  [[nodiscard]] Matrix predict(ConstMatrixRef x) const override;
+  /**
+   * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}
+   * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
+   * The `feature_map` is used to approximate the kernel vector @f$ k(x, x_i) @f$.
+   * @warning Using this method introduces an approximation error.
+   * We suggest using the @ref operator(ConstMatrixRef) method instead.
+   * @param x @f$ n \times d_x @f$ matrix of row vectors in @f$ \mathcal{X} @f$
+   * @param feature_map feature map used to approximate the kernel vector @f$ k(x, x_i) @f$
+   * @return @f$ n \times d_y @f$ matrix of row vectors in @f$ \mathcal{Y} @f$
+   */
+  [[nodiscard]] Matrix operator()(ConstMatrixRef x, const FeatureMap& feature_map) const;
+  /**
+   * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}
+   * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
+   * The `feature_map` is used to approximate the kernel vector @f$ k(x, x_i) @f$.
+   * @warning Using this method introduces an approximation error.
+   * We suggest using the @ref operator(ConstMatrixRef) method instead.
+   * @param x @f$ n \times d_x @f$ matrix of row vectors in @f$ \mathcal{X} @f$
+   * @param feature_map feature map used to approximate the kernel vector @f$ k(x, x_i) @f$
+   * @return @f$ n \times d_y @f$ matrix of row vectors in @f$ \mathcal{Y} @f$
+   */
+  [[nodiscard]] Matrix predict(ConstMatrixRef x, const FeatureMap& feature_map) const;
 
   /** @getter{kernel, regressor} */
-  [[nodiscard]] const K& kernel() const { return kernel_; }
+  [[nodiscard]] const std::unique_ptr<Kernel>& kernel() const { return kernel_; }
   /** @getter{training inputs, regressor} */
   [[nodiscard]] const Matrix& training_inputs() const { return training_inputs_; }
   /** @getter{coefficients, regressor} */
   [[nodiscard]] const Matrix& coefficients() const { return coefficients_; }
+  /** @getter{regularization constant, regressor} */
+  [[nodiscard]] double regularization_constant() const { return regularization_constant_; }
+
+  void set(Parameter parameter, int value) override;
+  void set(Parameter parameter, double value) override;
+  void set(Parameter parameter, const Vector& value) override;
+
+  KernelRidgeRegressor& fit(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                            const tuning::Tuner& tuner) override;
+
+  double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override;
 
  private:
-  K kernel_;                ///< Kernel function
-  Matrix training_inputs_;  ///< Training inputs
-  Matrix coefficients_;     ///< Coefficients of the linear combination describing the regression model
+  [[nodiscard]] int get_i(Parameter parameter) const override;
+  [[nodiscard]] double get_d(Parameter parameter) const override;
+  [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
+
+  std::unique_ptr<Kernel> kernel_;  ///< Kernel function
+  double regularization_constant_;  ///< Regularization constant
+  Matrix training_inputs_;          ///< Training inputs
+  Matrix coefficients_;             ///< Coefficients of the linear combination describing the regression model
 };
 
 }  // namespace lucid

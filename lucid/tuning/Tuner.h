@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * Optimiser class.
+ * Tuner class.
  */
 #pragma once
 
@@ -11,6 +11,11 @@
 
 #include "lucid/math/Kernel.h"
 #include "lucid/math/Sampler.h"
+
+namespace lucid {
+// Forward declarations
+class Estimator;
+}  // namespace lucid
 
 namespace lucid::tuning {
 
@@ -21,27 +26,27 @@ namespace lucid::tuning {
  */
 class Tuner {
  public:
-  /** Construct a new Optimiser object. */
-  explicit Tuner(const Kernel& estimator);
-  Tuner(const Tuner&) = default;
-  Tuner(Tuner&&) = default;
   virtual ~Tuner() = default;
+
   /**
    * Optimise the kernel hyperparameters.
    * Starting from the initial guess, the optimiser finds the best hyperparameters for the kernel.
-   * @return optimised kernel
+   * @param estimator estimator to optimise
+   * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
+   * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
    */
-  [[nodiscard]] Vector optimise(const Matrix& x, const Matrix& y) const;
+  void tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const;
 
  protected:
   /**
    * Optimise the kernel hyperparameters.
    * Starting from the initial guess, the optimiser finds the best hyperparameters for the kernel.
-   * @return optimised kernel
+   * @param estimator estimator to optimise
+   * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
+   * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
    */
-  [[nodiscard]] virtual Vector optimise_impl(const Matrix& x, const Matrix& y) const = 0;
-
-  const Kernel& estimator_;  ///< Kernel to optimise.
+  virtual void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                         ConstMatrixRef training_outputs) const = 0;
 };
 
 }  // namespace lucid::tuning

@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * LbfgsOptimiser class.
+ * LbfgsTuner class.
  */
 #pragma once
 
@@ -18,11 +18,7 @@ namespace lucid::tuning {
  * Optimiser that uses the L-BFGS algorithm.
  */
 class LbfgsTuner final : public Tuner {
- public:
-  explicit LbfgsTuner(const Kernel& estimator);
-
- private:
-  [[nodiscard]] Vector optimise_impl(const Matrix& x, const Matrix& y) const override;
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 };
 
 }  // namespace lucid::tuning
