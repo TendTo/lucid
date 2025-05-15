@@ -123,7 +123,7 @@ def test_automated_anesthesia():
     sigma_f /= 2.0
     print(f"Median heuristic: {sigma_f = }, {sigma_l = }")
 
-    k = GaussianKernel(sigma_f, sigma_l)
+    k = GaussianKernel(sigma_l, sigma_f)
     tffm = ConstantTruncatedFourierFeatureMap(num_freq_per_dim, sigma_l, sigma_f, X_bounds)
     x_lattice = X_bounds.lattice(samples_per_dim)
     f_lattice = tffm(x_lattice)

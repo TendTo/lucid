@@ -107,7 +107,7 @@ def test_barrier_3():
     xp_samples = read_matrix("tests/bindings/pylucid/xp_samples.matrix")
 
     ######## CODE ########
-    k = GaussianKernel(sigma_f, sigma_l)
+    k = GaussianKernel(sigma_l, sigma_f)
     assert k is not None
     tffm = TruncatedFourierFeatureMap(num_freq_per_dim, dimension, sigma_l, sigma_f, limit_set)
     assert tffm is not None

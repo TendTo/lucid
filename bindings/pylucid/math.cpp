@@ -30,9 +30,6 @@ class PyKernel : public Kernel {
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override {
     pybind11::pybind11_fail("Tried to call pure virtual function \"Kernel::clone\"");
   }
-  [[nodiscard]] std::unique_ptr<Kernel> clone(const Vector &) const override {
-    pybind11::pybind11_fail("Tried to call pure virtual function \"Kernel::clone\"");
-  }
 };
 
 class PyRegression : public Regression {
@@ -79,18 +76,40 @@ class MultiSetIterator {
 };
 
 void init_math(py::module_ &m) {
+  /**************************** Parameters ****************************/
+  py::enum_<Parameter>(m, "Parameter")
+      .value("SIGMA_L", Parameter::SIGMA_L)
+      .value("LENGTH_SCALE", Parameter::LENGTH_SCALE)
+      .value("SIGMA_F", Parameter::SIGMA_F);
+
   /**************************** Kernel ****************************/
   py::class_<Kernel, PyKernel>(m, "Kernel")
-      .def(py::init<Dimension>(), py::arg("num_params") = 0)
-      .def(py::init<Vector>(), py::arg("params"))
-      .def_property_readonly("parameters", &Kernel::parameters)
-      .def("__call__", &Kernel::operator())
-      .def("clone", py::overload_cast<>(&Kernel::clone, py::const_))
-      .def("clone", py::overload_cast<const Vector &>(&Kernel::clone, py::const_), py::arg("params"));
+      .def("__call__", py::overload_cast<const Vector &>(&Kernel::operator(), py::const_))
+      .def("__call__", py::overload_cast<const Vector &, const Vector &>(&Kernel::operator(), py::const_))
+      .def(
+          "get",
+          [](const Kernel &self, const Parameter parameter) -> py::object {
+            return dispatch<py::object>(
+                parameter, [&self, parameter]() { return py::int_{self.get<int>(parameter)}; },
+                [&self, parameter]() { return py::float_{self.get<double>(parameter)}; },
+                [&self, parameter]() {
+                  const Vector &v = self.get<const Vector &>(parameter);
+                  const py::array array{v.size(), v.data(), py::none{}};
+                  // https://github.com/pybind/pybind11/issues/481
+                  reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &=
+                      ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
+                  return array;
+                });
+          },
+          py::arg("parameter"), py::return_value_policy::reference_internal)
+      .def("set", py::overload_cast<Parameter, int>(&Kernel::set), py::arg("parameter"), py::arg("value"))
+      .def("set", py::overload_cast<Parameter, double>(&Kernel::set), py::arg("parameter"), py::arg("value"))
+      .def("set", py::overload_cast<Parameter, const Vector &>(&Kernel::set), py::arg("parameter"), py::arg("value"))
+      .def("has", &Kernel::has, py::arg("parameter"))
+      .def("clone", &Kernel::clone);
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
-      .def(py::init<Vector>(), py::arg("params"))
-      .def(py::init<double, const Vector &>(), py::arg("sigma_f"), py::arg("sigma_l"))
-      .def(py::init<double, double, Dimension>(), py::arg("sigma_f"), py::arg("sigma_l"), py::arg("dimension"))
+      .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
+      .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l)
       .def("__str__", STRING_LAMBDA(GaussianKernel));

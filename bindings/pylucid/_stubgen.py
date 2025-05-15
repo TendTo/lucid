@@ -10,21 +10,17 @@ def generate_stub_files(out_dir):
     # They have a structure like 'bazel-out/k8-fastbuild/bin/pylucid/_pylucid.pyi'
     # We need the path up to 'bin' to generate the stubs
     old_argv = sys.argv
-    sys.argv = [sys.argv[0], "pylucid", "-o", out_dir]
+    sys.argv = [sys.argv[0], "pylucid", "-o", out_dir, "--numpy-array-remove-parameters"]
     stubgen_main()
     sys.argv = old_argv
 
     with open(sys.argv[1], "rb") as f:
         content = f.read()
         content = b"import numpy\n" + content
-        content = content.replace(b"__mpq_struct [1]>", b"float") \
-            .replace(b"__gmp_expr<__mpq_struct [1]", b"float") \
-            .replace(b"__gmp_expr<__mpq_struct [1], __mpq_struct [1]>", b"float") \
-            .replace(b"numpy.ndarray[numpy.float64[m, 1]]", b"numpy.typing.ArrayLike") \
-            .replace(
-            b"numpy.ndarray[numpy.float64[m, n], numpy.ndarray.flags.c_contiguous]",
-            b"numpy.typing.ArrayLike") \
-            .replace(b"numpy.ndarray[numpy.float64[m, n]]", b"numpy.typing.ArrayLike")
+        content = content.replace(b"numpy.ndarray", b"numpy.typing.NDArray[numpy.float64]").replace(
+            b"def get(self, parameter: Parameter) -> typing.Any:",
+            b"def get(self, parameter: Parameter) -> int | float | numpy.typing.NDArray[numpy.float64]:",
+        )
 
     with open(sys.argv[1], "wb") as f:
         f.write(content)
