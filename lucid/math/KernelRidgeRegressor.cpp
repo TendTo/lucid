@@ -4,19 +4,18 @@
  * @licence BSD 3-Clause License
  * @file
  */
-#include "lucid/math/KernelRidgeRegression.h"
-
 #include <utility>
 
 #include "lucid/math/GaussianKernel.h"
 #include "lucid/math/GramMatrix.h"
+#include "lucid/math/KernelRidgeRegressor.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
 namespace lucid {
 
 template <IsAnyOf<GaussianKernel> K>
-KernelRidgeRegression<K>::KernelRidgeRegression(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
+KernelRidgeRegressor<K>::KernelRidgeRegressor(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
                                                 const Scalar regularization_constant)
     : kernel_{std::move(kernel)}, training_inputs_{std::move(training_inputs)}, coefficients_{} {
   LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs_.rows() == training_outputs.rows(), "training_inputs.rows()",
@@ -30,7 +29,7 @@ KernelRidgeRegression<K>::KernelRidgeRegression(K kernel, Matrix training_inputs
 }
 
 template <IsAnyOf<GaussianKernel> K>
-Matrix KernelRidgeRegression<K>::operator()(ConstMatrixRef x) const {
+Matrix KernelRidgeRegressor<K>::operator()(ConstMatrixRef x) const {
   if (x.cols() != training_inputs_.cols())
     LUCID_INVALID_ARGUMENT_EXPECTED("input.cols()", x.cols(), training_inputs_.cols());
   Matrix kernel_input{Matrix::NullaryExpr(
@@ -42,7 +41,7 @@ Matrix KernelRidgeRegression<K>::operator()(ConstMatrixRef x) const {
 }
 
 template <IsAnyOf<GaussianKernel> K>
-Matrix KernelRidgeRegression<K>::operator()(ConstMatrixRef x, const FeatureMap& feature_map) const {
+Matrix KernelRidgeRegressor<K>::operator()(ConstMatrixRef x, const FeatureMap& feature_map) const {
   LUCID_WARN("Experts only. We do not know what will happen to your interpolation. And you may die. Sorry about that.");
   if (x.cols() != training_inputs_.cols())
     LUCID_INVALID_ARGUMENT_EXPECTED("input.cols()", x.cols(), training_inputs_.cols());
@@ -55,6 +54,6 @@ Matrix KernelRidgeRegression<K>::operator()(ConstMatrixRef x, const FeatureMap& 
   return kernel_input * coefficients_;
 }
 
-template class KernelRidgeRegression<GaussianKernel>;
+template class KernelRidgeRegressor<GaussianKernel>;
 
 }  // namespace lucid

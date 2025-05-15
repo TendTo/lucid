@@ -1,4 +1,4 @@
-from pylucid import RectSet, MultiSet, FeatureMap, Regression, LucidNotSupportedException
+from pylucid import RectSet, MultiSet, FeatureMap, Estimator, LucidNotSupportedException
 import numpy as np
 
 try:
@@ -35,7 +35,7 @@ def plot_solution_1d(
     sol: "np.typing.NDArray[np.float64]" = None,
     eta: float = None,
     gamma: float = None,
-    regression: "Regression" = None,
+    estimator: "Estimator" = None,
     f: "callable" = None,
 ):
     plt.xlim(X_bounds.lower_bound, X_bounds.upper_bound)
@@ -59,10 +59,10 @@ def plot_solution_1d(
         plt.plot(x_lattice, feature_map(x_lattice) @ sol.T, color="green", label="B(x)")
         if f is not None:
             plt.plot(x_lattice, feature_map(f(x_lattice.T).T) @ sol.T, color="black", label="B(xp)")
-        if regression is not None:
+        if estimator is not None:
             plt.plot(
                 x_lattice,
-                regression(x_lattice) @ sol.T,  # TODO(tend): Should this be regression(x_lattice, feature_map) @ sol.T?
+                estimator(x_lattice) @ sol.T,  # TODO(tend): Should this be regression(x_lattice, feature_map) @ sol.T?
                 color="purple",
                 label="B(xp) via approx. regression",
             )
@@ -81,7 +81,7 @@ def plot_solution_2d(
     sol: "np.typing.NDArray[np.float64]" = None,
     eta: float = None,
     gamma: float = None,
-    regression: "Regression" = None,
+        estimator: "Estimator" = None,
     f: "callable" = None,
 ):
     raise LucidNotSupportedException("2D plotting is not yet implemented. Please use 1D plotting instead.")
@@ -95,14 +95,14 @@ def plot_solution(
     sol: "np.typing.NDArray[np.float64]" = None,
     eta: float = None,
     gamma: float = None,
-    regression: "Regression" = None,
+        estimator: "Estimator" = None,
     f: "callable" = None,
 ):
     if X_bounds.dimension == 1:
-        plot_solution_1d(X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, regression, f)
+        plot_solution_1d(X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f)
         return
     if X_bounds.dimension == 2:
-        plot_solution_2d(X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, regression, f)
+        plot_solution_2d(X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f)
         return
     raise LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."

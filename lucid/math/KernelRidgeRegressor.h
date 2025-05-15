@@ -3,15 +3,15 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * KernelRidgeRegression class.
+ * KernelRidgeRegressor class.
  */
 #pragma once
 
 #include <utility>
 
+#include "lucid/math/Estimator.h"
 #include "lucid/math/FeatureMap.h"
 #include "lucid/math/Kernel.h"
-#include "lucid/math/Regression.h"
 #include "lucid/util/concept.h"
 
 namespace lucid {
@@ -20,8 +20,8 @@ namespace lucid {
 class GaussianKernel;
 
 /**
- * Ridge regression with a kernel function.
- * This is a linear regression with @f$ L_2 @f$ regularization.
+ * Ridge regressor with a kernel function.
+ * This is a linear regressor with @f$ L_2 @f$ regularization.
  * Given two vector spaces @f$ \mathcal{X}, \mathcal{Y} @f$ and the training datasets @f$ \{ (x_i, y_i) \}_{i=1}^n @f$,
  * where @f$ x_i \in \mathcal{X} @f$ and @f$ y_i \in \mathcal{Y} @f$,
  * the goal is to find the function @f$ f^*: \mathcal{X} \to \mathcal{Y} @f$ such that the sum of the squared errors is
@@ -63,20 +63,20 @@ class GaussianKernel;
  * @tparam K type of kernel function
  */
 template <IsAnyOf<GaussianKernel> K>
-class KernelRidgeRegression final : public Regression {
+class KernelRidgeRegressor final : public Estimator {
  public:
   /**
-   * Construct a new Kernel Ridge Regression object with the given parameters.
+   * Construct a new Kernel Ridge Regressor object with the given parameters.
    * @tparam K type of kernel function
    * @param kernel kernel function used to compute the Gram matrix
    * @param training_inputs input data used for training. Each element should be a row vector
    * @param training_outputs output data used for training. Each element should be a row vector
    * @param regularization_constant regularization constant. Avoids overfitting by penalizing large coefficients
    */
-  KernelRidgeRegression(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
-                        Scalar regularization_constant = 0);
+  KernelRidgeRegressor(K kernel, Matrix training_inputs, ConstMatrixRef training_outputs,
+                       Scalar regularization_constant = 0);
   /**
-   * Construct a new Kernel Ridge Regression object with the given parameters.
+   * Construct a new Kernel Ridge Regressor object with the given parameters.
    * @tparam KernelArgs series of arguments to pass to the kernel constructor
    * @param training_inputs input data used for training. Each element should be a row vector
    * @param training_outputs output data used for training. Each element should be a row vector
@@ -84,19 +84,19 @@ class KernelRidgeRegression final : public Regression {
    * @param args arguments to pass to the kernel constructor
    */
   template <class... KernelArgs>
-  explicit KernelRidgeRegression(Matrix training_inputs, ConstMatrixRef training_outputs,
-                                 Scalar regularization_constant, KernelArgs&&... args)
-      : KernelRidgeRegression{K{std::forward<KernelArgs>(args)...}, training_inputs, training_outputs,
-                              regularization_constant} {}
+  explicit KernelRidgeRegressor(Matrix training_inputs, ConstMatrixRef training_outputs, Scalar regularization_constant,
+                                KernelArgs&&... args)
+      : KernelRidgeRegressor{K{std::forward<KernelArgs>(args)...}, training_inputs, training_outputs,
+                             regularization_constant} {}
 
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
   [[nodiscard]] Matrix operator()(ConstMatrixRef x, const FeatureMap& feature_map) const override;
 
-  /** @getter{kernel, regression} */
+  /** @getter{kernel, regressor} */
   [[nodiscard]] const K& kernel() const { return kernel_; }
-  /** @getter{training inputs, regression} */
+  /** @getter{training inputs, regressor} */
   [[nodiscard]] const Matrix& training_inputs() const { return training_inputs_; }
-  /** @getter{coefficients, regression} */
+  /** @getter{coefficients, regressor} */
   [[nodiscard]] const Matrix& coefficients() const { return coefficients_; }
 
  private:

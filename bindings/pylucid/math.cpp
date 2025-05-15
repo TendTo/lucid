@@ -32,14 +32,14 @@ class PyKernel : public Kernel {
   }
 };
 
-class PyRegression : public Regression {
+class PyEstimator : public Estimator {
  public:
-  using Regression::Regression;
+  using Estimator::Estimator;
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override {
-    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Regression, "__call__", operator(), x);
+    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Estimator, "__call__", operator(), x);
   }
   [[nodiscard]] Matrix operator()(ConstMatrixRef x, const FeatureMap &feature_map) const override {
-    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Regression, "__call__", operator(), x, feature_map);
+    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Estimator, "__call__", operator(), x, feature_map);
   }
 };
 
@@ -144,17 +144,17 @@ void init_math(py::module_ &m) {
            py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"));
-  /**************************** Regression ****************************/
-  py::class_<Regression, PyRegression>(m, "Regression")
-      .def("__call__", py::overload_cast<ConstMatrixRef>(&Regression::operator(), py::const_), py::arg("x"))
-      .def("__call__", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&Regression::operator(), py::const_),
+  /**************************** Estimator ****************************/
+  py::class_<Estimator, PyEstimator>(m, "Estimator")
+      .def("__call__", py::overload_cast<ConstMatrixRef>(&Estimator::operator(), py::const_), py::arg("x"))
+      .def("__call__", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&Estimator::operator(), py::const_),
            py::arg("x"), py::arg("feature_map"));
-  py::class_<KernelRidgeRegression<GaussianKernel>, Regression>(m, "GaussianKernelRidgeRegression")
+  py::class_<KernelRidgeRegressor<GaussianKernel>, Estimator>(m, "GaussianKernelRidgeRegression")
       .def(py::init<GaussianKernel, Matrix, ConstMatrixRef, Scalar>(), py::arg("kernel"), py::arg("training_inputs"),
            py::arg("training_outputs"), py::arg("regularization_constant") = 0)
-      .def_property_readonly("kernel", &KernelRidgeRegression<GaussianKernel>::kernel)
-      .def_property_readonly("training_inputs", &KernelRidgeRegression<GaussianKernel>::training_inputs)
-      .def_property_readonly("coefficients", &KernelRidgeRegression<GaussianKernel>::coefficients);
+      .def_property_readonly("kernel", &KernelRidgeRegressor<GaussianKernel>::kernel)
+      .def_property_readonly("training_inputs", &KernelRidgeRegressor<GaussianKernel>::training_inputs)
+      .def_property_readonly("coefficients", &KernelRidgeRegressor<GaussianKernel>::coefficients);
 
   /**************************** Optimiser ****************************/
   py::class_<GurobiLinearOptimiser>(m, "GurobiLinearOptimiser")

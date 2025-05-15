@@ -1,4 +1,4 @@
-from pylucid import GaussianKernelRidgeRegression, Regression, GaussianKernel
+from pylucid import GaussianKernelRidgeRegression, Estimator, GaussianKernel
 import numpy as np
 
 
@@ -13,7 +13,7 @@ class TestRegression:
                 training_outputs=np.array([[1, 2, 3], [5, 6, 1]]),
             )
             assert o is not None
-            assert isinstance(o, Regression)
+            assert isinstance(o, Estimator)
             assert o.kernel is not k
             assert o.training_inputs.shape == (2, 3)
             assert o.coefficients.shape == (2, 3)

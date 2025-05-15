@@ -4,12 +4,12 @@
  * @licence BSD 3-Clause License
  * @file
  */
-#include "lucid/math/Regression.h"
+#include "lucid/math/Estimator.h"
 
 #include <ostream>
 
 namespace lucid {
 
-std::ostream& operator<<(std::ostream& os, const Regression&) { return os << "Regression"; }
+std::ostream& operator<<(std::ostream& os, const Estimator&) { return os << "Estimator"; }
 
 }  // namespace lucid

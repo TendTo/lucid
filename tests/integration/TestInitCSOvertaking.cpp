@@ -106,8 +106,8 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   Matrix fp_samples{tffm(xp_samples)};
   ASSERT_TRUE(fp_samples.isApprox(expected_fp_samples, tolerance));
 
-  const KernelRidgeRegression regression{kernel, x_samples, fp_samples, lambda};
-  const Matrix if_lattice = regression(x_lattice);
+  const KernelRidgeRegressor regressor{kernel, x_samples, fp_samples, lambda};
+  const Matrix if_lattice = regressor(x_lattice);
   ASSERT_TRUE(if_lattice.isApprox(expected_if_lattice, tolerance));
 
   const int factor = static_cast<int>(std::ceil(num_supp_per_dim / static_cast<double>(samples_per_dim)) + 1);

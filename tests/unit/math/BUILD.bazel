@@ -14,7 +14,7 @@ lucid_cc_googletest(
 
 lucid_cc_googletest(
     name = "test_kernel_ridge_regression",
-    deps = ["//lucid/math:regression"],
+    deps = ["//lucid/math:estimator"],
 )
 
 lucid_cc_googletest(

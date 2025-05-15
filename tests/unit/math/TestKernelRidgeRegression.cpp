@@ -7,7 +7,7 @@
 
 #include "lucid/math/ConstantTruncatedFourierFeatureMap.h"
 #include "lucid/math/GaussianKernel.h"
-#include "lucid/math/KernelRidgeRegression.h"
+#include "lucid/math/KernelRidgeRegressor.h"
 #include "lucid/math/RectSet.h"
 
 using lucid::ConstantTruncatedFourierFeatureMap;
@@ -15,7 +15,7 @@ using lucid::Dimension;
 using lucid::GaussianKernel;
 using lucid::Index;
 using lucid::Kernel;
-using lucid::KernelRidgeRegression;
+using lucid::KernelRidgeRegressor;
 using lucid::Matrix;
 using lucid::RectSet;
 using lucid::Scalar;
@@ -27,15 +27,15 @@ class TestKernelRidgeRegression : public ::testing::Test {
   const Dimension n_samples_{50};               //< Number of samples to collect
   const Dimension dim_{1};                      //< State space dimension
   const double sigma_f_{1.0};                   //< Kernel amplitude
-  const double regularization_constant_{1e-6};  //< Regularization constant for the kernel ridge regression
+  const double regularization_constant_{1e-6};  //< Regularization constant for the kernel ridge regressor
   const RectSet x_limits_{std::vector<std::pair<double, double>>(dim_, {-1.0, 1.0})};  //< Limits of the input space
 
-  [[nodiscard]] std::pair<KernelRidgeRegression<GaussianKernel>, ConstantTruncatedFourierFeatureMap>
+  [[nodiscard]] std::pair<KernelRidgeRegressor<GaussianKernel>, ConstantTruncatedFourierFeatureMap>
   get_regression_and_feature_map(const double sigma_l, const int num_frequencies) const {
     const GaussianKernel kernel{dim_, sigma_l, sigma_f_};
     const Matrix training_inputs{Matrix::Random(n_samples_, dim_)};
     const Matrix training_outputs{Matrix::Random(n_samples_, dim_)};
-    return {KernelRidgeRegression<GaussianKernel>(kernel, training_inputs, training_outputs),
+    return {KernelRidgeRegressor<GaussianKernel>(kernel, training_inputs, training_outputs),
             ConstantTruncatedFourierFeatureMap(num_frequencies, sigma_l, sigma_f_, x_limits_)};
   }
 };
@@ -46,9 +46,9 @@ TEST_F(TestKernelRidgeRegression, Contains) {
 
   for (const double sigma_l : sigma_ls) {
     for (const int num_frequencies : nums_frequencies) {
-      const auto [regression, feature_map] = get_regression_and_feature_map(sigma_l, num_frequencies);
-      const Matrix interpolation = regression(Matrix::Random(n_samples_, dim_));
-      const Matrix truncated_interpolation = regression(Matrix::Random(n_samples_, dim_), feature_map);
+      const auto [regressor, feature_map] = get_regression_and_feature_map(sigma_l, num_frequencies);
+      const Matrix interpolation = regressor(Matrix::Random(n_samples_, dim_));
+      const Matrix truncated_interpolation = regressor(Matrix::Random(n_samples_, dim_), feature_map);
 
       EXPECT_EQ(interpolation.rows(), n_samples_);
       EXPECT_EQ(interpolation.cols(), dim_);

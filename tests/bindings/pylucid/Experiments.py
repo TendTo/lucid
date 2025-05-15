@@ -297,7 +297,7 @@ def experiments():
             gamma=gamma,
             sol=sol,
             f=f_det,
-            regression=f_xp_regressor,
+            regressor=f_xp_regressor,
         )
         assert success
         exit(1)
