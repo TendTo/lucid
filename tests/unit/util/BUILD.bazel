@@ -14,3 +14,11 @@ lucid_cc_googletest(
         "//lucid/util:index_iterator",
     ],
 )
+
+lucid_cc_googletest(
+    name = "test_tensor",
+    deps = [
+        "//lucid/util:exception",
+        "//lucid/util:tensor",
+    ],
+)

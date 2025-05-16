@@ -6,9 +6,9 @@ lucid_srcs(
     name = "srcs",
     deps = [
         "//lucid/lib:all_srcs",
-        "//lucid/math:all_srcs",
-        "//lucid/tuning:all_srcs",
+        "//lucid/model:all_srcs",
         "//lucid/util:all_srcs",
+        "//lucid/verification:all_srcs",
     ],
 )
 
@@ -37,8 +37,9 @@ lucid_cc_library(
     deps = [
         ":version",
         "//lucid/lib:eigen",
-        "//lucid/math",
-        "//lucid/tuning",
+        "//lucid/model",
+        "//lucid/util",
+        "//lucid/verification",
     ],
 )
 
@@ -57,7 +58,6 @@ lucid_cc_py_binary(
         ":lucid_hdr",
         "//lucid/util:error",
         "//lucid/util:logging",
-        "//lucid/util:math",
         "@fmt",
     ] + select({
         "//tools:matplotlib_build": ["//lucid/util:matplotlib"],

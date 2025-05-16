@@ -8,7 +8,7 @@ from pylucid import (
     LinearTruncatedFourierFeatureMap,
     RectSet,
     MultiSet,
-    GaussianKernelRidgeRegression,
+    KernelRidgeRegressor,
     fft_upsample,
     GurobiLinearOptimiser,
     LucidNotSupportedException,
@@ -90,7 +90,7 @@ def verify_barrier_certificate(
     f_det: "callable",
     r: float,
     c: float,
-    regressor: GaussianKernelRidgeRegression,
+    regressor: KernelRidgeRegressor,
     tffm: TruncatedFourierFeatureMap,
     sol: "np.typing.NDArray[np.float64]",
 ):
@@ -189,7 +189,7 @@ def experiments():
     f_x_lattice = tffm(x_lattice)
     f_xp_samples = tffm(xp_samples)  # Used to train the f_xp regressor
 
-    f_xp_regressor = GaussianKernelRidgeRegression(k, x_samples, f_xp_samples, regularization_constant=1e-6)
+    f_xp_regressor = KernelRidgeRegressor(k, x_samples, f_xp_samples, regularization_constant=1e-6)
 
     # values = tffm(f(x_lattice.T).T)
     # for i in range(values.shape[1]):

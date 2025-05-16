@@ -8,7 +8,7 @@ from pylucid import (
     ConstantTruncatedFourierFeatureMap,
     RectSet,
     MultiSet,
-    GaussianKernelRidgeRegression,
+    KernelRidgeRegressor,
     fft_upsample,
     GurobiLinearOptimiser,
     LucidNotSupportedException,
@@ -128,7 +128,7 @@ def test_automated_anesthesia():
     x_lattice = X_bounds.lattice(samples_per_dim)
     f_lattice = tffm(x_lattice)
     fp_samples = tffm(xp_samples)
-    r = GaussianKernelRidgeRegression(k, x_samples, fp_samples, regularization_constant=1e-6)
+    r = KernelRidgeRegressor(k, x_samples, fp_samples, regularization_constant=1e-6)
     if_lattice = r(x_lattice)
     w_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))
     phi_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))

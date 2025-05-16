@@ -1,0 +1,39 @@
+"""Tests for the util submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_rect_set",
+    deps = ["//lucid/model:set"],
+)
+
+lucid_cc_googletest(
+    name = "test_multi_set",
+    deps = ["//lucid/model:set"],
+)
+
+lucid_cc_googletest(
+    name = "test_kernel_ridge_regression",
+    deps = ["//lucid/model:estimator"],
+)
+
+lucid_cc_googletest(
+    name = "test_truncated_fourier_feature_map",
+    deps = [
+        "//lucid/model:feature_map",
+        "//lucid/util:math",
+    ],
+)
+
+lucid_cc_googletest(
+    name = "test_median_heuristic_tuner",
+    deps = [
+        "//lucid/model",
+        "//lucid/model:estimator",
+    ],
+)
+
+lucid_cc_googletest(
+    name = "test_gaussian_kernel",
+    deps = ["//lucid/model:kernel"],
+)

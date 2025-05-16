@@ -1,0 +1,44 @@
+load("//tools:cpplint.bzl", "cpplint")
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_srcs")
+
+package(default_visibility = [
+    "//bindings:__subpackages__",
+    "//lucid:__subpackages__",
+    "//tests:__subpackages__",
+])
+
+lucid_srcs(name = "srcs")
+
+lucid_hdrs_tar(
+    name = "hdrs_tar",
+    subfolder = "verification",
+)
+
+cpplint()
+
+lucid_cc_library(
+    name = "optimiser",
+    srcs = [
+        "GurobiLinearOptimiser.cpp",
+    ],
+    hdrs = [
+        "GurobiLinearOptimiser.h",
+    ],
+    implementation_deps = [
+        "//lucid/lib:gurobi",
+        "//lucid/util:error",
+        "//lucid/util:logging",
+    ],
+    deps = [
+        "//lucid/lib:eigen",
+    ],
+)
+
+lucid_cc_library(
+    name = "verification",
+    hdrs = ["verification.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":optimiser",
+    ],
+)

@@ -8,8 +8,9 @@
 #pragma once
 
 #include "lucid/util/IndexIterator.h"
+#include "lucid/util/Tensor.h"
+#include "lucid/util/TensorIterator.h"
+#include "lucid/util/TensorView.h"
 #include "lucid/util/concept.h"
-#include "lucid/util/error.h"
 #include "lucid/util/exception.h"
-#include "lucid/util/logging.h"
 #include "lucid/util/math.h"

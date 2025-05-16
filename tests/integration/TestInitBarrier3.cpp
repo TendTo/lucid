@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "lucid/lucid.h"
-#include "lucid/math/TensorView.h"
+#include "lucid/util/TensorView.h"
 #include "lucid/util/math.h"
 
 using namespace lucid;
@@ -120,7 +120,8 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   ASSERT_TRUE(fp_samples.isApprox(expected_fp_samples, tolerance));
 
   // Build the regressor to interpolate the basis for any point
-  const KernelRidgeRegressor regressor{kernel, x_samples, fp_samples, lambda};
+  KernelRidgeRegressor regressor{kernel, lambda};
+  regressor.fit(x_samples, fp_samples);
   const Matrix if_lattice = regressor(x_lattice);
   ASSERT_TRUE(if_lattice.isApprox(expected_if_lattice, tolerance));
 

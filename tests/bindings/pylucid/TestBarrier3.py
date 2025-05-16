@@ -7,7 +7,7 @@ from pylucid import (
     TruncatedFourierFeatureMap,
     RectSet,
     MultiSet,
-    GaussianKernelRidgeRegression,
+    KernelRidgeRegressor,
     fft_upsample,
     GurobiLinearOptimiser,
     LucidNotSupportedException,
@@ -126,7 +126,7 @@ def test_barrier_3():
         num_freq_per_dim**dimension * 2 - 1,
     )
 
-    r = GaussianKernelRidgeRegression(k, x_samples, fp_samples, lmda)
+    r = KernelRidgeRegressor(k, x_samples, fp_samples, lmda)
     assert r is not None
 
     if_lattice = r(x_lattice)

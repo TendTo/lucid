@@ -15,13 +15,12 @@
 #include <vector>
 
 #include "lucid/lucid.h"
+#include "lucid/util/error.h"
 #include "lucid/util/logging.h"
-#include "lucid/util/math.h"
 
 #ifdef LUCID_MATPLOTLIB_BUILD
 #include "lucid/util/matplotlib.h"
 #endif
-#include "util/error.h"
 
 using namespace lucid;  // NOLINT
 
