@@ -164,6 +164,8 @@ void init_model(py::module_ &m) {
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit), py::arg("x"),
            py::arg("y"), py::arg("tuner"))
       .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
+      .def_property("tuner", &Estimator::tuner,
+                    [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
       .def("consolidate", &Estimator::consolidate, py::arg("x"), py::arg("y"))
       .def("get", get<Estimator>, py::arg("parameter"), py::return_value_policy::reference_internal)
       .def("set", py::overload_cast<Parameter, int>(&Kernel::set), py::arg("parameter"), py::arg("value"))
@@ -171,7 +173,7 @@ void init_model(py::module_ &m) {
       .def("set", py::overload_cast<Parameter, const Vector &>(&Kernel::set), py::arg("parameter"), py::arg("value"))
       .def("clone", &Estimator::clone);
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
-      .def(py::init<GaussianKernel, Scalar>(), py::arg("kernel"), py::arg("regularization_constant") = 0)
+      .def(py::init<const Kernel &, Scalar>(), py::arg("kernel"), py::arg("regularization_constant") = 0)
       .def("__call__",
            py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::operator(), py::const_),
            py::arg("x"), py::arg("feature_map"))

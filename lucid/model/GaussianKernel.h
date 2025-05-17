@@ -39,7 +39,7 @@ class GaussianKernel final : public Kernel {
    * @param sigma_l @f$ \sigma_l @f$ value. It is equal for all dimensions.
    * @param sigma_f @f$ \sigma_f @f$ value
    */
-  GaussianKernel(Dimension dim, double sigma_l, double sigma_f = 1.0);
+  explicit GaussianKernel(Dimension dim, double sigma_l = 1.0, double sigma_f = 1.0);
 
   /** @getter{@f$ \sigma_f @f$ value, kernel} */
   [[nodiscard]] Scalar sigma_f() const { return sigma_f_; }

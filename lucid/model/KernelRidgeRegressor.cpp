@@ -17,10 +17,13 @@
 
 namespace lucid {
 
-KernelRidgeRegressor::KernelRidgeRegressor(const Kernel& kernel, const Scalar regularization_constant)
-    : KernelRidgeRegressor{kernel.clone(), regularization_constant} {}
-KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, const Scalar regularization_constant)
-    : kernel_{std::move(kernel)},
+KernelRidgeRegressor::KernelRidgeRegressor(const Kernel& kernel, const Scalar regularization_constant,
+                                           const std::shared_ptr<Tuner>& tuner)
+    : KernelRidgeRegressor{kernel.clone(), regularization_constant, tuner} {}
+KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, const Scalar regularization_constant,
+                                           const std::shared_ptr<Tuner>& tuner)
+    : Estimator{tuner},
+      kernel_{std::move(kernel)},
       regularization_constant_{regularization_constant},
       training_inputs_{},
       coefficients_{} {}

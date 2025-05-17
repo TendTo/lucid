@@ -85,6 +85,11 @@ class Estimator : public Parametrizable {
    */
   [[nodiscard]] virtual double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const = 0;
 
+  /** @getter{tuner, estimator, Can be null} */
+  [[nodiscard]] const std::shared_ptr<Tuner>& tuner() const { return tuner_; }
+  /** @getsetter{tuner, estimator, Can be null} */
+  std::shared_ptr<Tuner>& m_tuner() { return tuner_; }
+
   /**
    * Clone the estimator by creating a new instance with the same parameters.
    * @return new instance of the estimator
