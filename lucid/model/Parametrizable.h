@@ -47,6 +47,15 @@ class Parametrizable {
    */
   void set(Parameter parameter, const std::variant<int, double, Vector>& value);
   /**
+   * Set the `parameter` to the `index`-th value among the indicated `values`.
+   * @param parameter parameter to
+   * @param idx index of the value to assign
+   * @param values values to assign to the specified parameter
+   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   */
+  void set(Parameter parameter, std::size_t idx,
+           const std::variant<std::vector<int>, std::vector<double>, std::vector<Vector>>& values);
+  /**
    * Set the `parameter` to the indicated `value`.
    * @param parameter parameter to
    * @param value value to assign to the specified parameter

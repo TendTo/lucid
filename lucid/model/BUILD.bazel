@@ -63,6 +63,7 @@ lucid_cc_library(
     name = "estimator",
     srcs = [
         "Estimator.cpp",
+        "GridSearchTuner.cpp",
         "KernelRidgeRegressor.cpp",
         "LbfgsTuner.cpp",
         "MedianHeuristicTuner.cpp",
@@ -70,6 +71,7 @@ lucid_cc_library(
     ],
     hdrs = [
         "Estimator.h",
+        "GridSearchTuner.h",
         "KernelRidgeRegressor.h",
         "LbfgsTuner.h",
         "MedianHeuristicTuner.h",

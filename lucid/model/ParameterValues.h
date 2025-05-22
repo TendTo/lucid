@@ -22,7 +22,7 @@ namespace lucid {
  */
 class ParameterValues {
  public:
-  using ParameterValuesType = std::variant<std::vector<double>, std::vector<int>, std::vector<Vector>>;
+  using ParameterValuesType = std::variant<std::vector<int>, std::vector<double>, std::vector<Vector>>;
 
   /**
    * Construct a new ParameterValues object for the given `parameter` associated with the given `values`.

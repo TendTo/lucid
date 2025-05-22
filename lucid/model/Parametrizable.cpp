@@ -34,6 +34,18 @@ void Parametrizable::set(const Parameter parameter, const std::variant<int, doub
     LUCID_UNREACHABLE();
   }
 }
+void Parametrizable::set(const Parameter parameter, const std::size_t idx,
+                         const std::variant<std::vector<int>, std::vector<double>, std::vector<Vector>>& values) {
+  if (std::holds_alternative<std::vector<int>>(values)) {
+    set(parameter, std::get<std::vector<int>>(values).at(idx));
+  } else if (std::holds_alternative<std::vector<double>>(values)) {
+    set(parameter, std::get<std::vector<double>>(values).at(idx));
+  } else if (std::holds_alternative<std::vector<Vector>>(values)) {
+    set(parameter, std::get<std::vector<Vector>>(values).at(idx));
+  } else {
+    LUCID_UNREACHABLE();
+  }
+}
 void Parametrizable::set(Parameter parameter, int) { LUCID_INVALID_HYPER_PARAMETER(parameter, "int"); }
 void Parametrizable::set(Parameter parameter, double) { LUCID_INVALID_HYPER_PARAMETER(parameter, "double"); }
 void Parametrizable::set(Parameter parameter, const Vector&) { LUCID_INVALID_HYPER_PARAMETER(parameter, "Vector"); }

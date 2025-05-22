@@ -71,9 +71,9 @@ class Estimator : public Parametrizable {
    * Consolidate the model, making sure it is ready for use.
    * No fitting process is performed, and the hyperparameters are not updated,
    * but the estimator may change its internal state so it can be used for predictions.
-   * It is not necessary to call this method after @ref fit.
-   * This is equivalent to calling @ref fit without a tuner being provided in the constructor or in the method.
    * After the process is completed, the estimator can be used to make predictions on new data.
+   * @note This is equivalent to calling @ref fit without a tuner being provided in the constructor or in the method.
+   * It is not necessary to call this method after @ref fit.
    * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
    * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
    * @param training_outputs training output data. The number of rows should be equal to the number of training inputs

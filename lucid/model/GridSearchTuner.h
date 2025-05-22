@@ -1,0 +1,35 @@
+/**
+ * @author c3054737
+ * @copyright 2025 lucid
+ * @licence BSD 3-Clause License
+ * @file
+ * GridSearchTuner class.
+ */
+#pragma once
+
+#include "lucid/model/ParameterValues.h"
+#include "lucid/model/Tuner.h"
+
+namespace lucid {
+
+/**
+ * Grid search tuning strategy for model hyperparameter optimization.
+ * The GridSearchTuner is responsible for iterating over a predefined grid of hyperparameter combinations
+ * to optimise the performance of a given estimator.
+ * This tuner is suitable for scenarios where exhaustive search over a finite hyperparameter space is required.
+ */
+class GridSearchTuner final : public Tuner {
+ public:
+  /**
+   * Construct a new GridSearchTuner object with the given `parameters`.
+   * @param parameters parameters to be tuned, with the values to be tested
+   */
+  explicit GridSearchTuner(std::vector<ParameterValues> parameters);
+
+ private:
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
+
+  std::vector<ParameterValues> parameters_;  ///< List of parameter values to be tuned, with the values to be tested
+};
+
+}  // namespace lucid
