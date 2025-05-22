@@ -18,11 +18,17 @@ namespace lucid {
 class Tuner;
 
 /**
- * Given two vector spaces @f$ \mathcal{X}, \mathcal{Y} @f$ and a map @f$ f: \mathcal{X} \to \mathcal{Y} @f$,
+ * Given two vector spaces @f$ \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} @f$
+ * and a map @f$ f: \mathcal{X} \to \mathcal{Y} @f$,
  * the goal is to produce a model @f$ f^*:\mathcal{X} \to \mathcal{Y} @f$ that best approximates @f$ f @f$.
  */
 class Estimator : public Parametrizable {
  public:
+  /**
+   * Construct a new Estimator object.
+   * If no tuner is provided, the estimator will not use any during the fitting process,
+   * keeping the hyperparameters it was initialised with.
+   */
   explicit Estimator(const std::shared_ptr<Tuner>& tuner = nullptr);
   /**
    * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}

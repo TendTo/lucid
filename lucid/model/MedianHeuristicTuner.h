@@ -11,6 +11,17 @@
 
 namespace lucid {
 
+/**
+ * Tuner that adjusts the kernel parameters using the median heuristic method.
+ * It computes the median of pairwise distances between input data points for each dimension.
+ * These computed medians are used to update the @sigma_l parameters of the kernel in the given estimator.
+ * More specifically, given a set of training inputs @f$ \{x_1, x_2, \ldots, x_n\} @f$ from @XsubRd,
+ * @f[
+ * \sigma_l = \sqrt{\text{median}\{\|x_i - x_j\|^2 : 1 \le i < j \le n\}}
+ * @f]
+ * Once the kernel parameters are updated, the estimator is consolidated using the training data.
+ * @note Based on the paper [Large sample analysis of the median heuristic](https://arxiv.org/abs/1707.07269).
+ */
 class MedianHeuristicTuner final : public Tuner {
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 };

@@ -39,6 +39,11 @@
 namespace py = pybind11;
 using namespace py::literals;  // NOLINT(build/namespaces_literals): standard use of literals
 
+/**
+ * @namespace lucid::plt
+ * Lucid's matplotlib wrapper.
+ * Inspired by Benno Evers' [matplotlib-cpp](https://github.com/lava/matplotlib-cpp).
+ */
 namespace lucid::plt {
 namespace internal {
 

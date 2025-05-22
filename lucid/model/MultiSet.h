@@ -46,9 +46,7 @@ class MultiSet final : public Set {
   [[nodiscard]] const std::vector<std::unique_ptr<Set>>& sets() const { return sets_; }
 
   [[nodiscard]] Dimension dimension() const override { return sets_.empty() ? 0 : sets_.front()->dimension(); }
-
   [[nodiscard]] Matrix sample(Index num_samples) const override;
-
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override;
 
   /** @todo Improve the naive implementation that only concatenates the lattices from the internal sets (polytopes?) */

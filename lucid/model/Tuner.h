@@ -37,6 +37,7 @@ class Tuner {
   /**
    * Optimise the kernel hyperparameters.
    * Starting from the initial guess, the optimiser finds the best hyperparameters for the kernel.
+   * It is up to the subclass to determine the optimisation algorithm used.
    * @note The method must call the consolidate method of the estimator to ensure that the kernel is ready to be used.
    * @param estimator estimator to optimise
    * @param training_inputs training input data. The number of rows should be equal to the number of training outputs

@@ -16,6 +16,7 @@ doxygen(
         "licence=@par Licence:^^",
         # Math
         "X=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} @f$",
+        "XsubRd=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^d @f$",
         "x=@f$ x @f$",
         "n=@f$ n @f$",
         "N=@f$ N @f$",
@@ -25,6 +26,8 @@ doxygen(
         "nxm=@f$ n \\times m @f$",
         "nxn=@f$ n \\times m @f$",
         "Nxn=@f$ N \\times n @f$",
+        "sigma_l=@f$ \\sigma_l @f$",
+        "sigma_f=@f$ \\sigma_f @f$",
         # Method descriptors
         "constructor{1}=Construct a new \\1 object.^^",
         "getter{2}=Get read-only access to the \\1 of the \\2.^^@return \\1 of the \\2^^",

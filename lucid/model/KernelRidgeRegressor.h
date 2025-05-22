@@ -18,7 +18,8 @@ namespace lucid {
 /**
  * Ridge regressor with a kernel function.
  * This is a linear regressor with @f$ L_2 @f$ regularization.
- * Given two vector spaces @f$ \mathcal{X}, \mathcal{Y} @f$ and the training datasets @f$ \{ (x_i, y_i) \}_{i=1}^n @f$,
+ * Given two vector spaces @f$ \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} @f$
+ * and the training datasets @f$ \{ (x_i, y_i) \}_{i=1}^n @f$,
  * where @f$ x_i \in \mathcal{X} @f$ and @f$ y_i \in \mathcal{Y} @f$,
  * the goal is to find the function @f$ f^*: \mathcal{X} \to \mathcal{Y} @f$ such that the sum of the squared errors is
  * minimized, i.e.

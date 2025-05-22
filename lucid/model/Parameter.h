@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * HyperParameter enum.
+ * Parameter enum.
  */
 #pragma once
 

@@ -76,7 +76,6 @@ class Tensor {
    * Permute the axes of the tensor.
    * Namely, the axes are rearranged according to the permutation vector.
    * If an axis is not specified, it will be left unchanged.
-   * @pre All values in `permutation` must be in the range [0, rank() - 1]
    * @code
    * Tensor<int> t{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{2, 3}};
    * // 1  2  3
@@ -86,6 +85,7 @@ class Tensor {
    * // 3  4
    * // 5  6
    * @endcode
+   * @pre All values in `permutation` must be in the range [0, rank() - 1]
    * @param permutation permutation of the axes
    * @return reference to this object
    */
@@ -99,7 +99,6 @@ class Tensor {
    * Permute the axes of the tensor.
    * Namely, the axes are rearranged according to the permutation vector.
    * If an axis is not specified, it will be left unchanged.
-   * @pre All values in `permutation` must be in the range [0, rank() - 1]
    * @code
    * Tensor<int> t{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{2, 3}};
    * // 1  2  3
@@ -109,6 +108,7 @@ class Tensor {
    * // 3  4
    * // 5  6
    * @endcode
+   * @pre All values in `permutation` must be in the range [0, rank() - 1]
    * @tparam I axis to put in the first dimension type
    * @tparam Is varadic remaining permuted axis types
    * @param i axis to put in the first dimension
@@ -229,8 +229,6 @@ class Tensor {
    * Pad the tensor with a value.
    * The `padding` is applied to each dimension starting at the respective `start_padding` index.
    * This allows the `padding` to be placed in the middle of the tensor.
-   * @note setting `start_padding` to 0 (the size of that dimension)
-   * will place all the padding at the start (the end) of the dimension.
    * @code
    * Tensor<int> t{std::vector<int>{1, 2, 3, 4, 5, 6}, std::vector<std::size_t>{3, 2}};
    * // 1  2
@@ -254,6 +252,8 @@ class Tensor {
    * // 3  0  4
    * // 5  0  6
    * @endcode
+   * @note Setting `start_padding` to 0 (the size of that dimension)
+   * will place all the padding at the start (the end) of the dimension.
    * @param padding padding for each dimension
    * @param start_padding the index where the padding starts for each dimension
    * @param value value to fill the padding

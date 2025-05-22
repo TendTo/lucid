@@ -11,6 +11,6 @@
 
 /**
  * @namespace lucid::verification
- * Collection of utilities used to tune the estimator's hyerparameters before using them.
+ * Collection of utilities used to verify whether the system abides by the given specifications.
  */
-namespace lucid::verification {}  // namespace lucid::tuning
+namespace lucid::verification {}  // namespace lucid::verification

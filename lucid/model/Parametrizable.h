@@ -15,6 +15,16 @@
 
 namespace lucid {
 
+/**
+ * Interface for objects that allow setting and getting parameters dynamically.
+ * Parametrizable objects can have parameters of different types, i.e., int, double, and eigen Vectors.
+ * @code
+ * std::unique_ptr<Parametrizable> obj{make_unique<...>(...)};
+ * obj->has(Parameter::SIGMA_L);  // true if the parameter is present, false otherwise
+ * obj->set(Parameter::SIGMA_L, 1.0); // set the parameter to 1.0
+ * obj->get<double>(Parameter::SIGMA_L); // get the value of the parameter
+ * @endcode
+ */
 class Parametrizable {
  public:
   virtual ~Parametrizable() = default;
@@ -58,7 +68,7 @@ class Parametrizable {
    */
   virtual void set(Parameter parameter, const Vector& value);
   /**
-   * Check wether the `parameter` is present in this object.
+   * Check whether the `parameter` is present in this object.
    * @param parameter parameter to check
    * @return true if the parameter is present
    * @return false if the parameter is not present
