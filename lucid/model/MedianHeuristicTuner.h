@@ -7,8 +7,6 @@
  */
 #pragma once
 
-#include <memory>
-
 #include "lucid/model/Tuner.h"
 
 namespace lucid {
@@ -17,5 +15,4 @@ class MedianHeuristicTuner final : public Tuner {
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 };
 
-}  // namespace lucid::tuning
-// lucid
+}  // namespace lucid
