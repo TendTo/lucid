@@ -18,13 +18,15 @@ GaussianKernel::GaussianKernel(const Vector& sigma_l, const double sigma_f)
     : sigma_l_{sigma_l}, sigma_f_{sigma_f}, gamma_{sigma_l.size()} {
   LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
   gamma_ = -0.5 * sigma_l.cwiseProduct(sigma_l).cwiseInverse();
+  LUCID_ASSERT(gamma_.size() == sigma_l.size(), "gamma_.size() != sigma_l.size()");
 }
 GaussianKernel::GaussianKernel(const Dimension dim, const double sigma_l, const double sigma_f)
     : GaussianKernel{Vector::Constant(dim, sigma_l), sigma_f} {}
 
 Scalar GaussianKernel::operator()(const Vector& x1, const Vector& x2) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == x2.size(), "x1.size() != x2.size()", x1.size(), x2.size());
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == gamma_.size(), "x1.size() != sigma_l().size()", x1.size(), gamma_.size());
+  LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == sigma_l_.size(), "x1.size() != sigma_l().size()", x1.size(),
+                                sigma_l_.size());
   const auto diff = x1 - x2;
   LUCID_ASSERT((diff.transpose() * gamma_.asDiagonal() * diff).size() == 1u, "scalar result");
   return sigma_f() * sigma_f() * std::exp((diff.transpose() * gamma_.asDiagonal() * diff).value());

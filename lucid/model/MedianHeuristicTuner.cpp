@@ -8,32 +8,23 @@
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Estimator.h"
+#include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
 namespace lucid {
 
-namespace {
-
-/**
- * Compute the median of a vector.
- * If the vector has an even number of elements, the median is the lower of the two middle elements.
- * @param d vector
- * @return median of the vector
- * @see https://stackoverflow.com/a/62698308/15153171
- */
-Scalar median(Vector& d) {
-  auto r{d.reshaped()};
-  std::ranges::sort(r);
-  return (r.size() & 1) == 0 ? r.segment((r.size() - 2) / 2, 2).minCoeff() : r(r.size() / 2);
-}
-
-}  // namespace
-
 void MedianHeuristicTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                      ConstMatrixRef training_outputs) const {
-  Vector dist = pdist(training_inputs);
-  median(dist);
-  estimator.set(Parameter::LENGTH_SCALE, dist);
+  LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() == training_outputs.rows(), "training_inputs.rows()",
+                                training_inputs.rows(), training_outputs.rows());
+  Vector new_sigma_l{training_inputs.cols()};
+  for (Index i = 0; i < training_inputs.cols(); ++i) {
+    // Compute the pdist between all inputs for each dimension individually
+    Vector dist = pdist(training_inputs.col(i));
+    // Assign the median of the distances to the new sigma_l
+    new_sigma_l(i) = median(dist);
+  }
+  estimator.set(Parameter::LENGTH_SCALE, new_sigma_l);
   estimator.consolidate(training_inputs, training_outputs);
 }
 

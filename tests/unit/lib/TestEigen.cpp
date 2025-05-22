@@ -17,6 +17,7 @@ using lucid::ifft2;
 using lucid::ifftn;
 using lucid::ifftshift;
 using lucid::Matrix;
+using lucid::median;
 using lucid::mvnrnd;
 using lucid::pad;
 using lucid::pdist;
@@ -329,6 +330,54 @@ TEST(TestEigen, IFftn) {
   x << 1, 2, 3, 4, 5, 6, 7, 8, 9;
   const Matrix y = ifftn(fftn(x));
   EXPECT_TRUE(y.isApprox(x));
+}
+
+TEST(TestEigen, MedianOddNumberOfElements) {
+  Vector v(5);
+  v << 5, 1, 3, 4, 2;
+  EXPECT_EQ(median(v), 3.0);
+}
+
+TEST(TestEigen, MedianEvenNumberOfElements) {
+  Eigen::Vector<double, 10> v{6, 1, 3, 4, 2, 5, 9, -1, 10, -2};
+  EXPECT_EQ(median(v), 3.5);
+}
+
+TEST(TestEigen, SortedVector) {
+  Eigen::Vector<double, 5> v{1, 2, 3, 4, 5};
+  EXPECT_EQ(median(v), 3.0);
+}
+
+TEST(TestEigen, MedianUnsortedVector) {
+  Eigen::Vector<double, 5> v{5, 2, 1, 4, 3};
+  EXPECT_EQ(median(v), 3.0);
+}
+
+TEST(TestEigen, MedianDuplicates) {
+  Eigen::Vector<double, 7> v{1, 2, 2, 3, 3, 3, 4};
+  EXPECT_EQ(median(v), 3.0);
+}
+
+TEST(TestEigen, MedianNegativeValues) {
+  Eigen::Vector<double, 5> v{-5, -2, 0, 2, 5};
+  EXPECT_EQ(median(v), 0.0);
+}
+
+TEST(TestEigen, MedianSingleElement) {
+  Eigen::Vector<double, 1> v{42};
+  EXPECT_EQ(median(v), 42.0);
+}
+
+TEST(TestEigen, MedianMatrixOdd) {
+  Eigen::Matrix<double, 3, 3> m;
+  m << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  EXPECT_EQ(median(m), 5.0);
+}
+
+TEST(TestEigen, MedianMatrixEven) {
+  Eigen::Matrix<double, 2, 3> m;
+  m << 4, 5, 6, 1, 2, 3;
+  EXPECT_EQ(median(m), 3.5);
 }
 
 TEST(TestEigen, StaticAssertions) {

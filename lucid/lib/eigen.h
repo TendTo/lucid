@@ -189,6 +189,25 @@ Matrix combvec(ConstMatrixRef m);
  */
 Scalar rms(ConstMatrixRef x);
 /**
+ * Compute the median of a vector.
+ * If the vector has an even number of elements, the median is the mean of the two middle elements.
+ * @warning This function modifies the input vector, non-deterministically sorting it.
+ * @param d vector
+ * @return median of the vector
+ * @see https://stackoverflow.com/a/62698308/15153171
+ */
+template <class Derived>
+Scalar median(Eigen::MatrixBase<Derived>& d) {
+  auto r{d.reshaped()};
+  std::span<Scalar> distances{r.data(), static_cast<std::size_t>(r.size())};
+
+  const auto middle_it = distances.begin() + distances.size() / 2;
+  std::ranges::nth_element(distances, middle_it);
+
+  if (distances.size() & 1) return *middle_it;                                // odd => middle element
+  return (*std::max_element(distances.begin(), middle_it) + *middle_it) / 2;  // even => mean
+}
+/**
  * Compute the `p`-norm distance between every pair of row vectors in the input.
  * If the input has shape @f$ N \times M @f$ the output vector will contain @f$ \frac{1}{2}N(N-1) @f$ elements.
  * @f[
