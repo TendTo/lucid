@@ -26,7 +26,10 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
       kernel_{std::move(kernel)},
       regularization_constant_{regularization_constant},
       training_inputs_{},
-      coefficients_{} {}
+      coefficients_{} {
+  LUCID_CHECK_ARGUMENT(!kernel->has(Parameter::REGULARIZATION_CONSTANT), "kernel",
+                       "parameter 'regularization constant' is hidden by the regressor");
+}
 
 Matrix KernelRidgeRegressor::predict(ConstMatrixRef x) const {
   LUCID_CHECK_ARGUMENT(training_inputs_.size() > 0, "training_inputs", "the model is not fitted yet");
