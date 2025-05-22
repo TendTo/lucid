@@ -111,6 +111,8 @@ class KernelRidgeRegressor final : public Estimator {
   /** @getter{regularization constant, regressor} */
   [[nodiscard]] double regularization_constant() const { return regularization_constant_; }
 
+  [[nodiscard]] bool has(Parameter parameter) const override;
+
   void set(Parameter parameter, int value) override;
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;

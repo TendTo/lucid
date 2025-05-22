@@ -32,6 +32,16 @@ Scalar GaussianKernel::operator()(const Vector& x1, const Vector& x2) const {
 
 std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_l_, sigma_f_); }
 
+bool GaussianKernel::has(const Parameter parameter) const {
+  switch (parameter) {
+    case Parameter::SIGMA_L:
+    case Parameter::SIGMA_F:
+      return true;
+    default:
+      return false;
+  }
+}
+
 void GaussianKernel::set(const Parameter parameter, const double value) {
   switch (parameter) {
     case Parameter::SIGMA_F:

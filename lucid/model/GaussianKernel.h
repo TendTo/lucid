@@ -54,6 +54,7 @@ class GaussianKernel final : public Kernel {
   Scalar operator()(const Vector& x1, const Vector& x2) const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
+  [[nodiscard]] bool has(Parameter parameter) const override;
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;
 

@@ -63,7 +63,7 @@ class Parametrizable {
    * @return true if the parameter is present
    * @return false if the parameter is not present
    */
-  virtual bool has(Parameter parameter);
+  [[nodiscard]] virtual bool has(Parameter parameter) const = 0;
 
  protected:
   /**

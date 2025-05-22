@@ -27,7 +27,7 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
       regularization_constant_{regularization_constant},
       training_inputs_{},
       coefficients_{} {
-  LUCID_CHECK_ARGUMENT(!kernel->has(Parameter::REGULARIZATION_CONSTANT), "kernel",
+  LUCID_CHECK_ARGUMENT(!kernel_->has(Parameter::REGULARIZATION_CONSTANT), "kernel",
                        "parameter 'regularization constant' is hidden by the regressor");
 }
 
@@ -87,6 +87,14 @@ std::unique_ptr<Estimator> KernelRidgeRegressor::clone() const {
   return out;
 }
 
+bool KernelRidgeRegressor::has(const Parameter parameter) const {
+  switch (parameter) {
+    case Parameter::REGULARIZATION_CONSTANT:
+      return true;
+    default:
+      return kernel_->has(parameter);
+  }
+}
 void KernelRidgeRegressor::set(const Parameter parameter, int value) { kernel_->set(parameter, value); }
 void KernelRidgeRegressor::set(const Parameter parameter, double value) {
   switch (parameter) {
@@ -107,6 +115,8 @@ double KernelRidgeRegressor::get_d(const Parameter parameter) const {
       return kernel_->get<double>(parameter);
   }
 }
-const Vector& KernelRidgeRegressor::get_v(Parameter parameter) const { return kernel_->get<const Vector&>(parameter); }
+const Vector& KernelRidgeRegressor::get_v(const Parameter parameter) const {
+  return kernel_->get<const Vector&>(parameter);
+}
 
 }  // namespace lucid

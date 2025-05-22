@@ -37,7 +37,6 @@ void Parametrizable::set(const Parameter parameter, const std::variant<int, doub
 void Parametrizable::set(Parameter parameter, int) { LUCID_INVALID_HYPER_PARAMETER(parameter, "int"); }
 void Parametrizable::set(Parameter parameter, double) { LUCID_INVALID_HYPER_PARAMETER(parameter, "double"); }
 void Parametrizable::set(Parameter parameter, const Vector&) { LUCID_INVALID_HYPER_PARAMETER(parameter, "Vector"); }
-bool Parametrizable::has(Parameter) { return false; }
 int Parametrizable::get_i(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "int"); }
 double Parametrizable::get_d(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "double"); }
 const Vector& Parametrizable::get_v(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "Vector"); }
