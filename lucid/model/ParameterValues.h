@@ -12,6 +12,7 @@
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Parameter.h"
+#include "lucid/util/concept.h"
 
 namespace lucid {
 
@@ -43,10 +44,17 @@ class ParameterValues {
    */
   ParameterValues(const Parameter parameter, std::vector<Vector> values) : parameter_(parameter), values_{values} {}
 
+  template <IsAnyOf<int, double, Vector>... T>
+    requires(sizeof...(T) > 0)
+  explicit ParameterValues(const Parameter parameter, T... values)
+      : parameter_(parameter),
+        values_{std::vector<std::tuple_element_t<0, std::tuple<T...>>>{
+            std::forward<std::tuple_element_t<0, std::tuple<T...>>>(values)...}} {}
+
   /** @getter{parameter, parameter values} */
   [[nodiscard]] Parameter parameter() const { return parameter_; }
   /** @getter{values, parameter values} */
-  [[nodiscard]] ParameterValuesType values() const { return values_; }
+  [[nodiscard]] const ParameterValuesType &values() const { return values_; }
   /**
    * Get the values of this parameter.
    * @tparam T type of the value to retrieve

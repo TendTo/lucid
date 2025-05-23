@@ -27,15 +27,21 @@ std::function<R()> tune_cb(Estimator& estimator, ConstMatrixRef training_inputs,
                            std::vector<size_t>& best_parameters_indices) {
   // Keep track of the best score
   // For each value in the currently fixed parameter
-  return [&estimator, &training_inputs, &training_outputs, &parameters, &best_parameters_indices]() {
+  return [&estimator, &training_inputs, &training_outputs, parameters, &best_parameters_indices]() {
     double best_score = -1.0;
+    LUCID_ASSERT(std::holds_alternative<std::vector<T>>(parameters.front().values()),
+                 "Parameter values are not of the expected type");
     const std::vector<T>& values = std::get<std::vector<T>>(parameters.front().values());
+
     for (std::size_t i = 0; i < values.size(); ++i) {
       // fix the parameter value
       estimator.set(parameters.front().parameter(), values[i]);
       // then tune the rest of the parameters
-      if (const double score = tune_internal(estimator, training_inputs, training_outputs, parameters.subspan(1),
-                                             best_parameters_indices);
+      if (const double score =
+              tune_internal(estimator, training_inputs, training_outputs,
+                            // Pass the rest of the parameters to the next iteration or an empty span if there are none
+                            parameters.size() > 1 ? parameters.subspan(1) : std::span<const ParameterValues>{},
+                            best_parameters_indices);
           score > best_score) {
         // If the new score is better than the best score, update the best score and keep track of the parameter index
         best_score = score;
