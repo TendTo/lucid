@@ -27,10 +27,12 @@ lucid_cc_googletest(
 
 lucid_cc_googletest(
     name = "test_median_heuristic_tuner",
-    deps = [
-        "//lucid/model",
-        "//lucid/model:estimator",
-    ],
+    deps = ["//lucid/model"],
+)
+
+lucid_cc_googletest(
+    name = "test_grid_search_tuner",
+    deps = ["//lucid/model"],
 )
 
 lucid_cc_googletest(

@@ -5,7 +5,6 @@
  */
 #include <gtest/gtest.h>
 
-#include "lucid/model/MedianHeuristicTuner.h"
 #include "lucid/model/model.h"
 #include "lucid/util/exception.h"
 
