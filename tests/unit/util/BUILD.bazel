@@ -22,3 +22,8 @@ lucid_cc_googletest(
         "//lucid/util:tensor",
     ],
 )
+
+lucid_cc_googletest(
+    name = "test_print",
+    deps = ["//lucid:lucid_hdr"],
+)

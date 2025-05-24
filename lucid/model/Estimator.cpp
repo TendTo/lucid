@@ -9,6 +9,7 @@
 #include <memory>
 #include <ostream>
 
+#include "lucid/model/KernelRidgeRegressor.h"
 #include "lucid/model/Tuner.h"
 
 namespace lucid {
@@ -25,6 +26,9 @@ Estimator& Estimator::fit(ConstMatrixRef training_inputs, ConstMatrixRef trainin
   return *this;
 }
 
-std::ostream& operator<<(std::ostream& os, const Estimator&) { return os << "Estimator"; }
+std::ostream& operator<<(std::ostream& os, const Estimator&) {
+  if (const auto* casted_estimator = dynamic_cast<const KernelRidgeRegressor*>(&os)) return os << *casted_estimator;
+  return os << "Estimator( )";
+}
 
 }  // namespace lucid

@@ -27,6 +27,9 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
       regularization_constant_{regularization_constant},
       training_inputs_{},
       coefficients_{} {
+  LUCID_CHECK_ARGUMENT_EXPECTED(regularization_constant >= 0.0, "regularization_constant", regularization_constant,
+                                ">= 0.0");
+  LUCID_CHECK_ARGUMENT_EXPECTED(kernel_ != nullptr, "kernel", nullptr, "not nullptr");
   LUCID_CHECK_ARGUMENT(!kernel_->has(Parameter::REGULARIZATION_CONSTANT), "kernel",
                        "parameter 'regularization constant' is hidden by the regressor");
 }
@@ -76,6 +79,8 @@ double KernelRidgeRegressor::score([[maybe_unused]] ConstMatrixRef evaluation_in
   // np.sqrt(((x - y) * *2).mean(axis = ax))
   // const auto diff = (predict(evaluation_inputs) - evaluation_outputs);
   // diff.cwiseProduct(diff).colwise().mean().cwiseSqrt();
+  fmt::println("Reg constant: {}, kernel: {}", regularization_constant_, *kernel_);
+  std::cout << std::endl;
   LUCID_NOT_IMPLEMENTED();
   // return 0.0;
 }
@@ -117,6 +122,11 @@ double KernelRidgeRegressor::get_d(const Parameter parameter) const {
 }
 const Vector& KernelRidgeRegressor::get_v(const Parameter parameter) const {
   return kernel_->get<const Vector&>(parameter);
+}
+std::ostream& operator<<(std::ostream& os, const KernelRidgeRegressor& regressor) {
+  return os << "KernelRidgeRegressor( "
+            << "kernel( " << *regressor.kernel() << " ) "
+            << "regularization_constant( " << regressor.regularization_constant() << " ) )";
 }
 
 }  // namespace lucid

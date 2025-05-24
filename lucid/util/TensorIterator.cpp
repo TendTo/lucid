@@ -52,7 +52,7 @@ bool TensorIterator<T>::operator==(const TensorIterator<T>& o) const {
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 std::ostream& operator<<(std::ostream& os, const TensorIterator<T>& it) {
-  return os << it.index_iterator() << " = " << *it;
+  return os << "TensorIterator( " << it.index_iterator() << " " << *it << " )";
 }
 
 template class TensorIterator<int>;

@@ -23,13 +23,9 @@ Matrix Set::lattice(const Index points_per_dim, const bool include_endpoints) co
 }
 
 std::ostream& operator<<(std::ostream& os, const Set& set) {
-  if (dynamic_cast<const RectSet*>(&set)) {
-    return os << static_cast<const RectSet&>(set);
-  }
-  if (dynamic_cast<const MultiSet*>(&set)) {
-    return os << static_cast<const MultiSet&>(set);
-  }
-  LUCID_UNREACHABLE();
+  if (const auto* casted_set = dynamic_cast<const RectSet*>(&set)) return os << *casted_set;
+  if (const auto* casted_set = dynamic_cast<const MultiSet*>(&set)) return os << *casted_set;
+  return os << "Set( )";
 }
 
 }  // namespace lucid

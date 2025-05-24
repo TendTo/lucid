@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <iosfwd>
 #include <memory>
 
 #include "lucid/model/Estimator.h"
@@ -135,4 +136,14 @@ class KernelRidgeRegressor final : public Estimator {
   Matrix coefficients_;             ///< Coefficients of the linear combination describing the regression model
 };
 
+std::ostream& operator<<(std::ostream& os, const KernelRidgeRegressor& regressor);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::KernelRidgeRegressor)
+
+#endif

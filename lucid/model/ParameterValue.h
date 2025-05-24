@@ -65,3 +65,11 @@ class ParameterValue {
 std::ostream &operator<<(std::ostream &os, const ParameterValue &parameter_value);
 
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::ParameterValue)
+
+#endif

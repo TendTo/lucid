@@ -7,17 +7,23 @@
  */
 #include "lucid/model/ParameterValues.h"
 
+#include <ranges>
+
 #include "lucid/util/logging.h"
 
 namespace lucid {
 
 std::ostream& operator<<(std::ostream& os, const ParameterValues& parameter_values) {
-  os << " Parameter(";
-  return dispatch<std::ostream&>(
+  os << "ParameterValues( " << parameter_values.parameter() << " values( ";
+  dispatch<std::ostream&>(
       parameter_values.parameter(),
       [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<int>()); },
       [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<double>()); },
-      [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<Vector>()); });
+      [&os, &parameter_values]() -> std::ostream& {
+        return os << fmt::format("{}", parameter_values.get<Vector>() |
+                                           std::views::transform([](const Vector& v) { return v.transpose(); }));
+      });
+  return os << " )";
 }
 
 }  // namespace lucid

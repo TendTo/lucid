@@ -15,7 +15,7 @@ GramMatrix& GramMatrix::add_diagonal_term(const Scalar diagonal_term) {
   return *this;
 }
 std::ostream& operator<<(std::ostream& os, const GramMatrix& gram_matrix) {
-  return os << "GramMatrix\n" << gram_matrix.gram_matrix();
+  return os << "GramMatrix(\n" << gram_matrix.gram_matrix() << "\n)";
 }
 
 }  // namespace lucid

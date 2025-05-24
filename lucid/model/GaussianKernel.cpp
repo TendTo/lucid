@@ -84,8 +84,8 @@ const Vector& GaussianKernel::get_v(const Parameter parameter) const {
 
 std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel) {
   return os << "GaussianKernel( "
-            << "sigma_f( " << kernel.sigma_f() << " ), "
-            << "sigma_l( " << kernel.sigma_l().transpose() << " ) )";
+            << "sigma_l( " << kernel.sigma_l().transpose() << " ) "
+            << "sigma_f( " << kernel.sigma_f() << " ) )";
 }
 
 }  // namespace lucid
