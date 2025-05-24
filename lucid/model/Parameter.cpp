@@ -13,12 +13,14 @@
 namespace lucid {
 std::ostream& operator<<(std::ostream& os, const Parameter name) {
   switch (name) {
-    case Parameter::LENGTH_SCALE:
-      return os << "Length scale";
-    case Parameter::MEAN:
-      return os << "Mean";
+    case Parameter::SIGMA_L:
+      return os << "Parameter( Sigma_l )";
+    case Parameter::SIGMA_F:
+      return os << "Parameter( Sigma_f )";
     case Parameter::REGULARIZATION_CONSTANT:
-      return os << "Regularization constant";
+      return os << "Parameter( RegularizationConstant )";
+    case Parameter::DEGREE:
+      return os << "Parameter( Degree )";
     default:
       LUCID_UNREACHABLE();
   }

@@ -17,14 +17,16 @@ namespace lucid {
 
 enum class Parameter {
   // Mean parameter
-  MEAN = 0,     ///< Mean parameter (@see HyperParameter::SIGMA_F)
-  SIGMA_F = 0,  ///< Sigma_f parameter (@see HyperParameter::MEAN)
+  // MEAN = 0,     ///< Mean parameter (@see HyperParameter::SIGMA_F)
+  SIGMA_F = 0,  ///< Sigma_f parameter
   // Length scale parameter
-  LENGTH_SCALE = 1,  ///< Length scale parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::COVARIANCE)
-  COVARIANCE = 1,    ///< Covariance parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::LENGTH_SCALE)
-  SIGMA_L = 1,       ///< Sigma_l parameter (@see HyperParameter::LENGTH_SCALE, @see HyperParameter::COVARIANCE)
+  // LENGTH_SCALE = 1,  ///< Length scale parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::COVARIANCE)
+  // COVARIANCE = 1,    ///< Covariance parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::LENGTH_SCALE)
+  SIGMA_L = 1,  ///< Sigma_l parameter
   // Regularization parameter
   REGULARIZATION_CONSTANT = 2,
+  // Polynomial degree parameter
+  DEGREE = 3,  ///< Degree of the polynomial
 };
 
 using HP = Parameter;  ///< Alias for HyperParameter
@@ -33,6 +35,8 @@ template <class T>
 T dispatch(const Parameter parameter, [[maybe_unused]] const std::function<T()>& fun_int,
            const std::function<T()>& fun_double, const std::function<T()>& fun_vector) {
   switch (parameter) {
+    case Parameter::DEGREE:
+      return fun_int();
     case Parameter::SIGMA_F:
     case Parameter::REGULARIZATION_CONSTANT:
       return fun_double();
