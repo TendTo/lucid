@@ -9,6 +9,7 @@
 #include <memory>
 #include <utility>
 
+#include "Scorer.h"
 #include "lucid/model/GaussianKernel.h"
 #include "lucid/model/GramMatrix.h"
 #include "lucid/model/Tuner.h"
@@ -76,13 +77,7 @@ Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, Con
 
 double KernelRidgeRegressor::score([[maybe_unused]] ConstMatrixRef evaluation_inputs,
                                    [[maybe_unused]] ConstMatrixRef evaluation_outputs) const {
-  // np.sqrt(((x - y) * *2).mean(axis = ax))
-  // const auto diff = (predict(evaluation_inputs) - evaluation_outputs);
-  // diff.cwiseProduct(diff).colwise().mean().cwiseSqrt();
-  fmt::println("Reg constant: {}, kernel: {}", regularization_constant_, *kernel_);
-  std::cout << std::endl;
-  LUCID_NOT_IMPLEMENTED();
-  // return 0.0;
+  return scorer::r2_score(*this, evaluation_inputs, evaluation_outputs);
 }
 
 std::unique_ptr<Estimator> KernelRidgeRegressor::clone() const {

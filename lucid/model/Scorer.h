@@ -35,6 +35,8 @@ namespace lucid::scorer {
  * and @f$ 0 @f$ indicates that the model is no better than simply predicting the expected value of the true outputs.
  * @pre The estimator must be able to make predictions,
  * i.e., it should have been fitted or consolidated before calling this method.
+ * @pre The estimator's prediction must belong to a vector space with the same number of dimensions
+ * as the one the evaluation outputs inhabit.
  * @pre The variance of the `evaluation_outputs` must be greater than 0.
  * This is trivially false if all outputs are equal or only one row is present.
  * If this precondition is not met, the result may be `NaN`.
