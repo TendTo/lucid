@@ -34,7 +34,7 @@ class Parametrizable {
    * @tparam T type of the value to retrieve
    * @param parameter parameter to retrieve
    * @return value of the parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value of type `T`.
    */
   template <IsAnyOf<int, double, const Vector&> T>
   [[nodiscard]] T get(Parameter parameter) const;
@@ -43,7 +43,7 @@ class Parametrizable {
    * Set the `parameter` to the indicated `value`.
    * @param parameter parameter to
    * @param value value to assign to the specified parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value matching the variant.
    */
   void set(Parameter parameter, const std::variant<int, double, Vector>& value);
   /**
@@ -51,7 +51,7 @@ class Parametrizable {
    * @param parameter parameter to
    * @param idx index of the value to assign
    * @param values values to assign to the specified parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value matching the variant.
    */
   void set(Parameter parameter, std::size_t idx,
            const std::variant<std::vector<int>, std::vector<double>, std::vector<Vector>>& values);
@@ -59,21 +59,21 @@ class Parametrizable {
    * Set the `parameter` to the indicated `value`.
    * @param parameter parameter to
    * @param value value to assign to the specified parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value of type `int`.
    */
   virtual void set(Parameter parameter, int value);
   /**
    * Set the `parameter` to the indicated `value`.
    * @param parameter parameter to
    * @param value value to assign to the specified parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value of type `double`.
    */
   virtual void set(Parameter parameter, double value);
   /**
    * Set the `parameter` to the indicated `value`.
    * @param parameter parameter to set
    * @param value value to assign to the specified parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value of type `Vector`.
    */
   virtual void set(Parameter parameter, const Vector& value);
   /**
@@ -89,21 +89,21 @@ class Parametrizable {
    * Get the value of the specified `parameter`.
    * @param parameter parameter to retrieve
    * @return value of the parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value of type `int`.
    */
   [[nodiscard]] virtual int get_i(Parameter parameter) const;
   /**
    * Get the value of the specified `parameter`.
    * @param parameter parameter to retrieve
    * @return value of the parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value of type `double`.
    */
   [[nodiscard]] virtual double get_d(Parameter parameter) const;
   /**
    * Get the value of the specified `parameter`.
    * @param parameter parameter to retrieve
    * @return value of the parameter
-   * @throw LucidInvalidArgument if the parameter is not valid for this object
+   * @pre The `parameter` must be present and be associated with a value of type `Vector`.
    */
   [[nodiscard]] virtual const Vector& get_v(Parameter parameter) const;
 };

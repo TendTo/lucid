@@ -37,7 +37,7 @@ namespace lucid::scorer {
  * i.e., it should have been fitted or consolidated before calling this method.
  * @pre The variance of the `evaluation_outputs` must be greater than 0.
  * This is trivially false if all outputs are equal or only one row is present.
- * If this precondition is not met, the result may be NaN.
+ * If this precondition is not met, the result may be `NaN`.
  * @pre The number of rows in `evaluation_inputs` must be equal to the number of rows in `evaluation_outputs`.
  * @param estimator estimator to score
  * @param evaluation_inputs @nxdx evaluation input data

@@ -11,15 +11,18 @@
 
 namespace lucid {
 
+/**
+ * Map input vectors to a feature space.
+ * The output space usually has a higher dimensionality than the input space.
+ */
 class FeatureMap {
  public:
   virtual ~FeatureMap() = default;
 
   /**
-   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$,
-   * then compute the feature map.
-   * @param x input vector
-   * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
+   * Apply the feature map to a vector.
+   * @param x @nxd input vector
+   * @return @f$ n \times N @f$ output, where @f$ N @f$ is the dimension of the feature space
    */
   [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x) const = 0;
 };

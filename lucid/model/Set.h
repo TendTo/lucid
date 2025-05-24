@@ -46,7 +46,7 @@ class Set {
    * @param x vector to test
    * @return true if @x is in the set
    * @return false if @x is not in the set
-   * @throw LucidInvalidArgument if @x does not have the same dimension as the set
+   * @pre @x must have the same dimension as the set
    */
   [[nodiscard]] bool contains(ConstMatrixRef x) const { return (*this)(x); }
 
@@ -55,7 +55,7 @@ class Set {
    * @param x vector to test
    * @return true if @x is in the set
    * @return false if @x is not in the set
-   * @throw LucidInvalidArgument if @x does not have the same dimension as the set
+   * @pre @x must have the same dimension as the set
    */
   [[nodiscard]] virtual bool operator()(ConstMatrixRef x) const = 0;
 

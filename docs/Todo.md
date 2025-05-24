@@ -56,6 +56,21 @@ flowchart LR
     wp1 --> m1
 ```
 
+## Miscellaneous
+
+### Performance
+
+- [ ] Use templates instead of polymorphism where possible
+- [ ] Parallelization via OpenMP and/or GPU
+
+### Documentation
+
+- [ ] Add docstrings to all functions
+
+### Distribution
+
+- [ ] Publish the package to PyPI with a wheel for Linux, Windows and MacOS
+
 ## Notes
 
 - Expectation oracle: given a set of pairs (input, output), produce an oracle such
