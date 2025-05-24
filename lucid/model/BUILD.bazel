@@ -82,6 +82,7 @@ lucid_cc_library(
     implementation_deps = [
         ":gram_matrix",
         "//lucid/util:error",
+        "//lucid/util:index_iterator",
         "@lbfgscpp",  # Unfortunately, this target causes issues with the DWYU check
     ],
     tags = ["no-dwyu"],

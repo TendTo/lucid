@@ -23,13 +23,16 @@ class GridSearchTuner final : public Tuner {
   /**
    * Construct a new GridSearchTuner object with the given `parameters`.
    * @param parameters parameters to be tuned, with the values to be tested
+   * @param n_jobs number of parallel jobs to run during tuning. If set to 0, it defaults to max(1, CPU cores - 2).
    */
-  explicit GridSearchTuner(std::vector<ParameterValues> parameters);
+  explicit GridSearchTuner(std::vector<ParameterValues> parameters, std::size_t n_jobs = 0);
 
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 
-  std::vector<ParameterValues> parameters_;  ///< List of parameter values to be tuned, with the values to be tested
+  std::size_t n_jobs_;                         ///< Number of parallel jobs to run during tuning
+  std::vector<ParameterValues> parameters_;    ///< List of parameter values to be tuned, with the values to be tested
+  std::vector<Index> parameters_max_indices_;  ///< Maximum indices for each parameter, used to iterate over the grid
 };
 
 }  // namespace lucid

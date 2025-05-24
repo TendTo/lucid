@@ -38,8 +38,8 @@ class TestGridSearchTuner : public ::testing::Test {
 TEST_F(TestGridSearchTuner, Constructor) { EXPECT_NO_THROW(GridSearchTuner{parameters_}); }
 
 TEST_F(TestGridSearchTuner, ConstructorEstimator) {
-  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3), 0,
-                                 std::make_shared<GridSearchTuner>(parameters_)};
+  const KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3), 0,
+                                       std::make_shared<GridSearchTuner>(parameters_)};
   EXPECT_NE(dynamic_cast<GridSearchTuner *>(regressor.tuner().get()), nullptr);
 }
 
