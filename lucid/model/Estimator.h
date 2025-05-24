@@ -15,7 +15,12 @@
 
 namespace lucid {
 
+// Forward declarations
+class Estimator;
 class Tuner;
+namespace scorer {
+using Scorer = std::function<double(const Estimator&, ConstMatrixRef, ConstMatrixRef)>;
+}
 
 /**
  * Given two vector spaces @f$ \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} @f$
@@ -81,12 +86,16 @@ class Estimator : public Parametrizable {
    */
   virtual Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) = 0;
   /**
-   * Evaluate how well the model fits the data.
+   * Score the estimator assigning a numerical value to its accuracy in predicting the `evaluation_outputs`
+   * given the `evaluation_inputs`.
+   * Given the evaluation inputs @f$ x = \{ x_1, \dots, x_n \} @f$,
+   * where @f$ x_i \in \mathcal{X} \subseteq \mathbb{R}^{d_x}, 0 \le i \le n @f$,
+   * we want to give a numerical score to the model's predictions @f$ \hat{y} = \{ \hat{y}_1, \dots, \hat{y}_n \} @f$
+   * with respect to the true outputs @f$ y = \{ y_1, \dots, y_n \},
+   * where y_i \in \mathcal{Y} \subseteq \mathbb{R}^{d_y}, 0 \le i \le n @f$.
    * @pre The methods @ref fit or @ref update should have been called at least once before calling this method.
-   * @param evaluation_inputs evaluation input data.
-   * The number of rows should be equal to the number of evaluation outputs
-   * @param evaluation_outputs evaluation output data.
-   * The number of rows should be equal to the number of evaluation inputs
+   * @param evaluation_inputs @nxdx evaluation input data
+   * @param evaluation_outputs @nxdy evaluation output data
    * @return score of the model
    */
   [[nodiscard]] virtual double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const = 0;

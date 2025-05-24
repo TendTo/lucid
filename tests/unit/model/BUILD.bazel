@@ -26,6 +26,11 @@ lucid_cc_googletest(
 )
 
 lucid_cc_googletest(
+    name = "test_scorer",
+    deps = ["//lucid/model"],
+)
+
+lucid_cc_googletest(
     name = "test_median_heuristic_tuner",
     deps = ["//lucid/model"],
 )
