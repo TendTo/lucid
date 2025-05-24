@@ -10,14 +10,26 @@
 - [x] Implement second test case
 - [x] Implement a proper fftn
 - [x] Check whether it is possible to avoid the padding to get the same information
-    - If it is, implement the alternative
-    - [x] Otherwise, implement the padding
+- [x] Implement the padding
 - [x] Handle permutations
-- [x] Keep track of permutations
-    - Is it better to do a lazy permutation, carrying the updated strides and axes (and dims?)
-    - [x] Or just eagerly update the data structure?
+- [x] Eagerly update the permutation in the tensor
 
 ### Activity 2
+
+- [ ] Add splitter (division of X and Y into training and validation sets)
+- [ ] Add scorer (how to evaluate the performance of the model)
+
+### Activity 3
+
+- [ ] Run Automated Anaesthesia
+- [ ] Run Building Automation System
+
+### Activity 4
+
+- [x] Median Heuristic tuner
+- [ ] Grid search tuner
+- [ ] LBFGS tuner
+- [ ] Parallelise the hyperparameter optimisation
 
 ```mermaid
 flowchart LR
