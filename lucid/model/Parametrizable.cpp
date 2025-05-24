@@ -24,27 +24,17 @@ T Parametrizable::get(const Parameter parameter) const {
 }
 
 void Parametrizable::set(const Parameter parameter, const std::variant<int, double, Vector>& value) {
-  if (std::holds_alternative<int>(value)) {
-    set(parameter, std::get<int>(value));
-  } else if (std::holds_alternative<double>(value)) {
-    set(parameter, std::get<double>(value));
-  } else if (std::holds_alternative<Vector>(value)) {
-    set(parameter, std::get<Vector>(value));
-  } else {
-    LUCID_UNREACHABLE();
-  }
+  dispatch<void>(
+      parameter, [this, &parameter, &value]() { set(parameter, std::get<int>(value)); },
+      [this, &parameter, &value]() { set(parameter, std::get<double>(value)); },
+      [this, &parameter, &value]() { set(parameter, std::get<Vector>(value)); });
 }
 void Parametrizable::set(const Parameter parameter, const std::size_t idx,
                          const std::variant<std::vector<int>, std::vector<double>, std::vector<Vector>>& values) {
-  if (std::holds_alternative<std::vector<int>>(values)) {
-    set(parameter, std::get<std::vector<int>>(values).at(idx));
-  } else if (std::holds_alternative<std::vector<double>>(values)) {
-    set(parameter, std::get<std::vector<double>>(values).at(idx));
-  } else if (std::holds_alternative<std::vector<Vector>>(values)) {
-    set(parameter, std::get<std::vector<Vector>>(values).at(idx));
-  } else {
-    LUCID_UNREACHABLE();
-  }
+  dispatch<void>(
+      parameter, [this, &parameter, idx, &values]() { set(parameter, std::get<std::vector<int>>(values).at(idx)); },
+      [this, &parameter, idx, &values]() { set(parameter, std::get<std::vector<double>>(values).at(idx)); },
+      [this, &parameter, idx, &values]() { set(parameter, std::get<std::vector<Vector>>(values).at(idx)); });
 }
 void Parametrizable::set(Parameter parameter, int) { LUCID_INVALID_HYPER_PARAMETER(parameter, "int"); }
 void Parametrizable::set(Parameter parameter, double) { LUCID_INVALID_HYPER_PARAMETER(parameter, "double"); }
