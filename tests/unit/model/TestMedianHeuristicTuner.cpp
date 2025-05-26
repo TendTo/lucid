@@ -32,8 +32,9 @@ class TestMedianHeuristicTuner : public ::testing::Test {
 TEST_F(TestMedianHeuristicTuner, Constructor) { EXPECT_NO_THROW(MedianHeuristicTuner()); }
 
 TEST_F(TestMedianHeuristicTuner, ConstructorEstimator) {
-  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3), 0, std::make_shared<MedianHeuristicTuner>()};
-  EXPECT_NE(dynamic_cast<MedianHeuristicTuner *>(regressor.tuner().get()), nullptr);
+  const KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3), 0,
+                                       std::make_shared<MedianHeuristicTuner>()};
+  EXPECT_NE(dynamic_cast<const MedianHeuristicTuner *>(regressor.tuner().get()), nullptr);
 }
 
 TEST_F(TestMedianHeuristicTuner, Tune) {

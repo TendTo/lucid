@@ -34,7 +34,7 @@ class Estimator : public Parametrizable {
    * If no tuner is provided, the estimator will not use any during the fitting process,
    * keeping the hyperparameters it was initialised with.
    */
-  explicit Estimator(const std::shared_ptr<Tuner>& tuner = nullptr);
+  explicit Estimator(const std::shared_ptr<const Tuner>& tuner = nullptr);
   /**
    * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}
    * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
@@ -101,9 +101,9 @@ class Estimator : public Parametrizable {
   [[nodiscard]] virtual double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const = 0;
 
   /** @getter{tuner, estimator, Can be null} */
-  [[nodiscard]] const std::shared_ptr<Tuner>& tuner() const { return tuner_; }
+  [[nodiscard]] const std::shared_ptr<const Tuner>& tuner() const { return tuner_; }
   /** @getsetter{tuner, estimator, Can be null} */
-  std::shared_ptr<Tuner>& m_tuner() { return tuner_; }
+  std::shared_ptr<const Tuner>& m_tuner() { return tuner_; }
 
   /**
    * Clone the estimator by creating a new instance with the same parameters.
@@ -112,7 +112,7 @@ class Estimator : public Parametrizable {
   [[nodiscard]] virtual std::unique_ptr<Estimator> clone() const = 0;
 
  private:
-  std::shared_ptr<Tuner>
+  std::shared_ptr<const Tuner>
       tuner_;  ///< Tuner used during fitting if no other turner is provided. If null, no tuning is performed
 };
 

@@ -137,7 +137,7 @@ TEST_F(TestGridSearchTuner, Constructor) { EXPECT_NO_THROW(GridSearchTuner{param
 TEST_F(TestGridSearchTuner, ConstructorEstimator) {
   const KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3), 0,
                                        std::make_shared<GridSearchTuner>(parameters_)};
-  EXPECT_NE(dynamic_cast<GridSearchTuner *>(regressor.tuner().get()), nullptr);
+  EXPECT_NE(dynamic_cast<const GridSearchTuner *>(regressor.tuner().get()), nullptr);
 }
 
 TEST_F(TestGridSearchTuner, TuneSingleThread) {

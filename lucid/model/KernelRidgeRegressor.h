@@ -70,7 +70,7 @@ class KernelRidgeRegressor final : public Estimator {
    * @param tuner tuner used to fit the model
    */
   explicit KernelRidgeRegressor(const Kernel& kernel, Scalar regularization_constant = 0,
-                                const std::shared_ptr<Tuner>& tuner = nullptr);
+                                const std::shared_ptr<const Tuner>& tuner = nullptr);
   /**
    * Construct a new Kernel Ridge Regressor object with the given parameters.
    * @param kernel kernel function used to compute the Gram matrix
@@ -78,7 +78,7 @@ class KernelRidgeRegressor final : public Estimator {
    * @param tuner tuner used to fit the model
    */
   explicit KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, Scalar regularization_constant = 0,
-                                const std::shared_ptr<Tuner>& tuner = nullptr);
+                                const std::shared_ptr<const Tuner>& tuner = nullptr);
 
   [[nodiscard]] Matrix predict(ConstMatrixRef x) const override;
   /**
