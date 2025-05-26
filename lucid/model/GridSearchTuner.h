@@ -7,13 +7,15 @@
  */
 #pragma once
 
+#include <concepts>
+
 #include "lucid/model/ParameterValues.h"
 #include "lucid/model/Tuner.h"
 
 namespace lucid {
 
 /**
- * Grid search tuning strategy for model hyperparameter optimization.
+ * Grid search tuning strategy for model hyperparameter optimisation.
  * The GridSearchTuner is responsible for iterating over a predefined grid of hyperparameter combinations
  * to optimise the performance of a given estimator.
  * This tuner is suitable for scenarios where exhaustive search over a finite hyperparameter space is required.
