@@ -394,6 +394,8 @@ Eigen::MatrixX<Scalar> read_matrix(const std::string_view file_name) {
 
 OSTREAM_FORMATTER(lucid::Matrix)
 OSTREAM_FORMATTER(lucid::Vector)
+OSTREAM_FORMATTER(decltype(std::declval<lucid::Vector>().transpose()))
+OSTREAM_FORMATTER(decltype(std::declval<lucid::Matrix>().transpose()))
 OSTREAM_FORMATTER(lucid::ConstMatrixRef)
 OSTREAM_FORMATTER(lucid::ConstVectorRef)
 OSTREAM_FORMATTER(Eigen::Block<const lucid::Matrix>)
