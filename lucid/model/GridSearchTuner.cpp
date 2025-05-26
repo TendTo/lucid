@@ -185,5 +185,9 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
     estimator.set(parameter.parameter(), best_parameters_indices[i], parameter.values());
   }
 }
+std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner) {
+  return os << "GridSearchTuner( parameters( " << fmt::format("{}", tuner.parameters()) << " ) n_jobs( "
+            << tuner.n_jobs() << " )";
+}
 
 }  // namespace lucid

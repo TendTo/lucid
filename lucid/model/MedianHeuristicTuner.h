@@ -26,4 +26,14 @@ class MedianHeuristicTuner final : public Tuner {
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 };
 
+std::ostream& operator<<(std::ostream& os, const MedianHeuristicTuner& tuner);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::MedianHeuristicTuner)
+
+#endif

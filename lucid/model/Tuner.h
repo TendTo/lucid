@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <iosfwd>
+
 #include "lucid/model/Kernel.h"
 
 namespace lucid {
@@ -47,4 +49,14 @@ class Tuner {
                          ConstMatrixRef training_outputs) const = 0;
 };
 
+std::ostream& operator<<(std::ostream& os, const Tuner& tuner);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::Tuner)
+
+#endif

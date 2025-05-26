@@ -26,8 +26,8 @@ Estimator& Estimator::fit(ConstMatrixRef training_inputs, ConstMatrixRef trainin
   return *this;
 }
 
-std::ostream& operator<<(std::ostream& os, const Estimator&) {
-  if (const auto* casted_estimator = dynamic_cast<const KernelRidgeRegressor*>(&os)) return os << *casted_estimator;
+std::ostream& operator<<(std::ostream& os, const Estimator& estimator) {
+  if (const auto* casted = dynamic_cast<const KernelRidgeRegressor*>(&estimator)) return os << *casted;
   return os << "Estimator( )";
 }
 

@@ -10,10 +10,12 @@
 
 using lucid::GaussianKernel;
 using lucid::GramMatrix;
+using lucid::GridSearchTuner;
 using lucid::Index;
 using lucid::InverseGramMatrix;
 using lucid::KernelRidgeRegressor;
 using lucid::Matrix;
+using lucid::MedianHeuristicTuner;
 using lucid::Parameter;
 using lucid::ParameterValue;
 using lucid::ParameterValues;
@@ -85,4 +87,23 @@ TEST(TestPrint, KernelRidgeRegressor) {
   EXPECT_EQ(fmt::format("{}", regressor),
             "KernelRidgeRegressor( kernel( GaussianKernel( sigma_l( 3.2 3.2 ) sigma_f( 5.1 ) ) ) "
             "regularization_constant( 1e-06 ) )");
+}
+
+TEST(TestPrint, MedianHeuristicTuner) {
+  EXPECT_EQ(fmt::format("{}", MedianHeuristicTuner()), "MedianHeuristicTuner( )");
+}
+
+TEST(TestPrint, GridSearchTuner) {
+  Vector vec1{4}, vec2{4};
+  vec1 << 1, 2, 3, 4;
+  vec2 << 5, 6, 7, 8;
+  EXPECT_EQ(fmt::format("{}", GridSearchTuner({ParameterValues(Parameter::REGULARIZATION_CONSTANT, 1e-10),
+                                               ParameterValues(Parameter::SIGMA_L, vec1, vec2),
+                                               ParameterValues(Parameter::DEGREE, 1, 2, 3)},
+                                              4)),
+            "GridSearchTuner( parameters( ["
+            "ParameterValues( Parameter( RegularizationConstant ) values( [1e-10] ), "
+            "ParameterValues( Parameter( Sigma_l ) values( [[1, 2, 3, 4], [5, 6, 7, 8]] ), "
+            "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )"
+            "] ) n_jobs( 4 )");
 }

@@ -14,7 +14,7 @@
 namespace lucid {
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel) {
-  if (dynamic_cast<const GaussianKernel*>(&kernel)) return os << static_cast<const GaussianKernel&>(kernel);
+  if (const auto* casted = dynamic_cast<const GaussianKernel*>(&kernel)) return os << *casted;
   return os << "Kernel( )";
 }
 

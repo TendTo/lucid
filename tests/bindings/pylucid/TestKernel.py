@@ -52,3 +52,7 @@ class TestKernel:
             assert kc.sigma_f == k.sigma_f
             assert np.allclose(kc.get(Parameter.SIGMA_L), k.get(Parameter.SIGMA_L))
             assert np.allclose(kc.sigma_l, k.sigma_l)
+
+        def test_str(self):
+            k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
+            assert str(k).startswith("GaussianKernel")

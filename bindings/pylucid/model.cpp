@@ -87,6 +87,15 @@ class PyEstimator final : public Estimator {
   }
 };
 
+class PyTuner final : public Tuner {
+ public:
+  using Tuner::Tuner;
+
+  void tune_impl(Estimator &estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override {
+    PYBIND11_OVERRIDE_PURE(void, Tuner, tune_impl, estimator, training_inputs, training_outputs);
+  }
+};
+
 class PySet final : public Set {
  public:
   using Set::Set;
@@ -153,14 +162,14 @@ void init_model(py::module_ &m) {
   py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel")
       .def("__call__", py::overload_cast<const Vector &>(&Kernel::operator(), py::const_))
       .def("__call__", py::overload_cast<const Vector &, const Vector &>(&Kernel::operator(), py::const_))
-      .def("clone", &Kernel::clone);
+      .def("clone", &Kernel::clone)
+      .def("__str__", STRING_LAMBDA(GaussianKernel));
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
       .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
       .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l") = 1.0,
            py::arg("sigma_f") = 1.0)
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
-      .def_property_readonly("sigma_l", &GaussianKernel::sigma_l)
-      .def("__str__", STRING_LAMBDA(GaussianKernel));
+      .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
 
   /**************************** FeatureMap ****************************/
   py::class_<FeatureMap>(m, "FeatureMap");
@@ -205,7 +214,8 @@ void init_model(py::module_ &m) {
                     [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
       .def("consolidate", &Estimator::consolidate, py::arg("x"), py::arg("y"))
       .def("get", get<Estimator>, py::arg("parameter"), py::return_value_policy::reference_internal)
-      .def("clone", &Estimator::clone);
+      .def("clone", &Estimator::clone)
+      .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
       .def(py::init<const Kernel &, Scalar>(), py::arg("kernel"), py::arg("regularization_constant") = 0)
       .def("__call__",

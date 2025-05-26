@@ -29,4 +29,6 @@ void MedianHeuristicTuner::tune_impl(Estimator& estimator, ConstMatrixRef traini
   estimator.consolidate(training_inputs, training_outputs);
 }
 
+std::ostream& operator<<(std::ostream& os, const MedianHeuristicTuner&) { return os << "MedianHeuristicTuner( )"; }
+
 }  // namespace lucid

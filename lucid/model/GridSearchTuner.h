@@ -29,6 +29,11 @@ class GridSearchTuner final : public Tuner {
    */
   explicit GridSearchTuner(std::vector<ParameterValues> parameters, std::size_t n_jobs = 0);
 
+  /** @getter{number of parallel jobs, grid search} */
+  [[nodiscard]] std::size_t n_jobs() const { return n_jobs_; }
+  /** @getter{parameters, grid search} */
+  [[nodiscard]] const std::vector<ParameterValues>& parameters() const { return parameters_; }
+
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 
@@ -37,4 +42,14 @@ class GridSearchTuner final : public Tuner {
   std::vector<Index> parameters_max_indices_;  ///< Maximum indices for each parameter, used to iterate over the grid
 };
 
+std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::GridSearchTuner)
+
+#endif

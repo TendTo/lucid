@@ -73,3 +73,7 @@ class TestRegression:
             assert np.allclose(o.training_inputs, oc.training_inputs)
             assert np.allclose(o.coefficients, oc.coefficients)
             assert o.regularization_constant == oc.regularization_constant
+
+        def test_str(self):
+            o = KernelRidgeRegressor(kernel=GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5]))
+            assert str(o).startswith("KernelRidgeRegressor")
