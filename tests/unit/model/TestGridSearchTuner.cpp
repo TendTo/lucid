@@ -164,10 +164,10 @@ TEST_F(TestGridSearchTuner, TuneSingleThread) {
 
     estimator.fit(training_inputs_, training_outputs_, tuner);
 
-    ASSERT_EQ(estimator.get<double>(Parameter::REGULARIZATION_CONSTANT), estimator.expected_regularization_constant());
-    ASSERT_EQ(estimator.get<double>(Parameter::SIGMA_F), estimator.expected_sigma_f());
-    ASSERT_EQ(estimator.get<const Vector &>(Parameter::SIGMA_L), estimator.expected_sigma_l());
-    ASSERT_EQ(estimator.get<int>(Parameter::DEGREE), estimator.expected_degree());
+    ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_F>(), estimator.expected_sigma_f());
+    ASSERT_EQ(estimator.get<Parameter::DEGREE>(), estimator.expected_degree());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_L>(), estimator.expected_sigma_l());
   }
 }
 
@@ -183,9 +183,9 @@ TEST_F(TestGridSearchTuner, TuneAutoThreads) {
     estimator.fit(training_inputs_, training_outputs_, tuner);
 
     // Even with multiple threads, the estimator should be set with the best parameters
-    ASSERT_EQ(estimator.get<double>(Parameter::REGULARIZATION_CONSTANT), estimator.expected_regularization_constant());
-    ASSERT_EQ(estimator.get<double>(Parameter::SIGMA_F), estimator.expected_sigma_f());
-    ASSERT_EQ(estimator.get<const Vector &>(Parameter::SIGMA_L), estimator.expected_sigma_l());
-    ASSERT_EQ(estimator.get<int>(Parameter::DEGREE), estimator.expected_degree());
+    ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_F>(), estimator.expected_sigma_f());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_L>(), estimator.expected_sigma_l());
+    ASSERT_EQ(estimator.get<Parameter::DEGREE>(), estimator.expected_degree());
   }
 }

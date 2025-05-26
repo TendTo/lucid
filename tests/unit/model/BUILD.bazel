@@ -31,6 +31,16 @@ lucid_cc_googletest(
 )
 
 lucid_cc_googletest(
+    name = "test_parameter",
+    deps = ["//lucid/model:parameter"],
+)
+
+lucid_cc_googletest(
+    name = "test_parametrizable",
+    deps = ["//lucid/model:parameter"],
+)
+
+lucid_cc_googletest(
     name = "test_median_heuristic_tuner",
     deps = ["//lucid/model"],
 )

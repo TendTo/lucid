@@ -90,14 +90,14 @@ TEST_F(TestMedianHeuristicTuner, MismatchedInputsOutputs) {
 }
 
 TEST_F(TestMedianHeuristicTuner, HighDimensionalData) {
-  const int num_samples = 50;
-  const int dim = 10;
+  constexpr int num_samples = 50;
+  constexpr int dim = 10;
 
-  auto custom_regressor = std::make_unique<KernelRidgeRegressor>(std::make_unique<GaussianKernel>(dim), 1e-6,
-                                                                 std::make_shared<MedianHeuristicTuner>());
+  const auto custom_regressor = std::make_unique<KernelRidgeRegressor>(std::make_unique<GaussianKernel>(dim), 1e-6,
+                                                                       std::make_shared<MedianHeuristicTuner>());
 
-  Matrix training_inputs = Matrix::Random(num_samples, dim);
-  Matrix training_outputs = Matrix::Random(num_samples, 1);
+  const Matrix training_inputs = Matrix::Random(num_samples, dim);
+  const Matrix training_outputs = Matrix::Random(num_samples, 1);
 
   custom_regressor->fit(training_inputs, training_outputs);
 
@@ -126,7 +126,7 @@ TEST_F(TestMedianHeuristicTuner, IdenticalSamples) {
 
   regressor_.fit(training_inputs, training_outputs_);
 
-  Vector tuned_sigma_l = regressor_.get<const Vector &>(Parameter::SIGMA_L);
+  Vector tuned_sigma_l = regressor_.get<Parameter::SIGMA_L>();
   for (int i = 0; i < dim; ++i) {
     EXPECT_DOUBLE_EQ(tuned_sigma_l(i), 0.0);
   }

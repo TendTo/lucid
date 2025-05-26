@@ -31,17 +31,58 @@ enum class Parameter {
 
 using HP = Parameter;  ///< Alias for HyperParameter
 
+namespace internal {
+
+template <Parameter>
+struct ParameterType {};
+template <>
+struct ParameterType<Parameter::SIGMA_F> {
+  using type = double;
+  using ref_type = double;
+};
+template <>
+struct ParameterType<Parameter::SIGMA_L> {
+  using type = Vector;
+  using ref_type = const Vector&;
+};
+template <>
+struct ParameterType<Parameter::REGULARIZATION_CONSTANT> {
+  using type = double;
+  using ref_type = double;
+};
+template <>
+struct ParameterType<Parameter::DEGREE> {
+  using type = int;
+  using ref_type = int;
+};
+
+}  // namespace internal
+
+template <class T, Parameter P>
+T dispatch(const std::function<T()>& fun_int, const std::function<T()>& fun_double,
+           const std::function<T()>& fun_vector) {
+  if constexpr (std::is_same_v<typename internal::ParameterType<P>::type, int>) {
+    return fun_int();
+  } else if constexpr (std::is_same_v<typename internal::ParameterType<P>::type, double>) {
+    return fun_double();
+  } else if constexpr (std::is_same_v<typename internal::ParameterType<P>::type, Vector>) {
+    return fun_vector();
+  } else {
+    throw exception::LucidUnreachableException{};
+  }
+}
+
 template <class T>
-T dispatch(const Parameter parameter, [[maybe_unused]] const std::function<T()>& fun_int,
-           const std::function<T()>& fun_double, const std::function<T()>& fun_vector) {
+T dispatch(const Parameter parameter, const std::function<T()>& fun_int, const std::function<T()>& fun_double,
+           const std::function<T()>& fun_vector) {
   switch (parameter) {
     case Parameter::DEGREE:
-      return fun_int();
+      return dispatch<T, Parameter::DEGREE>(fun_int, fun_double, fun_vector);
     case Parameter::SIGMA_F:
     case Parameter::REGULARIZATION_CONSTANT:
-      return fun_double();
+      return dispatch<T, Parameter::SIGMA_F>(fun_int, fun_double, fun_vector);
     case Parameter::SIGMA_L:
-      return fun_vector();
+      return dispatch<T, Parameter::SIGMA_L>(fun_int, fun_double, fun_vector);
     default:
       throw exception::LucidUnreachableException{};
   }
