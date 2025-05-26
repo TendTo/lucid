@@ -42,7 +42,7 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x) const {
       x.rows(), training_inputs_.rows(),
       [this, &x](const Index row, const Index col) { return (*kernel_)(x.row(row), training_inputs_.row(col)); })};
   LUCID_DEBUG_FMT("Computed kernel input shape: [{} x {}]", kernel_input.rows(), kernel_input.cols());
-  LUCID_TRACE_FMT("Computed kernel input: \n[{}]", kernel_input);
+  LUCID_TRACE_FMT("Computed kernel input: [{}]", kernel_input);
   return kernel_input * coefficients_;
 }
 
@@ -58,7 +58,7 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature
         return (feature_map(x.row(row)) * feature_map(training_inputs_.row(col)).transpose()).value();
       })};
   LUCID_DEBUG_FMT("Computed kernel input shape: [{} x {}]", kernel_input.rows(), kernel_input.cols());
-  LUCID_TRACE_FMT("Computed kernel input: \n[{}]", kernel_input);
+  LUCID_TRACE_FMT("Computed kernel input: [{}]", kernel_input);
   return kernel_input * coefficients_;
 }
 
@@ -72,6 +72,7 @@ Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, Con
   gram_matrix.add_diagonal_term(regularization_constant_ * static_cast<double>(training_inputs_.rows()));
   // Invert the gram matrix and compute the coefficients as (K + λnI)^-1 y
   coefficients_ = gram_matrix.inverse() * training_outputs;
+  LUCID_TRACE_FMT("Coefficients: [{}]", coefficients_);
   return *this;
 }
 

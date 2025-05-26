@@ -94,15 +94,14 @@ TEST_F(TestMedianHeuristicTuner, HighDimensionalData) {
   constexpr int num_samples = 50;
   constexpr int dim = 10;
 
-  const auto custom_regressor = std::make_unique<KernelRidgeRegressor>(std::make_unique<GaussianKernel>(dim), 1e-6,
-                                                                       std::make_shared<MedianHeuristicTuner>());
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(dim), 1e-6, std::make_shared<MedianHeuristicTuner>()};
 
   const Matrix training_inputs = Matrix::Random(num_samples, dim);
   const Matrix training_outputs = Matrix::Random(num_samples, 1);
 
-  custom_regressor->fit(training_inputs, training_outputs);
+  regressor.fit(training_inputs, training_outputs);
 
-  Vector tuned_sigma_l = custom_regressor->get<const Vector &>(Parameter::SIGMA_L);
+  Vector tuned_sigma_l = regressor.get<const Vector &>(Parameter::SIGMA_L);
   EXPECT_EQ(tuned_sigma_l.size(), dim);
   for (int i = 0; i < dim; ++i) {
     EXPECT_GT(tuned_sigma_l(i), 0.0);
@@ -117,6 +116,7 @@ TEST_F(TestMedianHeuristicTuner, SingleSample) {
 }
 
 TEST_F(TestMedianHeuristicTuner, IdenticalSamples) {
+  LUCID_LOG_INIT_VERBOSITY(5);
   constexpr int num_samples = 10;
   constexpr int dim = 3;
 
@@ -125,10 +125,7 @@ TEST_F(TestMedianHeuristicTuner, IdenticalSamples) {
     training_inputs.row(i) << 1.0, 2.0, 3.0;  // All rows are identical
   }
 
-  regressor_.fit(training_inputs, training_outputs_);
-
-  Vector tuned_sigma_l = regressor_.get<Parameter::SIGMA_L>();
-  for (int i = 0; i < dim; ++i) {
-    EXPECT_DOUBLE_EQ(tuned_sigma_l(i), 0.0);
-  }
+#ifndef NDEBUG
+  EXPECT_THROW(regressor_.fit(training_inputs, training_outputs_), lucid::exception::LucidAssertionException);
+#endif
 }

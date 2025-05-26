@@ -54,8 +54,8 @@ TEST_F(TestGaussianKernel, DimensionConstructor) {
 
 TEST_F(TestGaussianKernel, ApplyVector) {
   Vector x1{4}, x2{4};
-  x1 << 4, 5, 6, 7;
-  x2 << 1, 2, 3, 4;
+  x1 << 4, 2, 6, 7;
+  x2 << 1, 1, 3, 4;
   // (x1 / sigma_l) - (x2 / sigma_l)
   const auto diff{x1.cwiseProduct(sigma_l_.cwiseInverse()) - x2.cwiseProduct(sigma_l_.cwiseInverse())};
   // ||(x1 / sigma_l) - (x2 / sigma_l)||^2

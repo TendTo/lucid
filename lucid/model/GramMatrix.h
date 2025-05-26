@@ -96,6 +96,10 @@ class GramMatrix {
   [[nodiscard]] Matrix inverse_mult(const MatrixBase<Derived>& A) const {
     if (A.rows() != gram_matrix_.rows())
       throw exception::LucidInvalidArgumentException("A.rows() != gram_matrix.rows()");
+#ifndef NDEBUG
+    if (!gram_matrix_.fullPivLu().isInvertible())
+      throw exception::LucidAssertionException("Gram matrix is not invertible");
+#endif
     return gram_matrix_.selfadjointView<Eigen::Lower>().ldlt().solve(A);
   }
 
