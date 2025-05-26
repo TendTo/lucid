@@ -16,10 +16,30 @@ def generate_stub_files(out_dir):
 
     with open(sys.argv[1], "rb") as f:
         content = f.read()
-        content = b"import numpy\n" + content
-        content = content.replace(b"numpy.ndarray", b"numpy.typing.NDArray[numpy.float64]").replace(
-            b"def get(self, parameter: Parameter) -> typing.Any:",
-            b"def get(self, parameter: Parameter) -> int | float | numpy.typing.NDArray[numpy.float64]:",
+        content = (
+            # Imports
+            content.replace(b"import typing", b"import typing\nimport numpy\nK = typing.TypeVar('K', bound=Kernel)", 1)
+            # Generics
+            .replace(
+                b"class KernelRidgeRegressor(Estimator):",
+                b"class KernelRidgeRegressor(Estimator, typing.Generic[K]):",
+                1,
+            )
+            .replace(b"def kernel(self) -> Kernel:", b"def kernel(self) -> K:")
+            .replace(
+                b"def __init__(self, kernel: Kernel, regularization_constant: float = 0) -> None:",
+                b"def __init__(self, kernel: K, regularization_constant: float = 0) -> None:",
+            )
+            # Numpy types
+            .replace(b"numpy.ndarray", b"numpy.typing.NDArray[numpy.float64]")
+            # Clone types
+            .replace(b"def clone(self) -> Estimator:", b"def clone(self) -> typing.Self:")
+            .replace(b"def clone(self) -> Kernel:", b"def clone(self) -> typing.Self:")
+            # Parametrizable get method types
+            .replace(
+                b"def get(self, parameter: Parameter) -> typing.Any:",
+                b"def get(self, parameter: Parameter) -> int | float | numpy.typing.NDArray[numpy.float64]:",
+            )
         )
 
     with open(sys.argv[1], "wb") as f:
