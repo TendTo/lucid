@@ -1,5 +1,10 @@
-from pylucid import GaussianKernel, Kernel, Parameter
+from pylucid import GaussianKernel, Kernel, Parameter, set_verbosity
 import numpy as np
+
+try:
+    from sklearn.gaussian_process.kernels import RBF
+except ImportError:
+    RBF = None
 
 
 class TestKernel:
@@ -40,9 +45,35 @@ class TestKernel:
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
             assert k([1, 2, 3], [1, 2, 3]) == 4
 
+        def test_call_baseline(self):
+            if RBF is None:
+                return
+            k = GaussianKernel(sigma_f=1, sigma_l=[0.5, 0.5, 0.5])
+            rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
+            x = np.array([1, 2, 3])
+            y = np.array([4, 5, 6])
+            assert np.allclose(k(x, y), rbf([x], np.array([y])))
+
+        def test_call_baseline_anisotropic(self):
+            if RBF is None:
+                return
+            k = GaussianKernel(sigma_f=1, sigma_l=[3, 4, 5])
+            rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
+            x = np.array([1, 2, 3])
+            y = np.array([6, 4, 1])
+            assert np.allclose(k(x, y), rbf([x], [y]))
+
         def test_call_single(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
             assert k([1, 2, 3]) == 4
+
+        def test_call_single_baseline(self):
+            if RBF is None:
+                return
+            k = GaussianKernel(sigma_f=1, sigma_l=[3, 4, 5])
+            rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
+            x = np.array([1, 2, 3])
+            assert np.allclose(k(x), rbf([x]))
 
         def test_clone(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])

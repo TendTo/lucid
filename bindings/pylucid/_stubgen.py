@@ -1,6 +1,5 @@
 import sys
 import os
-from pydoc import replace
 
 from pybind11_stubgen import main as stubgen_main
 

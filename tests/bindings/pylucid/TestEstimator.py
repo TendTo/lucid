@@ -2,6 +2,11 @@ from pylucid import KernelRidgeRegressor, Estimator, GaussianKernel, Parameter, 
 import numpy as np
 import pytest
 
+try:
+    from sklearn.kernel_ridge import KernelRidge
+except ImportError:
+    KernelRidge = None
+
 
 class TestRegression:
     class TestGaussianKernelRidgeRegressor:
@@ -51,10 +56,36 @@ class TestRegression:
             assert o.kernel is not k
 
         def test_call(self):
-            k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
-            o = KernelRidgeRegressor(kernel=k)
-            o.consolidate(x=np.array([[1, 2, 3], [4, 5, 6]]), y=np.array([[1, 2, 3], [5, 6, 1]]))
-            assert np.allclose(o(x=np.array([[1, 2, 3]])), [1.0, 2.0, 3.0])
+            o = KernelRidgeRegressor(kernel=GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5]))
+            o.consolidate(x=np.array([[1, 2, 3], [4, 5, 6]]), y=np.array([[1, 2, 3], [4, 5, 6]]))
+            assert np.allclose(o(np.array([[5, 6, 1]])), [1.48168935, 1.89938798, 2.31708661])
+
+        def test_call_baseline(self):
+            if KernelRidge is None:
+                return
+
+            sigma_l = 2
+            reg_coeff = 1
+
+            # Solving (K + λnI) * x = y
+            # K = sigma_f^2 * exp(-||x_i - x_j||^2 / (2 * sigma_l^2))
+            r = KernelRidgeRegressor(
+                kernel=GaussianKernel(sigma_l=np.full(3, fill_value=sigma_l)),
+                regularization_constant=reg_coeff,
+            )
+
+            # Solving (K + λI) * x = y
+            # K = sigma_f^2 * exp(-γ||x_i - x_j||^2)
+            kr = KernelRidge(kernel="rbf", gamma=0.5 * sigma_l**-2, alpha=reg_coeff * 2)
+
+            training_inputs = np.array([[1, 2, 3], [4, 5, 6]])
+            training_outputs = np.array([[1, 2], [5, 3]])
+
+            r.fit(training_inputs, training_outputs)
+            kr.fit(training_inputs, training_outputs)
+
+            x = np.array([[8, 9, 10]])
+            assert np.allclose(r.predict(x), kr.predict(x))
 
         def test_call_before_fit(self):
             o = KernelRidgeRegressor(kernel=GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5]))
