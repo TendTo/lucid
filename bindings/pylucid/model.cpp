@@ -16,6 +16,7 @@
 #include <pybind11/stl.h>
 
 #include "bindings/pylucid/pylucid.h"
+#include "lucid/model/Scorer.h"
 #include "lucid/util/Tensor.h"
 #include "lucid/util/TensorView.h"
 #include "lucid/util/error.h"
@@ -158,79 +159,6 @@ void init_model(py::module_ &m) {
       .def("has", &Parametrizable::has, py::arg("parameter"))
       .def("__contains__", &Parametrizable::has, py::arg("parameter"));
 
-  /**************************** Kernel ****************************/
-  py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel")
-      .def("__call__", py::overload_cast<const Vector &>(&Kernel::operator(), py::const_))
-      .def("__call__", py::overload_cast<const Vector &, const Vector &>(&Kernel::operator(), py::const_))
-      .def("clone", &Kernel::clone)
-      .def("__str__", STRING_LAMBDA(GaussianKernel));
-  py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
-      .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
-      .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l") = 1.0,
-           py::arg("sigma_f") = 1.0)
-      .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
-      .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
-
-  /**************************** FeatureMap ****************************/
-  py::class_<FeatureMap>(m, "FeatureMap");
-  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
-      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("prob_dim_wise"),
-           py::arg("sigma_f"), py::arg("x_limits"))
-      .def("map_vector", &TruncatedFourierFeatureMap::map_vector, py::arg("x"))
-      .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, py::arg("x"))
-      .def("__call__", &TruncatedFourierFeatureMap::operator(), py::arg("x"))
-      .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension)
-      .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega)
-      .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights)
-      .def_property_readonly("num_frequencies", &TruncatedFourierFeatureMap::num_frequencies);
-  py::class_<ConstantTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "ConstantTruncatedFourierFeatureMap",
-                                                                             py::is_final())
-      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"))
-      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"));
-  py::class_<LinearTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LinearTruncatedFourierFeatureMap",
-                                                                           py::is_final())
-      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"))
-      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"));
-  py::class_<LogTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LogTruncatedFourierFeatureMap",
-                                                                        py::is_final())
-      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"))
-      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"));
-
-  /**************************** Estimator ****************************/
-  py::class_<Estimator, PyEstimator, Parametrizable>(m, "Estimator")
-      .def("__call__", &Estimator::operator(), py::arg("x"))
-      .def("predict", &Estimator::predict, py::arg("x"))
-      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), py::arg("x"), py::arg("y"))
-      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit), py::arg("x"),
-           py::arg("y"), py::arg("tuner"))
-      .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
-      .def_property("tuner", &Estimator::tuner,
-                    [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
-      .def("consolidate", &Estimator::consolidate, py::arg("x"), py::arg("y"))
-      .def("get", get<Estimator>, py::arg("parameter"), py::return_value_policy::reference_internal)
-      .def("clone", &Estimator::clone)
-      .def("__str__", STRING_LAMBDA(Estimator));
-  py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
-      .def(py::init<const Kernel &, Scalar>(), py::arg("kernel"), py::arg("regularization_constant") = 0)
-      .def("__call__",
-           py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::operator(), py::const_),
-           py::arg("x"), py::arg("feature_map"))
-      .def("__call__", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::operator(), py::const_), py::arg("x"))
-      .def("predict", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::predict, py::const_),
-           py::arg("x"), py::arg("feature_map"))
-      .def("predict", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::predict, py::const_), py::arg("x"))
-      .def_property_readonly("kernel",
-                             [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); })
-      .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs)
-      .def_property_readonly("coefficients", &KernelRidgeRegressor::coefficients)
-      .def_property_readonly("regularization_constant", &KernelRidgeRegressor::regularization_constant);
-
   /**************************** Set ****************************/
   py::class_<Set, PySet>(m, "Set")
       .def(py::init<>())
@@ -276,6 +204,102 @@ void init_model(py::module_ &m) {
           "__getitem__", [](const MultiSet &self, const Index index) -> const Set & { return *self.sets()[index]; },
           py::return_value_policy::reference_internal)
       .def("__str__", STRING_LAMBDA(MultiSet));
+
+  /**************************** Forward declarations ****************************/
+  py::class_<Estimator, PyEstimator, Parametrizable> estimator(m, "Estimator");
+
+  /**************************** Scorer ****************************/
+  m.def("r2_score", &scorer::r2_score, py::arg("estimator"), py::arg("evaluation_inputs"),
+        py::arg("evaluation_outputs"));
+  m.def("mse_score", &scorer::mse_score, py::arg("estimator"), py::arg("evaluation_inputs"),
+        py::arg("evaluation_outputs"));
+
+  /**************************** Tuner ****************************/
+  py::class_<Tuner, PyTuner>(m, "Tuner")
+      .def(py::init<>())
+      .def("tune", &Tuner::tune, py::arg("estimator"), py::arg("training_inputs"), py::arg("training_outputs"))
+      .def("__str__", STRING_LAMBDA(Tuner));
+  py::class_<MedianHeuristicTuner, Tuner>(m, "MedianHeuristicTuner", py::is_final()).def(py::init<>());
+  py::class_<GridSearchTuner, Tuner>(m, "GridSearchTuner", py::is_final())
+      .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0)
+      .def_property_readonly("n_jobs", &GridSearchTuner::n_jobs)
+      .def_property_readonly("parameters", &GridSearchTuner::parameters);
+
+  /**************************** Kernel ****************************/
+  py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel")
+      .def("__call__", py::overload_cast<const Vector &>(&Kernel::operator(), py::const_))
+      .def("__call__", py::overload_cast<const Vector &, const Vector &>(&Kernel::operator(), py::const_))
+      .def("clone", &Kernel::clone)
+      .def("__str__", STRING_LAMBDA(Kernel));
+  py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
+      .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
+      .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l") = 1.0,
+           py::arg("sigma_f") = 1.0)
+      .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
+      .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
+
+  /**************************** FeatureMap ****************************/
+  py::class_<FeatureMap>(m, "FeatureMap");
+  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("prob_dim_wise"),
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def("map_vector", &TruncatedFourierFeatureMap::map_vector, py::arg("x"))
+      .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, py::arg("x"))
+      .def("__call__", &TruncatedFourierFeatureMap::operator(), py::arg("x"))
+      .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension)
+      .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega)
+      .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights)
+      .def_property_readonly("num_frequencies", &TruncatedFourierFeatureMap::num_frequencies);
+  py::class_<ConstantTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "ConstantTruncatedFourierFeatureMap",
+                                                                             py::is_final())
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"));
+  py::class_<LinearTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LinearTruncatedFourierFeatureMap",
+                                                                           py::is_final())
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"));
+  py::class_<LogTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LogTruncatedFourierFeatureMap",
+                                                                        py::is_final())
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"));
+
+  /**************************** Estimator ****************************/
+  estimator.def("__call__", &Estimator::operator(), py::arg("x"))
+      .def("predict", &Estimator::predict, py::arg("x"))
+      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), py::arg("x"), py::arg("y"))
+      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit), py::arg("x"),
+           py::arg("y"), py::arg("tuner"))
+      .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
+      .def_property("tuner", &Estimator::tuner,
+                    [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
+      .def("consolidate", &Estimator::consolidate, py::arg("x"), py::arg("y"))
+      .def("get", get<Estimator>, py::arg("parameter"), py::return_value_policy::reference_internal)
+      .def("clone", &Estimator::clone)
+      .def("__str__", STRING_LAMBDA(Estimator));
+  py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
+      .def(py::init([](const Kernel &kernel, Scalar regularization_constant,
+                       const std::optional<std::shared_ptr<Tuner>> &tuner) {
+             return KernelRidgeRegressor{kernel, regularization_constant, tuner.value_or(nullptr)};
+           }),
+           py::arg("kernel"), py::arg("regularization_constant") = 1.0, py::arg("tuner") = py::none())
+      .def("__call__",
+           py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::operator(), py::const_),
+           py::arg("x"), py::arg("feature_map"))
+      .def("__call__", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::operator(), py::const_), py::arg("x"))
+      .def("predict", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::predict, py::const_),
+           py::arg("x"), py::arg("feature_map"))
+      .def("predict", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::predict, py::const_), py::arg("x"))
+      .def_property_readonly("kernel",
+                             [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); })
+      .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs)
+      .def_property_readonly("coefficients", &KernelRidgeRegressor::coefficients)
+      .def_property_readonly("regularization_constant", &KernelRidgeRegressor::regularization_constant);
 
   /**************************** Misc ****************************/
   // TODO(tend): it would be nice to encapsulate this in a class
