@@ -21,7 +21,12 @@ class TestKernel:
             assert np.allclose(k.get(Parameter.SIGMA_L), [sigma_l] * 4)
             assert np.allclose(k.sigma_l, [sigma_l] * 4)
 
-        def test_data_sharing(self):
+        def test_has_parameters(self):
+            k = GaussianKernel(1)
+            assert k.has(Parameter.SIGMA_F) and Parameter.SIGMA_F in k
+            assert k.has(Parameter.SIGMA_L) and Parameter.SIGMA_L in k
+
+        def test_data(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[1, 2, 3])
             assert k.sigma_l.flags.c_contiguous
             assert not k.sigma_l.flags.writeable
@@ -41,7 +46,7 @@ class TestKernel:
 
         def test_clone(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
-            kc = k.clone()
+            kc: GaussianKernel = k.clone()
             assert kc is not k
             assert kc.get(Parameter.SIGMA_F) == k.get(Parameter.SIGMA_F)
             assert kc.sigma_f == k.sigma_f

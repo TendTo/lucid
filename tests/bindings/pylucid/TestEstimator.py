@@ -18,7 +18,13 @@ class TestRegression:
             assert np.allclose(o.get(Parameter.SIGMA_L), o.kernel.sigma_l)
             assert o.get(Parameter.SIGMA_F) == o.kernel.sigma_f == 2
 
-        def test_setter(self):
+        def test_has(self):
+            o = KernelRidgeRegressor(kernel=GaussianKernel(1))
+            assert o.has(Parameter.SIGMA_F) and Parameter.SIGMA_F in o
+            assert o.has(Parameter.SIGMA_L) and Parameter.SIGMA_L in o
+            assert o.has(Parameter.REGULARIZATION_CONSTANT) and Parameter.REGULARIZATION_CONSTANT in o
+
+        def test_set(self):
             k = GaussianKernel(sigma_l=np.zeros((4,)))
             o = KernelRidgeRegressor(kernel=k)
             o.consolidate(x=np.array([[1, 2, 3, 5], [4, 5, 6, 1]]), y=np.array([[1, 2], [5, 6]]))

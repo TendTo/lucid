@@ -24,6 +24,17 @@
 namespace py = pybind11;
 using namespace lucid;
 
+/**
+ * Get the value of the specified parameter from a Parametrizable object.
+ * This function uses dispatch to call the appropriate getter based on the type of the parameter.
+ * It ensures that the python object returned is of the correct type, either an integer, a float, or a numpy array.
+ * For the latter, it creates a non-owning numpy array from the Eigen vector
+ * and ensures it is read-only by clearing the writeable flag.
+ * @tparam T Type of the Parametrizable object
+ * @param self The Parametrizable object
+ * @param parameter The parameter to retrieve
+ * @return The value of the parameter as a Python object
+ */
 template <class T>
 py::object get(const T &self, const Parameter parameter) {
   return dispatch<py::object>(
@@ -37,6 +48,15 @@ py::object get(const T &self, const Parameter parameter) {
         return array;
       });
 }
+
+class PyParametrizable final : public Parametrizable {
+ public:
+  using Parametrizable::Parametrizable;
+
+  [[nodiscard]] bool has(Parameter parameter) const override {
+    PYBIND11_OVERRIDE_PURE(bool, Parametrizable, has, parameter);
+  }
+};
 
 class PyKernel final : public Kernel {
  public:
@@ -103,24 +123,41 @@ class MultiSetIterator {
 void init_model(py::module_ &m) {
   /**************************** Parameters ****************************/
   py::enum_<Parameter>(m, "Parameter")
+      .value("DEGREE", Parameter::DEGREE)
       .value("SIGMA_L", Parameter::SIGMA_L)
-      .value("LENGTH_SCALE", Parameter::LENGTH_SCALE)
       .value("SIGMA_F", Parameter::SIGMA_F)
       .value("REGULARIZATION_CONSTANT", Parameter::REGULARIZATION_CONSTANT);
+  py::class_<Parametrizable, PyParametrizable>(m, "Parametrizable")
+      .def(py::init<>())
+      .def("get", get<Parametrizable>, py::arg("parameter"), py::return_value_policy::reference_internal)
+      .def(
+          "set",
+          [](Parametrizable &self, const Parameter parameter, const int value) { return self.set(parameter, value); },
+          py::arg("parameter"), py::arg("value"))
+      .def(
+          "set",
+          [](Parametrizable &self, const Parameter parameter, const double value) {
+            return self.set(parameter, value);
+          },
+          py::arg("parameter"), py::arg("value"))
+      .def(
+          "set",
+          [](Parametrizable &self, const Parameter parameter, const Vector &value) {
+            return self.set(parameter, value);
+          },
+          py::arg("parameter"), py::arg("value"))
+      .def("has", &Parametrizable::has, py::arg("parameter"))
+      .def("__contains__", &Parametrizable::has, py::arg("parameter"));
 
   /**************************** Kernel ****************************/
-  py::class_<Kernel, PyKernel>(m, "Kernel")
+  py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel")
       .def("__call__", py::overload_cast<const Vector &>(&Kernel::operator(), py::const_))
       .def("__call__", py::overload_cast<const Vector &, const Vector &>(&Kernel::operator(), py::const_))
-      .def("get", get<Kernel>, py::arg("parameter"), py::return_value_policy::reference_internal)
-      .def("set", py::overload_cast<Parameter, int>(&Kernel::set), py::arg("parameter"), py::arg("value"))
-      .def("set", py::overload_cast<Parameter, double>(&Kernel::set), py::arg("parameter"), py::arg("value"))
-      .def("set", py::overload_cast<Parameter, const Vector &>(&Kernel::set), py::arg("parameter"), py::arg("value"))
-      .def("has", &Kernel::has, py::arg("parameter"))
       .def("clone", &Kernel::clone);
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
       .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
-      .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
+      .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l") = 1.0,
+           py::arg("sigma_f") = 1.0)
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l)
       .def("__str__", STRING_LAMBDA(GaussianKernel));
@@ -157,7 +194,7 @@ void init_model(py::module_ &m) {
            py::arg("sigma_f"), py::arg("x_limits"));
 
   /**************************** Estimator ****************************/
-  py::class_<Estimator, PyEstimator>(m, "Estimator")
+  py::class_<Estimator, PyEstimator, Parametrizable>(m, "Estimator")
       .def("__call__", &Estimator::operator(), py::arg("x"))
       .def("predict", &Estimator::predict, py::arg("x"))
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), py::arg("x"), py::arg("y"))
@@ -168,9 +205,6 @@ void init_model(py::module_ &m) {
                     [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
       .def("consolidate", &Estimator::consolidate, py::arg("x"), py::arg("y"))
       .def("get", get<Estimator>, py::arg("parameter"), py::return_value_policy::reference_internal)
-      .def("set", py::overload_cast<Parameter, int>(&Kernel::set), py::arg("parameter"), py::arg("value"))
-      .def("set", py::overload_cast<Parameter, double>(&Kernel::set), py::arg("parameter"), py::arg("value"))
-      .def("set", py::overload_cast<Parameter, const Vector &>(&Kernel::set), py::arg("parameter"), py::arg("value"))
       .def("clone", &Estimator::clone);
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
       .def(py::init<const Kernel &, Scalar>(), py::arg("kernel"), py::arg("regularization_constant") = 0)
