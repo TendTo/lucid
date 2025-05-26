@@ -3,11 +3,13 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  */
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "lucid/model/Scorer.h"
 
 using lucid::ConstMatrixRef;
+using lucid::Estimator;
 using lucid::Index;
 using lucid::Matrix;
 using lucid::Scalar;
@@ -15,21 +17,26 @@ using lucid::Vector;
 using lucid::scorer::r2_score;
 using lucid::scorer::Scorer;
 
-class MockEstimator final : public lucid::Estimator {
+class MockEstimator_ : public Estimator {
  public:
-  explicit MockEstimator(Matrix predictions) : predictions_(std::move(predictions)) {}
-
-  [[nodiscard]] Matrix predict(ConstMatrixRef) const override { return predictions_; }
-  [[nodiscard]] std::unique_ptr<lucid::Estimator> clone() const override {
-    return std::make_unique<MockEstimator>(predictions_);
+  explicit MockEstimator_(Matrix predictions) : predictions_{std::move(predictions)} {
+    ON_CALL(*this, predict).WillByDefault(testing::Return(predictions_));
+    ON_CALL(*this, consolidate).WillByDefault(testing::ReturnRef(*this));
   }
-  [[nodiscard]] bool has(const lucid::Parameter) const override { return false; }
-  Estimator& consolidate(ConstMatrixRef, ConstMatrixRef) override { return *this; }
-  [[nodiscard]] double score(ConstMatrixRef, ConstMatrixRef) const override { return 0.0; }
+
+  MOCK_METHOD(Matrix, predict, (ConstMatrixRef), (const override));
+  MOCK_METHOD(bool, has, (lucid::Parameter), (const override));
+  MOCK_METHOD(Estimator&, consolidate, (ConstMatrixRef, ConstMatrixRef), (override));
+  MOCK_METHOD(double, score, (ConstMatrixRef, ConstMatrixRef), (const override));
+  [[nodiscard]] std::unique_ptr<Estimator> clone() const override {
+    return std::make_unique<MockEstimator_>(predictions_);
+  }
 
  private:
   Matrix predictions_;
 };
+
+using MockEstimator = testing::NiceMock<MockEstimator_>;
 
 TEST(TestScorer, R2ScorePerfectPredictions) {
   const Matrix inputs{Matrix::Random(20, 5)};
