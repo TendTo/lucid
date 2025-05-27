@@ -187,6 +187,7 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
     const auto& parameter = parameters_[i];
     estimator.set(parameter.parameter(), best_parameters_indices[i], parameter.values());
   }
+  estimator.consolidate(training_inputs, training_outputs);
 }
 std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner) {
   return os << "GridSearchTuner( parameters( " << fmt::format("{}", tuner.parameters()) << " ) n_jobs( "
