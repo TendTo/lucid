@@ -9,7 +9,10 @@
 
 #include <future>
 #include <iostream>
+#include <limits>
 #include <thread>
+#include <utility>
+#include <vector>
 
 #include "lucid/model/Estimator.h"
 #include "lucid/model/ParameterValue.h"

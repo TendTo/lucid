@@ -8,6 +8,7 @@
 #pragma once
 
 #include <variant>
+#include <vector>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Parameter.h"

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <concepts>
+#include <vector>
 
 #include "lucid/model/ParameterValues.h"
 #include "lucid/model/Tuner.h"

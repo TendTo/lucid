@@ -6,6 +6,8 @@
  */
 #include "lucid/model/Parametrizable.h"
 
+#include <vector>
+
 #include "lucid/util/error.h"
 
 namespace lucid {
