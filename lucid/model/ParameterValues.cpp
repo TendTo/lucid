@@ -13,6 +13,13 @@
 
 namespace lucid {
 
+bool ParameterValues::operator==(const ParameterValues& o) const {
+  if (parameter_ != o.parameter_) return false;
+  return dispatch<bool>(
+      parameter_, [this, &o]() -> bool { return get<int>() == o.get<int>(); },
+      [this, &o]() -> bool { return get<double>() == o.get<double>(); },
+      [this, &o]() -> bool { return get<Vector>() == o.get<Vector>(); });
+}
 std::ostream& operator<<(std::ostream& os, const ParameterValues& parameter_values) {
   os << "ParameterValues( " << parameter_values.parameter() << " values( ";
   dispatch<std::ostream&>(

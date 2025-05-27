@@ -71,13 +71,16 @@ class ParameterValues {
     return std::get<std::vector<T>>(values_);
   }
 
+  /** @equal_to{parameter values objects} */
+  [[nodiscard]] bool operator==(const ParameterValues &o) const;
+
  private:
   Parameter parameter_;         ///< Parameter the values are assigned to
   std::size_t size_;            ///< Number of values assigned to the parameter
   ParameterValuesType values_;  ///< All values assigned to the parameter
 };
 
-std::ostream &operator<<(std::ostream &os, const ParameterValues &parameter_value);
+std::ostream &operator<<(std::ostream &os, const ParameterValues &parameter_values);
 
 }  // namespace lucid
 

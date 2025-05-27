@@ -58,6 +58,9 @@ class ParameterValue {
     return std::get<T>(value_);
   }
 
+  /** @equal_to{parameter value objects} */
+  [[nodiscard]] bool operator==(const ParameterValue &o) const;
+
  private:
   Parameter parameter_;       ///< Parameter associated with the value
   ParameterValueType value_;  ///< Value assigned to the parameter
