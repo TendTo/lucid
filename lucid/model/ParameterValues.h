@@ -66,7 +66,7 @@ class ParameterValues {
    * @tparam T type of the value to retrieve
    * @return value of the parameter
    */
-  template <class T>
+  template <IsAnyOf<int, double, Vector> T>
   [[nodiscard]] const std::vector<T> &get() const {
     return std::get<std::vector<T>>(values_);
   }

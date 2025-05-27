@@ -12,6 +12,7 @@
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Parameter.h"
+#include "lucid/util/concept.h"
 
 namespace lucid {
 
@@ -52,7 +53,7 @@ class ParameterValue {
    * @tparam T type of the value to retrieve
    * @return value of the parameter
    */
-  template <class T>
+  template <IsAnyOf<int, double, Vector> T>
   [[nodiscard]] const T &get() const {
     return std::get<T>(value_);
   }
