@@ -154,10 +154,10 @@ TEST_F(TestGridSearchTuner, TuneSingleThread) {
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
 
     // Predict and score should be called once for each parameter combination
-    EXPECT_CALL(estimator, consolidate).Times(parameters_max_size);
     EXPECT_CALL(estimator, predict).Times(parameters_max_size);
     EXPECT_CALL(estimator, score).Times(parameters_max_size);
     // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
+    EXPECT_CALL(estimator, consolidate).Times(parameters_max_size + 1);
     EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(parameters_max_size + 1);
     EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (parameters_max_size + 1));
     EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(parameters_max_size + 1);

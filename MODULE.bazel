@@ -62,7 +62,7 @@ gurobi_repository = use_repo_rule("//tools:gurobi_build.bzl", "gurobi_repository
 gurobi_repository(
     name = "gurobi",
     build_file = "//third_party:gurobi.BUILD.bazel",
-    default_gurobi_home = "/opt/gurobi1201/linux64", # Replace with your Gurobi installation path. It will be used if the environment variable GUROBI_HOME is not set.
+    default_gurobi_home = "/opt/gurobi1201/linux64",  # Replace with your Gurobi installation path. It will be used if the environment variable GUROBI_HOME is not set.
 )
 
 # GitHub repositories
@@ -73,9 +73,9 @@ github_archive = use_repo_rule("//tools:git_archive.bzl", "github_archive")
 github_archive(
     name = "lbfgscpp",
     build_file = "//third_party:lbfgscpp.BUILD.bazel",
-    commit = "9db7a6d05042cc72851ed6c5e2cd34a0356b7150",
+    commit = "v0.4.0",
     repository = "yixuan/LBFGSpp",
-    sha256 = "f3423ddeaed9642959b45d06cad6433444a31a2e21594825a09b914c2794cdac",
+    sha256 = "39c4aaebd8b94ccdc98191d51913a31cddd618cc0869d99f07a4b6da83ca6254",
 )
 
 # MIT | logging library
