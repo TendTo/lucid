@@ -33,10 +33,16 @@ class TestKernel:
 
         def test_data(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[1, 2, 3])
+
+            assert isinstance(k.sigma_f, float)
+
+            assert isinstance(k.sigma_l, np.ndarray)
             assert k.sigma_l.flags.c_contiguous
             assert not k.sigma_l.flags.writeable
             assert not k.sigma_l.flags.owndata
             assert k.sigma_l.flags.aligned
+
+            assert isinstance(k.get(Parameter.SIGMA_L), np.ndarray)
             assert k.get(Parameter.SIGMA_L).flags.c_contiguous
             assert not k.get(Parameter.SIGMA_L).flags.owndata
             assert not k.get(Parameter.SIGMA_L).flags.writeable

@@ -1,4 +1,11 @@
-from pylucid import KernelRidgeRegressor, Estimator, GaussianKernel, Parameter, LucidInvalidArgumentException
+from pylucid import (
+    KernelRidgeRegressor,
+    Estimator,
+    GaussianKernel,
+    Parameter,
+    LucidInvalidArgumentException,
+    MedianHeuristicTuner,
+)
 import numpy as np
 import pytest
 
@@ -44,15 +51,22 @@ class TestRegression:
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
             o = KernelRidgeRegressor(kernel=k)
             o.consolidate(x=np.array([[1, 2, 3], [4, 5, 6]]), y=np.array([[1, 2, 3], [5, 6, 1]]))
+
+            assert isinstance(o.training_inputs, np.ndarray)
             assert o.training_inputs.flags.c_contiguous
             assert not o.training_inputs.flags.writeable
             assert not o.training_inputs.flags.owndata
+
+            assert isinstance(o.coefficients, np.ndarray)
             assert o.coefficients.flags.c_contiguous
             assert not o.coefficients.flags.writeable
             assert not o.coefficients.flags.owndata
+
+            assert isinstance(o.get(Parameter.SIGMA_L), np.ndarray)
             assert o.get(Parameter.SIGMA_L).flags.c_contiguous
             assert not o.get(Parameter.SIGMA_L).flags.writeable
             assert not o.get(Parameter.SIGMA_L).flags.owndata
+
             assert o.kernel is not k
 
         def test_call(self):
@@ -104,6 +118,13 @@ class TestRegression:
             assert np.allclose(o.training_inputs, oc.training_inputs)
             assert np.allclose(o.coefficients, oc.coefficients)
             assert o.regularization_constant == oc.regularization_constant
+
+        def test_tuner(self):
+            o = KernelRidgeRegressor(kernel=GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5]))
+            assert o.tuner is None
+
+            o = KernelRidgeRegressor(kernel=GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5]), tuner=MedianHeuristicTuner())
+            assert isinstance(o.tuner, MedianHeuristicTuner)
 
         def test_str(self):
             o = KernelRidgeRegressor(kernel=GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5]))
