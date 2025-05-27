@@ -1,4 +1,8 @@
-# LUCID: Lifting-based Uncertain Control Invariant Dynamics
+# LUCID — Lifting-based Uncertain Control Invariant Dynamics  
+*Probabilistic Verification Engine for Black-Box Dynamical Systems*
+
+
+
 
 [![lucid CI](https://github.com/TendTo/lucid/actions/workflows/lucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/lucid.yml)
 [![pylucid CI](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml)
@@ -7,10 +11,9 @@
 
 <div style="display: none">
 <!-- Necessary to load the image in the Doxygen output folder. Do not remove! -->
-![Lucid banner](docs/_static/lucid-banner.png)
+<img src="docs/_static/lucid-banner.png" alt="Lucid banner">
 </div>
 
-Simple modern template for a C++ project using Bazel with modules.
 
 > My integral is your table.  
 > -- _[Oliver Schön](https://oliverschon.com/)_
