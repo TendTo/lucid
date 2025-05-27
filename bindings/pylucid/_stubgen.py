@@ -17,18 +17,33 @@ def generate_stub_files(out_dir):
         content = f.read()
         content = (
             # Imports
-            content.replace(b"import typing", b"import typing\nimport numpy\nK = typing.TypeVar('K', bound=Kernel)", 1)
+            content.replace(
+                b"import typing",
+                b"import typing\n"
+                b"import numpy\n"
+                b"K = typing.TypeVar('K', bound=Kernel)\n"
+                b"T = typing.TypeVar('T', bound=Tuner)\n"
+                b"ParameterValueType: typing.TypeAlias = int | float | numpy.typing.NDArray[numpy.float64]\n"
+                b"ParameterValuesType: typing.TypeAlias = tuple[int, ...] | tuple[float, ...] | tuple[numpy.typing.NDArray[numpy.float64], ...]\n",
+                1,
+            )
             # Generics
             .replace(
                 b"class KernelRidgeRegressor(Estimator):",
-                b"class KernelRidgeRegressor(Estimator, typing.Generic[K]):",
+                b"class KernelRidgeRegressor(Estimator[T], typing.Generic[K, T]):",
+                1,
+            )
+            .replace(
+                b"class Estimator(Parametrizable):",
+                b"class Estimator(Parametrizable, typing.Generic[T]):",
                 1,
             )
             .replace(b"def kernel(self) -> Kernel:", b"def kernel(self) -> K:")
             .replace(
-                b"def __init__(self, kernel: Kernel, regularization_constant: float = 0) -> None:",
-                b"def __init__(self, kernel: K, regularization_constant: float = 0) -> None:",
+                b"def __init__(self, kernel: Kernel, regularization_constant: float = 1.0, tuner: Tuner = None) -> None:",
+                b"def __init__(self, kernel: K, regularization_constant: float = 1.0, tuner: T | None = None) -> None:",
             )
+            .replace(b"tuner: Tuner\n", b"tuner: T | None\n")
             # Numpy types
             .replace(b"numpy.ndarray", b"numpy.typing.NDArray[numpy.float64]")
             # Clone types
@@ -37,7 +52,19 @@ def generate_stub_files(out_dir):
             # Parametrizable get method types
             .replace(
                 b"def get(self, parameter: Parameter) -> typing.Any:",
-                b"def get(self, parameter: Parameter) -> int | float | numpy.typing.NDArray[numpy.float64]:",
+                b"def get(self, parameter: Parameter) -> ParameterValueType:",
+            )
+            .replace(
+                b"def value(self) -> typing.Any:",
+                b"def value(self) -> ParameterValueType:",
+            )
+            .replace(
+                b"def values(self) -> typing.Any:",
+                b"def values(self) -> ParameterValuesType:",
+            )
+            .replace(
+                b"def __init__(self, parameters: dict, n_jobs: int = 0) -> None:",
+                b"def __init__(self, parameters: dict[Parameter, ParameterValuesType], n_jobs: int = 0) -> None:",
             )
         )
 

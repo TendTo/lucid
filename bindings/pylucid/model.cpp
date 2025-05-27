@@ -13,6 +13,7 @@
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
 #include "bindings/pylucid/pylucid.h"
@@ -28,25 +29,71 @@ using namespace lucid;
 /**
  * Get the value of the specified parameter from a Parametrizable object.
  * This function uses dispatch to call the appropriate getter based on the type of the parameter.
- * It ensures that the python object returned is of the correct type, either an integer, a float, or a numpy array.
+ * It ensures that the python object returned is of the correct type: an integer, a float, or a numpy array.
  * For the latter, it creates a non-owning numpy array from the Eigen vector
  * and ensures it is read-only by clearing the writeable flag.
- * @tparam T Type of the Parametrizable object
  * @param self The Parametrizable object
  * @param parameter The parameter to retrieve
  * @return The value of the parameter as a Python object
  */
-template <class T>
-py::object get(const T &self, const Parameter parameter) {
+py::object get_parametrizable(const Parametrizable &self, const Parameter parameter) {
   return dispatch<py::object>(
-      parameter, [&self, parameter]() { return py::int_{self.template get<int>(parameter)}; },
-      [&self, parameter]() { return py::float_{self.template get<double>(parameter)}; },
+      parameter, [&self, parameter]() { return py::int_{self.get<int>(parameter)}; },
+      [&self, parameter]() { return py::float_{self.get<double>(parameter)}; },
       [&self, parameter]() {
-        const Vector &v = self.template get<const Vector &>(parameter);
-        const py::array array{v.size(), v.data(), py::none{}};
+        const Vector &v = self.get<const Vector &>(parameter);
+        py::array array{v.size(), v.data(), py::none{}};
         // https://github.com/pybind/pybind11/issues/481
         reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &= ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
         return array;
+      });
+}
+/**
+ * Get the value of the ParameterValue object.
+ * This function uses dispatch to call the appropriate getter based on the type of the parameter.
+ * It ensures that the python object returned is of the correct type: an integer, a float, or a numpy array.
+ * For the latter, it creates a non-owning numpy array from the Eigen vector
+ * and ensures it is read-only by clearing the writeable flag.
+ * @param self The ParameterValue object
+ * @return The value of the parameter as a Python object
+ */
+py::object get_parameter_value(const ParameterValue &self) {
+  return dispatch<py::object>(
+      self.parameter(), [&self]() { return py::int_{self.get<int>()}; },
+      [&self]() { return py::float_{self.get<double>()}; },
+      [&self]() {
+        const Vector &v = self.get<Vector>();
+        py::array array{v.size(), v.data(), py::none{}};
+        // https://github.com/pybind/pybind11/issues/481
+        reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &= ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
+        return array;
+      });
+}
+/**
+ * Get the value of the ParameterValues object.
+ * This function uses dispatch to call the appropriate getter based on the type of the parameter.
+ * It ensures that the python object returned is of the correct type: a tuple of integers, floats, or numpy arrays.
+ * For the latter, it creates a non-owning numpy array from the Eigen vector
+ * and ensures it is read-only by clearing the writeable flag.
+ * @param self The ParameterValue object
+ * @return The value of the parameter as a Python object
+ */
+py::object get_parameter_values(const ParameterValues &self) {
+  return dispatch<py::object>(
+      self.parameter(), [&self]() { return py::tuple{py::cast(self.get<int>())}; },
+      [&self]() { return py::tuple{py::cast(self.get<double>())}; },
+      [&self]() {
+        return py::tuple(py::cast(self.get<Vector>()));
+        // TODO(tend): this is not efficient, we should return a tuple of non-owning, non-writable numpy arrays
+        // const std::vector<Vector> &vectors = self.get<Vector>();
+        // py::list l{vectors.size()};
+        // for (const Vector &v : vectors) {
+        //   py::array array{v.size(), v.data()};
+        //   reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &=
+        //       ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
+        //   l.append(array);
+        // }
+        // return l;
       });
 }
 
@@ -137,9 +184,29 @@ void init_model(py::module_ &m) {
       .value("SIGMA_L", Parameter::SIGMA_L)
       .value("SIGMA_F", Parameter::SIGMA_F)
       .value("REGULARIZATION_CONSTANT", Parameter::REGULARIZATION_CONSTANT);
+  py::class_<ParameterValue>(m, "ParameterValue")
+      .def(py::init<Parameter, int>(), py::arg("parameter"), py::arg("value"))
+      .def(py::init<Parameter, double>(), py::arg("parameter"), py::arg("value"))
+      .def(py::init<Parameter, const Vector &>(), py::arg("parameter"), py::arg("value"))
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def("__str__", STRING_LAMBDA(ParameterValue))
+      .def_property_readonly("parameter", &ParameterValue::parameter)
+      .def_property_readonly("value", get_parameter_value);
+  py::class_<ParameterValues>(m, "ParameterValues")
+      .def(py::init<Parameter, std::vector<int>>(), py::arg("parameter"), py::arg("values"))
+      .def(py::init<Parameter, std::vector<double>>(), py::arg("parameter"), py::arg("values"))
+      .def(py::init<Parameter, std::vector<Vector>>(), py::arg("parameter"), py::arg("values"))
+      .def("__len__", &ParameterValues::size)
+      .def(py::self == py::self)
+      .def(py::self != py::self)
+      .def("__str__", STRING_LAMBDA(ParameterValues))
+      .def_property_readonly("size", &ParameterValues::size)
+      .def_property_readonly("parameter", &ParameterValues::parameter)
+      .def_property_readonly("values", get_parameter_values);
   py::class_<Parametrizable, PyParametrizable>(m, "Parametrizable")
       .def(py::init<>())
-      .def("get", get<Parametrizable>, py::arg("parameter"), py::return_value_policy::reference_internal)
+      .def("get", get_parametrizable, py::arg("parameter"), py::return_value_policy::reference_internal)
       .def(
           "set",
           [](Parametrizable &self, const Parameter parameter, const int value) { return self.set(parameter, value); },
@@ -215,13 +282,36 @@ void init_model(py::module_ &m) {
         py::arg("evaluation_outputs"));
 
   /**************************** Tuner ****************************/
-  py::class_<Tuner, PyTuner>(m, "Tuner")
+  py::class_<Tuner, PyTuner, std::shared_ptr<Tuner>>(m, "Tuner")
       .def(py::init<>())
       .def("tune", &Tuner::tune, py::arg("estimator"), py::arg("training_inputs"), py::arg("training_outputs"))
       .def("__str__", STRING_LAMBDA(Tuner));
-  py::class_<MedianHeuristicTuner, Tuner>(m, "MedianHeuristicTuner", py::is_final()).def(py::init<>());
-  py::class_<GridSearchTuner, Tuner>(m, "GridSearchTuner", py::is_final())
+  py::class_<MedianHeuristicTuner, Tuner, std::shared_ptr<MedianHeuristicTuner>>(m, "MedianHeuristicTuner",
+                                                                                 py::is_final())
+      .def(py::init<>());
+  py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", py::is_final())
       .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0)
+      .def(py::init([](const py::dict &parameters, const std::size_t n_jobs) {
+             std::vector<ParameterValues> parameter_values;
+             parameter_values.reserve(parameters.size());
+             for (const auto &[key, value] : parameters) {
+               const Parameter parameter = key.cast<Parameter>();
+               parameter_values.emplace_back(dispatch<ParameterValues>(
+                   parameter,
+                   [parameter, &value]() { return ParameterValues(parameter, value.cast<std::vector<int>>()); },
+                   [parameter, &value]() { return ParameterValues(parameter, value.cast<std::vector<double>>()); },
+                   [parameter, &value]() { return ParameterValues(parameter, value.cast<std::vector<Vector>>()); }));
+             }
+             return GridSearchTuner(std::move(parameter_values), n_jobs);
+           }),
+           py::arg("parameters"), py::arg("n_jobs") = 0)
+      .def(py::init([](const py::args &parameters, const std::size_t n_jobs) {
+             std::vector<ParameterValues> parameter_values;
+             parameter_values.reserve(parameters.size());
+             for (const auto &param : parameters) parameter_values.emplace_back(param.cast<ParameterValues>());
+             return GridSearchTuner(std::move(parameter_values), n_jobs);
+           }),
+           py::kw_only(), py::arg("n_jobs") = 0)
       .def_property_readonly("n_jobs", &GridSearchTuner::n_jobs)
       .def_property_readonly("parameters", &GridSearchTuner::parameters);
 
@@ -279,15 +369,11 @@ void init_model(py::module_ &m) {
       .def_property("tuner", &Estimator::tuner,
                     [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
       .def("consolidate", &Estimator::consolidate, py::arg("x"), py::arg("y"))
-      .def("get", get<Estimator>, py::arg("parameter"), py::return_value_policy::reference_internal)
       .def("clone", &Estimator::clone)
       .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
-      .def(py::init([](const Kernel &kernel, Scalar regularization_constant,
-                       const std::optional<std::shared_ptr<Tuner>> &tuner) {
-             return KernelRidgeRegressor{kernel, regularization_constant, tuner.value_or(nullptr)};
-           }),
-           py::arg("kernel"), py::arg("regularization_constant") = 1.0, py::arg("tuner") = py::none())
+      .def(py::init<const Kernel &, double, const std::shared_ptr<Tuner> &>(), py::arg("kernel"),
+           py::arg("regularization_constant") = 1.0, py::arg("tuner") = nullptr)
       .def("__call__",
            py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::operator(), py::const_),
            py::arg("x"), py::arg("feature_map"))
