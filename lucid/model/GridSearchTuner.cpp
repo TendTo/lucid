@@ -24,12 +24,15 @@ namespace {
 /**
  * Utility class to perform grid search tuning on an Estimator in parallel.
  * It captures all the relevant data for the task and then launches a future to solve the tuning process.
+ * @todo The mutexes used here are not the most efficient.
+ * They force sinchronization on every index increment and score update.
+ * While that is sure not to be the bottleneck in all real-world scenarios,
+ * we could consider splitting the tuning process a-priori and let the main thread update the score if needed.
  */
 class GridSearchTuning {
  public:
   /**
    * Create a new GridSearchTuning object to tune the given `estimator` with the provided training inputs and outputs.
-   *
    * @param index_mutex mutex protecting the access to the index iterator
    * @param score_mutex mutex protecting the access to the score updating
    * @param estimator estimator to tune

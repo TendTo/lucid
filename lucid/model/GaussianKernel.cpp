@@ -27,6 +27,7 @@ Scalar GaussianKernel::operator()(const Vector& x1, const Vector& x2) const {
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == x2.size(), "x1.size() != x2.size()", x1.size(), x2.size());
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == sigma_l_.size(), "x1.size() != sigma_l().size()", x1.size(),
                                 sigma_l_.size());
+  // TODO(tend): sklearn computes the kernel a bit differently. The result is the same, but which is more efficient?
   const auto diff = x1 - x2;
   LUCID_ASSERT((diff.transpose() * gamma_.asDiagonal() * diff).size() == 1u, "scalar result");
   return sigma_f() * sigma_f() * std::exp((diff.transpose() * gamma_.asDiagonal() * diff).value());
