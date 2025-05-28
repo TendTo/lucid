@@ -96,11 +96,13 @@ class GramMatrix {
   [[nodiscard]] Matrix inverse_mult(const MatrixBase<Derived>& A) const {
     if (A.rows() != gram_matrix_.rows())
       throw exception::LucidInvalidArgumentException("A.rows() != gram_matrix.rows()");
-#ifndef NDEBUG
-    if (!gram_matrix_.fullPivLu().isInvertible())
-      throw exception::LucidAssertionException("Gram matrix is not invertible");
-#endif
-    return gram_matrix_.selfadjointView<Eigen::Lower>().ldlt().solve(A);
+    compute_decomposition();
+    return decomposition_.solve(A);
+  }
+
+  Matrix L() const {
+    compute_decomposition();
+    return decomposition_.matrixL();
   }
 
   /** @getter{internal matrix structure, Gramm matrix} */
@@ -111,7 +113,10 @@ class GramMatrix {
   [[nodiscard]] Dimension cols() const { return gram_matrix_.cols(); }
 
  private:
-  Matrix gram_matrix_;  ///< Gram matrix
+  void compute_decomposition() const;
+
+  Matrix gram_matrix_;                                      ///< Gram matrix
+  mutable Eigen::LLT<Matrix, Eigen::Lower> decomposition_;  ///< Cached Cholesky decomposition of the Gram matrix
 };
 
 // Because of templates, we need to define the inverse Gram matrix multiplication in the header file.
