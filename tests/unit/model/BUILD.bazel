@@ -14,7 +14,10 @@ lucid_cc_googletest(
 
 lucid_cc_googletest(
     name = "test_kernel_ridge_regressor",
-    deps = ["//lucid/model:estimator"],
+    deps = [
+        "//lucid/model:estimator",
+        "//lucid/model:gram_matrix",
+    ],
 )
 
 lucid_cc_googletest(

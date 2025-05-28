@@ -27,7 +27,8 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
       kernel_{std::move(kernel)},
       regularization_constant_{regularization_constant},
       training_inputs_{},
-      coefficients_{} {
+      coefficients_{},
+      log_marginal_likelihood_{-std::numeric_limits<double>::infinity()} {
   LUCID_CHECK_ARGUMENT_EXPECTED(regularization_constant >= 0.0, "regularization_constant", regularization_constant,
                                 ">= 0.0");
   LUCID_CHECK_ARGUMENT_EXPECTED(kernel_ != nullptr, "kernel", nullptr, "not nullptr");
@@ -62,6 +63,27 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature
   return kernel_input * coefficients_;
 }
 
+double log_marginal(const GramMatrix& K, ConstMatrixRef y, const Scalar regularization_constant) {
+  LUCID_CHECK_ARGUMENT_EXPECTED(regularization_constant >= 0.0, "regularization_constant", regularization_constant,
+                                ">= 0.0");
+  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == K.cols(), "K.rows() == K.cols()", K.rows(), K.cols());
+  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == y.rows(), "K.rows() == y.rows()", K.rows(), y.rows());
+  // Compute the log marginal likelihood
+  // log p(y | K, λ) = -0.5 . (y^T * w) - sum(log(diag(L))) - log(2*pi) * n / 2
+  // where n is the number of training samples,
+  // K is the Gram matrix,
+  // λ is the regularisation constant,
+  // L is the Cholesky decomposition of K + λnI
+  // w are the coefficients computed as L^{-1} y
+  const Matrix w{K.inverse() * y};
+  double val = (-0.5 * (y.array() * w.array()).matrix().colwise().sum().array()  //  -0.5 . (y^T * w)
+                - K.L().diagonal().array().log().sum()                           //  -sum(log(diag(L)))
+                - std::log(2 * std::numbers::pi) * y.rows() / 2)                 // -log(2*pi) * n / 2
+                   .sum();
+  LUCID_DEBUG_FMT("Log Marginal Likelihood: {}", val);
+  return val;
+}
+
 Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) {
   LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() == training_outputs.rows(), "training_inputs.rows()",
                                 training_inputs.rows(), training_outputs.rows());
@@ -73,6 +95,10 @@ Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, Con
   // Invert the gram matrix and compute the coefficients as (K + λnI)^-1 y
   coefficients_ = gram_matrix.inverse() * training_outputs;
   LUCID_TRACE_FMT("Coefficients: [{}]", coefficients_);
+  // Since we have all the necessary information, we can also compute the log marginal likelihood
+  // TODO(tend): maybe we don't need to compute the log_marginal_likelihood_ every time.
+  //  Should we include a flag indicating to the regressor whether to do it or not?
+  log_marginal_likelihood_ = log_marginal(gram_matrix, training_outputs, regularization_constant_);
   return *this;
 }
 

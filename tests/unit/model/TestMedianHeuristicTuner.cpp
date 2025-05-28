@@ -116,7 +116,6 @@ TEST_F(TestMedianHeuristicTuner, SingleSample) {
 }
 
 TEST_F(TestMedianHeuristicTuner, IdenticalSamples) {
-  LUCID_LOG_INIT_VERBOSITY(5);
   constexpr int num_samples = 10;
   constexpr int dim = 3;
 

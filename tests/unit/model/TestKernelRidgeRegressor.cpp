@@ -7,6 +7,7 @@
 
 #include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
 #include "lucid/model/GaussianKernel.h"
+#include "lucid/model/GramMatrix.h"
 #include "lucid/model/KernelRidgeRegressor.h"
 #include "lucid/model/RectSet.h"
 
@@ -190,4 +191,46 @@ TEST_F(TestKernelRidgeRegressor, SimpleInterpolation) {
 
   // Expected value is 2*0.25 + 1 = 1.5
   EXPECT_NEAR(regressor.predict(test_point).value(), 1.5, 0.1);
+}
+
+TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihood) {
+  constexpr int n_samples = 15;
+  constexpr double lambda = 0.2 / n_samples;
+  const Matrix inputs{Matrix::Random(n_samples, 2)};
+  const Matrix outputs{Matrix::Random(n_samples, 3)};
+
+  const GaussianKernel kernel{2, 1, 1};
+  lucid::GramMatrix K{kernel, inputs};
+  K.add_diagonal_term(lambda * static_cast<double>(n_samples));  // Add regularisation term to the diagonal
+  const Matrix w{K.inverse() * outputs};
+  double expected = (-0.5 * (outputs.array() * w.array()).matrix().colwise().sum().array()  //  -0.5 . (y^T * w)
+                     - K.L().diagonal().array().log().sum()                                 //  -sum(log(diag(L)))
+                     - std::log(2 * std::numbers::pi) * outputs.rows() / 2)                 // -log(2*pi) * n / 2
+                        .sum();
+
+  KernelRidgeRegressor regressor{kernel, lambda};
+  regressor.fit(inputs, outputs);
+  const double log_likelihood = regressor.log_marginal_likelihood();
+
+  EXPECT_DOUBLE_EQ(log_likelihood, expected);
+}
+
+TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodFixed) {
+  constexpr int n_samples = 10;
+  constexpr double lambda = 0.1 / n_samples;
+  Matrix inputs{n_samples, 2};
+  Matrix outputs{n_samples, 3};
+  inputs << 1.87270059, 4.75357153, 3.65996971, 2.99329242, 0.7800932, 0.7799726, 0.29041806, 4.33088073, 3.00557506,
+      3.54036289, 0.10292247, 4.84954926, 4.1622132, 1.06169555, 0.90912484, 0.91702255, 1.52121121, 2.62378216,
+      2.15972509, 1.4561457;
+  outputs << 0.26477707, -0.05268811, 0.16274203, -0.49547106, 0.14775724, -0.86862445, 0.70334567, 0.70325994,
+      0.71084799, 0.2863528, -0.92810414, 0.95812425, 0.13559858, -0.38828536, -0.99076386, -0.38710105, -0.9368763,
+      0.27899504, -0.85243263, 0.87318314, -0.52283707, 0.78896631, 0.7937943, 0.61443646, 0.99877091, 0.49497885,
+      0.0495648, 0.83153619, 0.99343481, -0.55547057;
+
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(2, 1, 1), lambda};
+  regressor.fit(inputs, outputs);
+  const double log_likelihood = regressor.log_marginal_likelihood();
+
+  EXPECT_DOUBLE_EQ(log_likelihood, -28.5091519732376);
 }

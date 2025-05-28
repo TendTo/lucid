@@ -112,6 +112,8 @@ class KernelRidgeRegressor final : public Estimator {
   [[nodiscard]] const Matrix& coefficients() const { return coefficients_; }
   /** @getter{regularization constant, regressor} */
   [[nodiscard]] double regularization_constant() const { return regularization_constant_; }
+  /** @getter{log marginal likelihood, regressor} */
+  [[nodiscard]] double log_marginal_likelihood() const { return log_marginal_likelihood_; }
 
   [[nodiscard]] bool has(Parameter parameter) const override;
 
@@ -134,6 +136,7 @@ class KernelRidgeRegressor final : public Estimator {
   double regularization_constant_;  ///< Regularization constant
   Matrix training_inputs_;          ///< Training inputs
   Matrix coefficients_;             ///< Coefficients of the linear combination describing the regression model
+  double log_marginal_likelihood_;
 };
 
 std::ostream& operator<<(std::ostream& os, const KernelRidgeRegressor& regressor);
