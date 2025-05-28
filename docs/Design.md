@@ -3,6 +3,11 @@
 ## UML
 
 ```mermaid
+---
+  config:
+    class:
+      hideEmptyMembersBox: true
+---
 classDiagram
     class Tuner {
         <<abstract>>
@@ -13,11 +18,10 @@ classDiagram
         +GridSearchTuner(ParameterValues[])
     }
     class BFGSTuner {
-        - parameters: ParameterBounds[]
-        +BFGSTuner(ParameterBounds[])
+        - parameters: ParameterValues[]
+        +BFGSTuner(ParameterValues[])
     }
     class MedianHeuristicTuner {
-        +MedianHeuristicTuner()
     }
 
     class Parametrizable {
