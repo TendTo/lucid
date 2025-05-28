@@ -36,7 +36,7 @@ class Kernel : public Parametrizable {
    * @param x2 second input vector
    * @return kernel value
    */
-  virtual Scalar operator()(const Vector& x1, const Vector& x2) const = 0;
+  Scalar operator()(const Vector& x1, const Vector& x2) const { return (*this)(x1, x2, nullptr).value(); }
   /**
    * Compute the kernel function on `x`.
    * @f[
@@ -45,7 +45,18 @@ class Kernel : public Parametrizable {
    * @param x input vector
    * @return kernel value
    */
-  Scalar operator()(const Vector& x) const { return (*this)(x, x); }
+  Scalar operator()(const Vector& x) const { return (*this)(x, x, nullptr).value(); }
+  /**
+   * Compute the kernel function on `x`.
+   * @f[
+   * K(x, x)
+   * @f]
+   * The gradient of the kernel function with respect to the parameters is computed and stored in `gradient`.
+   * @param x input vector
+   * @param[out] gradient pointer to store the gradient of the kernel function with respect to the parameters
+   * @return kernel value
+   */
+  Scalar operator()(const Vector& x, double& gradient) const { return (*this)(x, x, &gradient).value(); }
 
   /**
    * Clone the kernel.
@@ -53,6 +64,21 @@ class Kernel : public Parametrizable {
    * @return new instance of the kernel
    */
   [[nodiscard]] virtual std::unique_ptr<Kernel> clone() const = 0;
+
+ protected:
+  /**
+   * Compute the kernel function on `x1` and `x2`.
+   * @f[
+   * K(x_1, x_2)
+   * @f]
+   * If `gradient` is not `nullptr`, the gradient of the kernel function with respect to the parameters
+   * is computed and stored in `*gradient`.
+   * @param x1 first input vector
+   * @param x2 second input vector
+   * @param[out] gradient pointer to store the gradient of the kernel function with respect to the parameters
+   * @return kernel value
+   */
+  virtual Vector operator()(const Matrix& x1, const Matrix& x2, double* gradient) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel);

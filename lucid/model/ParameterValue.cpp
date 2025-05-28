@@ -22,7 +22,7 @@ std::ostream& operator<<(std::ostream& os, const ParameterValue& parameter_value
       parameter_value.parameter(),
       [&os, &parameter_value]() -> std::ostream& { return os << parameter_value.get<int>(); },
       [&os, &parameter_value]() -> std::ostream& { return os << parameter_value.get<double>(); },
-      [&os, &parameter_value]() -> std::ostream& { return os << parameter_value.get<Vector>().transpose(); });
+      [&os, &parameter_value]() -> std::ostream& { return os << parameter_value.get<Vector>(); });
   return os << " )";
 }
 

@@ -58,7 +58,7 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   LUCID_ASSERT(z.size() == omega_.cols(), "z.size() == omega_.cols()");
   LUCID_ASSERT((z.array() >= 0).all() && (z.array() <= 1).all(), "0 <= z <= 1");
 
-  Vector z_proj = omega_ * z;  // It is also computing the 0th frequency, although it is not used later
+  Vector z_proj = omega_ * z.transpose();  // It is also computing the 0th frequency, although it is not used later
   Vector trig{2 * z_proj.size() - 1};
   trig(0) = 1;
   for (Index i = 1; i < z_proj.size(); i++) {
@@ -79,7 +79,7 @@ Matrix TruncatedFourierFeatureMap::map_matrix(ConstMatrixRef x) const { return (
 
 Matrix TruncatedFourierFeatureMap::operator()(ConstMatrixRef x) const {
   Matrix out{x.rows(), weights_.size()};
-  for (Index row = 0; row < x.rows(); row++) out.row(row) = map_vector(x.row(row)).transpose();
+  for (Index row = 0; row < x.rows(); row++) out.row(row) = map_vector(x.row(row));
   return out;
 }
 

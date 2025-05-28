@@ -227,8 +227,8 @@ class TensorView {
   template <IsAnyOf<int, float, double, std::complex<double>> TT>
   void copy(TensorView<TT>& out) const;
 
-  operator Eigen::Map<const Eigen::VectorX<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
-  operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const;
+  operator Eigen::Map<const VectorT<T>>() const { return {data_.data(), static_cast<Index>(data_.size())}; }
+  operator Eigen::Map<const MatrixT<T>>() const;
 
  private:
   /**

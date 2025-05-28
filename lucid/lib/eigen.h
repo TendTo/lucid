@@ -29,16 +29,21 @@
 
 namespace lucid {
 using Scalar = double;
-using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-using Vector = Eigen::VectorX<Scalar>;
-using MatrixC = Eigen::Matrix<std::complex<Scalar>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-using VectorC = Eigen::VectorX<std::complex<Scalar>>;
+template <class T>
+using MatrixT = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+template <class T>
+using VectorT = Eigen::RowVectorX<T>;
+using Matrix = MatrixT<Scalar>;
+using Vector = VectorT<Scalar>;
+using MatrixC = MatrixT<std::complex<Scalar>>;
+using VectorC = VectorT<std::complex<Scalar>>;
+using VectorI = VectorT<Eigen::Index>;
 using VectorBlock = Eigen::VectorBlock<Vector>;
 using MatrixBlock = Eigen::Block<Matrix>;
 using ConstVectorBlock = Eigen::VectorBlock<const Vector>;
 using ConstMatrixBlock = Eigen::Block<const Matrix>;
-using Vector2 = Eigen::Vector2d;
-using Vector3 = Eigen::Vector3d;
+using Vector2 = Eigen::RowVector2d;
+using Vector3 = Eigen::RowVector3d;
 using Index = Eigen::Index;
 using Dimension = Eigen::Index;
 using ConstMatrixRef = const Eigen::Ref<const Matrix>&;
@@ -189,17 +194,15 @@ Matrix combvec(ConstMatrixRef m);
  */
 Scalar rms(ConstMatrixRef x);
 /**
- * Compute the median of a vector.
+ * Compute the median of a vector or matrix.
  * If the vector has an even number of elements, the median is the mean of the two middle elements.
- * @warning This function modifies the input vector, non-deterministically sorting it.
- * @param d vector
- * @return median of the vector
+ * @warning The storage order of the matrix matters, while it changes nothing for vectors.
+ * @param x vector or matrix
+ * @return median of the vector or matrix
  * @see https://stackoverflow.com/a/62698308/15153171
  */
-template <class Derived>
-Scalar median(Eigen::MatrixBase<Derived>& d) {
-  auto r{d.reshaped()};
-  std::span<Scalar> distances{r.data(), static_cast<std::size_t>(r.size())};
+inline Scalar median(Matrix x) {
+  std::span<Scalar> distances{x.data(), static_cast<std::size_t>(x.size())};
 
   const auto middle_it = distances.begin() + distances.size() / 2;
   std::ranges::nth_element(distances, middle_it);
@@ -274,8 +277,8 @@ Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);
  * @return FFT of the input matrix
  */
 inline Eigen::MatrixXcd fft2(const Matrix& x) {
-  Eigen::VectorXcd tempRow;
-  Eigen::VectorXcd tempCol;
+  Eigen::RowVectorXcd tempRow;
+  Eigen::RowVectorXcd tempCol;
   Eigen::MatrixXcd f_fft{x.rows(), x.cols()};
 
   Eigen::FFT<double> fft;
@@ -296,8 +299,8 @@ inline Eigen::MatrixXcd fft2(const Matrix& x) {
  * @return inverse FFT of the input matrix
  */
 inline Matrix ifft2(const Eigen::MatrixXcd& x) {
-  Eigen::VectorXcd tempRow;
-  Eigen::VectorXcd tempCol;
+  Eigen::RowVectorXcd tempRow;
+  Eigen::RowVectorXcd tempCol;
   Eigen::MatrixXcd i_fft{x.rows(), x.cols()};
 
   Eigen::FFT<double> fft;

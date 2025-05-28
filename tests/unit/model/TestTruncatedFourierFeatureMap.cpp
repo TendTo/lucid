@@ -50,7 +50,7 @@ TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapConstructor
 
 TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapApply) {
   const Vector x{Vector::Random(this->x_limits_.dimension())};
-  const Matrix features{this->feature_map_(x.transpose())};
+  const Matrix features{this->feature_map_(x)};
   EXPECT_EQ(features.rows(), 1);
   EXPECT_EQ(features.cols(), this->feature_map_.dimension());
   EXPECT_FALSE(std::isnan(features(0, 0)));

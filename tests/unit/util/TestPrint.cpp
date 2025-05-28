@@ -44,7 +44,7 @@ TEST(TestPrint, ParameterValues) {
   EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::REGULARIZATION_CONSTANT, 1e-10)),
             "ParameterValues( Parameter( RegularizationConstant ) values( [1e-10] )");
   EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::SIGMA_L, vec1, vec2)),
-            "ParameterValues( Parameter( Sigma_l ) values( [[1, 2, 3, 4], [5, 6, 7, 8]] )");
+            "ParameterValues( Parameter( Sigma_l ) values( [1 2 3 4, 5 6 7 8] )");
   EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::DEGREE, 1, 2, 3)),
             "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )");
 }
@@ -103,7 +103,7 @@ TEST(TestPrint, GridSearchTuner) {
                                               4)),
             "GridSearchTuner( parameters( ["
             "ParameterValues( Parameter( RegularizationConstant ) values( [1e-10] ), "
-            "ParameterValues( Parameter( Sigma_l ) values( [[1, 2, 3, 4], [5, 6, 7, 8]] ), "
+            "ParameterValues( Parameter( Sigma_l ) values( [1 2 3 4, 5 6 7 8] ), "
             "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )"
             "] ) n_jobs( 4 )");
 }

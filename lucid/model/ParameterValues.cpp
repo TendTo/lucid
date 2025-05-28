@@ -26,10 +26,7 @@ std::ostream& operator<<(std::ostream& os, const ParameterValues& parameter_valu
       parameter_values.parameter(),
       [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<int>()); },
       [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<double>()); },
-      [&os, &parameter_values]() -> std::ostream& {
-        return os << fmt::format("{}", parameter_values.get<Vector>() |
-                                           std::views::transform([](const Vector& v) { return v.transpose(); }));
-      });
+      [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<Vector>()); });
   return os << " )";
 }
 

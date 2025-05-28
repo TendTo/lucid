@@ -23,13 +23,13 @@ using lucid::pad;
 using lucid::pdist;
 using lucid::peaks;
 using lucid::Vector;
+using ColumnVector = Eigen::VectorXd;
 
 TEST(TestEigen, Diff) {
-  Vector x{8};
+  ColumnVector x{8};
   x << 1, 1, 2, 3, 5, 8, 13, 21;
-  const Vector y = diff(x);
-  std::cout << y << std::endl;
-  Vector expected{7};
+  const ColumnVector y = diff(x);
+  ColumnVector expected{7};
   expected << 0, 1, 1, 2, 3, 5, 8;
   EXPECT_EQ(y, expected);
 }
@@ -44,10 +44,10 @@ TEST(TestEigen, DiffN) {
 }
 
 TEST(TestEigen, DiffMatrixRow) {
-  Vector x{7};
+  ColumnVector x{7};
   x << 0, 5, 15, 30, 50, 75, 105;
-  const Vector y = diff(x, 2);
-  Vector expected{5};
+  const ColumnVector y = diff(x, 2);
+  ColumnVector expected{5};
   expected << 5, 5, 5, 5, 5;
   EXPECT_EQ(y, expected);
 }
@@ -220,7 +220,7 @@ TEST(TestEigen, Circulant) {
 }
 
 TEST(TestEigen, PadSingleValueVector) {
-  Vector x{3};
+  ColumnVector x{3};
   x << 1, 2, 3;
   const Matrix y = pad(x, 2, 0);
   Matrix expected{7, 5};

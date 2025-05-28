@@ -23,7 +23,7 @@ class Rosenbrock {
 
  public:
   explicit Rosenbrock(const int n_) : n(n_) {}
-  double operator()(const Vector& x, Vector& grad) {
+  double operator()(const Eigen::VectorXd& x, Eigen::VectorXd& grad) {
     double fx = 0.0;
     for (int i = 0; i < n; i += 2) {
       double t1 = 1.0 - x[i];
@@ -52,7 +52,8 @@ void LbfgsTuner::tune_impl([[maybe_unused]] Estimator& estimator, ConstMatrixRef
   Rosenbrock fun(n);
 
   // Initial guess
-  Vector x_out = Vector::Zero(n);
+  // Vector x_out = Vector::Zero(n);
+  Eigen::VectorXd x_out = Vector::Zero(n);
   // x will be overwritten to be the best point found
   double fx;
   const int niter = solver.minimize(fun, x_out, fx);

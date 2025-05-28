@@ -80,7 +80,7 @@ void RectSet::plot([[maybe_unused]] const std::string& color) const {
 
 void RectSet::plot3d(const std::string&) const { LUCID_NOT_IMPLEMENTED(); }
 
-Matrix RectSet::lattice(const Eigen::VectorX<Index>& points_per_dim, const bool include_endpoints) const {
+Matrix RectSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {
   if (points_per_dim.size() != lb_.size()) {
     LUCID_INVALID_ARGUMENT_EXPECTED("points_per_dim size", points_per_dim.size(), lb_.size());
   }
@@ -88,13 +88,13 @@ Matrix RectSet::lattice(const Eigen::VectorX<Index>& points_per_dim, const bool 
   if (include_endpoints) {
     x_lattice.row(0) = Vector::LinSpaced(points_per_dim(0), lb_(0), ub_(0));
     for (Dimension i = 1; i < dimension(); ++i) {
-      x_lattice = combvec(x_lattice, Vector::LinSpaced(points_per_dim(i), lb_(i), ub_(i)).transpose());
+      x_lattice = combvec(x_lattice, Vector::LinSpaced(points_per_dim(i), lb_(i), ub_(i)));
     }
   } else {
     const Vector delta_per_dim = (ub_ - lb_).cwiseQuotient(points_per_dim.cast<Scalar>());
     x_lattice.row(0) = arange(lb_(0), ub_(0), delta_per_dim(0));
     for (Dimension i = 1; i < dimension(); ++i) {
-      x_lattice = combvec(x_lattice, arange(lb_(i), ub_(i), delta_per_dim(i)).transpose());
+      x_lattice = combvec(x_lattice, arange(lb_(i), ub_(i), delta_per_dim(i)));
     }
   }
   x_lattice.transposeInPlace();

@@ -109,8 +109,8 @@ class PyParametrizable final : public Parametrizable {
 class PyKernel final : public Kernel {
  public:
   using Kernel::Kernel;
-  Scalar operator()(const Vector &x1, const Vector &x2) const override {
-    PYBIND11_OVERRIDE_PURE_NAME(Scalar, Kernel, "__call__", operator(), x1, x2);
+  Vector operator()(const Matrix &x1, const Matrix &x2, double *gradient) const override {
+    PYBIND11_OVERRIDE_PURE_NAME(Vector, Kernel, "__call__", operator(), x1, x2, gradient);
   }
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override {
     pybind11::pybind11_fail("Tried to call pure virtual function \"Kernel::clone\"");
@@ -154,7 +154,7 @@ class PySet final : public Set {
   [[nodiscard]] bool operator()(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(bool, Set, "__call__", operator(), x);
   }
-  [[nodiscard]] Matrix lattice(const Eigen::VectorX<Index> &points_per_dim, bool include_endpoints) const override {
+  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool include_endpoints) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, include_endpoints);
   }
   void plot(const std::string &color) const override { PYBIND11_OVERRIDE_PURE(void, Set, plot, color); }
@@ -234,8 +234,8 @@ void init_model(py::module_ &m) {
       .def("sample", py::overload_cast<>(&Set::sample, py::const_))
       .def("lattice", py::overload_cast<Index, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("include_endpoints") = false)
-      .def("lattice", py::overload_cast<const Eigen::VectorX<Index> &, bool>(&Set::lattice, py::const_),
-           py::arg("points_per_dim"), py::arg("include_endpoints"))
+      .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
+           py::arg("include_endpoints"))
       .def("plot", &Set::plot, py::arg("color"))
       .def("plot3d", &Set::plot3d, py::arg("color"))
       .def("__contains__", &Set::contains, py::arg("x"))

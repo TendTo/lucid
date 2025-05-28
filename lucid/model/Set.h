@@ -72,7 +72,7 @@ class Set {
    * @param include_endpoints whether to include the endpoints of the lattice
    * @return lattice of points in the set
    */
-  [[nodiscard]] virtual Matrix lattice(const Eigen::VectorX<Index>& points_per_dim, bool include_endpoints) const = 0;
+  [[nodiscard]] virtual Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const = 0;
 
   /** Plot the set information using matplotlib. */
   virtual void plot(const std::string& color) const = 0;

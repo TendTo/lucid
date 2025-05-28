@@ -27,6 +27,7 @@ namespace lucid {
 class GaussianKernel final : public Kernel {
  public:
   using Kernel::set;
+  using Kernel::operator();
   /**
    * Construct a new GaussianKernel object with the given parameters.
    * @param sigma_l @sigma_l value
@@ -51,7 +52,7 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] const Vector& gamma() const { return gamma_; }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
-  Scalar operator()(const Vector& x1, const Vector& x2) const override;
+  Vector operator()(const Matrix& x1, const Matrix& x2, double* gradient) const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
   [[nodiscard]] bool has(Parameter parameter) const override;

@@ -34,7 +34,7 @@ Matrix MultiSet::sample(const Index num_samples) const {
 bool MultiSet::operator()(ConstMatrixRef x) const {
   return std::ranges::any_of(sets_, [&x](const std::unique_ptr<Set>& set) { return set->contains(x); });
 }
-Matrix MultiSet::lattice(const Eigen::VectorX<Index>& points_per_dim, const bool include_endpoints) const {
+Matrix MultiSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {
   Matrix rect_multiset_lattice{0, dimension()};
   for (const auto& set : sets_) {
     const Matrix initial_lattice{set->lattice(points_per_dim, include_endpoints)};

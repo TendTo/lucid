@@ -23,14 +23,22 @@ GaussianKernel::GaussianKernel(const Vector& sigma_l, const double sigma_f)
 GaussianKernel::GaussianKernel(const Dimension dim, const double sigma_l, const double sigma_f)
     : GaussianKernel{Vector::Constant(dim, sigma_l), sigma_f} {}
 
-Scalar GaussianKernel::operator()(const Vector& x1, const Vector& x2) const {
+Vector GaussianKernel::operator()(const Matrix& x1, const Matrix& x2, double* gradient) const {
+  LUCID_ASSERT(&x1 == &x2 || !gradient, "The gradient can be computed only for the same vector");
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == x2.size(), "x1.size() != x2.size()", x1.size(), x2.size());
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == sigma_l_.size(), "x1.size() != sigma_l().size()", x1.size(),
                                 sigma_l_.size());
   // TODO(tend): sklearn computes the kernel a bit differently. The result is the same, but which is more efficient?
-  const auto diff = x1 - x2;
-  LUCID_ASSERT((diff.transpose() * gamma_.asDiagonal() * diff).size() == 1u, "scalar result");
-  return sigma_f() * sigma_f() * std::exp((diff.transpose() * gamma_.asDiagonal() * diff).value());
+  const Matrix dist = &x1 == &x2 ? static_cast<Matrix>(pdist<2, true>(x1.cwiseQuotient(sigma_l_)))  // Same vector
+                                 : pdist<2, true>((x1.array().rowwise() / sigma_l_.array()).matrix(),
+                                                  (x2.array().rowwise() / sigma_l_.array()).matrix());
+  const Vector k = sigma_f() * sigma_f() * (-0.5 * dist.array()).exp();
+  LUCID_TRACE_FMT("GaussianKernel::operator()({}, {}) = {}", x1, x2, k);
+  if (gradient) {
+    // Compute the gradient of the kernel function with respect to the parameters
+    *gradient = 1.0;
+  }
+  return k;
 }
 
 std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_l_, sigma_f_); }
@@ -85,7 +93,7 @@ const Vector& GaussianKernel::get_v(const Parameter parameter) const {
 
 std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel) {
   return os << "GaussianKernel( "
-            << "sigma_l( " << kernel.sigma_l().transpose() << " ) "
+            << "sigma_l( " << kernel.sigma_l() << " ) "
             << "sigma_f( " << kernel.sigma_f() << " ) )";
 }
 

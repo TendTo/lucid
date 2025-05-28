@@ -113,7 +113,7 @@ void TensorView<T>::ifft(TensorView<double>& out, const double coeff) const {
 }
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
-TensorView<T>::operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const {
+TensorView<T>::operator Eigen::Map<const MatrixT<T>>() const {
   if (dims_.size() != 2) LUCID_NOT_SUPPORTED("Only 2D tensors are supported. Use reshape to convert to 2D");
   return {data_.data(), static_cast<Index>(dims_.at(0)), static_cast<Index>(dims_.at(1))};
 }
@@ -289,11 +289,10 @@ std::ostream& operator<<(std::ostream& os, const TensorView<T>& tensor) {
   os << "]\n";
 
   if (tensor.rank() == 1) {
-    return os << static_cast<Eigen::Map<const Eigen::VectorX<T>>>(tensor);
+    return os << static_cast<Eigen::Map<const VectorT<T>>>(tensor);
   }
   if (tensor.rank() == 2) {
-    return os << static_cast<Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(
-               tensor);
+    return os << static_cast<Eigen::Map<const MatrixT<T>>>(tensor);
   }
   if (tensor.rank() == 3) {
     for (Index i = 0; i < static_cast<Index>(tensor.dimensions().back()); ++i) {

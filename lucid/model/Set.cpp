@@ -19,7 +19,7 @@ Vector Set::sample() const {
   return samples.row(0);
 }
 Matrix Set::lattice(const Index points_per_dim, const bool include_endpoints) const {
-  return lattice(Eigen::VectorX<Index>::Constant(dimension(), points_per_dim), include_endpoints);
+  return lattice(VectorI::Constant(dimension(), points_per_dim), include_endpoints);
 }
 
 std::ostream& operator<<(std::ostream& os, const Set& set) {

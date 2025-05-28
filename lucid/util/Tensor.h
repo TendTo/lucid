@@ -311,8 +311,8 @@ class Tensor {
    */
   [[nodiscard]] Tensor<double> fft_upsample(const std::vector<std::size_t>& new_dims) const;
 
-  operator Eigen::Map<const Eigen::VectorX<T>>() const { return view_; }
-  operator Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>() const { return view_; }
+  operator Eigen::Map<const VectorT<T>>() const { return view_; }
+  operator Eigen::Map<const MatrixT<T>>() const { return view_; }
   template <IsAnyOf<int, float, double, std::complex<double>> TT>
   operator Tensor<TT>() const {
     if constexpr (std::is_same_v<T, TT>) return *this;

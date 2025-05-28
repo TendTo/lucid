@@ -522,7 +522,7 @@ TEST(TestTensor, IFFT3) {
 TEST(TestTensor, ToVector) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
                  std::vector<std::size_t>{2, 2, 3}};
-  const Eigen::Map<const Eigen::VectorX<double>> v{t};
+  const Eigen::Map<const Vector> v{t};
   EXPECT_EQ(v.size(), 12);
   EXPECT_DOUBLE_EQ(v(0), 1.0);
   EXPECT_DOUBLE_EQ(v(1), 2.0);
@@ -541,7 +541,7 @@ TEST(TestTensor, ToVector) {
 TEST(TestTensor, ToMatrix) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
                  std::vector<std::size_t>{2, 6}};
-  const Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> m{t};
+  const Eigen::Map<const Matrix> m{t};
   EXPECT_EQ(m.size(), 12);
   EXPECT_DOUBLE_EQ(m(0, 0), 1.0);
   EXPECT_DOUBLE_EQ(m(0, 1), 2.0);
@@ -724,8 +724,5 @@ TEST(TestTensor, TensorIterator3D) {
 TEST(TestTensor, ToMatrixInvalid) {
   const Tensor t{std::vector{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0},
                  std::vector<std::size_t>{2, 2, 3}};
-  EXPECT_THROW(
-      static_cast<void>(
-          (static_cast<Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>>(t))),
-      LucidNotSupportedException);
+  EXPECT_THROW(static_cast<void>((static_cast<Eigen::Map<const Matrix>>(t))), LucidNotSupportedException);
 }
