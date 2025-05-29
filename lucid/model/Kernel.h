@@ -26,6 +26,8 @@ class Kernel : public Parametrizable {
 
   /** @checker{is stationary, kernel} */
   [[nodiscard]] virtual bool is_stationary() const = 0;
+  /** @checker{is isotropic, kernel} */
+  [[nodiscard]] virtual bool is_isotropic() const = 0;
 
   /**
    * Compute the kernel function on `x` and `y`.
@@ -53,7 +55,8 @@ class Kernel : public Parametrizable {
    */
   template <class Derived>
   Matrix operator()(const MatrixBase<Derived>& x) const {
-    return (*this)(x, x, nullptr);
+    const Eigen::Ref<const Matrix> x_ref{x};
+    return (*this)(x_ref, x_ref, nullptr);
   }
   /**
    * Compute the kernel function on `x`.
@@ -68,7 +71,8 @@ class Kernel : public Parametrizable {
    */
   template <class Derived>
   Matrix operator()(const MatrixBase<Derived>& x, double& gradient) const {
-    return (*this)(x, x, &gradient);
+    const Eigen::Ref<const Matrix> x_ref{x};
+    return (*this)(x_ref, x_ref, &gradient);
   }
 
   /**

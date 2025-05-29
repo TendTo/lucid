@@ -43,6 +43,10 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, double* 
   return k;
 }
 
+bool GaussianKernel::is_isotropic() const {
+  std::span view{sigma_l_.data(), static_cast<std::size_t>(sigma_l_.size())};
+  return std::ranges::adjacent_find(view, std::ranges::not_equal_to()) == view.end();
+}
 std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_l_, sigma_f_); }
 
 bool GaussianKernel::has(const Parameter parameter) const {

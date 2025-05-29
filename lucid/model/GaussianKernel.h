@@ -52,6 +52,7 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] const Vector& gamma() const { return gamma_; }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
+  [[nodiscard]] bool is_isotropic() const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
   [[nodiscard]] bool has(Parameter parameter) const override;

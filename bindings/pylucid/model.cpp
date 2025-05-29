@@ -109,13 +109,14 @@ class PyParametrizable final : public Parametrizable {
 class PyKernel final : public Kernel {
  public:
   using Kernel::Kernel;
-  Vector operator()(const Matrix &x1, const Matrix &x2, double *gradient) const override {
-    PYBIND11_OVERRIDE_PURE_NAME(Vector, Kernel, "__call__", operator(), x1, x2, gradient);
+  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, double *gradient) const override {
+    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Kernel, "__call__", operator(), x1, x2, gradient);
   }
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override {
     pybind11::pybind11_fail("Tried to call pure virtual function \"Kernel::clone\"");
   }
   [[nodiscard]] bool is_stationary() const override { PYBIND11_OVERRIDE_PURE(Scalar, Kernel, is_stationary); }
+  [[nodiscard]] bool is_isotropic() const override { PYBIND11_OVERRIDE_PURE(Scalar, Kernel, is_isotropic); }
 };
 
 class PyEstimator final : public Estimator {
