@@ -48,10 +48,10 @@ class GramMatrix {
   GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states)
       : gram_matrix_{initial_states.rows(), initial_states.rows()} {
     gram_matrix_.diagonal() =
-        Vector::Constant(gram_matrix_.rows(), kernel(initial_states.row(0), initial_states.row(0)));
+        Vector::Constant(gram_matrix_.rows(), kernel(initial_states.row(0), initial_states.row(0)).value());
     for (Index row_idx = 0; row_idx < gram_matrix_.rows(); ++row_idx) {
       for (Index col_idx = 0; col_idx < row_idx; ++col_idx) {
-        gram_matrix_(row_idx, col_idx) = kernel(initial_states.row(row_idx), initial_states.row(col_idx));
+        gram_matrix_(row_idx, col_idx) = kernel(initial_states.row(row_idx), initial_states.row(col_idx)).value();
       }
     }
   }

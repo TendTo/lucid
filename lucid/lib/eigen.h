@@ -403,5 +403,7 @@ OSTREAM_FORMATTER(lucid::ConstMatrixRef)
 OSTREAM_FORMATTER(lucid::ConstVectorRef)
 OSTREAM_FORMATTER(Eigen::Block<const lucid::Matrix>)
 OSTREAM_FORMATTER(Eigen::Block<const lucid::Vector>)
+OSTREAM_FORMATTER(Eigen::Ref<const lucid::Matrix>)
+OSTREAM_FORMATTER(Eigen::Ref<const lucid::Vector>)
 
 #endif

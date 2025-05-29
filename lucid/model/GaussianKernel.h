@@ -52,7 +52,6 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] const Vector& gamma() const { return gamma_; }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
-  Vector operator()(const Matrix& x1, const Matrix& x2, double* gradient) const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
   [[nodiscard]] bool has(Parameter parameter) const override;
@@ -60,6 +59,7 @@ class GaussianKernel final : public Kernel {
   void set(Parameter parameter, const Vector& value) override;
 
  private:
+  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, double* gradient) const override;
   [[nodiscard]] double get_d(Parameter parameter) const override;
   [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
 

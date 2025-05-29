@@ -23,16 +23,18 @@ GaussianKernel::GaussianKernel(const Vector& sigma_l, const double sigma_f)
 GaussianKernel::GaussianKernel(const Dimension dim, const double sigma_l, const double sigma_f)
     : GaussianKernel{Vector::Constant(dim, sigma_l), sigma_f} {}
 
-Vector GaussianKernel::operator()(const Matrix& x1, const Matrix& x2, double* gradient) const {
+Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, double* gradient) const {
   LUCID_ASSERT(&x1 == &x2 || !gradient, "The gradient can be computed only for the same vector");
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == x2.size(), "x1.size() != x2.size()", x1.size(), x2.size());
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.size() == sigma_l_.size(), "x1.size() != sigma_l().size()", x1.size(),
+  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == x2.cols(), "x1.cols() != x2.cols()", x1.cols(), x2.cols());
+  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == sigma_l_.size(), "x1.cols() != sigma_l().size()", x1.cols(),
                                 sigma_l_.size());
   // TODO(tend): sklearn computes the kernel a bit differently. The result is the same, but which is more efficient?
-  const Matrix dist = &x1 == &x2 ? static_cast<Matrix>(pdist<2, true>(x1.cwiseQuotient(sigma_l_)))  // Same vector
-                                 : pdist<2, true>((x1.array().rowwise() / sigma_l_.array()).matrix(),
-                                                  (x2.array().rowwise() / sigma_l_.array()).matrix());
-  const Vector k = sigma_f() * sigma_f() * (-0.5 * dist.array()).exp();
+  const Matrix dist{&x1 == &x2 ? static_cast<Matrix>(pdist<2, true>(x1.cwiseQuotient(sigma_l_)))  // Same vector
+                               : pdist<2, true>((x1.array().rowwise() / sigma_l_.array()).matrix(),
+                                                (x2.array().rowwise() / sigma_l_.array()).matrix())};
+  const Matrix k{sigma_f() * sigma_f() * (-0.5 * dist.array()).exp()};
+  LUCID_ASSERT(x1.rows() > 1 || x2.rows() > 1 || k.size() == 1,
+               "If the comparison is between two vectors, the kernel should return a scalar");
   LUCID_TRACE_FMT("GaussianKernel::operator()({}, {}) = {}", x1, x2, k);
   if (gradient) {
     // Compute the gradient of the kernel function with respect to the parameters

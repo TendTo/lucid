@@ -39,12 +39,7 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
 Matrix KernelRidgeRegressor::predict(ConstMatrixRef x) const {
   LUCID_CHECK_ARGUMENT(training_inputs_.size() > 0, "training_inputs", "the model is not fitted yet");
   LUCID_CHECK_ARGUMENT_EXPECTED(x.cols() == training_inputs_.cols(), "input.cols()", x.cols(), training_inputs_.cols());
-  Matrix kernel_input{Matrix::NullaryExpr(
-      x.rows(), training_inputs_.rows(),
-      [this, &x](const Index row, const Index col) { return (*kernel_)(x.row(row), training_inputs_.row(col)); })};
-  LUCID_DEBUG_FMT("Computed kernel input shape: [{} x {}]", kernel_input.rows(), kernel_input.cols());
-  LUCID_TRACE_FMT("Computed kernel input: [{}]", kernel_input);
-  return kernel_input * coefficients_;
+  return (*kernel_)(x, training_inputs_) * coefficients_;
 }
 
 Matrix KernelRidgeRegressor::operator()(ConstMatrixRef x, const FeatureMap& feature_map) const {
