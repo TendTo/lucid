@@ -45,16 +45,23 @@ class GramMatrix {
    * @param initial_states @N initial states used to compute the Gram matrix
    */
   template <class Derived>
-  GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states)
-      : gram_matrix_{initial_states.rows(), initial_states.rows()} {
-    gram_matrix_.diagonal() =
-        Vector::Constant(gram_matrix_.rows(), kernel(initial_states.row(0), initial_states.row(0)).value());
-    for (Index row_idx = 0; row_idx < gram_matrix_.rows(); ++row_idx) {
-      for (Index col_idx = 0; col_idx < row_idx; ++col_idx) {
-        gram_matrix_(row_idx, col_idx) = kernel(initial_states.row(row_idx), initial_states.row(col_idx)).value();
-      }
-    }
-  }
+  GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states) : gram_matrix_{kernel(initial_states)} {}
+  /**
+   * Compute the Gram matrix from the kernel and the initial states.
+   * The initial states should be an @Nxn matrix where @n is the dimension of the vector space @X
+   * and @N is the number of states used to compute the Gram matrix, i.e.
+   * @f[
+   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
+   * @f]
+   * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
+   * Moreover, store the `gradient`.
+   * @param kernel rkhs kernel used to compute the Gram matrix
+   * @param initial_states @N initial states used to compute the Gram matrix
+   * @param gradient[out] gradient of the kernel with the current parameters
+   */
+  template <class Derived>
+  GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states, std::vector<Matrix>& gradient)
+      : gram_matrix_{kernel(initial_states, gradient)} {}
 
   /**
    * Given the initial state @f$ x \in \mathcal{X} @f$, compute the coefficients @f$ \alpha \in \mathbb{R}^s @f$.

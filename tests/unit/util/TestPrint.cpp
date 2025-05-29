@@ -64,7 +64,7 @@ TEST(TestPrint, GramMatrix) {
       kernel, Matrix::NullaryExpr(2, 2, [](const Index row, const Index col) { return row + col + 1; })};
   EXPECT_EQ(fmt::format("{}", gram_matrix),
             "GramMatrix(\n"
-            " 4.0401       0\n"
+            " 4.0401 3.77431\n"
             "3.77431  4.0401"
             "\n)");
 }
@@ -77,7 +77,7 @@ TEST(TestPrint, InverseGramMatrix) {
       kernel, Matrix::NullaryExpr(2, 2, [](const Index row, const Index col) { return row + col + 1; })};
   EXPECT_EQ(fmt::format("{}", gram_matrix.inverse()),
             "GramMatrix(\n"
-            " 4.0401       0\n"
+            " 4.0401 3.77431\n"
             "3.77431  4.0401"
             "\n)^-1");
 }
