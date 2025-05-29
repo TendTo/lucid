@@ -58,9 +58,7 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature
   return kernel_input * coefficients_;
 }
 
-double log_marginal(const GramMatrix& K, ConstMatrixRef y, const Scalar regularization_constant) {
-  LUCID_CHECK_ARGUMENT_EXPECTED(regularization_constant >= 0.0, "regularization_constant", regularization_constant,
-                                ">= 0.0");
+double compute_log_marginal(const GramMatrix& K, ConstMatrixRef y) {
   LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == K.cols(), "K.rows() == K.cols()", K.rows(), K.cols());
   LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == y.rows(), "K.rows() == y.rows()", K.rows(), y.rows());
   // Compute the log marginal likelihood
@@ -75,16 +73,46 @@ double log_marginal(const GramMatrix& K, ConstMatrixRef y, const Scalar regulari
                 - K.L().diagonal().array().log().sum()                           //  -sum(log(diag(L)))
                 - std::log(2 * std::numbers::pi) * y.rows() / 2)                 // -log(2*pi) * n / 2
                    .sum();
-  LUCID_DEBUG_FMT("Log Marginal Likelihood: {}", val);
+  LUCID_CRITICAL_FMT("Log Marginal Likelihood: {}", val);
   return val;
+}
+
+Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, const Matrix& alpha,
+                                     const std::vector<Matrix>& gradient) {
+  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == K.cols(), "K.rows() == K.cols()", K.rows(), K.cols());
+  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == y.rows(), "K.rows() == y.rows()", K.rows(), y.rows());
+  // Compute the log marginal likelihood gradient
+  const Matrix k_inv{K.inverse()};
+
+  std::vector<Matrix> inner_term{};
+  inner_term.reserve(y.cols());
+  for (Index i = 0; i < y.cols(); ++i) {
+    inner_term.emplace_back(alpha.col(i) * alpha.col(i).transpose() - k_inv);
+    LUCID_CRITICAL_FMT("inner_term (1):\n{}", Matrix{alpha.col(i) * alpha.col(i).transpose()});
+  }
+
+  Matrix log_likelihood_gradient_dims{Matrix::NullaryExpr(
+      gradient.size(), inner_term.size(),
+      [&](const Index row, const Index col) { return gradient[row].cwiseProduct(inner_term[col]).sum() * 0.5; })};
+  Vector log_likelihood_gradient{log_likelihood_gradient_dims.rowwise().sum()};
+
+  LUCID_CRITICAL_FMT("gradient:\n{}", gradient);
+  LUCID_CRITICAL_FMT("inner_term:\n{}", inner_term);
+  LUCID_CRITICAL_FMT("k_inv:\n{}", k_inv);
+  LUCID_CRITICAL_FMT("log_likelihood_gradient_dims:\n{}", log_likelihood_gradient_dims);
+  LUCID_CRITICAL_FMT("log_likelihood_gradient:\n{}", log_likelihood_gradient);
+  return log_likelihood_gradient;
 }
 
 Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) {
   LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() == training_outputs.rows(), "training_inputs.rows()",
                                 training_inputs.rows(), training_outputs.rows());
   training_inputs_ = training_inputs;
+  // TODO(tend): maybe we don't need to compute the gradient every time.
+  //  Should we include a flag indicating to the regressor whether to do it or not?
+  std::vector<Matrix> gradient;
   // Compute gram matrix K (nxn) with elements K_{ij} = k(x_i, x_j)
-  GramMatrix gram_matrix{*kernel_, training_inputs_};
+  GramMatrix gram_matrix{*kernel_, training_inputs_, gradient};
   // Add the regularisation term to the diagonal K + λnI
   gram_matrix.add_diagonal_term(regularization_constant_ * static_cast<double>(training_inputs_.rows()));
   // Invert the gram matrix and compute the coefficients as (K + λnI)^-1 y
@@ -93,7 +121,8 @@ Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, Con
   // Since we have all the necessary information, we can also compute the log marginal likelihood
   // TODO(tend): maybe we don't need to compute the log_marginal_likelihood_ every time.
   //  Should we include a flag indicating to the regressor whether to do it or not?
-  log_marginal_likelihood_ = log_marginal(gram_matrix, training_outputs, regularization_constant_);
+  log_marginal_likelihood_ = compute_log_marginal(gram_matrix, training_outputs);
+  compute_log_marginal_gradient(gram_matrix, training_outputs, coefficients_, gradient);
   return *this;
 }
 

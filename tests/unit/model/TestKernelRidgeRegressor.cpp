@@ -236,3 +236,21 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodFixed) {
 
   EXPECT_DOUBLE_EQ(log_likelihood, -28.5091519732376);
 }
+
+TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropic) {
+  LUCID_LOG_INIT_VERBOSITY(1);
+  constexpr int n_samples = 3;
+  constexpr double lambda = 0.1 / n_samples;
+  Matrix inputs{3, 2}, outputs{3, 3};
+  inputs << 4, 5, 1, 2, 6, 7;
+  outputs << 4, 4, 4,  //
+      5, 5, 5,         //
+      2, 2, 1;
+
+  const GaussianKernel kernel{2, 1, 1};
+  lucid::GramMatrix K{kernel, inputs};
+
+  KernelRidgeRegressor regressor{kernel, lambda};
+  regressor.fit(inputs, outputs);
+  FAIL();
+}

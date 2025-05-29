@@ -46,6 +46,8 @@ class InverseGramMatrix {
   template <class Derived>
   Matrix operator*(const MatrixBase<Derived>& A) const;
 
+  operator Matrix() const;
+
  private:
   const GramMatrix& gram_matrix_;  ///< Gram matrix to use for the inversion
 };
