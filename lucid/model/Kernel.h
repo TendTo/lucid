@@ -66,11 +66,11 @@ class Kernel : public Parametrizable {
    * Moreover, compute the gradient of the kernel function and store it in `gradient`.
    * @tparam Derived type of the input matrix
    * @param x @nxd input matrix
-   * @param[out] gradient gradient of the kernel function with respect to the parameters
+   * @param[out] gradient gradient of the kernel function with respect to the parameters dimensions
    * @return kernel value
    */
   template <class Derived>
-  Matrix operator()(const MatrixBase<Derived>& x, double& gradient) const {
+  Matrix operator()(const MatrixBase<Derived>& x, std::vector<Matrix>& gradient) const {
     const Eigen::Ref<const Matrix> x_ref{x};
     return (*this)(x_ref, x_ref, &gradient);
   }
@@ -92,10 +92,10 @@ class Kernel : public Parametrizable {
    * is computed and stored in `*gradient`.
    * @param X1 @nxdx first input matrix
    * @param X2 @nxdy second input matrix
-   * @param[out] gradient pointer to store the gradient of the kernel function with respect to the parameters
+   * @param[out] gradient pointer to store the gradient of the kernel function with respect to the parameters dimensions
    * @return kernel value
    */
-  virtual Matrix operator()(ConstMatrixRef X1, ConstMatrixRef X2, double* gradient) const = 0;
+  virtual Matrix operator()(ConstMatrixRef X1, ConstMatrixRef X2, std::vector<Matrix>* gradient) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel);

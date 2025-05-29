@@ -21,7 +21,7 @@ void MedianHeuristicTuner::tune_impl(Estimator& estimator, ConstMatrixRef traini
   Vector new_sigma_l{training_inputs.cols()};
   for (Index i = 0; i < training_inputs.cols(); ++i) {
     // Compute the pdist between all inputs for each dimension individually
-    Eigen::VectorXd dist = pdist(training_inputs.col(i));
+    Vector dist = pdist(training_inputs.col(i));
     // Assign the median of the distances to the new sigma_l
     new_sigma_l(i) = median(dist);
   }

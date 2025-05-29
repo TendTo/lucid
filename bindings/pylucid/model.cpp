@@ -109,7 +109,7 @@ class PyParametrizable final : public Parametrizable {
 class PyKernel final : public Kernel {
  public:
   using Kernel::Kernel;
-  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, double *gradient) const override {
+  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix> *gradient) const override {
     PYBIND11_OVERRIDE_PURE_NAME(Matrix, Kernel, "__call__", operator(), x1, x2, gradient);
   }
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override {
@@ -318,8 +318,8 @@ void init_model(py::module_ &m) {
 
   /**************************** Kernel ****************************/
   py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel")
-      .def("__call__", py::overload_cast<const Vector &>(&Kernel::operator(), py::const_))
-      .def("__call__", py::overload_cast<const Vector &, const Vector &>(&Kernel::operator(), py::const_))
+      .def("__call__", py::overload_cast<ConstMatrixRef>(&Kernel::operator(), py::const_))
+      .def("__call__", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Kernel::operator(), py::const_))
       .def("clone", &Kernel::clone)
       .def("__str__", STRING_LAMBDA(Kernel));
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")

@@ -92,9 +92,10 @@ TEST_F(TestKernelRidgeRegressor, HiddenKernelParameter) {
   class HiddenKernel final : public Kernel {
    public:
     [[nodiscard]] bool is_stationary() const override { return true; }
-    Matrix operator()(ConstMatrixRef, const ConstMatrixRef&, double*) const override { return {}; }
+    [[nodiscard]] bool is_isotropic() const override { return true; }
+    Matrix operator()(ConstMatrixRef, const ConstMatrixRef&, std::vector<Matrix>*) const override { return {}; }
     [[nodiscard]] std::unique_ptr<Kernel> clone() const override { return std::make_unique<HiddenKernel>(); }
-    [[nodiscard]] bool has(Parameter parameter) const override {
+    [[nodiscard]] bool has(const Parameter parameter) const override {
       return parameter == Parameter::REGULARIZATION_CONSTANT;
     }
   };

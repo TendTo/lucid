@@ -48,8 +48,6 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] const Vector& sigma_l() const { return sigma_l_; }
   /** @getter{dimension, kernel} */
   [[nodiscard]] Dimension dimension() const { return sigma_l_.size(); }
-  /** @getter{cached @f$ \text{diag}(0.5 \sigma_l^2) @f$ value, kernel} */
-  [[nodiscard]] const Vector& gamma() const { return gamma_; }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
   [[nodiscard]] bool is_isotropic() const override;
@@ -60,14 +58,12 @@ class GaussianKernel final : public Kernel {
   void set(Parameter parameter, const Vector& value) override;
 
  private:
-  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, double* gradient) const override;
+  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const override;
   [[nodiscard]] double get_d(Parameter parameter) const override;
   [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
 
   Vector sigma_l_;  ///< @sigma_l value
   double sigma_f_;  ///< @sigma_f value
-  Vector gamma_;    ///< @f$ \text{diag}(0.5 \sigma_l^2) @f$ cached for performance.
-                    ///< Being vector, `.asDiagonal()` is needed to convert it to a diagonal matrix before use
 };
 
 using RadialBasisFunction = GaussianKernel;       ///< Alias for Gaussian kernel.

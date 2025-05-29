@@ -212,29 +212,49 @@ inline Scalar median(Matrix x) {
 }
 /**
  * Compute the `p`-norm distance between every pair of row vectors in the input.
- * If the input has shape @f$ N \times M @f$ the output vector will contain @f$ \frac{1}{2}N(N-1) @f$ elements.
+ * If the input has shape @f$ N \times M @f$ the output vector will contain @f$ \frac{1}{2}N(N-1) @f$ elements
+ * or be a lower triangular matrix, depending on `TriangularMatrix`.
  * @f[
  * \text{{input}} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_N \end{bmatrix}
  * @f]
+ * @todo Remove TriangularMatrix tparam in favor of `squareform` function
  * @tparam P norm order
  * @tparam Squared whether to compute the squared distance. Only available for `p` == 2
+ * @tparam TriangularMatrix whetehr to return a lower triangular matrix with all the distances
+ * or a vector view of the strictly lower section of the full matrix
  * @param x input matrix
- * @return vector of distances
+ * @return vector of distances or lower triangular matrix.
  */
-template <Dimension P = 2, bool Squared = false, class Derived>
+template <Dimension P = 2, bool Squared = false, bool TriangularMatrix = false, class Derived>
   requires(P > 0) && (!Squared || P == 2)
-Vector pdist(const Eigen::MatrixBase<Derived>& x) {
-  Vector distances{x.rows() * (x.rows() - 1) / 2};
-  for (Index i = 0; i < x.rows(); i++) {
-    for (Index j = 0; j < i; j++) {
-      if constexpr (Squared) {
-        distances(i * (i - 1) / 2 + j) = (x.row(i) - x.row(j)).squaredNorm();
-      } else {
-        distances(i * (i - 1) / 2 + j) = (x.row(i) - x.row(j)).template lpNorm<P>();
+auto pdist(const Eigen::MatrixBase<Derived>& x) {
+  if constexpr (TriangularMatrix) {
+    Matrix distances{x.rows(), x.rows()};
+    distances.diagonal() = Vector::Zero(x.rows());
+    for (Index i = 0; i < x.rows(); i++) {
+      for (Index j = 0; j < i; j++) {
+        if constexpr (Squared) {
+          distances(i, j) = (x.row(i) - x.row(j)).squaredNorm();
+        } else {
+          distances(i, j) = (x.row(i) - x.row(j)).template lpNorm<P>();
+        }
       }
     }
+    distances.triangularView<Eigen::StrictlyUpper>() = distances.triangularView<Eigen::StrictlyLower>().transpose();
+    return distances;
+  } else {
+    Vector distances{x.rows() * (x.rows() - 1) / 2};
+    for (Index i = 0; i < x.rows(); i++) {
+      for (Index j = 0; j < i; j++) {
+        if constexpr (Squared) {
+          distances(i * (i - 1) / 2 + j) = (x.row(i) - x.row(j)).squaredNorm();
+        } else {
+          distances(i * (i - 1) / 2 + j) = (x.row(i) - x.row(j)).template lpNorm<P>();
+        }
+      }
+    }
+    return distances;
   }
-  return distances;
 }
 /**
  * Compute the `p`-norm distance between every pair of row vectors in the input matrices.

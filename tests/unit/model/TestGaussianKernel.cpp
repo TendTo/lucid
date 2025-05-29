@@ -30,7 +30,7 @@ namespace {
  * @param sigma_f @f$ \sigma_f @f$ value
  * @return Gaussian kernel value
  */
-inline Matrix gaussian(ConstMatrixRef x1, ConstMatrixRef x2, const Vector& sigma_l, const double sigma_f) {
+inline Matrix gaussian(ConstMatrixRef x1, ConstMatrixRef x2, const Vector& sigma_l, const double sigma_f = 1.0) {
   const Matrix def_num = Matrix::NullaryExpr(x1.rows(), x2.rows(), [&](const Index row, const Index col) {
     return (x1.row(row) - x2.row(col)) * sigma_l.cwiseProduct(sigma_l).cwiseInverse().asDiagonal() *
            (x1.row(row) - x2.row(col)).transpose();
@@ -42,17 +42,17 @@ inline Matrix gaussian(ConstMatrixRef x1, ConstMatrixRef x2, const Vector& sigma
 
 class TestGaussianKernel : public ::testing::Test {
  protected:
-  static Vector get_sigma_l() {
-    Vector sigma_l{4};
-    // sigma_l << 3.2, 5.1, 3.4, 1.24;
-    sigma_l << 2.1, 2.1, 2.1, 2.1;  // For simplicity, use the same value for all dimensions
-    return sigma_l;
+  TestGaussianKernel()
+      : sigma_f_{4.2},
+        is_sigma_l_{Vector::Constant(4, 2.4)},
+        an_sigma_l_{Vector::LinSpaced(4, 1.2, 6.3)},
+        kernel_{Vector::LinSpaced(4, 1.2, 6.3), sigma_f_} {
+    LUCID_LOG_INIT_VERBOSITY(2);
   }
 
-  TestGaussianKernel() : sigma_f_{4.2}, sigma_l_{get_sigma_l()}, kernel_{get_sigma_l(), sigma_f_} {}
-
   double sigma_f_;
-  Vector sigma_l_;
+  Vector is_sigma_l_;
+  Vector an_sigma_l_;
   GaussianKernel kernel_;
 };
 
@@ -134,28 +134,102 @@ TEST_F(TestGaussianKernel, MatrixCorrectnessAnisotropic) {
   EXPECT_TRUE(computed.isApprox(gaussian(x1, x2, sigma_l, sigma_f_)));
 }
 
+TEST_F(TestGaussianKernel, ApplySelfIsotropic) {
+  const Vector x1{Vector::Random(4)};
+  const GaussianKernel kernel{is_sigma_l_, sigma_f_};
+  static_cast<void>(kernel(x1, x1));
+  EXPECT_DOUBLE_EQ(kernel(x1).value(), gaussian(x1, x1, is_sigma_l_, sigma_f_).value());
+}
+TEST_F(TestGaussianKernel, ApplySelfAnisotropic) {
+  const Vector x1{Vector::Random(4)};
+  const GaussianKernel kernel{an_sigma_l_, sigma_f_};
+  EXPECT_DOUBLE_EQ(kernel(x1).value(), gaussian(x1, x1, an_sigma_l_, sigma_f_).value());
+}
+
 TEST_F(TestGaussianKernel, ApplyVectorIsotropic) {
-  const Vector sigma_l{Vector::Constant(4, 2.1)};
   const Vector x1{Vector::Random(4)}, x2{Vector::Random(4)};
-  const GaussianKernel kernel{sigma_l, sigma_f_};
-  EXPECT_DOUBLE_EQ(kernel(x1, x2).value(), gaussian(x1, x2, sigma_l, sigma_f_).value());
+  const GaussianKernel kernel{is_sigma_l_, sigma_f_};
+  EXPECT_DOUBLE_EQ(kernel(x1, x2).value(), gaussian(x1, x2, is_sigma_l_, sigma_f_).value());
 }
 TEST_F(TestGaussianKernel, ApplyVectorAnisotropic) {
-  const Vector sigma_l{Vector::LinSpaced(4, 1, 2.1)};
   const Vector x1{Vector::Random(4)}, x2{Vector::Random(4)};
-  const GaussianKernel kernel{sigma_l, sigma_f_};
-  EXPECT_DOUBLE_EQ(kernel(x1, x2).value(), gaussian(x1, x2, sigma_l, sigma_f_).value());
+  const GaussianKernel kernel{an_sigma_l_, sigma_f_};
+  EXPECT_DOUBLE_EQ(kernel(x1, x2).value(), gaussian(x1, x2, an_sigma_l_, sigma_f_).value());
 }
 
 TEST_F(TestGaussianKernel, ApplyMatrixIsotropic) {
-  const Vector sigma_l{Vector::Constant(4, 2.1)};
   const Matrix x1{Matrix::Random(4, 4)}, x2{Matrix::Random(3, 4)};
-  const GaussianKernel kernel{sigma_l, sigma_f_};
-  EXPECT_TRUE(kernel(x1, x2).isApprox(gaussian(x1, x2, sigma_l, sigma_f_)));
+  const GaussianKernel kernel{is_sigma_l_, sigma_f_};
+  EXPECT_TRUE(kernel(x1, x2).isApprox(gaussian(x1, x2, is_sigma_l_, sigma_f_)));
 }
 TEST_F(TestGaussianKernel, ApplyMatrixAnisotropic) {
-  const Vector sigma_l{Vector::LinSpaced(4, 1, 2.1)};
   const Matrix x1{Matrix::Random(4, 4)}, x2{Matrix::Random(3, 4)};
-  const GaussianKernel kernel{sigma_l, sigma_f_};
-  EXPECT_TRUE(kernel(x1, x2).isApprox(gaussian(x1, x2, sigma_l, sigma_f_)));
+  const GaussianKernel kernel{an_sigma_l_, sigma_f_};
+  EXPECT_TRUE(kernel(x1, x2).isApprox(gaussian(x1, x2, an_sigma_l_, sigma_f_)));
+}
+
+TEST_F(TestGaussianKernel, GradientVectorIsotropic) {
+  const Vector x{Vector::Random(4)};
+  const GaussianKernel kernel{is_sigma_l_, sigma_f_};
+  std::vector<Matrix> gradient;
+  EXPECT_TRUE(kernel(x, gradient).isApprox(gaussian(x, x, is_sigma_l_, sigma_f_)));
+  EXPECT_EQ(gradient.size(), 1);
+  EXPECT_EQ(gradient.front().size(), 1);
+  EXPECT_EQ(gradient.front().value(), 0);
+}
+
+TEST_F(TestGaussianKernel, GradientVectorAnisotropic) {
+  const Vector x{Vector::Random(4)};
+  const GaussianKernel kernel{an_sigma_l_, sigma_f_};
+  std::vector<Matrix> gradient;
+  EXPECT_TRUE(kernel(x, gradient).isApprox(gaussian(x, x, an_sigma_l_, sigma_f_)));
+  EXPECT_EQ(gradient.size(), 4);
+  EXPECT_EQ(gradient.front().size(), 1);
+  EXPECT_EQ(gradient.front().value(), 0);
+}
+
+TEST_F(TestGaussianKernel, GradientIsotropic) {
+  Matrix x1{4, 4};
+  x1 << 4, 5, 6, 7, 1, 2, 3, 4, 6, 7, 8, 9, 9, 10, 11, 12;
+  const GaussianKernel kernel{is_sigma_l_};
+  std::vector<Matrix> gradient;
+  EXPECT_TRUE(kernel(x1, gradient).isApprox(gaussian(x1, x1, is_sigma_l_)));
+
+  Matrix expected{4, 4};
+  expected << 0, 0.274606, 0.692645, 0.0029489,  //
+      0.274606, 0, 0.0029489, 9.92725e-09,       //
+      0.692645, 0.0029489, 0, 0.274606,          //
+      0.0029489, 9.92725e-09, 0.274606, 0;
+
+  ASSERT_EQ(gradient.size(), 1);
+  ASSERT_EQ(gradient.front().rows(), x1.rows());
+  ASSERT_EQ(gradient.front().cols(), x1.rows());
+
+  EXPECT_TRUE(gradient.front().isApprox(expected, 1e-6));
+}
+
+TEST_F(TestGaussianKernel, GradientAnisotropicFixed) {
+  Vector sigma_l{2};
+  sigma_l << 1, 2;
+  Matrix x1{3, 2};
+  x1 << 4, 5, 1, 2, 6, 7;
+  const GaussianKernel kernel{sigma_l};
+  std::vector<Matrix> gradient;
+  EXPECT_TRUE(kernel(x1, gradient).isApprox(gaussian(x1, x1, sigma_l)));
+
+  Matrix expected_0{3, 3}, expected_1{3, 3};
+  expected_0 << 0, 0.0324591, 0.32834,  //
+      0.0324591, 0, 4.09344e-06,        //
+      0.32834, 4.09344e-06, 0;
+  expected_1 << 0, 0.00811477, 0.082085,  //
+      0.00811477, 0, 1.02336e-06,         //
+      0.082085, 1.02336e-06, 0;
+  ASSERT_EQ(gradient.size(), 2);
+  ASSERT_EQ(gradient[0].rows(), x1.rows());
+  ASSERT_EQ(gradient[0].cols(), x1.rows());
+  ASSERT_EQ(gradient[1].rows(), x1.rows());
+  ASSERT_EQ(gradient[1].cols(), x1.rows());
+
+  EXPECT_TRUE(gradient[0].isApprox(expected_0, 1e-6));
+  EXPECT_TRUE(gradient[1].isApprox(expected_1, 1e-6));
 }
