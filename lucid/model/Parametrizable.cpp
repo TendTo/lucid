@@ -41,6 +41,14 @@ void Parametrizable::set(const Parameter parameter, const std::size_t idx,
 void Parametrizable::set(Parameter parameter, int) { LUCID_INVALID_HYPER_PARAMETER(parameter, "int"); }
 void Parametrizable::set(Parameter parameter, double) { LUCID_INVALID_HYPER_PARAMETER(parameter, "double"); }
 void Parametrizable::set(Parameter parameter, const Vector&) { LUCID_INVALID_HYPER_PARAMETER(parameter, "Vector"); }
+std::vector<Parameter> Parametrizable::parameters_list() const {
+  std::vector<Parameter> params;
+  for (std::size_t i = 0; i < sizeof(std::underlying_type_t<Parameter>) * 8; ++i) {
+    if (static_cast<std::underlying_type_t<Parameter>>(parameters_) & (1 << i))
+      params.emplace_back(static_cast<Parameter>(1 << i));
+  }
+  return params;
+}
 int Parametrizable::get_i(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "int"); }
 double Parametrizable::get_d(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "double"); }
 const Vector& Parametrizable::get_v(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "Vector"); }

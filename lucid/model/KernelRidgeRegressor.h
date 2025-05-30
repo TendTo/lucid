@@ -115,8 +115,6 @@ class KernelRidgeRegressor final : public Estimator {
   /** @getter{log marginal likelihood, regressor} */
   [[nodiscard]] double log_marginal_likelihood() const { return log_marginal_likelihood_; }
 
-  [[nodiscard]] bool has(Parameter parameter) const override;
-
   void set(Parameter parameter, int value) override;
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;

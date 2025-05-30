@@ -32,7 +32,8 @@ class MockEstimator_ : public Estimator {
  public:
   explicit MockEstimator_(Matrix predictions, Vector sigma_l, const double sigma_f,
                           const double regularization_constant, const int degree)
-      : predictions_{std::move(predictions)},
+      : Estimator{Parameter::DEGREE | Parameter::REGULARIZATION_CONSTANT | Parameter::SIGMA_F | Parameter::SIGMA_L},
+        predictions_{std::move(predictions)},
         expected_sigma_l_(std::move(sigma_l)),
         expected_sigma_f_{sigma_f},
         expected_regularization_constant_{regularization_constant},
@@ -44,10 +45,6 @@ class MockEstimator_ : public Estimator {
       return predictions_.array() + 1;  // Alter predictions if parameters are not as expected
     }));
     ON_CALL(*this, consolidate).WillByDefault(testing::ReturnRef(*this));
-    ON_CALL(*this, has).WillByDefault(testing::Invoke([this](const Parameter parameter) {
-      return parameter == Parameter::SIGMA_L || parameter == Parameter::SIGMA_F ||
-             parameter == Parameter::REGULARIZATION_CONSTANT || parameter == Parameter::DEGREE;
-    }));
     ON_CALL(*this, score).WillByDefault(testing::Invoke([this](ConstMatrixRef inputs, ConstMatrixRef outputs) {
       return r2_score(*this, inputs, outputs);
     }));
@@ -79,7 +76,6 @@ class MockEstimator_ : public Estimator {
   }
 
   MOCK_METHOD(Matrix, predict, (ConstMatrixRef), (const override));
-  MOCK_METHOD(bool, has, (lucid::Parameter), (const override));
   MOCK_METHOD(Estimator &, consolidate, (ConstMatrixRef, ConstMatrixRef), (override));
   MOCK_METHOD(double, score, (ConstMatrixRef, ConstMatrixRef), (const override));
   MOCK_METHOD(void, set, (Parameter, int), (override));

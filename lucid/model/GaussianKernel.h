@@ -53,7 +53,6 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] bool is_isotropic() const override;
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
-  [[nodiscard]] bool has(Parameter parameter) const override;
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;
 

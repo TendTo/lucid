@@ -25,7 +25,7 @@ KernelRidgeRegressor::KernelRidgeRegressor(const Kernel& kernel, const Scalar re
     : KernelRidgeRegressor{kernel.clone(), regularization_constant, tuner} {}
 KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, const Scalar regularization_constant,
                                            const std::shared_ptr<const Tuner>& tuner)
-    : Estimator{tuner},
+    : Estimator{kernel->parameters() | Parameter::REGULARIZATION_CONSTANT, tuner},
       kernel_{std::move(kernel)},
       regularization_constant_{regularization_constant},
       training_inputs_{},
@@ -140,14 +140,6 @@ std::unique_ptr<Estimator> KernelRidgeRegressor::clone() const {
   return out;
 }
 
-bool KernelRidgeRegressor::has(const Parameter parameter) const {
-  switch (parameter) {
-    case Parameter::REGULARIZATION_CONSTANT:
-      return true;
-    default:
-      return kernel_->has(parameter);
-  }
-}
 void KernelRidgeRegressor::set(const Parameter parameter, int value) { kernel_->set(parameter, value); }
 void KernelRidgeRegressor::set(const Parameter parameter, double value) {
   switch (parameter) {

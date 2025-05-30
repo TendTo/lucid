@@ -3,6 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  */
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <numbers>
@@ -64,16 +65,21 @@ TEST_F(TestKernelRidgeRegressor, FitAndPredict) {
   EXPECT_EQ(predictions.cols(), outputs.cols());
 }
 
+TEST_F(TestKernelRidgeRegressor, ParametersList) {
+  EXPECT_THAT(regressor_.parameters_list(), ::testing::UnorderedElementsAre(Parameter::SIGMA_F, Parameter::SIGMA_L,
+                                                                            Parameter::REGULARIZATION_CONSTANT));
+}
+
 TEST_F(TestKernelRidgeRegressor, ParameterHas) {
-  ASSERT_TRUE(regressor_.has(Parameter::REGULARIZATION_CONSTANT));
-  ASSERT_TRUE(regressor_.has(Parameter::SIGMA_F));
-  ASSERT_TRUE(regressor_.has(Parameter::SIGMA_L));
+  EXPECT_TRUE(regressor_.has(Parameter::REGULARIZATION_CONSTANT));
+  EXPECT_TRUE(regressor_.has(Parameter::SIGMA_F));
+  EXPECT_TRUE(regressor_.has(Parameter::SIGMA_L));
 }
 
 TEST_F(TestKernelRidgeRegressor, ParameterGet) {
-  EXPECT_EQ(regressor_.get<double>(Parameter::REGULARIZATION_CONSTANT), regularization_constant_);
-  EXPECT_EQ(regressor_.get<double>(Parameter::SIGMA_F), sigma_f_);
-  EXPECT_EQ(regressor_.get<const Vector&>(Parameter::SIGMA_L), Vector::Constant(dim_, sigma_l_));
+  EXPECT_EQ(regressor_.get<Parameter::REGULARIZATION_CONSTANT>(), regularization_constant_);
+  EXPECT_EQ(regressor_.get<Parameter::SIGMA_F>(), sigma_f_);
+  EXPECT_EQ(regressor_.get<Parameter::SIGMA_L>(), Vector::Constant(dim_, sigma_l_));
 }
 
 TEST_F(TestKernelRidgeRegressor, ParameterSet) {
@@ -85,21 +91,19 @@ TEST_F(TestKernelRidgeRegressor, ParameterSet) {
   regressor_.set(Parameter::SIGMA_F, new_sigma_f);
   regressor_.set(Parameter::SIGMA_L, new_sigma_l);
 
-  EXPECT_EQ(regressor_.get<double>(Parameter::REGULARIZATION_CONSTANT), new_reg);
-  EXPECT_EQ(regressor_.get<double>(Parameter::SIGMA_F), new_sigma_f);
-  EXPECT_EQ(regressor_.get<const Vector&>(Parameter::SIGMA_L), new_sigma_l);
+  EXPECT_EQ(regressor_.get<Parameter::REGULARIZATION_CONSTANT>(), new_reg);
+  EXPECT_EQ(regressor_.get<Parameter::SIGMA_F>(), new_sigma_f);
+  EXPECT_EQ(regressor_.get<Parameter::SIGMA_L>(), new_sigma_l);
 }
 
 TEST_F(TestKernelRidgeRegressor, HiddenKernelParameter) {
   class HiddenKernel final : public Kernel {
    public:
+    HiddenKernel() : Kernel{Parameter::REGULARIZATION_CONSTANT} {}
     [[nodiscard]] bool is_stationary() const override { return true; }
     [[nodiscard]] bool is_isotropic() const override { return true; }
     Matrix operator()(ConstMatrixRef, const ConstMatrixRef&, std::vector<Matrix>*) const override { return {}; }
     [[nodiscard]] std::unique_ptr<Kernel> clone() const override { return std::make_unique<HiddenKernel>(); }
-    [[nodiscard]] bool has(const Parameter parameter) const override {
-      return parameter == Parameter::REGULARIZATION_CONSTANT;
-    }
   };
 
   EXPECT_THROW(KernelRidgeRegressor(std::make_unique<HiddenKernel>(), 1.0),
@@ -239,7 +243,7 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodFixed) {
   EXPECT_DOUBLE_EQ(log_likelihood, -28.5091519732376);
 }
 
-TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropic) {
+TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropicFixed) {
   LUCID_LOG_INIT_VERBOSITY(1);
   constexpr int n_samples = 3;
   constexpr double lambda = 0.1 / n_samples;
@@ -249,7 +253,26 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropic) {
       5, 5, 5,         //
       2, 2, 1;
 
-  const GaussianKernel kernel{2, 1, 1};
+  const GaussianKernel kernel{2, 1};
+  lucid::GramMatrix K{kernel, inputs};
+
+  KernelRidgeRegressor regressor{kernel, lambda};
+  regressor.fit(inputs, outputs);
+  FAIL();
+}
+TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientAnisotropicFixed) {
+  LUCID_LOG_INIT_VERBOSITY(1);
+  constexpr int n_samples = 3;
+  constexpr double lambda = 0.1 / n_samples;
+  Vector sigma_l{2};
+  Matrix inputs{3, 2}, outputs{3, 3};
+  sigma_l << 1, 2;
+  inputs << 4, 5, 1, 2, 6, 7;
+  outputs << 4, 4, 4,  //
+      5, 5, 5,         //
+      2, 2, 1;
+
+  const GaussianKernel kernel{sigma_l};
   lucid::GramMatrix K{kernel, inputs};
 
   KernelRidgeRegressor regressor{kernel, lambda};

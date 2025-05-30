@@ -11,22 +11,22 @@
 #include <iosfwd>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/util/concept.h"
 #include "lucid/util/exception.h"
 
 namespace lucid {
 
-enum class Parameter {
-  // Mean parameter
-  // MEAN = 0,     ///< Mean parameter (@see HyperParameter::SIGMA_F)
-  SIGMA_F = 0,  ///< Sigma_f parameter
-  // Length scale parameter
-  // LENGTH_SCALE = 1,  ///< Length scale parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::COVARIANCE)
-  // COVARIANCE = 1,    ///< Covariance parameter (@see HyperParameter::SIGMA_L, @see HyperParameter::LENGTH_SCALE)
-  SIGMA_L = 1,  ///< Sigma_l parameter
-  // Regularization parameter
-  REGULARIZATION_CONSTANT = 2,
-  // Polynomial degree parameter
-  DEGREE = 3,  ///< Degree of the polynomial
+/**
+ * List of available parameters used parametrizable objects (e.g., Estimator and Kernel).
+ * To check whether an object supports a specific parameter, use the `has(Parameter)` method.
+ * @note The parameter numerical values are offset in such a way that operating over them is very efficient.
+ */
+enum class Parameter : std::uint16_t {
+  _ = 0,                             ///< No parameters
+  SIGMA_F = 1 << 0,                  ///< Sigma_f parameter
+  SIGMA_L = 1 << 1,                  ///< Sigma_l parameter
+  REGULARIZATION_CONSTANT = 1 << 2,  ///< Regularization constant parameter
+  DEGREE = 1 << 3,                   ///< Degree of the polynomial
 };
 
 using HP = Parameter;  ///< Alias for HyperParameter
@@ -58,9 +58,31 @@ struct ParameterType<Parameter::DEGREE> {
 
 }  // namespace internal
 
-template <class T, Parameter P>
-T dispatch(const std::function<T()>& fun_int, const std::function<T()>& fun_double,
-           const std::function<T()>& fun_vector) {
+template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
+          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
+Parameter operator|(LP lhs, RP rhs) {
+  return static_cast<Parameter>(static_cast<std::underlying_type_t<Parameter>>(lhs) |
+                                static_cast<std::underlying_type_t<Parameter>>(rhs));
+}
+template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
+          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
+Parameter operator&(LP lhs, RP rhs) {
+  return static_cast<Parameter>(static_cast<std::underlying_type_t<Parameter>>(lhs) &
+                                static_cast<std::underlying_type_t<Parameter>>(rhs));
+}
+
+/**
+ * Dispatch the correct function call depending on type associated with the `parameter`.
+ * @tparam R return type, the same for all the functions
+ * @tparam P parameter determining which function to dispatch
+ * @param fun_int function called if the parameter is integer valued
+ * @param fun_double function called if the parameter is double valued
+ * @param fun_vector function called if the parameter is vector valued
+ * @return value returned by the function that ended up being called
+ */
+template <class R, Parameter P>
+R dispatch(const std::function<R()>& fun_int, const std::function<R()>& fun_double,
+           const std::function<R()>& fun_vector) {
   if constexpr (std::is_same_v<typename internal::ParameterType<P>::type, int>) {
     return fun_int();
   } else if constexpr (std::is_same_v<typename internal::ParameterType<P>::type, double>) {
@@ -71,18 +93,26 @@ T dispatch(const std::function<T()>& fun_int, const std::function<T()>& fun_doub
     throw exception::LucidUnreachableException{};
   }
 }
-
-template <class T>
-T dispatch(const Parameter parameter, const std::function<T()>& fun_int, const std::function<T()>& fun_double,
-           const std::function<T()>& fun_vector) {
+/**
+ * Dispatch the correct function call depending on type associated with the `parameter`.
+ * @tparam R return type, the same for all the functions
+ * @param parameter the parameter determining which function to dispatch
+ * @param fun_int function called if the parameter is integer valued
+ * @param fun_double function called if the parameter is double valued
+ * @param fun_vector function called if the parameter is vector valued
+ * @return value returned by the function that ended up being called
+ */
+template <class R>
+R dispatch(const Parameter parameter, const std::function<R()>& fun_int, const std::function<R()>& fun_double,
+           const std::function<R()>& fun_vector) {
   switch (parameter) {
     case Parameter::DEGREE:
-      return dispatch<T, Parameter::DEGREE>(fun_int, fun_double, fun_vector);
+      return dispatch<R, Parameter::DEGREE>(fun_int, fun_double, fun_vector);
     case Parameter::SIGMA_F:
     case Parameter::REGULARIZATION_CONSTANT:
-      return dispatch<T, Parameter::SIGMA_F>(fun_int, fun_double, fun_vector);
+      return dispatch<R, Parameter::SIGMA_F>(fun_int, fun_double, fun_vector);
     case Parameter::SIGMA_L:
-      return dispatch<T, Parameter::SIGMA_L>(fun_int, fun_double, fun_vector);
+      return dispatch<R, Parameter::SIGMA_L>(fun_int, fun_double, fun_vector);
     default:
       throw exception::LucidUnreachableException{};
   }

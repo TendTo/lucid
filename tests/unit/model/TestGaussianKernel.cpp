@@ -46,8 +46,7 @@ class TestGaussianKernel : public ::testing::Test {
       : sigma_f_{4.2},
         is_sigma_l_{Vector::Constant(4, 2.4)},
         an_sigma_l_{Vector::LinSpaced(4, 1.2, 6.3)},
-        kernel_{Vector::LinSpaced(4, 1.2, 6.3), sigma_f_} {
-  }
+        kernel_{an_sigma_l_, sigma_f_} {}
 
   double sigma_f_;
   Vector is_sigma_l_;
@@ -60,10 +59,7 @@ TEST_F(TestGaussianKernel, VectorConstructor) {
   EXPECT_EQ(kernel.sigma_f(), 1.0);
   EXPECT_EQ(kernel.sigma_l().size(), 3);
   EXPECT_THAT(kernel.sigma_l(), ::testing::Each(1.0));
-  // EXPECT_EQ(kernel.sigma_f(), kernel.get<double>(Parameter::MEAN));
   EXPECT_EQ(kernel.sigma_f(), kernel.get<double>(Parameter::SIGMA_F));
-  // EXPECT_EQ(kernel.sigma_l(), kernel.get<const Vector&>(Parameter::LENGTH_SCALE));
-  // EXPECT_EQ(kernel.sigma_l(), kernel.get<const Vector&>(Parameter::COVARIANCE));
   EXPECT_EQ(kernel.sigma_l(), kernel.get<const Vector&>(Parameter::SIGMA_L));
 }
 
@@ -77,6 +73,31 @@ TEST_F(TestGaussianKernel, DimensionConstructor) {
   // EXPECT_EQ(kernel.sigma_l(), kernel.get<const Vector&>(Parameter::LENGTH_SCALE));
   // EXPECT_EQ(kernel.sigma_l(), kernel.get<const Vector&>(Parameter::COVARIANCE));
   EXPECT_EQ(kernel.sigma_l(), kernel.get<const Vector&>(Parameter::SIGMA_L));
+}
+
+TEST_F(TestGaussianKernel, ParametersList) {
+  EXPECT_THAT(kernel_.parameters_list(), ::testing::UnorderedElementsAre(Parameter::SIGMA_F, Parameter::SIGMA_L));
+}
+
+TEST_F(TestGaussianKernel, ParametersHas) {
+  EXPECT_TRUE(kernel_.has(Parameter::SIGMA_F));
+  EXPECT_TRUE(kernel_.has(Parameter::SIGMA_L));
+}
+
+TEST_F(TestGaussianKernel, ParametersGet) {
+  EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), sigma_f_);
+  EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), an_sigma_l_);
+}
+
+TEST_F(TestGaussianKernel, ParametersSet) {
+  constexpr double new_sigma_f = 1111.0;
+  const Vector new_sigma_l{Vector::Random(4)};
+
+  EXPECT_NO_THROW(kernel_.set(Parameter::SIGMA_F, new_sigma_f));
+  EXPECT_NO_THROW(kernel_.set(Parameter::SIGMA_L, new_sigma_l));
+
+  EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), new_sigma_f);
+  EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), new_sigma_l);
 }
 
 TEST_F(TestGaussianKernel, VectorCorrectnessIsotropic) {

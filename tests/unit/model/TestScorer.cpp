@@ -12,6 +12,7 @@ using lucid::ConstMatrixRef;
 using lucid::Estimator;
 using lucid::Index;
 using lucid::Matrix;
+using lucid::Parameter;
 using lucid::Scalar;
 using lucid::Vector;
 using lucid::scorer::mse_score;
@@ -20,7 +21,7 @@ using lucid::scorer::Scorer;
 
 class MockEstimator_ : public Estimator {
  public:
-  explicit MockEstimator_(Matrix predictions) : predictions_{std::move(predictions)} {
+  explicit MockEstimator_(Matrix predictions) : Estimator{Parameter::_}, predictions_{std::move(predictions)} {
     ON_CALL(*this, predict).WillByDefault(testing::Return(predictions_));
     ON_CALL(*this, consolidate).WillByDefault(testing::ReturnRef(*this));
   }

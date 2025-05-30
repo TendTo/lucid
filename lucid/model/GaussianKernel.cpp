@@ -14,7 +14,8 @@
 
 namespace lucid {
 
-GaussianKernel::GaussianKernel(const Vector& sigma_l, const double sigma_f) : sigma_l_{sigma_l}, sigma_f_{sigma_f} {
+GaussianKernel::GaussianKernel(const Vector& sigma_l, const double sigma_f)
+    : Kernel{Parameter::SIGMA_F | Parameter::SIGMA_L}, sigma_l_{sigma_l}, sigma_f_{sigma_f} {
   LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
 }
 GaussianKernel::GaussianKernel(const Dimension dim, const double sigma_l, const double sigma_f)
@@ -63,16 +64,6 @@ bool GaussianKernel::is_isotropic() const {
   return std::ranges::adjacent_find(view, std::ranges::not_equal_to()) == view.end();
 }
 std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_l_, sigma_f_); }
-
-bool GaussianKernel::has(const Parameter parameter) const {
-  switch (parameter) {
-    case Parameter::SIGMA_L:
-    case Parameter::SIGMA_F:
-      return true;
-    default:
-      return false;
-  }
-}
 
 void GaussianKernel::set(const Parameter parameter, const double value) {
   switch (parameter) {

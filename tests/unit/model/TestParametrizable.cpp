@@ -15,18 +15,11 @@ using lucid::Vector;
 class MockParametrizable final : public Parametrizable {
  public:
   using Parametrizable::set;
-  MockParametrizable() : int_param_(42), double_param_(3.14), vector_param_(Vector::Ones(3)) {}
-
-  [[nodiscard]] bool has(const Parameter parameter) const override {
-    switch (parameter) {
-      case Parameter::DEGREE:
-      case Parameter::SIGMA_F:
-      case Parameter::SIGMA_L:
-        return true;
-      default:
-        return false;
-    }
-  }
+  MockParametrizable()
+      : Parametrizable{Parameter::DEGREE | Parameter::SIGMA_F | Parameter::SIGMA_L},
+        int_param_(42),
+        double_param_(3.14),
+        vector_param_(Vector::Ones(3)) {}
 
   [[nodiscard]] int get_i(const Parameter parameter) const override {
     if (parameter == Parameter::DEGREE) {

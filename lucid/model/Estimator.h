@@ -34,7 +34,7 @@ class Estimator : public Parametrizable {
    * If no tuner is provided, the estimator will not use any during the fitting process,
    * keeping the hyperparameters it was initialised with.
    */
-  explicit Estimator(const std::shared_ptr<const Tuner>& tuner = nullptr);
+  explicit Estimator(Parameter parameters, const std::shared_ptr<const Tuner>& tuner = nullptr);
   /**
    * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}
    * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.

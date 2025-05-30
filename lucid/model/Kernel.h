@@ -22,7 +22,7 @@ namespace lucid {
  */
 class Kernel : public Parametrizable {
  public:
-  Kernel() = default;
+  explicit Kernel(const Parameter parameters) : Parametrizable{parameters} {}
 
   /** @checker{is stationary, kernel} */
   [[nodiscard]] virtual bool is_stationary() const = 0;
