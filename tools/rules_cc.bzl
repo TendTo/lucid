@@ -141,7 +141,7 @@ def _get_defines(rule_defines):
         "//tools:release_build": ["NDEBUG"],
         "//conditions:default": [],
     }) + select({
-        "//tools:benchmark_build": ["NCHECK"],
+        "//tools:benchmark_build": ["NCHECK", "NCONVERT"],
         "//conditions:default": [],
     }) + select({
         "//tools:python_build": ["LUCID_PYTHON_BUILD"],

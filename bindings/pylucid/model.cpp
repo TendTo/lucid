@@ -26,6 +26,12 @@
 namespace py = pybind11;
 using namespace lucid;
 
+#ifndef NCONVERT
+#define ARG_NONCONVERT(name) py::arg(name)
+#else
+#define ARG_NONCONVERT(name) py::arg(name).noconvert()
+#endif
+
 /**
  * Get the value of the specified parameter from a Parametrizable object.
  * This function uses dispatch to call the appropriate getter based on the type of the parameter.
@@ -96,15 +102,6 @@ py::object get_parameter_values(const ParameterValues &self) {
         // return l;
       });
 }
-
-class PyParametrizable final : public Parametrizable {
- public:
-  using Parametrizable::Parametrizable;
-
-  [[nodiscard]] bool has(Parameter parameter) const override {
-    PYBIND11_OVERRIDE_PURE(bool, Parametrizable, has, parameter);
-  }
-};
 
 class PyKernel final : public Kernel {
  public:
@@ -205,8 +202,7 @@ void init_model(py::module_ &m) {
       .def_property_readonly("size", &ParameterValues::size)
       .def_property_readonly("parameter", &ParameterValues::parameter)
       .def_property_readonly("values", get_parameter_values);
-  py::class_<Parametrizable, PyParametrizable>(m, "Parametrizable")
-      .def(py::init<>())
+  py::class_<Parametrizable>(m, "Parametrizable")
       .def("get", get_parametrizable, py::arg("parameter"), py::return_value_policy::reference_internal)
       .def(
           "set",
@@ -224,6 +220,7 @@ void init_model(py::module_ &m) {
             return self.set(parameter, value);
           },
           py::arg("parameter"), py::arg("value"))
+      .def("parameters", &Parametrizable::parameters_list)
       .def("has", &Parametrizable::has, py::arg("parameter"))
       .def("__contains__", &Parametrizable::has, py::arg("parameter"));
 
@@ -239,8 +236,8 @@ void init_model(py::module_ &m) {
            py::arg("include_endpoints"))
       .def("plot", &Set::plot, py::arg("color"))
       .def("plot3d", &Set::plot3d, py::arg("color"))
-      .def("__contains__", &Set::contains, py::arg("x"))
-      .def("__call__", &Set::operator(), py::arg("x"))
+      .def("__contains__", &Set::contains, ARG_NONCONVERT("x"))
+      .def("__call__", &Set::operator(), ARG_NONCONVERT("x"))
       .def("__str__", STRING_LAMBDA(Set));
   py::class_<RectSet, Set>(m, "RectSet")
       .def(py::init<Vector, Vector, int>(), py::arg("lb"), py::arg("ub"), py::arg("seed") = -1)
@@ -277,15 +274,16 @@ void init_model(py::module_ &m) {
   py::class_<Estimator, PyEstimator, Parametrizable> estimator(m, "Estimator");
 
   /**************************** Scorer ****************************/
-  m.def("r2_score", &scorer::r2_score, py::arg("estimator"), py::arg("evaluation_inputs"),
-        py::arg("evaluation_outputs"));
-  m.def("mse_score", &scorer::mse_score, py::arg("estimator"), py::arg("evaluation_inputs"),
-        py::arg("evaluation_outputs"));
+  m.def("r2_score", &scorer::r2_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
+        ARG_NONCONVERT("evaluation_outputs"));
+  m.def("mse_score", &scorer::mse_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
+        ARG_NONCONVERT("evaluation_outputs"));
 
   /**************************** Tuner ****************************/
   py::class_<Tuner, PyTuner, std::shared_ptr<Tuner>>(m, "Tuner")
       .def(py::init<>())
-      .def("tune", &Tuner::tune, py::arg("estimator"), py::arg("training_inputs"), py::arg("training_outputs"))
+      .def("tune", &Tuner::tune, py::arg("estimator"), ARG_NONCONVERT("training_inputs"),
+           ARG_NONCONVERT("training_outputs"))
       .def("__str__", STRING_LAMBDA(Tuner));
   py::class_<MedianHeuristicTuner, Tuner, std::shared_ptr<MedianHeuristicTuner>>(m, "MedianHeuristicTuner",
                                                                                  py::is_final())
@@ -318,8 +316,11 @@ void init_model(py::module_ &m) {
 
   /**************************** Kernel ****************************/
   py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel")
-      .def("__call__", py::overload_cast<ConstMatrixRef>(&Kernel::operator(), py::const_))
-      .def("__call__", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Kernel::operator(), py::const_))
+      .def(
+          "__call__", [](const Kernel &self, ConstMatrixRef x1, ConstMatrixRef x2) { return self(x1, x2); },
+          ARG_NONCONVERT("x1"), ARG_NONCONVERT("x2"))
+      .def(
+          "__call__", [](const Kernel &self, ConstMatrixRef x1) { return self(x1, x1); }, ARG_NONCONVERT("x1"))
       .def("clone", &Kernel::clone)
       .def("__str__", STRING_LAMBDA(Kernel));
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
@@ -334,9 +335,9 @@ void init_model(py::module_ &m) {
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("prob_dim_wise"),
            py::arg("sigma_f"), py::arg("x_limits"))
-      .def("map_vector", &TruncatedFourierFeatureMap::map_vector, py::arg("x"))
-      .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, py::arg("x"))
-      .def("__call__", &TruncatedFourierFeatureMap::operator(), py::arg("x"))
+      .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"))
+      .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"))
+      .def("__call__", &TruncatedFourierFeatureMap::operator(), ARG_NONCONVERT("x"))
       .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension)
       .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega)
       .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights)
@@ -361,15 +362,16 @@ void init_model(py::module_ &m) {
            py::arg("sigma_f"), py::arg("x_limits"));
 
   /**************************** Estimator ****************************/
-  estimator.def("__call__", &Estimator::operator(), py::arg("x"))
-      .def("predict", &Estimator::predict, py::arg("x"))
-      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), py::arg("x"), py::arg("y"))
-      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit), py::arg("x"),
-           py::arg("y"), py::arg("tuner"))
+  estimator.def("__call__", &Estimator::operator(), ARG_NONCONVERT("x"))
+      .def("predict", &Estimator::predict, ARG_NONCONVERT("x"))
+      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), ARG_NONCONVERT("x"),
+           ARG_NONCONVERT("y"))
+      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit),
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("tuner"))
       .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
       .def_property("tuner", &Estimator::tuner,
                     [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
-      .def("consolidate", &Estimator::consolidate, py::arg("x"), py::arg("y"))
+      .def("consolidate", &Estimator::consolidate, ARG_NONCONVERT("x"), ARG_NONCONVERT("y"))
       .def("clone", &Estimator::clone)
       .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
@@ -377,11 +379,13 @@ void init_model(py::module_ &m) {
            py::arg("regularization_constant") = 1.0, py::arg("tuner") = nullptr)
       .def("__call__",
            py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::operator(), py::const_),
-           py::arg("x"), py::arg("feature_map"))
-      .def("__call__", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::operator(), py::const_), py::arg("x"))
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("feature_map"))
+      .def("__call__", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::operator(), py::const_),
+           ARG_NONCONVERT("x"))
       .def("predict", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::predict, py::const_),
-           py::arg("x"), py::arg("feature_map"))
-      .def("predict", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::predict, py::const_), py::arg("x"))
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("feature_map"))
+      .def("predict", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::predict, py::const_),
+           ARG_NONCONVERT("x"))
       .def_property_readonly("kernel",
                              [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); })
       .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs)

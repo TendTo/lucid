@@ -48,38 +48,38 @@ class TestKernel:
             assert not k.get(Parameter.SIGMA_L).flags.writeable
 
         def test_call(self):
-            k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
-            assert k([1, 2, 3], [1, 2, 3]) == 4
+            k = GaussianKernel(sigma_f=2, sigma_l=[3.0, 4.0, 5.0])
+            assert k(np.array([[1.0, 2.0, 3.0]]), np.array([[1.0, 2.0, 3.0]])) == 4
 
         def test_call_baseline(self):
             if RBF is None:
                 return
             k = GaussianKernel(sigma_f=1, sigma_l=[0.5, 0.5, 0.5])
             rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
-            x = np.array([1, 2, 3])
-            y = np.array([4, 5, 6])
-            assert np.allclose(k(x, y), rbf([x], np.array([y])))
+            x = np.array([[1.0, 2.0, 3.0]])
+            y = np.array([[4.0, 5.0, 6.0]])
+            assert np.allclose(k(x, y), rbf(x, y))
 
         def test_call_baseline_anisotropic(self):
             if RBF is None:
                 return
             k = GaussianKernel(sigma_f=1, sigma_l=[3, 4, 5])
             rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
-            x = np.array([1, 2, 3])
-            y = np.array([6, 4, 1])
-            assert np.allclose(k(x, y), rbf([x], [y]))
+            x = np.array([[1.0, 2.0, 3.0]])
+            y = np.array([[6.0, 4.0, 1.0]])
+            assert np.allclose(k(x, y), rbf(x, y))
 
         def test_call_single(self):
-            k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
-            assert k([1, 2, 3]) == 4
+            k = GaussianKernel(sigma_f=2, sigma_l=[3.0, 4.0, 5.0])
+            assert k(np.array([[1.0, 2.0, 3.0]])) == 4
 
         def test_call_single_baseline(self):
             if RBF is None:
                 return
             k = GaussianKernel(sigma_f=1, sigma_l=[3, 4, 5])
             rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
-            x = np.array([1, 2, 3])
-            assert np.allclose(k(x), rbf([x]))
+            x = np.array([[1.0, 2.0, 3.0]])
+            assert np.allclose(k(x), rbf(x))
 
         def test_clone(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
