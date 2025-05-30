@@ -128,9 +128,7 @@ class Parametrizable {
    * @return true if the parameter is present
    * @return false if the parameter is not present
    */
-  [[nodiscard]] bool has(const Parameter parameter) const {
-    return static_cast<std::underlying_type_t<Parameter>>(parameter & parameters_);
-  }
+  [[nodiscard]] bool has(const Parameter parameter) const { return parameter && parameters_; }
 
   /** @getter{parameters, parametrizable object,
    * The parameters are stored in compressed form\, needing bitwise operation to be accessed.} */

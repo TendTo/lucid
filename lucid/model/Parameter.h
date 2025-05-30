@@ -58,17 +58,71 @@ struct ParameterType<Parameter::DEGREE> {
 
 }  // namespace internal
 
+/**
+ * Perform a bitwise OR operation on two parameters.
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @param lhs left-hand side parameter
+ * @param rhs right-hand side parameter
+ * @return the result of the bitwise OR operation as a `Parameter`
+ */
 template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
           IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
-Parameter operator|(LP lhs, RP rhs) {
+constexpr Parameter operator|(LP lhs, RP rhs) {
   return static_cast<Parameter>(static_cast<std::underlying_type_t<Parameter>>(lhs) |
                                 static_cast<std::underlying_type_t<Parameter>>(rhs));
 }
+/**
+ * Perform a bitwise OR operation on two parameters and return the result as a boolean.
+ * @code
+ * Parameter::SIGMA_L || Parameter::SIGMA_L; // true
+ * Parameter::SIGMA_F || Parameter::DEGREE; // true
+ * Parameter::_ || Parameter::SIGMA_L; // true
+ * Parameter::_ || Parameter::_; // false
+ * @endcode
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @param lhs left-hand side parameter
+ * @param rhs right-hand side parameter
+ * @return the result of the bitwise OR operation as a boolean
+ */
 template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
           IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
-Parameter operator&(LP lhs, RP rhs) {
+constexpr bool operator||(LP lhs, RP rhs) {
+  return static_cast<std::underlying_type_t<Parameter>>(lhs) | static_cast<std::underlying_type_t<Parameter>>(rhs);
+}
+/**
+ * Perform a bitwise AND operation on two parameters.
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @param lhs left-hand side parameter
+ * @param rhs right-hand side parameter
+ * @return the result of the bitwise AND operation as a `Parameter`
+ */
+template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
+          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
+constexpr Parameter operator&(LP lhs, RP rhs) {
   return static_cast<Parameter>(static_cast<std::underlying_type_t<Parameter>>(lhs) &
                                 static_cast<std::underlying_type_t<Parameter>>(rhs));
+}
+/**
+ * Perform a bitwise AND operation on two parameters and return the result as a boolean.
+ * @code
+ * Parameter::SIGMA_L && Parameter::SIGMA_L; // true
+ * Parameter::SIGMA_F && Parameter::DEGREE; // false
+ * Parameter::_ && Parameter::SIGMA_L; // false
+ * Parameter::_ && Parameter::_; // false
+ * @endcode
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @param lhs left-hand side parameter
+ * @param rhs right-hand side parameter
+ * @return the result of the bitwise AND operation as a boolean
+ */
+template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
+          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
+constexpr bool operator&&(LP lhs, RP rhs) {
+  return static_cast<std::underlying_type_t<Parameter>>(lhs) & static_cast<std::underlying_type_t<Parameter>>(rhs);
 }
 
 /**

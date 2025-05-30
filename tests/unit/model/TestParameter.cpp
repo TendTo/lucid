@@ -13,6 +13,20 @@ using lucid::Parameter;
 using lucid::Vector;
 using lucid::internal::ParameterType;
 
+TEST(TestParameter, And) {
+  static_assert(Parameter::DEGREE && Parameter::DEGREE, "Same parameter && => true");
+  static_assert(!(Parameter::DEGREE && Parameter::SIGMA_F), "Different parameter && => false");
+  static_assert(!(Parameter::_ && Parameter::SIGMA_F), "_ && parameter && => false");
+  static_assert(!(Parameter::_ && Parameter::_), "_ && _ => false");
+}
+
+TEST(TestParameter, Or) {
+  static_assert(Parameter::DEGREE || Parameter::DEGREE, "Same parameter || => true");
+  static_assert(Parameter::DEGREE || Parameter::SIGMA_F, "Different parameter || => true");
+  static_assert(Parameter::_ || Parameter::DEGREE, "_ || parameter => true");
+  static_assert(!(Parameter::_ || Parameter::_), "_ || _ => false");
+}
+
 TEST(TestParameter, Type) {
   static_assert(std::is_same_v<ParameterType<Parameter::DEGREE>::type, int>, "DEGREE is an int");
   static_assert(std::is_same_v<ParameterType<Parameter::SIGMA_F>::type, double>, "SIGMA_F is a double");
