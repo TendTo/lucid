@@ -79,6 +79,7 @@ doxygen(
     extract_private = True,
     filter_patterns = ["*.md=bash docs/filters/markdown.sh"],
     full_sidebar = False,
+    generate_latex = False,
     generate_treeview = True,
     have_dot = False,
     # have_dot = True,
