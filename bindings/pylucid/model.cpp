@@ -122,8 +122,8 @@ class PyEstimator final : public Estimator {
   [[nodiscard]] Matrix predict(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Estimator, predict, x);
   }
-  Estimator &consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) override {
-    PYBIND11_OVERRIDE_PURE(Estimator &, Estimator, consolidate, training_inputs, training_outputs);
+  Estimator &consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, Requests requests) override {
+    PYBIND11_OVERRIDE_PURE(Estimator &, Estimator, consolidate, training_inputs, training_outputs, requests);
   }
   [[nodiscard]] double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override {
     PYBIND11_OVERRIDE_PURE(double, Estimator, score, evaluation_inputs, evaluation_outputs);

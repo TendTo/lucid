@@ -119,7 +119,8 @@ class KernelRidgeRegressor final : public Estimator {
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;
 
-  Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) override;
+  Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                         Requests requests = NoRequests) override;
 
   [[nodiscard]] double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override;
 

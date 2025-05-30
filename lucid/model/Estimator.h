@@ -12,6 +12,7 @@
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Parametrizable.h"
+#include "lucid/model/Request.h"
 
 namespace lucid {
 
@@ -33,8 +34,12 @@ class Estimator : public Parametrizable {
    * Construct a new Estimator object.
    * If no tuner is provided, the estimator will not use any during the fitting process,
    * keeping the hyperparameters it was initialised with.
+   * @param parameters parameters of the estimator, default to no specific parameter
+   * @param tuner Tuner object used to find the best hyperparameters for the model.
+   * If not provided, the estimator, will not use any tuner during the fitting process,
+   * keeping the hyperparameters it was initialised with.
    */
-  explicit Estimator(Parameter parameters, const std::shared_ptr<const Tuner>& tuner = nullptr);
+  explicit Estimator(Parameters parameters = NoParameters, const std::shared_ptr<const Tuner>& tuner = nullptr);
   /**
    * A model is a function that takes a @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X}
    * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
@@ -65,7 +70,8 @@ class Estimator : public Parametrizable {
    * Fit the model to the given data.
    * This method will use the object's tuner to find the best hyperparameters for the model.
    * After the process is completed, the estimator can be used to make predictions on new data.
-   * If no tuner has been provided during construction, the method is equivalent to @ref consolidate.
+   * If no tuner has been provided during construction,
+   * the method is equivalent to @ref consolidate with no specific request.
    * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
    * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
    * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
@@ -77,14 +83,18 @@ class Estimator : public Parametrizable {
    * No fitting process is performed, and the hyperparameters are not updated,
    * but the estimator may change its internal state so it can be used for predictions.
    * After the process is completed, the estimator can be used to make predictions on new data.
-   * @note This is equivalent to calling @ref fit without a tuner being provided in the constructor or in the method.
-   * It is not necessary to call this method after @ref fit.
+   * The `request` parameter can be used to specify additional options for the consolidation process,
+   * like whether to compute some additional values used by some tuners.
+   * @note This is a low-level method that allows the user great control over the behaviour of the estimator.
+   * It is usually recommended to use @ref fit with the desired tuner instead.
    * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
    * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
    * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
+   * @param requests request for the consolidation process, default to no specific request
    * @return reference to the estimator
    */
-  virtual Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) = 0;
+  virtual Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                                 Requests requests = NoRequests) = 0;
   /**
    * Score the estimator assigning a numerical value to its accuracy in predicting the `evaluation_outputs`
    * given the `evaluation_inputs`.

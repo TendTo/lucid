@@ -12,6 +12,7 @@
 
 #include "lucid/lib/eigen.h"
 #include "lucid/util/concept.h"
+#include "lucid/util/definitions.h"
 #include "lucid/util/exception.h"
 
 namespace lucid {
@@ -29,7 +30,9 @@ enum class Parameter : std::uint16_t {
   DEGREE = 1 << 3,                   ///< Degree of the polynomial
 };
 
-using HP = Parameter;  ///< Alias for HyperParameter
+using HP = Parameter;                                                       ///< Alias for HyperParameter
+using Parameters = std::underlying_type_t<Parameter>;                       ///< Efficient set of parameters
+constexpr Parameters NoParameters = static_cast<Parameters>(Parameter::_);  ///< No parameter value
 
 namespace internal {
 
@@ -58,72 +61,88 @@ struct ParameterType<Parameter::DEGREE> {
 
 }  // namespace internal
 
+FLAG_ENUMS(Parameter, DEGREE)
+
+#if 0
 /**
  * Perform a bitwise OR operation on two parameters.
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * Efficient way of taking the union of two set of parameters.
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
  * @param lhs left-hand side parameter
  * @param rhs right-hand side parameter
- * @return the result of the bitwise OR operation as a `Parameter`
+ * @return the result of the bitwise OR operation as a `Parameters`
  */
-template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
-          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
-constexpr Parameter operator|(LP lhs, RP rhs) {
-  return static_cast<Parameter>(static_cast<std::underlying_type_t<Parameter>>(lhs) |
-                                static_cast<std::underlying_type_t<Parameter>>(rhs));
+template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
+constexpr Parameters operator|(LP lhs, RP rhs) {
+  return static_cast<Parameters>(lhs) | static_cast<Parameters>(rhs);
 }
 /**
  * Perform a bitwise OR operation on two parameters and return the result as a boolean.
+ * Efficient way of checking if two set of parameters have a non-empty union.
  * @code
  * Parameter::SIGMA_L || Parameter::SIGMA_L; // true
  * Parameter::SIGMA_F || Parameter::DEGREE; // true
+ * Parameter::SIGMA_F || (Parameter::DEGREE & Parameter::SIGMA_F); // true
  * Parameter::_ || Parameter::SIGMA_L; // true
  * Parameter::_ || Parameter::_; // false
  * @endcode
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
  * @param lhs left-hand side parameter
  * @param rhs right-hand side parameter
  * @return the result of the bitwise OR operation as a boolean
  */
-template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
-          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
+template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
 constexpr bool operator||(LP lhs, RP rhs) {
-  return static_cast<std::underlying_type_t<Parameter>>(lhs) | static_cast<std::underlying_type_t<Parameter>>(rhs);
+  return static_cast<Parameters>(lhs) | static_cast<Parameters>(rhs);
 }
 /**
  * Perform a bitwise AND operation on two parameters.
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * Efficient way of taking the intersection of two set of parameters.
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
  * @param lhs left-hand side parameter
  * @param rhs right-hand side parameter
  * @return the result of the bitwise AND operation as a `Parameter`
  */
-template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
-          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
-constexpr Parameter operator&(LP lhs, RP rhs) {
-  return static_cast<Parameter>(static_cast<std::underlying_type_t<Parameter>>(lhs) &
-                                static_cast<std::underlying_type_t<Parameter>>(rhs));
+template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
+constexpr Parameters operator&(LP lhs, RP rhs) {
+  return static_cast<Parameters>(lhs) & static_cast<Parameters>(rhs);
 }
 /**
  * Perform a bitwise AND operation on two parameters and return the result as a boolean.
+ * Efficient way of checking if two set of parameters have a non-empty intersection.
  * @code
  * Parameter::SIGMA_L && Parameter::SIGMA_L; // true
  * Parameter::SIGMA_F && Parameter::DEGREE; // false
+ * Parameter::SIGMA_F && (Parameter::DEGREE & Parameter::SIGMA_F); // true
  * Parameter::_ && Parameter::SIGMA_L; // false
  * Parameter::_ && Parameter::_; // false
  * @endcode
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or its underlying type
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or its underlying type
+ * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
+ * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
  * @param lhs left-hand side parameter
  * @param rhs right-hand side parameter
  * @return the result of the bitwise AND operation as a boolean
  */
-template <IsAnyOf<Parameter, std::underlying_type_t<Parameter>> LP,
-          IsAnyOf<Parameter, std::underlying_type_t<Parameter>> RP>
+template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
 constexpr bool operator&&(LP lhs, RP rhs) {
-  return static_cast<std::underlying_type_t<Parameter>>(lhs) & static_cast<std::underlying_type_t<Parameter>>(rhs);
+  return static_cast<Parameters>(lhs) & static_cast<Parameters>(rhs);
 }
+/**
+ * Convert the efficient parameter representation into an easy-to-traverse vector
+ * @param parameters set of parameters
+ * @return vector of parameters
+ */
+inline operator std::vector<Parameter>(const Parameters parameters) {
+  std::vector<Parameter> result;
+  for (auto p = Parameter::_; p <= Parameter::DEGREE; p = static_cast<Parameter>(static_cast<Parameters>(p) << 1)) {
+    if (p && parameters) result.push_back(p);
+  }
+  return result;
+}
+#endif
 
 /**
  * Dispatch the correct function call depending on type associated with the `parameter`.

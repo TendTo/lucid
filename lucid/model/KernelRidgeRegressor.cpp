@@ -105,26 +105,28 @@ Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, cons
   LUCID_CRITICAL_FMT("log_likelihood_gradient:\n{}", log_likelihood_gradient);
   return log_likelihood_gradient;
 }
+Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                                             const Requests requests) {
+  LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate({}, {}, {})", training_inputs, training_outputs, requests);
 
-Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) {
   LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() == training_outputs.rows(), "training_inputs.rows()",
                                 training_inputs.rows(), training_outputs.rows());
   training_inputs_ = training_inputs;
-  // TODO(tend): maybe we don't need to compute the gradient every time.
-  //  Should we include a flag indicating to the regressor whether to do it or not?
-  std::vector<Matrix> gradient;
+  std::vector<Matrix> kernel_gradient;
   // Compute gram matrix K (nxn) with elements K_{ij} = k(x_i, x_j)
-  GramMatrix gram_matrix{*kernel_, training_inputs_, gradient};
+  GramMatrix gram_matrix{*kernel_, training_inputs_, requests && Request::GRADIENT ? &kernel_gradient : nullptr};
   // Add the regularisation term to the diagonal K + λnI
   gram_matrix.add_diagonal_term(regularization_constant_ * static_cast<double>(training_inputs_.rows()));
   // Invert the gram matrix and compute the coefficients as (K + λnI)^-1 y
   coefficients_ = gram_matrix.inverse() * training_outputs;
-  LUCID_TRACE_FMT("Coefficients: [{}]", coefficients_);
-  // Since we have all the necessary information, we can also compute the log marginal likelihood
-  // TODO(tend): maybe we don't need to compute the log_marginal_likelihood_ every time.
-  //  Should we include a flag indicating to the regressor whether to do it or not?
-  log_marginal_likelihood_ = compute_log_marginal(gram_matrix, training_outputs);
-  compute_log_marginal_gradient(gram_matrix, training_outputs, coefficients_, gradient);
+  LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate(): coefficients = [{}]", coefficients_);
+  if (requests && Request::GRADIENT) {
+    LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate(): kernel_gradient = [{}]", kernel_gradient);
+    // With the coefficients computed, we can now compute the log marginal likelihood, which is our objective value
+    log_marginal_likelihood_ = compute_log_marginal(gram_matrix, training_outputs);
+    // and its gradient
+    compute_log_marginal_gradient(gram_matrix, training_outputs, coefficients_, kernel_gradient);
+  }
   return *this;
 }
 

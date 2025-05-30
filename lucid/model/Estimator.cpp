@@ -14,7 +14,7 @@
 
 namespace lucid {
 
-Estimator::Estimator(const Parameter parameters, const std::shared_ptr<const Tuner>& tuner)
+Estimator::Estimator(const Parameters parameters, const std::shared_ptr<const Tuner>& tuner)
     : Parametrizable{parameters}, tuner_{tuner} {}
 Matrix Estimator::operator()(ConstMatrixRef x) const { return predict(x); }
 

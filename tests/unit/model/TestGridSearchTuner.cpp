@@ -76,7 +76,7 @@ class MockEstimator_ : public Estimator {
   }
 
   MOCK_METHOD(Matrix, predict, (ConstMatrixRef), (const override));
-  MOCK_METHOD(Estimator &, consolidate, (ConstMatrixRef, ConstMatrixRef), (override));
+  MOCK_METHOD(Estimator &, consolidate, (ConstMatrixRef, ConstMatrixRef, Requests), (override));
   MOCK_METHOD(double, score, (ConstMatrixRef, ConstMatrixRef), (const override));
   MOCK_METHOD(void, set, (Parameter, int), (override));
   MOCK_METHOD(void, set, (Parameter, double), (override));

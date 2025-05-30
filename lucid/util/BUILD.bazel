@@ -24,6 +24,11 @@ whl_filegroup(
 )
 
 lucid_pybind_library(
+    name = "definitions",
+    hdrs = ["definitions.h"],
+)
+
+lucid_pybind_library(
     name = "matplotlib",
     srcs = ["matplotlib.cpp"],
     hdrs = ["matplotlib.h"],
@@ -114,6 +119,7 @@ lucid_cc_library(
     hdrs = ["util.h"],
     deps = [
         ":concepts",
+        ":definitions",
         ":exception",
         ":index_iterator",
         ":math",

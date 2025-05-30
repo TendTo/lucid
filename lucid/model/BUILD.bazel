@@ -21,7 +21,10 @@ lucid_cc_library(
     srcs = ["Request.cpp"],
     hdrs = ["Request.h"],
     implementation_deps = ["//lucid/util:error"],
-    deps = ["//lucid/util:logging"],
+    deps = [
+        "//lucid/util:concepts",
+        "//lucid/util:logging",
+    ],
 )
 
 lucid_cc_library(
@@ -42,6 +45,7 @@ lucid_cc_library(
     deps = [
         "//lucid/lib:eigen",
         "//lucid/util:concepts",
+        "//lucid/util:definitions",
         "//lucid/util:exception",
         "//lucid/util:logging",
     ],

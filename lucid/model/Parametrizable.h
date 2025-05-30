@@ -28,7 +28,7 @@ namespace lucid {
  */
 class Parametrizable {
  public:
-  explicit Parametrizable(const Parameter parameters) : parameters_{parameters} {}
+  explicit Parametrizable(const Parameters parameters = NoParameters) : parameters_{parameters} {}
   virtual ~Parametrizable() = default;
 
   /**
@@ -132,9 +132,7 @@ class Parametrizable {
 
   /** @getter{parameters, parametrizable object,
    * The parameters are stored in compressed form\, needing bitwise operation to be accessed.} */
-  [[nodiscard]] std::underlying_type_t<Parameter> parameters() const {
-    return static_cast<std::underlying_type_t<Parameter>>(parameters_);
-  }
+  [[nodiscard]] Parameters parameters() const { return parameters_; }
   /** @getter{list of parameters, parametrizable object} */
   [[nodiscard]] std::vector<Parameter> parameters_list() const;
 
@@ -161,7 +159,7 @@ class Parametrizable {
    */
   [[nodiscard]] virtual const Vector& get_v(Parameter parameter) const;
 
-  Parameter parameters_;  ///< Parameters supported by this object
+  Parameters parameters_;  ///< Parameters supported by this object
 };
 
 }  // namespace lucid

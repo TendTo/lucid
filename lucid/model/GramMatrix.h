@@ -54,7 +54,7 @@ class GramMatrix {
    * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
    * @f]
    * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
-   * Moreover, store the `gradient`.
+   * Moreover, compute and store the `gradient`.
    * @param kernel rkhs kernel used to compute the Gram matrix
    * @param initial_states @N initial states used to compute the Gram matrix
    * @param gradient[out] gradient of the kernel with the current parameters
@@ -62,6 +62,23 @@ class GramMatrix {
   template <class Derived>
   GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states, std::vector<Matrix>& gradient)
       : gram_matrix_{kernel(initial_states, gradient)} {}
+  /**
+   * Compute the Gram matrix from the kernel and the initial states.
+   * The initial states should be an @Nxn matrix where @n is the dimension of the vector space @X
+   * and @N is the number of states used to compute the Gram matrix, i.e.
+   * @f[
+   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
+   * @f]
+   * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
+   * Moreover, compute and store the `gradient` if it is not `nullptr`.
+   * @param kernel rkhs kernel used to compute the Gram matrix
+   * @param initial_states @N initial states used to compute the Gram matrix
+   * @param gradient[out] gradient of the kernel with the current parameters
+   * If `nullptr`, the gradient will not be* computed
+   */
+  template <class Derived>
+  GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states, std::vector<Matrix>* const gradient)
+      : gram_matrix_{gradient ? kernel(initial_states, *gradient) : kernel(initial_states)} {}
 
   /**
    * Given the initial state @f$ x \in \mathcal{X} @f$, compute the coefficients @f$ \alpha \in \mathbb{R}^s @f$.

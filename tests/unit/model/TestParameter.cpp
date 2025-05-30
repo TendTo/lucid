@@ -15,6 +15,7 @@ using lucid::internal::ParameterType;
 
 TEST(TestParameter, And) {
   static_assert(Parameter::DEGREE && Parameter::DEGREE, "Same parameter && => true");
+  static_assert((Parameter::DEGREE && (Parameter::SIGMA_F | Parameter::DEGREE)), "Subset && => true");
   static_assert(!(Parameter::DEGREE && Parameter::SIGMA_F), "Different parameter && => false");
   static_assert(!(Parameter::_ && Parameter::SIGMA_F), "_ && parameter && => false");
   static_assert(!(Parameter::_ && Parameter::_), "_ && _ => false");
@@ -23,6 +24,7 @@ TEST(TestParameter, And) {
 TEST(TestParameter, Or) {
   static_assert(Parameter::DEGREE || Parameter::DEGREE, "Same parameter || => true");
   static_assert(Parameter::DEGREE || Parameter::SIGMA_F, "Different parameter || => true");
+  static_assert(Parameter::DEGREE || (Parameter::SIGMA_F | Parameter::DEGREE), "Subset || => true");
   static_assert(Parameter::_ || Parameter::DEGREE, "_ || parameter => true");
   static_assert(!(Parameter::_ || Parameter::_), "_ || _ => false");
 }
