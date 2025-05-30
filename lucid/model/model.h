@@ -24,6 +24,7 @@
 #include "lucid/model/ParameterValue.h"
 #include "lucid/model/ParameterValues.h"
 #include "lucid/model/RectSet.h"
+#include "lucid/model/Request.h"
 #include "lucid/model/Set.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 #include "lucid/model/Tuner.h"

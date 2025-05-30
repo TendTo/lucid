@@ -17,6 +17,14 @@ lucid_hdrs_tar(
 cpplint()
 
 lucid_cc_library(
+    name = "request",
+    srcs = ["Request.cpp"],
+    hdrs = ["Request.h"],
+    implementation_deps = ["//lucid/util:error"],
+    deps = ["//lucid/util:logging"],
+)
+
+lucid_cc_library(
     name = "parameter",
     srcs = [
         "Parameter.cpp",
@@ -176,6 +184,7 @@ lucid_cc_library(
         ":gram_matrix",
         ":kernel",
         ":parameter",
+        ":request",
         ":set",
     ],
 )

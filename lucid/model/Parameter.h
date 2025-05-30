@@ -19,7 +19,7 @@ namespace lucid {
 /**
  * List of available parameters used parametrizable objects (e.g., Estimator and Kernel).
  * To check whether an object supports a specific parameter, use the `has(Parameter)` method.
- * @note The parameter numerical values are offset in such a way that operating over them is very efficient.
+ * @note The numerical values are offset in such a way that operating over them is very efficient.
  */
 enum class Parameter : std::uint16_t {
   _ = 0,                             ///< No parameters

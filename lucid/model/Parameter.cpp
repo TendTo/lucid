@@ -13,6 +13,8 @@
 namespace lucid {
 std::ostream& operator<<(std::ostream& os, const Parameter name) {
   switch (name) {
+    case Parameter::_:
+      return os << "Parameter( NoParameter )";
     case Parameter::SIGMA_L:
       return os << "Parameter( Sigma_l )";
     case Parameter::SIGMA_F:

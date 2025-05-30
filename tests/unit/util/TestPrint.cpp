@@ -19,12 +19,21 @@ using lucid::MedianHeuristicTuner;
 using lucid::Parameter;
 using lucid::ParameterValue;
 using lucid::ParameterValues;
+using lucid::Request;
 using lucid::Vector;
 
+TEST(TestPrint, Request) {
+  EXPECT_EQ(fmt::format("{}", Request::_), "Request( NoRequest )");
+  EXPECT_EQ(fmt::format("{}", Request::OBJECTIVE_VALUE), "Request( ObjectiveValue )");
+  EXPECT_EQ(fmt::format("{}", Request::GRADIENT), "Request( Gradient )");
+}
+
 TEST(TestPrint, Parameter) {
+  EXPECT_EQ(fmt::format("{}", Parameter::_), "Parameter( NoParameter )");
   EXPECT_EQ(fmt::format("{}", Parameter::SIGMA_F), "Parameter( Sigma_f )");
   EXPECT_EQ(fmt::format("{}", Parameter::SIGMA_L), "Parameter( Sigma_l )");
   EXPECT_EQ(fmt::format("{}", Parameter::REGULARIZATION_CONSTANT), "Parameter( RegularizationConstant )");
+  EXPECT_EQ(fmt::format("{}", Parameter::DEGREE), "Parameter( Degree )");
 }
 
 TEST(TestPrint, ParameterValue) {
