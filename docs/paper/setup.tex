@@ -1,0 +1,412 @@
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Imports
+%%%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage{minted} % Package for syntax highlighting (https://ctan.org/pkg/minted)
+\usepackage[T1]{fontenc} % Standard package for selecting font encodings (https://ctan.org/pkg/fontenc)
+\usepackage{color}
+\usepackage{transparent}
+\usepackage{amsthm}
+\usepackage{hyperref} % Extensive support for hypertext in LATEX (https://ctan.org/pkg/hyperref)
+\usepackage{graphicx} % Enhanced support for graphics (https://ctan.org/pkg/graphicx). Should include EPS figures.
+\usepackage{cite}
+\usepackage{geometry} % Change page size at any point
+\usepackage[edges]{forest} % Drat tree like data structures (https://ctan.org/pkg/forest)
+\usepackage{pgffor} % Loops in LaTeX (https://ctan.org/pkg/pgffor)
+\usepackage{csvsimple} % Simple CSV file processing (https://ctan.org/pkg/csvsimple)
+\usepackage{underscore} % Control the behaviour of "_" in text (https://ctan.org/pkg/underscore)
+\usepackage{listings} % Typeset source code listings using LATEX (https://ctan.org/pkg/listings)
+\usepackage[title]{appendix}
+\usepackage{adjustbox}
+\usepackage{tikz}
+\usepackage{xspace}
+\usepackage{wrapfig}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{tikz}
+% \usepackage{algorithm}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage{algpseudocode}
+\usepackage[acronym]{glossaries}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{comment}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{mathrsfs}
+\usepackage{blkarray}
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Settings
+%%%%%%%%%%%%%%%%%%%%%%%%
+% \addto\extrasenglish{%
+%     \providecommand*{\lstlistingautorefname}{List.}
+%     % \renewcommand*{\listingscaption}{Code}
+%     \renewcommand*{\equationautorefname}{Eq.}
+%     \renewcommand*{\figureautorefname}{Fig.}
+%     \renewcommand*{\chapterautorefname}{Chap.}
+%     \renewcommand*{\sectionautorefname}{Sec.}
+%     \renewcommand*{\subsectionautorefname}{Sub-sez.}
+% }
+\renewcommand\UrlFont{\color{blue}\rmfamily} % Change URL font
+\urlstyle{rm} % Change URL style
+\usetikzlibrary{arrows.meta} % Tikz library for arrows
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\renewcommand{\sectionautorefname}{Section}
+\newcommand{\algocflineautorefname}{Algorithm}
+\renewcommand{\algorithmautorefname}{Algorithm}
+
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+\SetKwProg{InternalTry}{try}{:}{}
+\SetKwProg{Catch}{catch}{:}{end}
+\newcommand\Try[2]{
+    \SetAlgoLined
+    \InternalTry{#1}{
+        \SetAlgoVlined
+        #2}
+    \SetAlgoVlined
+}
+\SetKwComment{Comment}{$\triangleright$\ }{}
+
+% Algorithmcx
+% \algnewcommand\algorithmictry{\textbf{Try}}%
+% \algnewcommand\algorithmiccatch{\textbf{Catch}}%
+% \algdef{SE}[TRY]{Try}{EndTry}[1]{\algorithmictry\ #1}{\algorithmicend\ \algorithmictry}%
+% \algdef{SE}[CATCH]{Catch}{EndCatch}[1]{\algorithmiccatch\ #1}{\algorithmicend\ \algorithmiccatch}%
+% \algtext*{EndTry}%
+% \algtext*{EndCatch}%
+\allowdisplaybreaks[1] % Allow page breaks in equations
+% \numberwithin{equation}{subsection} % Include subsection in equation numbering
+% \renewcommand{\theequation}{\thesubsection--\arabic{equation}} % Add - to equation numbering
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% References
+%%%%%%%%%%%%%%%%%%%%%%%%
+% \addbibresource{resources.bib} %Import the bibliography file
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Glossary
+%%%%%%%%%%%%%%%%%%%%%%%%
+\glsdisablehyper
+\input{glossary.tex}
+% \makeglossaries
+% \loadglsentries{glossary}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Minted
+%%%%%%%%%%%%%%%%%%%%%%%%
+% \setminted[solidity]{tabsize=2,breaklines,fontsize=\footnotesize}
+% \setminted[typescript]{tabsize=2,breaklines,fontsize=\footnotesize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Theorems and co.
+%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{assumption}{Assumption}[section]
+\newtheorem{problem}{Problem}[section]
+\newtheorem{claim}{Claim}[section]
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Geometry
+%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\framedtext}[1]{%
+    \par%
+    \noindent\fbox{%
+        \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{#1}%
+    }%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Listings
+%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{keywords}{HTML}{C586C0}
+\definecolor{type}{HTML}{0000FF}
+\definecolor{operator}{HTML}{569CD6}
+\definecolor{comments}{HTML}{6a9955}
+\definecolor{variable}{HTML}{9e9b00}
+\definecolor{number}{HTML}{098658}
+\definecolor{function}{HTML}{795E26}
+
+\lstset{language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{keywords}\ttfamily,
+    stringstyle=\color{orange}\ttfamily,
+    commentstyle=\color{comments}\ttfamily,
+    morecomment=[l][\color{comments}]{\#}
+}
+\lstdefinelanguage{SMT2}{
+    alsoletter=-, % Include dashes as letters
+    sensitive=true,
+    morekeywords={set-logic, declare-fun, assert, check-sat, get-model},
+    morekeywords=[2]{Int, Bool, Real},
+    morekeywords=[3]{and, or, not, imply, ite},
+    morekeywords=[4]{a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z},
+    morecomment=[l]{;},
+    morestring=[b]",
+}
+\lstset{
+    language=SMT2,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{keywords},
+    keywordstyle={[2]\color{type}},
+    keywordstyle={[3]\color{operator}},
+    keywordstyle={[4]\color{variable}},
+    commentstyle=\color{comments},
+    stringstyle=\color{orange},
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+}
+\lstdefinelanguage{mps}{
+    alsoletter=-, % Include dashes as letters
+    sensitive=true,
+    morekeywords={NAME, ROWS, COLUMNS, RHS, RANGES, BOUNDS, BINARIES, GENERALS, ENDATA},
+    morekeywords=[2]{N, L, E, G, UP, LO, FX, FR, MI, PL},
+    morecomment=[l]{*},
+    morestring=[b]",
+}
+\lstset{
+    language=mps,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{keywords},
+    keywordstyle={[2]\color{type}},
+    commentstyle=\color{comments},
+    stringstyle=\color{orange},
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+}
+\lstdefinelanguage{bazel}{
+    alsoletter=-, % Include dashes as letters
+    sensitive=true,
+    morekeywords={load, workspace, http_archive, cc_binary, cc_library, cc_test, cc_toolchain, cc_toolchain_suite, filegroup, genrule, package_group, package, sh_binary, sh_library, sh_test},
+    morekeywords=[2]{glob},
+    morecomment=[l]{\#},
+    morestring=[b]",
+}
+\lstset{
+    language=bazel,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{keywords},
+    keywordstyle={[2]\color{function}},
+    commentstyle=\color{comments},
+    stringstyle=\color{orange},
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+}
+\lstdefinelanguage{yacc}{
+    alsoletter={\#, \%, -, _, :}, % Include dashes as letters
+    morekeywords={\#include, \#define, \#ifdef, \#endif},
+    morekeywords=[2]{% Bison keywords
+            \%union, \%token, \%type, \%nonassoc, \%left, \%prec, \%right, \%start,
+            \%grammar, \%pure_parser, \%define, \%expect, \%expect-rr, \%file, \%glr-parser,
+            \%parse-param, \%parse-param-rr, \%skeleton, \%debug, \%output,
+            \%locations, \%skeleton
+        },
+    morekeywords=[3]{% Bison variables
+            , stringVal,
+        }
+    keywordstyle=\color{keywords}\bfseries,
+    morecomment=[l][\color{comments}]{//}, % single-line comments
+    morecomment=[s][\color{comments}]{/*}{*/}, % multi-line comments
+    morestring=[b]",
+    morestring=[b]',
+}
+\lstset{
+    language=yacc,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{keywords},
+    keywordstyle={[2]\color{type}},
+    keywordstyle={[3]\color{variable}},
+    commentstyle=\color{comments},
+    stringstyle=\color{orange},
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+}
+\lstdefinelanguage{flex}{
+    alsoletter={\#, \%, -, _, :}, % Include dashes as letters
+    morekeywords={\#include, \#define, \#ifdef, \#endif},
+    morekeywords=[2]{% Bison keywords
+            typedef
+        },
+    morekeywords=[3]{% Bison variables
+            , stringVal,
+        }
+    keywordstyle=\color{keywords}\bfseries,
+    morecomment=[l][\color{comments}]{//}, % single-line comments
+    morecomment=[s][\color{comments}]{/***}{*/}, % multi-line comments
+    morestring=[b]",
+    morestring=[b]',
+}
+\lstset{
+    language=flex,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{keywords},
+    keywordstyle={[2]\color{type}},
+    keywordstyle={[3]\color{variable}},
+    commentstyle=\color{comments},
+    stringstyle=\color{orange},
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Remove chapter header
+%%%%%%%%%%%%%%%%%%%%%%%%
+% \titleformat{\chapter}[display]{\normalfont\bfseries}{}{0pt}{\Huge}
+% \newpagestyle{mystyle}
+% {\sethead[\thepage][][\chaptertitle]{}{}{\thepage}}
+% \pagestyle{mystyle}
+% \AddToHook{env/appendices/begin}{%
+%     \titleformat{\chapter}{\normalfont\LARGE\bfseries}{Appendix \thechapter}{10pt}{}%
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% PlantUML
+%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\plantuml}[4][1]{
+    \begin{figure}[h]
+        \begin{adjustbox}{width=#1\textwidth,center}
+            \input{#2}
+        \end{adjustbox}
+        \caption{#3}\label{dg:#4}
+    \end{figure}
+}
+
+\newcommand{\wrapplantuml}[5][1]{
+    \begin{wrapfigure}{#2}{#1\textwidth} %this figure will be at the right
+        \centering
+        \begin{adjustbox}{width=#1\textwidth,center}
+            \input{#3}
+        \end{adjustbox}
+        \caption{#4}\label{dg:#5}
+    \end{wrapfigure}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Equation caption
+%%%%%%%%%%%%%%%%%%%%%%%%
+\newcounter{eqcounter}
+\newcommand{\eqcaption}[1]{
+    {
+            \medskip
+            \centering
+            \setcounter{eqcounter}{\theequation}
+            Equation \theeqcounter: #1
+            \addtocounter{eqcounter}{1}
+
+            \vskip-0.5\baselineskip
+            \noindent
+        }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Common definitions
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Utility
+\newcommand{\todo}[1]{\textcolor{purple}{\textbf{TODO}: \textit{#1}}}
+\newcommand{\new}[1]{#1}
+% Common terms
+\newcommand{\lucid}{\textit{Lucid}\xspace}
+\newcommand{\pydelpi}{\textit{PyLucid}\xspace}
+\newcommand{\bazel}{\textit{Bazel}\xspace}
+\newcommand{\dreal}{\textit{dReal4}\xspace}
+\newcommand{\timebracketgeq}[1]{$[#1,7200]$}
+\newcommand{\numinstcol}{$\#$inst}
+\newcommand{\numsolved}{$\#$sol}
+\newcommand{\avgtime}{$\bar{t}$\xspace}
+\newcommand{\irrefcol}{$\#$ref}
+\newcommand{\faccol}{$\#$fac}
+\newcommand{\reccol}{$\#$rec}
+\newcommand{\factimecol}{\ensuremath{t_{\text{fac}}}}
+\newcommand{\rectimecol}{\ensuremath{t_{\text{rec}}}}
+\newcommand{\timecol}{\ensuremath{t}}
+\newcommand{\speedupcol}{\ensuremath{\Delta t}}
+\newcommand{\smtresult}{\textit{res}\xspace}
+\newcommand{\smttime}{$t$\xspace}
+% Math
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\X}{\mathbb{X}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\1}{\mathbbm{1}}
+\newcommand{\e}{\mathbbm{e}}
+\newcommand{\x}{\boldsymbol{x}}
+\newcommand{\y}{\boldsymbol{y}}
+\newcommand{\z}{\boldsymbol{z}}
+\newcommand{\U}{\boldsymbol{U}}
+\newcommand{\G}{\boldsymbol{G}}
+\newcommand{\A}{\boldsymbol{A}}
+\newcommand{\B}{\boldsymbol{B}}
+\newcommand{\I}{\boldsymbol{I}}
+\newcommand{\M}{\mathbf{M}}
+\newcommand{\borel}[1]{\mathcal{B}(#1)}
+\newcommand{\Epsilon}{\boldsymbol{\mathcal{E}}}
+\newcommand{\estar}{\epsilon^\star}
+\newcommand{\tstar}{\tau^\star}
+\newcommand{\FI}{\boldsymbol{\mathcal{I}}}
+\newcommand{\LI}{\boldsymbol{\mathcal{L}}}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\hbs}[1]{\hat{\boldsymbol{#1}}}
+\newcommand{\bbs}[1]{\bar{\boldsymbol{#1}}}
+\newcommand{\tbs}[1]{\tilde{\boldsymbol{#1}}}
+\newcommand{\argmin}{\operatorname*{argmin}}
+\newcommand{\fl}[2][\epsilon]{\textbf{fl}_{#1}\left(#2\right)}
+\newcommand{\base}[1][]{{{\mathcal{B}}_{#1}}}
+\newcommand{\nbase}[1][]{{{\mathcal{N}}_{#1}}}
+\newcommand{\maxiterations}{n!/m!(n - m)!}
+\newcommand{\cb}{\boldsymbol{c}_{\base}}
+\newcommand{\cn}{\boldsymbol{c}_{\nbase}}
+\newcommand{\zb}{\boldsymbol{z}_{\base}}
+\newcommand{\zn}{\boldsymbol{z}_{\nbase}}
+\newcommand{\zbi}[1][i]{z_{\base_{#1}}}
+\newcommand{\zni}[1][i]{z_{\nbase_{#1}}}
+\newcommand{\cbi}[1][j]{c_{\base_{#1}}}
+\newcommand{\cni}[1][j]{c_{\nbase_{#1}}}
+\newcommand{\rmax}{r^-_{\max}}
+\newcommand{\dmin}{d^+_{\min}}
+\newcommand{\wmin}{\omega^+_{\min}}
+\newcommand{\umin}{u^{1\sim2}_{\min}}
+\newcommand{\xb}{\boldsymbol{x}_{\base}}
+\newcommand{\xn}{\boldsymbol{x}_{\nbase}}
+\newcommand{\amb}{\mathcal{K}} % Ambiguity set
+\newcommand{\ambRKHS}{\mathcal{C}} % RKHS ambiguity set
+\newcommand{\C}{\mathbf{C}}
+\newcommand{\cdotx}{\,\cdot\,}
+\newcommand{\data}{\mathcal{D}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\dist}[1]{\mathbf{d}_{#1}}
+\newcommand{\eig}{\mathrm{eig}}
+\newcommand{\Hilbert}{\mathcal{H}}
+\newcommand{\innerH}[3]{\langle #1, #2 \rangle_{#3}} % Inner product
+\newcommand{\LTLf}{LTL\textsubscript{F}\xspace}
+\newcommand{\norm}[1]{\left|\left|#1\right|\right|}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\satisfies}{\vDash}
+\newcommand{\T}{^\top}
+\newcommand{\Tr}{\mathbf{t}}
+\newcommand{\p}{\mathbf{p}}
+\newcommand{\Xp}{\mathbb{X}^{+\!}}
+\newcommand{\Y}{\mathbb{Y}}
