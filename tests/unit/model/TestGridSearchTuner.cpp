@@ -25,6 +25,7 @@ using lucid::KernelRidgeRegressor;
 using lucid::Matrix;
 using lucid::Parameter;
 using lucid::ParameterValues;
+using lucid::Requests;
 using lucid::Vector;
 using lucid::scorer::r2_score;
 

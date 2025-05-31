@@ -159,7 +159,7 @@ inline Matrix diff(ConstMatrixRef m, const int n = 1, const bool rowwise = true)
 }
 /**
  * Given @f$ m @f$ inputs `matrices`, where matrix @f$ M_i @f$ has @f$ n_i @f$ columns, return a matrix
- * with @f$ \Prod_{i = 0}^m n_i @f$ column vectors,
+ * with @f$ \Pi_{i = 0}^m n_i @f$ column vectors,
  * where the columns consist of all combinations found by combining one column vector from each input matrix.
  * @param m1 first matrix
  * @param m2 second matrix

@@ -24,7 +24,9 @@ using lucid::Kernel;
 using lucid::KernelRidgeRegressor;
 using lucid::Matrix;
 using lucid::Parameter;
+using lucid::Parameters;
 using lucid::RectSet;
+using lucid::Request;
 using lucid::Scalar;
 using lucid::Vector;
 using lucid::Vector2;
@@ -99,7 +101,7 @@ TEST_F(TestKernelRidgeRegressor, ParameterSet) {
 TEST_F(TestKernelRidgeRegressor, HiddenKernelParameter) {
   class HiddenKernel final : public Kernel {
    public:
-    HiddenKernel() : Kernel{Parameter::REGULARIZATION_CONSTANT} {}
+    HiddenKernel() : Kernel{static_cast<Parameters>(Parameter::REGULARIZATION_CONSTANT)} {}
     [[nodiscard]] bool is_stationary() const override { return true; }
     [[nodiscard]] bool is_isotropic() const override { return true; }
     Matrix operator()(ConstMatrixRef, const ConstMatrixRef&, std::vector<Matrix>*) const override { return {}; }
@@ -217,7 +219,7 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihood) {
                         .sum();
 
   KernelRidgeRegressor regressor{kernel, lambda};
-  regressor.fit(inputs, outputs);
+  regressor.consolidate(inputs, outputs, Request::OBJECTIVE_VALUE | Request::_);
   const double log_likelihood = regressor.log_marginal_likelihood();
 
   EXPECT_DOUBLE_EQ(log_likelihood, expected);

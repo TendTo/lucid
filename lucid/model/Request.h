@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <vector>
 
 #include "lucid/util/concept.h"
 #include "lucid/util/definitions.h"
@@ -18,85 +19,30 @@ namespace lucid {
 /**
  * List of available requests a tuner can make to an Estimator and, by extension, to a Kernel.
  * If the request is not supported by the Estimator, nothing will happen.
+ * This enum behaves as a bitset.
+ * It is possible to combine multiple requests using bitwise OR operations
+ * or to check if a request is set using the AND operations.
+ * @code
+ * Request::_ // Empty set {}
+ * Requests u = Request::GRADIENT | Request::STATS  // {GRADIENT} U {STATS} = {STATS, GRADIENT}
+ * u | Request::STATS  // {STATS, GRADIENT} U {DEGREE} = {STATS, GRADIENT}
+ * u & Request::STATS  // Set intersection {STATS, GRADIENT} ∩ {STATS} = {STATS}
+ * u && Request::STATS  // Check if {STATS, GRADIENT} ∩ {STATS} = {STATS} is non-empty
+ * u || Request::STATS  // Check if {STATS, GRADIENT} ∪ {STATS} = {STATS, GRADIENT} is non-empty
+ * @endcode
  * @note The values are offset in such a way that operating over them is very efficient.
  */
 enum class Request : std::uint16_t {
-  _ = 0,                     ///< No requests
+  _ = 0,                     ///< No requests. Used as the empty set placeholder.
   OBJECTIVE_VALUE = 1 << 0,  ///< Compute the objective value of the Estimator
   GRADIENT = 1 << 1,         ///< Compute the gradient of the objective value with respect to the Requests
+  STATS = 1 << 2,            ///< Compute the statistics of the Estimator
 };
 
 using Requests = std::underlying_type_t<Request>;                   ///< Efficient set of requests
 constexpr Requests NoRequests = static_cast<Requests>(Request::_);  ///< No request value
 
-FLAG_ENUMS(Request, GRADIENT)
-
-/**
- * Perform a bitwise OR operation on two Requests.
- * Efficient way of taking the union of two set of Requests.
- * @tparam LP left Request type, must be one of the `Request` enum values or a set of requests
- * @tparam RP right Request type, must be one of the `Request` enum values or a set of requests
- * @param lhs left-hand side Request
- * @param rhs right-hand side Request
- * @return the result of the bitwise OR operation as a `Requests`
- */
-template <IsAnyOf<Request, Requests> LP, IsAnyOf<Request, Requests> RP>
-constexpr Requests operator|(LP lhs, RP rhs) {
-  return static_cast<Request>(static_cast<Requests>(lhs) | static_cast<Requests>(rhs));
-}
-/**
- * Perform a bitwise OR operation on two Requests and return the result as a boolean.
- * Efficient way of checking if two set of Requests have a non-empty union.
- * @code
- * Request::GRADIENT || Request::GRADIENT; // true
- * Request::OBJECTIVE_VALUE || Request::GRADIENT; // true
- * Request::GRADIENT || (Request::GRADIENT & Request::OBJECTIVE_VALUE); // true
- * Request::_ || Request::GRADIENT; // true
- * Request::_ || Request::_; // false
- * @endcode
- * @tparam LP left Request type, must be one of the `Request` enum values or a set of requests
- * @tparam RP right Request type, must be one of the `Request` enum values or a set of requests
- * @param lhs left-hand side Request
- * @param rhs right-hand side Request
- * @return the result of the bitwise OR operation as a boolean
- */
-template <IsAnyOf<Request, Requests> LP, IsAnyOf<Request, Requests> RP>
-constexpr bool operator||(LP lhs, RP rhs) {
-  return static_cast<Requests>(lhs) | static_cast<Requests>(rhs);
-}
-/**
- * Perform a bitwise AND operation on two Requests.
- * Efficient way of taking the intersection of two set of Requests.
- * @tparam LP left Request type, must be one of the `Request` enum values or a set of requests
- * @tparam RP right Request type, must be one of the `Request` enum values or a set of requests
- * @param lhs left-hand side Request
- * @param rhs right-hand side Request
- * @return the result of the bitwise AND operation as a `Request`
- */
-template <IsAnyOf<Request, Requests> LP, IsAnyOf<Request, Requests> RP>
-constexpr Requests operator&(LP lhs, RP rhs) {
-  return static_cast<Request>(static_cast<Requests>(lhs) & static_cast<Requests>(rhs));
-}
-/**
- * Perform a bitwise AND operation on two Requests and return the result as a boolean.
- * Efficient way of checking if two set of Requests have a non-empty intersection.
- * @code
- * Request::GRADIENT && Request::OBJECTIVE_VALUE; // true
- * Request::OBJECTIVE_VALUE && Request::GRADIENT; // false
- * Request::GRADIENT && (Request::GRADIENT & Request::OBJECTIVE_VALUE); // true
- * Request::_ && Request::GRADIENT; // false
- * Request::_ && Request::_; // false
- * @endcode
- * @tparam LP left Request type, must be one of the `Request` enum values or a set of requests
- * @tparam RP right Request type, must be one of the `Request` enum values or a set of requests
- * @param lhs left-hand side Request
- * @param rhs right-hand side Request
- * @return the result of the bitwise AND operation as a boolean
- */
-template <IsAnyOf<Request, Requests> LP, IsAnyOf<Request, Requests> RP>
-constexpr bool operator&&(LP lhs, RP rhs) {
-  return static_cast<Requests>(lhs) & static_cast<Requests>(rhs);
-}
+LUCID_FLAG_ENUMS(Request, Requests, GRADIENT)
 
 std::ostream& operator<<(std::ostream& os, const Request& request);
 

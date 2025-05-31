@@ -23,6 +23,7 @@ lucid_cc_library(
     implementation_deps = ["//lucid/util:error"],
     deps = [
         "//lucid/util:concepts",
+        "//lucid/util:definitions",
         "//lucid/util:logging",
     ],
 )
@@ -102,6 +103,7 @@ lucid_cc_library(
         ":feature_map",
         ":kernel",
         ":parameter",
+        ":request",
         "//lucid/lib:eigen",
         "//lucid/util:logging",
     ],

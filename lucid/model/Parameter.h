@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <iosfwd>
+#include <vector>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/util/concept.h"
@@ -20,10 +21,21 @@ namespace lucid {
 /**
  * List of available parameters used parametrizable objects (e.g., Estimator and Kernel).
  * To check whether an object supports a specific parameter, use the `has(Parameter)` method.
+ * This enum behaves as a bitset.
+ * It is possible to combine multiple parameters using bitwise OR operations
+ * or to check if a parameter is set using the AND operations.
+ * @code
+ * Parameter::_ // Empty set {}
+ * Parameters u = Parameter::SIGMA_F | Parameter::SIGMA_L  // {SIGMA_F} U {SIGMA_L} = {SIGMA_F, SIGMA_L}
+ * u | Parameter::DEGREE  // {SIGMA_F, SIGMA_L} U {DEGREE} = {SIGMA_F, SIGMA_L, DEGREE}
+ * u & Parameter::SIGMA_F  // Set intersection {SIGMA_F, SIGMA_L} ∩ {SIGMA_F} = {SIGMA_F}
+ * u && Parameter::SIGMA_F  // Check if {SIGMA_F, SIGMA_L} ∩ {SIGMA_F} = {SIGMA_F} is non-empty
+ * u || Parameter::SIGMA_F  // Check if {SIGMA_F, SIGMA_L} ∪ {SIGMA_F} = {SIGMA_F, SIGMA_L} is non-empty
+ * @endcode
  * @note The numerical values are offset in such a way that operating over them is very efficient.
  */
 enum class Parameter : std::uint16_t {
-  _ = 0,                             ///< No parameters
+  _ = 0,                             ///< No parameters. Used as the empty set placeholder.
   SIGMA_F = 1 << 0,                  ///< Sigma_f parameter
   SIGMA_L = 1 << 1,                  ///< Sigma_l parameter
   REGULARIZATION_CONSTANT = 1 << 2,  ///< Regularization constant parameter
@@ -31,8 +43,10 @@ enum class Parameter : std::uint16_t {
 };
 
 using HP = Parameter;                                                       ///< Alias for HyperParameter
-using Parameters = std::underlying_type_t<Parameter>;                       ///< Efficient set of parameters
-constexpr Parameters NoParameters = static_cast<Parameters>(Parameter::_);  ///< No parameter value
+using Parameters = std::underlying_type_t<Parameter>;                       ///< Efficient set of parameters as bitset
+constexpr Parameters NoParameters = static_cast<Parameters>(Parameter::_);  ///< No parameter value placeholder
+
+LUCID_FLAG_ENUMS(Parameter, Parameters, DEGREE)
 
 namespace internal {
 
@@ -60,89 +74,6 @@ struct ParameterType<Parameter::DEGREE> {
 };
 
 }  // namespace internal
-
-FLAG_ENUMS(Parameter, DEGREE)
-
-#if 0
-/**
- * Perform a bitwise OR operation on two parameters.
- * Efficient way of taking the union of two set of parameters.
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @param lhs left-hand side parameter
- * @param rhs right-hand side parameter
- * @return the result of the bitwise OR operation as a `Parameters`
- */
-template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
-constexpr Parameters operator|(LP lhs, RP rhs) {
-  return static_cast<Parameters>(lhs) | static_cast<Parameters>(rhs);
-}
-/**
- * Perform a bitwise OR operation on two parameters and return the result as a boolean.
- * Efficient way of checking if two set of parameters have a non-empty union.
- * @code
- * Parameter::SIGMA_L || Parameter::SIGMA_L; // true
- * Parameter::SIGMA_F || Parameter::DEGREE; // true
- * Parameter::SIGMA_F || (Parameter::DEGREE & Parameter::SIGMA_F); // true
- * Parameter::_ || Parameter::SIGMA_L; // true
- * Parameter::_ || Parameter::_; // false
- * @endcode
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @param lhs left-hand side parameter
- * @param rhs right-hand side parameter
- * @return the result of the bitwise OR operation as a boolean
- */
-template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
-constexpr bool operator||(LP lhs, RP rhs) {
-  return static_cast<Parameters>(lhs) | static_cast<Parameters>(rhs);
-}
-/**
- * Perform a bitwise AND operation on two parameters.
- * Efficient way of taking the intersection of two set of parameters.
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @param lhs left-hand side parameter
- * @param rhs right-hand side parameter
- * @return the result of the bitwise AND operation as a `Parameter`
- */
-template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
-constexpr Parameters operator&(LP lhs, RP rhs) {
-  return static_cast<Parameters>(lhs) & static_cast<Parameters>(rhs);
-}
-/**
- * Perform a bitwise AND operation on two parameters and return the result as a boolean.
- * Efficient way of checking if two set of parameters have a non-empty intersection.
- * @code
- * Parameter::SIGMA_L && Parameter::SIGMA_L; // true
- * Parameter::SIGMA_F && Parameter::DEGREE; // false
- * Parameter::SIGMA_F && (Parameter::DEGREE & Parameter::SIGMA_F); // true
- * Parameter::_ && Parameter::SIGMA_L; // false
- * Parameter::_ && Parameter::_; // false
- * @endcode
- * @tparam LP left parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @tparam RP right parameter type, must be one of the `Parameter` enum values or a set of parameters
- * @param lhs left-hand side parameter
- * @param rhs right-hand side parameter
- * @return the result of the bitwise AND operation as a boolean
- */
-template <IsAnyOf<Parameter, Parameters> LP, IsAnyOf<Parameter, Parameters> RP>
-constexpr bool operator&&(LP lhs, RP rhs) {
-  return static_cast<Parameters>(lhs) & static_cast<Parameters>(rhs);
-}
-/**
- * Convert the efficient parameter representation into an easy-to-traverse vector
- * @param parameters set of parameters
- * @return vector of parameters
- */
-inline operator std::vector<Parameter>(const Parameters parameters) {
-  std::vector<Parameter> result;
-  for (auto p = Parameter::_; p <= Parameter::DEGREE; p = static_cast<Parameter>(static_cast<Parameters>(p) << 1)) {
-    if (p && parameters) result.push_back(p);
-  }
-  return result;
-}
-#endif
 
 /**
  * Dispatch the correct function call depending on type associated with the `parameter`.
