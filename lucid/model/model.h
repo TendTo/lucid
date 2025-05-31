@@ -11,6 +11,7 @@
 #include "lucid/model/Estimator.h"
 #include "lucid/model/FeatureMap.h"
 #include "lucid/model/GaussianKernel.h"
+#include "lucid/model/GradientOptimizable.h"
 #include "lucid/model/GramMatrix.h"
 #include "lucid/model/GridSearchTuner.h"
 #include "lucid/model/Kernel.h"

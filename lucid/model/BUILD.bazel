@@ -29,6 +29,13 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "gradient_optimizable",
+    srcs = ["GradientOptimizable.cpp"],
+    hdrs = ["GradientOptimizable.h"],
+    deps = ["//lucid/lib:eigen"],
+)
+
+lucid_cc_library(
     name = "parameter",
     srcs = [
         "Parameter.cpp",
@@ -187,6 +194,7 @@ lucid_cc_library(
     deps = [
         ":estimator",
         ":feature_map",
+        ":gradient_optimizable",
         ":gram_matrix",
         ":kernel",
         ":parameter",

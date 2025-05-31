@@ -18,8 +18,9 @@ classDiagram
         +GridSearchTuner(ParameterValues[])
     }
     class BFGSTuner {
-        - parameters: ParameterValues[]
-        +BFGSTuner(ParameterValues[])
+        - lb: Vector
+        - ub: Vector
+        +BFGSTuner(lb, ub)
     }
     class MedianHeuristicTuner {
     }
@@ -28,6 +29,12 @@ classDiagram
         <<interface>>
         +get(HyperParameter parameter) [int | double | Vector]
         +set(HyperParameter parameter, [int | double | Vector] value)
+    }
+    class GradientOptimizable {
+        <<interface>>
+        +gradient() Vector
+        +objective_value() doube
+        +objective_function(Vector x, Vector gradient)
     }
     class Estimator {
         <<abstract>>
@@ -44,7 +51,7 @@ classDiagram
         -regularisation: double
         +KernelRidgeRegressor(Kernel, double regularisation)
     }
-    class SupportVectorRegressor
+    class GaussianProcess
 
     class Kernel {
         <<abstract>>
@@ -68,20 +75,23 @@ classDiagram
     Tuner <|-- GridSearchTuner
     Tuner <|-- BFGSTuner
     Tuner <|-- MedianHeuristicTuner
+    Estimator o-- Tuner
 
-    Parametrizable <|.. Estimator
     Parametrizable <|.. Kernel
+    Parametrizable <|.. Estimator
 
+    Estimator <|-- GaussianProcess
     Estimator <|-- KernelRidgeRegressor
-    Estimator <|-- SupportVectorRegressor
 
 
-    Kernel <|-- GaussianKernel
     Kernel <|-- LinearKernel
+    Kernel <|-- GaussianKernel
 
+    GradientOptimizable <|.. KernelRidgeRegressor
+    GradientOptimizable <|.. GaussianKernel
     KernelRidgeRegressor --> GramMatrix
-    Tuner o-- Estimator
     KernelRidgeRegressor o-- Kernel
+
 ```
 
 ## Pseudo Code

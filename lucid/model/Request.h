@@ -36,7 +36,6 @@ enum class Request : std::uint16_t {
   _ = 0,                     ///< No requests. Used as the empty set placeholder.
   OBJECTIVE_VALUE = 1 << 0,  ///< Compute the objective value of the Estimator
   GRADIENT = 1 << 1,         ///< Compute the gradient of the objective value with respect to the Requests
-  STATS = 1 << 2,            ///< Compute the statistics of the Estimator
 };
 
 using Requests = std::underlying_type_t<Request>;                   ///< Efficient set of requests
