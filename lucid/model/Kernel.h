@@ -28,24 +28,24 @@ class Kernel : public Parametrizable {
   [[nodiscard]] virtual bool is_stationary() const = 0;
 
   /**
-   * Compute the kernel function on `x` and `y`.
+   * Compute the kernel function on @x1 and @x2, both being matrices of row vectors in @XsubRd,
    * @f[
-   * K(x, y)
+   * K(x_1, x_2) .
    * @f]
    * @tparam DerivedX type of the first input matrix
    * @tparam DerivedY type of the second input matrix
-   * @param x @nxd first input row matrix
-   * @param y @nxd second input row matrix
+   * @param x1 @n1xd first input row matrix
+   * @param x2 @n2xd second input row matrix
    * @return kernel value
    */
   template <class DerivedX, class DerivedY>
-  Matrix operator()(const MatrixBase<DerivedX>& x, const MatrixBase<DerivedY>& y) const {
-    return (*this)(x, y, nullptr);
+  Matrix operator()(const MatrixBase<DerivedX>& x1, const MatrixBase<DerivedY>& x2) const {
+    return (*this)(x1, x2, nullptr);
   }
   /**
-   * Compute the kernel function on `x`.
+   * Compute the kernel function on @x, which is a matrix of row vectors in @XsubRd,
    * @f[
-   * K(x, x)
+   * K(x, x) .
    * @f]
    * @tparam Derived type of the input matrix
    * @param x @nxd input matrix
@@ -57,9 +57,9 @@ class Kernel : public Parametrizable {
     return (*this)(x_ref, x_ref, nullptr);
   }
   /**
-   * Compute the kernel function on `x`.
+   * Compute the kernel function on @x, which is a matrix of row vectors in @XsubRd,
    * @f[
-   * K(x, x)
+   * K(x, x) .
    * @f]
    * Moreover, compute the gradient of the kernel function and store it in `gradient`.
    * @tparam Derived type of the input matrix
@@ -82,18 +82,19 @@ class Kernel : public Parametrizable {
 
  protected:
   /**
-   * Compute the kernel function on `X1` and `X2`.
+   * Compute the kernel function on @x1 and @x2, both being matrices of row vectors in @XsubRd,
    * @f[
-   * K(X_1, X_2)
+   * K(x_1, x_2) .
    * @f]
    * If `gradient` is not `nullptr`, the gradient of the kernel function with respect to the parameters
    * is computed and stored in `*gradient`.
-   * @param X1 @nxdx first input matrix
-   * @param X2 @nxdy second input matrix
+   * @pre `X1` and `X2` must have the same number of columns.
+   * @param x1 @n1xd first input matrix
+   * @param x2 @n2xd second input matrix
    * @param[out] gradient pointer to store the gradient of the kernel function with respect to the parameters dimensions
    * @return kernel value
    */
-  virtual Matrix operator()(ConstMatrixRef X1, ConstMatrixRef X2, std::vector<Matrix>* gradient) const = 0;
+  virtual Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel);

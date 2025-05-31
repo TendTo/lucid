@@ -23,19 +23,28 @@ namespace lucid {
  * k(x_1, x_2) = \sigma_f^2 \exp\left(-\frac{1}{2} (x_1 - x_2)^T\Sigma(x_1 - x_2)\right)
  * @f]
  * where  @f$ \Sigma = \text{diag}( \sigma _l )^{-2} @f$.
+ * The type of @sigma_l on kernel construction determines whether the kernel is isotropic or anisotropic.
+ * If @sigma_l is a vector, then the kernel is anisotropic and each dimension has its own length scale.
+ * Such a kernel can only be used on inputs that belong to the same vector space
+ * (i.e., the number of columns) as @sigma_l.
+ * On the other hand, if @sigma_l is a single value, then the kernel is isotropic.
+ * The same value is used for all dimensions, and the kernel can be used on inputs of any dimension,
+ * since the internal @ref sigma_l_ will be automatically adjusted to match the input dimension.
  */
 class GaussianKernel final : public Kernel {
  public:
   using Kernel::set;
   using Kernel::operator();
   /**
-   * Construct a new GaussianKernel object with the given parameters.
+   * Construct a new anisotropic GaussianKernel object with the given parameters.
+   * @pre `sigma_l` must contain at least one element all elements must be greater than 0
    * @param sigma_l @sigma_l value
    * @param sigma_f @sigma_f value
    */
   explicit GaussianKernel(Vector sigma_l, double sigma_f = 1.0);
   /**
-   * Construct a new GaussianKernel object with the given parameters.
+   * Construct a new isotropic GaussianKernel object with the given parameters.
+   * @pre `sigma_l` must be greater than 0
    * @param sigma_l @sigma_l value. It is equal for all dimensions.
    * @param sigma_f @sigma_f value
    */
@@ -43,12 +52,23 @@ class GaussianKernel final : public Kernel {
 
   /** @getter{@sigma_f value, kernel} */
   [[nodiscard]] Scalar sigma_f() const { return sigma_f_; }
-  /** @getter{@sigma_l value, kernel} */
+  /**
+   * Get read-only access to the @sigma_l of the kernel.
+   * If the kernel is isotropic, the size of the vector will be 1 upon construction
+   * and will be adapted to match to the latest inputs
+   * @return dimension of the kernel
+   */
   [[nodiscard]] const Vector& sigma_l() const { return sigma_l_; }
-  /** @getter{dimension, kernel} */
+  /**
+   * Get read-only access to the dimension of the kernel.
+   * If the kernel is isotropic, the dimension will be 1 upon construction
+   * and will be adapted to match to the latest inputs
+   * @return @sigma_l of the kernel
+   */
   [[nodiscard]] Dimension dimension() const { return sigma_l_.size(); }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
+  /** @checker{isotropic, kernel} */
   [[nodiscard]] bool is_isotropic() const { return is_isotropic_; }
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 

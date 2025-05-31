@@ -20,6 +20,7 @@ GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
       sigma_l_{std::move(sigma_l)},
       sigma_f_{sigma_f} {
   LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l_.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
+  LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
 }
 GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
     : GaussianKernel{Vector::Constant(1, sigma_l), sigma_f} {
