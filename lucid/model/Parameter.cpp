@@ -23,6 +23,8 @@ std::ostream& operator<<(std::ostream& os, const Parameter name) {
       return os << "Parameter( RegularizationConstant )";
     case Parameter::DEGREE:
       return os << "Parameter( Degree )";
+    case Parameter::GRADIENT_OPTIMIZABLE:
+      return os << "Parameter( GradientOptimizable )";
     default:
       LUCID_UNREACHABLE();
   }

@@ -26,8 +26,6 @@ class Kernel : public Parametrizable {
 
   /** @checker{is stationary, kernel} */
   [[nodiscard]] virtual bool is_stationary() const = 0;
-  /** @checker{is isotropic, kernel} */
-  [[nodiscard]] virtual bool is_isotropic() const = 0;
 
   /**
    * Compute the kernel function on `x` and `y`.

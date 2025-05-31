@@ -14,21 +14,31 @@
 
 namespace lucid {
 
-GaussianKernel::GaussianKernel(const Vector& sigma_l, const double sigma_f)
-    : Kernel{Parameter::SIGMA_F | Parameter::SIGMA_L}, sigma_l_{sigma_l}, sigma_f_{sigma_f} {
-  LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
+GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
+    : Kernel{Parameter::SIGMA_F | Parameter::SIGMA_L | Parameter::GRADIENT_OPTIMIZABLE},
+      is_isotropic_{false},
+      sigma_l_{std::move(sigma_l)},
+      sigma_f_{sigma_f} {
+  LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l_.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
 }
-GaussianKernel::GaussianKernel(const Dimension dim, const double sigma_l, const double sigma_f)
-    : GaussianKernel{Vector::Constant(dim, sigma_l), sigma_f} {}
+GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
+    : GaussianKernel{Vector::Constant(1, sigma_l), sigma_f} {
+  is_isotropic_ = true;
+}
 
-Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const {
+Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* const gradient) const {
   LUCID_TRACE_FMT("GaussianKernel::operator()({}, {})", x1, x2);
-  const bool is_same_input = &x1 == &x2;
   LUCID_ASSERT(&x1 == &x2 || !gradient, "The gradient can be computed only over the same vector");
+  LUCID_ASSERT(sigma_l_.size() > 0, "sigma_l must have at least one element");
+  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() > 0, "x1.cols()", x1.cols(), "> 0");
+  LUCID_CHECK_ARGUMENT_EXPECTED(x2.cols() > 0, "x2.cols()", x2.cols(), "> 0");
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == x2.cols(), "x1.cols() != x2.cols()", x1.cols(), x2.cols());
+
+  if (is_isotropic_ && sigma_l_.size() != x1.cols()) sigma_l_ = Vector::Constant(x1.cols(), sigma_l_.head<1>().value());
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == sigma_l_.size(), "x1.cols() != sigma_l().size()", x1.cols(),
                                 sigma_l_.size());
 
+  const bool is_same_input = &x1 == &x2;
   // TODO(tend): for efficiency, we should implement a method similar to `squareform` so that we only compute a vector
   //  when we are working on a single input
   // Compute the gaussian kernel: σf^2 * exp(-0.5 * ||(x1 / σl) - (x2 / σl)||^2)
@@ -59,10 +69,6 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
   return k;
 }
 
-bool GaussianKernel::is_isotropic() const {
-  std::span view{sigma_l_.data(), static_cast<std::size_t>(sigma_l_.size())};
-  return std::ranges::adjacent_find(view, std::ranges::not_equal_to()) == view.end();
-}
 std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_l_, sigma_f_); }
 
 void GaussianKernel::set(const Parameter parameter, const double value) {
@@ -77,6 +83,7 @@ void GaussianKernel::set(const Parameter parameter, const double value) {
 void GaussianKernel::set(const Parameter parameter, const Vector& value) {
   switch (parameter) {
     case Parameter::SIGMA_L:
+    case Parameter::GRADIENT_OPTIMIZABLE:
       sigma_l_ = value;
       break;
     default:
@@ -96,6 +103,7 @@ double GaussianKernel::get_d(const Parameter parameter) const {
 const Vector& GaussianKernel::get_v(const Parameter parameter) const {
   switch (parameter) {
     case Parameter::SIGMA_L:
+    case Parameter::GRADIENT_OPTIMIZABLE:
       return sigma_l_;
     default:
       return Kernel::get_v(parameter);
@@ -104,8 +112,9 @@ const Vector& GaussianKernel::get_v(const Parameter parameter) const {
 
 std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel) {
   return os << "GaussianKernel( "
-            << "sigma_l( " << kernel.sigma_l() << " ) "
-            << "sigma_f( " << kernel.sigma_f() << " ) )";
+            << "sigma_l( " << (kernel.is_isotropic() ? Vector{kernel.sigma_l().head<1>()} : kernel.sigma_l()) << " ) "
+            << "sigma_f( " << kernel.sigma_f() << " ) "
+            << "isotropic( " << kernel.is_isotropic() << " ) )";
 }
 
 }  // namespace lucid

@@ -32,17 +32,21 @@ TEST(TestParameter, Or) {
 TEST(TestParameter, Type) {
   static_assert(std::is_same_v<ParameterType<Parameter::DEGREE>::type, int>, "DEGREE is an int");
   static_assert(std::is_same_v<ParameterType<Parameter::SIGMA_F>::type, double>, "SIGMA_F is a double");
-  static_assert(std::is_same_v<ParameterType<Parameter::SIGMA_L>::type, Vector>, "SIGMA_L is a Vector");
   static_assert(std::is_same_v<ParameterType<Parameter::REGULARIZATION_CONSTANT>::type, double>,
                 "REGULARIZATION_CONSTANT is a double");
+  static_assert(std::is_same_v<ParameterType<Parameter::SIGMA_L>::type, Vector>, "SIGMA_L is a Vector");
+  static_assert(std::is_same_v<ParameterType<Parameter::GRADIENT_OPTIMIZABLE>::type, Vector>,
+                "GRADIENT_OPTIMIZABLE is a Vector");
 }
 
 TEST(TestParameter, TypeRef) {
   static_assert(std::is_same_v<ParameterType<Parameter::DEGREE>::ref_type, int>, "DEGREE is an int");
   static_assert(std::is_same_v<ParameterType<Parameter::SIGMA_F>::ref_type, double>, "SIGMA_F is a double");
-  static_assert(std::is_same_v<ParameterType<Parameter::SIGMA_L>::ref_type, const Vector&>, "SIGMA_L is a Vector");
   static_assert(std::is_same_v<ParameterType<Parameter::REGULARIZATION_CONSTANT>::ref_type, double>,
                 "REGULARIZATION_CONSTANT is a double");
+  static_assert(std::is_same_v<ParameterType<Parameter::SIGMA_L>::ref_type, const Vector&>, "SIGMA_L is a Vector");
+  static_assert(std::is_same_v<ParameterType<Parameter::GRADIENT_OPTIMIZABLE>::ref_type, const Vector&>,
+                "GRADIENT_OPTIMIZABLE is a Vector");
 }
 
 TEST(TestParameter, DispatchInt) {

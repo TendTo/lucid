@@ -39,13 +39,13 @@ class TestKernelRidgeRegressor : public ::testing::Test {
   const double sigma_l_{2.0};                   //< Kernel length scale
   const double regularization_constant_{1e-6};  //< Regularization constant for the kernel ridge regressor
   const RectSet x_limits_{std::vector<std::pair<double, double>>(dim_, {-1.0, 1.0})};  //< Limits of the input space
-  KernelRidgeRegressor regressor_{std::make_unique<GaussianKernel>(dim_, sigma_l_, sigma_f_), regularization_constant_};
+  KernelRidgeRegressor regressor_{std::make_unique<GaussianKernel>(sigma_l_, sigma_f_), regularization_constant_};
 
   [[nodiscard]] std::pair<KernelRidgeRegressor, ConstantTruncatedFourierFeatureMap> get_regression_and_feature_map(
       const double sigma_l, const int num_frequencies) const {
     const Matrix training_inputs{Matrix::Random(n_samples_, dim_)};
     const Matrix training_outputs{Matrix::Random(n_samples_, dim_)};
-    KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(dim_, sigma_l, sigma_f_)};
+    KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l, sigma_f_)};
     regressor.fit(training_inputs, training_outputs);
     return {std::move(regressor), ConstantTruncatedFourierFeatureMap(num_frequencies, sigma_l, sigma_f_, x_limits_)};
   }
@@ -59,7 +59,7 @@ TEST_F(TestKernelRidgeRegressor, FitAndPredict) {
   auto [inputs, outputs] = getTrainingData();
   EXPECT_NO_THROW(regressor_.fit(inputs, outputs));
 
-  Matrix test_inputs{Matrix::Random(10, dim_)};
+  const Matrix test_inputs{Matrix::Random(10, dim_)};
   Matrix predictions;
   EXPECT_NO_THROW(predictions = regressor_.predict(test_inputs));
 
@@ -68,8 +68,9 @@ TEST_F(TestKernelRidgeRegressor, FitAndPredict) {
 }
 
 TEST_F(TestKernelRidgeRegressor, ParametersList) {
-  EXPECT_THAT(regressor_.parameters_list(), ::testing::UnorderedElementsAre(Parameter::SIGMA_F, Parameter::SIGMA_L,
-                                                                            Parameter::REGULARIZATION_CONSTANT));
+  EXPECT_THAT(regressor_.parameters_list(),
+              ::testing::UnorderedElementsAre(Parameter::SIGMA_F, Parameter::SIGMA_L,
+                                              Parameter::REGULARIZATION_CONSTANT, Parameter::GRADIENT_OPTIMIZABLE));
 }
 
 TEST_F(TestKernelRidgeRegressor, ParameterHas) {
@@ -103,7 +104,6 @@ TEST_F(TestKernelRidgeRegressor, HiddenKernelParameter) {
    public:
     HiddenKernel() : Kernel{static_cast<Parameters>(Parameter::REGULARIZATION_CONSTANT)} {}
     [[nodiscard]] bool is_stationary() const override { return true; }
-    [[nodiscard]] bool is_isotropic() const override { return true; }
     Matrix operator()(ConstMatrixRef, const ConstMatrixRef&, std::vector<Matrix>*) const override { return {}; }
     [[nodiscard]] std::unique_ptr<Kernel> clone() const override { return std::make_unique<HiddenKernel>(); }
   };
@@ -173,8 +173,7 @@ TEST_F(TestKernelRidgeRegressor, MultipleFeatures) {
   const Matrix inputs{Matrix::Random(n_samples_, input_dim)};
   const Matrix outputs{Matrix::Random(n_samples_, output_dim)};
 
-  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(input_dim, sigma_l_, sigma_f_),
-                                 regularization_constant_};
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l_, sigma_f_), regularization_constant_};
 
   const Matrix test_inputs{Matrix::Random(n_samples_ + 1, input_dim)};
   regressor.fit(inputs, outputs);
@@ -192,7 +191,7 @@ TEST_F(TestKernelRidgeRegressor, SimpleInterpolation) {
   inputs << -1, -0.5, 0, 0.5, 1;
   outputs << -1, 0, 1, 2, 3;
 
-  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(1, 0.3, 1.0), 1e-10};
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(0.3, 1.0), 1e-10};
   regressor.fit(inputs, outputs);
 
   // Test interpolation at 0.25
@@ -209,7 +208,7 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihood) {
   const Matrix inputs{Matrix::Random(n_samples, 2)};
   const Matrix outputs{Matrix::Random(n_samples, 3)};
 
-  const GaussianKernel kernel{2, 1, 1};
+  const GaussianKernel kernel{1, 1};
   lucid::GramMatrix K{kernel, inputs};
   K.add_diagonal_term(lambda * static_cast<double>(n_samples));  // Add regularisation term to the diagonal
   const Matrix w{K.inverse() * outputs};
@@ -238,7 +237,7 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodFixed) {
       0.27899504, -0.85243263, 0.87318314, -0.52283707, 0.78896631, 0.7937943, 0.61443646, 0.99877091, 0.49497885,
       0.0495648, 0.83153619, 0.99343481, -0.55547057;
 
-  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(2, 1, 1), lambda};
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(1, 1), lambda};
   regressor.fit(inputs, outputs);
   const double log_likelihood = regressor.log_marginal_likelihood();
 

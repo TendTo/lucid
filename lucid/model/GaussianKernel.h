@@ -33,14 +33,13 @@ class GaussianKernel final : public Kernel {
    * @param sigma_l @sigma_l value
    * @param sigma_f @sigma_f value
    */
-  explicit GaussianKernel(const Vector& sigma_l, double sigma_f = 1.0);
+  explicit GaussianKernel(Vector sigma_l, double sigma_f = 1.0);
   /**
    * Construct a new GaussianKernel object with the given parameters.
-   * @param dim dimension of the vector space
    * @param sigma_l @sigma_l value. It is equal for all dimensions.
    * @param sigma_f @sigma_f value
    */
-  explicit GaussianKernel(Dimension dim, double sigma_l = 1.0, double sigma_f = 1.0);
+  explicit GaussianKernel(double sigma_l = 1.0, double sigma_f = 1.0);
 
   /** @getter{@sigma_f value, kernel} */
   [[nodiscard]] Scalar sigma_f() const { return sigma_f_; }
@@ -50,7 +49,7 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] Dimension dimension() const { return sigma_l_.size(); }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
-  [[nodiscard]] bool is_isotropic() const override;
+  [[nodiscard]] bool is_isotropic() const { return is_isotropic_; }
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
   void set(Parameter parameter, double value) override;
@@ -61,8 +60,9 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] double get_d(Parameter parameter) const override;
   [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
 
-  Vector sigma_l_;  ///< @sigma_l value
-  double sigma_f_;  ///< @sigma_f value
+  bool is_isotropic_;       ///< True if the kernel is isotropic (i.e., @sigma_l is the same for all dimensions)
+  mutable Vector sigma_l_;  ///< @sigma_l value
+  double sigma_f_;          ///< @sigma_f value
 };
 
 using RadialBasisFunction = GaussianKernel;       ///< Alias for Gaussian kernel.

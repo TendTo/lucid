@@ -40,38 +40,42 @@ enum class Parameter : std::uint16_t {
   SIGMA_L = 1 << 1,                  ///< Sigma_l parameter
   REGULARIZATION_CONSTANT = 1 << 2,  ///< Regularization constant parameter
   DEGREE = 1 << 3,                   ///< Degree of the polynomial
+  GRADIENT_OPTIMIZABLE = 1 << 4,     ///< Gradient optimizable parameter
 };
 
 using HP = Parameter;                                                       ///< Alias for HyperParameter
 using Parameters = std::underlying_type_t<Parameter>;                       ///< Efficient set of parameters as bitset
 constexpr Parameters NoParameters = static_cast<Parameters>(Parameter::_);  ///< No parameter value placeholder
 
-LUCID_FLAG_ENUMS(Parameter, Parameters, DEGREE)
+LUCID_FLAG_ENUMS(Parameter, Parameters, GRADIENT_OPTIMIZABLE)
 
 namespace internal {
+
+struct ParameterTypeInt {
+  using type = int;
+  using ref_type = int;
+};
+struct ParameterTypeDouble {
+  using type = double;
+  using ref_type = double;
+};
+struct ParameterTypeVector {
+  using type = Vector;
+  using ref_type = const Vector&;
+};
 
 template <Parameter>
 struct ParameterType {};
 template <>
-struct ParameterType<Parameter::SIGMA_F> {
-  using type = double;
-  using ref_type = double;
-};
+struct ParameterType<Parameter::SIGMA_F> : ParameterTypeDouble {};
 template <>
-struct ParameterType<Parameter::SIGMA_L> {
-  using type = Vector;
-  using ref_type = const Vector&;
-};
+struct ParameterType<Parameter::SIGMA_L> : ParameterTypeVector {};
 template <>
-struct ParameterType<Parameter::REGULARIZATION_CONSTANT> {
-  using type = double;
-  using ref_type = double;
-};
+struct ParameterType<Parameter::REGULARIZATION_CONSTANT> : ParameterTypeDouble {};
 template <>
-struct ParameterType<Parameter::DEGREE> {
-  using type = int;
-  using ref_type = int;
-};
+struct ParameterType<Parameter::DEGREE> : ParameterTypeInt {};
+template <>
+struct ParameterType<Parameter::GRADIENT_OPTIMIZABLE> : ParameterTypeVector {};
 
 }  // namespace internal
 
@@ -116,6 +120,7 @@ R dispatch(const Parameter parameter, const std::function<R()>& fun_int, const s
     case Parameter::REGULARIZATION_CONSTANT:
       return dispatch<R, Parameter::SIGMA_F>(fun_int, fun_double, fun_vector);
     case Parameter::SIGMA_L:
+    case Parameter::GRADIENT_OPTIMIZABLE:
       return dispatch<R, Parameter::SIGMA_L>(fun_int, fun_double, fun_vector);
     default:
       throw exception::LucidUnreachableException{};

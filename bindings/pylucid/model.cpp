@@ -113,7 +113,6 @@ class PyKernel final : public Kernel {
     pybind11::pybind11_fail("Tried to call pure virtual function \"Kernel::clone\"");
   }
   [[nodiscard]] bool is_stationary() const override { PYBIND11_OVERRIDE_PURE(Scalar, Kernel, is_stationary); }
-  [[nodiscard]] bool is_isotropic() const override { PYBIND11_OVERRIDE_PURE(Scalar, Kernel, is_isotropic); }
 };
 
 class PyEstimator final : public Estimator {
@@ -322,11 +321,13 @@ void init_model(py::module_ &m) {
       .def(
           "__call__", [](const Kernel &self, ConstMatrixRef x1) { return self(x1, x1); }, ARG_NONCONVERT("x1"))
       .def("clone", &Kernel::clone)
+      .def_property_readonly("is_stationary", &Kernel::is_stationary)
       .def("__str__", STRING_LAMBDA(Kernel));
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
       .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
       .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l") = 1.0,
            py::arg("sigma_f") = 1.0)
+      .def_property_readonly("is_isotropic", &GaussianKernel::is_isotropic)
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
 

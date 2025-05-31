@@ -37,19 +37,20 @@ inline Matrix gaussian(ConstMatrixRef x1, ConstMatrixRef x2, const Vector& sigma
   });
   return sigma_f * sigma_f * (-0.5 * def_num.array()).exp();
 }
+/** @overload  */
+inline Matrix gaussian(ConstMatrixRef x1, ConstMatrixRef x2, const double sigma_l, const double sigma_f = 1.0) {
+  return gaussian(x1, x2, Vector::Constant(x1.cols(), sigma_l), sigma_f);
+}
 
 }  // namespace
 
 class TestGaussianKernel : public ::testing::Test {
  protected:
   TestGaussianKernel()
-      : sigma_f_{4.2},
-        is_sigma_l_{Vector::Constant(4, 2.4)},
-        an_sigma_l_{Vector::LinSpaced(4, 1.2, 6.3)},
-        kernel_{an_sigma_l_, sigma_f_} {}
+      : sigma_f_{4.2}, is_sigma_l_{2.4}, an_sigma_l_{Vector::LinSpaced(4, 1.2, 6.3)}, kernel_{an_sigma_l_, sigma_f_} {}
 
   double sigma_f_;
-  Vector is_sigma_l_;
+  double is_sigma_l_;
   Vector an_sigma_l_;
   GaussianKernel kernel_;
 };
@@ -64,10 +65,10 @@ TEST_F(TestGaussianKernel, VectorConstructor) {
 }
 
 TEST_F(TestGaussianKernel, DimensionConstructor) {
-  const GaussianKernel kernel{4, 3.0};
+  const GaussianKernel kernel{4.0};
   EXPECT_EQ(kernel.sigma_f(), 1.0);
-  EXPECT_EQ(kernel.sigma_l().size(), 4);
-  EXPECT_THAT(kernel.sigma_l(), ::testing::Each(3.0));
+  EXPECT_EQ(kernel.sigma_l().size(), 1);
+  EXPECT_THAT(kernel.sigma_l(), ::testing::Each(4.0));
   // EXPECT_EQ(kernel.sigma_f(), kernel.get<double>(Parameter::MEAN));
   EXPECT_EQ(kernel.sigma_f(), kernel.get<double>(Parameter::SIGMA_F));
   // EXPECT_EQ(kernel.sigma_l(), kernel.get<const Vector&>(Parameter::LENGTH_SCALE));
@@ -76,17 +77,21 @@ TEST_F(TestGaussianKernel, DimensionConstructor) {
 }
 
 TEST_F(TestGaussianKernel, ParametersList) {
-  EXPECT_THAT(kernel_.parameters_list(), ::testing::UnorderedElementsAre(Parameter::SIGMA_F, Parameter::SIGMA_L));
+  EXPECT_THAT(kernel_.parameters_list(),
+              ::testing::UnorderedElementsAre(Parameter::SIGMA_F, Parameter::SIGMA_L, Parameter::GRADIENT_OPTIMIZABLE));
+  ;
 }
 
 TEST_F(TestGaussianKernel, ParametersHas) {
   EXPECT_TRUE(kernel_.has(Parameter::SIGMA_F));
   EXPECT_TRUE(kernel_.has(Parameter::SIGMA_L));
+  EXPECT_TRUE(kernel_.has(Parameter::GRADIENT_OPTIMIZABLE));
 }
 
 TEST_F(TestGaussianKernel, ParametersGet) {
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), sigma_f_);
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), an_sigma_l_);
+  EXPECT_EQ(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>(), an_sigma_l_);
 }
 
 TEST_F(TestGaussianKernel, ParametersSet) {
@@ -98,6 +103,9 @@ TEST_F(TestGaussianKernel, ParametersSet) {
 
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), new_sigma_f);
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), new_sigma_l);
+
+  EXPECT_NO_THROW(kernel_.set(Parameter::GRADIENT_OPTIMIZABLE, Vector{new_sigma_l * 2}));
+  EXPECT_EQ(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>(), new_sigma_l * 2);
 }
 
 TEST_F(TestGaussianKernel, VectorCorrectnessIsotropic) {
