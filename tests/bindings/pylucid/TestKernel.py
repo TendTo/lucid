@@ -10,26 +10,42 @@ except ImportError:
 class TestKernel:
     class TestGaussianKernel:
 
-        def test_init_sigmas(self):
+        def test_init_anisotropic(self):
             sigma_l = [1, 2, 3]
             k = GaussianKernel(sigma_f=2, sigma_l=sigma_l)
+            assert k.is_stationary
+            assert not k.is_isotropic
             assert isinstance(k, Kernel)
             assert k.get(Parameter.SIGMA_F) == k.sigma_f == 2
             assert np.allclose(k.get(Parameter.SIGMA_L), sigma_l)
             assert np.allclose(k.sigma_l, sigma_l)
 
-        def test_init_dimension(self):
+        def test_init_isotropic(self):
             sigma_l = 5
-            k = GaussianKernel(dimension=4, sigma_f=2, sigma_l=sigma_l)
+            k = GaussianKernel(sigma_f=2, sigma_l=sigma_l)
+            assert k.is_stationary
+            assert k.is_stationary
             assert isinstance(k, Kernel)
             assert k.get(Parameter.SIGMA_F) == k.sigma_f == 2
-            assert np.allclose(k.get(Parameter.SIGMA_L), [sigma_l] * 4)
-            assert np.allclose(k.sigma_l, [sigma_l] * 4)
+            assert np.allclose(k.get(Parameter.SIGMA_L), [sigma_l])
+            assert np.allclose(k.sigma_l, [sigma_l])
 
         def test_has_parameters(self):
-            k = GaussianKernel(1)
+            k = GaussianKernel()
             assert k.has(Parameter.SIGMA_F) and Parameter.SIGMA_F in k
             assert k.has(Parameter.SIGMA_L) and Parameter.SIGMA_L in k
+            assert k.has(Parameter.GRADIENT_OPTIMIZABLE) and Parameter.GRADIENT_OPTIMIZABLE in k
+
+        def test_parameters(self):
+            k = GaussianKernel()
+            assert not (
+                set(k.parameters)
+                ^ {
+                    Parameter.SIGMA_F,
+                    Parameter.SIGMA_L,
+                    Parameter.GRADIENT_OPTIMIZABLE,
+                }
+            )
 
         def test_data(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[1, 2, 3])

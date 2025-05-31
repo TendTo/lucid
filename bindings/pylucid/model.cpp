@@ -175,12 +175,17 @@ class MultiSetIterator {
 };
 
 void init_model(py::module_ &m) {
+  /**************************** Requests ****************************/
+  py::enum_<Request>(m, "Request")
+      .value("OBJECTIVE_VALUE", Request::OBJECTIVE_VALUE)
+      .value("GRADIENT", Request::GRADIENT);
   /**************************** Parameters ****************************/
   py::enum_<Parameter>(m, "Parameter")
       .value("DEGREE", Parameter::DEGREE)
       .value("SIGMA_L", Parameter::SIGMA_L)
       .value("SIGMA_F", Parameter::SIGMA_F)
-      .value("REGULARIZATION_CONSTANT", Parameter::REGULARIZATION_CONSTANT);
+      .value("REGULARIZATION_CONSTANT", Parameter::REGULARIZATION_CONSTANT)
+      .value("GRADIENT_OPTIMIZABLE", Parameter::GRADIENT_OPTIMIZABLE);
   py::class_<ParameterValue>(m, "ParameterValue")
       .def(py::init<Parameter, int>(), py::arg("parameter"), py::arg("value"))
       .def(py::init<Parameter, double>(), py::arg("parameter"), py::arg("value"))
@@ -219,8 +224,8 @@ void init_model(py::module_ &m) {
             return self.set(parameter, value);
           },
           py::arg("parameter"), py::arg("value"))
-      .def("parameters", &Parametrizable::parameters_list)
       .def("has", &Parametrizable::has, py::arg("parameter"))
+      .def_property_readonly("parameters", &Parametrizable::parameters_list)
       .def("__contains__", &Parametrizable::has, py::arg("parameter"));
 
   /**************************** Set ****************************/
@@ -325,8 +330,7 @@ void init_model(py::module_ &m) {
       .def("__str__", STRING_LAMBDA(Kernel));
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
       .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
-      .def(py::init<Dimension, double, double>(), py::arg("dimension"), py::arg("sigma_l") = 1.0,
-           py::arg("sigma_f") = 1.0)
+      .def(py::init<double, double>(), py::arg("sigma_l") = 1.0, py::arg("sigma_f") = 1.0)
       .def_property_readonly("is_isotropic", &GaussianKernel::is_isotropic)
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
@@ -372,7 +376,8 @@ void init_model(py::module_ &m) {
       .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
       .def_property("tuner", &Estimator::tuner,
                     [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
-      .def("consolidate", &Estimator::consolidate, ARG_NONCONVERT("x"), ARG_NONCONVERT("y"))
+      .def("consolidate", &Estimator::consolidate, ARG_NONCONVERT("x"), ARG_NONCONVERT("y"),
+           py::arg("requests") = NoRequests)
       .def("clone", &Estimator::clone)
       .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
