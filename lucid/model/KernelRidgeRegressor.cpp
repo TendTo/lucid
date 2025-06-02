@@ -7,6 +7,8 @@
 #include "lucid/model/KernelRidgeRegressor.h"
 
 #include <memory>
+#include <numbers>
+#include <numeric>
 #include <utility>
 
 #include "Scorer.h"

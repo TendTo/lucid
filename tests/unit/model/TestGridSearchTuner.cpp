@@ -6,6 +6,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <numeric>
+
 #include "lucid/model/GridSearchTuner.h"
 #include "lucid/model/Scorer.h"
 #include "lucid/model/model.h"
@@ -145,8 +147,8 @@ TEST_F(TestGridSearchTuner, TuneSingleThread) {
   const GridSearchTuner tuner{parameters_, 1};
 
   // Get the necessary information to iterate over all possible parameter combinations
-  const Index parameters_max_size = std::accumulate(parameters_max_indices_.begin(), parameters_max_indices_.end(),
-                                                    Index{1}, std::multiplies<Index>());
+  const int parameters_max_size = static_cast<int>(std::accumulate(
+      parameters_max_indices_.begin(), parameters_max_indices_.end(), Index{1}, std::multiplies<Index>()));
 
   for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
     testing::NiceMock<MockEstimator_> estimator{

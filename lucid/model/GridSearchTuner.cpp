@@ -10,6 +10,7 @@
 #include <future>
 #include <iostream>
 #include <limits>
+#include <numeric>
 #include <thread>
 #include <utility>
 #include <vector>

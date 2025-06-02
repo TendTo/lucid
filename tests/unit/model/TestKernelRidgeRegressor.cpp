@@ -5,6 +5,8 @@
  */
 #include <gtest/gtest.h>
 
+#include <numbers>
+
 #include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
 #include "lucid/model/GaussianKernel.h"
 #include "lucid/model/GramMatrix.h"
