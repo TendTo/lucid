@@ -83,18 +83,37 @@ class Estimator : public Parametrizable {
    * No fitting process is performed, and the hyperparameters are not updated,
    * but the estimator may change its internal state so it can be used for predictions.
    * After the process is completed, the estimator can be used to make predictions on new data.
-   * The `request` parameter can be used to specify additional options for the consolidation process,
+   * The `request` parameter is used to specify an additional option for the consolidation process,
    * like whether to compute some additional values used by some tuners.
    * @note This is a low-level method that allows the user great control over the behaviour of the estimator.
    * It is usually recommended to use @ref fit with the desired tuner instead.
    * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
    * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
    * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
-   * @param requests request for the consolidation process, default to no specific request
+   * @param request request for the consolidation process. Defaults to no specific request being made
+   * @return reference to the estimator
+   */
+  Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                         const Request request = Request::_) {
+    return consolidate(training_inputs, training_outputs, request | Request::_);
+  }
+  /**
+   * Consolidate the model, making sure it is ready for use.
+   * No fitting process is performed, and the hyperparameters are not updated,
+   * but the estimator may change its internal state so it can be used for predictions.
+   * After the process is completed, the estimator can be used to make predictions on new data.
+   * The `requests` parameter can be used to specify additional options for the consolidation process,
+   * like whether to compute some additional values used by some tuners.
+   * @note This is a low-level method that allows the user great control over the behaviour of the estimator.
+   * It is usually recommended to use @ref fit with the desired tuner instead.
+   * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
+   * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
+   * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
+   * @param requests requests for the consolidation process
    * @return reference to the estimator
    */
   virtual Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
-                                 Requests requests = NoRequests) = 0;
+                                 Requests requests) = 0;
   /**
    * Score the estimator assigning a numerical value to its accuracy in predicting the `evaluation_outputs`
    * given the `evaluation_inputs`.

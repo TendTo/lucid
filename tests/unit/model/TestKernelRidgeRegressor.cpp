@@ -238,15 +238,15 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodFixed) {
       0.0495648, 0.83153619, 0.99343481, -0.55547057;
 
   KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(1, 1), lambda};
-  regressor.fit(inputs, outputs);
+  regressor.consolidate(inputs, outputs, Request::OBJECTIVE_VALUE);
   const double log_likelihood = regressor.log_marginal_likelihood();
 
   EXPECT_DOUBLE_EQ(log_likelihood, -28.5091519732376);
 }
 
 TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropicFixed) {
-  LUCID_LOG_INIT_VERBOSITY(1);
   constexpr int n_samples = 3;
+  constexpr double sigma_l = 2.3;
   constexpr double lambda = 0.1 / n_samples;
   Matrix inputs{3, 2}, outputs{3, 3};
   inputs << 4, 5, 1, 2, 6, 7;
@@ -254,29 +254,26 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropicFixed) {
       5, 5, 5,         //
       2, 2, 1;
 
-  const GaussianKernel kernel{2, 1};
-  lucid::GramMatrix K{kernel, inputs};
-
-  KernelRidgeRegressor regressor{kernel, lambda};
-  regressor.fit(inputs, outputs);
-  FAIL();
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l), lambda};
+  regressor.consolidate(inputs, outputs, Request::GRADIENT);
+  EXPECT_EQ(regressor.gradient().size(), 1);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 24.581888041651847);
+  EXPECT_THAT(regressor.gradient(), testing::Contains(regressor.gradient()(0)).Times(regressor.gradient().size()));
 }
 TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientAnisotropicFixed) {
-  LUCID_LOG_INIT_VERBOSITY(1);
   constexpr int n_samples = 3;
   constexpr double lambda = 0.1 / n_samples;
   Vector sigma_l{2};
   Matrix inputs{3, 2}, outputs{3, 3};
-  sigma_l << 1, 2;
+  sigma_l << 1.2, 5.1;
   inputs << 4, 5, 1, 2, 6, 7;
   outputs << 4, 4, 4,  //
       5, 5, 5,         //
       2, 2, 1;
 
-  const GaussianKernel kernel{sigma_l};
-  lucid::GramMatrix K{kernel, inputs};
-
-  KernelRidgeRegressor regressor{kernel, lambda};
-  regressor.fit(inputs, outputs);
-  FAIL();
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l), lambda};
+  regressor.consolidate(inputs, outputs, Request::GRADIENT);
+  EXPECT_EQ(regressor.gradient().size(), sigma_l.size());
+  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 15.755351787434151);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(1), 0.87226861106901887);
 }

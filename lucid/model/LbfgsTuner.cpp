@@ -12,57 +12,70 @@
 #include <memory>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/model/GradientOptimizable.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
 namespace lucid {
-namespace {
-class Rosenbrock {
- private:
-  int n;
 
- public:
-  explicit Rosenbrock(const int n_) : n(n_) {}
-  double operator()(const Eigen::VectorXd& x, Eigen::VectorXd& grad) {
-    double fx = 0.0;
-    for (int i = 0; i < n; i += 2) {
-      double t1 = 1.0 - x[i];
-      double t2 = 10 * (x[i + 1] - x[i] * x[i]);
-      grad[i + 1] = 20 * t2;
-      grad[i] = -2.0 * (x[i] * grad[i + 1] + t1);
-      fx += t1 * t1 + t2 * t2;
-    }
-    return fx;
-  }
-};
+namespace {
+
+LBFGSpp::LBFGSParam<double> to_lbfgs(const LbgsParameters& parameters) {
+  LBFGSpp::LBFGSParam<double> external_parameters{};
+  external_parameters.m = parameters.m;
+  external_parameters.epsilon = parameters.epsilon;
+  external_parameters.epsilon_rel = parameters.epsilon_rel;
+  external_parameters.past = parameters.past;
+  external_parameters.delta = parameters.delta;
+  external_parameters.max_iterations = parameters.max_iterations;
+  external_parameters.linesearch = parameters.linesearch;
+  external_parameters.max_linesearch = parameters.max_linesearch;
+  external_parameters.min_step = parameters.min_step;
+  external_parameters.max_step = parameters.max_step;
+  external_parameters.ftol = parameters.ftol;
+  external_parameters.wolfe = parameters.wolfe;
+  return external_parameters;
+}
+
 }  // namespace
+
+LbfgsTuner::LbfgsTuner(const LbgsParameters& parameters) : parameters_{parameters} {
+#ifndef NCHECK
+  to_lbfgs(parameters).check_param();
+#endif
+}
 
 void LbfgsTuner::tune_impl([[maybe_unused]] Estimator& estimator, ConstMatrixRef training_inputs,
                            ConstMatrixRef training_outputs) const {
-  LUCID_DEBUG_FMT("LbfgsOptimiser::Optimise([{}x{}, [{}x{}])", training_inputs.rows(), training_inputs.cols(),
+  LUCID_DEBUG_FMT("LbfgsOptimiser::tune_impl([{}x{}, [{}x{}])", training_inputs.rows(), training_inputs.cols(),
                   training_outputs.rows(), training_outputs.cols());
-  const int n = 10;
-  // Set up parameters
-  LBFGSpp::LBFGSParam<double> param;
-  param.epsilon = 1e-6;
-  param.max_iterations = 100;
+  LUCID_TRACE_FMT("LbfgsOptimiser::tune_impl({}, {})", training_inputs, training_outputs);
+
+  LUCID_CHECK_ARGUMENT(dynamic_cast<GradientOptimizable*>(&estimator) != nullptr, "estimator",
+                       "not an instance of GradientOptimizable");
+  GradientOptimizable& gradient_estimator = static_cast<GradientOptimizable&>(estimator);
 
   // Create solver and function object
-  LBFGSpp::LBFGSSolver<double> solver(param);
-  Rosenbrock fun(n);
+  LBFGSpp::LBFGSSolver<double> solver(to_lbfgs(parameters_));
 
-  // Initial guess
-  // Vector x_out = Vector::Zero(n);
-  Eigen::VectorXd x_out = Vector::Zero(n);
+  // Initial guess is the current gradient-optimizable parameters
+  Eigen::VectorXd x_out = gradient_estimator.get<Parameter::GRADIENT_OPTIMIZABLE>();
   // x will be overwritten to be the best point found
-  double fx;
-  const int niter = solver.minimize(fun, x_out, fx);
+  double obj;
+  const auto f = [&gradient_estimator, &training_inputs, &training_outputs](const Eigen::VectorXd& x,
+                                                                            Eigen::VectorXd& grad) {
+    gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x));
+    gradient_estimator.consolidate(training_inputs, training_outputs);
+    // TODO(tend): copy elements instead of allocating a new vector
+    grad = gradient_estimator.gradient();
+    return gradient_estimator.objective_value();
+  };
+  const int niter = solver.minimize(f, x_out, obj);
 
-  std::cout << niter << " iterations" << std::endl;
-  std::cout << "x = \n" << training_inputs.transpose() << std::endl;
-  std::cout << "f(x) = " << fx << std::endl;
+  LUCID_DEBUG_FMT("LbfgsOptimiser::tune_impl(): number_iterations = {}, objective_value = {}", niter, obj);
+  LUCID_TRACE_FMT("LbfgsOptimiser::tune_impl(): solution = {}", Vector{x_out});
 
-  LUCID_NOT_IMPLEMENTED();
+  gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x_out));
 }
 
 }  // namespace lucid

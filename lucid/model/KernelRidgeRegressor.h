@@ -12,6 +12,7 @@
 
 #include "lucid/model/Estimator.h"
 #include "lucid/model/FeatureMap.h"
+#include "lucid/model/GradientOptimizable.h"
 #include "lucid/model/Kernel.h"
 
 namespace lucid {
@@ -59,9 +60,10 @@ namespace lucid {
  * where @f$ K(x,  x_\text{traning}) @f$ is the vector of kernel evaluations between @f$ x @f$
  * and the training inputs @f$ x_\text{traning} @f$.
  */
-class KernelRidgeRegressor final : public Estimator {
+class KernelRidgeRegressor final : public GradientOptimizable {
  public:
   using Estimator::operator();
+  using Estimator::consolidate;
   using Estimator::fit;
   /**
    * Construct a new Kernel Ridge Regressor object with the given parameters.
@@ -113,14 +115,13 @@ class KernelRidgeRegressor final : public Estimator {
   /** @getter{regularization constant, regressor} */
   [[nodiscard]] double regularization_constant() const { return regularization_constant_; }
   /** @getter{log marginal likelihood, regressor} */
-  [[nodiscard]] double log_marginal_likelihood() const { return log_marginal_likelihood_; }
+  [[nodiscard]] double log_marginal_likelihood() const { return objective_value_; }
 
   void set(Parameter parameter, int value) override;
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;
 
-  Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
-                         Requests requests = NoRequests) override;
+  Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, Requests requests) override;
 
   [[nodiscard]] double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override;
 
@@ -135,7 +136,6 @@ class KernelRidgeRegressor final : public Estimator {
   double regularization_constant_;  ///< Regularization constant
   Matrix training_inputs_;          ///< Training inputs
   Matrix coefficients_;             ///< Coefficients of the linear combination describing the regression model
-  double log_marginal_likelihood_;
 };
 
 std::ostream& operator<<(std::ostream& os, const KernelRidgeRegressor& regressor);

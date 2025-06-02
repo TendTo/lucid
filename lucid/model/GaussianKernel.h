@@ -80,9 +80,9 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] double get_d(Parameter parameter) const override;
   [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
 
-  bool is_isotropic_;       ///< True if the kernel is isotropic (i.e., @sigma_l is the same for all dimensions)
   mutable Vector sigma_l_;  ///< @sigma_l value
   double sigma_f_;          ///< @sigma_f value
+  bool is_isotropic_;       ///< True if the kernel is isotropic (i.e., @sigma_l is the same for all dimensions)
 };
 
 using RadialBasisFunction = GaussianKernel;       ///< Alias for Gaussian kernel.

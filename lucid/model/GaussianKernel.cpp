@@ -16,9 +16,9 @@ namespace lucid {
 
 GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
     : Kernel{Parameter::SIGMA_F | Parameter::SIGMA_L | Parameter::GRADIENT_OPTIMIZABLE},
-      is_isotropic_{false},
       sigma_l_{std::move(sigma_l)},
-      sigma_f_{sigma_f} {
+      sigma_f_{sigma_f},
+      is_isotropic_{false} {
   LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l_.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
   LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
 }
@@ -53,7 +53,7 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
     gradient->clear();
     gradient->reserve(sigma_l_.size());
     // If sigma_l is isotropic (i.e., equal for all dimensions), just compute a single gradient.
-    if (is_isotropic()) {
+    if (is_isotropic_) {
       gradient->emplace_back(k.cwiseProduct(dist));
     } else {
       // otherwise, compute a separate gradient matrix for each dimension
@@ -70,7 +70,10 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
   return k;
 }
 
-std::unique_ptr<Kernel> GaussianKernel::clone() const { return std::make_unique<GaussianKernel>(sigma_l_, sigma_f_); }
+std::unique_ptr<Kernel> GaussianKernel::clone() const {
+  return is_isotropic_ ? std::make_unique<GaussianKernel>(sigma_l_.head<1>().value(), sigma_f_)
+                       : std::make_unique<GaussianKernel>(sigma_l_, sigma_f_);
+}
 
 void GaussianKernel::set(const Parameter parameter, const double value) {
   switch (parameter) {
