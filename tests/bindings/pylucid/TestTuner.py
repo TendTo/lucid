@@ -4,7 +4,6 @@ from pylucid import (
     MedianHeuristicTuner,
     GridSearchTuner,
     ParameterValues,
-    ParameterValue,
     GaussianKernel,
     KernelRidgeRegressor,
     Parameter,

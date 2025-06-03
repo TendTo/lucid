@@ -132,7 +132,7 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
   }
 
   LUCID_DEBUG_FMT("LbfgsOptimiser::tune_impl(): number_iterations = {}, objective_value = {}", niter, obj);
-  LUCID_TRACE_FMT("LbfgsOptimiser::tune_impl(): solution = {}", Vector{x_out});
+  LUCID_DEBUG_FMT("LbfgsOptimiser::tune_impl(): solution = {}", Vector{x_out});
 
   gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x_out));
 }

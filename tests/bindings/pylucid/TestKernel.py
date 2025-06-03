@@ -1,4 +1,4 @@
-from pylucid import GaussianKernel, Kernel, Parameter, set_verbosity
+from pylucid import GaussianKernel, Kernel, Parameter
 import numpy as np
 
 try:

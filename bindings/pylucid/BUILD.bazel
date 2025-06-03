@@ -39,6 +39,7 @@ py_library(
         "__init__.py",
         "__main__.py",
         "dreal.py",
+        "pipeline.py",
         "plot.py",
     ],
     data = [

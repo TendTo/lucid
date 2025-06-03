@@ -1,8 +1,17 @@
-from typing import TYPE_CHECKING
-from ._pylucid import RectSet, MultiSet, TruncatedFourierFeatureMap
+import numpy as np
+from typing import Callable
+from ._pylucid import (
+    RectSet,
+    MultiSet,
+    TruncatedFourierFeatureMap,
+    TruncatedFourierFeatureMap,
+    Estimator,
+    log_info,
+    log_error,
+)
 
 try:
-    from dreal import And, Or, sin as Sine, cos as Cosine
+    from dreal import And, Or, Implies, Variable as Real, sin as Sine, cos as Cosine, Not, CheckSatisfiability
 except ImportError as e:
     import sys
 
@@ -10,11 +19,8 @@ except ImportError as e:
     print("You can install it using 'pip install dreal'.", file=sys.stderr)
     raise e
 
-if TYPE_CHECKING:
-    import numpy as np
 
-
-def set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
+def build_set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
     """
     Generate a set constraint for the given variables to ensure they lie within the bounds of the given set.
 
@@ -30,7 +36,7 @@ def set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
         ValueError: if X_set is not a RectSet or MultiSet
 
     Returns:
-        An expression representing the set constraint.
+        Symbolic formula representing the set constraint.
         For example, if X_set is RectSet([0, 0], [1, 1]), it returns (x1 >= 0) && (x1 <= 1) && (x2 >= 0) && (x2 <= 1).
     """
     if isinstance(X_set, RectSet):
@@ -38,18 +44,41 @@ def set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
     if isinstance(X_set, MultiSet):
         expr = None
         for rect in X_set:
-            expr = Or(expr, set_constraint(xs, rect)) if expr is not None else set_constraint(xs, rect)
+            expr = Or(expr, build_set_constraint(xs, rect)) if expr is not None else build_set_constraint(xs, rect)
         return expr
     raise ValueError("X_set must be a RectSet or MultiSet.")
 
 
-def barrier_expression(
+def build_barrier_expression(
     xs: "list",
     X_bounds: "RectSet",
     tffm: "TruncatedFourierFeatureMap",
     sigma_f: float,
     sol: "np.typing.NDArray[np.float64]",
 ):
+    """Build a barrier expression using the truncated Fourier feature map.
+    This function encodes the truncated Fourier feature map as a symbolic expression in terms of the variables `xs`.
+    The expression is constructed by summing the products of the weights, sigma_f, and the symbolic expressions
+    for each row of the truncated Fourier feature map.
+    It can then be used to bound the barrier function values with a formula like:
+
+    ```py
+    barrier_expression(xs, X_bounds, tffm, sigma_f, sol) >= 0
+    ```
+
+    to ensure that the barrier function is non-negative for all values within the bounds defined by `X_bounds`.
+
+    Args:
+        xs: list of variables (e.g., [x1, x2, ...])
+        X_bounds: a RectSet representing the bounds of the input space
+        tffm: TruncatedFourierFeatureMap object containing the Fourier feature map
+        sigma_f: value of the variance
+        sol: barrier certificate solution which uniquely identifies the barrier function
+
+    Returns:
+        A symbolic expression representing the barrier function.
+    """
+    # Encode the truncated Fourier feature map as a symbolic expression in terms of xs
     # Encode the truncated Fourier feature map as a symbolic expression in terms of xs
     sym_tffm = [1.0]
     for row in tffm.omega[1:]:
@@ -72,3 +101,79 @@ def barrier_expression(
     for i, (w, s) in enumerate(zip(tffm.weights, sol, strict=True)):
         sym_tffm[i] *= w * sigma_f * s
     return sum(sym_tffm)
+
+
+def verify_barrier_certificate(
+    X_bounds: "RectSet",
+    X_init: "RectSet | MultiSet",
+    X_unsafe: "RectSet | MultiSet",
+    sigma_f: float,
+    eta: float,
+    gamma: float,
+    f_det: "Callable[[Real | float], Real | float]",
+    c: float,
+    estimator: "Estimator",
+    tffm: "TruncatedFourierFeatureMap",
+    sol: "np.typing.NDArray[np.float64]",
+):
+    """Use the dReal SMT solver to verify the barrier certificate for a given system.
+    This function checks if the barrier certificate satisfies the conditions for safety and stability
+    by constructing a set of constraints and checking their satisfiability.
+    If a counterexample is found, it prints the counterexample point and the corresponding barrier values.
+
+    Args:
+        X_bounds: set of bounds for the state space
+        X_init: set of initial states
+        X_unsafe: set of unsafe states
+        sigma_f: kernel bandwidth parameter
+        eta: expected value of the barrier function at the initial state
+        gamma: minimum value of the barrier function in the unsafe set
+        f_det: transition function that maps each state to its corresponding next state
+        c: maximum change in the barrier function value between successive states
+        estimator: estimator object used to model the black-box system
+        tffm: TruncatedFourierFeatureMap object containing the Fourier feature map
+        sol: barrier certificate solution which uniquely identifies the barrier function
+
+    Returns:
+        True if the barrier certificate is verified, False otherwise.
+    """
+    # Create symbolic variables for the input dimensions
+    xs = [Real(f"x{i}") for i in range(X_bounds.dimension)]
+    xsp = [f_det(x) for x in xs]
+    barrier = build_barrier_expression(xs=xs, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
+    barrier_p = build_barrier_expression(xs=xsp, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
+
+    tolerance = 1e-8
+    constraints = And(
+        # Bounds on the state space (X_bounds) for both initial and successive states
+        build_set_constraint(xs, X_bounds),
+        build_set_constraint(xsp, X_bounds),
+        # Specification
+        Not(
+            And(
+                # Non-negativity of the barrier function (-tolerance)
+                barrier >= -tolerance,
+                # First condition
+                Implies(build_set_constraint(xs, X_init), barrier <= eta),
+                # Second condition
+                Implies(build_set_constraint(xs, X_unsafe), barrier >= gamma),
+                # Third condition
+                barrier_p - barrier <= c,
+            ),
+        ),
+    )
+    # print(constraints, file=sys.stderr)
+    res = CheckSatisfiability(constraints, 1e-8)
+    if res is None:
+        log_info("The barrier jas been verified via dReal")
+        return True
+
+    log_error("Found counter example")
+    log_error(f"Model: {res}")
+    point = np.array([res[xs[0]].lb()])
+    pointp = f_det(point)
+    log_error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
+    log_error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
+    log_error(f"Xpemb: ?, barrier value: {estimator(point) @ sol.T}")
+    log_error((tffm(point), estimator(point)))
+    return False
