@@ -45,4 +45,11 @@ ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int
     : ConstantTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                          x_limits} {}
 
+std::ostream& operator<<(std::ostream& os, const ConstantTruncatedFourierFeatureMap& f) {
+  return os << "ConstantTruncatedFourierFeatureMap( "
+            << "num_frequencies( " << f.num_frequencies() << " ) "
+            << "dimension( " << f.dimension() << " ) "
+            << "weights( " << f.weights() << " ) )";
+}
+
 }  // namespace lucid

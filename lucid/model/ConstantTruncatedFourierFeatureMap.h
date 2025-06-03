@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <iosfwd>
+
 #include "TruncatedFourierFeatureMap.h"
 #include "lucid/lib/eigen.h"
 #include "lucid/model/RectSet.h"
@@ -29,4 +31,14 @@ class ConstantTruncatedFourierFeatureMap final : public TruncatedFourierFeatureM
   ConstantTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits);
 };
 
+std::ostream& operator<<(std::ostream& os, const ConstantTruncatedFourierFeatureMap& f);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::ConstantTruncatedFourierFeatureMap)
+
+#endif

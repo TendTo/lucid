@@ -6,4 +6,17 @@
  */
 #include "lucid/model/FeatureMap.h"
 
-namespace lucid {}  // namespace lucid
+#include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
+#include "lucid/model/LinearTruncatedFourierFeatureMap.h"
+#include "lucid/model/LogTruncatedFourierFeatureMap.h"
+
+namespace lucid {
+
+std::ostream& operator<<(std::ostream& os, const FeatureMap& f) {
+  if (const auto* casted = dynamic_cast<const ConstantTruncatedFourierFeatureMap*>(&f)) return os << *casted;
+  if (const auto* casted = dynamic_cast<const LinearTruncatedFourierFeatureMap*>(&f)) return os << *casted;
+  if (const auto* casted = dynamic_cast<const LogTruncatedFourierFeatureMap*>(&f)) return os << *casted;
+  return os << "FeatureMap( )";
+}
+
+}  // namespace lucid

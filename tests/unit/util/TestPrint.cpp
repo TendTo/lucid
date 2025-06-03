@@ -8,17 +8,21 @@
 
 #include "lucid/lucid.h"
 
+using lucid::ConstantTruncatedFourierFeatureMap;
 using lucid::GaussianKernel;
 using lucid::GramMatrix;
 using lucid::GridSearchTuner;
 using lucid::Index;
 using lucid::InverseGramMatrix;
 using lucid::KernelRidgeRegressor;
+using lucid::LinearTruncatedFourierFeatureMap;
+using lucid::LogTruncatedFourierFeatureMap;
 using lucid::Matrix;
 using lucid::MedianHeuristicTuner;
 using lucid::Parameter;
 using lucid::ParameterValue;
 using lucid::ParameterValues;
+using lucid::RectSet;
 using lucid::Request;
 using lucid::Vector;
 
@@ -57,6 +61,43 @@ TEST(TestPrint, ParameterValues) {
             "ParameterValues( Parameter( Sigma_l ) values( [1 2 3 4, 5 6 7 8] )");
   EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::DEGREE, 1, 2, 3)),
             "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )");
+}
+
+TEST(TestPrint, LinearTruncatedFourierFeatureMap) {
+  constexpr int num_frequencies = 3;
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  constexpr double sigma_f = 2.01;
+  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const LinearTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  EXPECT_EQ(fmt::format("{}", feature_map),
+            "LinearTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
+            "weights(  0.341345    0.3046    0.3046  0.120871  0.120871    0.3046    0.3046   0.27181   0.27181  "
+            "0.107859  0.107859  0.120871  0.120871  0.107859  0.107859 0.0428005 0.0428005 ) )");
+}
+TEST(TestPrint, LogTruncatedFourierFeatureMap) {
+  constexpr int num_frequencies = 3;
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  constexpr double sigma_f = 2.01;
+  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const LogTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  EXPECT_EQ(fmt::format("{}", feature_map),
+            "LogTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
+            "weights( 0.131338 0.237451 0.237451 0.164684 0.164684 0.263491 0.263491 0.476376 0.476376 0.330391 "
+            "0.330391 0.203628 0.203628 0.368148 0.368148 0.255329 0.255329 ) )");
+}
+TEST(TestPrint, ConstantTruncatedFourierFeatureMap) {
+  constexpr int num_frequencies = 3;
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  constexpr double sigma_f = 2.01;
+  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const ConstantTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  EXPECT_EQ(fmt::format("{}", feature_map),
+            "ConstantTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
+            "weights(  0.557992   0.38634   0.38634 0.0386108 0.0386108  0.564706  0.564706  0.390989  0.390989 "
+            "0.0390754 0.0390754  0.205264  0.205264  0.142119  0.142119 0.0142034 0.0142034 ) )");
 }
 
 TEST(TestPrint, GaussianKernelIsotropic) {

@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <iosfwd>
+
 #include "lucid/lib/eigen.h"
 
 namespace lucid {
@@ -27,4 +29,14 @@ class FeatureMap {
   [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x) const = 0;
 };
 
+std::ostream &operator<<(std::ostream &os, const FeatureMap &f);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::FeatureMap)
+
+#endif
