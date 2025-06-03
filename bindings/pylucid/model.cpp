@@ -175,10 +175,27 @@ class MultiSetIterator {
 };
 
 void init_model(py::module_ &m) {
+  /**************************** Paramters ****************************/
+  py::class_<LbgsParameters>(m, "LbgsParameters")
+      .def_readwrite("m", &LbgsParameters::m)
+      .def_readwrite("epsilon", &LbgsParameters::epsilon)
+      .def_readwrite("epsilon_rel", &LbgsParameters::epsilon_rel)
+      .def_readwrite("past", &LbgsParameters::past)
+      .def_readwrite("delta", &LbgsParameters::delta)
+      .def_readwrite("max_iterations", &LbgsParameters::max_iterations)
+      .def_readwrite("max_submin", &LbgsParameters::max_submin)
+      .def_readwrite("linesearch", &LbgsParameters::linesearch)
+      .def_readwrite("max_linesearch", &LbgsParameters::max_linesearch)
+      .def_readwrite("min_step", &LbgsParameters::min_step)
+      .def_readwrite("max_step", &LbgsParameters::max_step)
+      .def_readwrite("ftol", &LbgsParameters::ftol)
+      .def_readwrite("wolfe", &LbgsParameters::wolfe);
+
   /**************************** Requests ****************************/
   py::enum_<Request>(m, "Request")
       .value("OBJECTIVE_VALUE", Request::OBJECTIVE_VALUE)
       .value("GRADIENT", Request::GRADIENT);
+
   /**************************** Parameters ****************************/
   py::enum_<Parameter>(m, "Parameter")
       .value("DEGREE", Parameter::DEGREE)
@@ -292,6 +309,12 @@ void init_model(py::module_ &m) {
   py::class_<MedianHeuristicTuner, Tuner, std::shared_ptr<MedianHeuristicTuner>>(m, "MedianHeuristicTuner",
                                                                                  py::is_final())
       .def(py::init<>());
+  py::class_<LbfgsTuner, Tuner, std::shared_ptr<LbfgsTuner>>(m, "LbfgsTuner", py::is_final())
+      .def(py::init<const LbgsParameters &>(), py::arg("parameters") = LbgsParameters{})
+      .def(py::init<const Eigen::VectorXd &, const Eigen::VectorXd &, const LbgsParameters &>(), py::arg("lb"),
+           py::arg("ub"), py::arg("parameter") = LbgsParameters{})
+      .def(py::init<std::vector<std::pair<Scalar, Scalar>>, const LbgsParameters &>(), py::arg("bounds"),
+           py::arg("parameters") = LbgsParameters{});
   py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", py::is_final())
       .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0)
       .def(py::init([](const py::dict &parameters, const std::size_t n_jobs) {
@@ -376,8 +399,8 @@ void init_model(py::module_ &m) {
       .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
       .def_property("tuner", &Estimator::tuner,
                     [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
-      .def("consolidate", &Estimator::consolidate, ARG_NONCONVERT("x"), ARG_NONCONVERT("y"),
-           py::arg("requests") = NoRequests)
+      .def("consolidate", py::overload_cast<ConstMatrixRef, ConstMatrixRef, Requests>(&Estimator::consolidate),
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("requests") = NoRequests)
       .def("clone", &Estimator::clone)
       .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")

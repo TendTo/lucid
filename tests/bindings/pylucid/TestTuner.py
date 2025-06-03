@@ -8,6 +8,8 @@ from pylucid import (
     GaussianKernel,
     KernelRidgeRegressor,
     Parameter,
+    LbfgsTuner,
+    LucidInvalidArgumentException,
 )
 from itertools import product
 
@@ -19,13 +21,13 @@ class TestTuner:
             assert isinstance(tuner, MedianHeuristicTuner)
 
         def test_with_estimator(self):
-            kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+            kernel = GaussianKernel(sigma_l=1.0)
             estimator = KernelRidgeRegressor(kernel=kernel, tuner=MedianHeuristicTuner())
             assert estimator.tuner is not None
 
         def test_basic_tuning(self):
             # Create an estimator with fixed initial sigma_l values
-            kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+            kernel = GaussianKernel(sigma_l=1.0)
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             # Create data where dimensions have very different scales
@@ -47,7 +49,7 @@ class TestTuner:
             assert new_sigma_l[1] > new_sigma_l[0]  # Second dimension should have larger sigma_l
 
         def test_different_scales(self):
-            kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+            kernel = GaussianKernel(sigma_l=1.0)
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             # Create data with different scales for each dimension
@@ -66,7 +68,7 @@ class TestTuner:
             assert sigma_l[0] < sigma_l[1] < sigma_l[2]
 
         def test_uniform_data(self):
-            kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+            kernel = GaussianKernel(sigma_l=1.0)
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             # Create uniform grid data
@@ -83,7 +85,7 @@ class TestTuner:
             assert np.allclose(sigma_l[0], sigma_l[1], rtol=0.1)
 
         def test_single_sample_raises_exception(self):
-            kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+            kernel = GaussianKernel(sigma_l=1.0)
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             # Single sample
@@ -92,18 +94,71 @@ class TestTuner:
 
             # Should raise exception
             tuner = MedianHeuristicTuner()
-            with pytest.raises(Exception):
+            with pytest.raises(LucidInvalidArgumentException):
                 tuner.tune(estimator, X, y)
 
         def test_mismatched_inputs_outputs(self):
-            kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+            kernel = GaussianKernel(sigma_l=1.0)
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             X = np.random.uniform(size=(10, 2))
             y = np.random.uniform(size=(5, 1))  # Mismatched sample count
 
             tuner = MedianHeuristicTuner()
-            with pytest.raises(Exception):
+            with pytest.raises(LucidInvalidArgumentException):
+                tuner.tune(estimator, X, y)
+
+    class TestLbfgsTuner:
+        def test_init(self):
+            tuner = LbfgsTuner()
+            assert isinstance(tuner, LbfgsTuner)
+
+        def test_with_estimator(self):
+            kernel = GaussianKernel(sigma_l=1.0)
+            estimator = KernelRidgeRegressor(kernel=kernel, tuner=LbfgsTuner())
+            assert estimator.tuner is not None
+
+        def test_uniform_data(self):
+            original_sigma_l = np.array([1.0, 1.0])
+            kernel = GaussianKernel(sigma_l=original_sigma_l)
+            estimator = KernelRidgeRegressor(kernel=kernel)
+
+            # Create uniform grid data
+            x = np.linspace(0, 1, 5)
+            X = np.array([(i, j) for i in x for j in x])
+            y = np.sin(X[:, 0] * X[:, 1])
+
+            # Apply tuning
+            tuner = LbfgsTuner()
+            tuner.tune(estimator, X, y)
+
+            # For uniform grid, sigma_l should be similar for both dimensions
+            sigma_l = estimator.get(Parameter.SIGMA_L)
+            assert not np.allclose(original_sigma_l, sigma_l)
+            assert np.allclose(sigma_l[0], sigma_l[1], rtol=0.1)
+
+        def test_single_sample_raises_exception(self):
+            kernel = GaussianKernel(sigma_l=np.array([1.0]))
+            estimator = KernelRidgeRegressor(kernel=kernel)
+
+            # Single sample
+            X = np.array([[1.0, 2.0]])
+            y = np.array([3.0])
+
+            # Should raise exception
+            tuner = LbfgsTuner()
+            with pytest.raises(LucidInvalidArgumentException):
+                tuner.tune(estimator, X, y)
+
+        def test_mismatched_inputs_outputs(self):
+            kernel = GaussianKernel(sigma_l=1.0)
+            estimator = KernelRidgeRegressor(kernel=kernel)
+
+            X = np.random.uniform(size=(10, 2))
+            y = np.random.uniform(size=(5, 1))  # Mismatched sample count
+
+            tuner = LbfgsTuner()
+            with pytest.raises(LucidInvalidArgumentException):
                 tuner.tune(estimator, X, y)
 
     class TestGridSearchTuner:
@@ -223,7 +278,7 @@ class TestTuner:
             # Test with different job counts
             for n_jobs in [1, 2, 4]:
                 tuner = GridSearchTuner(params, n_jobs=n_jobs)
-                kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+                kernel = GaussianKernel(sigma_l=1.0)
                 estimator = KernelRidgeRegressor(kernel=kernel)
 
                 # Should work without errors
@@ -246,7 +301,7 @@ class TestTuner:
             ]
 
             tuner = GridSearchTuner(params)
-            kernel = GaussianKernel(sigma_l=1.0, sigma_f=1.0)
+            kernel = GaussianKernel(sigma_l=1.0)
             estimator = KernelRidgeRegressor(kernel=kernel, regularization_constant=1.0)
 
             tuner.tune(estimator, X, y)

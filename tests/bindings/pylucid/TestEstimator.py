@@ -37,7 +37,7 @@ class TestRegression:
             assert o.has(Parameter.REGULARIZATION_CONSTANT) and Parameter.REGULARIZATION_CONSTANT in o
 
         def test_set(self):
-            k = GaussianKernel(sigma_l=np.zeros((4,)))
+            k = GaussianKernel(sigma_l=np.ones((4,)))
             o = KernelRidgeRegressor(kernel=k)
             o.consolidate(
                 x=np.array([[1.0, 2.0, 3.0, 5.0], [4.0, 5.0, 6.0, 1.0]]), y=np.array([[1.0, 2.0], [5.0, 6.0]])
