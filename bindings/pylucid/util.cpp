@@ -12,6 +12,7 @@
 #include "lucid/util/util.h"
 
 #include "bindings/pylucid/pylucid.h"
+#include "lucid/util/logging.h"
 
 namespace py = pybind11;
 using namespace lucid;
@@ -25,6 +26,13 @@ void init_util(py::module_& m) {
   m.attr("LOG_DEBUG") = 4;
   m.attr("LOG_TRACE") = 5;
   m.def("set_verbosity", [](const int value) { LUCID_LOG_INIT_VERBOSITY(value); });
+
+  m.def("log_trace", [](const std::string& message) { LUCID_TRACE_FMT("{}", message); });
+  m.def("log_debug", [](const std::string& message) { LUCID_DEBUG_FMT("{}", message); });
+  m.def("log_info", [](const std::string& message) { LUCID_INFO_FMT("{}", message); });
+  m.def("log_warn", [](const std::string& message) { LUCID_WARN_FMT("{}", message); });
+  m.def("log_error", [](const std::string& message) { LUCID_ERROR_FMT("{}", message); });
+  m.def("log_critical", [](const std::string& message) { LUCID_CRITICAL_FMT("{}", message); });
 
   py::register_exception<exception::LucidException>(m, "LucidException", PyExc_RuntimeError);
   py::register_exception<exception::LucidInvalidArgumentException>(m, "LucidInvalidArgumentException",

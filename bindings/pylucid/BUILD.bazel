@@ -28,6 +28,7 @@ lucid_pybind_extension(
         "//lucid/model",
         "//lucid/util",
         "//lucid/util:error",
+        "//lucid/util:logging",
         "//lucid/verification",
     ],
 )
