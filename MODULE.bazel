@@ -13,16 +13,16 @@ bazel_dep(name = "rules_cc", version = "0.1.1")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 
 # Apache License 2.0 | rules housing all canonical settings for cross-platform builds
-bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "platforms", version = "1.0.0")
 
 # Mozilla Public License 2.0 | C++ library that handles matrices and vectors
 bazel_dep(name = "eigen", version = "3.4.0.bcr.3")
 
 # MIT | argparse implementation for modern C++
-bazel_dep(name = "argparse", version = "3.0.0")
+bazel_dep(name = "argparse", version = "3.2.0")
 
 # MIT | C++ library for formatting text
-bazel_dep(name = "fmt", version = "11.1.4")
+bazel_dep(name = "fmt", version = "11.2.0")
 
 # MIT | logging library
 bazel_dep(name = "spdlog", version = "1.15.2")
@@ -31,7 +31,7 @@ bazel_dep(name = "spdlog", version = "1.15.2")
 bazel_dep(name = "boost.math", version = "1.87.0")
 
 # Apache License 2.0 | rules_python for building python targets
-bazel_dep(name = "rules_python", version = "1.3.0")
+bazel_dep(name = "rules_python", version = "1.4.1")
 
 # https://github.com/pybind/pybind11_bazel/blob/master/LICENSE | pybind11 for binding C++ and Python
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
@@ -40,16 +40,16 @@ bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 bazel_dep(name = "rules_pkg", version = "1.1.0")
 
 # https://github.com/cpplint/cpplint/blob/develop/LICENSE | Google C++ Style Guide
-bazel_dep(name = "cpplint", version = "2.0.0", dev_dependency = True)
+bazel_dep(name = "cpplint", version = "2.0.2", dev_dependency = True)
 
 # BSD-3-Clause license | C++ test suite by Google
-bazel_dep(name = "googletest", version = "1.16.0", dev_dependency = True)
+bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
 
 # Apache License 2.0 | Doxygen documentation generator
-bazel_dep(name = "rules_doxygen", version = "2.2.1", dev_dependency = True)
+bazel_dep(name = "rules_doxygen", version = "2.4.0", dev_dependency = True)
 
 # MIT | rules for dealing with target dependencies
-bazel_dep(name = "depend_on_what_you_use", version = "0.8.0", dev_dependency = True)
+bazel_dep(name = "depend_on_what_you_use", version = "0.9.0", dev_dependency = True)
 
 #################################################################################
 # External dependencies not available in the Bazel registry
