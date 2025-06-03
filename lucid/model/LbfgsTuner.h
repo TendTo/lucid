@@ -7,8 +7,6 @@
  */
 #pragma once
 
-#include <memory>
-
 #include "lucid/model/Kernel.h"
 #include "lucid/model/Tuner.h"
 
@@ -79,9 +77,17 @@ struct LbgsParameters {
    */
   int linesearch{3};
   /**
+   * The maximum number of iterations in the subspace minimization.
+   * This parameter controls the number of iterations in the subspace
+   * minimization routine. The default value is \c 10.
+   * Only used when bounds are set.
+   */
+  int max_submin{10};
+  /**
    * The maximum number of trials for the line search.
    * This parameter controls the number of function and gradients evaluations
    * per iteration for the line search routine. The default value is \c 20.
+   * Only used when bounds are not set.
    */
   int max_linesearch{20};
   /**
@@ -114,15 +120,48 @@ struct LbgsParameters {
 
 /**
  * Optimiser that uses the L-BFGS algorithm.
+ * It optimizes the parameters of an estimator by minimizing the loss function.
+ * It can operate with or without bounds on the parameters.
+ * If bounds are provided, they must match the dimension of the solution space.
+ * Note that the solution space for isotropic estimators
+ * (i.e., those where the parameters are the same for all dimensions)
+ * will always have a dimension of 1.
  */
 class LbfgsTuner final : public Tuner {
  public:
+  /**
+   * Construct a new LbfgsTuner with the provided `parameters`.
+   * @param parameters optimization parameters for the L-BFGS algorithm
+   */
   explicit LbfgsTuner(const LbgsParameters& parameters = {});
+  /**
+   * Construct a new LbfgsTuner with the provided bounds and `parameters`.
+   * The solution will be constrained to the provided bounds.
+   * The size of the bounds must match the dimension of the solution space.
+   * @pre `lb` and `ub` must have the same size
+   * @param lb Lower bounds for the parameters
+   * @param ub Upper bounds for the parameters
+   * @param parameters optimization parameters for the L-BFGS algorithm
+   */
+  explicit LbfgsTuner(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const LbgsParameters& parameters = {});
+  /**
+   * Construct a new LbfgsTuner with the provided bounds and `parameters`.
+   * The solution will be constrained to the provided bounds.
+   * The size of the bounds must match the dimension of the solution space.
+   * @param bounds vector of pairs of lower and upper bounds
+   * @param parameters optimization parameters for the L-BFGS algorithm
+   */
+  explicit LbfgsTuner(const std::vector<std::pair<Scalar, Scalar>>& bounds, const LbgsParameters& parameters = {});
+
+  /** @checker{bounded, optimisation} */
+  [[nodiscard]] bool is_bounded() const;
 
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
 
-  LbgsParameters parameters_;
+  Eigen::VectorXd lb_;         ///< Lower bounds for the parameters. If empty, no bounds are applied
+  Eigen::VectorXd ub_;         ///< Upper bounds for the parameters. If empty, no bounds are applied
+  LbgsParameters parameters_;  ///< Optimization parameters for the L-BFGS algorithm
 };
 
 }  // namespace lucid

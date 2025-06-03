@@ -21,8 +21,8 @@ class TestMedianHeuristicTuner : public ::testing::Test {
  protected:
   const int num_samples_{10};
   const int dim_{3};
-  const double sigma_f_{0.0};
-  const double sigma_l_{0.0};
+  const double sigma_f_{1.0};
+  const double sigma_l_{1.0};
   const double regularization_constant_{1e-6};
   const Matrix training_outputs_{Matrix::Random(num_samples_, 1)};
   KernelRidgeRegressor regressor_{std::make_unique<GaussianKernel>(sigma_l_, sigma_f_), regularization_constant_,

@@ -91,7 +91,7 @@ TEST_F(TestGaussianKernel, ParametersHas) {
 TEST_F(TestGaussianKernel, ParametersGet) {
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), sigma_f_);
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), an_sigma_l_);
-  EXPECT_EQ(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>(), an_sigma_l_);
+  EXPECT_TRUE(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>().isApprox(an_sigma_l_.array().log().matrix()));
 }
 
 TEST_F(TestGaussianKernel, ParametersSet) {

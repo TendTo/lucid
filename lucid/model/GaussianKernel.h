@@ -59,13 +59,6 @@ class GaussianKernel final : public Kernel {
    * @return dimension of the kernel
    */
   [[nodiscard]] const Vector& sigma_l() const { return sigma_l_; }
-  /**
-   * Get read-only access to the dimension of the kernel.
-   * If the kernel is isotropic, the dimension will be 1 upon construction
-   * and will be adapted to match to the latest inputs
-   * @return @sigma_l of the kernel
-   */
-  [[nodiscard]] Dimension dimension() const { return sigma_l_.size(); }
 
   [[nodiscard]] bool is_stationary() const override { return true; }
   /** @checker{isotropic, kernel} */
@@ -81,6 +74,7 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
 
   mutable Vector sigma_l_;  ///< @sigma_l value
+  Vector log_sigma_l_;      ///< @sigma_l value in log space. Used for optimization
   double sigma_f_;          ///< @sigma_f value
   bool is_isotropic_;       ///< True if the kernel is isotropic (i.e., @sigma_l is the same for all dimensions)
 };

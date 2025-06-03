@@ -17,10 +17,11 @@ namespace lucid {
 GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
     : Kernel{Parameter::SIGMA_F | Parameter::SIGMA_L | Parameter::GRADIENT_OPTIMIZABLE},
       sigma_l_{std::move(sigma_l)},
+      log_sigma_l_{sigma_l_.array().log().matrix()},
       sigma_f_{sigma_f},
       is_isotropic_{false} {
   LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l_.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
-  LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
+  LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l_.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
 }
 GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
     : GaussianKernel{Vector::Constant(1, sigma_l), sigma_f} {
@@ -87,8 +88,12 @@ void GaussianKernel::set(const Parameter parameter, const double value) {
 void GaussianKernel::set(const Parameter parameter, const Vector& value) {
   switch (parameter) {
     case Parameter::SIGMA_L:
-    case Parameter::GRADIENT_OPTIMIZABLE:
       sigma_l_ = value;
+      log_sigma_l_ = sigma_l_.array().log().matrix();
+      break;
+    case Parameter::GRADIENT_OPTIMIZABLE:
+      sigma_l_ = value.array().exp().matrix();
+      log_sigma_l_ = value;
       break;
     default:
       Kernel::set(parameter, value);
@@ -107,8 +112,9 @@ double GaussianKernel::get_d(const Parameter parameter) const {
 const Vector& GaussianKernel::get_v(const Parameter parameter) const {
   switch (parameter) {
     case Parameter::SIGMA_L:
-    case Parameter::GRADIENT_OPTIMIZABLE:
       return sigma_l_;
+    case Parameter::GRADIENT_OPTIMIZABLE:
+      return log_sigma_l_;
     default:
       return Kernel::get_v(parameter);
   }
