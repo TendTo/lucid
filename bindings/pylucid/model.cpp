@@ -359,7 +359,7 @@ void init_model(py::module_ &m) {
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
 
   /**************************** FeatureMap ****************************/
-  py::class_<FeatureMap>(m, "FeatureMap");
+  py::class_<FeatureMap>(m, "FeatureMap").def("__str__", STRING_LAMBDA(FeatureMap));
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("prob_dim_wise"),
            py::arg("sigma_f"), py::arg("x_limits"))

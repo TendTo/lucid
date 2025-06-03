@@ -173,7 +173,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   }
 
   LUCID_INFO_FMT("Solution found, objective = {}", model.get(GRB_DoubleAttr_ObjVal));
-  LUCID_INFO_FMT("Satisfaction probability is {:.6f}% percent", 1 - model.get(GRB_DoubleAttr_ObjVal));
+  LUCID_INFO_FMT("Satisfaction probability is {:.6f}%", (1 - model.get(GRB_DoubleAttr_ObjVal)) * 100);
 
   auto solution{Vector::NullaryExpr(rkhs_dim, [&vars](Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
   double actual_norm = solution.norm();
