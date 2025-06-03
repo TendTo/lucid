@@ -10,6 +10,7 @@
 #include <iosfwd>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Kernel.h"

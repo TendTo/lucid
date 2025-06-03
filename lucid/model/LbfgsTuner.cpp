@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/GradientOptimizable.h"

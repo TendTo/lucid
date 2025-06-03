@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <vector>
+
 #include "lucid/model/Kernel.h"
 #include "lucid/model/Tuner.h"
 

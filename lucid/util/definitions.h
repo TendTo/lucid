@@ -7,6 +7,10 @@
  */
 #pragma once
 
+#include <vector>
+
+// NOLINTBEGIN(whitespace/indent, readability/alt_tokens) macro definitions
+
 /**
  * Fast bitwise operations on enums.
  * @todo For clarity, once the design is finalised, consider moving all the definitions in the correct enum class files.
@@ -83,3 +87,5 @@
     }                                                                                                \
     return result;                                                                                   \
   }
+
+// NOLINTEND

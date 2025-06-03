@@ -7,13 +7,14 @@
 #include "lucid/model/KernelRidgeRegressor.h"
 
 #include <memory>
-#include <numbers>
+#include <numbers>  // NOLINT(build/include_order) fake positive C header
 #include <numeric>
 #include <utility>
+#include <vector>
 
-#include "Scorer.h"
 #include "lucid/model/GaussianKernel.h"
 #include "lucid/model/GramMatrix.h"
+#include "lucid/model/Scorer.h"
 #include "lucid/model/Tuner.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"

@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <memory>
+
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Estimator.h"
 
