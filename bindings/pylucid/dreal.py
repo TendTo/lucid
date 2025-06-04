@@ -8,15 +8,13 @@ from ._pylucid import (
     Estimator,
     log_info,
     log_error,
+    log_warn,
 )
 
 try:
     from dreal import And, Or, Implies, Variable as Real, sin as Sine, cos as Cosine, Not, CheckSatisfiability
 except ImportError as e:
-    import sys
-
-    print("dreal is not installed. Please install dreal to use this module.", file=sys.stderr)
-    print("You can install it using 'pip install dreal'.", file=sys.stderr)
+    log_warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
     raise e
 
 

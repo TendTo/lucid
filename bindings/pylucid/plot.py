@@ -1,12 +1,10 @@
-from pylucid import RectSet, MultiSet, FeatureMap, Estimator, LucidNotSupportedException
+from ._pylucid import RectSet, MultiSet, FeatureMap, Estimator, LucidNotSupportedException, log_warn
 import numpy as np
 
 try:
     import matplotlib.pyplot as plt
 except ImportError as e:
-    import sys
-
-    print("Matplotlib not found. Install it with 'pip install matplotlib'.", file=sys.stderr)
+    log_warn("Could not import matplotlib. Make sure it is installed with 'pip install matplotlib'")
     raise e
 
 
@@ -81,7 +79,7 @@ def plot_solution_2d(
     sol: "np.typing.NDArray[np.float64]" = None,
     eta: float = None,
     gamma: float = None,
-        estimator: "Estimator" = None,
+    estimator: "Estimator" = None,
     f: "callable" = None,
 ):
     raise LucidNotSupportedException("2D plotting is not yet implemented. Please use 1D plotting instead.")
@@ -95,7 +93,7 @@ def plot_solution(
     sol: "np.typing.NDArray[np.float64]" = None,
     eta: float = None,
     gamma: float = None,
-        estimator: "Estimator" = None,
+    estimator: "Estimator" = None,
     f: "callable" = None,
 ):
     if X_bounds.dimension == 1:

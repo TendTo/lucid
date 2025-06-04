@@ -12,9 +12,27 @@ from ._pylucid import (
     Estimator,
     log_debug,
     log_error,
+    log_warn,
 )
-from .dreal import verify_barrier_certificate
-from .plot import plot_solution
+
+try:
+    from .dreal import verify_barrier_certificate
+except ImportError:
+    log_warn("Verification disabled")
+
+    def verify_barrier_certificate(*args, **kwargs):
+        pass
+
+
+try:
+    from .plot import plot_solution
+except ImportError:
+    log_warn("Plotting disabled")
+
+    def plot_solution(*args, **kwargs):
+        pass
+
+
 from typing import Callable
 
 
