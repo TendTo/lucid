@@ -406,11 +406,18 @@ void init_model(py::module_ &m) {
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
       .def(py::init<const Kernel &, double, const std::shared_ptr<Tuner> &>(), py::arg("kernel"),
            py::arg("regularization_constant") = 1.0, py::arg("tuner") = nullptr)
-      .def("__call__",
-           py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::operator(), py::const_),
-           ARG_NONCONVERT("x"), ARG_NONCONVERT("feature_map"))
-      .def("predict", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::predict, py::const_),
-           ARG_NONCONVERT("x"), ARG_NONCONVERT("feature_map"))
+      .def(
+          "predict",
+          [](const KernelRidgeRegressor &self, ConstMatrixRef x, const FeatureMap *const feature_map) {
+            return feature_map == nullptr ? self.predict(x) : self.predict(x, *feature_map);
+          },
+          ARG_NONCONVERT("x"), py::arg("feature_map").none(true) = nullptr)
+      .def(
+          "__call__",
+          [](const KernelRidgeRegressor &self, ConstMatrixRef x, const FeatureMap *const feature_map) {
+            return feature_map == nullptr ? self.predict(x) : self.predict(x, *feature_map);
+          },
+          ARG_NONCONVERT("x"), py::arg("feature_map").none(true) = nullptr)
       .def_property_readonly("kernel",
                              [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); })
       .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs)
