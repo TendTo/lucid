@@ -74,7 +74,7 @@ Eigen::VectorXd bounds_to_vector(const T<std::pair<Scalar, Scalar>>& bounds) {
 
 LbfgsTuner::LbfgsTuner(const LbgsParameters& parameters) : LbfgsTuner{{}, {}, parameters} {}
 LbfgsTuner::LbfgsTuner(const std::vector<std::pair<Scalar, Scalar>>& bounds, const LbgsParameters& parameters)
-    : LbfgsTuner{bounds_to_vector<0>(bounds), bounds_to_vector<1>(bounds), parameters} {}
+    : LbfgsTuner{bounds_to_vector<0, std::vector>(bounds), bounds_to_vector<1, std::vector>(bounds), parameters} {}
 LbfgsTuner::LbfgsTuner(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const LbgsParameters& parameters)
     : lb_{lb}, ub_{ub}, parameters_{parameters} {
   LUCID_CHECK_ARGUMENT_EXPECTED(lb_.size() == ub_.size(), "lb.size() != ub.size()", lb_.size(), ub_.size());
