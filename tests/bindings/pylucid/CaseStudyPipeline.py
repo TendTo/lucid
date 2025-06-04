@@ -1,27 +1,20 @@
 import numpy as np
-from pylucid import (
-    __version__,
-    ConstantTruncatedFourierFeatureMap,
-    RectSet,
-    MultiSet,
-    log_info,
-    set_verbosity,
-    LOG_DEBUG,
-    LbfgsTuner
-)
+from pylucid import __version__
+from pylucid import *
 from pylucid.pipeline import pipeline
 
 np.set_printoptions(linewidth=200, suppress=True)
 
-set_verbosity(LOG_DEBUG)
+# set_verbosity(LOG_DEBUG)
 
 
 def case_study_template():
     ######## System dynamics ########
+    seed = 50
 
     f_det = lambda x: 1 / 2 * x
     # Add process noise
-    np.random.seed(50)  # For reproducibility
+    np.random.seed(seed)  # For reproducibility
     f = lambda x: f_det(x) * (np.random.standard_normal())
 
     ######## Safety specification ########
@@ -29,7 +22,7 @@ def case_study_template():
     # Time horizon
     T = 5
     # State space X
-    X_bounds = RectSet(((-1, 1),), seed=50)
+    X_bounds = RectSet(((-1, 1),), seed=seed)
 
     # Initial set X_I
     X_init = RectSet(((-0.5, 0.5),))
@@ -49,10 +42,16 @@ def case_study_template():
 
     # Estimator hyperparameters
     regularization_constant = 1e-6
-    sigma_f, sigma_l = 1.0, np.array([0.5])
+    sigma_f = 1.0
     num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
 
     ######## Lucid ########
+
+    estimator = KernelRidgeRegressor(
+        kernel=GaussianKernel(sigma_f=sigma_f), regularization_constant=regularization_constant, tuner=LbfgsTuner()
+    )
+    # The sigma_l parameter will be tuned by the tuner during fitting
+    estimator.fit(x=x_samples, y=xp_samples)
 
     pipeline(
         x_samples=x_samples,
@@ -64,11 +63,8 @@ def case_study_template():
         gamma=gamma,
         f_det=f_det,
         num_freq_per_dim=num_freq_per_dim,
-        feature_map=ConstantTruncatedFourierFeatureMap,
-        sigma_l=sigma_l,
+        estimator=estimator,
         sigma_f=sigma_f,
-        regularization_constant=regularization_constant,
-        tuner=LbfgsTuner()
     )
 
 

@@ -163,7 +163,7 @@ def verify_barrier_certificate(
     # print(constraints, file=sys.stderr)
     res = CheckSatisfiability(constraints, 1e-8)
     if res is None:
-        log_info("The barrier jas been verified via dReal")
+        log_info("The barrier has been verified via dReal")
         return True
 
     log_error("Found counter example")
@@ -173,5 +173,5 @@ def verify_barrier_certificate(
     log_error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
     log_error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
     log_error(f"Xpemb: ?, barrier value: {estimator(point) @ sol.T}")
-    log_error((tffm(point), estimator(point)))
+    log_error(f"{(tffm(point), estimator(point))}")
     return False

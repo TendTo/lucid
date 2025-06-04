@@ -177,6 +177,12 @@ class MultiSetIterator {
 void init_model(py::module_ &m) {
   /**************************** Paramters ****************************/
   py::class_<LbgsParameters>(m, "LbgsParameters")
+      .def(py::init<>())
+      .def(py::init<int, Scalar, Scalar, int, Scalar, int, int, int, int, Scalar, Scalar, Scalar, Scalar>(),
+           py::arg("m") = 6, py::arg("epsilon") = 1e-5, py::arg("epsilon_rel") = 1e-5, py::arg("past") = 0,
+           py::arg("delta") = 0, py::arg("max_iterations") = 0, py::arg("linesearch") = 3, py::arg("max_submin") = 10,
+           py::arg("max_linesearch") = 20, py::arg("min_step") = 1e-20, py::arg("max_step") = 1e20,
+           py::arg("ftol") = 1e-4, py::arg("wolfe") = 0.9)
       .def_readwrite("m", &LbgsParameters::m)
       .def_readwrite("epsilon", &LbgsParameters::epsilon)
       .def_readwrite("epsilon_rel", &LbgsParameters::epsilon_rel)
@@ -312,7 +318,7 @@ void init_model(py::module_ &m) {
   py::class_<LbfgsTuner, Tuner, std::shared_ptr<LbfgsTuner>>(m, "LbfgsTuner", py::is_final())
       .def(py::init<const LbgsParameters &>(), py::arg("parameters") = LbgsParameters{})
       .def(py::init<const Eigen::VectorXd &, const Eigen::VectorXd &, const LbgsParameters &>(), py::arg("lb"),
-           py::arg("ub"), py::arg("parameter") = LbgsParameters{})
+           py::arg("ub"), py::arg("parameters") = LbgsParameters{})
       .def(py::init<std::vector<std::pair<Scalar, Scalar>>, const LbgsParameters &>(), py::arg("bounds"),
            py::arg("parameters") = LbgsParameters{});
   py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", py::is_final())

@@ -64,6 +64,20 @@ def plot_solution_1d(
                 color="purple",
                 label="B(xp) via approx. regression",
             )
+        x_lattice_grid = X_bounds.lattice(feature_map.num_frequencies * 4, True)
+        plt.scatter(x_lattice_grid, feature_map(x_lattice_grid) @ sol.T, color="green", label="B(x) (optimisation)")
+        if f is not None:
+            plt.scatter(
+                x_lattice_grid, feature_map(f(x_lattice_grid.T).T) @ sol.T, color="black", label="B(xp) (optimisation)"
+            )
+        if estimator is not None:
+            plt.scatter(
+                x_lattice_grid,
+                estimator(x_lattice_grid)
+                @ sol.T,  # TODO(tend): Should this be regression(x_lattice, feature_map) @ sol.T?
+                color="purple",
+                label="B(xp) via approx. regression (optimisation)",
+            )
 
     plt.title("Barrier certificate")
     plt.xlabel("State space")
