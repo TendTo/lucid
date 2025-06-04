@@ -5,34 +5,43 @@ import shutil
 import sysconfig
 import subprocess
 import glob
+import re
 
 import setuptools
 from setuptools.command import build_ext
 import setuptools.errors
 
 
+def get_bazel_target_args(command):
+    if command == "build":
+        return ["bazel", "build", "--config=py", "--python_version=" + sysconfig.get_python_version()]
+    if command == "cquery":
+        return [
+            "bazel",
+            "cquery",
+            "--output=files",
+            "--config=py",
+            "--python_version=" + sysconfig.get_python_version(),
+        ]
+    if command == "query":
+        return [
+            "bazel",
+            "query",
+            "--output=build",
+        ]
+
+
 class GlobalVariables:
     def __init__(self):
-        self.LUCID_NAME = ""
-        self.LUCID_VERSION = ""
-        self.LUCID_DESCRIPTION = ""
-        self.LUCID_AUTHOR = ""
-        self.LUCID_AUTHOR_EMAIL = ""
-        self.LUCID_HOMEPAGE = ""
-        self.LUCID_LICENSE = ""
+        self.LUCID_VERSION = self._get_value_from_query("lucid_version")
+        self.LUCID_DESCRIPTION = self._get_value_from_query("lucid_description")
 
-        with open("tools/rules_cc.bzl", encoding="utf-8") as f:
-            lines = f.readlines()
-        reading_global_variables = False
-        for line in lines:
-            if line.strip() == "# GLOBAL VARIABLES":
-                reading_global_variables = True
-                continue
-            if line.strip() == "# END GLOBAL VARIABLES":
-                break
-            if reading_global_variables:
-                key, value = line.strip().split(" = ")
-                setattr(self, key.strip(), value.strip().strip('"'))
+    def _get_value_from_query(self, target):
+        bazel_argv = [*get_bazel_target_args("query"), f"//tools:{target}"]
+        matches: "list[str]" = re.findall(r"value = +(.+),", subprocess.getoutput(bazel_argv))
+        if len(matches) == 0:
+            raise ValueError(f"Could not parse {target} from Bazel query output.")
+        return matches[0].rstrip('"').lstrip('"')
 
 
 class BazelExtension(setuptools.Extension):
@@ -47,19 +56,6 @@ class BazelExtension(setuptools.Extension):
         files += ["BUILD.bazel", "MODULE.bazel", ".bazelrc", ".bazelignore"]
         src_files = list(filter(lambda x: not x.endswith(".py"), files))
         setuptools.Extension.__init__(self, ext_name, sources=src_files)
-
-
-def get_bazel_target_args(command):
-    if command == "build":
-        return ["bazel", "build", "--config=py", "--python_version=" + sysconfig.get_python_version()]
-    if command == "cquery":
-        return [
-            "bazel",
-            "cquery",
-            "--output=files",
-            "--config=py",
-            "--python_version=" + sysconfig.get_python_version(),
-        ]
 
 
 class BuildBazelExtension(build_ext.build_ext):
@@ -96,34 +92,8 @@ class BuildBazelExtension(build_ext.build_ext):
 
 config_vars = GlobalVariables()
 setuptools.setup(
-    name=config_vars.LUCID_NAME,
     version=config_vars.LUCID_VERSION,
     description=config_vars.LUCID_DESCRIPTION,
-    author=config_vars.LUCID_AUTHOR,
-    author_email=config_vars.LUCID_AUTHOR_EMAIL,
-    url=config_vars.LUCID_HOMEPAGE,
-    license=config_vars.LUCID_LICENSE,
-    keywords=["neural network", "kernel"],
-    entry_points={"console_scripts": ["pylucid=pylucid.__main__:main"]},
-    classifiers=[
-        "Development Status :: 1 - Planning",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: C++",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: 3.13",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-    ],
-    long_description=open("README.md", encoding="utf-8").read(),
-    long_description_content_type="text/markdown",
     ext_modules=[BazelExtension("pylucid._pylucid", "//bindings/pylucid:_pylucid")],
     cmdclass={"build_ext": BuildBazelExtension},
-    packages=[config_vars.LUCID_NAME],
-    setup_requires=["setuptools"],
-    install_requires=["numpy<=2.2.5"],
 )
