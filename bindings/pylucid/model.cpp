@@ -402,6 +402,7 @@ void init_model(py::module_ &m) {
       .def("consolidate", py::overload_cast<ConstMatrixRef, ConstMatrixRef, Requests>(&Estimator::consolidate),
            ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("requests") = NoRequests)
       .def("clone", &Estimator::clone)
+      .def("__call__", py::overload_cast<ConstMatrixRef>(&Estimator::operator(), py::const_), ARG_NONCONVERT("x"))
       .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
       .def(py::init<const Kernel &, double, const std::shared_ptr<Tuner> &>(), py::arg("kernel"),
@@ -409,12 +410,8 @@ void init_model(py::module_ &m) {
       .def("__call__",
            py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::operator(), py::const_),
            ARG_NONCONVERT("x"), ARG_NONCONVERT("feature_map"))
-      .def("__call__", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::operator(), py::const_),
-           ARG_NONCONVERT("x"))
       .def("predict", py::overload_cast<ConstMatrixRef, const FeatureMap &>(&KernelRidgeRegressor::predict, py::const_),
            ARG_NONCONVERT("x"), ARG_NONCONVERT("feature_map"))
-      .def("predict", py::overload_cast<ConstMatrixRef>(&KernelRidgeRegressor::predict, py::const_),
-           ARG_NONCONVERT("x"))
       .def_property_readonly("kernel",
                              [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); })
       .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs)

@@ -71,19 +71,23 @@ py_binary(
     python_version = "PY3",
     deps = [
         requirement("pybind11_stubgen"),
-        ":pylucid_lib",
     ],
 )
 
 genrule(
     name = "stubgen",
+    srcs = [
+        ":pylucid_lib",
+        ":_pylucid.pyd",
+        ":_pylucid.so",
+    ],
     outs = [
         "_pylucid.pyi",
         "__init__.pyi",
         "py.typed",
     ],
-    cmd = "$(location :stubgen_bin) $(OUTS)",
-    cmd_bat = "$(location :stubgen_bin) $(OUTS)",
+    cmd = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
+    cmd_bat = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
     tools = [":stubgen_bin"],
 )
 
