@@ -38,7 +38,7 @@ class GlobalVariables:
 
     def _get_value_from_query(self, target):
         bazel_argv = [*get_bazel_target_args("query"), f"//tools:{target}"]
-        matches: "list[str]" = re.findall(r"value = +(.+),", subprocess.getoutput(bazel_argv))
+        matches: "list[str]" = re.findall(r"value = +(.+),", subprocess.getoutput(" ".join(bazel_argv)))
         if len(matches) == 0:
             raise ValueError(f"Could not parse {target} from Bazel query output.")
         return matches[0].rstrip('"').lstrip('"')
