@@ -1,7 +1,8 @@
 load("@pypi//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
-load("//tools:rules_cc.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION", "lucid_pybind_extension", "lucid_pybind_library")
+load("//tools:rules_cc.bzl", "lucid_pybind_extension", "lucid_pybind_library")
+load("//tools:variables.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION")
 
 lucid_pybind_library(
     name = "interrupt",
