@@ -18,12 +18,23 @@
 namespace py = pybind11;
 using namespace lucid;
 
-void init_verification(py::module_ &m) {
+void init_verification(py::module_& m) {
   /**************************** Optimiser ****************************/
   py::class_<GurobiLinearOptimiser>(m, "GurobiLinearOptimiser")
-      .def(py::init<int, double, double, double, double, double>(), py::arg("T"), py::arg("gamma"), py::arg("epsilon"),
-           py::arg("b_norm"), py::arg("b_kappa"), py::arg("sigma_f"))
+      .def(py::init<int, double, double, double, double, double, std::string, std::string>(), py::arg("T"),
+           py::arg("gamma"), py::arg("epsilon"), py::arg("b_norm"), py::arg("b_kappa"), py::arg("sigma_f"),
+           py::arg("problem_log_file") = "", py::arg("iis_log_file") = "")
       .def("solve", &GurobiLinearOptimiser::solve, py::arg("f0_lattice"), py::arg("fu_lattice"), py::arg("phi_mat"),
            py::arg("w_mat"), py::arg("rkhs_dim"), py::arg("num_frequencies_per_dim"),
-           py::arg("num_frequency_samples_per_dim"), py::arg("original_dim"), py::arg("callback"));
+           py::arg("num_frequency_samples_per_dim"), py::arg("original_dim"), py::arg("callback"))
+      .def_property_readonly("T", &GurobiLinearOptimiser::T)
+      .def_property_readonly("gamma", &GurobiLinearOptimiser::gamma)
+      .def_property_readonly("epsilon", &GurobiLinearOptimiser::epsilon)
+      .def_property_readonly("b_norm", &GurobiLinearOptimiser::b_norm)
+      .def_property_readonly("b_kappa", &GurobiLinearOptimiser::b_kappa)
+      .def_property_readonly("sigma_f", &GurobiLinearOptimiser::sigma_f)
+      .def_property("problem_log_file", &GurobiLinearOptimiser::problem_log_file,
+                    [](GurobiLinearOptimiser& self, std::string file) { self.m_problem_log_file() = std::move(file); })
+      .def_property("iis_log_file", &GurobiLinearOptimiser::iis_log_file,
+                    [](GurobiLinearOptimiser& self, std::string file) { self.m_iis_log_file() = std::move(file); });
 }

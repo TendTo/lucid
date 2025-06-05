@@ -1,0 +1,11 @@
+"""Tests for the util submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_gurobi_linear_optimiser",
+    deps = [
+        "//lucid/util:exception",
+        "//lucid/verification:optimiser",
+    ],
+)
