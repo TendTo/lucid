@@ -88,10 +88,10 @@ class GridSearchTuning {
       const double score = estimator_.score(training_inputs_, training_outputs_);
 
       // If the new score is better than the best score, update the best score and keep track of the parameter index
-      LUCID_DEBUG_FMT("Consolidated with parameters: {}, score: {}", current_parameters_indices_, score);
+      LUCID_TRACE_FMT("parameters = {}, score = {}", current_parameters_indices_, score);
       update_score(score);
     }
-    LUCID_DEBUG("Stopping the tuning.");
+    LUCID_TRACE("Stopping");
   }
 
   /**
@@ -157,6 +157,8 @@ GridSearchTuner::GridSearchTuner(std::vector<ParameterValues> parameters, const 
 
 void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                 ConstMatrixRef training_outputs) const {
+  LUCID_DEBUG_FMT("({}, {}, {})", estimator, LUCID_FORMAT_MATRIX_SHAPE(training_inputs),
+                  LUCID_FORMAT_MATRIX_SHAPE(training_outputs));
   // Mutex to protect access to the best parameter indices during tuning
   std::mutex index_mutex, score_mutex;
   // Prepare the shared data: the best score and the best parameter indices and the index iterator
@@ -164,7 +166,6 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
   std::vector<Index> best_parameters_indices(parameters_.size(), 0);
   IndexIterator<std::vector<Index>> it{parameters_max_indices_};
 
-  LUCID_DEBUG_FMT("Starting grid search tuning with {} jobs", n_jobs_);
   // Create a vector of n_jobs GridSearchTuning objects
   std::vector<GridSearchTuning> tuners;
   tuners.reserve(parameters_.size());
@@ -179,13 +180,15 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
   LUCID_ASSERT(tuners.size() == n_jobs_, "The number of tuners must match the number of jobs.");
   LUCID_ASSERT(estimators.size() == n_jobs_ - 1, "The number of tuners must match the number of jobs - 1.");
 
+  LUCID_TRACE_FMT("jobs = {}", n_jobs_);
+
   // Launch the tuning process for each parameter in parallel
   for (auto& tuner : tuners) tuner.launch();
 
   // Wait for all tuning processes to complete
   for (auto& tuner : tuners) tuner.wait();
 
-  LUCID_DEBUG_FMT("Best parameters: {}, best score {}", best_parameters_indices, best_score);
+  LUCID_DEBUG_FMT("best_parameters_idxs = {}, best_score = {}", best_parameters_indices, best_score);
   // Set the best parameter values in the estimator
   for (std::size_t i = 0; i < parameters_.size(); ++i) {
     const auto& parameter = parameters_[i];

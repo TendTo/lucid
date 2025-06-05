@@ -55,8 +55,8 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature
       x.rows(), training_inputs_.rows(), [this, &x, &feature_map](const Index row, const Index col) {
         return (feature_map(x.row(row)) * feature_map(training_inputs_.row(col)).transpose()).value();
       })};
-  LUCID_DEBUG_FMT("Computed kernel input shape: [{} x {}]", kernel_input.rows(), kernel_input.cols());
-  LUCID_TRACE_FMT("Computed kernel input: [{}]", kernel_input);
+  LUCID_DEBUG_FMT("kernel_input = {}", LUCID_FORMAT_MATRIX_SHAPE(kernel_input));
+  LUCID_TRACE_FMT("kernel_input = [{}]", kernel_input);
   return kernel_input * coefficients_;
 }
 
@@ -99,7 +99,7 @@ Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, cons
 }
 Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
                                              const Requests requests) {
-  LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate({}, {}, {})", training_inputs, training_outputs, requests);
+  LUCID_TRACE_FMT("({}, {}, {})", training_inputs, training_outputs, requests);
 
   LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() == training_outputs.rows(), "training_inputs.rows()",
                                 training_inputs.rows(), training_outputs.rows());
@@ -111,17 +111,17 @@ Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, Con
   gram_matrix.add_diagonal_term(regularization_constant_ * static_cast<double>(training_inputs_.rows()));
   // Invert the gram matrix and compute the coefficients as (K + λnI)^-1 y
   coefficients_ = gram_matrix.inverse() * training_outputs;
-  LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate(): coefficients = [{}]", coefficients_);
+  LUCID_TRACE_FMT("coefficients = [{}]", coefficients_);
   if (requests && Request::OBJECTIVE_VALUE) {
     // Compute and update the log marginal likelihood
     objective_value_ = compute_log_marginal(gram_matrix, training_outputs);
-    LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate(): log_marginal_likelihood_ = {}", objective_value_);
+    LUCID_TRACE_FMT("log_marginal_likelihood_ = {}", objective_value_);
   }
   if (requests && Request::GRADIENT) {
     // and its gradient
-    LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate(): kernel_gradient = [{}]", kernel_gradient);
+    LUCID_TRACE_FMT("kernel_gradient = [{}]", kernel_gradient);
     gradient_ = compute_log_marginal_gradient(gram_matrix, training_outputs, coefficients_, kernel_gradient);
-    LUCID_TRACE_FMT("KernelRidgeRegressor::consolidate(): gradient = [{}]", gradient_);
+    LUCID_TRACE_FMT("gradient = [{}]", gradient_);
   }
   return *this;
 }

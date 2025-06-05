@@ -94,9 +94,8 @@ bool LbfgsTuner::is_bounded() const {
 
 void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                            ConstMatrixRef training_outputs) const {
-  LUCID_DEBUG_FMT("LbfgsOptimiser::tune_impl([{}x{}, [{}x{}])", training_inputs.rows(), training_inputs.cols(),
-                  training_outputs.rows(), training_outputs.cols());
-  LUCID_TRACE_FMT("LbfgsOptimiser::tune_impl({}, {})", training_inputs, training_outputs);
+  LUCID_DEBUG_FMT("({}, {})", LUCID_FORMAT_MATRIX_SHAPE(training_inputs), LUCID_FORMAT_MATRIX_SHAPE(training_outputs));
+  LUCID_TRACE_FMT("({}, {})", training_inputs, training_outputs);
 
   LUCID_ASSERT(lb_.size() == ub_.size(), "lower and upper bounds must have the same size");
   LUCID_CHECK_ARGUMENT(dynamic_cast<GradientOptimizable*>(&estimator) != nullptr, "estimator",
@@ -131,8 +130,8 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
     niter = solver.minimize(f, x_out, obj);
   }
 
-  LUCID_DEBUG_FMT("LbfgsOptimiser::tune_impl(): number_iterations = {}, objective_value = {}", niter, obj);
-  LUCID_DEBUG_FMT("LbfgsOptimiser::tune_impl(): solution = {}", Vector{x_out});
+  LUCID_DEBUG_FMT("number_iterations = {}, objective_value = {}", niter, obj);
+  LUCID_DEBUG_FMT("solution = {}", Vector{x_out});
 
   gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x_out));
 }

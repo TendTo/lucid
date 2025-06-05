@@ -30,7 +30,7 @@ GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
 }
 
 Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* const gradient) const {
-  LUCID_TRACE_FMT("GaussianKernel::operator()({}, {})", x1, x2);
+  LUCID_TRACE_FMT("({}, {})", x1, x2);
   LUCID_ASSERT(&x1 == &x2 || !gradient, "The gradient can be computed only over the same vector");
   LUCID_ASSERT(sigma_l_.size() > 0, "sigma_l must have at least one element");
   LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() > 0, "x1.cols()", x1.cols(), "> 0");
@@ -66,9 +66,9 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
         gradient->emplace_back((temp.array() / sigma_l_sq(i)).matrix().cwiseProduct(k));
       }
     }
-    LUCID_TRACE_FMT("GaussianKernel::operator(): gradient = {}", *gradient);
+    LUCID_TRACE_FMT("gradient = {}", *gradient);
   }
-  LUCID_TRACE_FMT("GaussianKernel::operator() => {}", k);
+  LUCID_TRACE_FMT("=> {}", k);
   return k;
 }
 

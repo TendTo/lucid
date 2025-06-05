@@ -178,7 +178,24 @@ void init_model(py::module_ &m) {
   /**************************** Paramters ****************************/
   py::class_<LbgsParameters>(m, "LbgsParameters")
       .def(py::init<>())
-      .def(py::init<int, Scalar, Scalar, int, Scalar, int, int, int, int, Scalar, Scalar, Scalar, Scalar>(),
+      .def(py::init([](const int m_, const Scalar epsilon_, const Scalar epsilon_rel_, const int past_,
+                       const Scalar delta_, const int max_iterations_, const int linesearch_, const int max_submin_,
+                       const int max_linesearch_, const Scalar min_step_, const Scalar max_step_, const Scalar ftol_,
+                       const Scalar wolfe_) {
+             return LbgsParameters{.m = m_,
+                                   .epsilon = epsilon_,
+                                   .epsilon_rel = epsilon_rel_,
+                                   .past = past_,
+                                   .delta = delta_,
+                                   .max_iterations = max_iterations_,
+                                   .linesearch = linesearch_,
+                                   .max_submin = max_submin_,
+                                   .max_linesearch = max_linesearch_,
+                                   .min_step = min_step_,
+                                   .max_step = max_step_,
+                                   .ftol = ftol_,
+                                   .wolfe = wolfe_};
+           }),
            py::arg("m") = 6, py::arg("epsilon") = 1e-5, py::arg("epsilon_rel") = 1e-5, py::arg("past") = 0,
            py::arg("delta") = 0, py::arg("max_iterations") = 0, py::arg("linesearch") = 3, py::arg("max_submin") = 10,
            py::arg("max_linesearch") = 20, py::arg("min_step") = 1e-20, py::arg("max_step") = 1e20,
