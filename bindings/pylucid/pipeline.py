@@ -114,6 +114,12 @@ def pipeline(
 
     log_debug(f"RMSE on f_xp_samples {rmse(estimator(x_samples), f_xp_samples)}")
     log_debug(f"Score on f_xp_samples {estimator.score(x_samples, f_xp_samples)}")
+    if f_det is not None:
+        # Sample some other points (half of the x_samples) to evaluate the regressor against overfitting
+        x_evaluation = x_bounds.sample(x_samples.shape[0] // 2)
+        f_xp_evaluation = feature_map(f_det(x_evaluation.T).T)
+        log_debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
+        log_debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
     x_lattice = x_bounds.lattice(n_per_dim, True)
     u_f_x_lattice = feature_map(x_lattice)
