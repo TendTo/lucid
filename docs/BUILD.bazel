@@ -1,5 +1,5 @@
 load("@doxygen//:doxygen.bzl", "doxygen")
-load("//tools:rules_cc.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION")
+load("//tools:variables.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION")
 
 doxygen(
     name = "docs",
