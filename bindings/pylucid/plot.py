@@ -53,7 +53,7 @@ def plot_solution_1d(
         )
 
     if feature_map is not None and sol is not None:
-        x_lattice = X_bounds.lattice(100)
+        x_lattice = X_bounds.lattice(200, True)
         plt.plot(x_lattice, feature_map(x_lattice) @ sol.T, color="green", label="B(x)")
         if f is not None:
             plt.plot(x_lattice, feature_map(f(x_lattice.T).T) @ sol.T, color="black", label="B(xp)")
@@ -65,10 +65,10 @@ def plot_solution_1d(
                 label="B(xp) via approx. regression",
             )
         x_lattice_grid = X_bounds.lattice(feature_map.num_frequencies * 4, True)
-        plt.scatter(x_lattice_grid, feature_map(x_lattice_grid) @ sol.T, color="green", label="B(x) (optimisation)")
+        plt.scatter(x_lattice_grid, feature_map(x_lattice_grid) @ sol.T, color="green", label="B(x) (lattice)")
         if f is not None:
             plt.scatter(
-                x_lattice_grid, feature_map(f(x_lattice_grid.T).T) @ sol.T, color="black", label="B(xp) (optimisation)"
+                x_lattice_grid, feature_map(f(x_lattice_grid.T).T) @ sol.T, color="black", label="B(xp) (lattice)"
             )
         if estimator is not None:
             plt.scatter(
@@ -76,7 +76,7 @@ def plot_solution_1d(
                 estimator(x_lattice_grid)
                 @ sol.T,  # TODO(tend): Should this be regression(x_lattice, feature_map) @ sol.T?
                 color="purple",
-                label="B(xp) via approx. regression (optimisation)",
+                label="B(xp) via approx. regression (lattice)",
             )
 
     plt.title("Barrier certificate")

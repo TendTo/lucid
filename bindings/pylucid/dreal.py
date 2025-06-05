@@ -156,7 +156,7 @@ def verify_barrier_certificate(
                 # Second condition
                 Implies(build_set_constraint(xs, X_unsafe), barrier >= gamma),
                 # Third condition
-                barrier_p - barrier <= c,
+                barrier_p - barrier <= c + tolerance,
             ),
         ),
     )

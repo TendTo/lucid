@@ -1,3 +1,4 @@
+from typing import Callable
 import numpy as np
 from ._pylucid import (
     GaussianKernel,
@@ -14,6 +15,7 @@ from ._pylucid import (
     log_error,
     log_warn,
     Parameter,
+    log_info,
 )
 
 try:
@@ -32,9 +34,6 @@ except ImportError:
 
     def plot_solution(*args, **kwargs):
         pass
-
-
-from typing import Callable
 
 
 def rmse(x: "np.typing.NDArray[np.float64]", y: "np.typing.NDArray[np.float64]", ax=0):
@@ -121,7 +120,7 @@ def pipeline(
     u_f_xp_lattice_via_regressor = estimator(x_lattice)
     # We are fixing the zero frequency to the constant value we computed in the feature map
     # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
-    u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0]
+    u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * sigma_f
 
     x0_lattice = x_init.lattice(n_per_dim, True)
     f_x0_lattice = feature_map(x0_lattice)
@@ -134,10 +133,23 @@ def pipeline(
     ):
         if not success:
             log_error("Optimization failed")
-            return
-
-        log_debug(f"sol = {sol}")
-        if verify and f_det is not None:
+        else:
+            log_info("Optimization succeeded")
+            log_debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
+            log_debug(f"{sol = }")
+        if plot:
+            plot_solution(
+                X_bounds=x_bounds,
+                X_init=x_init,
+                X_unsafe=x_unsafe,
+                feature_map=feature_map,
+                eta=eta if success is None else None,
+                gamma=gamma,
+                sol=sol if success else None,
+                f=f_det,
+                estimator=estimator,
+            )
+        if verify and f_det is not None and success:
             verify_barrier_certificate(
                 X_bounds=x_bounds,
                 X_init=x_init,
@@ -150,18 +162,6 @@ def pipeline(
                 estimator=estimator,
                 tffm=feature_map,
                 sol=sol,
-            )
-        if plot:
-            plot_solution(
-                X_bounds=x_bounds,
-                X_init=x_init,
-                X_unsafe=x_unsafe,
-                feature_map=feature_map,
-                eta=eta,
-                gamma=gamma,
-                sol=sol,
-                f=f_det,
-                estimator=estimator,
             )
 
     assert GUROBI_BUILD, "Gurobi is not supported in this build. Please install Gurobi and rebuild Lucid."

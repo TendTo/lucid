@@ -1,16 +1,20 @@
 import numpy as np
-from pylucid import __version__
 from pylucid import *
+from pylucid import __version__
 from pylucid.pipeline import pipeline
 
-np.set_printoptions(linewidth=200, suppress=True)
 
-# set_verbosity(LOG_DEBUG)
+def test_building_automation_system1():
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Script configuration
+    # ---------------------------------- #
 
+    # set_verbosity(LOG_DEBUG)  # Uncomment to enable debug logging
+    seed = 42  # Seed for reproducibility
 
-def case_study_template():
-    ######## System dynamics ########
-    seed = 50
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # System dynamics
+    # ---------------------------------- #
 
     th = 45
     te = -15
@@ -25,46 +29,70 @@ def case_study_template():
     np.random.seed(seed)  # For reproducibility
     f = lambda x: f_det(x) + r_coeff * np.random.exponential(1)
 
-    ######## Safety specification ########
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Safety specification
+    # ---------------------------------- #
 
-    # Time horizon
-    T = 5
+    gamma = 1
+    T = 5  # Time horizon
+
     # State space X := [1, 50]
     X_bounds = RectSet(((1, 50),))
-
-    # Initial set X_I := [19.5, 20]
+    # Initial set X_0 := [19.5, 20]
     X_init = RectSet(((19.5, 20),))
-
     # Unsafe set X_U := [1, 17] U [23, 50]
     X_unsafe = MultiSet(
         RectSet(((1, 17),)),
         RectSet(((23, 50),)),
     )
 
-    ######## Parameters ########
-    gamma = 1
-    N = 1000
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Parameters and inputs
+    # ---------------------------------- #
 
+    N = 1000
     x_samples = X_bounds.sample(N)
     xp_samples = f(x_samples.T).T
 
-    # Estimator hyperparameters
+    # Initial estimator hyperparameters. Can be tuned later
     regularization_constant = 1e-6
-    sigma_f = 5.0
+    sigma_f = 15.0
+    sigma_l = np.array([1.75555556])
+
     num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
 
-    ######## Lucid ########
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Lucid
+    # ---------------------------------- #
 
-    params = LbgsParameters(min_step=0, linesearch=5)
-
-    tun = {"tuner": LbfgsTuner(bounds=((0.1, 15.0),), parameters=params)}
+    # De-comment the tuner you want to use or leave it empty to avoid tuning.
+    tuner = {
+        # "tuner": LbfgsTuner(bounds=((0.1, 15.0),), parameters=LbgsParameters(min_step=0, linesearch=5))
+        # "tuner": MedianHeuristicTuner(),
+        # "tuner": GridSearchTuner(
+        #     ParameterValues(
+        #         Parameter.SIGMA_L, [np.full(1, v) for v in np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)]
+        #     ),
+        #     ParameterValues(Parameter.SIGMA_F, np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)),
+        #     ParameterValues(Parameter.REGULARIZATION_CONSTANT, np.logspace(-6, -1, num=10)),
+        # ),
+    }
     estimator = KernelRidgeRegressor(
-        kernel=GaussianKernel(sigma_f=sigma_f),
+        kernel=GaussianKernel(sigma_f=sigma_f, sigma_l=sigma_l),
         regularization_constant=regularization_constant,
-        **tun,
     )
-    # The sigma_l parameter will be tuned by the tuner during fitting
-    estimator.fit(x=x_samples, y=xp_samples, **tun)
+    # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
+    estimator.fit(x=x_samples, y=xp_samples, **tuner)
+
+    log_info(
+        f"Estimetor parameters: sigma_l = {estimator.get(Parameter.SIGMA_L)}, "
+        f"sigma_f = {estimator.get(Parameter.SIGMA_F)}, "
+        f"reg = {estimator.get(Parameter.REGULARIZATION_CONSTANT)}"
+    )
+
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Running the pipeline
+    # ---------------------------------- #
 
     pipeline(
         x_samples=x_samples,
@@ -74,10 +102,12 @@ def case_study_template():
         x_unsafe=X_unsafe,
         T=T,
         gamma=gamma,
-        f_det=f_det,
-        num_freq_per_dim=num_freq_per_dim,
-        estimator=estimator,
-        sigma_f=sigma_f,
+        f_det=f_det,  # The deterministic part of the system dynamics
+        num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
+        estimator=estimator,  # The estimator used to model the system dynamics
+        sigma_f=estimator.get(Parameter.SIGMA_F),
+        problem_log_file="problem.lp",  # The lp file containing the optimization problem
+        iis_log_file="iis.ilp",  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
     )
 
 
@@ -86,6 +116,6 @@ if __name__ == "__main__":
 
     log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    case_study_template()
+    test_building_automation_system1()
     end = time.time()
     log_info(f"Elapsed time: {end - start}")
