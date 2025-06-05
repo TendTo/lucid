@@ -75,11 +75,7 @@ def test_barrier3():
     # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
     estimator.fit(x=x_samples, y=xp_samples, **tuner)
 
-    log_info(
-        f"Estimetor parameters: sigma_l = {estimator.get(Parameter.SIGMA_L)}, "
-        f"sigma_f = {estimator.get(Parameter.SIGMA_F)}, "
-        f"reg = {estimator.get(Parameter.REGULARIZATION_CONSTANT)}"
-    )
+    log_info(f"Estimator: {estimator}")
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Running the pipeline
