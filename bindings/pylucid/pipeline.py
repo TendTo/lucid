@@ -57,6 +57,8 @@ def pipeline(
     sigma_f: float = 1.0,
     verify: bool = True,
     plot: bool = True,
+    problem_log_file: str = "",
+    iis_log_file: str = "",
 ) -> None:
     """Run Lucid with the given parameters.
     This function makes it easier to work with the library by providing
@@ -163,7 +165,9 @@ def pipeline(
             )
 
     assert GUROBI_BUILD, "Gurobi is not supported in this build. Please install Gurobi and rebuild Lucid."
-    o = GurobiLinearOptimiser(T, gamma, 0, 1, b_kappa=1, sigma_f=sigma_f)
+    o = GurobiLinearOptimiser(
+        T, gamma, 0, 1, b_kappa=1, sigma_f=sigma_f, problem_log_file=problem_log_file, iis_log_file=iis_log_file
+    )
     o.solve(
         f0_lattice=f_x0_lattice,
         fu_lattice=f_xu_lattice,

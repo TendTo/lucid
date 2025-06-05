@@ -37,15 +37,20 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
 }  // namespace lucid
 
 #ifdef _MSC_VER
-#define LUCID_FUNCTION_SIGNATURE __FUNCTION__  // or __FUNCSIG__
+consteval std::string_view function_signature(const char *s) {
+  const std::string_view prompt{s};
+  return prompt.starts_with("init_util") ? std::string_view{"-"} : prompt;
+}
+#define LUCID_FUNCTION_SIGNATURE function_signature(__FUNCTION__)
 #else
-consteval std::string_view method_name(const char *s) {
-  const std::string_view prettyFunction(s);
+consteval std::string_view function_signature(const char *s) {
+  const std::string_view prettyFunction{s};
   const std::size_t bracket = prettyFunction.rfind('(');
   const std::size_t space = prettyFunction.rfind(' ', bracket) + 1;
-  return prettyFunction.substr(space, bracket - space);
+  const std::string_view prompt{prettyFunction.substr(space, bracket - space)};
+  return prompt.starts_with("init_util") ? std::string_view{"-"} : prompt;
 }
-#define LUCID_FUNCTION_SIGNATURE method_name(__PRETTY_FUNCTION__)
+#define LUCID_FUNCTION_SIGNATURE function_signature(__PRETTY_FUNCTION__)
 #endif
 
 #define LUCID_FORMAT(message, ...) fmt::format(message, __VA_ARGS__)
