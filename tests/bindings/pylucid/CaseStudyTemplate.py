@@ -1,15 +1,15 @@
+import time
 import numpy as np
 from pylucid import *
 from pylucid import __version__
 from pylucid.pipeline import pipeline
 
 
-def case_study_template():
+def scenario_config() -> "ScenarioConfig":
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Script configuration
     # ---------------------------------- #
 
-    # set_verbosity(LOG_DEBUG)  # Uncomment to enable debug logging
     seed = 42  # Seed for reproducibility
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
@@ -19,7 +19,7 @@ def case_study_template():
     f_det = lambda x: 1 / 2 * x
     # Add process noise
     np.random.seed(seed)  # For reproducibility
-    f = lambda x: f_det(x) * (np.random.standard_normal())
+    f = lambda x: f_det(x) + np.random.normal(scale=0.8)
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Safety specification
@@ -28,12 +28,11 @@ def case_study_template():
     gamma = 1
     T = 5  # Time horizon
 
-    X_bounds = RectSet(((-1, 1),), seed=seed)  # State space X
-    X_init = RectSet(((-0.5, 0.5),))  # Initial set X_0
-    # Unsafe set X_U
-    X_unsafe = MultiSet(
-        RectSet(((-1, -0.9),)),
-        RectSet(((0.9, 1),)),
+    X_bounds = RectSet([(-1, 1)])  # State space
+    X_init = RectSet([(-0.5, 0.5)])  # Initial set
+    X_unsafe = MultiSet(  # Unsafe set
+        RectSet([(-1, -0.9)]),
+        RectSet([(0.9, 1)]),
     )
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
@@ -45,7 +44,7 @@ def case_study_template():
     xp_samples = f(x_samples.T).T
 
     # Initial estimator hyperparameters. Can be tuned later
-    regularization_constant = 1e-6
+    regularization_constant = 1e-3
     sigma_f = 15.0
     sigma_l = np.array([1.75555556])
 
@@ -74,18 +73,12 @@ def case_study_template():
     # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
     estimator.fit(x=x_samples, y=xp_samples, **tuner)
 
-    log_info(f"Estimator: {estimator}")
-
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # Running the pipeline
-    # ---------------------------------- #
-
-    pipeline(
+    return ScenarioConfig(
         x_samples=x_samples,
         xp_samples=xp_samples,
-        x_bounds=X_bounds,
-        x_init=X_init,
-        x_unsafe=X_unsafe,
+        X_bounds=X_bounds,
+        X_init=X_init,
+        X_unsafe=X_unsafe,
         T=T,
         gamma=gamma,
         f_det=f_det,  # The deterministic part of the system dynamics
@@ -98,10 +91,11 @@ def case_study_template():
 
 
 if __name__ == "__main__":
-    import time
-
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Lucid
+    # ---------------------------------- #
     log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    case_study_template()
+    pipeline(**scenario_config())
     end = time.time()
     log_info(f"Elapsed time: {end - start}")

@@ -183,6 +183,7 @@ def plot_solution(
     f: "callable" = None,
     c: float = 0.0,
 ):
+    assert X_bounds.dimension > 0, "X_bounds must have a positive dimension."
     plot_solution_fun = (plot_solution_1d, plot_solution_2d)
     if X_bounds.dimension <= len(plot_solution_fun):
         return plot_solution_fun[X_bounds.dimension - 1](

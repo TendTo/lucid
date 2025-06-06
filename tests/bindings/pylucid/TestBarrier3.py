@@ -1,15 +1,14 @@
 import numpy as np
 from pylucid import *
 from pylucid import __version__
-from pylucid.pipeline import pipeline
+from pylucid.pipeline import pipeline, rmse
 
 
-def test_barrier3():
+def scenario_config() -> "ScenarioConfig":
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Script configuration
     # ---------------------------------- #
 
-    # set_verbosity(LOG_DEBUG)  # Uncomment to enable debug logging
     seed = 42  # Seed for reproducibility
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
@@ -47,8 +46,8 @@ def test_barrier3():
 
     # Initial estimator hyperparameters. Can be tuned later
     regularization_constant = 1e-6
-    sigma_f = 19.456
-    sigma_l = np.array([1.598547, 0.868538])
+    sigma_f = 15.0
+    sigma_l = np.array([0.1, 0.1])
 
     num_freq_per_dim = 8  # Number of frequencies per dimension. Includes the zero frequency.
 
@@ -58,11 +57,11 @@ def test_barrier3():
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
     tuner = {
-        # "tuner": LbfgsTuner(bounds=((0.1, 15.0),), parameters=LbgsParameters(min_step=0, linesearch=5))
+        # "tuner": LbfgsTuner(bounds=((1e-5, 1e5), (1e-5, 1e5)), parameters=LbgsParameters(min_step=0, linesearch=5))
         # "tuner": MedianHeuristicTuner(),
         # "tuner": GridSearchTuner(
         #     ParameterValues(
-        #         Parameter.SIGMA_L, [np.full(1, v) for v in np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)]
+        #         Parameter.SIGMA_L, [np.full(2, v) for v in np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)]
         #     ),
         #     ParameterValues(Parameter.SIGMA_F, np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)),
         #     ParameterValues(Parameter.REGULARIZATION_CONSTANT, np.logspace(-6, -1, num=10)),
@@ -74,19 +73,19 @@ def test_barrier3():
     )
     # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
     estimator.fit(x=x_samples, y=xp_samples, **tuner)
-
-    log_info(f"Estimator: {estimator}")
+    log_debug(f"RMSE on xp_samples {rmse(estimator(x_samples), xp_samples)}")
+    log_debug(f"Score on xp_samples {estimator.score(x_samples, xp_samples)}")
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Running the pipeline
     # ---------------------------------- #
 
-    pipeline(
+    return ScenarioConfig(
         x_samples=x_samples,
         xp_samples=xp_samples,
-        x_bounds=X_bounds,
-        x_init=X_init,
-        x_unsafe=X_unsafe,
+        X_bounds=X_bounds,
+        X_init=X_init,
+        X_unsafe=X_unsafe,
         T=T,
         gamma=gamma,
         f_det=f_det,  # The deterministic part of the system dynamics
@@ -99,10 +98,11 @@ def test_barrier3():
 
 
 if __name__ == "__main__":
-    import time
-
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Lucid
+    # ---------------------------------- #
     log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    test_barrier3()
+    pipeline(**scenario_config())
     end = time.time()
     log_info(f"Elapsed time: {end - start}")

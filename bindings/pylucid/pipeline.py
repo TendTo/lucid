@@ -44,9 +44,9 @@ def rmse(x: "np.typing.NDArray[np.float64]", y: "np.typing.NDArray[np.float64]",
 def pipeline(
     x_samples: np.typing.NDArray[np.float64],
     xp_samples: np.typing.NDArray[np.float64],
-    x_bounds: Set,
-    x_init: Set,
-    x_unsafe: Set,
+    X_bounds: Set,
+    X_init: Set,
+    X_unsafe: Set,
     *,
     T: int = 5,
     gamma: float = 1.0,
@@ -69,9 +69,9 @@ def pipeline(
     Args:
         x_samples: Input samples for the state variable x
         xp_samples: Input samples for the next state variable x'
-        x_bounds: Set representing the bounds of the state space
-        x_init: Set representing the initial states
-        x_unsafe: Set representing the unsafe states
+        X_bounds: Set representing the bounds of the state space
+        X_init: Set representing the initial states
+        X_unsafe: Set representing the unsafe states
         T: Time horizon for the optimization
         gamma: Discount or scaling factor for the optimization
         f_det: Deterministic function mapping states to outputs. Used to verify the barrier certificate.
@@ -102,7 +102,7 @@ def pipeline(
             num_frequencies=num_freq_per_dim,
             sigma_l=estimator.get(Parameter.SIGMA_L),
             sigma_f=sigma_f,
-            x_limits=x_bounds,
+            x_limits=X_bounds,
         )
 
     num_freq_per_dim = feature_map.num_frequencies
@@ -111,28 +111,30 @@ def pipeline(
 
     f_xp_samples = feature_map(xp_samples)  # Used to train the f_xp regressor
 
+    log_debug(f"Estimator pre-fit: {estimator}")
     estimator.fit(x=x_samples, y=f_xp_samples)
+    log_info(f"Estimator post-fit: {estimator}")
 
     log_debug(f"RMSE on f_xp_samples {rmse(estimator(x_samples), f_xp_samples)}")
     log_debug(f"Score on f_xp_samples {estimator.score(x_samples, f_xp_samples)}")
     if f_det is not None:
         # Sample some other points (half of the x_samples) to evaluate the regressor against overfitting
-        x_evaluation = x_bounds.sample(x_samples.shape[0] // 2)
+        x_evaluation = X_bounds.sample(x_samples.shape[0] // 2)
         f_xp_evaluation = feature_map(f_det(x_evaluation.T).T)
         log_debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
         log_debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
-    x_lattice = x_bounds.lattice(n_per_dim, True)
+    x_lattice = X_bounds.lattice(n_per_dim, True)
     u_f_x_lattice = feature_map(x_lattice)
     u_f_xp_lattice_via_regressor = estimator(x_lattice)
     # We are fixing the zero frequency to the constant value we computed in the feature map
     # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
     u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * sigma_f
 
-    x0_lattice = x_init.lattice(n_per_dim, True)
+    x0_lattice = X_init.lattice(n_per_dim, True)
     f_x0_lattice = feature_map(x0_lattice)
 
-    xu_lattice = x_unsafe.lattice(n_per_dim, True)
+    xu_lattice = X_unsafe.lattice(n_per_dim, True)
     f_xu_lattice = feature_map(xu_lattice)
 
     def check_cb(
@@ -146,9 +148,9 @@ def pipeline(
             log_debug(f"{sol = }")
         if plot:
             plot_solution(
-                X_bounds=x_bounds,
-                X_init=x_init,
-                X_unsafe=x_unsafe,
+                X_bounds=X_bounds,
+                X_init=X_init,
+                X_unsafe=X_unsafe,
                 feature_map=feature_map,
                 eta=eta if success is None else None,
                 gamma=gamma,
@@ -159,9 +161,9 @@ def pipeline(
             )
         if verify and f_det is not None and success:
             verify_barrier_certificate(
-                X_bounds=x_bounds,
-                X_init=x_init,
-                X_unsafe=x_unsafe,
+                X_bounds=X_bounds,
+                X_init=X_init,
+                X_unsafe=X_unsafe,
                 sigma_f=sigma_f,
                 eta=eta,
                 c=c,
@@ -184,6 +186,6 @@ def pipeline(
         rkhs_dim=feature_map.dimension,
         num_frequencies_per_dim=num_freq_per_dim - 1,
         num_frequency_samples_per_dim=n_per_dim,
-        original_dim=x_bounds.dimension,
+        original_dim=X_bounds.dimension,
         callback=check_cb,
     )

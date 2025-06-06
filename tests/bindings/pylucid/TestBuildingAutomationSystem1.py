@@ -1,15 +1,14 @@
 import numpy as np
 from pylucid import *
 from pylucid import __version__
-from pylucid.pipeline import pipeline
+from pylucid.pipeline import pipeline, rmse
 
 
-def test_building_automation_system1():
+def scenario_config() -> "ScenarioConfig":
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Script configuration
     # ---------------------------------- #
 
-    # set_verbosity(LOG_DEBUG)  # Uncomment to enable debug logging
     seed = 42  # Seed for reproducibility
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
@@ -83,35 +82,36 @@ def test_building_automation_system1():
     )
     # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
     estimator.fit(x=x_samples, y=xp_samples, **tuner)
-
-    log_info(f"Estimator: {estimator}")
+    log_debug(f"RMSE on xp_samples {rmse(estimator(x_samples), xp_samples)}")
+    log_debug(f"Score on xp_samples {estimator.score(x_samples, xp_samples)}")
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Running the pipeline
     # ---------------------------------- #
 
-    pipeline(
+    return ScenarioConfig(
         x_samples=x_samples,
         xp_samples=xp_samples,
-        x_bounds=X_bounds,
-        x_init=X_init,
-        x_unsafe=X_unsafe,
+        X_bounds=X_bounds,
+        X_init=X_init,
+        X_unsafe=X_unsafe,
         T=T,
         gamma=gamma,
         f_det=f_det,  # The deterministic part of the system dynamics
         num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
         estimator=estimator,  # The estimator used to model the system dynamics
         sigma_f=estimator.get(Parameter.SIGMA_F),
-        problem_log_file="problem.lp",  # The lp file containing the optimization problem
+        problem_log_file="problem.mps",  # The lp file containing the optimization problem
         iis_log_file="iis.ilp",  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
     )
 
 
 if __name__ == "__main__":
-    import time
-
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Lucid
+    # ---------------------------------- #
     log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    test_building_automation_system1()
+    pipeline(**scenario_config())
     end = time.time()
     log_info(f"Elapsed time: {end - start}")
