@@ -35,6 +35,7 @@ def plot_solution_1d(
     gamma: float = None,
     estimator: "Estimator" = None,
     f: "callable" = None,
+    c: float = 0.0,
 ):
     plt.xlim(X_bounds.lower_bound, X_bounds.upper_bound)
     # Draw the initial and unsafe sets
@@ -53,8 +54,10 @@ def plot_solution_1d(
         )
 
     if feature_map is not None and sol is not None:
-        x_lattice = X_bounds.lattice(200, True)
-        plt.plot(x_lattice, feature_map(x_lattice) @ sol.T, color="green", label="B(x)")
+        x_lattice: np.ndarray = X_bounds.lattice(200, True)
+        values = feature_map(x_lattice) @ sol.T
+        plt.plot(x_lattice, values, color="green", label="B(x)")
+        plt.fill_between(x_lattice.reshape(-1), values, values + c + 1e-8, color="lightgreen")
         if f is not None:
             plt.plot(x_lattice, feature_map(f(x_lattice.T).T) @ sol.T, color="black", label="B(xp)")
         if estimator is not None:
@@ -94,6 +97,7 @@ def plot_set_2d(X_set: "RectSet | MultiSet", color: str, label: str = ""):
         color: The color to use for plotting the set.
     """
     ax = plt.gca()
+
     def plot_rect_3d(rect, color, label=None):
         x = [rect.lower_bound[0], rect.upper_bound[0], rect.upper_bound[0], rect.lower_bound[0], rect.lower_bound[0]]
         y = [rect.lower_bound[1], rect.lower_bound[1], rect.upper_bound[1], rect.upper_bound[1], rect.lower_bound[1]]
@@ -108,6 +112,7 @@ def plot_set_2d(X_set: "RectSet | MultiSet", color: str, label: str = ""):
     else:
         raise ValueError("X_set must be a RectSet or MultiSet.")
 
+
 def plot_solution_2d(
     X_bounds: "RectSet",
     X_init: "RectSet" = None,
@@ -118,9 +123,10 @@ def plot_solution_2d(
     gamma: float = None,
     estimator: "Estimator" = None,
     f: "callable" = None,
+    c: float = 0.0,
 ):
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
     ax.set_xlim(X_bounds.lower_bound[0], X_bounds.upper_bound[0])
     ax.set_ylim(X_bounds.lower_bound[1], X_bounds.upper_bound[1])
     ax.set_zlim(0)
@@ -137,7 +143,7 @@ def plot_solution_2d(
         points = np.stack([X.ravel(), Y.ravel()], axis=1)
         Z = feature_map(points) @ sol.T
         Z = Z.reshape(X.shape)
-        surf = ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.7, linewidth=0, antialiased=True, label="B(x)")
+        surf = ax.plot_surface(X, Y, Z, cmap="viridis", alpha=0.7, linewidth=0, antialiased=True, label="B(x)")
         fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10, pad=0.1)
 
         # Plot eta and gamma as planes
@@ -164,6 +170,7 @@ def plot_solution_2d(
     ax.legend()
     plt.show()
 
+
 def plot_solution(
     X_bounds: "RectSet",
     X_init: "RectSet" = None,
@@ -174,12 +181,13 @@ def plot_solution(
     gamma: float = None,
     estimator: "Estimator" = None,
     f: "callable" = None,
+    c: float = 0.0,
 ):
-    if X_bounds.dimension == 1:
-        plot_solution_1d(X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f)
-    elif X_bounds.dimension == 2:
-        plot_solution_2d(X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f)
-    else:
-        raise LucidNotSupportedException(
+    plot_solution_fun = (plot_solution_1d, plot_solution_2d)
+    if X_bounds.dimension <= len(plot_solution_fun):
+        return plot_solution_fun[X_bounds.dimension - 1](
+            X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c
+        )
+    raise LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
     )

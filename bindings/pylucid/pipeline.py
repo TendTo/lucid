@@ -9,6 +9,7 @@ from ._pylucid import (
     KernelRidgeRegressor,
     GurobiLinearOptimiser,
     LucidNotSupportedException,
+    LinearTruncatedFourierFeatureMap,
     GUROBI_BUILD,
     Estimator,
     log_debug,
@@ -97,7 +98,7 @@ def pipeline(
         estimator.fit(x=x_samples, y=xp_samples)
     if feature_map is None:
         assert num_freq_per_dim > 0, "num_freq_per_dim must be set and positive if feature_map is None"
-        feature_map = ConstantTruncatedFourierFeatureMap(
+        feature_map = LinearTruncatedFourierFeatureMap(
             num_frequencies=num_freq_per_dim,
             sigma_l=estimator.get(Parameter.SIGMA_L),
             sigma_f=sigma_f,
@@ -154,6 +155,7 @@ def pipeline(
                 sol=sol if success else None,
                 f=f_det,
                 estimator=estimator,
+                c=c if success else None,
             )
         if verify and f_det is not None and success:
             verify_barrier_certificate(
