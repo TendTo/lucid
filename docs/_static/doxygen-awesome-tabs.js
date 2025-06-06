@@ -68,26 +68,8 @@ class DoxygenAwesomeTabs {
             });
             tabsOverviewContainer.appendChild(tabsOverview);
             tabbed.before(tabsOverviewContainer);
-  
-            function resize() {
-              let maxTabHeight = 0;
-              tabbed
-                .querySelectorAll(":scope > ul > li")
-                .forEach((tab, tabIndex) => {
-                  let visibility = tab.style.display;
-                  tab.style.display = "block";
-                  maxTabHeight = Math.max(tab.offsetHeight, maxTabHeight);
-                  tab.style.display = visibility;
-                });
-              tabbed.style.height = `${maxTabHeight + 10}px`;
-            }
-  
-            resize();
-            new ResizeObserver(resize).observe(tabbed);
           });
       });
     }
-  
-    static resize(tabbed) {}
   }
   

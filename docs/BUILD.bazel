@@ -61,6 +61,10 @@ doxygen(
         # Mermaid support in docstrings
         "mermaid=^^<pre class='mermaid'>",
         "endmermaid=</pre>^^",
+        # Tabs
+        "tab{2|}=@htmlonly<li><span class='tab-title'>@endhtmlonly\\1@htmlonly</span>@endhtmlonly\\2@htmlonly</li>@endhtmlonly",
+        "tab2{2||}=@tab{ \\1 | \\2 }",
+        "tabs{1}=@htmlonly<div class='tabbed'><ul>@endhtmlonly\\1@htmlonly</ul></div>@endhtmlonly",
     ],
     builtin_stl_support = True,
     #    configurations = [
@@ -111,6 +115,7 @@ doxygen(
     javadoc_autobrief = True,
     macro_expansion = True,
     mathjax_version = "MathJax_3",
+    page_outline_panel = False,
     project_brief = LUCID_DESCRIPTION,
     project_icon = "docs/_static/logo.svg",
     project_logo = "docs/_static/logo.svg",

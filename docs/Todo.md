@@ -75,3 +75,12 @@ flowchart LR
 
 - Expectation oracle: given a set of pairs (input, output), produce an oracle such
   that $\mathbb{E}_{x^+\approx\bar{t}(\cdot|x,u)}[\cdot(x^+)] = y$ for all pairs $(x,y)$
+
+
+## Tests
+
+- [ ] Use the LP in a white-box environment to check whether it can produce the barriers
+- [ ] Feature map visualisation
+- [ ] Add fill_area of tolerance over the barrier
+- [ ] Plot f_det vs estimator
+- [ ] Write down formulas on overleaf

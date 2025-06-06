@@ -91,6 +91,11 @@ github_archive(
 # Load module extensions
 #################################################################################
 doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
+doxygen_extension.configuration(
+    version = "1.13.2",
+    sha256 = "f2c0a349403bc5b5ade3f501301e32b49ea31b3182666954bc398452fbc0dd1c",
+    platform = "linux",
+)
 use_repo(doxygen_extension, "doxygen")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
