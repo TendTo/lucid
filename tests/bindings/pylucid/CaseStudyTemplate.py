@@ -19,7 +19,7 @@ def scenario_config() -> "ScenarioConfig":
     f_det = lambda x: 1 / 2 * x
     # Add process noise
     np.random.seed(seed)  # For reproducibility
-    f = lambda x: f_det(x) + np.random.normal(scale=0.8)
+    f = lambda x: f_det(x) + np.random.normal(scale=0.4)
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Safety specification
@@ -41,7 +41,7 @@ def scenario_config() -> "ScenarioConfig":
 
     N = 1000
     x_samples = X_bounds.sample(N)
-    xp_samples = f(x_samples.T).T
+    xp_samples = f(x_samples)
 
     # Initial estimator hyperparameters. Can be tuned later
     regularization_constant = 1e-3

@@ -80,7 +80,7 @@ flowchart LR
 ## Tests
 
 - [ ] Use the LP in a white-box environment to check whether it can produce the barriers
-- [ ] Feature map visualisation
-- [ ] Add fill_area of tolerance over the barrier
-- [ ] Plot f_det vs estimator
+- [x] Feature map visualisation
+- [x] Add fill_area of tolerance over the barrier
+- [x] Plot f_det vs estimator
 - [ ] Write down formulas on overleaf

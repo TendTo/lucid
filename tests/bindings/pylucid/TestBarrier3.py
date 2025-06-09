@@ -5,6 +5,9 @@ from pylucid.pipeline import pipeline, rmse
 
 
 def scenario_config() -> "ScenarioConfig":
+    """Benchmark scenario taken from
+    https://github.com/oxford-oxcav/fossil/blob/10f1f071784d16b2a5ee5da2f51ff2a81d753e2e/experiments/benchmarks/models.py#L350C1-L360C1
+    """
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Script configuration
     # ---------------------------------- #
@@ -15,7 +18,7 @@ def scenario_config() -> "ScenarioConfig":
     # System dynamics
     # ---------------------------------- #
 
-    f_det = None  # lambda x: x
+    f_det = lambda x: np.array([x[:, 1], -x[:, 0] - x[:, 1] + 1 / 3 * x[:, 0] ** 3]).T  # lambda x: x
     # Add process noise
     np.random.seed(seed)  # For reproducibility
     f = lambda x: f_det(x) + (np.random.standard_normal())
@@ -42,7 +45,7 @@ def scenario_config() -> "ScenarioConfig":
     # ---------------------------------- #
 
     x_samples = read_matrix("tests/bindings/pylucid/x_samples.matrix")
-    xp_samples = read_matrix("tests/bindings/pylucid/xp_samples.matrix")
+    xp_samples = f(x_samples)
 
     # Initial estimator hyperparameters. Can be tuned later
     regularization_constant = 1e-6
