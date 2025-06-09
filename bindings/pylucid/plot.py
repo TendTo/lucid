@@ -1,5 +1,9 @@
-from ._pylucid import RectSet, MultiSet, FeatureMap, Estimator, LucidNotSupportedException, log_warn
+from typing import TYPE_CHECKING
+from ._pylucid import RectSet, MultiSet, FeatureMap, Estimator, LucidNotSupportedException, log_warn, Set
 import numpy as np
+
+if TYPE_CHECKING:
+    from typing import Callable
 
 try:
     import matplotlib.pyplot as plt
@@ -169,6 +173,176 @@ def plot_solution_2d(
     ax.set_zlabel("Barrier value")
     ax.legend()
     plt.show()
+
+
+def plot_estimator_1d(
+    estimator: "Estimator",
+    x_samples: "np.typing.NDArray[np.float64]",
+    xp_samples: "np.typing.NDArray[np.float64]",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+):
+    """Plot the estimator's predictions against the true system dynamics in 2D.
+
+    Args:
+        estimator: The estimator to be evaluated
+        x_samples: Sample points in the state space
+        xp_samples: Sample points at the next time step
+        X_init: Initial set of states
+        X_unsafe: Unsafe set of states
+    """
+    if X_bounds is not None:
+        plt.xlim(X_bounds.lower_bound[0], X_bounds.upper_bound[0])
+
+    if X_init is not None:
+        plot_set_1d(X_init, label="Initial Set", color="green")
+    if X_unsafe is not None:
+        plot_set_1d(X_unsafe, label="Unsafe Set", color="red")
+
+    xp_pred = estimator.predict(x_samples)
+
+    # Plot the true vs predicted next states
+    plt.scatter(x_samples, xp_samples, label="Ground truth", color="blue", marker="o")
+    plt.scatter(x_samples, xp_pred, label="Estimator prediction", color="orange", marker="x")
+    plt.title("Estimator Predictions vs True Dynamics")
+    plt.xlabel("State")
+    plt.ylabel("Next State")
+    plt.legend()
+    plt.show()
+
+
+def plot_estimator_2d(
+    estimator: "Estimator",
+    x_samples: "np.typing.NDArray[np.float64]",
+    xp_samples: "np.typing.NDArray[np.float64]",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+):
+    """Plot the estimator's predictions against the true system dynamics in 2D.
+
+    Args:
+        estimator: The estimator to be evaluated
+        x_samples: Sample points in the state space
+        xp_samples: Sample points at the next time step
+        X_init: Initial set of states
+        X_unsafe: Unsafe set of states
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    ax.set_xlim(X_bounds.lower_bound[0], X_bounds.upper_bound[0])
+    ax.set_ylim(X_bounds.lower_bound[1], X_bounds.upper_bound[1])
+
+    if X_init is not None:
+        plot_set_2d(X_init, label="Initial Set", color="green")
+    if X_unsafe is not None:
+        plot_set_2d(X_unsafe, label="Unsafe Set", color="red")
+
+    xp_pred = estimator.predict(x_samples)
+
+    # Plot the true vs predicted next states
+    ax.scatter(x_samples[:, 0], x_samples[:, 1], xp_samples[:, 0], label="Ground truth", color="blue", marker="o")
+    # ax.scatter(x_samples[:, 0], x_samples[:, 1], xp_pred, label="Estimator prediction", color="orange", marker="x")
+    plt.title("Estimator Predictions vs True Dynamics")
+    plt.xlabel("State x[0]")
+    plt.ylabel("State x[1]")
+    ax.set_zlabel("Next State")
+    plt.legend()
+    plt.show()
+
+
+def plot_feature_map(
+    feature_map: "FeatureMap",
+    x_samples: "np.typing.NDArray[np.float64] | Callable[[], np.typing.NDArray[np.float64]] | None" = None,
+    X_bounds: "Set | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    num_plots: int = 10,
+    N: int = 300,
+):
+    """Plot the feature map of the system dynamics.
+
+    Args:
+        feature_map: The feature map to plot
+        x_samples: Sample points in the state space
+        xp_samples: Function to compute next state samples
+        X_bounds: Bounds of the state space
+        X_init: Initial state set
+        X_unsafe: Unsafe state set
+        N: Number of samples for plotting
+    """
+    assert feature_map is not None, "Feature map must be provided."
+    assert N > 0, "N must be a positive integer."
+
+    # If we are given a set, we get a lattice of points
+    if callable(x_samples):  # If we are given a function, we call it to get the samples
+        x_samples = x_samples()
+    elif x_samples is None:
+        x_samples = X_bounds.lattice(N, True)
+
+    for _ in range(num_plots):
+        B_x = feature_map(x_samples)
+        sol = np.random.rand(B_x.shape[1]) * 20 - 10  # Random solution vector, from -10 to 10
+        val = B_x @ sol.T
+        plt.plot(x_samples, val)
+
+    if X_bounds is not None:
+        plt.xlim(X_bounds.lower_bound, X_bounds.upper_bound)
+    if X_init is not None:
+        plot_set_1d(X_init, "blue", label="Initial Set")
+    if X_unsafe is not None:
+        plot_set_1d(X_unsafe, "red", label="Unsafe Set")
+    plt.title("Feature Map Visualization")
+    plt.xlabel("State space")
+    plt.ylabel("Feature Map Value")
+    plt.legend()
+    plt.show()
+
+
+def plot_estimator(
+    estimator: "Estimator",
+    x_samples: "np.typing.NDArray[np.float64] | Callable[[], np.typing.NDArray[np.float64]] | None",
+    xp_samples: "np.typing.NDArray[np.float64] | Callable[[np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    N: int = 300,
+):
+    """Plot the estimator's predictions against the true system dynamics.
+
+    Args:
+        estimator: The estimator to be evaluated
+        x_samples: Sample points in the state space, a function that returns them or the set from which to sample them
+        xp_samples: Sample points at the next time step or a function that returns them given x_samples
+        X_init: Initial set of states
+        X_unsafe: Unsafe set of states
+        N: Number of samples to generate if x_samples is not provided
+    """
+
+    assert estimator is not None, "Estimator must be provided."
+    assert xp_samples is not None, "xp_samples must be provided."
+    assert N > 0, "N must be a positive integer."
+
+    # If we are given a set, we get a lattice of points
+    if callable(x_samples):  # If we are given a function, we call it to get the samples
+        x_samples = x_samples()
+    elif x_samples is None:
+        x_samples = X_bounds.lattice(N, True)
+
+    if callable(xp_samples):  # If xp_samples is a function, evaluate it on the x_samples
+        xp_samples = xp_samples(x_samples)
+
+    assert x_samples.ndim == 2, "to avoid ambiguity, x_samples must be a 2D array (num_samples x num_dimensions)."
+    assert xp_samples.ndim == 2, "to avoid ambiguity, xp_samples must be a 2D array (num_samples x num_dimensions)."
+
+    plot_estimator_fun = (plot_estimator_1d, plot_estimator_2d)
+    if x_samples.shape[1] <= len(plot_estimator_fun) and xp_samples.shape[1] == 1:
+        return plot_estimator_fun[x_samples.shape[1] - 1](estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe)
+    raise LucidNotSupportedException(
+        f"Plotting is not supported for {x_samples.shape[1]} => {xp_samples.shape[1]}-dimensional sets. "
+        f"Only (1D or 2D) => 1D are supported."
+    )
 
 
 def plot_solution(
