@@ -15,7 +15,7 @@
 namespace lucid {
 
 Vector Set::sample() const {
-  return sample(1l).row(0)
+  return sample(1l).row(0);
 }
 Matrix Set::lattice(const Index points_per_dim, const bool include_endpoints) const {
   return lattice(VectorI::Constant(dimension(), points_per_dim), include_endpoints);
