@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from typing import Callable
 from ._pylucid import (
     RectSet,
@@ -16,6 +17,14 @@ try:
 except ImportError as e:
     log_warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
     raise e
+
+Real.cos = lambda self: Cosine(self)
+Real.sin = lambda self: Sine(self)
+
+math_original_cos = math.cos
+math_original_sin = math.sin
+math.cos = lambda x: Cosine(x) if isinstance(x, Real) else math_original_cos(x)
+math.sin = lambda x: Sine(x) if isinstance(x, Real) else math_original_sin(x)
 
 
 def build_set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
@@ -136,8 +145,10 @@ def verify_barrier_certificate(
         True if the barrier certificate is verified, False otherwise.
     """
     # Create symbolic variables for the input dimensions
-    xs = [Real(f"x{i}") for i in range(X_bounds.dimension)]
-    xsp = [f_det(x) for x in xs]
+    xs = np.array([Real(f"x{i}") for i in range(X_bounds.dimension)])[np.newaxis, :]
+    xsp = f_det(xs)
+    xs = xs[0].tolist()  # Convert to a list for further processing
+    xsp = xsp[0].tolist()  # Convert to a list for further processing
     barrier = build_barrier_expression(xs=xs, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
     barrier_p = build_barrier_expression(xs=xsp, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
 
@@ -160,7 +171,6 @@ def verify_barrier_certificate(
             ),
         ),
     )
-    # print(constraints, file=sys.stderr)
     res = CheckSatisfiability(constraints, 1e-8)
     if res is None:
         log_info("The barrier has been verified via dReal")
@@ -168,7 +178,7 @@ def verify_barrier_certificate(
 
     log_error("Found counter example")
     log_error(f"Model: {res}")
-    point = np.array([res[xs[0]].lb()])
+    point = np.array([[res[x].lb() for x in xs]])
     pointp = f_det(point)
     log_error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
     log_error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
