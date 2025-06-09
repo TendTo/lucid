@@ -8,6 +8,7 @@ if os.name == "nt" and os.environ.get("GUROBI_HOME", "") != "":
 
 from ._pylucid import *
 from ._pylucid import __version__ as __pylucid_version__, __doc__ as __pylucid_doc__
+from .ext import *
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 

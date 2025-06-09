@@ -40,6 +40,7 @@ py_library(
         "__init__.py",
         "__main__.py",
         "dreal.py",
+        "ext.py",
         "pipeline.py",
         "plot.py",
     ],
@@ -72,6 +73,7 @@ py_binary(
     python_version = "PY3",
     deps = [
         requirement("pybind11_stubgen"),
+        requirement("numpy"),
     ],
 )
 

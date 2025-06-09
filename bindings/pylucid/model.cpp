@@ -413,7 +413,8 @@ void init_model(py::module_ &m) {
            py::arg("sigma_f"), py::arg("x_limits"));
 
   /**************************** Estimator ****************************/
-  estimator.def("predict", &Estimator::predict, ARG_NONCONVERT("x"))
+  estimator.def(py::init<>())
+      .def("predict", &Estimator::predict, ARG_NONCONVERT("x"))
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), ARG_NONCONVERT("x"),
            ARG_NONCONVERT("y"))
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit),
