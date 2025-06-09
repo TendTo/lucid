@@ -63,9 +63,10 @@ The expected value of a function $f(X)$ on $\X$ is written as $\E_{p_X}[f(X)]$. 
 We denote the set of all probability measures for a given measurable space $(\X,\borel{\X})$ as $\mathcal{P}(\X)$.
 
 The $n$-dimensional Gaussian measure with mean $\mu\in\mathbb{R}^n$ and covariance matrix $\Sigma\in\mathbb{R}^{n\times n}$ is given by
-\begin{equation*}
+\begin{equation}
+  \label{eq:gaussian-kernel}
   \mathcal N(dx|\mu, \Sigma) := \frac{dx}{ \sqrt{(2\pi)^n \left|\Sigma\right| }}\exp\left[-\frac{1}{2}(x-\mu)\T\Sigma^{-1\!}(x-\mu)\right],
-\end{equation*}
+\end{equation}
 where $|\Sigma|$ is the determinant of $\Sigma$.
 The Dirac delta measure $\delta_a:\borel{\X}\rightarrow [0,1]$ concentrated at a point $a\in\X$ is defined as $\delta_a(A)=1$ if $a\in A$ and $\delta_a(A)=0$ otherwise, for any measurable set $A\in\borel{\X}$.
 We denote the uniform distribution over $\X$ as $\mathcal{U}_\X$ with realizations $x\sim\mathcal{U}_\X(\cdotx)$.
@@ -152,6 +153,34 @@ The template of the barrier function is explored later in section~\ref{sec:bench
 
 \subsection{Kernel Mean Embeddings}
 
+A symmetric function $k_\X:\X\times\X\rightarrow\R$ is called a (positive definite) \emph{kernel} (note the distinction from \emph{probability kernels}) if for all $N\in\N_{>0}$ we have $\sum_{i=1}^{N}\sum_{j=1}^{N}a_i a_j\allowbreak k_\X(x_i,x_j) \geq 0$ for $x_1,\ldots,x_N\in\X\subset{\R^n}$ and $a_1,\ldots,a_N\in\R$.
+A prominent example is the \emph{squared exponential} (SQExp) kernel \cite{Rasmussen2005GP,Kanagawa2018GPvsKernel}:
+\begin{equation}
+  \label{eq:gaussian-kernel}
+  k_\X(x,x') := \sigma_f^2 \exp\left( -\frac{1}{2} (x-x')\T \Sigma\, (x-x') \right),\quad \Sigma:=\diag(\sigma_l)^{-2},
+\end{equation}
+with amplitude $\sigma_f^2\geq0$ and lengthscale coefficients $\sigma_l\in\R^n$.
+%In the following, we refer to a positive definite kernel as \emph{kernel}, for simplicity.
+For this work, we assume that all kernels are bounded on their domain, i.e., $\E_{}[k_\X(x,x)]<\infty$, $x\in\X$.
+Given a kernel $k_\X$ on a non-empty set $\X$, there exists a unique corresponding \emph{reproducing kernel Hilbert space} (RKHS) $\Hilbert_{k_\X}$ of functions $f:\X\rightarrow\R$ equipped with an inner product $\innerH{\cdotx}{\cdotx}{\Hilbert_{k_\X}}$ possessing the \emph{reproducing property} such that for any function $f\in\Hilbert_{k_\X}$ and $x\in\X$ we have $f(x)=\innerH{f}{k_\X(\cdotx,x)}{\Hilbert_{k_\X}}$.
+Note that $k_\X(\cdotx,x):\X\rightarrow\Hilbert_{k_\X}$ is a real-valued function,
+\new{which is} also called an implicit \emph{canonical} \emph{embedding} or \emph{feature map} $\phi_\X$
+such that $k_\X(x,x')=\innerH{\phi_\X(x)}{\phi_\X(x')}{\Hilbert_{k_\X}}$ for all $x,x'\in\X$.
+For an RKHS $\Hilbert_{k_\X}$, we use the associated feature map $\phi_\X$ and kernel $k_\X$ interchangeably for ease of notation and comprehensibility.
+%We will call the kernel associated to an RKHS $\Hilbert_{k_\X}$ the \emph{characteristic} kernel of $\Hilbert_{k_\X}$ and use $\phi_\X$ and $k_\X$ interchangeably for ease of notation and comprehensibility.
+%and an implicit \emph{canonical} \emph{embedding} or \emph{feature map} $\phi_\X:\X\rightarrow\Hilbert_{k_\X}$ with an inner product on $\Hilbert_{k_\X}$, i.e., $k_\X(x,x')=\innerH{\phi_\X(x)}{\phi_\X(x')}{\Hilbert_{k_\X}}$, 
+%Furthermore, 
+The inner product induces the norm $\norm{f}_{\Hilbert_{k_\X}}\!\!\!\!:=\!\!\sqrt{\smash[b]{\innerH{f}{f}{\Hilbert_{k_\X}}}}$ of the RKHS.
+%Note that $\Hilbert_{k_\X}$ is a space of functions $f:\X\rightarrow\R$. 
+%It is equipped with the infamous \emph{reproducing property} such that for any function $f\in\Hilbert_{k_\X}$ and $x\in\X$ we have $f(x)=\innerH{f}{\phi_\X(x)}{\Hilbert_{k_\X}}$.
+%Furthermore, the norm associated with the RKHS $\Hilbert_{k_\X}$ is defined as $\norm{f}_{\Hilbert_{k_\X}}:=\sqrt{\innerH{f}{f}{\Hilbert_{k_\X}}}$.
+%We refer the interested reader to XX for a comprehensive dissemination on RKHS.
+Throughout this paper, we assume that all RKHSs are \emph{separable}.
+Given $N$ i.i.d. samples $\hat X_N:=[\hat{x}_i]_{i=1}^N$ with $\hat{x}_i\in\X$, the
+\emph{Gram matrix} of $k_\X$ is given by
+$K_{\hat{X}}^N:=[k_\X(\hat{x}_i,\hat{x}_j)]_{i,j=1}^N.$
+Furthermore, we define the vector-valued function
+$k_{\hat{X}}^N(x)  := [k_\X(x,\hat{x}_i)]_{i=1}^N.$
 
 \subsection{Data-Driven Barrier Formulation}
 \label{sec:data-driven-barrier-formulation}
@@ -160,26 +189,26 @@ The number of spatial support vectors needed to construct adequately expressive 
 
 Apart from the memory efficiency of the spectral barrier form, we can apply the same idea to collapse the complex CME term in \eqref{eq:semiinf-prog-kushner} via the \emph{fast Fourier transform} (FFT). That is we obtain spectral coefficients $H\in\R^{(2M+1)\times (2M+1)}$ s.t.
 \begin{equation}
-    k^N_{\hat{X}}(x)\T\left[ K^N_{\hat{X}}+N\lambda I_N\right]^{-1\!} (\Phi_{M, \hat{X}^{+\!}}^{N})\T b \approx \phi_M(x)\T H b,\label{eq:cme-term-spectral-approx}
+  k^N_{\hat{X}}(x)\T\left[ K^N_{\hat{X}}+N\lambda I_N\right]^{-1\!} (\Phi_{M, \hat{X}^{+\!}}^{N})\T b \approx \phi_M(x)\T H b,\label{eq:cme-term-spectral-approx}
 \end{equation}
 where $\Phi_{M, \hat{X}^{+\!}}^{N} := [\phi_M(\hat{x}^+_1),\ldots,\phi_M(\hat{x}^+_N)]$.
-Whilst projection onto a truncated Fourier basis introduces an approximation error, the error decreases exponentially with the cardinality of wavenumbers in the basis \cite{rahimi2007random}. 
+Whilst projection onto a truncated Fourier basis introduces an approximation error, the error decreases exponentially with the cardinality of wavenumbers in the basis \cite{rahimi2007random}.
 % Our numerical results suggest that the empirical error is negligible.
 
 
 Substituting the barrier $B\in\Hilbert_M$ of the form \eqref{eq:representer-form-spectral} and the approximation of the CME term in \eqref{eq:cme-term-spectral-approx} into the SIP \eqref{eq:semiinf-prog}, we obtain the \emph{semi-infinite linear program} (SILP)
 \begin{subequations}
-\begin{align}
-    \min_{b, c, \eta, \gamma} \; &\frac{\eta + cT}{\gamma},\label{eq:semiinfLP-prog-objective}\\
+  \begin{align}
+    \min_{b, c, \eta, \gamma} \; & \frac{\eta + cT}{\gamma},\label{eq:semiinfLP-prog-objective}                                                 \\
     \text{s.t.}\quad
-    &\forall x_0\in\X_0:\,\phi_M(x_0)\T b\leq\eta,\label{eq:semiinfLP-prog-initial}\\
-    &\forall x_u\in\X_u:\,\phi_M(x_u)\T b\geq\gamma,\label{eq:semiinfLP-prog-unsafe}\\
-    &\forall x\in\X: \, \phi_M(x)\T (H b - b) \leq c - \varepsilon\bar{B}\kappa,\label{eq:semiinfLP-prog-kushner}\\
-    & \forall x\in\X:\,\phi_M(x)\T b\geq 0,\label{eq:semiinfLP-prog-positive}\\
-    &c\geq 0,\,\gamma>\eta\geq 0,\,b\in\R^{2M+1},\nonumber
-\end{align}\label{eq:semiinfLP-prog}%
+                                 & \forall x_0\in\X_0:\,\phi_M(x_0)\T b\leq\eta,\label{eq:semiinfLP-prog-initial}                               \\
+                                 & \forall x_u\in\X_u:\,\phi_M(x_u)\T b\geq\gamma,\label{eq:semiinfLP-prog-unsafe}                              \\
+                                 & \forall x\in\X: \, \phi_M(x)\T (H b - b) \leq c - \varepsilon\bar{B}\kappa,\label{eq:semiinfLP-prog-kushner} \\
+                                 & \forall x\in\X:\,\phi_M(x)\T b\geq 0,\label{eq:semiinfLP-prog-positive}                                      \\
+                                 & c\geq 0,\,\gamma>\eta\geq 0,\,b\in\R^{2M+1},\nonumber
+  \end{align}\label{eq:semiinfLP-prog}%
 \end{subequations}
-with coefficients $\kappa\geq\sigma_f$ and $\bar{B}\geq\norm{b}_2$. 
+with coefficients $\kappa\geq\sigma_f$ and $\bar{B}\geq\norm{b}_2$.
 
 \subsection{Finite-Constraint Relaxation}\label{sec:finite-constraint-relaxation}
 There exist results that establish deterministic sampling-based bounds for multivariate trigonometric polynomials \cite{cifuentes2017sampling,pfister2018bounding} that can be applied to the bandlimited spectral barrier in \eqref{eq:representer-form-spectral}. This allows us to relax the SILP \eqref{eq:semiinfLP-prog} to a \emph{linear program} (LP) with finitely many constraints by sampling a finite set
@@ -189,44 +218,71 @@ Note that this also substantially reduces the number of evaluations of the compu
 
 We use the following result by \cite{pfister2018bounding}.
 \begin{lemma}[Trigonometric bounds]\label{lem:trig-bound}
-    Consider a real-valued trigonometric polynomial $f:[0,1]^n\rightarrow\R$ (cf. \eqref{eq:representer-form-spectral}) with maximum degree $d\in\N_{\geq 0}$ and a sampling lattice $\Theta_Q:=\{\frac{2\pi l}{Q},\, l=0,\ldots,Q-1\}$ with $Q\geq 2d+1$.
-    Let $\bar{f}_{Q^n}:=\max_{z\in\Theta^n_Q} f(z)$ and $\underbar{f}_{Q^n}:=\min_{z\in\Theta^n_Q} f(z)$. Then, we have that
-    \begin{equation*}
-        \frac{1}{2}\big(\bar{f}_{Q^n} + \underbar{f}_{Q^n} - C_{Q^n}\left(\bar{f}_{Q^n}-\underbar{f}_{Q^n}\right)\big)
-        \leq
-        f(z)
-        \leq
-        \frac{1}{2}\big(\bar{f}_{Q^n} + \underbar{f}_{Q^n} + C_{Q^n}\left(\bar{f}_{Q^n}-\underbar{f}_{Q^n}\right)\big),
-    \end{equation*}
-    with a coefficient given by
-    \setlength{\belowdisplayskip}{3pt}
-    \begin{equation*}
-        C_{Q^n} := \left(1-\frac{2d}{Q}\right)^{-\frac{n}{2}}.
-    \end{equation*}
+  Consider a real-valued trigonometric polynomial $f:[0,1]^n\rightarrow\R$ (cf. \eqref{eq:representer-form-spectral}) with maximum degree $d\in\N_{\geq 0}$ and a sampling lattice $\Theta_Q:=\{\frac{2\pi l}{Q},\, l=0,\ldots,Q-1\}$ with $Q\geq 2d+1$.
+  Let $\bar{f}_{Q^n}:=\max_{z\in\Theta^n_Q} f(z)$ and $\underbar{f}_{Q^n}:=\min_{z\in\Theta^n_Q} f(z)$. Then, we have that
+  \begin{equation*}
+    \frac{1}{2}\big(\bar{f}_{Q^n} + \underbar{f}_{Q^n} - C_{Q^n}\left(\bar{f}_{Q^n}-\underbar{f}_{Q^n}\right)\big)
+    \leq
+    f(z)
+    \leq
+    \frac{1}{2}\big(\bar{f}_{Q^n} + \underbar{f}_{Q^n} + C_{Q^n}\left(\bar{f}_{Q^n}-\underbar{f}_{Q^n}\right)\big),
+  \end{equation*}
+  with a coefficient given by
+  \setlength{\belowdisplayskip}{3pt}
+  \begin{equation*}
+    C_{Q^n} := \left(1-\frac{2d}{Q}\right)^{-\frac{n}{2}}.
+  \end{equation*}
 \end{lemma}
 % \Oliver{The paper \cite{pfister2018bounding} provides a more complex expression for $C_{Q^n}$ that I put as [...]. They also provide the upper bound I use so far.}
 
 
 Via Lemma~\ref{lem:trig-bound}, we obtain a finite-constraint relaxation of the SIP \eqref{eq:semiinf-prog} based on the constraint-tightening reasoning
 \begin{equation*}
-    \frac{1}{2}\big(\mathrm{max}_{\hat{N}}^\X + \mathrm{min}_{\hat{N}}^\X - C_{\hat{N}}\left(\mathrm{max}_{\hat{N}}^\X-\mathrm{min}_{\hat{N}}^\X\right)\big)\geq \mathrm{lb}
-    \quad\Longrightarrow\quad
-    \forall x\in\X: f(x) \geq \mathrm{lb},
+  \frac{1}{2}\big(\mathrm{max}_{\hat{N}}^\X + \mathrm{min}_{\hat{N}}^\X - C_{\hat{N}}\left(\mathrm{max}_{\hat{N}}^\X-\mathrm{min}_{\hat{N}}^\X\right)\big)\geq \mathrm{lb}
+  \quad\Longrightarrow\quad
+  \forall x\in\X: f(x) \geq \mathrm{lb},
 \end{equation*}
 where $\mathrm{max}_{\hat{N}}^\X:=\max_{x\in X_{\hat{N}}} \left\lbrace\phi_M(x)\T b\right\rbrace$ and $\mathrm{min}_{\hat{N}}^\X:=\min_{x\in X_{\hat{N}}} \left\lbrace\phi_M(x)\T b\right\rbrace$ for some desired lower bound $\mathrm{lb}\in\R$.
-Thus, we obtain strengthened constraints of the form 
+Thus, we obtain strengthened constraints of the form
 \begin{align*}
-    &\frac{1}{2}\big(\mathrm{max}_{\hat{N}}^\X + \mathrm{min}_{\hat{N}}^\X - C_{\hat{N}}\left(\mathrm{max}_{\hat{N}}^\X-\mathrm{min}_{\hat{N}}^\X\right)\big) \geq \mathrm{lb},\\
-    \Leftrightarrow\hspace{10pt} &
-    \mathrm{min}_{\hat{N}}^\X \geq \frac{2}{C_{\hat{N}}+1}\mathrm{lb} + \frac{C_{\hat{N}}-1}{C_{\hat{N}}+1}\mathrm{max}_{\hat{N}}^\X.
+                               & \frac{1}{2}\big(\mathrm{max}_{\hat{N}}^\X + \mathrm{min}_{\hat{N}}^\X - C_{\hat{N}}\left(\mathrm{max}_{\hat{N}}^\X-\mathrm{min}_{\hat{N}}^\X\right)\big) \geq \mathrm{lb}, \\
+  \Leftrightarrow\hspace{10pt} &
+  \mathrm{min}_{\hat{N}}^\X \geq \frac{2}{C_{\hat{N}}+1}\mathrm{lb} + \frac{C_{\hat{N}}-1}{C_{\hat{N}}+1}\mathrm{max}_{\hat{N}}^\X.
 \end{align*}
 For an upper bound $\forall x\in\X: f(x) \leq \mathrm{ub}$, we obtain analogous constraints of the form
 \begin{equation*}
-    \mathrm{max}_{\hat{N}}^\X \geq \frac{2}{C_{\hat{N}}+1}\mathrm{ub} + \frac{C_{\hat{N}}-1}{C_{\hat{N}}+1}\mathrm{min}_{\hat{N}}^\X.
+  \mathrm{max}_{\hat{N}}^\X \geq \frac{2}{C_{\hat{N}}+1}\mathrm{ub} + \frac{C_{\hat{N}}-1}{C_{\hat{N}}+1}\mathrm{min}_{\hat{N}}^\X.
 \end{equation*}
 
-\vfill
+\subsection{Tuning the Hyperparameters}
+\label{sec:tuning-hyperparameters}
 
+Kernel methods do not require the expensive learning process of other machine learning methods, such as neural networks.
+However, they still depend on a number of \hp, such as the kernel bandwidth $\sigma_f$ and the number of Fourier coefficients $M$.
+Changes in their values can have a significant impact on the estimator's efficiency and accuracy.
+The process of finding good values for these \hp is known as \emph{hyperparameter tuning}, and it is problem-dependent.
+
+There are several approaches to find the optimal \hp for a given problem.
+A cheap option which can be used as a starting point when working with a Gaussian Kernels as in~\eqref{eq:gaussian-kernel} is to use the \emph{median heuristic} \cite{garreau2018largesampleanalysismedian}.
+We choose $\sigma_l^2$ to be the median of the squared distances between all pairs of points in the training set, i.e.,
+\begin{equation}
+  \sigma_l^2 = \mathrm{median}_{1 \leq i < j \leq N}\left(\|\hat{x}_i-\hat{x}_j\|^2\right),
+\end{equation}
+where $\hat{x}_1,\ldots,\hat{x}_N$ are the $N$ training samples.
+If $N(N-1)/2$ is even, the median is the average of the two middle values in the sorted list of distances.
+Better results can be obtained via \emph{grid search}, which consists of evaluating the performance of the estimator for all combinations of \hp in a predefined grid.
+This approach is simple to implement and can be very effective for small problems, but it can become computationally expensive for larger problems.
+Borrowing a technique from Gaussian processes, we can also try to optimize the \hp to maximize the \emph{log marginal likelihood}, defined as
+\begin{equation}
+  \log p(\hat{X^+}_N | \hat{X}_N) = - \frac{1}{2}\hat{X^+}_N\T (K_{\hat{X}}^N + N\lambda I_N)^{-1} \hat{X^+}_N -\frac{1}{2}\log |K_{\hat{X}}^N + N\lambda I_N| - \frac{N}{2}\log(2\pi).
+\end{equation}
+
+\paragraph{Implementation}
+
+While it is possible to tune the \hp with any method and then set them manually in the estimator, \lucid provides a set of classes, which specialize the \texttt{Tuner} interface, to automate the process.
+The \texttt{GridSearchTuner} class implements the grid search method, while the \texttt{MedianHeuristicTuner} class implements the median heuristic.
+If the user wants to optimize the log marginal likelihood, they can use the \texttt{LBGSTuner} class, which runs the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming} over the log marginal likelihood function.
+Internally, \lucid uses the \texttt{LBFGS++} library~\footnote{https://github.com/yixuan/LBFGSpp} to perform the optimization.
 
 \section{Benchmarks}
 \label{sec:benchmarks}

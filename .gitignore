@@ -28,6 +28,7 @@ MODULE.bazel.lock
 # User-specific .bazelrc
 user.bazelrc
 /.venv/
+*.lp
 
 ## Python ##
 # Byte-compiled / optimized / DLL files
