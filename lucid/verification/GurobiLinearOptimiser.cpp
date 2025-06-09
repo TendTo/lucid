@@ -51,12 +51,12 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   LUCID_DEBUG_FMT("C: {}", C);
 
   GRBEnv env{true};
+  env.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
   env.start();
   GRBModel model{env};
   model.set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
   model.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
   model.set(GRB_DoubleParam_TimeLimit, 10000);
-  model.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
 
   // Specify constraints
   // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
