@@ -104,7 +104,7 @@ TEST_F(TestKernelRidgeRegressor, HiddenKernelParameter) {
    public:
     HiddenKernel() : Kernel{static_cast<Parameters>(Parameter::REGULARIZATION_CONSTANT)} {}
     [[nodiscard]] bool is_stationary() const override { return true; }
-    Matrix operator()(ConstMatrixRef, const ConstMatrixRef&, std::vector<Matrix>*) const override { return {}; }
+    Matrix operator()(ConstMatrixRef, ConstMatrixRef, std::vector<Matrix>*) const override { return {}; }
     [[nodiscard]] std::unique_ptr<Kernel> clone() const override { return std::make_unique<HiddenKernel>(); }
   };
 

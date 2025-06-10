@@ -20,14 +20,14 @@ class ModelEstimator(Estimator):
         super().__init__()
         self._f = f
 
-    def predict(self, x: np.typing.NDArray[np.float64]) -> np.typing.NDArray[np.float64]:
+    def predict(self, x: "np.typing.NDArray[np.float64]") -> "np.typing.NDArray[np.float64]":
         """Predict the next state given the current state by applying the model function."""
         return self._f(x)
 
     def consolidate(
         self,
-        training_inputs: np.typing.NDArray[np.float64],
-        training_outputs: np.typing.NDArray[np.float64],
+        training_inputs: "np.typing.NDArray[np.float64]",
+        training_outputs: "np.typing.NDArray[np.float64]",
         requests: "int",
     ) -> "ModelEstimator":
         """Consolidate the model with the training data.
@@ -37,7 +37,7 @@ class ModelEstimator(Estimator):
         return self
 
     def score(
-        self, evaluation_inputs: np.typing.NDArray[np.float64], evaluation_outputs: np.typing.NDArray[np.float64]
+        self, evaluation_inputs: "np.typing.NDArray[np.float64]", evaluation_outputs: "np.typing.NDArray[np.float64]"
     ) -> float:
         """Score the model based on the evaluation data.
 

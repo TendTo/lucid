@@ -13,38 +13,17 @@ You can either run it withing the Bazel environment, or you can install it in yo
 > [!NOTE]  
 > All bindings use the C++ Lucid library under the hood, which means that you need to ensure all the requirements listed in the [Installation](Installation.md) section are met.
 
-### Running with Bazel
-
-Write your script somewhere in the `lucid` directory.
-In the same directory, create or update the file called `BUILD` with the following content:
-
-```bzl
-
-py_binary(
-    name = "my_script",
-    srcs = ["main.py"],
-    main = "main.py",
-    python_version = "PY3",
-    deps = [
-        "@lucid//bindings/pylucid:pylucid_lib",
-    ],
-)
-```
-
-Then, run your script using the following command:
-
-```bash
-bazel run //path/to/your/script:your_script
-```
-
 ### Installing in your Python environment
 
 You can install the bindings in your Python environment using the following command:
 
 ```bash
-# Make sure you are in the lucid directory root directory and install pylucid
+# Make sure you are in the lucid root directory
 pip install .
 ```
+
+> [!TIP]  
+> It is recommended to use a virtual environment or a conda environment to avoid conflicts with other packages.
 
 This will install the bindings in your Python environment, allowing you to use them directly from Python.
 After installing, you can run the following command to check if everything is working correctly:
@@ -190,6 +169,31 @@ python3 my_main.py
 </ul>
 
 </div>
+
+### Running with Bazel
+
+Instead of installing the bindings in your Python environment, you can also run your scripts within the environment managed by Bazel.
+Write your script somewhere in the `lucid` directory.
+In the same directory, create or update the file called `BUILD` with the following content:
+
+```bzl
+
+py_binary(
+    name = "my_script",
+    srcs = ["main.py"],
+    main = "main.py",
+    python_version = "PY3",
+    deps = [
+        "@lucid//bindings/pylucid:pylucid_lib",
+    ],
+)
+```
+
+Then, run your script using the following command:
+
+```bash
+bazel run //path/to/your/script:your_script
+```
 
 ### Troubleshooting
 
