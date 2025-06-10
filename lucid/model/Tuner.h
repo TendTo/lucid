@@ -23,6 +23,11 @@ class Estimator;
  */
 class Tuner {
  public:
+  explicit Tuner() = default;
+  Tuner(const Tuner &tuner) = default;
+  Tuner(Tuner &&tuner) = default;
+  Tuner &operator=(const Tuner &tuner) = default;
+  Tuner &operator=(Tuner &&tuner) = default;
   virtual ~Tuner() = default;
 
   /**
@@ -33,7 +38,7 @@ class Tuner {
    * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
    * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
    */
-  void tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const;
+  void tune(Estimator &estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const;
 
  protected:
   /**
@@ -45,11 +50,11 @@ class Tuner {
    * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
    * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
    */
-  virtual void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+  virtual void tune_impl(Estimator &estimator, ConstMatrixRef training_inputs,
                          ConstMatrixRef training_outputs) const = 0;
 };
 
-std::ostream& operator<<(std::ostream& os, const Tuner& tuner);
+std::ostream &operator<<(std::ostream &os, const Tuner &tuner);
 
 }  // namespace lucid
 
