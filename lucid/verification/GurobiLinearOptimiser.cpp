@@ -9,6 +9,7 @@
 #include <limits>
 #include <memory>
 #include <span>
+#include <string>
 #include <utility>
 
 #include "lucid/lib/gurobi.h"

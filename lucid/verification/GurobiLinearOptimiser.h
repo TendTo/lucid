@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <string>
+
 #include "lucid/lib/eigen.h"
 
 namespace lucid {

@@ -130,12 +130,12 @@ lucid_cc_library(
     implementation_deps = [
         "//lucid/util:error",
         "//lucid/util:index_iterator",
-        "//lucid/util:logging",
         "//lucid/util:math",
     ],
     deps = [
         ":set",
         "//lucid/lib:eigen",
+        "//lucid/util:logging",
     ],
 )
 
