@@ -36,10 +36,19 @@ namespace lucid {
  */
 class TruncatedFourierFeatureMap : public FeatureMap {
  public:
+  /**
+   * Construct a truncated Fourier feature map.
+   * @pre `num_frequencies` must be greater than 0.
+   * @pre `sigma_f` must be greater than 0.
+   * @param num_frequencies number of frequencies per dimension
+   * @param prob_dim_wise probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
+   * @param sigma_f scaling factor
+   * @param x_limits domain of the input space, @XsubRd
+   */
   TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_dim_wise, Scalar sigma_f, const RectSet& x_limits);
 
   /**
-   * Given an @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.
+   * Given a @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.
    * @param x input vector
    * @return @f$ 2 M + 1 @f$ dimensional feature map
    */

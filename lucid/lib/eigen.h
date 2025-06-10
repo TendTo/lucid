@@ -180,8 +180,8 @@ Matrix combvec(ConstMatrixRef m1, ConstMatrixRef m2, const Ms&... matrices) {
     return combvec(res, matrices...);
 }
 /**
- * Given a @mxn matrix `m` treat each row vector as a separate matrix
- * and return their combination using @ref combvec(m1, m2, matrices...).
+ * Given a matrix `m` treat each row vector as a separate matrix
+ * and return their combination using @ref combvec.
  * @param m matrix
  * @return matrix with all combinations of column vectors
  * @see https://www.mathworks.com/help/deeplearning/ref/combvec.html

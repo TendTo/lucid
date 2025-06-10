@@ -51,14 +51,17 @@ LUCID_FLAG_ENUMS(Parameter, Parameters, GRADIENT_OPTIMIZABLE)
 
 namespace internal {
 
+/** Type helper for integer typed parameters */
 struct ParameterTypeInt {
   using type = int;
   using ref_type = int;
 };
+/** Type helper for double typed parameters */
 struct ParameterTypeDouble {
   using type = double;
   using ref_type = double;
 };
+/** Type helper for vector typed parameters */
 struct ParameterTypeVector {
   using type = Vector;
   using ref_type = const Vector&;

@@ -88,7 +88,7 @@ class KernelRidgeRegressor final : public GradientOptimizable {
    * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
    * The `feature_map` is used to approximate the kernel vector @f$ k(x, x_i) @f$.
    * @warning Using this method introduces an approximation error.
-   * We suggest using the @ref operator(ConstMatrixRef) method instead.
+   * We suggest using the @ref operator()(ConstMatrixRef) method instead.
    * @param x @f$ n \times d_x @f$ matrix of row vectors in @f$ \mathcal{X} @f$
    * @param feature_map feature map used to approximate the kernel vector @f$ k(x, x_i) @f$
    * @return @f$ n \times d_y @f$ matrix of row vectors in @f$ \mathcal{Y} @f$
@@ -99,7 +99,7 @@ class KernelRidgeRegressor final : public GradientOptimizable {
    * @f$ and returns a @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$.
    * The `feature_map` is used to approximate the kernel vector @f$ k(x, x_i) @f$.
    * @warning Using this method introduces an approximation error.
-   * We suggest using the @ref operator(ConstMatrixRef) method instead.
+   * We suggest using the @ref operator()(ConstMatrixRef) method instead.
    * @param x @f$ n \times d_x @f$ matrix of row vectors in @f$ \mathcal{X} @f$
    * @param feature_map feature map used to approximate the kernel vector @f$ k(x, x_i) @f$
    * @return @f$ n \times d_y @f$ matrix of row vectors in @f$ \mathcal{Y} @f$

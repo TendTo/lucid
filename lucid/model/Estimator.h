@@ -122,7 +122,7 @@ class Estimator : public Parametrizable {
    * we want to give a numerical score to the model's predictions @f$ \hat{y} = \{ \hat{y}_1, \dots, \hat{y}_n \} @f$
    * with respect to the true outputs @f$ y = \{ y_1, \dots, y_n \},
    * where y_i \in \mathcal{Y} \subseteq \mathbb{R}^{d_y}, 0 \le i \le n @f$.
-   * @pre The methods @ref fit or @ref update should have been called at least once before calling this method.
+   * @pre The methods @ref fit or @ref consolidate should have been called at least once before calling this method.
    * @param evaluation_inputs @nxdx evaluation input data
    * @param evaluation_outputs @nxdy evaluation output data
    * @return score of the model

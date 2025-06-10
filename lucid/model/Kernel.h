@@ -20,6 +20,14 @@ namespace lucid {
 
 /**
  * Represents a kernel function.
+ * Given a vector space @XsubRd, a kernel @f$ k : \mathcal{X} \times \mathcal{X} \to \mathbb{R} @f$
+ * is a positive definite function that uniquely identifies a reproducing kernel Hilbert space (RKHS) @H
+ * that contains functions @f$ f : \mathcal{X} \to \mathbb{R} @f$.
+ * Moreover, we are guaranteed the property
+ * @f[
+ * f(x) = \langle f, k(x, \cdot) \rangle_\mathcal{H}
+ * @f]
+ * for all @f$ x \in \mathcal{X} @f$ and @f$ f \in \mathcal{H} @f$,
  */
 class Kernel : public Parametrizable {
  public:
@@ -31,8 +39,9 @@ class Kernel : public Parametrizable {
   /**
    * Compute the kernel function on @x1 and @x2, both being matrices of row vectors in @XsubRd,
    * @f[
-   * K(x_1, x_2) .
+   * k(x_1, x_2) .
    * @f]
+   * @pre `x1` and `x2` must have the same number of columns.
    * @tparam DerivedX type of the first input matrix
    * @tparam DerivedY type of the second input matrix
    * @param x1 @n1xd first input row matrix
@@ -46,7 +55,7 @@ class Kernel : public Parametrizable {
   /**
    * Compute the kernel function on @x, which is a matrix of row vectors in @XsubRd,
    * @f[
-   * K(x, x) .
+   * k(x, x) .
    * @f]
    * @tparam Derived type of the input matrix
    * @param x @nxd input matrix
@@ -60,7 +69,7 @@ class Kernel : public Parametrizable {
   /**
    * Compute the kernel function on @x, which is a matrix of row vectors in @XsubRd,
    * @f[
-   * K(x, x) .
+   * k(x, x) .
    * @f]
    * Moreover, compute the gradient of the kernel function and store it in `gradient`.
    * @tparam Derived type of the input matrix
@@ -85,14 +94,14 @@ class Kernel : public Parametrizable {
   /**
    * Compute the kernel function on @x1 and @x2, both being matrices of row vectors in @XsubRd,
    * @f[
-   * K(x_1, x_2) .
+   * k(x_1, x_2) .
    * @f]
    * If `gradient` is not `nullptr`, the gradient of the kernel function with respect to the parameters
    * is computed and stored in `*gradient`.
-   * @pre `X1` and `X2` must have the same number of columns.
+   * @pre `x1` and `x2` must have the same number of columns.
    * @param x1 @n1xd first input matrix
    * @param x2 @n2xd second input matrix
-   * @param[out] gradient pointer to store the gradient of the kernel function with respect to the parameters dimensions
+   * @param[out] gradient pointer to store the gradient of the kernel function with respect to the kernel parameters
    * @return kernel value
    */
   virtual Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const = 0;

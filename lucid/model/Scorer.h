@@ -65,7 +65,7 @@ double r2_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, Co
  * @f]
  * where @f$ n @f$ is the number of rows in the evaluation data.
  * The MSE score is always non-negative, and a lower value indicates a better fit.
- * @warning The MSE score is negative by definition in this implementation.
+ * @warning The MSE score is non-positive by definition in this implementation.
  * @pre The estimator must be able to make predictions,
  * i.e., it should have been fitted or consolidated before calling this method.
  * @pre The estimator's prediction must belong to a vector space with the same number of dimensions

@@ -20,14 +20,14 @@ namespace lucid {
 /**
  * Gram Matrix obtained from a kernel function.
  * Given a vector space @X and a kernel function @f$ k: \mathcal{X} \times \mathcal{X} \to \mathbb{R} @f$,
- * the Gram matrix is defined as the matrix @f$ K \in \mathbb{R}^{s \times s} @f$ where @f$ K_{ij} = k(x_i, x_j) @f$ or,
+ * the Gram matrix is defined as the matrix @f$ K \in \mathbb{R}^{n \times n} @f$ where @f$ K_{ij} = k(x_i, x_j) @f$ or,
  * equivalently,
  * @f[
  * K = \begin{bmatrix}
- *     k(x_1, x_1) & k(x_1, x_2) & \cdots & k(x_1, x_s) \\
- *     k(x_2, x_1) & k(x_2, x_2) & \cdots & k(x_2, x_s) \\
+ *     k(x_1, x_1) & k(x_1, x_2) & \cdots & k(x_1, x_n) \\
+ *     k(x_2, x_1) & k(x_2, x_2) & \cdots & k(x_2, x_n) \\
  *     \vdots      & \vdots      & \ddots & \vdots      \\
- *     k(x_s, x_1) & k(x_s, x_2) & \cdots & k(x_s, x_s)
+ *     k(x_n, x_1) & k(x_n, x_2) & \cdots & k(x_n, x_n)
  * \end{bmatrix} .
  * @f]
  */
@@ -35,10 +35,10 @@ class GramMatrix {
  public:
   /**
    * Compute the Gram matrix from the kernel and the initial states.
-   * The initial states should be an @Nxn matrix where @n is the dimension of the vector space @X
-   * and @N is the number of states used to compute the Gram matrix, i.e.
+   * The initial states should be an @nxd matrix where @d is the dimension of the vector space @XsubRd
+   * and @n is the number of states used to compute the Gram matrix, i.e.
    * @f[
-   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
+   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{bmatrix} .
    * @f]
    * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
    * @param kernel rkhs kernel used to compute the Gram matrix
@@ -48,32 +48,32 @@ class GramMatrix {
   GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states) : gram_matrix_{kernel(initial_states)} {}
   /**
    * Compute the Gram matrix from the kernel and the initial states.
-   * The initial states should be an @Nxn matrix where @n is the dimension of the vector space @X
-   * and @N is the number of states used to compute the Gram matrix, i.e.
+   * The initial states should be an @nxd matrix where @d is the dimension of the vector space @XsubRd
+   * and @n is the number of states used to compute the Gram matrix, i.e.
    * @f[
-   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
+   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{bmatrix} .
    * @f]
-   * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
+   * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le n @f$.
    * Moreover, compute and store the `gradient`.
    * @param kernel rkhs kernel used to compute the Gram matrix
    * @param initial_states @N initial states used to compute the Gram matrix
-   * @param gradient[out] gradient of the kernel with the current parameters
+   * @param[out] gradient gradient of the kernel with the current parameters
    */
   template <class Derived>
   GramMatrix(const Kernel& kernel, const MatrixBase<Derived>& initial_states, std::vector<Matrix>& gradient)
       : gram_matrix_{kernel(initial_states, gradient)} {}
   /**
    * Compute the Gram matrix from the kernel and the initial states.
-   * The initial states should be an @Nxn matrix where @n is the dimension of the vector space @X
-   * and @N is the number of states used to compute the Gram matrix, i.e.
+   * The initial states should be an @nxd matrix where @d is the dimension of the vector space @XsubRd
+   * and @n is the number of states used to compute the Gram matrix, i.e.
    * @f[
-   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_s \end{bmatrix} .
+   * \text{initial_states} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{bmatrix} .
    * @f]
-   * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le s @f$.
+   * with @f$ x_i \in \mathcal{X} @f$ for @f$ 1 \le i \le n @f$.
    * Moreover, compute and store the `gradient` if it is not `nullptr`.
    * @param kernel rkhs kernel used to compute the Gram matrix
    * @param initial_states @N initial states used to compute the Gram matrix
-   * @param gradient[out] gradient of the kernel with the current parameters
+   * @param[out] gradient gradient of the kernel with the current parameters
    * If `nullptr`, the gradient will not be* computed
    */
   template <class Derived>
@@ -81,9 +81,9 @@ class GramMatrix {
       : gram_matrix_{gradient ? kernel(initial_states, *gradient) : kernel(initial_states)} {}
 
   /**
-   * Given the initial state @f$ x \in \mathcal{X} @f$, compute the coefficients @f$ \alpha \in \mathbb{R}^s @f$.
+   * Given the initial state @f$ x \in \mathcal{X} @f$, compute the coefficients @f$ \alpha \in \mathbb{R}^n @f$.
    * The coefficients will be stored to be used later to interpolate the transition function on an arbitrary state.
-   * @param transition_states @N row vector states obtained after applying the transition function to each initial state
+   * @param transition_states @n row vector states obtained after applying the transition function to each initial state
    */
   void compute_coefficients(const Matrix& transition_states);
 

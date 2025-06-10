@@ -73,7 +73,6 @@ class TensorView {
    * @tparam Is varadic remaining permuted axis types
    * @param i axis to put in the first dimension
    * @param is remaining permuted axes
-   * @return reference to this object
    */
   template <IsAnyOf<int, float, double, std::complex<double>> TT, std::convertible_to<const std::size_t> I, class... Is>
   void permute(TensorView<TT>& out, I i, Is... is) const {
@@ -189,7 +188,6 @@ class TensorView {
    * @pre The `out` tensor must have the same shape as the input tensor plus `padding`
    * @param[out] out padded output tensor
    * @param padding padding for each dimension
-   * @return padded tensor
    */
   void pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const;
   /**
@@ -202,7 +200,6 @@ class TensorView {
    * @param[out] out padded output tensor
    * @param padding padding for each dimension
    * @param start_padding the index where the padding starts for each dimension
-   * @return padded tensor
    */
   void pad(TensorView<T>& out, const std::vector<Index>& padding, const std::vector<Index>& start_padding) const;
 

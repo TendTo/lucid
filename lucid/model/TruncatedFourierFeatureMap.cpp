@@ -23,6 +23,8 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
       weights_{::lucid::pow(num_frequencies, x_limits.dimension()) * 2 - 1},
       sigma_f_{sigma_f},
       x_limits_{x_limits} {
+  LUCID_CHECK_ARGUMENT_EXPECTED(num_frequencies > 0, "num_frequencies", num_frequencies, "> 0");
+  LUCID_CHECK_ARGUMENT_EXPECTED(sigma_f > 0, "sigma_f", sigma_f, "> 0");
   LUCID_CHECK_ARGUMENT_EXPECTED(prob_dim_wise.rows() == x_limits.dimension(), "sigma_l.size() == x_limits.dimension()",
                                 prob_dim_wise.rows(), x_limits.dimension());
   // Iterate over all possible combinations where the values in the vector can go from 0 to num_frequencies_ - 1

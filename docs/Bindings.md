@@ -193,7 +193,7 @@ python3 my_main.py
 
 ### Troubleshooting
 
-#### ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory</b>
+#### ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory
 
 This error occurs when the expected Python shared library is not found in the expected location on the system
 To fix this, you need to set the `LD_LIBRARY_PATH` environment variable to include the path to the Python library.

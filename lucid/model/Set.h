@@ -15,7 +15,7 @@
 namespace lucid {
 
 /**
- * Generic set over an @n dimensional vector space @f$ \mathcal{U} \subseteq \mathbb{R}^n @f$.
+ * Generic set over a @d dimensional vector space @XsubRd.
  * It can be used to test if a vector is in the set and to sample elements from the set.
  */
 class Set {
@@ -27,35 +27,35 @@ class Set {
   Set& operator=(Set&&) = default;
   virtual ~Set() = default;
 
-  /** @getter{dimension, set @U} */
+  /** @getter{dimension, set @X} */
   [[nodiscard]] virtual Dimension dimension() const = 0;
   /**
-   * Extract @N elements from @U using some kind of random distribution.
-   * @param num_samples number of samples to generate @s
-   * @return @Nxn matrix of samples, where @n is the dimension of @U.
+   * Extract @N elements from @X using some kind of random distribution.
+   * @param num_samples number of samples to generate @N
+   * @return @nxd matrix of samples, where @d is the dimension of @X.
    * In other words, the samples are stored as rows vectors in the matrix
    */
   [[nodiscard]] virtual Matrix sample(Index num_samples) const = 0;
   /**
-   * Extract an element from @U using some kind of random distribution.
+   * Extract an element from @X using some kind of random distribution.
    * @return element of the set
    */
   [[nodiscard]] Vector sample() const;
   /**
-   * Check if a vector is in @U.
+   * Check if a vector is in @X.
+   * @pre @x must have the same dimension as the set
    * @param x vector to test
    * @return true if @x is in the set
    * @return false if @x is not in the set
-   * @pre @x must have the same dimension as the set
    */
   [[nodiscard]] bool contains(ConstMatrixRef x) const { return (*this)(x); }
 
   /**
-   * Check if a vector is in @U.
+   * Check if a vector is in @X.
+   * @pre @x must have the same dimension as the set
    * @param x vector to test
    * @return true if @x is in the set
    * @return false if @x is not in the set
-   * @pre @x must have the same dimension as the set
    */
   [[nodiscard]] virtual bool operator()(ConstMatrixRef x) const = 0;
 
@@ -79,9 +79,9 @@ class Set {
   /** Plot the set information using matplotlib in 3D. */
   virtual void plot3d(const std::string& color) const = 0;
   /**
-   * Extract @N elements element from @U using some kind of random distribution, where @N is the number of rows in @x.
-   * @param[out] x @Nxn matrix to store the elements
-   * @return @Nxn matrix of samples, where @n is the dimension of @U.
+   * Extract @N elements element from @X using some kind of random distribution, where @N is the number of rows in @x.
+   * @param[out] x @nxd matrix to store the elements
+   * @return @nxd matrix of samples, where @d is the dimension of @X.
    */
   template <class Derived>
   Eigen::MatrixBase<Derived>& operator>>(Eigen::MatrixBase<Derived>& x) const {
