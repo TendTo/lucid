@@ -174,10 +174,10 @@ python3 my_main.py
 
 Instead of installing the bindings in your Python environment, you can also run your scripts within the environment managed by Bazel.
 Write your script somewhere in the `lucid` directory.
-In the same directory, create or update the file called `BUILD` with the following content:
+In the same directory, create or update the file called `BUILD.bazel` with the following content:
 
 ```bzl
-
+# BUILD.bazel
 py_binary(
     name = "my_script",
     srcs = ["main.py"],
@@ -204,13 +204,13 @@ To fix this, you need to set the `LD_LIBRARY_PATH` environment variable to inclu
 You can do this by running the following command:
 
 ```bash
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/python/lib
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/path/to/python/lib"
 ```
 
 For example, if you are using Python 3.12 via `conda`
 
 ```bash
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(conda info --base)/envs/your_env/lib
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(conda info --base)/envs/your_env/lib"
 ```
 
 This change will only last for the current session.

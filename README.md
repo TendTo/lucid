@@ -1,8 +1,6 @@
-# LUCID — Lifting-based Uncertain Control Invariant Dynamics  
-*Probabilistic Verification Engine for Black-Box Dynamical Systems*
+# LUCID — Lifting-based Uncertain Control Invariant Dynamics
 
-
-
+_Probabilistic Verification Engine for Black-Box Dynamical Systems_
 
 [![lucid CI](https://github.com/TendTo/lucid/actions/workflows/lucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/lucid.yml)
 [![pylucid CI](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml)
@@ -13,7 +11,6 @@
 <!-- Necessary to load the image in the Doxygen output folder. Do not remove! -->
 <img src="docs/_static/lucid-banner.png" alt="Lucid banner">
 </div>
-
 
 > My integral is your table.  
 > -- _[Oliver Schön](https://oliverschon.com/)_
@@ -34,6 +31,7 @@ For more details, see the [installation instructions](docs/Installation.md).
 ```bash
 # Pull the image
 docker pull ghcr.io/tendto/lucid:main
+
 # Run the image on script/path/to/script.py.
 # Needs the Gurobi WS licence /path/to/gurobi.lic
 docker run --name lucid -it --rm \
@@ -49,8 +47,9 @@ docker run --name lucid -it --rm \
 - [Bazel](https://bazel.build/) 8.1.1
 - [Python](https://www.python.org/) 3.8 or higher
 - C++ compiler with C++20 support
-    - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
-    - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+  - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
+  - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+  - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
 #### Command
@@ -58,16 +57,22 @@ docker run --name lucid -it --rm \
 ```bash
 # Clone the repository
 git clone https://github.com/TendTo/lucid.git
+
 # Change directory
 cd lucid
+
 # Create a virtual environment (optional)
 python3 -m venv .venv
+
 # Activate the virtual environment on Linux (optional)
 source .venv/bin/activate
+
 # Activate the virtual environment on Windows (optional)
-.\.venv\Scripts\activate
+.venv\Scripts\activate
+
 # Install the python wrapper (pylucid)
 pip install .
+
 # Ensure pylucid is installed
 python3 -c "import pylucid; print(pylucid.__version__)"
 ```
@@ -78,8 +83,9 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 
 - [Bazel](https://bazel.build/) 8.1.1
 - C++ compiler with C++20 support
-    - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
-    - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+  - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
+  - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+  - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
 > [!Important]  
@@ -91,8 +97,10 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 ```bash
 # Clone the repository
 git clone https://github.com/TendTo/lucid.git
+
 # Change directory
 cd lucid
+
 # Compile and run lucid
 bazel run //lucid -- [args]
 ```

@@ -14,8 +14,12 @@ readonly regex_match_slash_curly_math='([^\])\\(\{|\})'
 readonly regex_substitute_slash_curly_math='\1\\\\\2'
 
 # KNOWN LIMITATION: breaks if the character ` is used in the mermaid code
-readonly regex_match_mermaid='```mermaid\n([^\`]*)```'
+readonly regex_match_mermaid='```mermaid\n([^\`]*)\n```'
 readonly regex_substitute_mermaid="<pre class='mermaid'>\n\1<\/pre>"
+
+# KNOWN LIMITATION: breaks if the character ` is used in the code
+readonly regex_match_code='```(\w+)\n([^`]*)\n```'
+readonly regex_substitute_code="<pre><code class='fragment language-\1'>\2<\/code><\/pre>"
 
 readonly regex_title_logo='<img alt="Icon" src="docs\/_static\/logo.svg" align="left" width="35" height="35">'
 
@@ -26,4 +30,5 @@ cat "${1}" \
     -e "s/$regex_match_math/$regex_substitute_math/g" \
     -e "s/$regex_title_logo//g" \
 | sed -E -z  \
-    -e "s/$regex_match_mermaid/$regex_substitute_mermaid/g"
+    -e "s/$regex_match_mermaid/$regex_substitute_mermaid/g" \
+    -e "s/$regex_match_code/$regex_substitute_code/g"

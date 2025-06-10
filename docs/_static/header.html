@@ -25,7 +25,15 @@
   <script type="text/javascript" src="$relpath^doxygen-awesome-paragraph-link.js"></script>
   <script type="text/javascript" src="$relpath^doxygen-awesome-interactive-toc.js"></script>
   <script type="text/javascript" src="$relpath^doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="$relpath^highlight.min.js"></script>
   <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
     DoxygenAwesomeFragmentCopyButton.init();
     DoxygenAwesomeDarkModeToggle.init();
     DoxygenAwesomeParagraphLink.init();
@@ -38,7 +46,8 @@
 </head>
 
 <body>
-  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank" rel="noopener noreferrer">
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
     <svg viewBox="0 0 250 250" width="40" height="40"
       style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
       <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>

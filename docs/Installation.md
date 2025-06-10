@@ -41,6 +41,7 @@ Other versions may work as well, but they have not been tested.
 - C++ compiler with C++20 support
   - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
   - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
+  - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
 > [!NOTE]  
@@ -56,6 +57,7 @@ Assuming all requirements have been met, the first step is to obtain the source 
 ```bash
 # Clone the repository
 git clone https://github.com/TendTo/lucid.git
+
 # Change directory
 cd lucid
 ```

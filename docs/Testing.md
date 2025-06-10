@@ -16,8 +16,10 @@ To only run a subset of the available tests, there are multiple options:
 ```bash
 # Run all the unit tests
 bazel test //tests/unit/...
+
 # Run all the integration tests
 bazel test //tests/integration/...
+
 # Run a specific test (the logging test in this case)
 bazel test //tests/unit/util:test_logging
 ```
