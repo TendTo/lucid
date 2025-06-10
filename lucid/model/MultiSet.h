@@ -52,9 +52,6 @@ class MultiSet final : public Set {
   /** @todo Improve the naive implementation that only concatenates the lattices from the internal sets (polytopes?) */
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
 
-  void plot(const std::string& color) const override;
-  void plot3d(const std::string& color) const override;
-
  private:
   std::vector<std::unique_ptr<Set>> sets_;  ///< Sets in the union
   std::uniform_int_distribution<> dis_;     ///< Random distribution for picking the set to sample from

@@ -74,10 +74,6 @@ class Set {
    */
   [[nodiscard]] virtual Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const = 0;
 
-  /** Plot the set information using matplotlib. */
-  virtual void plot(const std::string& color) const = 0;
-  /** Plot the set information using matplotlib in 3D. */
-  virtual void plot3d(const std::string& color) const = 0;
   /**
    * Extract @N elements element from @X using some kind of random distribution, where @N is the number of rows in @x.
    * @param[out] x @nxd matrix to store the elements

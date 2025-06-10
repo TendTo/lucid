@@ -12,9 +12,6 @@
 #include <utility>
 
 #include "lucid/util/error.h"
-#ifdef LUCID_MATPLOTLIB_BUILD
-#include "lucid/util/matplotlib.h"
-#endif
 
 namespace lucid {
 
@@ -59,22 +56,6 @@ RectSet::RectSet(std::initializer_list<std::pair<Scalar, Scalar>> bounds, const 
 bool RectSet::operator()(ConstVectorRef x) const {
   return (x.array() >= lb_.array()).all() && (x.array() <= ub_.array()).all();
 }
-
-void RectSet::plot([[maybe_unused]] const std::string& color) const {
-#ifdef LUCID_MATPLOTLIB_BUILD
-  Vector x(lb_.size());
-  x << lb_(0), ub_(0);
-  Vector y1(1);
-  y1 << lb_(1);
-  Vector y2(1);
-  y2 << ub_(1);
-  plt::fill_between(x, y1, y2, {.alpha = 1, .edgecolor = color, .facecolor = "none"});
-#else
-  LUCID_NOT_SUPPORTED("plot without matplotlib");
-#endif
-}
-
-void RectSet::plot3d(const std::string&) const { LUCID_NOT_IMPLEMENTED(); }
 
 Matrix RectSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {
   if (points_per_dim.size() != lb_.size()) {

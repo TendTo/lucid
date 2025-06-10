@@ -154,8 +154,6 @@ class PySet final : public Set {
   [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool include_endpoints) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, include_endpoints);
   }
-  void plot(const std::string &color) const override { PYBIND11_OVERRIDE_PURE(void, Set, plot, color); }
-  void plot3d(const std::string &color) const override { PYBIND11_OVERRIDE_PURE(void, Set, plot3d, color); }
 };
 
 class MultiSetIterator {
@@ -278,8 +276,6 @@ void init_model(py::module_ &m) {
            py::arg("include_endpoints") = false)
       .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("include_endpoints"))
-      .def("plot", &Set::plot, py::arg("color"))
-      .def("plot3d", &Set::plot3d, py::arg("color"))
       .def("contains", &Set::contains, ARG_NONCONVERT("x"))
       .def("__contains__", &Set::contains, ARG_NONCONVERT("x"))
       .def("__call__", &Set::operator(), ARG_NONCONVERT("x"))

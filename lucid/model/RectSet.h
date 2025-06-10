@@ -62,10 +62,6 @@ class RectSet final : public Set {
 
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
 
-  void plot(const std::string& color) const override;
-
-  void plot3d(const std::string& color) const override;
-
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
 
   operator Matrix() const;

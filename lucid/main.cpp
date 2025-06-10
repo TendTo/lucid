@@ -32,6 +32,22 @@ using namespace lucid;  // NOLINT
 namespace {
 
 #if 0
+void plot_rect_set(const RectSet& set, const std::string& color = "blue", const double alpha = 0.9) {
+  LUCID_CHECK_ARGUMENT_EXPECTED(set.dimension() == 2, "set.dimension()", set.dimension(), 2);
+  Vector x(set.dimension());
+  x << set.lower_bound()(0), set.upper_bound()(0);
+  Vector y1(1);
+  y1 << set.lower_bound()(1);
+  Vector y2(1);
+  y2 << set.upper_bound()(1);
+  plt::fill_between(x, y1, y2, {.alpha = alpha, .edgecolor = color});
+}
+void plot_multi_set(const std::vector<RectSet>& sets, const std::string& color = "blue", const double alpha = 0.9) {
+  for (const auto& set : sets) {
+    plot_rect_set(set, color, alpha);
+  }
+}
+
 void test_surface() {
   Matrix X, Y;
   meshgrid(arange(-5, 5, 0.5), arange(-5, 5, 0.5), X, Y);

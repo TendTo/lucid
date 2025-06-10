@@ -44,12 +44,6 @@ Matrix MultiSet::lattice(const VectorI& points_per_dim, const bool include_endpo
   }
   return rect_multiset_lattice;
 }
-void MultiSet::plot(const std::string& color) const {
-  std::ranges::for_each(sets_, [&color](const std::unique_ptr<Set>& set) { set->plot(color); });
-}
-void MultiSet::plot3d(const std::string& color) const {
-  std::ranges::for_each(sets_, [&color](const std::unique_ptr<Set>& set) { set->plot3d(color); });
-}
 
 std::ostream& operator<<(std::ostream& os, const MultiSet& set) {
   os << "MultiSet( ";
