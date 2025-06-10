@@ -3,9 +3,9 @@ LUCID_VERSION = "0.0.1"
 LUCID_AUTHOR = "Ernesto Casablanca"
 LUCID_AUTHOR_EMAIL = "casablancaernesto@gmail.com"
 LUCID_DESCRIPTION = "Lifting-based Uncertain Control Invariant Dynamics"
-LUCID_HOMEPAGE = "https://github.com/TendTo/bazel-cpp-template"
-LUCID_SOURCE = "https://github.com/TendTo/bazel-cpp-template"
-LUCID_TRACKER = "https://github.com/TendTo/bazel-cpp-template/issues"
+LUCID_HOMEPAGE = "https://github.com/TendTo/lucid"
+LUCID_SOURCE = "https://github.com/TendTo/lucid"
+LUCID_TRACKER = "https://github.com/TendTo/lucid/issues"
 LUCID_LICENSE = "Apache-2.0"
 
 # Can't parse the list
