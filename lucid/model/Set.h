@@ -48,7 +48,7 @@ class Set {
    * @return true if @x is in the set
    * @return false if @x is not in the set
    */
-  [[nodiscard]] bool contains(ConstMatrixRef x) const { return (*this)(x); }
+  [[nodiscard]] bool contains(ConstVectorRef x) const { return (*this)(x); }
 
   /**
    * Check if a vector is in @X.
@@ -57,7 +57,7 @@ class Set {
    * @return true if @x is in the set
    * @return false if @x is not in the set
    */
-  [[nodiscard]] virtual bool operator()(ConstMatrixRef x) const = 0;
+  [[nodiscard]] virtual bool operator()(ConstVectorRef x) const = 0;
 
   /**
    * Generate a lattice of points in the set.

@@ -60,7 +60,7 @@ class RectSet final : public Set {
 
   [[nodiscard]] Matrix sample(Index num_samples) const override;
 
-  [[nodiscard]] bool operator()(ConstMatrixRef x) const override;
+  [[nodiscard]] bool operator()(ConstVectorRef x) const override;
 
   void plot(const std::string& color) const override;
 

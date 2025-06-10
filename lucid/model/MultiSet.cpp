@@ -31,7 +31,7 @@ Matrix MultiSet::sample(const Index num_samples) const {
   for (int i = 0; i < num_samples; i++) samples.row(i) = sets_.at(dist(gen))->sample();
   return samples;
 }
-bool MultiSet::operator()(ConstMatrixRef x) const {
+bool MultiSet::operator()(ConstVectorRef x) const {
   return std::ranges::any_of(sets_, [&x](const std::unique_ptr<Set>& set) { return set->contains(x); });
 }
 Matrix MultiSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {

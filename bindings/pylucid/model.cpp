@@ -148,7 +148,7 @@ class PySet final : public Set {
   [[nodiscard]] Matrix sample(Index num_samples) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, sample, num_samples);
   }
-  [[nodiscard]] bool operator()(ConstMatrixRef x) const override {
+  [[nodiscard]] bool operator()(ConstVectorRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(bool, Set, "__call__", operator(), x);
   }
   [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool include_endpoints) const override {
@@ -280,6 +280,7 @@ void init_model(py::module_ &m) {
            py::arg("include_endpoints"))
       .def("plot", &Set::plot, py::arg("color"))
       .def("plot3d", &Set::plot3d, py::arg("color"))
+      .def("contains", &Set::contains, ARG_NONCONVERT("x"))
       .def("__contains__", &Set::contains, ARG_NONCONVERT("x"))
       .def("__call__", &Set::operator(), ARG_NONCONVERT("x"))
       .def("__str__", STRING_LAMBDA(Set));

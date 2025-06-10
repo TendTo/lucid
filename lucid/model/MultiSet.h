@@ -47,7 +47,7 @@ class MultiSet final : public Set {
 
   [[nodiscard]] Dimension dimension() const override { return sets_.empty() ? 0 : sets_.front()->dimension(); }
   [[nodiscard]] Matrix sample(Index num_samples) const override;
-  [[nodiscard]] bool operator()(ConstMatrixRef x) const override;
+  [[nodiscard]] bool operator()(ConstVectorRef x) const override;
 
   /** @todo Improve the naive implementation that only concatenates the lattices from the internal sets (polytopes?) */
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;

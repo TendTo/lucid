@@ -56,11 +56,7 @@ RectSet::RectSet(std::vector<std::pair<Scalar, Scalar>> bounds, const int seed)
 RectSet::RectSet(std::initializer_list<std::pair<Scalar, Scalar>> bounds, const int seed)
     : RectSet{bounds_to_vector<0>(bounds), bounds_to_vector<1>(bounds), seed} {}
 
-bool RectSet::operator()(ConstMatrixRef x) const {
-  if (x.rows() != lb_.rows() || x.cols() != lb_.cols()) {
-    LUCID_INVALID_ARGUMENT_EXPECTED("x shape", fmt::format("{} x {}", x.rows(), x.cols()),
-                                    fmt::format("{} x {}", lb_.rows(), lb_.cols()));
-  }
+bool RectSet::operator()(ConstVectorRef x) const {
   return (x.array() >= lb_.array()).all() && (x.array() <= ub_.array()).all();
 }
 
