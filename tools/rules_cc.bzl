@@ -7,35 +7,6 @@ load("@pybind11_bazel//:build_defs.bzl", "pybind_extension", "pybind_library")
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
 
-# Warning: The following comment is used to extract metadata from this file. Do not remove it.
-# GLOBAL VARIABLES
-LUCID_NAME = "lucid"
-LUCID_VERSION = "0.0.1"
-LUCID_AUTHOR = "Ernesto Casablanca"
-LUCID_AUTHOR_EMAIL = "casablancaernesto@gmail.com"
-LUCID_DESCRIPTION = "Lifting-based Uncertain Control Invariant Dynamics"
-LUCID_HOMEPAGE = "https://github.com/TendTo/bazel-cpp-template"
-LUCID_SOURCE = "https://github.com/TendTo/bazel-cpp-template"
-LUCID_TRACKER = "https://github.com/TendTo/bazel-cpp-template/issues"
-LUCID_LICENSE = "Apache-2.0"
-# END GLOBAL VARIABLES
-
-# Can't parse the list
-LUCID_CLASSIFIERS = [
-    "Development Status :: 1 - Planning",
-    "License :: OSI Approved :: BSD License",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: C++",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-]
-
 # The CXX_FLAGS will be enabled for all C++ rules in the project
 # building with any linux compiler.
 CXX_FLAGS = [
@@ -141,7 +112,7 @@ def _get_defines(rule_defines):
         "//tools:release_build": ["NDEBUG"],
         "//conditions:default": [],
     }) + select({
-        "//tools:benchmark_build": ["NCHECK"],
+        "//tools:benchmark_build": ["NCHECK", "NCONVERT"],
         "//conditions:default": [],
     }) + select({
         "//tools:python_build": ["LUCID_PYTHON_BUILD"],

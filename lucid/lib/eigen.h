@@ -29,16 +29,21 @@
 
 namespace lucid {
 using Scalar = double;
-using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-using Vector = Eigen::VectorX<Scalar>;
-using MatrixC = Eigen::Matrix<std::complex<Scalar>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-using VectorC = Eigen::VectorX<std::complex<Scalar>>;
+template <class T>
+using MatrixT = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+template <class T>
+using VectorT = Eigen::RowVectorX<T>;
+using Matrix = MatrixT<Scalar>;
+using Vector = VectorT<Scalar>;
+using MatrixC = MatrixT<std::complex<Scalar>>;
+using VectorC = VectorT<std::complex<Scalar>>;
+using VectorI = VectorT<Eigen::Index>;
 using VectorBlock = Eigen::VectorBlock<Vector>;
 using MatrixBlock = Eigen::Block<Matrix>;
 using ConstVectorBlock = Eigen::VectorBlock<const Vector>;
 using ConstMatrixBlock = Eigen::Block<const Matrix>;
-using Vector2 = Eigen::Vector2d;
-using Vector3 = Eigen::Vector3d;
+using Vector2 = Eigen::RowVector2d;
+using Vector3 = Eigen::RowVector3d;
 using Index = Eigen::Index;
 using Dimension = Eigen::Index;
 using ConstMatrixRef = const Eigen::Ref<const Matrix>&;
@@ -154,7 +159,7 @@ inline Matrix diff(ConstMatrixRef m, const int n = 1, const bool rowwise = true)
 }
 /**
  * Given @f$ m @f$ inputs `matrices`, where matrix @f$ M_i @f$ has @f$ n_i @f$ columns, return a matrix
- * with @f$ \Prod_{i = 0}^m n_i @f$ column vectors,
+ * with @f$ \Pi_{i = 0}^m n_i @f$ column vectors,
  * where the columns consist of all combinations found by combining one column vector from each input matrix.
  * @param m1 first matrix
  * @param m2 second matrix
@@ -175,8 +180,8 @@ Matrix combvec(ConstMatrixRef m1, ConstMatrixRef m2, const Ms&... matrices) {
     return combvec(res, matrices...);
 }
 /**
- * Given a @mxn matrix `m` treat each row vector as a separate matrix
- * and return their combination using @ref combvec(m1, m2, matrices...).
+ * Given a matrix `m` treat each row vector as a separate matrix
+ * and return their combination using @ref combvec.
  * @param m matrix
  * @return matrix with all combinations of column vectors
  * @see https://www.mathworks.com/help/deeplearning/ref/combvec.html
@@ -189,30 +194,99 @@ Matrix combvec(ConstMatrixRef m);
  */
 Scalar rms(ConstMatrixRef x);
 /**
+ * Compute the median of a vector or matrix.
+ * If the vector has an even number of elements, the median is the mean of the two middle elements.
+ * @warning The storage order of the matrix matters, while it changes nothing for vectors.
+ * @param x vector or matrix
+ * @return median of the vector or matrix
+ * @see https://stackoverflow.com/a/62698308/15153171
+ */
+inline Scalar median(Matrix x) {
+  std::span<Scalar> distances{x.data(), static_cast<std::size_t>(x.size())};
+
+  const auto middle_it = distances.begin() + distances.size() / 2;
+  std::ranges::nth_element(distances, middle_it);
+
+  if (distances.size() & 1) return *middle_it;                                // odd => middle element
+  return (*std::max_element(distances.begin(), middle_it) + *middle_it) / 2;  // even => mean
+}
+/**
  * Compute the `p`-norm distance between every pair of row vectors in the input.
- * If the input has shape @f$ N \times M @f$ the output vector will contain @f$ \frac{1}{2}N(N-1) @f$ elements.
+ * If the input has shape @f$ N \times M @f$ the output vector will contain @f$ \frac{1}{2}N(N-1) @f$ elements
+ * or be a lower triangular matrix, depending on `TriangularMatrix`.
  * @f[
  * \text{{input}} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_N \end{bmatrix}
  * @f]
+ * @todo Remove TriangularMatrix tparam in favor of `squareform` function
  * @tparam P norm order
+ * @tparam Squared whether to compute the squared distance. Only available for `p` == 2
+ * @tparam TriangularMatrix whetehr to return a lower triangular matrix with all the distances
+ * or a vector view of the strictly lower section of the full matrix
  * @param x input matrix
- * @return vector of distances
+ * @return vector of distances or lower triangular matrix.
  */
-template <Dimension P = 2>
-Vector pdist(ConstMatrixRef x) {
-  Vector distances{x.rows() * (x.rows() - 1) / 2};
+template <Dimension P = 2, bool Squared = false, bool TriangularMatrix = false, class Derived>
+  requires(P > 0) && (!Squared || P == 2)
+auto pdist(const Eigen::MatrixBase<Derived>& x) {
+  if constexpr (TriangularMatrix) {
+    Matrix distances{x.rows(), x.rows()};
+    distances.diagonal() = Vector::Zero(x.rows());
+    for (Index i = 0; i < x.rows(); i++) {
+      for (Index j = 0; j < i; j++) {
+        if constexpr (Squared) {
+          distances(i, j) = (x.row(i) - x.row(j)).squaredNorm();
+        } else {
+          distances(i, j) = (x.row(i) - x.row(j)).template lpNorm<P>();
+        }
+      }
+    }
+    distances.triangularView<Eigen::StrictlyUpper>() = distances.triangularView<Eigen::StrictlyLower>().transpose();
+    return distances;
+  } else {
+    Vector distances{x.rows() * (x.rows() - 1) / 2};
+    for (Index i = 0; i < x.rows(); i++) {
+      for (Index j = 0; j < i; j++) {
+        if constexpr (Squared) {
+          distances(i * (i - 1) / 2 + j) = (x.row(i) - x.row(j)).squaredNorm();
+        } else {
+          distances(i * (i - 1) / 2 + j) = (x.row(i) - x.row(j)).template lpNorm<P>();
+        }
+      }
+    }
+    return distances;
+  }
+}
+/**
+ * Compute the `p`-norm distance between every pair of row vectors in the input matrices.
+ * @tparam DerivedX type of the first input matrix
+ * @tparam DerivedY type of the second input matrix
+ * @tparam P norm order
+ * @tparam Squared whether to compute the squared distance. Only available for `p` == 2
+ * @param x input matrix
+ * @param y input matrix
+ * @return matrix of distances
+ */
+template <Dimension P = 2, bool Squared = false, class DerivedX, class DerivedY>
+  requires(P > 0) && (!Squared || P == 2)
+Matrix pdist(const Eigen::MatrixBase<DerivedX>& x, const Eigen::MatrixBase<DerivedY>& y) {
+  Matrix distances{x.rows(), y.rows()};
   for (Index i = 0; i < x.rows(); i++) {
-    for (Index j = 0; j < i; j++) {
-      distances(i * (i - 1) / 2 + j) = (x.row(i) - x.row(j)).lpNorm<P>();
+    for (Index j = 0; j < y.rows(); j++) {
+      if constexpr (Squared) {
+        distances(i, j) = (x.row(i) - y.row(j)).squaredNorm();
+      } else {
+        distances(i, j) = (x.row(i) - y.row(j)).template lpNorm<P>();
+      }
     }
   }
   return distances;
 }
+
 /**
  * Compute the Cumulative distribution function (CDF) of the normal distribution at oll point listed in @x.
  * @param x points at which to evaluate the CDF
- * @param sigma_f @f$ \sigma_f @f$ value used in the normal distribution (mean)
- * @param sigma_l @f$ \sigma_l @f$ value used in the normal distribution (standard deviation)
+ * @param sigma_f @sigma_f value used in the normal distribution (mean)
+ * @param sigma_l @sigma_l value used in the normal distribution (standard deviation)
  * @return vector of CDF values at each point in @x
  */
 Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);
@@ -223,8 +297,8 @@ Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);
  * @return FFT of the input matrix
  */
 inline Eigen::MatrixXcd fft2(const Matrix& x) {
-  Eigen::VectorXcd tempRow;
-  Eigen::VectorXcd tempCol;
+  Eigen::RowVectorXcd tempRow;
+  Eigen::RowVectorXcd tempCol;
   Eigen::MatrixXcd f_fft{x.rows(), x.cols()};
 
   Eigen::FFT<double> fft;
@@ -245,8 +319,8 @@ inline Eigen::MatrixXcd fft2(const Matrix& x) {
  * @return inverse FFT of the input matrix
  */
 inline Matrix ifft2(const Eigen::MatrixXcd& x) {
-  Eigen::VectorXcd tempRow;
-  Eigen::VectorXcd tempCol;
+  Eigen::RowVectorXcd tempRow;
+  Eigen::RowVectorXcd tempCol;
   Eigen::MatrixXcd i_fft{x.rows(), x.cols()};
 
   Eigen::FFT<double> fft;
@@ -343,9 +417,13 @@ Eigen::MatrixX<Scalar> read_matrix(const std::string_view file_name) {
 
 OSTREAM_FORMATTER(lucid::Matrix)
 OSTREAM_FORMATTER(lucid::Vector)
+OSTREAM_FORMATTER(decltype(std::declval<lucid::Vector>().transpose()))
+OSTREAM_FORMATTER(decltype(std::declval<lucid::Matrix>().transpose()))
 OSTREAM_FORMATTER(lucid::ConstMatrixRef)
 OSTREAM_FORMATTER(lucid::ConstVectorRef)
 OSTREAM_FORMATTER(Eigen::Block<const lucid::Matrix>)
 OSTREAM_FORMATTER(Eigen::Block<const lucid::Vector>)
+OSTREAM_FORMATTER(Eigen::Ref<const lucid::Matrix>)
+OSTREAM_FORMATTER(Eigen::Ref<const lucid::Vector>)
 
 #endif

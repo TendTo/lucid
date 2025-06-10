@@ -89,4 +89,8 @@ valgrind-out.txt
 # Licence
 *.lic
 
+# Linear Programming files
+*.lp
+*.ilp
+
 !.gitkeep

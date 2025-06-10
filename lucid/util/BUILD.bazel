@@ -37,6 +37,11 @@ lucid_pybind_library(
 )
 
 lucid_cc_library(
+    name = "definitions",
+    hdrs = ["definitions.h"],
+)
+
+lucid_cc_library(
     name = "error",
     hdrs = ["error.h"],
     deps = [
@@ -85,14 +90,39 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "tensor",
+    srcs = [
+        "Tensor.cpp",
+        "TensorIterator.cpp",
+        "TensorView.cpp",
+    ],
+    hdrs = [
+        "Tensor.h",
+        "TensorIterator.h",
+        "TensorView.h",
+    ],
+    implementation_deps = [
+        ":error",
+        "//lucid/lib:pocketfft",
+    ],
+    deps = [
+        ":concepts",
+        ":exception",
+        ":index_iterator",
+        ":logging",
+        "//lucid/lib:eigen",
+    ],
+)
+
+lucid_cc_library(
     name = "util",
     hdrs = ["util.h"],
     deps = [
         ":concepts",
-        ":error",
+        ":definitions",
         ":exception",
         ":index_iterator",
-        ":logging",
         ":math",
+        ":tensor",
     ],
 )

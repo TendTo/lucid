@@ -1,14 +1,13 @@
-import sys
 import math
 import numpy as np
 from pylucid import (
     __version__,
     read_matrix,
     GaussianKernel,
-    TruncatedFourierFeatureMap,
+    ConstantTruncatedFourierFeatureMap,
     RectSet,
     MultiSet,
-    GaussianKernelRidgeRegression,
+    KernelRidgeRegressor,
     fft_upsample,
     GurobiLinearOptimiser,
     LucidNotSupportedException,
@@ -29,7 +28,7 @@ def median_heuristic(X, Y):
     """in sklearn, kernel is done by K(x, y) = exp(-gamma ||x-y||^2)"""
     distsqr = cdist(X, X, "euclidean") ** 2
     all_width = np.sqrt(0.5 * np.median(distsqr))
-    kernel_gamma = 1.0 / (2 * all_width ** 2)
+    kernel_gamma = 1.0 / (2 * all_width**2)
 
     return kernel_gamma, kernel_width
 
@@ -116,25 +115,25 @@ def test_automated_anesthesia():
 
     samples_per_dim = 2 * num_freq_per_dim
     factor = math.ceil(num_supp_per_dim / samples_per_dim) + 1
-    x_samples: "np.typing.ArrayLike" = X_bounds.sample_element(N)
+    x_samples: "np.typing.ArrayLike" = X_bounds.sample(N)
     xp_samples = f(x_samples.T).T
     n_per_dim = factor * samples_per_dim
     sigma_f, sigma_l = median_heuristic(x_samples, x_samples)
     sigma_f /= 2.0
     print(f"Median heuristic: {sigma_f = }, {sigma_l = }")
 
-    k = GaussianKernel(sigma_f, sigma_l)
-    tffm = TruncatedFourierFeatureMap(num_freq_per_dim, dim, sigma_l, sigma_f, X_bounds)
+    k = GaussianKernel(sigma_l, sigma_f)
+    tffm = ConstantTruncatedFourierFeatureMap(num_freq_per_dim, sigma_l, sigma_f, X_bounds)
     x_lattice = X_bounds.lattice(samples_per_dim)
     f_lattice = tffm(x_lattice)
     fp_samples = tffm(xp_samples)
-    r = GaussianKernelRidgeRegression(k, x_samples, fp_samples, regularization_constant=1e-6)
+    r = KernelRidgeRegressor(k, x_samples, fp_samples, regularization_constant=1e-6)
     if_lattice = r(x_lattice)
-    w_mat = np.zeros((n_per_dim ** dim, fp_samples.shape[1]))
-    phi_mat = np.zeros((n_per_dim ** dim, fp_samples.shape[1]))
+    w_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))
+    phi_mat = np.zeros((n_per_dim**dim, fp_samples.shape[1]))
     for i in range(w_mat.shape[1]):
-        w_mat[:, i] = fft_upsample(if_lattice[:, i], n_per_dim, samples_per_dim, dim)
-        phi_mat[:, i] = fft_upsample(f_lattice[:, i], n_per_dim, samples_per_dim, dim)
+        w_mat[:, i] = fft_upsample(if_lattice[:, i], samples_per_dim, n_per_dim, dim)
+        phi_mat[:, i] = fft_upsample(f_lattice[:, i], samples_per_dim, n_per_dim, dim)
 
     x0_lattice = X_init.lattice(n_per_dim - 1, True)
     xu_lattice = X_unsafe.lattice(n_per_dim - 1, True)
@@ -145,7 +144,7 @@ def test_automated_anesthesia():
     o = GurobiLinearOptimiser(T, gamma, 0, 1, 1, sigma_f)
 
     def check_cb(
-            success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
+        success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
     ):
         print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }")
         assert success

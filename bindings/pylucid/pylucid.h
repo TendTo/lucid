@@ -18,5 +18,6 @@
 #define REPR_LAMBDA(class_name) [](const class_name &o) { return (std::stringstream{} << o).str(); }
 #define STRING_LAMBDA(class_name) [](const class_name &o) { return (std::stringstream{} << o).str(); }
 
-void init_math(pybind11::module_ &);
+void init_model(pybind11::module_ &);
 void init_util(pybind11::module_ &);
+void init_verification(pybind11::module_ &);

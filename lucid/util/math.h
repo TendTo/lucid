@@ -31,8 +31,8 @@ inline double peaks(const double x, const double y) {
 /**
  * Compute the Cumulative distribution function (CDF) of the normal distribution at the point `x`.
  * @param x point at which to compute the CDF
- * @param sigma_f @f$ \sigma_f @f$ value used in the normal distribution (mean)
- * @param sigma_l @f$ \sigma_l @f$ value used in the normal distribution (standard deviation)
+ * @param sigma_f @sigma_f value used in the normal distribution (mean)
+ * @param sigma_l @sigma_l value used in the normal distribution (standard deviation)
  * @return value of the CDF at the given point
  */
 inline double normal_cdf(const double x, const double sigma_f, const double sigma_l) {

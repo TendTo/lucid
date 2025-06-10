@@ -1,5 +1,5 @@
 load("@doxygen//:doxygen.bzl", "doxygen")
-load("//tools:rules_cc.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION")
+load("//tools:variables.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION")
 
 doxygen(
     name = "docs",
@@ -16,15 +16,27 @@ doxygen(
         "licence=@par Licence:^^",
         # Math
         "X=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} @f$",
-        "x=@f$ x @f$",
+        "XsubRd=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^d @f$",
+        "H=@f$ \\mathcal{H} @f$",
+        "x=@f$ \\texttip{x}{Element of the vector space} @f$",
+        "x1=@f$ x_1 @f$",
+        "x2=@f$ x_2 @f$",
+        "xi=@f$ x_i @f$",
+        "xn=@f$ x_n @f$",
+        "d=@f$ \\texttip{d}{Dimension of the vector space} @f$",
         "n=@f$ n @f$",
-        "s=@f$ s @f$",
-        "U=@f$ \\mathcal{U} @f$",
+        "N=@f$ N @f$",
         "nvector=@f$ n @f$ dimensional vector",
         "fx=@f$ f(x) @f$",
         "nxm=@f$ n \\times m @f$",
         "nxn=@f$ n \\times m @f$",
-        "sxn=@f$ s \\times n @f$",
+        "n1xd=@f$ \\texttip{n_1}{Number of samples in the first matrix} \\times \\texttip{d}{Dimension of the vector space} @f$",
+        "n2xd=@f$ \\texttip{n_2}{Number of samples in the second matrix} \\times \\texttip{d}{Dimension of the vector space} @f$",
+        "nxd=@f$ \\texttip{n}{Number of samples} \\times \\texttip{d}{Dimension of the vector space} @f$",
+        "nxdx=@f$ \\texttip{n}{Number of samples} \\times \\texttip{d_x}{Dimension of the input vector space} @f$",
+        "nxdy=@f$ \\texttip{n}{Number of samples} \\times \\texttip{d_y}{Dimension of the output vector space} @f$",
+        "sigma_l=@f$ \\sigma_l @f$",
+        "sigma_f=@f$ \\sigma_f @f$",
         # Method descriptors
         "constructor{1}=Construct a new \\1 object.^^",
         "getter{2}=Get read-only access to the \\1 of the \\2.^^@return \\1 of the \\2^^",
@@ -49,6 +61,10 @@ doxygen(
         # Mermaid support in docstrings
         "mermaid=^^<pre class='mermaid'>",
         "endmermaid=</pre>^^",
+        # Tabs
+        "tab{2|}=@htmlonly<li><span class='tab-title'>@endhtmlonly\\1@htmlonly</span>@endhtmlonly\\2@htmlonly</li>@endhtmlonly",
+        "tab2{2||}=@tab{ \\1 | \\2 }",
+        "tabs{1}=@htmlonly<div class='tabbed'><ul>@endhtmlonly\\1@htmlonly</ul></div>@endhtmlonly",
     ],
     builtin_stl_support = True,
     #    configurations = [
@@ -73,6 +89,7 @@ doxygen(
     extract_private = True,
     filter_patterns = ["*.md=bash docs/filters/markdown.sh"],
     full_sidebar = False,
+    generate_latex = False,
     generate_treeview = True,
     have_dot = False,
     # have_dot = True,
@@ -98,6 +115,7 @@ doxygen(
     javadoc_autobrief = True,
     macro_expansion = True,
     mathjax_version = "MathJax_3",
+    page_outline_panel = False,
     project_brief = LUCID_DESCRIPTION,
     project_icon = "docs/_static/logo.svg",
     project_logo = "docs/_static/logo.svg",

@@ -35,3 +35,54 @@ table.memberdecls .memSeparator {
 div.memdoc {
   padding: 6px 10px 2px 10px;
 }
+
+/** TABS **/
+
+/* button wrapper */
+.tabs-overview {
+  border-bottom: 0px !important;
+  font-weight: 500 !important;
+}
+
+/* button */
+.tab-button {
+  padding: 0 !important;
+}
+
+/* button content */
+.tab-title {
+  box-shadow: none !important;
+  border-radius: var(--border-radius-small) !important;
+  color: var(
+    --deprecated-color-darker
+  ); /*or --page-secondary-foreground-color*/
+}
+
+/* button content (not-active) (hover) */
+.tab-button:hover:not(.active) .tab-title {
+  border-radius: var(--border-radius-small) !important;
+  color: inherit !important;
+}
+
+/* button content (active) */
+.tab-button.active .tab-title {
+  box-shadow: none !important;
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  background: var(--page-background-color) !important;
+  border-radius: var(--border-radius-small) var(--border-radius-small) 0 0 !important;
+  border: 1px solid var(--separator-color) !important;
+  border-bottom: 1px solid transparent !important;
+}
+
+/* button content underline */
+.tab-button.active::after {
+  display: none !important;
+}
+
+/* content */
+.tabbed > ul {
+  border: 1px solid var(--separator-color);
+  padding: 0 13px !important;
+  margin-top: -1px !important;
+}

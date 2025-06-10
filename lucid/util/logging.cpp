@@ -28,6 +28,8 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type) {
 
   // Turn it off by default so that external programs using dReal as a library do not see internal loggings.
   logger->set_level(spdlog::level::off);
+  // Ensure that the logger flushes on error or critical messages.
+  logger->flush_on(spdlog::level::err);
 
   // Set format.
   logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [thread %t] %v");

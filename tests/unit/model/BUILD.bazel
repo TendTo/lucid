@@ -1,0 +1,68 @@
+"""Tests for the util submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_rect_set",
+    deps = ["//lucid/model:set"],
+)
+
+lucid_cc_googletest(
+    name = "test_multi_set",
+    deps = ["//lucid/model:set"],
+)
+
+lucid_cc_googletest(
+    name = "test_kernel_ridge_regressor",
+    deps = [
+        "//lucid/model:estimator",
+        "//lucid/model:gram_matrix",
+    ],
+)
+
+lucid_cc_googletest(
+    name = "test_truncated_fourier_feature_map",
+    deps = [
+        "//lucid/model:feature_map",
+        "//lucid/util:math",
+    ],
+)
+
+lucid_cc_googletest(
+    name = "test_scorer",
+    deps = ["//lucid/model"],
+)
+
+lucid_cc_googletest(
+    name = "test_parameter",
+    deps = ["//lucid/model:parameter"],
+)
+
+lucid_cc_googletest(
+    name = "test_parametrizable",
+    deps = ["//lucid/model:parameter"],
+)
+
+lucid_cc_googletest(
+    name = "test_median_heuristic_tuner",
+    deps = ["//lucid/model"],
+)
+
+lucid_cc_googletest(
+    name = "test_lbfgs_tuner",
+    deps = ["//lucid/model"],
+)
+
+lucid_cc_googletest(
+    name = "test_grid_search_tuner",
+    deps = [
+        "//lucid/model",
+        "//lucid/util:error",
+        "//lucid/util:index_iterator",
+    ],
+)
+
+lucid_cc_googletest(
+    name = "test_gaussian_kernel",
+    deps = ["//lucid/model:kernel"],
+)

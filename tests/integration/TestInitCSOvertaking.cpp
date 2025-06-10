@@ -91,8 +91,8 @@ inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index sampl
 }
 
 TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
-  const GaussianKernel kernel{sigma_f, sigma_l};
-  const TruncatedFourierFeatureMap tffm{num_freq_per_dim, dimension, sigma_l, sigma_f, limit_set};
+  const GaussianKernel kernel{sigma_l, sigma_f};
+  const TruncatedFourierFeatureMap tffm{num_freq_per_dim, sigma_l, sigma_f, limit_set};
 
   // With n frequencies, the highest frequency is n-1 (they go from 0 to n-1).
   // So, by Shannon's theorem, we need 2n - 1 samples to avoid aliasing. 2n will do.
@@ -106,8 +106,8 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   Matrix fp_samples{tffm(xp_samples)};
   ASSERT_TRUE(fp_samples.isApprox(expected_fp_samples, tolerance));
 
-  const KernelRidgeRegression regression{kernel, x_samples, fp_samples, lambda};
-  const Matrix if_lattice = regression(x_lattice);
+  const KernelRidgeRegressor regressor{kernel, x_samples, fp_samples, lambda};
+  const Matrix if_lattice = regressor(x_lattice);
   ASSERT_TRUE(if_lattice.isApprox(expected_if_lattice, tolerance));
 
   const int factor = static_cast<int>(std::ceil(num_supp_per_dim / static_cast<double>(samples_per_dim)) + 1);

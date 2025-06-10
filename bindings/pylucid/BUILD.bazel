@@ -1,7 +1,8 @@
 load("@pypi//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
-load("//tools:rules_cc.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION", "lucid_pybind_extension", "lucid_pybind_library")
+load("//tools:rules_cc.bzl", "lucid_pybind_extension", "lucid_pybind_library")
+load("//tools:variables.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION")
 
 lucid_pybind_library(
     name = "interrupt",
@@ -13,10 +14,11 @@ lucid_pybind_library(
 lucid_pybind_extension(
     name = "_pylucid",
     srcs = [
-        "math.cpp",
+        "model.cpp",
         "pylucid.cpp",
         "pylucid.h",
         "util.cpp",
+        "verification.cpp",
     ],
     linkstatic = select({
         "//tools:static_build": True,
@@ -24,9 +26,11 @@ lucid_pybind_extension(
     }),
     deps = [
         "//lucid:version",
-        "//lucid/math",
+        "//lucid/model",
         "//lucid/util",
         "//lucid/util:error",
+        "//lucid/util:logging",
+        "//lucid/verification",
     ],
 )
 
@@ -35,6 +39,10 @@ py_library(
     srcs = [
         "__init__.py",
         "__main__.py",
+        "dreal.py",
+        "ext.py",
+        "pipeline.py",
+        "plot.py",
     ],
     data = [
         ":_pylucid.pyd",
@@ -65,19 +73,24 @@ py_binary(
     python_version = "PY3",
     deps = [
         requirement("pybind11_stubgen"),
-        ":pylucid_lib",
+        requirement("numpy"),
     ],
 )
 
 genrule(
     name = "stubgen",
+    srcs = [
+        ":pylucid_lib",
+        ":_pylucid.pyd",
+        ":_pylucid.so",
+    ],
     outs = [
         "_pylucid.pyi",
         "__init__.pyi",
         "py.typed",
     ],
-    cmd = "$(location :stubgen_bin) $(OUTS)",
-    cmd_bat = "$(location :stubgen_bin) $(OUTS)",
+    cmd = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
+    cmd_bat = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
     tools = [":stubgen_bin"],
 )
 

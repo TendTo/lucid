@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pylucid"
+readme = "README.md"
+authors = [
+    { name = "Ernesto Casablanca", email = "casablancaernesto@gmail.com" },
+    { name = "Oliver Schon", email = "o.schoen2@newcastle.ac.uk" },
+]
+maintainers = [
+    { name = "Ernesto Casablanca", email = "casablancaernesto@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+license-files = ["LICEN[CS]E*"]
+keywords = ["neural network", "kernel"]
+requires-python = ">= 3.8"
+dependencies = ["numpy<=2.2.5"]
+dynamic = ["version", "description"]
+
+[project.urls]
+Homepage = "https://tendto.github.io/lucid/"
+Documentation = "https://tendto.github.io/lucid/"
+Repository = "https://github.com/TendTo/lucid.git"
+Issues = "https://github.com/TendTo/lucid/issues"
+Changelog = "https://github.com/TendTo/lucid/blob/main/docs/Changelog.md"
+
+[project.optional-dependencies]
+verification = ["dreal"]
+plot = ["matplotlib"]
+
+[tool.setuptools]
+packages = []

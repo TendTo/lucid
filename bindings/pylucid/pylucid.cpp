@@ -15,8 +15,9 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(_pylucid, m) {
-  init_math(m);
+  init_model(m);
   init_util(m);
+  init_verification(m);
 
 #ifdef LUCID_DESCRIPTION
   m.doc() = LUCID_DESCRIPTION;

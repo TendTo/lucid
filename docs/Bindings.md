@@ -53,9 +53,147 @@ After installing, you can run the following command to check if everything is wo
 python3 -c "import pylucid; print(pylucid.__version__)"
 ```
 
+### Use
+
+There are two main ways to use the bindings.
+
+<div class="tabbed">
+
+<ul>
+<li><b class="tab-title">Configuration script (recommended)</b><div>
+
+Create a Python script, for example `my_config.py`, with the following content:
+
+```python
+# my_config.py
+import numpy as np
+from pylucid import *
+
+
+def scenario_config() -> "ScenarioConfig":
+    # System dynamics
+    f_det = lambda x: 1 / 2 * x
+    f = lambda x: f_det(x) + np.random.normal(scale=0.8)
+    # Safety specification
+    gamma = 1
+    T = 5  # Time horizon
+    X_bounds = RectSet([(-1, 1)])  # State space
+    X_init = RectSet([(-0.5, 0.5)])  # Initial set
+    X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))  # Unsafe set
+    # Parameters and inputs
+    N = 1000
+    x_samples = X_bounds.sample(N)
+    xp_samples = f(x_samples.T).T
+    # Initial estimator hyperparameters. Can be tuned later
+    regularization_constant = 1e-3
+    sigma_f = 15.0
+    sigma_l = np.array([1.75555556])
+    num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
+    # Estimator
+    estimator = KernelRidgeRegressor(
+        kernel=GaussianKernel(sigma_f=sigma_f, sigma_l=sigma_l),
+        regularization_constant=regularization_constant,
+    )
+    # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
+    estimator.fit(x=x_samples, y=xp_samples, MedianHeuristicTuner())
+
+    return ScenarioConfig(
+        x_samples=x_samples,
+        xp_samples=xp_samples,
+        X_bounds=X_bounds,
+        X_init=X_init,
+        X_unsafe=X_unsafe,
+        T=T,
+        gamma=gamma,
+        f_det=f_det,  # The deterministic part of the system dynamics
+        num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
+        estimator=estimator,  # The estimator used to model the system dynamics
+        sigma_f=estimator.get(Parameter.SIGMA_F),
+        problem_log_file="problem.lp",  # The lp file containing the optimization problem
+        iis_log_file="iis.ilp",  # The ilp file containing the IIS if the problem is infeasible
+    )
+```
+
+Then, you can run the configuration script using the `pylucid` command:
+
+```bash
+python3 -m pylucid my_config.py
+```
+
+Use the `--help` option to see the available options:
+
+```bash
+python3 -m pylucid --help
+```
+
+</div></li>
+<li><b class="tab-title">Main script</b><div>
+
+Create a Python script, for example `my_main.py`, with the following content:
+
+```python
+# my_main.py
+import numpy as np
+from pylucid import *
+from pylucid.pipeline import pipeline
+
+# System dynamics
+f_det = lambda x: 1 / 2 * x
+f = lambda x: f_det(x) + np.random.normal(scale=0.8)
+# Safety specification
+gamma = 1
+T = 5  # Time horizon
+X_bounds = RectSet([(-1, 1)])  # State space
+X_init = RectSet([(-0.5, 0.5)])  # Initial set
+X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))  # Unsafe set
+# Parameters and inputs
+N = 1000
+x_samples = X_bounds.sample(N)
+xp_samples = f(x_samples.T).T
+# Initial estimator hyperparameters. Can be tuned later
+regularization_constant = 1e-3
+sigma_f = 15.0
+sigma_l = np.array([1.75555556])
+num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
+# Estimator
+estimator = KernelRidgeRegressor(
+    kernel=GaussianKernel(sigma_f=sigma_f, sigma_l=sigma_l),
+    regularization_constant=regularization_constant,
+)
+# Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
+estimator.fit(x=x_samples, y=xp_samples, MedianHeuristicTuner())
+
+pipeline(
+    x_samples=x_samples,
+    xp_samples=xp_samples,
+    X_bounds=X_bounds,
+    X_init=X_init,
+    X_unsafe=X_unsafe,
+    T=T,
+    gamma=gamma,
+    f_det=f_det,  # The deterministic part of the system dynamics
+    num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
+    estimator=estimator,  # The estimator used to model the system dynamics
+    sigma_f=estimator.get(Parameter.SIGMA_F),
+    problem_log_file="problem.lp",  # The lp file containing the optimization problem
+    iis_log_file="iis.ilp",  # The ilp file containing the IIS if the problem is infeasible
+)
+```
+
+Then, you can run the script as follows:
+
+```bash
+python3 my_main.py
+```
+
+</div></li>
+</ul>
+
+</div>
+
 ### Troubleshooting
 
-#### ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory</b>
+#### ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory
 
 This error occurs when the expected Python shared library is not found in the expected location on the system
 To fix this, you need to set the `LD_LIBRARY_PATH` environment variable to include the path to the Python library.
@@ -72,4 +210,3 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(conda info --base)/envs/your_env/lib
 ```
 
 This change will only last for the current session.
-

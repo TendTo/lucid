@@ -13,16 +13,16 @@ bazel_dep(name = "rules_cc", version = "0.1.1")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 
 # Apache License 2.0 | rules housing all canonical settings for cross-platform builds
-bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "platforms", version = "1.0.0")
 
 # Mozilla Public License 2.0 | C++ library that handles matrices and vectors
 bazel_dep(name = "eigen", version = "3.4.0.bcr.3")
 
 # MIT | argparse implementation for modern C++
-bazel_dep(name = "argparse", version = "3.0.0")
+bazel_dep(name = "argparse", version = "3.2.0")
 
 # MIT | C++ library for formatting text
-bazel_dep(name = "fmt", version = "11.1.4")
+bazel_dep(name = "fmt", version = "11.2.0")
 
 # MIT | logging library
 bazel_dep(name = "spdlog", version = "1.15.2")
@@ -31,7 +31,7 @@ bazel_dep(name = "spdlog", version = "1.15.2")
 bazel_dep(name = "boost.math", version = "1.87.0")
 
 # Apache License 2.0 | rules_python for building python targets
-bazel_dep(name = "rules_python", version = "1.3.0")
+bazel_dep(name = "rules_python", version = "1.4.1")
 
 # https://github.com/pybind/pybind11_bazel/blob/master/LICENSE | pybind11 for binding C++ and Python
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
@@ -40,16 +40,16 @@ bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 bazel_dep(name = "rules_pkg", version = "1.1.0")
 
 # https://github.com/cpplint/cpplint/blob/develop/LICENSE | Google C++ Style Guide
-bazel_dep(name = "cpplint", version = "2.0.0", dev_dependency = True)
+bazel_dep(name = "cpplint", version = "2.0.2", dev_dependency = True)
 
 # BSD-3-Clause license | C++ test suite by Google
-bazel_dep(name = "googletest", version = "1.16.0", dev_dependency = True)
+bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
 
 # Apache License 2.0 | Doxygen documentation generator
-bazel_dep(name = "rules_doxygen", version = "2.2.1", dev_dependency = True)
+bazel_dep(name = "rules_doxygen", version = "2.4.0", dev_dependency = True)
 
 # MIT | rules for dealing with target dependencies
-bazel_dep(name = "depend_on_what_you_use", version = "0.8.0", dev_dependency = True)
+bazel_dep(name = "depend_on_what_you_use", version = "0.9.0", dev_dependency = True)
 
 #################################################################################
 # External dependencies not available in the Bazel registry
@@ -62,7 +62,7 @@ gurobi_repository = use_repo_rule("//tools:gurobi_build.bzl", "gurobi_repository
 gurobi_repository(
     name = "gurobi",
     build_file = "//third_party:gurobi.BUILD.bazel",
-    default_gurobi_home = "/opt/gurobi1201/linux64", # Replace with your Gurobi installation path. It will be used if the environment variable GUROBI_HOME is not set.
+    default_gurobi_home = "/opt/gurobi1201/linux64",  # Replace with your Gurobi installation path. It will be used if the environment variable GUROBI_HOME is not set.
 )
 
 # GitHub repositories
@@ -73,9 +73,9 @@ github_archive = use_repo_rule("//tools:git_archive.bzl", "github_archive")
 github_archive(
     name = "lbfgscpp",
     build_file = "//third_party:lbfgscpp.BUILD.bazel",
-    commit = "9db7a6d05042cc72851ed6c5e2cd34a0356b7150",
+    commit = "v0.4.0",
     repository = "yixuan/LBFGSpp",
-    sha256 = "f3423ddeaed9642959b45d06cad6433444a31a2e21594825a09b914c2794cdac",
+    sha256 = "39c4aaebd8b94ccdc98191d51913a31cddd618cc0869d99f07a4b6da83ca6254",
 )
 
 # MIT | logging library
@@ -91,6 +91,11 @@ github_archive(
 # Load module extensions
 #################################################################################
 doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
+doxygen_extension.configuration(
+    version = "1.13.2",
+    sha256 = "f2c0a349403bc5b5ade3f501301e32b49ea31b3182666954bc398452fbc0dd1c",
+    platform = "linux",
+)
 use_repo(doxygen_extension, "doxygen")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")

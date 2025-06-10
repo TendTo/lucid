@@ -20,6 +20,8 @@
   template <>                   \
   struct fmt::formatter<type> : ostream_formatter {};
 
+#define LUCID_FORMAT_MATRIX_SHAPE(matrix) fmt::format("[{}x{}]", (matrix).rows(), (matrix).cols())
+
 #ifndef NLOG
 
 #include <spdlog/logger.h>
@@ -33,6 +35,23 @@ enum class LoggerType { OUT, ERR };
 std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
 
 }  // namespace lucid
+
+#ifdef _MSC_VER
+consteval std::string_view function_signature(const char *s) {
+  const std::string_view prompt{s};
+  return prompt.starts_with("init_util") ? std::string_view{"-"} : prompt;
+}
+#define LUCID_FUNCTION_SIGNATURE function_signature(__FUNCTION__)
+#else
+consteval std::string_view function_signature(const char *s) {
+  const std::string_view prettyFunction{s};
+  const std::size_t bracket = prettyFunction.rfind('(');
+  const std::size_t space = prettyFunction.rfind(' ', bracket) + 1;
+  const std::string_view prompt{prettyFunction.substr(space, bracket - space)};
+  return prompt.starts_with("init_util") ? std::string_view{"-"} : prompt;
+}
+#define LUCID_FUNCTION_SIGNATURE function_signature(__PRETTY_FUNCTION__)
+#endif
 
 #define LUCID_FORMAT(message, ...) fmt::format(message, __VA_ARGS__)
 
@@ -53,19 +72,22 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
     ::lucid::get_logger(::lucid::LoggerType::OUT)->set_level(level); \
     ::lucid::get_logger(::lucid::LoggerType::ERR)->set_level(level); \
   } while (0)
+#define LUCID_LOG_MSG(msg) "[{}] " msg, LUCID_FUNCTION_SIGNATURE
 #define LUCID_TRACE(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->trace(msg)
-#define LUCID_TRACE_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->trace(msg, __VA_ARGS__)
-#define LUCID_DEBUG(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->debug(msg)
-#define LUCID_DEBUG_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->debug(msg, __VA_ARGS__)
-#define LUCID_INFO(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->info(msg)
-#define LUCID_INFO_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->info(msg, __VA_ARGS__)
-#define LUCID_WARN(msg) ::lucid::get_logger(::lucid::LoggerType::ERR)->warn(msg)
-#define LUCID_WARN_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::ERR)->warn(msg, __VA_ARGS__)
-#define LUCID_ERROR(msg) ::lucid::get_logger(::lucid::LoggerType::ERR)->error(msg)
-#define LUCID_ERROR_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::ERR)->error(msg, __VA_ARGS__)
-#define LUCID_CRITICAL(msg) ::lucid::get_logger(::lucid::LoggerType::ERR)->critical(msg)
-#define LUCID_CRITICAL_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::ERR)->critical(msg, __VA_ARGS__)
+#define LUCID_TRACE_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->trace(LUCID_LOG_MSG(msg), __VA_ARGS__)
+#define LUCID_DEBUG(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->debug(LUCID_LOG_MSG(msg))
+#define LUCID_DEBUG_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->debug(LUCID_LOG_MSG(msg), __VA_ARGS__)
+#define LUCID_INFO(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->info(LUCID_LOG_MSG(msg))
+#define LUCID_INFO_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->info(LUCID_LOG_MSG(msg), __VA_ARGS__)
+#define LUCID_WARN(msg) ::lucid::get_logger(::lucid::LoggerType::ERR)->warn(LUCID_LOG_MSG(msg))
+#define LUCID_WARN_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::ERR)->warn(LUCID_LOG_MSG(msg), __VA_ARGS__)
+#define LUCID_ERROR(msg) ::lucid::get_logger(::lucid::LoggerType::ERR)->error(LUCID_LOG_MSG(msg))
+#define LUCID_ERROR_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::ERR)->error(LUCID_LOG_MSG(msg), __VA_ARGS__)
+#define LUCID_CRITICAL(msg) ::lucid::get_logger(::lucid::LoggerType::ERR)->critical(LUCID_LOG_MSG(msg))
+#define LUCID_CRITICAL_FMT(msg, ...) \
+  ::lucid::get_logger(::lucid::LoggerType::ERR)->critical(LUCID_LOG_MSG(msg), __VA_ARGS__)
 #define LUCID_INFO_ENABLED (::lucid::get_logger(::lucid::LoggerType::OUT)->should_log(spdlog::level::info))
+#define LUCID_DEBUG_ENABLED (::lucid::get_logger(::lucid::LoggerType::OUT)->should_log(spdlog::level::debug))
 #define LUCID_TRACE_ENABLED (::lucid::get_logger(::lucid::LoggerType::OUT)->should_log(spdlog::level::trace))
 
 #ifndef NDEBUG
@@ -119,6 +141,7 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
 #define LUCID_CRITICAL(msg) void(0)
 #define LUCID_CRITICAL_FMT(msg, ...) void(0)
 #define LUCID_INFO_ENABLED false
+#define LUCID_DEBUG_ENABLED false
 #define LUCID_TRACE_ENABLED false
 #define LUCID_DEV(msg) void(0)
 #define LUCID_DEV_FMT(msg, ...) void(0)

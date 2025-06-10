@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "lucid/lucid.h"
-#include "lucid/math/TensorView.h"
+#include "lucid/util/TensorView.h"
 #include "lucid/util/math.h"
 
 using namespace lucid;
@@ -103,8 +103,8 @@ inline Vector project(ConstMatrixRef f, const Index n_per_dim, const Index sampl
 }
 
 TEST_F(TestInitBarrier3, InitBarrier3) {
-  const GaussianKernel kernel{sigma_f, sigma_l};
-  const TruncatedFourierFeatureMap tffm{num_freq_per_dim, dimension, sigma_l, sigma_f, limit_set};
+  const GaussianKernel kernel{sigma_l, sigma_f};
+  const ConstantTruncatedFourierFeatureMap tffm{num_freq_per_dim, sigma_l, sigma_f, limit_set};
 
   // With n frequencies, the highest frequency is n-1 (they go from 0 to n-1).
   // So, by Shannon's theorem, we need 2n - 1 samples to avoid aliasing. 2n will do.
@@ -120,8 +120,9 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   ASSERT_TRUE(fp_samples.isApprox(expected_fp_samples, tolerance));
 
   // Build the regressor to interpolate the basis for any point
-  const KernelRidgeRegression regression{kernel, x_samples, fp_samples, lambda};
-  const Matrix if_lattice = regression(x_lattice);
+  KernelRidgeRegressor regressor{kernel, lambda};
+  regressor.fit(x_samples, fp_samples);
+  const Matrix if_lattice = regressor(x_lattice);
   ASSERT_TRUE(if_lattice.isApprox(expected_if_lattice, tolerance));
 
   const int factor = static_cast<int>(std::ceil(num_supp_per_dim / static_cast<double>(samples_per_dim)) + 1);

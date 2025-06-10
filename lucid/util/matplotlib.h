@@ -39,6 +39,11 @@
 namespace py = pybind11;
 using namespace py::literals;  // NOLINT(build/namespaces_literals): standard use of literals
 
+/**
+ * @namespace lucid::plt
+ * Lucid's matplotlib wrapper.
+ * Inspired by Benno Evers' [matplotlib-cpp](https://github.com/lava/matplotlib-cpp).
+ */
 namespace lucid::plt {
 namespace internal {
 
@@ -445,7 +450,7 @@ bool fill_between(const ContainerX& x, const ContainerY1& y1, const ContainerY2&
       "facecolor"_a = kwargs.facecolor));
 }
 
-/** Keyword arguments for @ref save. */
+/** Keyword arguments for @ref savefig. */
 struct SaveKwargs {
   bool transparent{false};  ///< If True, the Axes patches will all be transparent, otherwise as no effect and the
                             ///< color of the Axes and Figure patches are unchanged
@@ -574,6 +579,12 @@ bool fill_between(const Eigen::Vector<NumericX, SizeX>& x, const Eigen::Vector<N
 }
 #endif
 
+/**
+ * Show the current figure.
+ * @param block if true, the function will block until the figure is closed.
+ * If false, it will return immediately and the figure will be shown in a separate window.
+ * @see https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html
+ */
 inline void show(const bool block = true) { internal::Interpreter::get().show()("block"_a = block); }
 
 /** Keyword arguments for @ref scatter. */
@@ -608,7 +619,7 @@ bool scatter(const ContainerX& x, const ContainerY& y, const ScatterKwargs& kwar
  * @tparam ContainerZ y container type
  * @param x data points for the horizontal axis
  * @param y data points for the vertical axis
- * @param y data points for the depth axis
+ * @param z data points for the depth axis
  * @param kwargs additional keywords arguments
  * @return true if the function was successful
  * @return false if an error occurred

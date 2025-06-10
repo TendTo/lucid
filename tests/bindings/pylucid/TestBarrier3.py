@@ -1,129 +1,111 @@
-import math
-
 import numpy as np
-from pylucid import (
-    read_matrix,
-    GaussianKernel,
-    TruncatedFourierFeatureMap,
-    RectSet,
-    MultiSet,
-    GaussianKernelRidgeRegression,
-    fft_upsample,
-    GurobiLinearOptimiser,
-    LucidNotSupportedException,
-    GUROBI_BUILD,
-)
+from pylucid import *
+from pylucid import __version__
+from pylucid.pipeline import pipeline, rmse
 
 
-def test_barrier_3():
-    ######## PARAMS ########
-    num_supp_per_dim = 12
-    dimension = 2
-    num_freq_per_dim = 6
-    sigma_f = 19.456
-    sigma_l = [30, 23.568]
-    b_norm = 25
-    kappa_b = 1.0
+def scenario_config() -> "ScenarioConfig":
+    """Benchmark scenario taken from
+    https://github.com/oxford-oxcav/fossil/blob/10f1f071784d16b2a5ee5da2f51ff2a81d753e2e/experiments/benchmarks/models.py#L350C1-L360C1
+    """
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Script configuration
+    # ---------------------------------- #
+
+    seed = 42  # Seed for reproducibility
+
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # System dynamics
+    # ---------------------------------- #
+
+    f_det = lambda x: np.array([x[:, 1], -x[:, 0] - x[:, 1] + 1 / 3 * x[:, 0] ** 3]).T  # lambda x: x
+    # Add process noise
+    np.random.seed(seed)  # For reproducibility
+    f = lambda x: f_det(x) + (np.random.standard_normal())
+
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Safety specification
+    # ---------------------------------- #
+
     gamma = 18.312
-    T = 10
-    lmda = 1e-5
-    N = 1000
-    epsilon = 1e-3
-    autonomous = True
+    T = 10  # Time horizon
 
-    limit_set = RectSet((-3, -2), (2.5, 1))
-    initial_set = MultiSet(
+    X_bounds = RectSet((-3, -2), (2.5, 1), seed=seed)  # State space X
+    # Initial set X_0
+    X_init = MultiSet(
         RectSet((1, -0.5), (2, 0.5)),
         RectSet((-1.8, -0.1), (-1.2, 0.1)),
         RectSet((-1.4, -0.5), (-1.2, 0.1)),
     )
-    unsafe_set = MultiSet(RectSet((0.4, 0.1), (0.6, 0.5)), RectSet((0.4, 0.1), (0.8, 0.3)))
+    # Unsafe set X_U
+    X_unsafe = MultiSet(RectSet((0.4, 0.1), (0.6, 0.5)), RectSet((0.4, 0.1), (0.8, 0.3)))
 
-    samples_per_dim = 2 * num_freq_per_dim
-    factor = math.ceil(num_supp_per_dim / samples_per_dim) + 1
-    n_per_dim = factor * samples_per_dim
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Parameters and inputs
+    # ---------------------------------- #
 
     x_samples = read_matrix("tests/bindings/pylucid/x_samples.matrix")
-    xp_samples = read_matrix("tests/bindings/pylucid/xp_samples.matrix")
+    xp_samples = f(x_samples)
 
-    ######## CODE ########
-    k = GaussianKernel(sigma_f, sigma_l)
-    assert k is not None
-    tffm = TruncatedFourierFeatureMap(num_freq_per_dim, dimension, sigma_l, sigma_f, limit_set)
-    assert tffm is not None
+    # Initial estimator hyperparameters. Can be tuned later
+    regularization_constant = 1e-6
+    sigma_f = 15.0
+    sigma_l = np.array([0.1, 0.1])
 
-    x_lattice = limit_set.lattice(samples_per_dim)
-    assert x_lattice is not None
+    num_freq_per_dim = 8  # Number of frequencies per dimension. Includes the zero frequency.
 
-    f_lattice = tffm(x_lattice)
-    assert f_lattice.shape == (
-        samples_per_dim**dimension,
-        num_freq_per_dim**dimension * 2 - 1,
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Lucid
+    # ---------------------------------- #
+
+    # De-comment the tuner you want to use or leave it empty to avoid tuning.
+    tuner = {
+        # "tuner": LbfgsTuner(bounds=((1e-5, 1e5), (1e-5, 1e5)), parameters=LbgsParameters(min_step=0, linesearch=5))
+        # "tuner": MedianHeuristicTuner(),
+        # "tuner": GridSearchTuner(
+        #     ParameterValues(
+        #         Parameter.SIGMA_L, [np.full(2, v) for v in np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)]
+        #     ),
+        #     ParameterValues(Parameter.SIGMA_F, np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)),
+        #     ParameterValues(Parameter.REGULARIZATION_CONSTANT, np.logspace(-6, -1, num=10)),
+        # ),
+    }
+    estimator = KernelRidgeRegressor(
+        kernel=GaussianKernel(sigma_f=sigma_f, sigma_l=sigma_l),
+        regularization_constant=regularization_constant,
     )
-    fp_samples = tffm(xp_samples)
-    assert fp_samples.shape == (
-        xp_samples.shape[0],
-        num_freq_per_dim**dimension * 2 - 1,
+    # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
+    estimator.fit(x=x_samples, y=xp_samples, **tuner)
+    log_debug(f"RMSE on xp_samples {rmse(estimator(x_samples), xp_samples)}")
+    log_debug(f"Score on xp_samples {estimator.score(x_samples, xp_samples)}")
+
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Running the pipeline
+    # ---------------------------------- #
+
+    return ScenarioConfig(
+        x_samples=x_samples,
+        xp_samples=xp_samples,
+        X_bounds=X_bounds,
+        X_init=X_init,
+        X_unsafe=X_unsafe,
+        T=T,
+        gamma=gamma,
+        f_det=f_det,  # The deterministic part of the system dynamics
+        num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
+        estimator=estimator,  # The estimator used to model the system dynamics
+        sigma_f=estimator.get(Parameter.SIGMA_F),
+        problem_log_file="problem.lp",  # The lp file containing the optimization problem
+        iis_log_file="iis.ilp",  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
     )
-
-    r = GaussianKernelRidgeRegression(k, x_samples, fp_samples, lmda)
-    assert r is not None
-
-    if_lattice = r(x_lattice)
-    assert if_lattice.shape == (144, 71)
-
-    w_mat = np.zeros((n_per_dim**dimension, fp_samples.shape[1]))
-    phi_mat = np.zeros((n_per_dim**dimension, fp_samples.shape[1]))
-    assert w_mat.shape == (576, 71)
-    assert phi_mat.shape == (576, 71)
-    for i in range(w_mat.shape[1]):
-        w_mat[:, i] = fft_upsample(if_lattice[:, i], n_per_dim, samples_per_dim, dimension)
-        phi_mat[:, i] = fft_upsample(f_lattice[:, i], n_per_dim, samples_per_dim, dimension)
-
-    x0_lattice = initial_set.lattice(n_per_dim - 1, True)
-    assert x0_lattice.shape == (1587, 2)
-    xu_lattice = unsafe_set.lattice(n_per_dim - 1, True)
-    assert xu_lattice.shape == (1058, 2)
-
-    f0_lattice = tffm(x0_lattice)
-    assert f0_lattice.shape == (1587, num_freq_per_dim**dimension * 2 - 1)
-    fu_lattice = tffm(xu_lattice)
-    assert fu_lattice.shape == (1058, num_freq_per_dim**dimension * 2 - 1)
-
-    o = GurobiLinearOptimiser(T, gamma, epsilon, b_norm, kappa_b, sigma_f)
-
-    def check_cb(
-        success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
-    ):
-        tolerance = 1e-3
-        assert success
-        assert math.isclose(obj_val, 0.8375267440200334, rel_tol=tolerance)
-        assert math.isclose(eta, 15.336789736494852, rel_tol=tolerance)
-        assert math.isclose(c, 0, rel_tol=tolerance)
-        assert math.isclose(norm, 10.39392985811301, rel_tol=tolerance)
-        print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }")
-
-    try:
-        assert o.solve(
-            f0_lattice,
-            fu_lattice,
-            phi_mat,
-            w_mat,
-            tffm.dimension,
-            num_freq_per_dim - 1,
-            n_per_dim,
-            dimension,
-            check_cb,
-        )
-        assert GUROBI_BUILD
-    except LucidNotSupportedException:
-        assert not GUROBI_BUILD  # Did not compile against Gurobi. Ignore this test.
 
 
 if __name__ == "__main__":
-    import time
-
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # Lucid
+    # ---------------------------------- #
+    log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    test_barrier_3()
+    pipeline(**scenario_config())
     end = time.time()
-    print("elapsed time:", end - start)
+    log_info(f"Elapsed time: {end - start}")

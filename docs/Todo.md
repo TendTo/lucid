@@ -10,14 +10,26 @@
 - [x] Implement second test case
 - [x] Implement a proper fftn
 - [x] Check whether it is possible to avoid the padding to get the same information
-    - If it is, implement the alternative
-    - [x] Otherwise, implement the padding
+- [x] Implement the padding
 - [x] Handle permutations
-- [x] Keep track of permutations
-    - Is it better to do a lazy permutation, carrying the updated strides and axes (and dims?)
-    - [x] Or just eagerly update the data structure?
+- [x] Eagerly update the permutation in the tensor
 
 ### Activity 2
+
+- [ ] Add splitter (division of X and Y into training and validation sets)
+- [ ] Add scorer (how to evaluate the performance of the model)
+
+### Activity 3
+
+- [ ] Run Automated Anaesthesia
+- [ ] Run Building Automation System
+
+### Activity 4
+
+- [x] Median Heuristic tuner
+- [ ] Grid search tuner
+- [ ] LBFGS tuner
+- [ ] Parallelise the hyperparameter optimisation
 
 ```mermaid
 flowchart LR
@@ -44,7 +56,31 @@ flowchart LR
     wp1 --> m1
 ```
 
+## Miscellaneous
+
+### Performance
+
+- [ ] Use templates instead of polymorphism where possible
+- [ ] Parallelization via OpenMP and/or GPU
+
+### Documentation
+
+- [ ] Add docstrings to all functions
+
+### Distribution
+
+- [ ] Publish the package to PyPI with a wheel for Linux, Windows and MacOS
+
 ## Notes
 
 - Expectation oracle: given a set of pairs (input, output), produce an oracle such
   that $\mathbb{E}_{x^+\approx\bar{t}(\cdot|x,u)}[\cdot(x^+)] = y$ for all pairs $(x,y)$
+
+
+## Tests
+
+- [ ] Use the LP in a white-box environment to check whether it can produce the barriers
+- [x] Feature map visualisation
+- [x] Add fill_area of tolerance over the barrier
+- [x] Plot f_det vs estimator
+- [ ] Write down formulas on overleaf

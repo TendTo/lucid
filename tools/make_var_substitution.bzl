@@ -1,6 +1,6 @@
 """Provides a set of variables to the template engine."""
 
-load("//tools:rules_cc.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_NAME", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION")
+load("//tools:variables.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_NAME", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION")
 
 def _make_var_substitution_impl(ctx):
     vars = dict(ctx.attr.variables)
@@ -27,7 +27,7 @@ def _make_var_substitution_impl(ctx):
     vars["LUCID_LICENSE"] = LUCID_LICENSE
     vars["LUCID_SOURCE"] = LUCID_SOURCE
     vars["LUCID_TRACKER"] = LUCID_TRACKER
-    vars["GUROBI_HOME"] = ctx.configuration.default_shell_env.get("GUROBI_HOME", "/opt/gurobi") 
+    vars["GUROBI_HOME"] = ctx.configuration.default_shell_env.get("GUROBI_HOME", "/opt/gurobi")
 
     return [platform_common.TemplateVariableInfo(vars)]
 

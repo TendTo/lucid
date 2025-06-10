@@ -37,6 +37,7 @@ build:opt --cxxopt=-O3
 build:py --compilation_mode=opt
 build:py --enable_static_build
 build:py --enable_python_build
+build:py --enable_matplotlib_build=False
 
 # Benchmark build
 build:bench --compilation_mode=opt

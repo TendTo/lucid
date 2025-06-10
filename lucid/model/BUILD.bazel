@@ -1,0 +1,193 @@
+load("//tools:cpplint.bzl", "cpplint")
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_srcs")
+
+package(default_visibility = [
+    "//bindings:__subpackages__",
+    "//lucid:__subpackages__",
+    "//tests:__subpackages__",
+])
+
+lucid_srcs(name = "srcs")
+
+lucid_hdrs_tar(
+    name = "hdrs_tar",
+    subfolder = "math",
+)
+
+cpplint()
+
+lucid_cc_library(
+    name = "request",
+    srcs = ["Request.cpp"],
+    hdrs = ["Request.h"],
+    implementation_deps = ["//lucid/util:error"],
+    deps = [
+        "//lucid/util:concepts",
+        "//lucid/util:definitions",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "parameter",
+    srcs = [
+        "Parameter.cpp",
+        "ParameterValue.cpp",
+        "ParameterValues.cpp",
+        "Parametrizable.cpp",
+    ],
+    hdrs = [
+        "Parameter.h",
+        "ParameterValue.h",
+        "ParameterValues.h",
+        "Parametrizable.h",
+    ],
+    implementation_deps = ["//lucid/util:error"],
+    deps = [
+        "//lucid/lib:eigen",
+        "//lucid/util:concepts",
+        "//lucid/util:definitions",
+        "//lucid/util:exception",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "kernel",
+    srcs = [
+        "GaussianKernel.cpp",
+        "Kernel.cpp",
+    ],
+    hdrs = [
+        "GaussianKernel.h",
+        "Kernel.h",
+    ],
+    implementation_deps = [
+        "//lucid/util:error",
+    ],
+    deps = [
+        ":parameter",
+        "//lucid/lib:eigen",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "estimator",
+    srcs = [
+        "Estimator.cpp",
+        "GradientOptimizable.cpp",
+        "GridSearchTuner.cpp",
+        "KernelRidgeRegressor.cpp",
+        "LbfgsTuner.cpp",
+        "MedianHeuristicTuner.cpp",
+        "Scorer.cpp",
+        "Tuner.cpp",
+    ],
+    hdrs = [
+        "Estimator.h",
+        "GradientOptimizable.h",
+        "GridSearchTuner.h",
+        "KernelRidgeRegressor.h",
+        "LbfgsTuner.h",
+        "MedianHeuristicTuner.h",
+        "Scorer.h",
+        "Tuner.h",
+    ],
+    implementation_deps = [
+        ":gram_matrix",
+        "//lucid/util:error",
+        "//lucid/util:index_iterator",
+        "@lbfgscpp",  # Unfortunately, this target causes issues with the DWYU check
+    ],
+    tags = ["no-dwyu"],
+    deps = [
+        ":feature_map",
+        ":kernel",
+        ":parameter",
+        ":request",
+        "//lucid/lib:eigen",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "feature_map",
+    srcs = [
+        "ConstantTruncatedFourierFeatureMap.cpp",
+        "FeatureMap.cpp",
+        "LinearTruncatedFourierFeatureMap.cpp",
+        "LogTruncatedFourierFeatureMap.cpp",
+        "TruncatedFourierFeatureMap.cpp",
+    ],
+    hdrs = [
+        "ConstantTruncatedFourierFeatureMap.h",
+        "FeatureMap.h",
+        "LinearTruncatedFourierFeatureMap.h",
+        "LogTruncatedFourierFeatureMap.h",
+        "TruncatedFourierFeatureMap.h",
+    ],
+    implementation_deps = [
+        "//lucid/util:error",
+        "//lucid/util:index_iterator",
+        "//lucid/util:math",
+    ],
+    deps = [
+        ":set",
+        "//lucid/lib:eigen",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "gram_matrix",
+    srcs = [
+        "GramMatrix.cpp",
+        "InverseGramMatrix.cpp",
+    ],
+    hdrs = [
+        "GramMatrix.h",
+        "InverseGramMatrix.h",
+    ],
+    implementation_deps = ["//lucid/util:error"],
+    deps = [
+        ":kernel",
+        "//lucid/lib:eigen",
+        "//lucid/util:exception",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "set",
+    srcs = [
+        "MultiSet.cpp",
+        "RectSet.cpp",
+        "Set.cpp",
+    ],
+    hdrs = [
+        "MultiSet.h",
+        "RectSet.h",
+        "Set.h",
+    ],
+    implementation_deps = ["//lucid/util:error"],
+    deps = [
+        "//lucid/lib:eigen",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "model",
+    hdrs = ["model.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":estimator",
+        ":feature_map",
+        ":gram_matrix",
+        ":kernel",
+        ":parameter",
+        ":request",
+        ":set",
+    ],
+)

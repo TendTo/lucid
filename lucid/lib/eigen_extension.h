@@ -91,6 +91,13 @@ class pad_functor {
   const typename ArgType::Scalar value_;
 };
 
+template <class ArgType>
+using PadtOp = Eigen::CwiseNullaryOp<pad_functor<ArgType>, typename pad_helper<ArgType>::MatrixType>;
+template <class ArgType>
+using ShiftOp = Eigen::CwiseNullaryOp<shift_functor<ArgType>, typename shift_helper<ArgType>::MatrixType>;
+template <class ArgType>
+using CirculantOp = Eigen::CwiseNullaryOp<circulant_functor<ArgType>, typename circulant_helper<ArgType>::MatrixType>;
+
 }  // namespace internal
 
 /**
@@ -101,8 +108,7 @@ class pad_functor {
  * @return circulant matrix
  */
 template <class ArgType>
-Eigen::CwiseNullaryOp<internal::circulant_functor<ArgType>, typename internal::circulant_helper<ArgType>::MatrixType>
-circulant(const Eigen::MatrixBase<ArgType>& arg) {
+internal::CirculantOp<ArgType> circulant(const Eigen::MatrixBase<ArgType>& arg) {
   using MatrixType = typename internal::circulant_helper<ArgType>::MatrixType;
   return MatrixType::NullaryExpr(arg.size(), arg.size(), internal::circulant_functor<ArgType>{arg.derived()});
 }
@@ -118,8 +124,8 @@ circulant(const Eigen::MatrixBase<ArgType>& arg) {
  * @return shifted matrix or vector
  */
 template <class ArgType>
-Eigen::CwiseNullaryOp<internal::shift_functor<ArgType>, typename internal::shift_helper<ArgType>::MatrixType> shift(
-    const Eigen::MatrixBase<ArgType>& x, const Eigen::Index shift_rows, const Eigen::Index shift_cols) {
+internal::ShiftOp<ArgType> shift(const Eigen::MatrixBase<ArgType>& x, const Eigen::Index shift_rows,
+                                 const Eigen::Index shift_cols) {
   using MatrixType = typename internal::shift_helper<ArgType>::MatrixType;
   return MatrixType::NullaryExpr(x.rows(), x.cols(),
                                  internal::shift_functor<ArgType>{x.derived(), shift_rows, shift_cols});
@@ -138,8 +144,7 @@ Eigen::CwiseNullaryOp<internal::shift_functor<ArgType>, typename internal::shift
  * @see https://www.mathworks.com/help/matlab/ref/fftshift.html
  */
 template <class ArgType>
-Eigen::CwiseNullaryOp<internal::shift_functor<ArgType>, typename internal::shift_helper<ArgType>::MatrixType> fftshift(
-    const Eigen::MatrixBase<ArgType>& x) {
+internal::ShiftOp<ArgType> fftshift(const Eigen::MatrixBase<ArgType>& x) {
   return shift(x, (x.rows() + 1) / 2, (x.cols() + 1) / 2);
 }
 
@@ -155,8 +160,7 @@ Eigen::CwiseNullaryOp<internal::shift_functor<ArgType>, typename internal::shift
  * @see https://www.mathworks.com/help/matlab/ref/ifftshift.html
  */
 template <class ArgType>
-Eigen::CwiseNullaryOp<internal::shift_functor<ArgType>, typename internal::shift_helper<ArgType>::MatrixType> ifftshift(
-    const Eigen::MatrixBase<ArgType>& x) {
+internal::ShiftOp<ArgType> ifftshift(const Eigen::MatrixBase<ArgType>& x) {
   return shift(x, x.rows() / 2, x.cols() / 2);
 }
 
@@ -173,9 +177,9 @@ Eigen::CwiseNullaryOp<internal::shift_functor<ArgType>, typename internal::shift
  * @return padded matrix or vector
  */
 template <class ArgType>
-Eigen::CwiseNullaryOp<internal::pad_functor<ArgType>, typename internal::pad_helper<ArgType>::MatrixType> pad(
-    const Eigen::MatrixBase<ArgType>& x, const Eigen::Index pad_top, const Eigen::Index pad_bottom,
-    const Eigen::Index pad_left, const Eigen::Index pad_right, const typename ArgType::Scalar& value) {
+internal::PadtOp<ArgType> pad(const Eigen::MatrixBase<ArgType>& x, const Eigen::Index pad_top,
+                              const Eigen::Index pad_bottom, const Eigen::Index pad_left, const Eigen::Index pad_right,
+                              const typename ArgType::Scalar& value) {
   using MatrixType = typename internal::pad_helper<ArgType>::MatrixType;
   return MatrixType::NullaryExpr(
       x.rows() + pad_top + pad_bottom, x.cols() + pad_left + pad_right,
@@ -193,8 +197,8 @@ Eigen::CwiseNullaryOp<internal::pad_functor<ArgType>, typename internal::pad_hel
  * @return padded matrix or vector
  */
 template <class ArgType>
-Eigen::CwiseNullaryOp<internal::pad_functor<ArgType>, typename internal::pad_helper<ArgType>::MatrixType> pad(
-    const Eigen::MatrixBase<ArgType>& x, const Eigen::Index pad_size, const typename ArgType::Scalar& value) {
+internal::PadtOp<ArgType> pad(const Eigen::MatrixBase<ArgType>& x, const Eigen::Index pad_size,
+                              const typename ArgType::Scalar& value) {
   return pad(x, pad_size, pad_size, pad_size, pad_size, value);
 }
 
@@ -210,9 +214,8 @@ Eigen::CwiseNullaryOp<internal::pad_functor<ArgType>, typename internal::pad_hel
  * @return padded matrix or vector
  */
 template <class ArgType>
-Eigen::CwiseNullaryOp<internal::pad_functor<ArgType>, typename internal::pad_helper<ArgType>::MatrixType> pad(
-    const Eigen::MatrixBase<ArgType>& x, const Eigen::Index pad_rows, const Eigen::Index pad_cols,
-    const typename ArgType::Scalar& value) {
+internal::PadtOp<ArgType> pad(const Eigen::MatrixBase<ArgType>& x, const Eigen::Index pad_rows,
+                              const Eigen::Index pad_cols, const typename ArgType::Scalar& value) {
   return pad(x, pad_rows, pad_rows, pad_cols, pad_cols, value);
 }
 

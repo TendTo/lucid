@@ -8,8 +8,9 @@
 #pragma once
 
 #include "lucid/lib/eigen.h"
-#include "lucid/math/math.h"
-#include "lucid/tuning/tuning.h"
+#include "lucid/model/model.h"
+#include "lucid/util/util.h"
+#include "lucid/verification/verification.h"
 #include "lucid/version.h"
 
 /**

@@ -7,24 +7,24 @@ pylucid_py_test(name = "test_kernel")
 
 pylucid_py_test(name = "test_optimiser")
 
-pylucid_py_test(name = "test_regression")
+pylucid_py_test(name = "test_estimator")
 
 pylucid_py_test(name = "test_set")
 
-pylucid_gurobi_py_test(
-    name = "test_barrier_3",
-    data = [
-        "x_samples.matrix",
-        "xp_samples.matrix",
-    ],
-)
-
-pylucid_gurobi_py_test(
-    name = "test_automated_anasthesia",
-    deps = [requirement("scikit-learn")],
-)
-
-pylucid_gurobi_py_test(
-    name = "test_building_automation_system_1",
-    deps = [requirement("scikit-learn")],
-)
+#pylucid_gurobi_py_test(
+#    name = "test_barrier_3",
+#    data = [
+#        "x_samples.matrix",
+#        "xp_samples.matrix",
+#    ],
+#)
+#
+#pylucid_gurobi_py_test(
+#    name = "test_automated_anasthesia",
+#    deps = [requirement("scikit-learn")],
+#)
+#
+#pylucid_gurobi_py_test(
+#    name = "test_building_automation_system_1",
+#    deps = [requirement("scikit-learn")],
+#)

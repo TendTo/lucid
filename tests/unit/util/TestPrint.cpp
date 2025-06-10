@@ -1,0 +1,172 @@
+/**
+ * @author Room 6.030
+ * @copyright 2025 lucid
+ * @licence BSD 3-Clause License
+ */
+#include <fmt/format.h>
+#include <gtest/gtest.h>
+
+#include "lucid/lucid.h"
+
+using lucid::ConstantTruncatedFourierFeatureMap;
+using lucid::GaussianKernel;
+using lucid::GramMatrix;
+using lucid::GridSearchTuner;
+using lucid::Index;
+using lucid::InverseGramMatrix;
+using lucid::KernelRidgeRegressor;
+using lucid::LinearTruncatedFourierFeatureMap;
+using lucid::LogTruncatedFourierFeatureMap;
+using lucid::Matrix;
+using lucid::MedianHeuristicTuner;
+using lucid::Parameter;
+using lucid::ParameterValue;
+using lucid::ParameterValues;
+using lucid::RectSet;
+using lucid::Request;
+using lucid::Vector;
+
+TEST(TestPrint, Request) {
+  EXPECT_EQ(fmt::format("{}", Request::_), "Request( NoRequest )");
+  EXPECT_EQ(fmt::format("{}", Request::OBJECTIVE_VALUE), "Request( ObjectiveValue )");
+  EXPECT_EQ(fmt::format("{}", Request::GRADIENT), "Request( Gradient )");
+}
+
+TEST(TestPrint, Parameter) {
+  EXPECT_EQ(fmt::format("{}", Parameter::_), "Parameter( NoParameter )");
+  EXPECT_EQ(fmt::format("{}", Parameter::SIGMA_F), "Parameter( Sigma_f )");
+  EXPECT_EQ(fmt::format("{}", Parameter::SIGMA_L), "Parameter( Sigma_l )");
+  EXPECT_EQ(fmt::format("{}", Parameter::REGULARIZATION_CONSTANT), "Parameter( RegularizationConstant )");
+  EXPECT_EQ(fmt::format("{}", Parameter::DEGREE), "Parameter( Degree )");
+  EXPECT_EQ(fmt::format("{}", Parameter::GRADIENT_OPTIMIZABLE), "Parameter( GradientOptimizable )");
+}
+
+TEST(TestPrint, ParameterValue) {
+  Vector vec{4};
+  vec << 1, 2, 3, 4;
+  EXPECT_EQ(fmt::format("{}", ParameterValue(Parameter::REGULARIZATION_CONSTANT, 1e-10)),
+            "ParameterValue( Parameter( RegularizationConstant ) value( 1e-10 )");
+  EXPECT_EQ(fmt::format("{}", ParameterValue(Parameter::SIGMA_L, vec)),
+            "ParameterValue( Parameter( Sigma_l ) value( 1 2 3 4 )");
+  EXPECT_EQ(fmt::format("{}", ParameterValue(Parameter::DEGREE, 5)), "ParameterValue( Parameter( Degree ) value( 5 )");
+}
+
+TEST(TestPrint, ParameterValues) {
+  Vector vec1{4}, vec2{4};
+  vec1 << 1, 2, 3, 4;
+  vec2 << 5, 6, 7, 8;
+  EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::REGULARIZATION_CONSTANT, 1e-10)),
+            "ParameterValues( Parameter( RegularizationConstant ) values( [1e-10] )");
+  EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::SIGMA_L, vec1, vec2)),
+            "ParameterValues( Parameter( Sigma_l ) values( [1 2 3 4, 5 6 7 8] )");
+  EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::DEGREE, 1, 2, 3)),
+            "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )");
+}
+
+TEST(TestPrint, LinearTruncatedFourierFeatureMap) {
+  constexpr int num_frequencies = 3;
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  constexpr double sigma_f = 2.01;
+  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const LinearTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  EXPECT_EQ(fmt::format("{}", feature_map),
+            "LinearTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
+            "weights(  0.341345    0.3046    0.3046  0.120871  0.120871    0.3046    0.3046   0.27181   0.27181  "
+            "0.107859  0.107859  0.120871  0.120871  0.107859  0.107859 0.0428005 0.0428005 ) )");
+}
+TEST(TestPrint, LogTruncatedFourierFeatureMap) {
+  constexpr int num_frequencies = 3;
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  constexpr double sigma_f = 2.01;
+  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const LogTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  EXPECT_EQ(fmt::format("{}", feature_map),
+            "LogTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
+            "weights( 0.131338 0.237451 0.237451 0.164684 0.164684 0.263491 0.263491 0.476376 0.476376 0.330391 "
+            "0.330391 0.203628 0.203628 0.368148 0.368148 0.255329 0.255329 ) )");
+}
+TEST(TestPrint, ConstantTruncatedFourierFeatureMap) {
+  constexpr int num_frequencies = 3;
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  constexpr double sigma_f = 2.01;
+  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const ConstantTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  EXPECT_EQ(fmt::format("{}", feature_map),
+            "ConstantTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
+            "weights(  0.557992   0.38634   0.38634 0.0386108 0.0386108  0.564706  0.564706  0.390989  0.390989 "
+            "0.0390754 0.0390754  0.205264  0.205264  0.142119  0.142119 0.0142034 0.0142034 ) )");
+}
+
+TEST(TestPrint, GaussianKernelIsotropic) {
+  const GaussianKernel kernel{5.2, 2.01};
+  EXPECT_EQ(fmt::format("{}", kernel), "GaussianKernel( sigma_l( 5.2 ) sigma_f( 2.01 ) isotropic( 1 ) )");
+}
+TEST(TestPrint, GaussianKernelAnisotropic) {
+  Vector sigma_l{4};
+  sigma_l << 3.2, 5.1, 3.4, 1.24;
+  const GaussianKernel kernel{sigma_l, 2.01};
+  EXPECT_EQ(fmt::format("{}", kernel),
+            "GaussianKernel( sigma_l(  3.2  5.1  3.4 1.24 ) sigma_f( 2.01 ) isotropic( 0 ) )");
+}
+
+TEST(TestPrint, GramMatrix) {
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  const GaussianKernel kernel{sigma_l, 2.01};
+  const GramMatrix gram_matrix{
+      kernel, Matrix::NullaryExpr(2, 2, [](const Index row, const Index col) { return row + col + 1; })};
+  EXPECT_EQ(fmt::format("{}", gram_matrix),
+            "GramMatrix(\n"
+            " 4.0401 3.77431\n"
+            "3.77431  4.0401"
+            "\n)");
+}
+
+TEST(TestPrint, InverseGramMatrix) {
+  Vector sigma_l{2};
+  sigma_l << 3.2, 5.1;
+  const GaussianKernel kernel{sigma_l, 2.01};
+  const GramMatrix gram_matrix{
+      kernel, Matrix::NullaryExpr(2, 2, [](const Index row, const Index col) { return row + col + 1; })};
+  EXPECT_EQ(fmt::format("{}", gram_matrix.inverse()),
+            "GramMatrix(\n"
+            " 4.0401 3.77431\n"
+            "3.77431  4.0401"
+            "\n)^-1");
+}
+
+TEST(TestPrint, KernelRidgeRegressorIsotropic) {
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3.2, 5.1), 1e-6};
+  EXPECT_EQ(fmt::format("{}", regressor),
+            "KernelRidgeRegressor( kernel( GaussianKernel( sigma_l( 3.2 ) sigma_f( 5.1 ) isotropic( 1 ) ) ) "
+            "regularization_constant( 1e-06 ) )");
+}
+
+TEST(TestPrint, KernelRidgeRegressorAnisotropic) {
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(Vector::Constant(3, 1.1), 5.1), 1e-6};
+  EXPECT_EQ(fmt::format("{}", regressor),
+            "KernelRidgeRegressor( kernel( GaussianKernel( sigma_l( 1.1 1.1 1.1 ) sigma_f( 5.1 ) isotropic( 0 ) ) ) "
+            "regularization_constant( 1e-06 ) )");
+}
+
+TEST(TestPrint, MedianHeuristicTuner) {
+  EXPECT_EQ(fmt::format("{}", MedianHeuristicTuner()), "MedianHeuristicTuner( )");
+}
+
+TEST(TestPrint, GridSearchTuner) {
+  Vector vec1{4}, vec2{4};
+  vec1 << 1, 2, 3, 4;
+  vec2 << 5, 6, 7, 8;
+  EXPECT_EQ(fmt::format("{}", GridSearchTuner({ParameterValues(Parameter::REGULARIZATION_CONSTANT, 1e-10),
+                                               ParameterValues(Parameter::SIGMA_L, vec1, vec2),
+                                               ParameterValues(Parameter::DEGREE, 1, 2, 3)},
+                                              4)),
+            "GridSearchTuner( parameters( ["
+            "ParameterValues( Parameter( RegularizationConstant ) values( [1e-10] ), "
+            "ParameterValues( Parameter( Sigma_l ) values( [1 2 3 4, 5 6 7 8] ), "
+            "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )"
+            "] ) n_jobs( 4 )");
+}
