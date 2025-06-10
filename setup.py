@@ -14,15 +14,21 @@ import setuptools.errors
 
 def get_bazel_target_args(command):
     if command == "build":
-        return ["bazel", "build", "--config=py", "--python_version=" + sysconfig.get_python_version()]
+        return [
+            "bazel",
+            "build",
+            "--config=py",
+            f"--python_version={sysconfig.get_python_version()}",
+            f"--enable_gurobi_build={'True' if 'GUROBI_HOME' in os.environ else 'False'}",
+        ]
     if command == "cquery":
         return [
             "bazel",
             "cquery",
             "--output=files",
             "--config=py",
+            f"--python_version={sysconfig.get_python_version()}",
             f"--enable_gurobi_build={'True' if 'GUROBI_HOME' in os.environ else 'False'}",
-            "--python_version=" + sysconfig.get_python_version(),
         ]
     if command == "query":
         return [
