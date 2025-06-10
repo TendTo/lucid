@@ -21,6 +21,7 @@ def get_bazel_target_args(command):
             "cquery",
             "--output=files",
             "--config=py",
+            f"--enable_gurobi_build={'True' if 'GUROBI_HOME' in os.environ else 'False'}",
             "--python_version=" + sysconfig.get_python_version(),
         ]
     if command == "query":
@@ -49,13 +50,12 @@ class BazelExtension(setuptools.Extension):
 
     def __init__(self, ext_name, bazel_target):
         self.bazel_target = bazel_target
-        folders = ("lucid", "bindings/pylucid", "tools")
+        folders = ("lucid", "bindings/pylucid", "tools", "third_party")
         files = []
         for folder in folders:
             files += glob.glob(f"{folder}/**/*", recursive=True)
-        files += ["BUILD.bazel", "MODULE.bazel", ".bazelrc", ".bazelignore"]
-        src_files = list(filter(lambda x: not x.endswith(".py"), files))
-        setuptools.Extension.__init__(self, ext_name, sources=src_files)
+        files += ["BUILD.bazel", "MODULE.bazel", ".bazelversion", ".bazelrc", ".bazelignore"]
+        setuptools.Extension.__init__(self, ext_name, sources=files)
 
 
 class BuildBazelExtension(build_ext.build_ext):
