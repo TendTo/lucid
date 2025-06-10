@@ -1,18 +1,5 @@
-from pylucid import (
-    __version__,
-    __doc__,
-    log_error,
-    log_info,
-    set_verbosity,
-    ScenarioConfig,
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR,
-    LOG_DEBUG,
-    LOG_CRITICAL,
-    LOG_TRACE,
-    LOG_NONE,
-)
+from pylucid import *
+from pylucid import __version__
 from typing import TYPE_CHECKING
 from argparse import ArgumentParser, Namespace, ArgumentDefaultsHelpFormatter
 from pathlib import Path
@@ -33,8 +20,12 @@ def raise_error(message: str, error_type: type = ValueError):
 class CLIArgs(Namespace):
     verbose: int
     input: Path
-    silent: bool
     seed: int
+    gamma: float
+    lambda_: float  # Use 'lambda_' to avoid conflict with the Python keyword 'lambda'
+    sigma_f: float
+    sigma_l: "np.typing.NDArray[np.float64] | float"  # Can be a single float or an array of floats
+    N: int
 
 
 def cli_scenario_config(args: CLIArgs) -> "ScenarioConfig":
@@ -58,24 +49,15 @@ def cli_scenario_config(args: CLIArgs) -> "ScenarioConfig":
     # Unsafe set X_U
     X_unsafe = MultiSet(RectSet((0.4, 0.1), (0.6, 0.5)), RectSet((0.4, 0.1), (0.8, 0.3)))
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Parameters and inputs
-    # ---------------------------------- #
-
-    N = 10
-    x_samples = read_matrix("tests/bindings/pylucid/x_samples.matrix")
+    x_samples = X_bounds.sample(args.N)
     xp_samples = f_det(x_samples)
 
     # Initial estimator hyperparameters. Can be tuned later
-    regularization_constant = 1e-6
     sigma_f = 15.0
     sigma_l = np.array([1, 1.0])
 
     num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
-
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # Lucid
-    # ---------------------------------- #
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
     tuner = {
@@ -101,10 +83,6 @@ def cli_scenario_config(args: CLIArgs) -> "ScenarioConfig":
     )
     print(f"Feature map: {feature_map(f_det(x_samples))}")
     estimator = ModelEstimator(f=lambda x: feature_map(f_det(x)))  # Use the custom model estimator
-
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # Running the pipeline
-    # ---------------------------------- #
 
     return ScenarioConfig(
         x_samples=x_samples,
@@ -134,13 +112,13 @@ def arg_parser() -> "ArgumentParser":
         return path
 
     parser = ArgumentParser(prog="pylucid", description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--version", action="version", version=__version__)
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("input", help="path to the input file", type=valid_path)
     parser.add_argument(
         "-v",
         "--verbose",
         type=int,
-        help=f"set verbosity level. {LOG_NONE}: no output, {LOG_CRITICAL}: critical, {LOG_ERROR}: errors, {LOG_WARN}: warning, {LOG_INFO}: info (default), {LOG_DEBUG}: debug, {LOG_TRACE}: trace",
+        help=f"set verbosity level. {LOG_NONE}: no output, {LOG_CRITICAL}: critical, {LOG_ERROR}: errors, {LOG_WARN}: warning, {LOG_INFO}: info, {LOG_DEBUG}: debug, {LOG_TRACE}: trace",
         choices=[LOG_NONE, LOG_CRITICAL, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG, LOG_TRACE],
         default=LOG_INFO,
     )
@@ -158,15 +136,42 @@ def arg_parser() -> "ArgumentParser":
         default=1.0,
         help="discount factor for future rewards",
     )
+    parser.add_argument(
+        "-l",
+        "--lambda",
+        type=float,
+        default=1.0,
+        help="regularization constant for the estimator",
+    )
+    parser.add_argument(
+        "-N",
+        "--num-samples",
+        type=int,
+        default=1000,
+        help="number of samples to use to train the estimator",
+    )
+    parser.add_argument(
+        "--sigma_f",
+        type=float,
+        default=15.0,
+        help="hyperparameter for the feature map, sigma_f",
+    )
+    parser.add_argument(
+        "--sigma_l",
+        default=[1.0],
+        type=float,
+        nargs="+",
+        help="hyperparameter for the feature map, sigma_l",
+    )
+
     return parser
 
 
 def main(argv: "Sequence[str] | None" = None):
     args = arg_parser().parse_args(argv, namespace=CLIArgs())
+    args.sigma_l = np.array(args.sigma_l) if len(args.sigma_l) > 1 else args.sigma_l[0]
     # Set verbosity based on the command line argument
     set_verbosity(args.verbose)
-    if args.silent:  # If silent mode is enabled, set verbosity to 0
-        set_verbosity(0)
     # Import the input file as a module
     mod = importlib.import_module(".".join(args.input.parts).removesuffix(".py"))
     # Check if the module has a 'scenario_config' function
@@ -177,8 +182,8 @@ def main(argv: "Sequence[str] | None" = None):
     if not isinstance(config, (ScenarioConfig, dict)):
         raise raise_error("The 'scenario_config' function must return an instance of 'ScenarioConfig' or a dict")
 
-    # If all the checks pass, run the benchmark
-    log_info(f"Running benchmark (LUCID version: {__version__})")
+    # If all the checks pass, run the scenario
+    log_info(f"Running scenario (LUCID version: {__version__})")
     from pylucid.pipeline import pipeline
 
     start = time.time()
