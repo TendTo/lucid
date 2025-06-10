@@ -18,7 +18,6 @@
 
 namespace lucid {
 
-#ifdef LUCID_GUROBI_BUILD
 GurobiLinearOptimiser::GurobiLinearOptimiser(const int T, const double gamma, const double epsilon, const double b_norm,
                                              const double b_kappa, const double sigma_f, std::string problem_log_file,
                                              std::string iis_log_file)
@@ -38,6 +37,7 @@ GurobiLinearOptimiser::GurobiLinearOptimiser(const int T, const double gamma, co
                                 "must be a valid file path with .ilp extension");
 }
 
+#ifdef LUCID_GUROBI_BUILD
 bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
                                   ConstMatrixRef w_mat, const Dimension rkhs_dim,
                                   const Dimension num_frequencies_per_dim,
