@@ -19,6 +19,11 @@ namespace lucid {
  */
 class FeatureMap {
  public:
+  explicit FeatureMap() = default;
+  FeatureMap(const FeatureMap &) = default;
+  FeatureMap(FeatureMap &&) = default;
+  FeatureMap &operator=(const FeatureMap &) = default;
+  FeatureMap &operator=(FeatureMap &&) = default;
   virtual ~FeatureMap() = default;
 
   /**

@@ -29,6 +29,10 @@ namespace lucid {
 class Parametrizable {
  public:
   explicit Parametrizable(const Parameters parameters = NoParameters) : parameters_{parameters} {}
+  Parametrizable(const Parametrizable&) = default;
+  Parametrizable(Parametrizable&&) = default;
+  Parametrizable& operator=(const Parametrizable&) = default;
+  Parametrizable& operator=(Parametrizable&&) = default;
   virtual ~Parametrizable() = default;
 
   /**
