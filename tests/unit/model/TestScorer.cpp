@@ -18,6 +18,7 @@ using lucid::Scalar;
 using lucid::Vector;
 using lucid::scorer::mse_score;
 using lucid::scorer::r2_score;
+using lucid::scorer::rmse_score;
 using lucid::scorer::Scorer;
 
 class MockEstimator_ : public Estimator {
@@ -335,3 +336,150 @@ TEST(TestScorer, MSEScoreNegativePredictions) {
 }
 
 TEST(TestScorer, MSEScoreMatchingSignature) { static_assert(std::is_convertible_v<decltype(mse_score), Scorer>); }
+
+TEST(TestScorer, RMSEScorePerfectPredictions) {
+  const Matrix inputs{Matrix::Random(20, 3)};
+  const Matrix outputs{Matrix::Random(20, 2)};
+  const MockEstimator estimator{outputs};
+
+  EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), 0.0);
+}
+
+TEST(TestScorer, RMSEScoreConstantError) {
+  const Matrix inputs{Matrix::Random(10, 2)};
+  const Matrix outputs{Matrix::Random(10, 1)};
+  const Matrix predictions{outputs.array() + 3.0};
+  const MockEstimator estimator{predictions};
+
+  // RMSE = sqrt(mean((3)^2)) = 3, but score is -RMSE
+  EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), -3.0);
+}
+
+TEST(TestScorer, RMSEScoreVaryingErrors) {
+  const Matrix inputs{Matrix::Random(5, 2)};
+  Matrix outputs{5, 2};
+  outputs << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;
+  Matrix predictions{outputs};
+  predictions(0, 0) += 1.0;
+  predictions(1, 1) += 2.0;
+  predictions(2, 0) -= 1.0;
+  predictions(3, 1) -= 2.0;
+  // RMSE = sqrt(mean([1^2, 2^2, 1^2, 2^2, 0, 0, 0, 0, 0, 0])) = sqrt(10/10) = 1
+  const MockEstimator estimator{predictions};
+  EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), -1.0);
+}
+
+TEST(TestScorer, RMSEScoreMultidimensionalOutputs) {
+  const Matrix inputs{Matrix::Random(8, 3)};
+  Matrix outputs{Matrix::Random(8, 4)};
+  Matrix predictions{outputs};
+  predictions.col(0).array() += 1.0;
+  predictions.col(1).array() += 2.0;
+  predictions.col(2).array() += 3.0;
+  predictions.col(3).array() += 4.0;
+  // RMSE = sqrt(mean([1^2, 2^2, 3^2, 4^2])) = sqrt((1+4+9+16)/4) = sqrt(7.5) ≈ 2.7386127875258306
+  const MockEstimator estimator{predictions};
+  EXPECT_NEAR(rmse_score(estimator, inputs, outputs), -2.7386127875258306, 1e-8);
+}
+
+TEST(TestScorer, RMSEScoreLargeValues) {
+  const Matrix inputs{Matrix::Random(5, 2)};
+  const Matrix outputs{1e6 * Matrix::Random(5, 1)};
+  const Matrix predictions{outputs.array() + 1000.0};
+  const MockEstimator estimator{predictions};
+
+  EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), -1000.0);
+}
+
+TEST(TestScorer, RMSEScoreSmallValues) {
+  const Matrix inputs{Matrix::Random(5, 2)};
+  const Matrix outputs{1e-6 * Matrix::Random(5, 1)};
+  const Matrix predictions{outputs.array() + 1e-6};
+  const MockEstimator estimator{predictions};
+
+  EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), -1e-6);
+}
+
+TEST(TestScorer, RMSEScoreSmallestDataset) {
+  const Matrix inputs{Matrix::Random(2, 1)};
+  const Matrix outputs{Matrix::Random(2, 1)};
+
+  // Perfect predictions
+  const MockEstimator perfectEstimator{outputs};
+  EXPECT_DOUBLE_EQ(rmse_score(perfectEstimator, inputs, outputs), 0.0);
+
+  // Imperfect predictions with known error
+  Matrix predictions{outputs};
+  predictions.array() += 2.0;
+  const MockEstimator imperfectEstimator{predictions};
+  EXPECT_DOUBLE_EQ(rmse_score(imperfectEstimator, inputs, outputs), -2.0);
+}
+
+TEST(TestScorer, RMSEScoreSingleDataSample) {
+  const Matrix inputs{Matrix::Random(1, 3)};
+  const Matrix outputs{Matrix::Random(1, 2)};
+  const MockEstimator estimator{outputs};
+
+  EXPECT_THROW(rmse_score(estimator, inputs, outputs), lucid::exception::LucidInvalidArgumentException);
+}
+
+TEST(TestScorer, RMSEScoreMismatchedRows) {
+  const Matrix inputs{Matrix::Random(10, 2)};
+  const Matrix outputs{Matrix::Random(8, 2)};
+  const Matrix predictions{Matrix::Random(8, 2)};
+  const MockEstimator estimator{predictions};
+
+  EXPECT_THROW(rmse_score(estimator, inputs, outputs), lucid::exception::LucidInvalidArgumentException);
+}
+
+TEST(TestScorer, RMSEScoreMismatchedDimensions) {
+  const Matrix inputs{Matrix::Random(10, 2)};
+  const Matrix outputs{Matrix::Random(10, 3)};
+  const Matrix predictions{Matrix::Random(10, 2)};
+  const MockEstimator estimator{predictions};
+
+  EXPECT_THROW(rmse_score(estimator, inputs, outputs), lucid::exception::LucidInvalidArgumentException);
+}
+
+TEST(TestScorer, RMSEScoreAllNaN) {
+  const Matrix inputs{Matrix::Random(5, 2)};
+  Matrix outputs{Matrix::Random(5, 2)};
+  outputs.setConstant(std::numeric_limits<double>::quiet_NaN());
+  Matrix predictions{Matrix::Random(5, 2)};
+  predictions.setConstant(std::numeric_limits<double>::quiet_NaN());
+  const MockEstimator estimator{predictions};
+
+#ifndef NDEBUG
+  EXPECT_THROW(rmse_score(estimator, inputs, outputs), lucid::exception::LucidAssertionException);
+#else
+  EXPECT_TRUE(std::isnan(rmse_score(estimator, inputs, outputs)));
+#endif
+}
+
+TEST(TestScorer, RMSEScoreNegativePredictions) {
+  const Matrix inputs{Matrix::Random(10, 2)};
+  const Matrix outputs{Matrix::Constant(10, 1, 5.0)};
+  const Matrix predictions{Matrix::Constant(10, 1, -5.0)};
+  const MockEstimator estimator{predictions};
+
+  // RMSE = sqrt(mean((5-(-5))^2)) = sqrt(100) = 10
+  EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), -10.0);
+}
+
+TEST(TestScorer, RMSEScoreLinearFunction) {
+  constexpr int n_samples = 10;
+  const Matrix inputs{Matrix::Random(n_samples, 1)};
+  Matrix outputs{n_samples, 1};
+  for (int i = 0; i < n_samples; ++i) {
+    outputs(i, 0) = 2 * inputs(i, 0) + 1;
+  }
+  Matrix predictions{n_samples, 1};
+  for (int i = 0; i < n_samples; ++i) {
+    predictions(i, 0) = 2 * inputs(i, 0) + 2;
+  }
+  const MockEstimator estimator{predictions};
+  // Error is consistently 1.0, so RMSE should be 1.0
+  EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), -1.0);
+}
+
+TEST(TestScorer, RMSEScoreMatchingSignature) { static_assert(std::is_convertible_v<decltype(rmse_score), Scorer>); }

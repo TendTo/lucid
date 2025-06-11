@@ -29,7 +29,7 @@ class FeatureMap {
   /**
    * Apply the feature map to a vector.
    * @param x @nxd input vector
-   * @return @f$ n \times N @f$ output, where @f$ N @f$ is the dimension of the feature space
+   * @return @f$ n \times M @f$ output, where @f$ M @f$ is the dimension of the feature space
    */
   [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x) const = 0;
 };

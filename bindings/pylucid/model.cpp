@@ -173,7 +173,7 @@ class MultiSetIterator {
 };
 
 void init_model(py::module_ &m) {
-  /**************************** Paramters ****************************/
+  /**************************** Parameters ****************************/
   py::class_<LbgsParameters>(m, "LbgsParameters")
       .def(py::init<>())
       .def(py::init([](const int m_, const Scalar epsilon_, const Scalar epsilon_rel_, const int past_,
@@ -318,6 +318,8 @@ void init_model(py::module_ &m) {
   m.def("r2_score", &scorer::r2_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
         ARG_NONCONVERT("evaluation_outputs"));
   m.def("mse_score", &scorer::mse_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
+        ARG_NONCONVERT("evaluation_outputs"));
+  m.def("rmse_score", &scorer::rmse_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
         ARG_NONCONVERT("evaluation_outputs"));
 
   /**************************** Tuner ****************************/

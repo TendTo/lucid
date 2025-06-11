@@ -78,4 +78,34 @@ double r2_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, Co
  */
 double mse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs);
 
+/**
+ * Compute the root mean squared error (RMSE) score of the `estimator` on the given evaluation data.
+ * Given the evaluation inputs @f$ x = \{ x_1, \dots, x_n \} @f$,
+ * where @f$ x_i \in \mathcal{X} \subseteq \mathbb{R}^{d_x}, 0 \le i \le n @f$,
+ * we want to compute the root mean squared error of the model's predictions
+ * @f$ \hat{y} = \{ \hat{y}_1, \dots, \hat{y}_n \} @f$
+ * where @f$ \hat{y}_i \in \mathcal{Y} \subseteq \mathbb{R}^{d_y}, 0 \le i \le n @f$,
+ * with respect to the true outputs
+ * @f$ y = \{ y_1, \dots, y_n \} @f$
+ * where @f$ y_i \in \mathcal{Y} , 0 \le i \le n @f$.
+ * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates a perfect fit,
+ * and more negative values indicates a worse fit.
+ * @f[
+ * \text{RMSE} = -\sqrt{\frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2}
+ * @f]
+ * where @f$ n @f$ is the number of rows in the evaluation data.
+ * The RMSE score is always non-negative, and a lower value indicates a better fit.
+ * @warning The RMSE score is non-positive by definition in this implementation.
+ * @pre The estimator must be able to make predictions,
+ * i.e., it should have been fitted or consolidated before calling this method.
+ * @pre The estimator's prediction must belong to a vector space with the same number of dimensions
+ * as the one the evaluation outputs inhabit.
+ * @pre The number of rows in `evaluation_inputs` must be equal to the number of rows in `evaluation_outputs`.
+ * @param estimator estimator to score
+ * @param evaluation_inputs @nxdx evaluation input data
+ * @param evaluation_outputs @nxdy evaluation output data
+ * @return root mean squared error score of the model
+ */
+double rmse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs);
+
 }  // namespace lucid::scorer
