@@ -105,6 +105,23 @@ Use the `--help` option to see the available options:
 python3 -m pylucid --help
 ```
 
+The `scenario_config` function can also accept a `CLIArgs` argument, which allows you to pass the parsed command line arguments to the function.
+This is useful if you want to customize the scenario configuration based on command line arguments.
+E.g.,
+
+```python
+# my_config.py
+import numpy as np
+from pylucid import *
+
+
+def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
+  # ...
+  np.random.seed(args.seed)  # Use the seed from the command line arguments
+  # ...
+  return ScenarioConfig(...)
+```
+
 </div></li>
 <li><b class="tab-title">Main script</b><div>
 

@@ -1,24 +1,20 @@
 import time
+
 import numpy as np
 from pylucid import *
 from pylucid import __version__
 from pylucid.pipeline import pipeline
 
 
-def scenario_config() -> "ScenarioConfig":
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # Script configuration
-    # ---------------------------------- #
-
-    seed = 42  # Seed for reproducibility
-
+def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # System dynamics
     # ---------------------------------- #
 
     f_det = lambda x: 1 / 2 * x
     # Add process noise
-    np.random.seed(seed)  # For reproducibility
+    if args.seed >= 0:
+        np.random.seed(args.seed)  # For reproducibility
     f = lambda x: f_det(x) + np.random.normal(scale=0.4)
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
@@ -28,7 +24,7 @@ def scenario_config() -> "ScenarioConfig":
     gamma = 1
     T = 5  # Time horizon
 
-    X_bounds = RectSet([(-1, 1)])  # State space
+    X_bounds = RectSet([(-1, 1)], seed=args.seed)  # State space
     X_init = RectSet([(-0.5, 0.5)])  # Initial set
     X_unsafe = MultiSet(  # Unsafe set
         RectSet([(-1, -0.9)]),

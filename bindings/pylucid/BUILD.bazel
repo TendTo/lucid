@@ -39,6 +39,7 @@ py_library(
     srcs = [
         "__init__.py",
         "__main__.py",
+        "cli.py",
         "dreal.py",
         "ext.py",
         "pipeline.py",

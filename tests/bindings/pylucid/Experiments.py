@@ -1,24 +1,24 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from pylucid import (
-    __version__,
-    GaussianKernel,
-    ConstantTruncatedFourierFeatureMap,
-    TruncatedFourierFeatureMap,
-    LogTruncatedFourierFeatureMap,
-    LinearTruncatedFourierFeatureMap,
-    RectSet,
-    MultiSet,
-    KernelRidgeRegressor,
-    fft_upsample,
-    GurobiLinearOptimiser,
-    LucidNotSupportedException,
     GUROBI_BUILD,
-    set_verbosity,
     LOG_DEBUG,
+    ConstantTruncatedFourierFeatureMap,
+    GaussianKernel,
+    GurobiLinearOptimiser,
+    KernelRidgeRegressor,
+    LinearTruncatedFourierFeatureMap,
+    LogTruncatedFourierFeatureMap,
+    LucidNotSupportedException,
+    MultiSet,
+    RectSet,
+    TruncatedFourierFeatureMap,
+    __version__,
+    fft_upsample,
+    set_verbosity,
 )
 from pylucid.plot import plot_solution
 from scipy.spatial.distance import cdist
-from matplotlib import pyplot as plt
 
 np.set_printoptions(linewidth=200, suppress=True)
 
@@ -30,7 +30,10 @@ def rmse(x: "np.typing.NDArray[np.float64]", y: "np.typing.NDArray[np.float64]",
 
 
 # from cvc5.pythonic import Real, solve, Solver, sat, Cosine, Sine, ArithRef, BoolVal, And, Or, Implies, ExprRef, Not
-from dreal import And, Or, Implies, Variable as Real, sin as Sine, cos as Cosine, Not, CheckSatisfiability
+from dreal import And, CheckSatisfiability, Implies, Not, Or
+from dreal import Variable as Real
+from dreal import cos as Cosine
+from dreal import sin as Sine
 
 
 def set_constraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef":

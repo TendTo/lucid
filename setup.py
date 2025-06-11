@@ -1,15 +1,15 @@
 """Install script for setuptools."""
 
-import os
-import shutil
-import sysconfig
-import subprocess
 import glob
+import os
 import re
+import shutil
+import subprocess
+import sysconfig
 
 import setuptools
-from setuptools.command import build_ext
 import setuptools.errors
+from setuptools.command import build_ext
 
 
 def get_bazel_target_args(command):

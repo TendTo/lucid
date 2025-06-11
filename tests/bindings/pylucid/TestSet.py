@@ -1,5 +1,5 @@
-from pylucid import RectSet, MultiSet, Set
 import numpy as np
+from pylucid import MultiSet, RectSet, Set
 
 
 class TestSet:

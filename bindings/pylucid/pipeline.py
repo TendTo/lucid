@@ -1,22 +1,24 @@
 from typing import Callable
+
 import numpy as np
+
 from ._pylucid import (
-    GaussianKernel,
-    FeatureMap,
-    ConstantTruncatedFourierFeatureMap,
-    Set,
-    MedianHeuristicTuner,
-    KernelRidgeRegressor,
-    GurobiLinearOptimiser,
-    LucidNotSupportedException,
-    LinearTruncatedFourierFeatureMap,
     GUROBI_BUILD,
+    ConstantTruncatedFourierFeatureMap,
     Estimator,
+    FeatureMap,
+    GaussianKernel,
+    GurobiLinearOptimiser,
+    KernelRidgeRegressor,
+    LinearTruncatedFourierFeatureMap,
+    LucidNotSupportedException,
+    MedianHeuristicTuner,
+    Parameter,
+    Set,
     log_debug,
     log_error,
-    log_warn,
-    Parameter,
     log_info,
+    log_warn,
 )
 
 try:
@@ -42,8 +44,8 @@ def rmse(x: "np.typing.NDArray[np.float64]", y: "np.typing.NDArray[np.float64]",
 
 
 def pipeline(
-    x_samples: np.typing.NDArray[np.float64],
-    xp_samples: np.typing.NDArray[np.float64],
+    x_samples: "np.typing.NDArray[np.float64]",
+    xp_samples: "np.typing.NDArray[np.float64]",
     X_bounds: Set,
     X_init: Set,
     X_unsafe: Set,

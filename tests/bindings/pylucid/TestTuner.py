@@ -1,16 +1,17 @@
-import pytest
+from itertools import product
+
 import numpy as np
+import pytest
 from pylucid import (
-    MedianHeuristicTuner,
-    GridSearchTuner,
-    ParameterValues,
     GaussianKernel,
+    GridSearchTuner,
     KernelRidgeRegressor,
-    Parameter,
     LbfgsTuner,
     LucidInvalidArgumentException,
+    MedianHeuristicTuner,
+    Parameter,
+    ParameterValues,
 )
-from itertools import product
 
 
 class TestTuner:

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import argparse
-import shtab
-from typing import TypedDict
 import sys
+from typing import TypedDict
+
+import shtab
 
 
 class Completions(TypedDict):

@@ -44,3 +44,13 @@ plot = ["matplotlib"]
 
 [tool.setuptools]
 packages = []
+
+# Black configuration (code formatter)
+[tool.black]
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312', 'py313']
+line-length = 120
+include = '(bindings/pylucid|tests/bindings/pylucid)\/.*\.py'
+
+# Isort configuration (import sorter)
+[tool.isort]
+profile = "black"

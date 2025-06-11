@@ -1,4 +1,4 @@
-from pylucid import log_trace, log_debug, log_info, log_warn, log_error, log_critical
+from pylucid import log_critical, log_debug, log_error, log_info, log_trace, log_warn
 
 
 class TestLogger:

@@ -1,17 +1,18 @@
 import math
+
 import numpy as np
 from pylucid import (
-    __version__,
-    read_matrix,
-    GaussianKernel,
-    ConstantTruncatedFourierFeatureMap,
-    RectSet,
-    MultiSet,
-    KernelRidgeRegressor,
-    fft_upsample,
-    GurobiLinearOptimiser,
-    LucidNotSupportedException,
     GUROBI_BUILD,
+    ConstantTruncatedFourierFeatureMap,
+    GaussianKernel,
+    GurobiLinearOptimiser,
+    KernelRidgeRegressor,
+    LucidNotSupportedException,
+    MultiSet,
+    RectSet,
+    __version__,
+    fft_upsample,
+    read_matrix,
 )
 from scipy.spatial.distance import cdist
 

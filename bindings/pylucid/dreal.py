@@ -1,19 +1,23 @@
-import numpy as np
 import math
 from typing import Callable
+
+import numpy as np
+
 from ._pylucid import (
-    RectSet,
-    MultiSet,
-    TruncatedFourierFeatureMap,
-    TruncatedFourierFeatureMap,
     Estimator,
-    log_info,
+    MultiSet,
+    RectSet,
+    TruncatedFourierFeatureMap,
     log_error,
+    log_info,
     log_warn,
 )
 
 try:
-    from dreal import And, Or, Implies, Variable as Real, sin as Sine, cos as Cosine, Not, CheckSatisfiability
+    from dreal import And, CheckSatisfiability, Implies, Not, Or
+    from dreal import Variable as Real
+    from dreal import cos as Cosine
+    from dreal import sin as Sine
 except ImportError as e:
     log_warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
     raise e

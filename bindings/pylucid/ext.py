@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
+
 import numpy as np
+
 from ._pylucid import Estimator
 
 if TYPE_CHECKING:
@@ -50,4 +52,4 @@ class ModelEstimator(Estimator):
         return ModelEstimator(self._f)
 
     def __str__(self) -> str:
-        return f"ModelEstimator(f={self._f.__name__})"
+        return f"ModelEstimator( f( {self._f.__name__} ) )"

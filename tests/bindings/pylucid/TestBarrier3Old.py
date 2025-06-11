@@ -1,22 +1,34 @@
 import math
+import sys
 
 import numpy as np
-from pylucid import (
-    read_matrix,
-    GaussianKernel,
-    TruncatedFourierFeatureMap,
-    RectSet,
-    MultiSet,
-    KernelRidgeRegressor,
-    fft_upsample,
-    GurobiLinearOptimiser,
-    LucidNotSupportedException,
-    GUROBI_BUILD,
+from cvc5.pythonic import (
+    And,
+    ArithRef,
+    BoolVal,
+    Cosine,
+    ExprRef,
+    Implies,
+    Not,
+    Or,
+    Real,
+    Sine,
+    Solver,
+    sat,
+    solve,
 )
-
-
-from cvc5.pythonic import Real, solve, Solver, sat, Cosine, Sine, ArithRef, BoolVal, And, Or, Implies, ExprRef, Not
-import sys
+from pylucid import (
+    GUROBI_BUILD,
+    GaussianKernel,
+    GurobiLinearOptimiser,
+    KernelRidgeRegressor,
+    LucidNotSupportedException,
+    MultiSet,
+    RectSet,
+    TruncatedFourierFeatureMap,
+    fft_upsample,
+    read_matrix,
+)
 
 
 def set_contraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef":

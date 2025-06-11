@@ -1,7 +1,7 @@
-import sys
+import argparse
 import os
 import shutil
-import argparse
+import sys
 
 from pybind11_stubgen import main as stubgen_main
 

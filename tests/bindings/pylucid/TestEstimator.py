@@ -1,13 +1,13 @@
-from pylucid import (
-    KernelRidgeRegressor,
-    Estimator,
-    GaussianKernel,
-    Parameter,
-    LucidInvalidArgumentException,
-    MedianHeuristicTuner,
-)
 import numpy as np
 import pytest
+from pylucid import (
+    Estimator,
+    GaussianKernel,
+    KernelRidgeRegressor,
+    LucidInvalidArgumentException,
+    MedianHeuristicTuner,
+    Parameter,
+)
 
 try:
     from sklearn.kernel_ridge import KernelRidge

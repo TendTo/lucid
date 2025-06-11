@@ -1,5 +1,5 @@
-from pylucid import GaussianKernel, Kernel, Parameter
 import numpy as np
+from pylucid import GaussianKernel, Kernel, Parameter
 
 try:
     from sklearn.gaussian_process.kernels import RBF

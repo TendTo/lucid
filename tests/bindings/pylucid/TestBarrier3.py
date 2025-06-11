@@ -1,7 +1,7 @@
 import numpy as np
 from pylucid import *
 from pylucid import __version__
-from pylucid.pipeline import pipeline, rmse
+from pylucid.pipeline import pipeline
 
 
 def scenario_config() -> "ScenarioConfig":
@@ -44,15 +44,16 @@ def scenario_config() -> "ScenarioConfig":
     # Parameters and inputs
     # ---------------------------------- #
 
+    N = 10
     x_samples = read_matrix("tests/bindings/pylucid/x_samples.matrix")
-    xp_samples = f(x_samples)
+    xp_samples = f_det(x_samples)
 
     # Initial estimator hyperparameters. Can be tuned later
     regularization_constant = 1e-6
     sigma_f = 15.0
-    sigma_l = np.array([0.1, 0.1])
+    sigma_l = np.array([1, 1.0])
 
-    num_freq_per_dim = 8  # Number of frequencies per dimension. Includes the zero frequency.
+    num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Lucid
@@ -70,14 +71,18 @@ def scenario_config() -> "ScenarioConfig":
         #     ParameterValues(Parameter.REGULARIZATION_CONSTANT, np.logspace(-6, -1, num=10)),
         # ),
     }
-    estimator = KernelRidgeRegressor(
-        kernel=GaussianKernel(sigma_f=sigma_f, sigma_l=sigma_l),
-        regularization_constant=regularization_constant,
+    # estimator = KernelRidgeRegressor(
+    #     kernel=GaussianKernel(sigma_f=sigma_f, sigma_l=sigma_l),
+    #     regularization_constant=regularization_constant,
+    # )
+    feature_map = ConstantTruncatedFourierFeatureMap(
+        num_frequencies=num_freq_per_dim,
+        sigma_l=sigma_l,
+        sigma_f=sigma_f,
+        x_limits=X_bounds,
     )
-    # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
-    estimator.fit(x=x_samples, y=xp_samples, **tuner)
-    log_debug(f"RMSE on xp_samples {rmse(estimator(x_samples), xp_samples)}")
-    log_debug(f"Score on xp_samples {estimator.score(x_samples, xp_samples)}")
+    print(f"Feature map: {feature_map(f_det(x_samples))}")
+    estimator = ModelEstimator(f=lambda x: feature_map(f_det(x)))  # Use the custom model estimator
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
     # Running the pipeline
@@ -92,11 +97,12 @@ def scenario_config() -> "ScenarioConfig":
         T=T,
         gamma=gamma,
         f_det=f_det,  # The deterministic part of the system dynamics
-        num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
+        # num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
         estimator=estimator,  # The estimator used to model the system dynamics
-        sigma_f=estimator.get(Parameter.SIGMA_F),
+        sigma_f=sigma_f,
         problem_log_file="problem.lp",  # The lp file containing the optimization problem
         iis_log_file="iis.ilp",  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
+        feature_map=feature_map,  # The feature map used to transform the state space
     )
 
 

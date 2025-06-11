@@ -1,4 +1,4 @@
-from pylucid import __version__, __doc__
+from pylucid import __doc__, __version__
 
 
 class TestMain:

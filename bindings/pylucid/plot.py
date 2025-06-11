@@ -1,6 +1,16 @@
 from typing import TYPE_CHECKING
-from ._pylucid import RectSet, MultiSet, FeatureMap, Estimator, LucidNotSupportedException, log_warn, Set
+
 import numpy as np
+
+from ._pylucid import (
+    Estimator,
+    FeatureMap,
+    LucidNotSupportedException,
+    MultiSet,
+    RectSet,
+    Set,
+    log_warn,
+)
 
 if TYPE_CHECKING:
     from typing import Callable
