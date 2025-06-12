@@ -180,6 +180,7 @@ def arg_parser() -> "ArgumentParser":
     parser.add_argument(
         "-l",
         "--lambda",
+        dest="lambda_",
         type=float,
         default=1.0,
         help="regularization constant for the estimator",

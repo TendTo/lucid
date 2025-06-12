@@ -186,6 +186,7 @@ def verify_barrier_certificate(
     pointp = f_det(point)
     log_error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
     log_error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
-    log_error(f"Xpemb: ?, barrier value: {estimator(point) @ sol.T}")
-    log_error(f"{(tffm(point), estimator(point))}")
+    log_error(f"Xp: estimated, barrier value: {estimator(point) @ sol.T}")
+    log_error(f"Barrier at Xp {tffm(pointp)[0]}")
+    log_error(f"Estimated barrier at Xp {estimator(point)[0]}")
     return False

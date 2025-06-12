@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import time
 
 import numpy as np
@@ -6,10 +7,25 @@ from pylucid import __version__
 from pylucid.pipeline import pipeline
 
 
-def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # System dynamics
-    # ---------------------------------- #
+def scenario_config(
+    args: CLIArgs = CLIArgs(
+        seed=42,
+        gamma=1,
+        time_horizon=5,
+        num_samples=1000,
+        lambda_=1e-3,
+        sigma_f=15.0,
+        sigma_l=np.array([1.75555556]),
+        num_frequencies=4,
+        plot=True,
+        verify=True,
+        problem_log_file="problem.lp",
+        iis_log_file="iis.ilp",
+    )
+) -> "ScenarioConfig":
+    # ################################## #
+    # System dynamics                    #
+    # ################################## #
 
     f_det = lambda x: 1 / 2 * x
     # Add process noise
@@ -17,12 +33,9 @@ def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
         np.random.seed(args.seed)  # For reproducibility
     f = lambda x: f_det(x) + np.random.normal(scale=0.4)
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # Safety specification
-    # ---------------------------------- #
-
-    gamma = 1
-    T = 5  # Time horizon
+    # ################################## #
+    # Safety specification               #
+    # ################################## #
 
     X_bounds = RectSet([(-1, 1)], seed=args.seed)  # State space
     X_init = RectSet([(-0.5, 0.5)])  # Initial set
@@ -31,24 +44,16 @@ def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
         RectSet([(0.9, 1)]),
     )
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # Parameters and inputs
-    # ---------------------------------- #
+    # ################################## #
+    # Sampling                           #
+    # ################################## #
 
-    N = 1000
-    x_samples = X_bounds.sample(N)
+    x_samples = X_bounds.sample(args.num_samples)
     xp_samples = f(x_samples)
 
-    # Initial estimator hyperparameters. Can be tuned later
-    regularization_constant = 1e-3
-    sigma_f = 15.0
-    sigma_l = np.array([1.75555556])
-
-    num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
-
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Lucid
-    # ---------------------------------- #
+    # ################################## #
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
     tuner = {
@@ -63,8 +68,8 @@ def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
         # ),
     }
     estimator = KernelRidgeRegressor(
-        kernel=GaussianKernel(sigma_f=sigma_f, sigma_l=sigma_l),
-        regularization_constant=regularization_constant,
+        kernel=GaussianKernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
+        regularization_constant=args.lambda_,
     )
     # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
     estimator.fit(x=x_samples, y=xp_samples, **tuner)
@@ -75,21 +80,20 @@ def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
         X_bounds=X_bounds,
         X_init=X_init,
         X_unsafe=X_unsafe,
-        T=T,
-        gamma=gamma,
+        T=args.time_horizon,
+        gamma=args.gamma,
         f_det=f_det,  # The deterministic part of the system dynamics
-        num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
+        num_freq_per_dim=args.num_frequencies,  # Number of frequencies per dimension for the Fourier feature map
         estimator=estimator,  # The estimator used to model the system dynamics
         sigma_f=estimator.get(Parameter.SIGMA_F),
-        problem_log_file="problem.lp",  # The lp file containing the optimization problem
-        iis_log_file="iis.ilp",  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
+        problem_log_file=args.problem_log_file,  # The lp file containing the optimization problem
+        iis_log_file=args.iis_log_file,  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
+        plot=args.plot,  # Whether to plot the results
+        verify=args.verify,
     )
 
 
 if __name__ == "__main__":
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
-    # Lucid
-    # ---------------------------------- #
     log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
     pipeline(**scenario_config())

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import numpy as np
 from pylucid import *
 from pylucid import __version__
@@ -8,24 +9,24 @@ def scenario_config() -> "ScenarioConfig":
     """Benchmark scenario taken from
     https://github.com/oxford-oxcav/fossil/blob/10f1f071784d16b2a5ee5da2f51ff2a81d753e2e/experiments/benchmarks/models.py#L350C1-L360C1
     """
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Script configuration
-    # ---------------------------------- #
+    # ################################## #
 
     seed = 42  # Seed for reproducibility
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # System dynamics
-    # ---------------------------------- #
+    # ################################## #
 
     f_det = lambda x: np.array([x[:, 1], -x[:, 0] - x[:, 1] + 1 / 3 * x[:, 0] ** 3]).T  # lambda x: x
     # Add process noise
     np.random.seed(seed)  # For reproducibility
     f = lambda x: f_det(x) + (np.random.standard_normal())
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Safety specification
-    # ---------------------------------- #
+    # ################################## #
 
     gamma = 18.312
     T = 10  # Time horizon
@@ -40,9 +41,9 @@ def scenario_config() -> "ScenarioConfig":
     # Unsafe set X_U
     X_unsafe = MultiSet(RectSet((0.4, 0.1), (0.6, 0.5)), RectSet((0.4, 0.1), (0.8, 0.3)))
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Parameters and inputs
-    # ---------------------------------- #
+    # ################################## #
 
     N = 10
     x_samples = read_matrix("tests/bindings/pylucid/x_samples.matrix")
@@ -55,9 +56,9 @@ def scenario_config() -> "ScenarioConfig":
 
     num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Lucid
-    # ---------------------------------- #
+    # ################################## #
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
     tuner = {
@@ -84,9 +85,9 @@ def scenario_config() -> "ScenarioConfig":
     print(f"Feature map: {feature_map(f_det(x_samples))}")
     estimator = ModelEstimator(f=lambda x: feature_map(f_det(x)))  # Use the custom model estimator
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Running the pipeline
-    # ---------------------------------- #
+    # ################################## #
 
     return ScenarioConfig(
         x_samples=x_samples,
@@ -107,9 +108,9 @@ def scenario_config() -> "ScenarioConfig":
 
 
 if __name__ == "__main__":
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Lucid
-    # ---------------------------------- #
+    # ################################## #
     log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
     pipeline(**scenario_config())

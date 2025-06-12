@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import numpy as np
 from pylucid import *
 from pylucid import __version__
@@ -5,15 +6,15 @@ from pylucid.pipeline import pipeline, rmse
 
 
 def scenario_config() -> "ScenarioConfig":
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Script configuration
-    # ---------------------------------- #
+    # ################################## #
 
     seed = 42  # Seed for reproducibility
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # System dynamics
-    # ---------------------------------- #
+    # ################################## #
 
     th = 45
     te = -15
@@ -28,9 +29,9 @@ def scenario_config() -> "ScenarioConfig":
     np.random.seed(seed)  # For reproducibility
     f = lambda x: f_det(x) + r_coeff * np.random.exponential(1)
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Safety specification
-    # ---------------------------------- #
+    # ################################## #
 
     gamma = 1
     T = 5  # Time horizon
@@ -45,9 +46,9 @@ def scenario_config() -> "ScenarioConfig":
         RectSet(((23, 50),)),
     )
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Parameters and inputs
-    # ---------------------------------- #
+    # ################################## #
 
     N = 1000
     x_samples = X_bounds.sample(N)
@@ -60,9 +61,9 @@ def scenario_config() -> "ScenarioConfig":
 
     num_freq_per_dim = 4  # Number of frequencies per dimension. Includes the zero frequency.
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Lucid
-    # ---------------------------------- #
+    # ################################## #
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
     tuner = {
@@ -85,9 +86,9 @@ def scenario_config() -> "ScenarioConfig":
     log_debug(f"RMSE on xp_samples {rmse(estimator(x_samples), xp_samples)}")
     log_debug(f"Score on xp_samples {estimator.score(x_samples, xp_samples)}")
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Running the pipeline
-    # ---------------------------------- #
+    # ################################## #
 
     return ScenarioConfig(
         x_samples=x_samples,
@@ -107,9 +108,9 @@ def scenario_config() -> "ScenarioConfig":
 
 
 if __name__ == "__main__":
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+    # ################################## #
     # Lucid
-    # ---------------------------------- #
+    # ################################## #
     log_info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
     pipeline(**scenario_config())
