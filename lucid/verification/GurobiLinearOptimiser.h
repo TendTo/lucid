@@ -43,7 +43,7 @@ class GurobiLinearOptimiser {
    * @param iis_log_file file to log the irreducible infeasible set (IIS) to, if found. If empty, no logging is done
    */
   GurobiLinearOptimiser(int T, double gamma, double epsilon, double b_norm, double b_kappa, double sigma_f,
-                        std::string problem_log_file = "", std::string iis_log_file = "");
+                        double C_coeff = 1.0, std::string problem_log_file = "", std::string iis_log_file = "");
 
   /**
    * Solve the linear optimisation
@@ -88,6 +88,8 @@ class GurobiLinearOptimiser {
   [[nodiscard]] double b_kappa() const { return b_kappa_; }
   /** @getter{sigma_f, solver} */
   [[nodiscard]] double sigma_f() const { return sigma_f_; }
+  /** @getter{C coefficient, solver} */
+  [[nodiscard]] double C_coeff() const { return C_coeff_; }
 
  private:
   const int T_;                   ///< Time horizon
@@ -96,6 +98,7 @@ class GurobiLinearOptimiser {
   const double b_norm_;           ///< Norm of the barrier function
   const double b_kappa_;          ///< Kappa value
   const double sigma_f_;          ///< Sigma_f value
+  const double C_coeff_;          ///< Coefficient to apply to `C` for the barrier function
   std::string problem_log_file_;  ///< File to log the problem to
   std::string iis_log_file_;      ///< File to log the IIS (Irreducible Inconsistent Subsystem) to, if found
 };

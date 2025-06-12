@@ -208,7 +208,7 @@ def experiments():
     #         f_xp_regressor(x_lattice, tffm)[:, i],
     #         color="purple",
     #         linestyle="dotted",
-    #         label="f_xp_regressor(xp) via approx. regression",
+    #         label="f_xp_regressor(xp) via regression",
     #     )
     # plt.figure()
     # plt.plot(x_lattice, f_det(x_lattice.T).T, color="green", linestyle="--", label="f(x)")
@@ -218,7 +218,7 @@ def experiments():
     #     xp_regressor(x_lattice, tffm),
     #     color="purple",
     #     linestyle="dotted",
-    #     label="xp_regressor(xp) via approx. regression",
+    #     label="xp_regressor(xp) via regression",
     # )
     # plt.legend()
     # plt.show()

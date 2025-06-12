@@ -14,6 +14,7 @@ from ._pylucid import (
 
 if TYPE_CHECKING:
     from typing import Callable
+    from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 try:
     import matplotlib.pyplot as plt
@@ -79,7 +80,7 @@ def plot_solution_1d(
                 x_lattice,
                 estimator(x_lattice) @ sol.T,  # TODO(tend): Should this be regression(x_lattice, feature_map) @ sol.T?
                 color="purple",
-                label="B(xp) via approx. regression",
+                label="B(xp) via regression",
             )
         x_lattice_grid = X_bounds.lattice(feature_map.num_frequencies * 4, True)
         plt.scatter(x_lattice_grid, feature_map(x_lattice_grid) @ sol.T, color="green", label="B(x) (lattice)")
@@ -93,7 +94,7 @@ def plot_solution_1d(
                 estimator(x_lattice_grid)
                 @ sol.T,  # TODO(tend): Should this be regression(x_lattice, feature_map) @ sol.T?
                 color="purple",
-                label="B(xp) via approx. regression (lattice)",
+                label="B(xp) via regression (lattice)",
             )
 
     plt.title("Barrier certificate")
@@ -140,7 +141,7 @@ def plot_solution_2d(
     c: float = 0.0,
 ):
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    ax: "Axes3D" = fig.add_subplot(111, projection="3d")
     ax.set_xlim(X_bounds.lower_bound[0], X_bounds.upper_bound[0])
     ax.set_ylim(X_bounds.lower_bound[1], X_bounds.upper_bound[1])
     ax.set_zlim(0)
@@ -175,7 +176,7 @@ def plot_solution_2d(
         if estimator is not None:
             Z_est = estimator(points) @ sol.T
             Z_est = Z_est.reshape(X.shape)
-            ax.plot_surface(X, Y, Z_est, color="purple", alpha=0.3, label="B(xp) via approx. regression")
+            ax.plot_surface(X, Y, Z_est, color="purple", alpha=0.3, label="B(xp) via regression")
 
     ax.set_title("Barrier certificate")
     ax.set_xlabel("State space x[0]")
@@ -240,7 +241,7 @@ def plot_estimator_2d(
         X_unsafe: Unsafe set of states
     """
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+    ax: "Axes3D" = fig.add_subplot(111, projection="3d")
     ax.set_xlim(X_bounds.lower_bound[0], X_bounds.upper_bound[0])
     ax.set_ylim(X_bounds.lower_bound[1], X_bounds.upper_bound[1])
 
@@ -253,7 +254,7 @@ def plot_estimator_2d(
 
     # Plot the true vs predicted next states
     ax.scatter(x_samples[:, 0], x_samples[:, 1], xp_samples[:, 0], label="Ground truth", color="blue", marker="o")
-    # ax.scatter(x_samples[:, 0], x_samples[:, 1], xp_pred, label="Estimator prediction", color="orange", marker="x")
+    ax.scatter(x_samples[:, 0], x_samples[:, 1], xp_pred[:, 0], label="Estimator prediction", color="orange", marker="x")
     plt.title("Estimator Predictions vs True Dynamics")
     plt.xlabel("State x[0]")
     plt.ylabel("State x[1]")

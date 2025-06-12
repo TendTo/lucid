@@ -60,11 +60,29 @@
           fmt::format("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected)); \
     }                                                                                                        \
   } while (false)
+#define LUCID_CHECK_ARGUMENT_GT(value, expected)                                                            \
+  do {                                                                                                      \
+    if (!((value) > (expected))) {                                                                          \
+      LUCID_ERROR_FMT("Invalid argument for {}: received '{}', expected '> {}'", #value, value, expected);  \
+      throw ::lucid::exception::LucidInvalidArgumentException(                                              \
+          fmt::format("Invalid argument for {}: received '{}', expected '> {}'", #value, value, expected)); \
+    }                                                                                                       \
+  } while (false)
+#define LUCID_CHECK_ARGUMENT_GE(value, expected)                                                             \
+  do {                                                                                                       \
+    if (!((value) >= (expected))) {                                                                          \
+      LUCID_ERROR_FMT("Invalid argument for {}: received '{}', expected '> {}'", #value, value, expected);   \
+      throw ::lucid::exception::LucidInvalidArgumentException(                                               \
+          fmt::format("Invalid argument for {}: received '{}', expected '>= {}'", #value, value, expected)); \
+    }                                                                                                        \
+  } while (false)
 
 #else
 
 #define LUCID_CHECK_ARGUMENT(condition, argument, actual) ((void)0)
 #define LUCID_CHECK_ARGUMENT_EXPECTED(condition, argument, actual, expected) ((void)0)
+#define LUCID_CHECK_ARGUMENT_GT(value, expected) ((void)0)
+#define LUCID_CHECK_ARGUMENT_GE(value, expected) ((void)0)
 
 #endif  // NCHECK
 
