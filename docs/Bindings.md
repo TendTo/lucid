@@ -36,10 +36,10 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 
 There are two main ways to use the bindings.
 
-<div class="tabbed">
+[//]: # "@tabbed"
+[//]: # "@tab"
 
-<ul>
-<li><b class="tab-title">Configuration script (recommended)</b><div>
+#### Configuration script (recommended)
 
 Create a Python script, for example `my_config.py`, with the following content:
 
@@ -122,8 +122,10 @@ def scenario_config(args: CLIArgs = CLIArgs(seed=42)) -> "ScenarioConfig":
   return ScenarioConfig(...)
 ```
 
-</div></li>
-<li><b class="tab-title">Main script</b><div>
+[//]: # "@end-tab"
+[//]: # "@tab"
+
+#### Main script
 
 Create a Python script, for example `my_main.py`, with the following content:
 
@@ -182,10 +184,8 @@ Then, you can run the script as follows:
 python3 my_main.py
 ```
 
-</div></li>
-</ul>
-
-</div>
+[//]: # "@end-tab"
+[//]: # "@end-tabbed"
 
 ### Running with Bazel
 

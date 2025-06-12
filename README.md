@@ -1,3 +1,5 @@
+<img alt="Icon" src="docs/_static/logo.svg" align="left" width="35" height="35">
+
 # LUCID — Lifting-based Uncertain Control Invariant Dynamics
 
 _Probabilistic Verification Engine for Black-Box Dynamical Systems_
@@ -19,14 +21,17 @@ _Probabilistic Verification Engine for Black-Box Dynamical Systems_
 
 For more details, see the [installation instructions](docs/Installation.md).
 
+[//]: # "@tabbed"
+[//]: # "@tab"
+
 ### Docker
 
-#### Requirements
+**Requirements**
 
 - [Docker](https://www.docker.com/)
 - [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
 
-#### Command
+**Command**
 
 ```bash
 # Pull the image
@@ -40,9 +45,12 @@ docker run --name lucid -it --rm \
   ghcr.io/tendto/lucid:main /scripts/script.py
 ```
 
-### Python (from source)
+[//]: # "@end-tab"
+[//]: # "@tab"
 
-#### Requirements
+### Python from source
+
+**Requirements**
 
 - [Bazel](https://bazel.build/) 8.1.1
 - [Python](https://www.python.org/) 3.8 or higher
@@ -52,7 +60,7 @@ docker run --name lucid -it --rm \
   - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
-#### Command
+**Installation commands**
 
 ```bash
 # Clone the repository
@@ -77,9 +85,12 @@ pip install .
 python3 -c "import pylucid; print(pylucid.__version__)"
 ```
 
+[//]: # "@end-tab"
+[//]: # "@tab"
+
 ### Source
 
-#### Requirements
+**Requirements**
 
 - [Bazel](https://bazel.build/) 8.1.1
 - C++ compiler with C++20 support
@@ -92,7 +103,7 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 > While it is possible to run the Lucid binary following the instructions below,
 > right now it does nothing but print some random numbers.
 
-#### Command
+**Installation commands**
 
 ```bash
 # Clone the repository
@@ -104,3 +115,6 @@ cd lucid
 # Compile and run lucid
 bazel run //lucid -- [args]
 ```
+
+[//]: # "@end-tab"
+[//]: # "@end-tabbed"

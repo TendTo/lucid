@@ -13,12 +13,28 @@ readonly regex_substitute_math='\2\\f$\3'
 readonly regex_match_slash_curly_math='([^\])\\(\{|\})'
 readonly regex_substitute_slash_curly_math='\1\\\\\2'
 
-# KNOWN LIMITATION: breaks if the character ` is used in the mermaid code
-readonly regex_match_mermaid='```mermaid\n([^\`]*)\n```'
+readonly regex_match_code_block='```'
+readonly regex_substitute_code_block='\d30'
+
+readonly regex_match_tab_tag='\[\/\/\]: # "@tab"'
+readonly regex_substitute_tab_tag='\d16'
+
+readonly regex_match_end_tab_tag='\[\/\/\]: # "@end-tab"'
+readonly regex_substitute_end_tab_tag='\d17'
+
+readonly regex_match_tabbed='\[\/\/\]: # "@tabbed"'
+readonly regex_substitute_tabbed='<div class="tabbed"><ul>'
+
+readonly regex_match_tabbed_end='\[\/\/\]: # "@end-tabbed"'
+readonly regex_substitute_tabbed_end='<\/ul><\/div>'
+
+readonly regex_match_tab='\d16[^#]+#+ *([^\n]*)\n([^\d17]+)\d17'
+readonly regex_substitute_tab='<li><b class="tab-title">\1<\/b>\n\2\n<\/li>'
+
+readonly regex_match_mermaid='\d30mermaid\n([^\d30]*)\n\d30'
 readonly regex_substitute_mermaid="<pre class='mermaid'>\n\1<\/pre>"
 
-# KNOWN LIMITATION: breaks if the character ` is used in the code
-readonly regex_match_code='```(\w+)\n([^`]*)\n```'
+readonly regex_match_code='\d30(\w+)\n([^\d30]*)\n\d30'
 readonly regex_substitute_code="<pre><code class='fragment language-\1'>\2<\/code><\/pre>"
 
 readonly regex_title_logo='<img alt="Icon" src="docs\/_static\/logo.svg" align="left" width="35" height="35">'
@@ -29,6 +45,12 @@ cat "${1}" \
     -e "s/$regex_match_slash_curly_math/$regex_substitute_slash_curly_math/g" \
     -e "s/$regex_match_math/$regex_substitute_math/g" \
     -e "s/$regex_title_logo//g" \
+    -e "s/$regex_match_code_block/$regex_substitute_code_block/g" \
+    -e "s/$regex_match_tab_tag/$regex_substitute_tab_tag/g" \
+    -e "s/$regex_match_end_tab_tag/$regex_substitute_end_tab_tag/g" \
+    -e "s/$regex_match_tabbed/$regex_substitute_tabbed/g" \
+    -e "s/$regex_match_tabbed_end/$regex_substitute_tabbed_end/g" \
 | sed -E -z  \
     -e "s/$regex_match_mermaid/$regex_substitute_mermaid/g" \
-    -e "s/$regex_match_code/$regex_substitute_code/g"
+    -e "s/$regex_match_code/$regex_substitute_code/g" \
+    -e "s/$regex_match_tab/$regex_substitute_tab/g"
