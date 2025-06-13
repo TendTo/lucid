@@ -1,5 +1,5 @@
 import math
-from typing import Callable
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -12,6 +12,11 @@ from ._pylucid import (
     log_info,
     log_warn,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from ._pylucid import NMatrix, NVector, Set
 
 try:
     from dreal import And, CheckSatisfiability, Implies, Not, Or
@@ -65,7 +70,7 @@ def build_barrier_expression(
     X_bounds: "RectSet",
     tffm: "TruncatedFourierFeatureMap",
     sigma_f: float,
-    sol: "np.typing.NDArray[np.float64]",
+    sol: "NVector",
 ):
     """Build a barrier expression using the truncated Fourier feature map.
     This function encodes the truncated Fourier feature map as a symbolic expression in terms of the variables `xs`.
@@ -125,7 +130,7 @@ def verify_barrier_certificate(
     c: float,
     estimator: "Estimator",
     tffm: "TruncatedFourierFeatureMap",
-    sol: "np.typing.NDArray[np.float64]",
+    sol: "NVector",
 ):
     """Use the dReal SMT solver to verify the barrier certificate for a given system.
     This function checks if the barrier certificate satisfies the conditions for safety and stability
@@ -181,8 +186,9 @@ def verify_barrier_certificate(
         return True
 
     log_error("Found counter example")
-    log_error(f"Model: {res}")
-    point = np.array([[res[x].lb() for x in xs]])
+    model = {str(x): res[x].lb() for x in xs}
+    log_error(f"Model: {model}")
+    point = np.array([list(model.values())], dtype=np.float64)
     pointp = f_det(point)
     log_error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
     log_error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")

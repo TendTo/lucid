@@ -23,11 +23,15 @@ def generate_stub_files(_pylucid_pyi):
             content.replace(
                 b"import typing",
                 b"import typing\n"
-                b"import numpy\n"
+                b"import numpy as np\n"
+                b"import numpy.typing as npt\n"
                 b"K = typing.TypeVar('K', bound=Kernel)\n"
                 b"T = typing.TypeVar('T', bound=Tuner)\n"
-                b"ParameterValueType: typing.TypeAlias = int | float | numpy.typing.NDArray[numpy.float64]\n"
-                b"ParameterValuesType: typing.TypeAlias = tuple[int, ...] | tuple[float, ...] | tuple[numpy.typing.NDArray[numpy.float64], ...]\n",
+                b"NVector: typing.TypeAlias = np.ndarray[tuple[int], np.float64]\n"
+                b"NMatrix: typing.TypeAlias = np.ndarray[tuple[int, int], np.float64]\n"
+                b"NArray: typing.TypeAlias = npt.NDArray[np.float64]\n"
+                b"ParameterValueType: typing.TypeAlias = int | float | NVector\n"
+                b"ParameterValuesType: typing.TypeAlias = tuple[int, ...] | tuple[float, ...] | tuple[NVector, ...]\n",
                 1,
             )
             # Generics
@@ -48,7 +52,7 @@ def generate_stub_files(_pylucid_pyi):
             )
             .replace(b"tuner: Tuner\n", b"tuner: T | None\n")
             # Numpy types
-            .replace(b"numpy.ndarray", b"numpy.typing.NDArray[numpy.float64]")
+            .replace(b"numpy.ndarray", b"NArray")
             # Clone types
             .replace(b"def clone(self) -> Estimator:", b"def clone(self) -> typing.Self:")
             .replace(b"def clone(self) -> Kernel:", b"def clone(self) -> typing.Self:")

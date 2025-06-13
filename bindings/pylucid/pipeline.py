@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -39,23 +39,29 @@ except ImportError:
         pass
 
 
-def rmse(x: "np.typing.NDArray[np.float64]", y: "np.typing.NDArray[np.float64]", ax=0):
+if TYPE_CHECKING:
+    from typing import Callable
+
+    from ._pylucid import NMatrix, NVector
+
+
+def rmse(x: "NMatrix", y: "NMatrix", ax=0):
     return np.sqrt(((x - y) ** 2).mean(axis=ax))
 
 
 def pipeline(
-    x_samples: "np.typing.NDArray[np.float64]",
-    xp_samples: "np.typing.NDArray[np.float64]",
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
     X_bounds: Set,
     X_init: Set,
     X_unsafe: Set,
     *,
     T: int = 5,
     gamma: float = 1.0,
-    f_det: "Callable[[np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]" = None,
+    f_det: "Callable[[NMatrix], NMatrix] | None" = None,
     estimator: "Estimator | None" = None,
     num_freq_per_dim: int = -1,
-    feature_map: FeatureMap = None,
+    feature_map: "FeatureMap | None" = None,
     sigma_f: float = 1.0,
     verify: bool = True,
     plot: bool = True,
@@ -139,9 +145,7 @@ def pipeline(
     xu_lattice = X_unsafe.lattice(n_per_dim, True)
     f_xu_lattice = feature_map(xu_lattice)
 
-    def check_cb(
-        success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float
-    ):
+    def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
         if not success:
             log_error("Optimization failed")
         else:

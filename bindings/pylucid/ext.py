@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
 
-import numpy as np
-
 from ._pylucid import Estimator
 
 if TYPE_CHECKING:
     from typing import Callable
+
+    from ._pylucid import NMatrix
 
 
 class ModelEstimator(Estimator):
@@ -18,18 +18,18 @@ class ModelEstimator(Estimator):
         f: A callable that takes a numpy array as input and returns a numpy array as output.
     """
 
-    def __init__(self, f: "Callable[[np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]"):
+    def __init__(self, f: "Callable[[NMatrix], NMatrix]"):
         super().__init__()
         self._f = f
 
-    def predict(self, x: "np.typing.NDArray[np.float64]") -> "np.typing.NDArray[np.float64]":
+    def predict(self, x: "NMatrix") -> "NMatrix":
         """Predict the next state given the current state by applying the model function."""
         return self._f(x)
 
     def consolidate(
         self,
-        training_inputs: "np.typing.NDArray[np.float64]",
-        training_outputs: "np.typing.NDArray[np.float64]",
+        training_inputs: "NMatrix",
+        training_outputs: "NMatrix",
         requests: "int",
     ) -> "ModelEstimator":
         """Consolidate the model with the training data.
@@ -38,9 +38,7 @@ class ModelEstimator(Estimator):
         """
         return self
 
-    def score(
-        self, evaluation_inputs: "np.typing.NDArray[np.float64]", evaluation_outputs: "np.typing.NDArray[np.float64]"
-    ) -> float:
+    def score(self, evaluation_inputs: "NMatrix", evaluation_outputs: "NMatrix") -> float:
         """Score the model based on the evaluation data.
 
         Since we are using the model directly, we can return a fixed score.

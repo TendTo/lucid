@@ -1,25 +1,31 @@
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from ._pylucid import *
 from ._pylucid import __version__
 
+if TYPE_CHECKING:
+    from typing import Callable
+
+    from ._pyludic import NMatrix, NVector
+
 
 @dataclass(frozen=True)
 class ScenarioConfig:
     """Configuration used to launch the pipeline."""
 
-    x_samples: "np.typing.NDArray[np.float64]"
-    xp_samples: "np.typing.NDArray[np.float64]"
+    x_samples: "NMatrix"
+    xp_samples: "NMatrix"
     X_bounds: "Set"
     X_init: "Set"
     X_unsafe: "Set"
     T: int = 5
     gamma: float = 1.0
-    f_det: "Callable[[np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]] | None" = None
+    f_det: "Callable[[NMatrix], NMatrix] | None" = None
     estimator: "Estimator | None" = None
     num_freq_per_dim: int = -1
     feature_map: "FeatureMap | None" = None
@@ -50,7 +56,7 @@ class ScenarioConfig:
             "iis_log_file",
         ]
 
-    def __getitem__(self, key) -> "np.typing.NDArray[np.float64] | Set | int | float | str | None":
+    def __getitem__(self, key) -> "NMatrix | Callable[[NMatrix], NMatrix] | Set | int | float | str | None":
         return getattr(self, key)
 
 
@@ -63,7 +69,7 @@ class CLIArgs(Namespace):
     gamma: float
     lambda_: float  # Use 'lambda_' to avoid conflict with the Python keyword 'lambda'
     sigma_f: float
-    sigma_l: "np.typing.NDArray[np.float64] | float"  # Can be a single float or an array of floats
+    sigma_l: "NVector | float"  # Can be a single float or an array of floats
     num_samples: int
     time_horizon: int
     plot: bool

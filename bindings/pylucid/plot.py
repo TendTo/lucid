@@ -14,7 +14,10 @@ from ._pylucid import (
 
 if TYPE_CHECKING:
     from typing import Callable
+
     from mpl_toolkits.mplot3d.axes3d import Axes3D
+
+    from ._pylucid import NMatrix, NVector
 
 try:
     import matplotlib.pyplot as plt
@@ -42,14 +45,14 @@ def plot_set_1d(X_set: "RectSet | MultiSet", color: str, label: str = ""):
 
 def plot_solution_1d(
     X_bounds: "RectSet",
-    X_init: "RectSet" = None,
-    X_unsafe: "RectSet" = None,
-    feature_map: "FeatureMap" = None,
-    sol: "np.typing.NDArray[np.float64]" = None,
-    eta: float = None,
-    gamma: float = None,
-    estimator: "Estimator" = None,
-    f: "callable" = None,
+    X_init: "RectSet | None" = None,
+    X_unsafe: "RectSet | None" = None,
+    feature_map: "FeatureMap | None" = None,
+    sol: "NVector | None" = None,
+    eta: "float | None" = None,
+    gamma: "float | None" = None,
+    estimator: "Estimator | None" = None,
+    f: "callable | None" = None,
     c: float = 0.0,
 ):
     plt.xlim(X_bounds.lower_bound, X_bounds.upper_bound)
@@ -74,7 +77,7 @@ def plot_solution_1d(
         plt.plot(x_lattice, values, color="green", label="B(x)")
         plt.fill_between(x_lattice.reshape(-1), values, values + c + 1e-8, color="lightgreen")
         if f is not None:
-            plt.plot(x_lattice, feature_map(f(x_lattice.T).T) @ sol.T, color="black", label="B(xp)")
+            plt.plot(x_lattice, feature_map(f(x_lattice)) @ sol.T, color="black", label="B(xp)")
         if estimator is not None:
             plt.plot(
                 x_lattice,
@@ -85,9 +88,7 @@ def plot_solution_1d(
         x_lattice_grid = X_bounds.lattice(feature_map.num_frequencies * 4, True)
         plt.scatter(x_lattice_grid, feature_map(x_lattice_grid) @ sol.T, color="green", label="B(x) (lattice)")
         if f is not None:
-            plt.scatter(
-                x_lattice_grid, feature_map(f(x_lattice_grid.T).T) @ sol.T, color="black", label="B(xp) (lattice)"
-            )
+            plt.scatter(x_lattice_grid, feature_map(f(x_lattice_grid)) @ sol.T, color="black", label="B(xp) (lattice)")
         if estimator is not None:
             plt.scatter(
                 x_lattice_grid,
@@ -113,31 +114,30 @@ def plot_set_2d(X_set: "RectSet | MultiSet", color: str, label: str = ""):
     """
     ax = plt.gca()
 
-    def plot_rect_3d(rect, color, label=None):
+    def plot_rect_2d(rect, color, label=None):
         x = [rect.lower_bound[0], rect.upper_bound[0], rect.upper_bound[0], rect.lower_bound[0], rect.lower_bound[0]]
         y = [rect.lower_bound[1], rect.lower_bound[1], rect.upper_bound[1], rect.upper_bound[1], rect.lower_bound[1]]
-        z = [0] * 5
-        ax.plot(x, y, z, color=color, label=label)
+        ax.plot(x, y, 0, color=color, label=label)
 
     if isinstance(X_set, RectSet):
-        plot_rect_3d(X_set, color, label)
+        plot_rect_2d(X_set, color, label)
     elif isinstance(X_set, MultiSet):
         for i, rect in enumerate(X_set):
-            plot_rect_3d(rect, color, label if i == 0 else None)
+            plot_rect_2d(rect, color, label if i == 0 else None)
     else:
         raise ValueError("X_set must be a RectSet or MultiSet.")
 
 
 def plot_solution_2d(
     X_bounds: "RectSet",
-    X_init: "RectSet" = None,
-    X_unsafe: "RectSet" = None,
-    feature_map: "FeatureMap" = None,
-    sol: "np.typing.NDArray[np.float64]" = None,
-    eta: float = None,
-    gamma: float = None,
+    X_init: "RectSet | None" = None,
+    X_unsafe: "RectSet | None" = None,
+    feature_map: "FeatureMap | None" = None,
+    sol: "NVector | None" = None,
+    eta: "float | None" = None,
+    gamma: "float | None" = None,
     estimator: "Estimator" = None,
-    f: "callable" = None,
+    f: "Callable[[NMatrix], NMatrix] | None" = None,
     c: float = 0.0,
 ):
     fig = plt.figure()
@@ -152,24 +152,25 @@ def plot_solution_2d(
 
     # Plot the barrier certificate as a surface
     if feature_map is not None and sol is not None:
-        x = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], 100)
-        y = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], 100)
+        x = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], 25)
+        y = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], 25)
         X, Y = np.meshgrid(x, y)
         points = np.stack([X.ravel(), Y.ravel()], axis=1)
         Z = feature_map(points) @ sol.T
         Z = Z.reshape(X.shape)
-        surf = ax.plot_surface(X, Y, Z, cmap="viridis", alpha=0.7, linewidth=0, antialiased=True, label="B(x)")
+        surf = ax.plot_surface(X, Y, Z, cmap="viridis", alpha=0.7, label="B(x)")
         fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10, pad=0.1)
 
         # Plot eta and gamma as planes
         if eta is not None:
-            ax.plot_surface(X, Y, np.full_like(X, eta), color="green", alpha=0.2, label="eta")
+            ax.plot_surface(X, Y, np.full_like(X, eta), color="green", alpha=0.2, rcount=2, ccount=2, label="eta")
         if gamma is not None:
-            ax.plot_surface(X, Y, np.full_like(X, gamma), color="red", alpha=0.2, label="gamma")
+            ax.plot_surface(X, Y, np.full_like(X, gamma), color="red", alpha=0.2, rcount=2, ccount=2, label="gamma")
+            ax.set_zlim(0, gamma + 1)
 
         # Plot f(x) and estimator if provided
         if f is not None:
-            points_f = f(points.T).T
+            points_f = f(points)
             Zp = feature_map(points_f) @ sol.T
             Zp = Zp.reshape(X.shape)
             ax.plot_surface(X, Y, Zp, color="black", alpha=0.3, label="B(xp)")
@@ -188,8 +189,8 @@ def plot_solution_2d(
 
 def plot_estimator_1d(
     estimator: "Estimator",
-    x_samples: "np.typing.NDArray[np.float64]",
-    xp_samples: "np.typing.NDArray[np.float64]",
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
     X_bounds: "RectSet | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
@@ -225,8 +226,8 @@ def plot_estimator_1d(
 
 def plot_estimator_2d(
     estimator: "Estimator",
-    x_samples: "np.typing.NDArray[np.float64]",
-    xp_samples: "np.typing.NDArray[np.float64]",
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
     X_bounds: "RectSet | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
@@ -254,7 +255,9 @@ def plot_estimator_2d(
 
     # Plot the true vs predicted next states
     ax.scatter(x_samples[:, 0], x_samples[:, 1], xp_samples[:, 0], label="Ground truth", color="blue", marker="o")
-    ax.scatter(x_samples[:, 0], x_samples[:, 1], xp_pred[:, 0], label="Estimator prediction", color="orange", marker="x")
+    ax.scatter(
+        x_samples[:, 0], x_samples[:, 1], xp_pred[:, 0], label="Estimator prediction", color="orange", marker="x"
+    )
     plt.title("Estimator Predictions vs True Dynamics")
     plt.xlabel("State x[0]")
     plt.ylabel("State x[1]")
@@ -265,7 +268,7 @@ def plot_estimator_2d(
 
 def plot_feature_map(
     feature_map: "FeatureMap",
-    x_samples: "np.typing.NDArray[np.float64] | Callable[[], np.typing.NDArray[np.float64]] | None" = None,
+    x_samples: "NMatrix | Callable[[], NMatrix] | None" = None,
     X_bounds: "Set | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
@@ -313,8 +316,8 @@ def plot_feature_map(
 
 def plot_estimator(
     estimator: "Estimator",
-    x_samples: "np.typing.NDArray[np.float64] | Callable[[], np.typing.NDArray[np.float64]] | None",
-    xp_samples: "np.typing.NDArray[np.float64] | Callable[[np.typing.NDArray[np.float64]], np.typing.NDArray[np.float64]]",
+    x_samples: "NMatrix | Callable[[], NMatrix] | None",
+    xp_samples: "NMatrix | Callable[[NMatrix], NMatrix]",
     X_bounds: "RectSet | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
@@ -358,15 +361,15 @@ def plot_estimator(
 
 def plot_solution(
     X_bounds: "RectSet",
-    X_init: "RectSet" = None,
-    X_unsafe: "RectSet" = None,
-    feature_map: "FeatureMap" = None,
-    sol: "np.typing.NDArray[np.float64]" = None,
-    eta: float = None,
-    gamma: float = None,
-    estimator: "Estimator" = None,
-    f: "callable" = None,
-    c: float = 0.0,
+    X_init: "RectSet | None" = None,
+    X_unsafe: "RectSet | None" = None,
+    feature_map: "FeatureMap | None" = None,
+    sol: "NVector | None" = None,
+    eta: "float | None" = None,
+    gamma: "float | None" = None,
+    estimator: "Estimator | None" = None,
+    f: "Callable[[NMatrix], NMatrix] | None" = None,
+    c: "float" = 0.0,
 ):
     assert X_bounds.dimension > 0, "X_bounds must have a positive dimension."
     plot_solution_fun = (plot_solution_1d, plot_solution_2d)
@@ -374,6 +377,103 @@ def plot_solution(
         return plot_solution_fun[X_bounds.dimension - 1](
             X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c
         )
+    raise LucidNotSupportedException(
+        f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
+    )
+
+
+def plot_function_1d(
+    X_bounds: "RectSet",
+    f: "Callable[[NMatrix], NMatrix]",
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    n: int = 100,
+):
+    """Plot a function f over the given samples in 1D.
+
+    Args:
+        X_bounds: Bounds of the state space
+        f: Function to be plotted
+        X_init: Initial set of states
+        X_unsafe: Unsafe set of states
+        n: Number of lattice points to consider for plotting
+    """
+    assert X_bounds.dimension == 1, "plot_function is only supported for 1D functions."
+    if X_init is not None:
+        plot_set_1d(X_init, "blue", label="Initial Set")
+    if X_unsafe is not None:
+        plot_set_1d(X_unsafe, "red", label="Unsafe Set")
+
+    x_samples = X_bounds.lattice(n, True).flatten()
+    y = np.linspace(0, 100, n).flatten()
+    y_samples = f(x_samples)
+    assert y_samples.ndim == 1 or y_samples.shape[1] == 1, "Function f must return a 1D array for 1D plotting."
+
+    u = np.repeat((y_samples - x_samples).reshape(1, -1), n, axis=0)
+    v = np.zeros((n, n))  # Assuming a 1D function, v is zero
+
+    plt.streamplot(x_samples, y, u, v, color="blue", density=1 / 5, linewidth=u)
+    plt.title("Function Plot")
+    plt.xlabel("Input")
+    plt.ylabel("Output")
+    plt.show()
+
+
+def plot_function_2d(
+    X_bounds: "RectSet",
+    f: "Callable[[NMatrix], NMatrix]",
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    n: int = 100,
+):
+    """Plot a function f over the given samples in 2D.
+
+    Args:
+        X_bounds: Bounds of the state space
+        f: Function to be plotted
+        X_init: Initial set of states
+        X_unsafe: Unsafe set of states
+        n: Number of lattice points to consider for plotting
+    """
+    assert X_bounds.dimension == 2, "plot_function is only supported for 2D functions."
+    if X_init is not None:
+        plot_set_2d(X_init, "blue", label="Initial Set")
+    if X_unsafe is not None:
+        plot_set_2d(X_unsafe, "red", label="Unsafe Set")
+
+    x_samples = X_bounds.lattice(n, True)
+    X = x_samples[:, 0].reshape(n, n)
+    Y = x_samples[:, 1].reshape(n, n)
+
+    xp_samples = f(x_samples)
+
+    assert xp_samples.ndim == 2 and xp_samples.shape[1] == 2, "Function f must return a 2D array for 2D plotting."
+
+    Xp = xp_samples[:, 0].reshape(n, n)
+    Yp = xp_samples[:, 1].reshape(n, n)
+
+    u = Xp - X
+    v = Yp - Y
+
+    speed = np.sqrt(u**2 + v**2)
+
+    plt.streamplot(X, Y, u, v, color="blue", linewidth=5 * speed / speed.max())
+    plt.title("Function Plot")
+    plt.xlabel("Input Dimension 1")
+    plt.ylabel("Input Dimension 2")
+    plt.show()
+
+
+def plot_function(
+    X_bounds: "RectSet",
+    f: "Callable[[NMatrix], NMatrix]",
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+):
+    """Plot a function f over the given samples."""
+    plot_function_fun = (plot_function_1d, plot_function_2d)  # Add more functions for higher dimensions if needed
+    if X_bounds.dimension <= len(plot_function_fun):
+        return plot_function_fun[X_bounds.dimension - 1](X_bounds, f, X_init, X_unsafe)
     raise LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
     )

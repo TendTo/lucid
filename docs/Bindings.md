@@ -62,7 +62,7 @@ def scenario_config() -> "ScenarioConfig":
     # Parameters and inputs
     N = 1000
     x_samples = X_bounds.sample(N)
-    xp_samples = f(x_samples.T).T
+    xp_samples = f(x_samples)
     # Initial estimator hyperparameters. Can be tuned later
     regularization_constant = 1e-3
     sigma_f = 15.0
@@ -147,7 +147,7 @@ X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))  # Unsafe set
 # Parameters and inputs
 N = 1000
 x_samples = X_bounds.sample(N)
-xp_samples = f(x_samples.T).T
+xp_samples = f(x_samples)
 # Initial estimator hyperparameters. Can be tuned later
 regularization_constant = 1e-3
 sigma_f = 15.0
