@@ -19,21 +19,28 @@
 
 #ifndef NDEBUG
 
-#define LUCID_ASSERT(condition, message)                                                                 \
-  do {                                                                                                   \
-    if (!(condition)) {                                                                                  \
-      LUCID_CRITICAL_FMT("Assertion `{}` failed in {}:{}: {}", #condition, __FILE__, __LINE__, message); \
-      throw ::lucid::exception::LucidAssertionException(                                                 \
-          fmt::format("Assertion `{}` failed in {}:{}: {}", #condition, __FILE__, __LINE__, message));   \
-    }                                                                                                    \
+#define LUCID_ERROR_LOG_AND_THROW(ex, msg, ...)                  \
+  do {                                                           \
+    LUCID_ERROR_FMT(msg, __VA_ARGS__);                           \
+    throw ::lucid::exception::ex(fmt::format(msg, __VA_ARGS__)); \
   } while (false)
 
-#define LUCID_UNREACHABLE()                                                   \
-  do {                                                                        \
-    LUCID_CRITICAL_FMT("{}:{} Should not be reachable.", __FILE__, __LINE__); \
-    throw ::lucid::exception::LucidUnreachableException(                      \
-        fmt::format("{}:{} Should not be reachable.", __FILE__, __LINE__));   \
+#define LUCID_CRITICAL_LOG_AND_THROW(ex, msg, ...)               \
+  do {                                                           \
+    LUCID_CRITICAL_FMT(msg, __VA_ARGS__);                        \
+    throw ::lucid::exception::ex(fmt::format(msg, __VA_ARGS__)); \
   } while (false)
+
+#define LUCID_ASSERT(condition, message)                                                                               \
+  do {                                                                                                                 \
+    if (!(condition)) {                                                                                                \
+      LUCID_CRITICAL_LOG_AND_THROW(LucidAssertionException, "Assertion `{}` failed in {}:{}: {}", condition, __FILE__, \
+                                   __LINE__, message);                                                                 \
+    }                                                                                                                  \
+  } while (false)
+
+#define LUCID_UNREACHABLE() \
+  LUCID_CRITICAL_LOG_AND_THROW(LucidUnreachableException, "{}:{} Should not be reachable.", __FILE__, __LINE__)
 
 #else
 
@@ -44,98 +51,56 @@
 
 #ifndef NCHECK
 
-#define LUCID_CHECK_ARGUMENT(condition, argument, actual)                  \
-  do {                                                                     \
-    if (!(condition)) {                                                    \
-      LUCID_ERROR_FMT("Invalid argument for {}: '{}'", argument, actual);  \
-      throw ::lucid::exception::LucidInvalidArgumentException(             \
-          fmt::format("Invalid argument for {}: '{}'", argument, actual)); \
-    }                                                                      \
+#define LUCID_CHECK_ARGUMENT(condition, argument, actual)                                                          \
+  do {                                                                                                             \
+    if (!(condition)) {                                                                                            \
+      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException, "Invalid argument for {}: '{}'", argument, actual); \
+    }                                                                                                              \
   } while (false)
-#define LUCID_CHECK_ARGUMENT_EXPECTED(condition, argument, actual, expected)                                 \
-  do {                                                                                                       \
-    if (!(condition)) {                                                                                      \
-      LUCID_ERROR_FMT("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected);  \
-      throw ::lucid::exception::LucidInvalidArgumentException(                                               \
-          fmt::format("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected)); \
-    }                                                                                                        \
+#define LUCID_CHECK_ARGUMENT_EXPECTED(condition, argument, actual, expected)                                          \
+  do {                                                                                                                \
+    if (!(condition)) {                                                                                               \
+      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException,                                                        \
+                                "Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected); \
+    }                                                                                                                 \
   } while (false)
-#define LUCID_CHECK_ARGUMENT_GT(value, expected)                                                            \
-  do {                                                                                                      \
-    if (!((value) > (expected))) {                                                                          \
-      LUCID_ERROR_FMT("Invalid argument for {}: received '{}', expected '> {}'", #value, value, expected);  \
-      throw ::lucid::exception::LucidInvalidArgumentException(                                              \
-          fmt::format("Invalid argument for {}: received '{}', expected '> {}'", #value, value, expected)); \
-    }                                                                                                       \
-  } while (false)
-#define LUCID_CHECK_ARGUMENT_GE(value, expected)                                                             \
-  do {                                                                                                       \
-    if (!((value) >= (expected))) {                                                                          \
-      LUCID_ERROR_FMT("Invalid argument for {}: received '{}', expected '> {}'", #value, value, expected);   \
-      throw ::lucid::exception::LucidInvalidArgumentException(                                               \
-          fmt::format("Invalid argument for {}: received '{}', expected '>= {}'", #value, value, expected)); \
-    }                                                                                                        \
+#define LUCID_CHECK_ARGUMENT_CMP(value, op, expected)                                                           \
+  do {                                                                                                          \
+    if (!((value)op(expected))) {                                                                               \
+      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException,                                                  \
+                                "Invalid argument for " #value ": received '{}', expected '" #op " {}'", value, \
+                                expected);                                                                      \
+    }                                                                                                           \
   } while (false)
 
 #else
 
 #define LUCID_CHECK_ARGUMENT(condition, argument, actual) ((void)0)
 #define LUCID_CHECK_ARGUMENT_EXPECTED(condition, argument, actual, expected) ((void)0)
-#define LUCID_CHECK_ARGUMENT_GT(value, expected) ((void)0)
-#define LUCID_CHECK_ARGUMENT_GE(value, expected) ((void)0)
+#define LUCID_CHECK_ARGUMENT_CMP(value, op, expected) ((void)0)
 
 #endif  // NCHECK
 
-#define LUCID_NOT_IMPLEMENTED()                                                                                        \
-  do {                                                                                                                 \
-    LUCID_ERROR_FMT("{}:{} Not implemented.", __FILE__, __LINE__);                                                     \
-    throw ::lucid::exception::LucidNotImplementedException(fmt::format("{}:{} Not implemented.", __FILE__, __LINE__)); \
-  } while (false)
+#define LUCID_NOT_IMPLEMENTED() \
+  LUCID_ERROR_LOG_AND_THROW(LucidNotImplementedException, "{}:{} Not implemented.", __FILE__, __LINE__)
 
-#define LUCID_RUNTIME_ERROR(msg)                   \
-  do {                                             \
-    LUCID_ERROR(msg);                              \
-    throw ::lucid::exception::LucidException(msg); \
-  } while (false)
+#define LUCID_RUNTIME_ERROR(msg) LUCID_ERROR_LOG_AND_THROW(LucidException, msg, "")
 
-#define LUCID_RUNTIME_ERROR_FMT(msg, ...)                                    \
-  do {                                                                       \
-    LUCID_ERROR_FMT(msg, __VA_ARGS__);                                       \
-    throw ::lucid::exception::LucidException(fmt::format(msg, __VA_ARGS__)); \
-  } while (false)
+#define LUCID_RUNTIME_ERROR_FMT(msg, ...) LUCID_ERROR_LOG_AND_THROW(LucidException, msg, __VA_ARGS__)
 
-#define LUCID_OUT_OF_RANGE(msg)                              \
-  do {                                                       \
-    LUCID_ERROR(msg);                                        \
-    throw ::lucid::exception::LucidOutOfRangeException(msg); \
-  } while (false)
+#define LUCID_OUT_OF_RANGE(msg) LUCID_ERROR_LOG_AND_THROW(LucidOutOfRangeException, msg, "")
 
-#define LUCID_OUT_OF_RANGE_FMT(msg, ...)                                               \
-  do {                                                                                 \
-    LUCID_ERROR_FMT(msg, __VA_ARGS__);                                                 \
-    throw ::lucid::exception::LucidOutOfRangeException(fmt::format(msg, __VA_ARGS__)); \
-  } while (false)
+#define LUCID_OUT_OF_RANGE_FMT(msg, ...) LUCID_ERROR_LOG_AND_THROW(LucidOutOfRangeException, msg, __VA_ARGS__)
 
-#define LUCID_INVALID_ARGUMENT(argument, actual)                       \
-  do {                                                                 \
-    LUCID_ERROR_FMT("Invalid argument for {}: {}", argument, actual);  \
-    throw ::lucid::exception::LucidInvalidArgumentException(           \
-        fmt::format("Invalid argument for {}: {}", argument, actual)); \
-  } while (false)
+#define LUCID_INVALID_ARGUMENT(argument, actual) \
+  LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException, "Invalid argument for {}: {}", argument, actual)
 
-#define LUCID_INVALID_ARGUMENT_EXPECTED(argument, actual, expected)                                        \
-  do {                                                                                                     \
-    LUCID_ERROR_FMT("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected);  \
-    throw ::lucid::exception::LucidInvalidArgumentException(                                               \
-        fmt::format("Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected)); \
-  } while (false)
+#define LUCID_INVALID_ARGUMENT_EXPECTED(argument, actual, expected)                                                 \
+  LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException, "Invalid argument for {}: received '{}', expected '{}'", \
+                            argument, actual, expected)
 
-#define LUCID_INVALID_HYPER_PARAMETER(parameter, type)                          \
-  do {                                                                          \
-    LUCID_ERROR_FMT("Invalid hyper parameter {} of type {}", parameter, type);  \
-    throw ::lucid::exception::LucidInvalidArgumentException(                    \
-        fmt::format("Invalid hyper parameter {} of type {}", parameter, type)); \
-  } while (false)
+#define LUCID_INVALID_HYPER_PARAMETER(parameter, type) \
+  LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException, "Invalid hyper parameter {} of type {}", parameter, type)
 
 #define LUCID_PY_ERROR(msg)                          \
   do {                                               \
@@ -151,17 +116,10 @@
     throw ::lucid::exception::LucidPyException(fmt::format(msg, __VA_ARGS__)); \
   } while (false)
 
-#define LUCID_NOT_SUPPORTED(msg)                                                                    \
-  do {                                                                                              \
-    LUCID_ERROR_FMT("{} is not supported.", msg);                                                   \
-    throw ::lucid::exception::LucidNotSupportedException(fmt::format("{} is not supported.", msg)); \
-  } while (false)
+#define LUCID_NOT_SUPPORTED(msg) LUCID_ERROR_LOG_AND_THROW(LucidNotSupportedException, "{} is not supported.", msg)
 
-#define LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY(msg, dependency)                                                        \
-  do {                                                                                                                 \
-    LUCID_ERROR_FMT("{} is not supported because the following dependency was not included during compilation: '{}'.", \
-                    msg, dependency);                                                                                  \
-    throw ::lucid::exception::LucidNotSupportedException(                                                              \
-        fmt::format("{} is not supported because the following dependency was not included during compilation: '{}'.", \
-                    msg, dependency));                                                                                 \
-  } while (false)
+#define LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY(msg, dependency)                                               \
+  LUCID_ERROR_LOG_AND_THROW(                                                                                  \
+      LucidNotSupportedException,                                                                             \
+      "{} is not supported because the following dependency was not included during compilation: '{}'.", msg, \
+      dependency)
