@@ -15,9 +15,8 @@ namespace lucid {
 
 void MedianHeuristicTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                      ConstMatrixRef training_outputs) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() > 1, "training_inputs.rows()", training_inputs.rows(), "> 1");
-  LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() == training_outputs.rows(), "training_inputs.rows()",
-                                training_inputs.rows(), training_outputs.rows());
+  LUCID_CHECK_ARGUMENT_CMP(training_inputs.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_EQ(training_inputs.rows(), training_outputs.rows());
   Vector new_sigma_l{training_inputs.cols()};
   for (Index i = 0; i < training_inputs.cols(); ++i) {
     // Compute the pdist between all inputs for each dimension individually

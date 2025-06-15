@@ -31,8 +31,7 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
       regularization_constant_{regularization_constant},
       training_inputs_{},
       coefficients_{} {
-  LUCID_CHECK_ARGUMENT_EXPECTED(regularization_constant >= 0.0, "regularization_constant", regularization_constant,
-                                ">= 0.0");
+  LUCID_CHECK_ARGUMENT_CMP(regularization_constant, >=, 0.0);
   LUCID_CHECK_ARGUMENT_EXPECTED(kernel_ != nullptr, "kernel", nullptr, "not nullptr");
   LUCID_CHECK_ARGUMENT(!kernel_->has(Parameter::REGULARIZATION_CONSTANT), "kernel",
                        "parameter 'regularization constant' is hidden by the regressor");
@@ -40,7 +39,7 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
 
 Matrix KernelRidgeRegressor::predict(ConstMatrixRef x) const {
   LUCID_CHECK_ARGUMENT(training_inputs_.size() > 0, "training_inputs", "the model is not fitted yet");
-  LUCID_CHECK_ARGUMENT_EXPECTED(x.cols() == training_inputs_.cols(), "input.cols()", x.cols(), training_inputs_.cols());
+  LUCID_CHECK_ARGUMENT_EQ(x.cols(), training_inputs_.cols());
   return (*kernel_)(x, training_inputs_) * coefficients_;
 }
 
@@ -50,7 +49,7 @@ Matrix KernelRidgeRegressor::operator()(ConstMatrixRef x, const FeatureMap& feat
 Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature_map) const {
   LUCID_WARN("Experts only. We do not know what will happen to your interpolation. And you may die. Sorry about that.");
   LUCID_CHECK_ARGUMENT(training_inputs_.size() > 0, "training_inputs", "the model is not fitted yet");
-  LUCID_CHECK_ARGUMENT_EXPECTED(x.cols() == training_inputs_.cols(), "input.cols()", x.cols(), training_inputs_.cols());
+  LUCID_CHECK_ARGUMENT_EQ(x.cols(), training_inputs_.cols());
   Matrix kernel_input{Matrix::NullaryExpr(
       x.rows(), training_inputs_.rows(), [this, &x, &feature_map](const Index row, const Index col) {
         return (feature_map(x.row(row)) * feature_map(training_inputs_.row(col)).transpose()).value();
@@ -61,8 +60,8 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature
 }
 
 double compute_log_marginal(const GramMatrix& K, ConstMatrixRef y) {
-  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == K.cols(), "K.rows() == K.cols()", K.rows(), K.cols());
-  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == y.rows(), "K.rows() == y.rows()", K.rows(), y.rows());
+  LUCID_CHECK_ARGUMENT_EQ(K.rows(), K.cols());
+  LUCID_CHECK_ARGUMENT_EQ(K.rows(), y.rows());
   // Compute the log marginal likelihood
   // log p(y | K, λ) = -0.5 . (y^T * w) - sum(log(diag(L))) - log(2*pi) * n / 2
   // where n is the number of training samples,
@@ -79,8 +78,8 @@ double compute_log_marginal(const GramMatrix& K, ConstMatrixRef y) {
 
 Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, const Matrix& alpha,
                                      const std::vector<Matrix>& gradient) {
-  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == K.cols(), "K.rows() == K.cols()", K.rows(), K.cols());
-  LUCID_CHECK_ARGUMENT_EXPECTED(K.rows() == y.rows(), "K.rows() == y.rows()", K.rows(), y.rows());
+  LUCID_CHECK_ARGUMENT_EQ(K.rows(), K.cols());
+  LUCID_CHECK_ARGUMENT_EQ(K.rows(), y.rows());
   // Compute the log marginal likelihood gradient
   const Matrix k_inv{K.inverse()};
 
@@ -101,8 +100,7 @@ Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, Con
                                              const Requests requests) {
   LUCID_TRACE_FMT("({}, {}, {})", training_inputs, training_outputs, requests);
 
-  LUCID_CHECK_ARGUMENT_EXPECTED(training_inputs.rows() == training_outputs.rows(), "training_inputs.rows()",
-                                training_inputs.rows(), training_outputs.rows());
+  LUCID_CHECK_ARGUMENT_EQ(training_inputs.rows(), training_outputs.rows());
   training_inputs_ = training_inputs;
   std::vector<Matrix> kernel_gradient;
   // Compute gram matrix K (nxn) with elements K_{ij} = k(x_i, x_j)

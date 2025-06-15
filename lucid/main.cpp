@@ -33,7 +33,7 @@ namespace {
 
 #if 0
 void plot_rect_set(const RectSet& set, const std::string& color = "blue", const double alpha = 0.9) {
-  LUCID_CHECK_ARGUMENT_EXPECTED(set.dimension() == 2, "set.dimension()", set.dimension(), 2);
+  LUCID_CHECK_ARGUMENT_EQ(set.dimension(), 2);
   Vector x(set.dimension());
   x << set.lower_bound()(0), set.upper_bound()(0);
   Vector y1(1);

@@ -17,8 +17,6 @@
 #include "lucid/util/exception.h"
 #include "lucid/util/logging.h"
 
-#ifndef NDEBUG
-
 #define LUCID_ERROR_LOG_AND_THROW(ex, msg, ...)                  \
   do {                                                           \
     LUCID_ERROR_FMT(msg, __VA_ARGS__);                           \
@@ -30,6 +28,8 @@
     LUCID_CRITICAL_FMT(msg, __VA_ARGS__);                        \
     throw ::lucid::exception::ex(fmt::format(msg, __VA_ARGS__)); \
   } while (false)
+
+#ifndef NDEBUG
 
 #define LUCID_ASSERT(condition, message)                                                                               \
   do {                                                                                                                 \
@@ -64,13 +64,23 @@
                                 "Invalid argument for {}: received '{}', expected '{}'", argument, actual, expected); \
     }                                                                                                                 \
   } while (false)
-#define LUCID_CHECK_ARGUMENT_CMP(value, op, expected)                                                           \
-  do {                                                                                                          \
-    if (!((value)op(expected))) {                                                                               \
-      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException,                                                  \
-                                "Invalid argument for " #value ": received '{}', expected '" #op " {}'", value, \
-                                expected);                                                                      \
-    }                                                                                                           \
+#define LUCID_CHECK_ARGUMENT_CMP(value, op, expected)                                                      \
+  do {                                                                                                     \
+    if (!((value)op(expected))) {                                                                          \
+      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException,                                             \
+                                "Invalid argument " #value " violates constraint " #value " == " #expected \
+                                " : received '{}', expected '" #op " {}'",                                 \
+                                value, expected);                                                          \
+    }                                                                                                      \
+  } while (false)
+#define LUCID_CHECK_ARGUMENT_EQ(value, expected)                                                           \
+  do {                                                                                                     \
+    if (!((value) == (expected))) {                                                                        \
+      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException,                                             \
+                                "Invalid argument " #value " violates constraint " #value " == " #expected \
+                                " : received '{}', expected '{}'",                                         \
+                                value, expected);                                                          \
+    }                                                                                                      \
   } while (false)
 
 #else
@@ -78,6 +88,7 @@
 #define LUCID_CHECK_ARGUMENT(condition, argument, actual) ((void)0)
 #define LUCID_CHECK_ARGUMENT_EXPECTED(condition, argument, actual, expected) ((void)0)
 #define LUCID_CHECK_ARGUMENT_CMP(value, op, expected) ((void)0)
+#define LUCID_CHECK_ARGUMENT_EQ(value, expected) ((void)0)
 
 #endif  // NCHECK
 

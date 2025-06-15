@@ -77,7 +77,7 @@ LbfgsTuner::LbfgsTuner(const std::vector<std::pair<Scalar, Scalar>>& bounds, con
     : LbfgsTuner{bounds_to_vector<0, std::vector>(bounds), bounds_to_vector<1, std::vector>(bounds), parameters} {}
 LbfgsTuner::LbfgsTuner(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const LbgsParameters& parameters)
     : lb_{lb}, ub_{ub}, parameters_{parameters} {
-  LUCID_CHECK_ARGUMENT_EXPECTED(lb_.size() == ub_.size(), "lb.size() != ub.size()", lb_.size(), ub_.size());
+  LUCID_CHECK_ARGUMENT_EQ(lb_.size(), ub_.size());
 #ifndef NCHECK
   if (lb_.size() == 0) {
     to_lbfgs(parameters).check_param();

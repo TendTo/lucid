@@ -21,7 +21,7 @@ GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
       log_sigma_l_{sigma_l_.array().log().matrix()},
       sigma_f_{sigma_f},
       is_isotropic_{false} {
-  LUCID_CHECK_ARGUMENT_EXPECTED(sigma_l_.size() > 0, "sigma_l.size()", sigma_l.size(), "at least 1");
+  LUCID_CHECK_ARGUMENT_CMP(sigma_l_.size(), >, 0);
   LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l_.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
 }
 GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
@@ -33,13 +33,12 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
   LUCID_TRACE_FMT("({}, {})", x1, x2);
   LUCID_ASSERT(&x1 == &x2 || !gradient, "The gradient can be computed only over the same vector");
   LUCID_ASSERT(sigma_l_.size() > 0, "sigma_l must have at least one element");
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() > 0, "x1.cols()", x1.cols(), "> 0");
-  LUCID_CHECK_ARGUMENT_EXPECTED(x2.cols() > 0, "x2.cols()", x2.cols(), "> 0");
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == x2.cols(), "x1.cols() != x2.cols()", x1.cols(), x2.cols());
+  LUCID_CHECK_ARGUMENT_CMP(x1.cols(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(x2.cols(), >, 0);
+  LUCID_CHECK_ARGUMENT_EQ(x1.cols(), x2.cols());
 
   if (is_isotropic_ && sigma_l_.size() != x1.cols()) sigma_l_ = Vector::Constant(x1.cols(), sigma_l_.head<1>().value());
-  LUCID_CHECK_ARGUMENT_EXPECTED(x1.cols() == sigma_l_.size(), "x1.cols() != sigma_l().size()", x1.cols(),
-                                sigma_l_.size());
+  LUCID_CHECK_ARGUMENT_EQ(x1.cols(), sigma_l_.size());
 
   const bool is_same_input = &x1 == &x2;
   // TODO(tend): for efficiency, we should implement a method similar to `squareform` so that we only compute a vector

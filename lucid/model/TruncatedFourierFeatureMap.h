@@ -40,7 +40,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * Construct a truncated Fourier feature map.
    * @pre `num_frequencies` must be greater than 0.
    * @pre `sigma_f` must be greater than 0.
-   * @param num_frequencies number of frequencies per dimension
+   * @param num_frequencies number of frequencies per dimension. Includes the zero frequency
    * @param prob_dim_wise probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
    * @param sigma_f scaling factor
    * @param x_limits domain of the input space, @XsubRd
@@ -62,7 +62,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] Matrix map_matrix(ConstMatrixRef x) const;
 
   /**
-   * Given an @nxdx dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^{d_x} @f$,
+   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$,
    * then compute the feature map.
    * @param x input vector
    * @return @f$ n \times 2 M + 1 @f$ dimensional feature map

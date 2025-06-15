@@ -452,9 +452,8 @@ void init_model(py::module_ &m) {
   m.def(
       "fft_upsample",
       [](ConstMatrixRef f, const Index from_num_samples, const Index to_num_samples, const Index dimension) {
-        LUCID_CHECK_ARGUMENT_EXPECTED(dimension > 0, "dimension", dimension, "must be greater than 0");
-        LUCID_CHECK_ARGUMENT_EXPECTED(to_num_samples > from_num_samples, "to_num_samples > from_num_samples",
-                                      to_num_samples, from_num_samples);
+        LUCID_CHECK_ARGUMENT_CMP(dimension, >, 0);
+        LUCID_CHECK_ARGUMENT_CMP(to_num_samples, >, from_num_samples);
 
         const int n_pad = static_cast<int>(std::floor((to_num_samples - from_num_samples) / 2.0));
         // Get a view of the input data

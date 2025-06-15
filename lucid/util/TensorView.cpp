@@ -46,7 +46,7 @@ TensorIterator<T> TensorView<T>::end() const {
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::fft(TensorView<std::complex<double>>& out, const double coeff) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
+  LUCID_CHECK_ARGUMENT_EQ(out.size(), size());
 
   // Set output dimensions and strides
   out.dims_ = dims_;
@@ -75,7 +75,7 @@ void TensorView<T>::fft(TensorView<std::complex<double>>& out, const double coef
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::ifft(TensorView<std::complex<double>>& out, const double coeff) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
+  LUCID_CHECK_ARGUMENT_EQ(out.size(), size());
 
   // Set output dimensions and strides
   out.dims_ = dims_;
@@ -120,7 +120,7 @@ TensorView<T>::operator Eigen::Map<const MatrixT<T>>() const {
 
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, Index>>& padding) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
+  LUCID_CHECK_ARGUMENT_EQ(out.rank(), rank());
   LUCID_CHECK_ARGUMENT(std::ranges::all_of(padding, [](const auto& p) { return p.first >= 0 && p.second >= 0; }),
                        "padding", "must be non-negative");
   LUCID_CHECK_ARGUMENT(std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
@@ -150,9 +150,9 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<std::pair<Index, I
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
                         const std::vector<Index>& start_padding) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(padding.size() == rank(), "padding.size()", padding.size(), rank());
-  LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
-  LUCID_CHECK_ARGUMENT_EXPECTED(start_padding.size() == rank(), "start_padding.size()", start_padding.size(), rank());
+  LUCID_CHECK_ARGUMENT_EQ(padding.size(), rank());
+  LUCID_CHECK_ARGUMENT_EQ(out.rank(), rank());
+  LUCID_CHECK_ARGUMENT_EQ(start_padding.size(), rank());
   LUCID_CHECK_ARGUMENT_EXPECTED(
       std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
                           [&padding, &out, this](std::size_t i) { return dims_[i] + padding[i] == out.dims_[i]; }),
@@ -187,9 +187,9 @@ void TensorView<T>::pad(TensorView<T>& out, const std::vector<Index>& padding,
 }
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 void TensorView<T>::fft_upsample(TensorView<double>& out) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(out.rank() == rank(), "out.rank()", out.rank(), rank());
-  LUCID_CHECK_ARGUMENT_EXPECTED(!dims_.empty(), "dimensions()", 0, "> 0");
-  LUCID_CHECK_ARGUMENT_EXPECTED(!out.dims_.empty(), "out.dimensions()", 0, "> 0");
+  LUCID_CHECK_ARGUMENT_EQ(out.rank(), rank());
+  LUCID_CHECK_ARGUMENT_CMP(dims_.size(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(out.dims_.size(), >, 0);
   LUCID_CHECK_ARGUMENT(
       std::ranges::all_of(std::views::iota(static_cast<std::size_t>(0), dims_.size() - 1),
                           [&out, this](const std::size_t i) { return out.dims_.at(i) >= dims_.at(i); }),
@@ -233,7 +233,7 @@ void TensorView<T>::fft_upsample(TensorView<double>& out) const {
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 template <IsAnyOf<int, float, double, std::complex<double>> TT>
 void TensorView<T>::copy(TensorView<TT>& out) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
+  LUCID_CHECK_ARGUMENT_EQ(out.size(), size());
 
   std::size_t i = 0;
   if constexpr (!std::is_same_v<T, TT> && std::is_same_v<T, std::complex<double>>) {
@@ -259,7 +259,7 @@ TensorView<T>& TensorView<T>::reshape(std::vector<std::size_t> dims) {
 template <IsAnyOf<int, float, double, std::complex<double>> T>
 template <IsAnyOf<int, float, double, std::complex<double>> TT>
 void TensorView<T>::permute(TensorView<TT>& out, const std::vector<std::size_t>& permutation) const {
-  LUCID_CHECK_ARGUMENT_EXPECTED(out.size() == size(), "out.size()", out.size(), size());
+  LUCID_CHECK_ARGUMENT_EQ(out.size(), size());
   LUCID_CHECK_ARGUMENT(std::ranges::all_of(permutation, [&](const std::size_t p) { return p < rank(); }),
                        "permutation values", "must be in [0, rank - 1]");
 
