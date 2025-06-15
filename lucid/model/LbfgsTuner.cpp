@@ -9,8 +9,8 @@
 #include <LBFGS.h>
 #include <LBFGSB.h>
 
-#include <iostream>
 #include <memory>
+#include <ostream>
 #include <vector>
 
 #include "lucid/lib/eigen.h"
@@ -94,8 +94,6 @@ bool LbfgsTuner::is_bounded() const {
 
 void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                            ConstMatrixRef training_outputs) const {
-  LUCID_TRACE_FMT("({}, {})", LUCID_FORMAT_MATRIX(training_inputs), LUCID_FORMAT_MATRIX(training_outputs));
-
   LUCID_ASSERT(lb_.size() == ub_.size(), "lower and upper bounds must have the same size");
   LUCID_CHECK_ARGUMENT(dynamic_cast<GradientOptimizable*>(&estimator) != nullptr, "estimator",
                        "not an instance of GradientOptimizable");
@@ -133,6 +131,23 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
   LUCID_DEBUG_FMT("solution = {}", Vector{x_out});
 
   gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x_out));
+}
+void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                           const OutputComputer& training_outputs) const {
+  LUCID_NOT_IMPLEMENTED();
+}
+
+std::ostream& operator<<(std::ostream& os, const LbgsParameters& lbgs_parameters) {
+  return os << "LbgsParameters( m( " << lbgs_parameters.m << " ) epsilon( " << lbgs_parameters.epsilon
+            << " ) epsilon_rel( " << lbgs_parameters.epsilon_rel << " ) past( " << lbgs_parameters.past << " ) delta( "
+            << lbgs_parameters.delta << " ) max_iterations( " << lbgs_parameters.max_iterations << " ) max_submin( "
+            << lbgs_parameters.max_submin << " ) max_linesearch( " << lbgs_parameters.max_linesearch << " ) min_step( "
+            << lbgs_parameters.min_step << " ) max_step( " << lbgs_parameters.max_step << " ) ftol( "
+            << lbgs_parameters.ftol << " ) wolfe( " << lbgs_parameters.wolfe << " ) )";
+}
+
+std::ostream& operator<<(std::ostream& os, const LbfgsTuner& tuner) {
+  return os << "LbfgsTuner( bounded( " << tuner.is_bounded() << " ) parameters( " << tuner.parameters() << " )";
 }
 
 }  // namespace lucid

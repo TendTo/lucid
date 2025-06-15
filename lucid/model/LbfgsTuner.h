@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <iosfwd>
 #include <vector>
 
 #include "lucid/model/Kernel.h"
@@ -157,13 +158,29 @@ class LbfgsTuner final : public Tuner {
 
   /** @checker{bounded, optimisation} */
   [[nodiscard]] bool is_bounded() const;
+  /** @getter{parameters, L-BGS optimisation} */
+  [[nodiscard]] const LbgsParameters& parameters() const { return parameters_; }
 
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                 const OutputComputer& training_outputs) const override;
 
   Eigen::VectorXd lb_;         ///< Lower bounds for the parameters. If empty, no bounds are applied
   Eigen::VectorXd ub_;         ///< Upper bounds for the parameters. If empty, no bounds are applied
   LbgsParameters parameters_;  ///< Optimization parameters for the L-BFGS algorithm
 };
 
+std::ostream& operator<<(std::ostream& os, const LbgsParameters& lbgs_parameters);
+std::ostream& operator<<(std::ostream& os, const LbfgsTuner& tuner);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::LbgsParameters)
+OSTREAM_FORMATTER(lucid::LbfgsTuner)
+
+#endif
