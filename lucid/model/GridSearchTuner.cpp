@@ -49,7 +49,7 @@ class GridSearchTuning {
    */
   GridSearchTuning(std::mutex& index_mutex, std::mutex& score_mutex, Estimator& estimator,
                    const std::vector<ParameterValues>& parameters, ConstMatrixRef training_inputs,
-                   ConstMatrixRef training_outputs, std::vector<Index>& best_parameters_indices,
+                   const OutputComputer& training_outputs, std::vector<Index>& best_parameters_indices,
                    IndexIterator<std::vector<Index>>& it, double& best_score)
       : index_mutex_{index_mutex},
         score_mutex_{score_mutex},
@@ -84,8 +84,8 @@ class GridSearchTuning {
   void tune() {
     // Iterate over all possible combinations of parameter values
     while (increase_index()) {
-      estimator_.consolidate(training_inputs_, training_outputs_);
-      const double score = estimator_.score(training_inputs_, training_outputs_);
+      estimator_.consolidate(training_inputs_, training_outputs_(estimator_, training_inputs_));
+      const double score = estimator_.score(training_inputs_, training_outputs_(estimator_, training_inputs_));
 
       // If the new score is better than the best score, update the best score and keep track of the parameter index
       LUCID_TRACE_FMT("parameters = {}, score = {}", current_parameters_indices_, score);
@@ -134,7 +134,7 @@ class GridSearchTuning {
   const std::vector<ParameterValues>&
       parameters_;                               ///< List of parameter values to be tuned, with the values to be tested
   ConstMatrixRef training_inputs_;               ///< Training inputs used for tuning
-  ConstMatrixRef training_outputs_;              ///< Training inputs and outputs used for tuning
+  const OutputComputer& training_outputs_;       ///< Training outputs used for tuning, computed every iteration
   std::vector<Index>& best_parameters_indices_;  ///< Indices of the best parameter with respect to scoring
   IndexIterator<std::vector<Index>>& it_;        ///< Index iterator for iterating over parameter values
   double& best_score_;  ///< Best score achieved during the tuning process, initialized to a very low value
@@ -156,9 +156,7 @@ GridSearchTuner::GridSearchTuner(std::vector<ParameterValues> parameters, const 
 }
 
 void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
-                                ConstMatrixRef training_outputs) const {
-  LUCID_TRACE_FMT("({}, {}, {})", estimator, LUCID_FORMAT_MATRIX(training_inputs),
-                  LUCID_FORMAT_MATRIX(training_outputs));
+                                const OutputComputer& training_outputs) const {
   // Mutex to protect access to the best parameter indices during tuning
   std::mutex index_mutex, score_mutex;
   // Prepare the shared data: the best score and the best parameter indices and the index iterator
@@ -194,8 +192,9 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
     const auto& parameter = parameters_[i];
     estimator.set(parameter.parameter(), best_parameters_indices[i], parameter.values());
   }
-  estimator.consolidate(training_inputs, training_outputs);
+  estimator.consolidate(training_inputs, training_outputs(estimator, training_inputs));
 }
+
 std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner) {
   return os << "GridSearchTuner( parameters( " << fmt::format("{}", tuner.parameters()) << " ) n_jobs( "
             << tuner.n_jobs() << " )";

@@ -21,8 +21,18 @@ Matrix Estimator::operator()(ConstMatrixRef x) const { return predict(x); }
 Estimator& Estimator::fit(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) {
   return tuner_ ? fit(training_inputs, training_outputs, *tuner_) : consolidate(training_inputs, training_outputs);
 }
+
 Estimator& Estimator::fit(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, const Tuner& tuner) {
   tuner.tune(*this, training_inputs, training_outputs);
+  return *this;
+}
+Estimator& Estimator::fit_online(ConstMatrixRef training_inputs, const OutputComputer& training_outputs) {
+  return tuner_ ? fit_online(training_inputs, training_outputs, *tuner_)
+                : consolidate(training_inputs, training_outputs(*this, training_inputs), Request::_);
+}
+Estimator& Estimator::fit_online(ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
+                                 const Tuner& tuner) {
+  tuner.tune_online(*this, training_inputs, training_outputs);
   return *this;
 }
 

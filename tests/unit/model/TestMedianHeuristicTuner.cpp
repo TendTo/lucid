@@ -8,6 +8,9 @@
 #include "lucid/model/model.h"
 #include "lucid/util/exception.h"
 
+using lucid::ConstMatrixRef;
+using lucid::ConstMatrixRefCopy;
+using lucid::Estimator;
 using lucid::GaussianKernel;
 using lucid::Index;
 using lucid::Kernel;
@@ -41,6 +44,18 @@ TEST_F(TestMedianHeuristicTuner, Tune) {
   const Matrix training_inputs{Matrix::Random(num_samples_, dim_)};
 
   regressor_.fit(training_inputs, training_outputs_);
+
+  EXPECT_EQ(regressor_.get<double>(Parameter::REGULARIZATION_CONSTANT), regularization_constant_);
+  EXPECT_EQ(regressor_.get<double>(Parameter::SIGMA_F), sigma_f_);
+  EXPECT_NE(regressor_.get<const Vector &>(Parameter::SIGMA_L), Vector::Constant(dim_, sigma_l_));
+  EXPECT_TRUE((regressor_.get<const Vector &>(Parameter::SIGMA_L).array() > 0).all());
+}
+
+TEST_F(TestMedianHeuristicTuner, TuneOnline) {
+  const Matrix training_inputs{Matrix::Random(num_samples_, dim_)};
+
+  regressor_.fit_online(training_inputs,
+                        [this](const Estimator &, ConstMatrixRef) -> ConstMatrixRefCopy { return training_outputs_; });
 
   EXPECT_EQ(regressor_.get<double>(Parameter::REGULARIZATION_CONSTANT), regularization_constant_);
   EXPECT_EQ(regressor_.get<double>(Parameter::SIGMA_F), sigma_f_);

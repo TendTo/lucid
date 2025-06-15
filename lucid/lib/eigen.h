@@ -47,6 +47,7 @@ using Vector3 = Eigen::RowVector3d;
 using Index = Eigen::Index;
 using Dimension = Eigen::Index;
 using ConstMatrixRef = const Eigen::Ref<const Matrix>&;
+using ConstMatrixRefCopy = Eigen::Ref<const Matrix>;
 using MatrixRef = Eigen::Ref<Matrix>;
 using ConstVectorRef = const Eigen::Ref<const Vector>&;
 using VectorRef = Eigen::Ref<Vector>;

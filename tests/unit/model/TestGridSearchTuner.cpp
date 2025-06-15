@@ -16,6 +16,7 @@
 #include "lucid/util/exception.h"
 
 using lucid::ConstMatrixRef;
+using lucid::ConstMatrixRefCopy;
 using lucid::Estimator;
 using lucid::GaussianKernel;
 using lucid::GridSearchTuner;
@@ -180,6 +181,27 @@ TEST_F(TestGridSearchTuner, TuneAutoThreads) {
         training_outputs_, sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
     estimator.fit(training_inputs_, training_outputs_, tuner);
+
+    // Even with multiple threads, the estimator should be set with the best parameters
+    ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_F>(), estimator.expected_sigma_f());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_L>(), estimator.expected_sigma_l());
+    ASSERT_EQ(estimator.get<Parameter::DEGREE>(), estimator.expected_degree());
+  }
+}
+
+TEST_F(TestGridSearchTuner, TuneOnlineAutoThreads) {
+  // Initialise the input search grid values
+  const GridSearchTuner tuner{parameters_};
+
+  // Get the necessary information to iterate over all possible parameter combinations
+  for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
+    testing::NiceMock<MockEstimator_> estimator{
+        training_outputs_, sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
+        regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
+    estimator.fit_online(
+        training_inputs_, [this](const Estimator &, ConstMatrixRef) -> ConstMatrixRefCopy { return training_outputs_; },
+        tuner);
 
     // Even with multiple threads, the estimator should be set with the best parameters
     ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());

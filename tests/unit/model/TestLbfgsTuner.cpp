@@ -8,6 +8,9 @@
 #include "lucid/model/model.h"
 #include "lucid/util/exception.h"
 
+using lucid::ConstMatrixRef;
+using lucid::ConstMatrixRefCopy;
+using lucid::Estimator;
 using lucid::GaussianKernel;
 using lucid::Index;
 using lucid::Kernel;
@@ -45,7 +48,7 @@ TEST_F(TestLbfgsTuner, ConstructorWithParams) {
 TEST_F(TestLbfgsTuner, ConstructorEstimator) {
   const KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(dim_), regularization_constant_,
                                        std::make_shared<LbfgsTuner>()};
-  EXPECT_NE(dynamic_cast<const LbfgsTuner*>(regressor.tuner().get()), nullptr);
+  EXPECT_NE(dynamic_cast<const LbfgsTuner *>(regressor.tuner().get()), nullptr);
 }
 
 TEST_F(TestLbfgsTuner, LogMarginalLikelihoodGradientIsotropicFixed) {
@@ -72,6 +75,18 @@ TEST_F(TestLbfgsTuner, Tune) {
   const Vector original_sigma_l{is_regressor_.get<Parameter::SIGMA_L>()};
 
   is_regressor_.fit(training_inputs_, training_outputs_);
+
+  EXPECT_FALSE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(original_sigma_l));
+  EXPECT_TRUE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(
+      is_regressor_.get<Parameter::GRADIENT_OPTIMIZABLE>().array().exp().matrix()));
+  EXPECT_TRUE((is_regressor_.get<Parameter::SIGMA_L>().array() > 0).all());
+}
+
+TEST_F(TestLbfgsTuner, TuneOnline) {
+  const Vector original_sigma_l{is_regressor_.get<Parameter::SIGMA_L>()};
+
+  is_regressor_.fit_online(
+      training_inputs_, [this](const Estimator &, ConstMatrixRef) -> ConstMatrixRefCopy { return training_outputs_; });
 
   EXPECT_FALSE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(original_sigma_l));
   EXPECT_TRUE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(

@@ -19,9 +19,23 @@ namespace lucid {
 // Forward declarations
 class Estimator;
 class Tuner;
+/**
+ * Instead of providing the outputs directly to the estimator, this function can be used to compute them on the fly.
+ * Useful when the outputs are not available at the time of fitting/scoring, or depend on changing parameters.
+ * @param estimator Estimator object involved in the computation
+ * @param inputs @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X} @f$
+ * @return @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$
+ */
+using OutputComputer = std::function<ConstMatrixRefCopy(const Estimator&, ConstMatrixRef)>;
 namespace scorer {
+/**
+ * Function type used to score the estimator.
+ * @param estimator Estimator object to score
+ * @param evaluation_inputs @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X} @f$
+ * @param evaluation_outputs @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$
+ */
 using Scorer = std::function<double(const Estimator&, ConstMatrixRef, ConstMatrixRef)>;
-}
+}  // namespace scorer
 
 /**
  * Given two vector spaces @f$ \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} @f$
@@ -36,7 +50,7 @@ class Estimator : public Parametrizable {
    * keeping the hyperparameters it was initialised with.
    * @param parameters parameters of the estimator, default to no specific parameter
    * @param tuner Tuner object used to find the best hyperparameters for the model.
-   * If not provided, the estimator, will not use any tuner during the fitting process,
+   * If none has been provided, the estimator will not use any tuner during the fitting process,
    * keeping the hyperparameters it was initialised with.
    */
   explicit Estimator(Parameters parameters = NoParameters, const std::shared_ptr<const Tuner>& tuner = nullptr);
@@ -60,10 +74,11 @@ class Estimator : public Parametrizable {
    * Fit the model to the given data.
    * This method will use the provided `tuner` to find the best hyperparameters for the model.
    * After the process is completed, the estimator can be used to make predictions on new data.
-   * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
-   * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
+   * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
+   * @param training_inputs training input data
+   * @param training_outputs training output data
    * @param tuner Tuner object used to find the best hyperparameters for the model
-   * @return reference to the fitted estimator
+   * @return reference to this estimator after it has been fitted
    */
   Estimator& fit(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, const Tuner& tuner);
   /**
@@ -73,11 +88,34 @@ class Estimator : public Parametrizable {
    * If no tuner has been provided during construction,
    * the method is equivalent to @ref consolidate with no specific request.
    * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
-   * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
-   * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
-   * @return reference to the fitted estimator
+   * @param training_inputs training input data
+   * @param training_outputs training output data
+   * @return reference to this estimator after it has been fitted
    */
   Estimator& fit(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs);
+  /**
+   * Fit the model to the data produced by the `training_outputs` OutputComputer.
+   * This method will use the provided `tuner` to find the best hyperparameters for the model.
+   * After the process is completed, the estimator can be used to make predictions on new data.
+   * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
+   * @param training_inputs training input data
+   * @param training_outputs training output data. It uses an OutputComputer to compute the outputs when needed
+   * @param tuner Tuner object used to find the best hyperparameters for the model
+   * @return reference to this estimator after it has been fitted
+   */
+  Estimator& fit_online(ConstMatrixRef training_inputs, const OutputComputer& training_outputs, const Tuner& tuner);
+  /**
+   * Fit the model to the data produced by the `training_outputs` OutputComputer.
+   * This method will use the object's tuner to find the best hyperparameters for the model.
+   * After the process is completed, the estimator can be used to make predictions on new data.
+   * If no tuner has been provided during construction,
+   * the method is equivalent to @ref consolidate with no specific request.
+   * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
+   * @param training_inputs training input data
+   * @param training_outputs training output data. It uses an OutputComputer to compute the outputs when needed
+   * @return reference to this estimator after it has been fitted
+   */
+  Estimator& fit_online(ConstMatrixRef training_inputs, const OutputComputer& training_outputs);
   /**
    * Consolidate the model, making sure it is ready for use.
    * No fitting process is performed, and the hyperparameters are not updated,
@@ -107,8 +145,8 @@ class Estimator : public Parametrizable {
    * @note This is a low-level method that allows the user great control over the behaviour of the estimator.
    * It is usually recommended to use @ref fit with the desired tuner instead.
    * @pre The number of rows in the training inputs should be equal to the number of rows in the training outputs.
-   * @param training_inputs training input data. The number of rows should be equal to the number of training outputs
-   * @param training_outputs training output data. The number of rows should be equal to the number of training inputs
+   * @param training_inputs training input data
+   * @param training_outputs training output data
    * @param requests requests for the consolidation process
    * @return reference to the estimator
    */

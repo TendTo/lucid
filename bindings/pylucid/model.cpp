@@ -136,7 +136,8 @@ class PyTuner final : public Tuner {
  public:
   using Tuner::Tuner;
 
-  void tune_impl(Estimator &estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override {
+  void tune_impl(Estimator &estimator, ConstMatrixRef training_inputs,
+                 const OutputComputer &training_outputs) const override {
     PYBIND11_OVERRIDE_PURE(void, Tuner, tune_impl, estimator, training_inputs, training_outputs);
   }
 };
@@ -418,6 +419,10 @@ void init_model(py::module_ &m) {
            ARG_NONCONVERT("y"))
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit),
            ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("tuner"))
+      .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer &>(&Estimator::fit_online),
+           ARG_NONCONVERT("x"), py::arg("y"))
+      .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer &, const Tuner &>(&Estimator::fit_online),
+           ARG_NONCONVERT("x"), py::arg("y"), py::arg("tuner"))
       .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
       .def_property("tuner", &Estimator::tuner,
                     [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })

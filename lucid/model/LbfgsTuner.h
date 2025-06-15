@@ -162,7 +162,6 @@ class LbfgsTuner final : public Tuner {
   [[nodiscard]] const LbgsParameters& parameters() const { return parameters_; }
 
  private:
-  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                  const OutputComputer& training_outputs) const override;
 

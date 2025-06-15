@@ -23,7 +23,8 @@ namespace lucid {
  * @note Based on the paper [Large sample analysis of the median heuristic](https://arxiv.org/abs/1707.07269).
  */
 class MedianHeuristicTuner final : public Tuner {
-  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                 const OutputComputer& training_outputs) const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const MedianHeuristicTuner& tuner);

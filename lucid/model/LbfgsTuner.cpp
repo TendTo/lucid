@@ -93,17 +93,18 @@ bool LbfgsTuner::is_bounded() const {
 }
 
 void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
-                           ConstMatrixRef training_outputs) const {
+                           const OutputComputer& training_outputs) const {
   LUCID_ASSERT(lb_.size() == ub_.size(), "lower and upper bounds must have the same size");
   LUCID_CHECK_ARGUMENT(dynamic_cast<GradientOptimizable*>(&estimator) != nullptr, "estimator",
                        "not an instance of GradientOptimizable");
   GradientOptimizable& gradient_estimator = static_cast<GradientOptimizable&>(estimator);
+  ConstMatrixRef training_outputs_ref = training_outputs(gradient_estimator, training_inputs);
 
   // Function to minimize
-  const auto f = [&gradient_estimator, &training_inputs, &training_outputs](const Eigen::VectorXd& x,
-                                                                            Eigen::VectorXd& grad) {
+  const auto f = [&gradient_estimator, &training_inputs, &training_outputs_ref](const Eigen::VectorXd& x,
+                                                                                Eigen::VectorXd& grad) {
     gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x));
-    gradient_estimator.consolidate(training_inputs, training_outputs, Request::GRADIENT | Request::OBJECTIVE_VALUE);
+    gradient_estimator.consolidate(training_inputs, training_outputs_ref, Request::GRADIENT | Request::OBJECTIVE_VALUE);
     // TODO(tend): copy elements instead of allocating a new vector
     grad = -gradient_estimator.gradient();
     return -gradient_estimator.objective_value();
@@ -131,10 +132,6 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
   LUCID_DEBUG_FMT("solution = {}", Vector{x_out});
 
   gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x_out));
-}
-void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
-                           const OutputComputer& training_outputs) const {
-  LUCID_NOT_IMPLEMENTED();
 }
 
 std::ostream& operator<<(std::ostream& os, const LbgsParameters& lbgs_parameters) {

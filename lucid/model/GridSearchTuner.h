@@ -36,7 +36,8 @@ class GridSearchTuner final : public Tuner {
   [[nodiscard]] const std::vector<ParameterValues>& parameters() const { return parameters_; }
 
  private:
-  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const override;
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                 const OutputComputer& training_outputs) const override;
 
   std::size_t n_jobs_;                         ///< Number of parallel jobs to run during tuning
   std::vector<ParameterValues> parameters_;    ///< List of parameter values to be tuned, with the values to be tested
