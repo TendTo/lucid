@@ -58,6 +58,7 @@ def pipeline(
     *,
     T: int = 5,
     gamma: float = 1.0,
+    C_coefficient: float = 1.0,
     f_xp_samples: "NMatrix | Callable[[Estimator, NMatrix], NMatrix] | None" = None,
     f_det: "Callable[[NMatrix], NMatrix] | None" = None,
     estimator: "Estimator | None" = None,
@@ -85,8 +86,9 @@ def pipeline(
         X_unsafe: Set representing the unsafe states
         T: Time horizon for the optimization
         gamma: Discount or scaling factor for the optimization
+        C_coefficient: coefficient that can be used to make the optimization more (> 1) or less (< 1) conservative
         f_xp_samples: Precomputed samples of the next state variable x' or a function that computes them
-        f_det: Deterministic function mapping states to outputs. Used to verify the barrier certificate.
+        f_det: Deterministic function mapping states to outputs. Used to verify the barrier certificate
         estimator: Estimator object for regression. If None, a default KernelRidgeRegressor is used
         num_freq_per_dim: Number of frequencies per dimension for the feature map
         oversample_factor: Factor by which to oversample the frequency space
@@ -109,7 +111,7 @@ def pipeline(
         or feature_map is None
         or isinstance(feature_map, FeatureMap)
         or isinstance(feature_map, type)
-    ), "f_xp_samples must be provided when feature_map is a function"
+    ), "f_xp_samples must be provided when feature_map is a "
 
     if estimator is None:
         estimator = KernelRidgeRegressor(
@@ -210,7 +212,15 @@ def pipeline(
 
     assert GUROBI_BUILD, "Gurobi is not supported in this build. Please install Gurobi and rebuild Lucid."
     o = GurobiLinearOptimiser(
-        T, gamma, 0, 1, b_kappa=1, sigma_f=sigma_f, problem_log_file=problem_log_file, iis_log_file=iis_log_file
+        T,
+        gamma,
+        0,
+        1,
+        b_kappa=1,
+        C_coeff=C_coefficient,
+        sigma_f=sigma_f,
+        problem_log_file=problem_log_file,
+        iis_log_file=iis_log_file,
     )
     o.solve(
         f0_lattice=f_x0_lattice,

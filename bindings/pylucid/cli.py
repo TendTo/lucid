@@ -25,6 +25,7 @@ class ScenarioConfig:
     X_unsafe: "Set"
     T: int = 5
     gamma: float = 1.0
+    c_coefficient: float = 1.0
     f_xp_samples: "NMatrix | Callable[[NMatrix], NMatrix] | None" = None
     f_det: "Callable[[NMatrix], NMatrix] | None" = None
     estimator: "Estimator | None" = None
@@ -48,6 +49,7 @@ class ScenarioConfig:
             "X_unsafe",
             "T",
             "gamma",
+            "c_coefficient",
             "f_xp_samples",
             "f_det",
             "estimator",
@@ -73,6 +75,7 @@ class CLIArgs(Namespace):
     input: Path
     seed: int
     gamma: float
+    c_coefficient: float
     lambda_: float  # Use 'lambda_' to avoid conflict with the Python keyword 'lambda'
     sigma_f: float
     sigma_l: "NVector | float"  # Can be a single float or an array of floats
@@ -190,6 +193,13 @@ def arg_parser() -> "ArgumentParser":
         type=float,
         default=1.0,
         help="discount factor for future rewards",
+    )
+    parser.add_argument(
+        "-c",
+        "--c_coefficient",
+        type=float,
+        default=1.0,
+        help="coefficient to make the barrier certificate more (> 1) or less (< 1) conservative",
     )
     parser.add_argument(
         "-l",

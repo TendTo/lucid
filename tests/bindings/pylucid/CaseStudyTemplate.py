@@ -21,6 +21,7 @@ def scenario_config(
         verify=True,
         problem_log_file="problem.lp",
         iis_log_file="iis.ilp",
+        oversample_factor=32.0,
     )
 ) -> "ScenarioConfig":
     # ################################## #
@@ -56,23 +57,17 @@ def scenario_config(
     # ################################## #
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
-    tuner = {
-        # "tuner": LbfgsTuner(bounds=((0.1, 15.0),), parameters=LbgsParameters(min_step=0, linesearch=5))
-        # "tuner": MedianHeuristicTuner(),
-        # "tuner": GridSearchTuner(
-        #     ParameterValues(
-        #         Parameter.SIGMA_L, [np.full(1, v) for v in np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)]
-        #     ),
-        #     ParameterValues(Parameter.SIGMA_F, np.linspace(0.1, 15.0, num=10, endpoint=True, dtype=float)),
-        #     ParameterValues(Parameter.REGULARIZATION_CONSTANT, np.logspace(-6, -1, num=10)),
-        # ),
-    }
     estimator = KernelRidgeRegressor(
         kernel=GaussianKernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
         regularization_constant=args.lambda_,
     )
-    # Depending on the tuner selected in the dictionary above, the estimator will be fitted with different parameters.
-    estimator.fit(x=x_samples, y=xp_samples, **tuner)
+    feature_map = LinearTruncatedFourierFeatureMap(
+        num_frequencies=args.num_frequencies,
+        sigma_l=args.sigma_l,
+        sigma_f=args.sigma_f,
+        x_limits=X_bounds,
+    )
+    # estimator = ModelEstimator(f=lambda x: feature_map(f_det(x)))  # Use the custom model estimator
 
     return ScenarioConfig(
         x_samples=x_samples,
@@ -82,14 +77,15 @@ def scenario_config(
         X_unsafe=X_unsafe,
         T=args.time_horizon,
         gamma=args.gamma,
+        feature_map=feature_map,  # The feature map used to transform the input data
         f_det=f_det,  # The deterministic part of the system dynamics
-        num_freq_per_dim=args.num_frequencies,  # Number of frequencies per dimension for the Fourier feature map
         estimator=estimator,  # The estimator used to model the system dynamics
-        sigma_f=estimator.get(Parameter.SIGMA_F),
+        sigma_f=args.sigma_f,  # Signal variance parameter for the kernel
         problem_log_file=args.problem_log_file,  # The lp file containing the optimization problem
         iis_log_file=args.iis_log_file,  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
         plot=args.plot,  # Whether to plot the results
-        verify=args.verify,
+        verify=args.verify,  # Whether to verify the barrier certificate using dReal
+        oversample_factor=args.oversample_factor,  # Factor by which to oversample the frequency space
     )
 
 
