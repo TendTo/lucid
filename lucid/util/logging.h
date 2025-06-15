@@ -27,7 +27,11 @@ constexpr int LUCID_LOG_TRACE_LEVEL = 5;
   template <>                   \
   struct fmt::formatter<type> : ostream_formatter {};
 
-#define LUCID_FORMAT_MATRIX_SHAPE(matrix) fmt::format("[{}x{}]", (matrix).rows(), (matrix).cols())
+#ifdef LUCID_VERBOSE_EIGEN_BUILD
+#define LUCID_FORMAT_MATRIX(matrix) fmt::format("[{}x{}]\n{}", (matrix).rows(), (matrix).cols(), matrix)
+#else
+#define LUCID_FORMAT_MATRIX(matrix) fmt::format("[{}x{}]", (matrix).rows(), (matrix).cols())
+#endif
 
 #ifndef NLOG
 
@@ -82,7 +86,7 @@ consteval std::string_view function_signature(const char *s) {
     ::lucid::get_logger(::lucid::LoggerType::ERR)->set_level(level); \
   } while (0)
 #define LUCID_LOG_MSG(msg) "[{}] " msg, LUCID_FUNCTION_SIGNATURE
-#define LUCID_TRACE(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->trace(msg)
+#define LUCID_TRACE(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->trace(LUCID_LOG_MSG(msg))
 #define LUCID_TRACE_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->trace(LUCID_LOG_MSG(msg), __VA_ARGS__)
 #define LUCID_DEBUG(msg) ::lucid::get_logger(::lucid::LoggerType::OUT)->debug(LUCID_LOG_MSG(msg))
 #define LUCID_DEBUG_FMT(msg, ...) ::lucid::get_logger(::lucid::LoggerType::OUT)->debug(LUCID_LOG_MSG(msg), __VA_ARGS__)

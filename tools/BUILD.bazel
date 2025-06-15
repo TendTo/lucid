@@ -67,6 +67,11 @@ bool_flag(
     build_setting_default = True,
 )
 
+bool_flag(
+    name = "enable_verbose_eigen_build",
+    build_setting_default = False,
+)
+
 ###########################################
 # Configuration settings
 ###########################################
@@ -94,6 +99,11 @@ config_setting(
 config_setting(
     name = "gurobi_build",
     flag_values = {":enable_gurobi_build": "True"},
+)
+
+config_setting(
+    name = "verbose_eigen_build",
+    flag_values = {":enable_verbose_eigen_build": "True"},
 )
 
 config_setting(

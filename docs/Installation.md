@@ -82,10 +82,49 @@ bazel run //lucid -- [args]
 Lucid comes with a few predefined build configuration for the most common use cases.
 Just add the `--config` flag followed by the desired configuration when running Bazel.
 
-| Configuration | Optimisations | Debug symbols | Assertions | Input checks | Used for              |
-| ------------- | ------------- | ------------- | ---------- | ------------ | --------------------- |
-| **default**   | ?             | ?             | Yes        | Yes          | A fast, default build |
-| `dbg`         | No            | Yes           | Yes        | Yes          | Testing and debugging |
-| `opt`         | Yes           | No            | No         | Yes          | Production            |
-| `bench`       | Yes           | No            | No         | No           | Benchmarking          |
-| `py`          | Yes           | No            | No         | Yes          | Python bindings       |
+| Configuration | Optimisations | Debug symbols | Assertions | Input checks | Logging | Verbose Eigen Logs | Used for              |
+| ------------- | ------------- | ------------- | ---------- | ------------ |---------|--------------------| --------------------- |
+| **default**   | ?             | ?             | Yes        | Yes          | Yes     | No                 | A fast, default build |
+| `dbg`         | No            | Yes           | Yes        | Yes          | Yes     | Yes                | Testing and debugging |
+| `opt`         | Yes           | No            | No         | Yes          | Yes     | No                 | Production            |
+| `bench`       | Yes           | No            | No         | No           | No      | No                 | Benchmarking          |
+| `py`          | Yes           | No            | No         | Yes          | Yes     | No                 | Python bindings       |
+
+For example, to build Lucid with the `opt` configuration, you can run:
+
+```bash
+# Build with the opt configuration
+bazel build --config=opt //lucid
+```
+
+If you want even more fine-grained control over the build, you can also use the following flags or even add more custom compiler flags.
+
+| Flag                                   | Description                                                 |
+|----------------------------------------|-------------------------------------------------------------|
+| `enable_static_build`                  | Build Lucid as a static library. Defaults to `False`.       |
+| `enable_dynamic_build`                 | Build Lucid as a dynamic library. Defaults to `False`.      |
+| `enable_python_build`                  | Build Lucid with Python bindings. Defaults to `False`.      |
+| `enable_benchmark_build`               | Build Lucid with benchmarking support. Defaults to `False`. |
+| `enable_matplotlib_build`              | Build Lucid with Matplotlib support. Defaults to `True`.    |
+| `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.        |
+| `enable_verbose_eigen_build`           | Enable verbose logging for Eigen. Defaults to `False`.      |
+| `python_version`                       | Specify the Python version to use for the Python bindings.  |
+| `compilation_mode=[fastbuild,dbg,opt]` | Use Bazel's compilation modes. Default to `fastbuild`.      |
+
+Example of a build command with custom flags.
+Some combination of these flags may not be compatible with each other.
+
+```bash
+# Build with custom flags
+bazel build \
+  --compilation_mode=opt \
+  --enable_dynamic_build=True \
+  --enable_matplotlib_build=False \
+  --enable_gurobi_build=True \
+  --enable_verbose_eigen_build=False \
+  --action_env=GUROBI_HOME=/path/to/gurobi \
+  --cxxopt=-gdwarf-4 \
+  --cxxopt=-O3 \
+  --cxxopt=-DNDEBUG \
+  //lucid
+```

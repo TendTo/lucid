@@ -157,8 +157,8 @@ GridSearchTuner::GridSearchTuner(std::vector<ParameterValues> parameters, const 
 
 void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                 ConstMatrixRef training_outputs) const {
-  LUCID_DEBUG_FMT("({}, {}, {})", estimator, LUCID_FORMAT_MATRIX_SHAPE(training_inputs),
-                  LUCID_FORMAT_MATRIX_SHAPE(training_outputs));
+  LUCID_TRACE_FMT("({}, {}, {})", estimator, LUCID_FORMAT_MATRIX(training_inputs),
+                  LUCID_FORMAT_MATRIX(training_outputs));
   // Mutex to protect access to the best parameter indices during tuning
   std::mutex index_mutex, score_mutex;
   // Prepare the shared data: the best score and the best parameter indices and the index iterator

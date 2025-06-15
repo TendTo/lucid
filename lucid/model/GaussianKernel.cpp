@@ -21,6 +21,7 @@ GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
       log_sigma_l_{sigma_l_.array().log().matrix()},
       sigma_f_{sigma_f},
       is_isotropic_{false} {
+  LUCID_TRACE_FMT("({}, {})", sigma_l_, sigma_f);
   LUCID_CHECK_ARGUMENT_CMP(sigma_l_.size(), >, 0);
   LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l_.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
 }
@@ -30,7 +31,7 @@ GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
 }
 
 Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* const gradient) const {
-  LUCID_TRACE_FMT("({}, {})", x1, x2);
+  LUCID_TRACE_FMT("({}, {}, gradient)", LUCID_FORMAT_MATRIX(x1), LUCID_FORMAT_MATRIX(x2));
   LUCID_ASSERT(&x1 == &x2 || !gradient, "The gradient can be computed only over the same vector");
   LUCID_ASSERT(sigma_l_.size() > 0, "sigma_l must have at least one element");
   LUCID_CHECK_ARGUMENT_CMP(x1.cols(), >, 0);
@@ -67,11 +68,12 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
     }
     LUCID_TRACE_FMT("gradient = {}", *gradient);
   }
-  LUCID_TRACE_FMT("=> {}", k);
+  LUCID_TRACE_FMT("=> {}", LUCID_FORMAT_MATRIX(k));
   return k;
 }
 
 std::unique_ptr<Kernel> GaussianKernel::clone() const {
+  LUCID_TRACE("Cloning");
   return is_isotropic_ ? std::make_unique<GaussianKernel>(sigma_l_.head<1>().value(), sigma_f_)
                        : std::make_unique<GaussianKernel>(sigma_l_, sigma_f_);
 }

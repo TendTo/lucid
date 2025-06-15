@@ -10,6 +10,7 @@ build --flag_alias=enable_python_build=//tools:enable_python_build
 build --flag_alias=enable_benchmark_build=//tools:enable_benchmark_build
 build --flag_alias=enable_matplotlib_build=//tools:enable_matplotlib_build
 build --flag_alias=enable_gurobi_build=//tools:enable_gurobi_build
+build --flag_alias=enable_verbose_eigen_build=//tools:enable_verbose_eigen_build
 build --flag_alias=python_version=@rules_python//python/config_settings:python_version
 
 # Default build
@@ -30,6 +31,7 @@ build:dbg --compilation_mode=dbg
 build:dbg --strip=never
 build:dbg --fission=yes
 build:dbg --dynamic_mode=off
+build:dbg --enable_verbose_eigen_build
 
 # Optimized build
 build:opt --compilation_mode=opt

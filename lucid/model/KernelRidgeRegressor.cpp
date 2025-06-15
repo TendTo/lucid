@@ -31,6 +31,7 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
       regularization_constant_{regularization_constant},
       training_inputs_{},
       coefficients_{} {
+  LUCID_TRACE_FMT("({}, {}, {})", *kernel_, regularization_constant, tuner.get() != nullptr);
   LUCID_CHECK_ARGUMENT_CMP(regularization_constant, >=, 0.0);
   LUCID_CHECK_ARGUMENT_EXPECTED(kernel_ != nullptr, "kernel", nullptr, "not nullptr");
   LUCID_CHECK_ARGUMENT(!kernel_->has(Parameter::REGULARIZATION_CONSTANT), "kernel",
@@ -38,6 +39,7 @@ KernelRidgeRegressor::KernelRidgeRegressor(std::unique_ptr<Kernel>&& kernel, con
 }
 
 Matrix KernelRidgeRegressor::predict(ConstMatrixRef x) const {
+  LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(x));
   LUCID_CHECK_ARGUMENT(training_inputs_.size() > 0, "training_inputs", "the model is not fitted yet");
   LUCID_CHECK_ARGUMENT_EQ(x.cols(), training_inputs_.cols());
   return (*kernel_)(x, training_inputs_) * coefficients_;
@@ -47,6 +49,7 @@ Matrix KernelRidgeRegressor::operator()(ConstMatrixRef x, const FeatureMap& feat
   return predict(x, feature_map);
 }
 Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature_map) const {
+  LUCID_TRACE_FMT("({}, {})", LUCID_FORMAT_MATRIX(x), feature_map);
   LUCID_WARN("Experts only. We do not know what will happen to your interpolation. And you may die. Sorry about that.");
   LUCID_CHECK_ARGUMENT(training_inputs_.size() > 0, "training_inputs", "the model is not fitted yet");
   LUCID_CHECK_ARGUMENT_EQ(x.cols(), training_inputs_.cols());
@@ -54,12 +57,12 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature
       x.rows(), training_inputs_.rows(), [this, &x, &feature_map](const Index row, const Index col) {
         return (feature_map(x.row(row)) * feature_map(training_inputs_.row(col)).transpose()).value();
       })};
-  LUCID_DEBUG_FMT("kernel_input = {}", LUCID_FORMAT_MATRIX_SHAPE(kernel_input));
-  LUCID_TRACE_FMT("kernel_input = [{}]", kernel_input);
+  LUCID_TRACE_FMT("kernel_input = {}", LUCID_FORMAT_MATRIX(kernel_input));
   return kernel_input * coefficients_;
 }
 
 double compute_log_marginal(const GramMatrix& K, ConstMatrixRef y) {
+  LUCID_TRACE_FMT("({}, {})", LUCID_FORMAT_MATRIX(K), LUCID_FORMAT_MATRIX(y));
   LUCID_CHECK_ARGUMENT_EQ(K.rows(), K.cols());
   LUCID_CHECK_ARGUMENT_EQ(K.rows(), y.rows());
   // Compute the log marginal likelihood
@@ -78,6 +81,7 @@ double compute_log_marginal(const GramMatrix& K, ConstMatrixRef y) {
 
 Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, const Matrix& alpha,
                                      const std::vector<Matrix>& gradient) {
+  LUCID_TRACE_FMT("({}, {}, {}, gradient)", LUCID_FORMAT_MATRIX(K), LUCID_FORMAT_MATRIX(y), LUCID_FORMAT_MATRIX(alpha));
   LUCID_CHECK_ARGUMENT_EQ(K.rows(), K.cols());
   LUCID_CHECK_ARGUMENT_EQ(K.rows(), y.rows());
   // Compute the log marginal likelihood gradient
@@ -98,7 +102,8 @@ Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, cons
 }
 Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
                                              const Requests requests) {
-  LUCID_TRACE_FMT("({}, {}, {})", training_inputs, training_outputs, requests);
+  LUCID_TRACE_FMT("({}, {}, {})", LUCID_FORMAT_MATRIX(training_inputs), LUCID_FORMAT_MATRIX(training_outputs),
+                  requests);
 
   LUCID_CHECK_ARGUMENT_EQ(training_inputs.rows(), training_outputs.rows());
   training_inputs_ = training_inputs;
@@ -109,27 +114,28 @@ Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, Con
   gram_matrix.add_diagonal_term(regularization_constant_ * static_cast<double>(training_inputs_.rows()));
   // Invert the gram matrix and compute the coefficients as (K + λnI)^-1 y
   coefficients_ = gram_matrix.inverse() * training_outputs;
-  LUCID_TRACE_FMT("coefficients = [{}]", coefficients_);
+  LUCID_TRACE_FMT("coefficients = {}", LUCID_FORMAT_MATRIX(coefficients_));
   if (requests && Request::OBJECTIVE_VALUE) {
     // Compute and update the log marginal likelihood
     objective_value_ = compute_log_marginal(gram_matrix, training_outputs);
-    LUCID_TRACE_FMT("log_marginal_likelihood_ = {}", objective_value_);
+    LUCID_TRACE_FMT("log_marginal_likelihood = [{}]", objective_value_);
   }
   if (requests && Request::GRADIENT) {
     // and its gradient
     LUCID_TRACE_FMT("kernel_gradient = [{}]", kernel_gradient);
     gradient_ = compute_log_marginal_gradient(gram_matrix, training_outputs, coefficients_, kernel_gradient);
-    LUCID_TRACE_FMT("gradient = [{}]", gradient_);
+    LUCID_TRACE_FMT("gradient.size() = {}", gradient_.size());
   }
   return *this;
 }
 
-double KernelRidgeRegressor::score([[maybe_unused]] ConstMatrixRef evaluation_inputs,
-                                   [[maybe_unused]] ConstMatrixRef evaluation_outputs) const {
+double KernelRidgeRegressor::score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const {
+  LUCID_TRACE_FMT("({}, {})", LUCID_FORMAT_MATRIX(evaluation_inputs), LUCID_FORMAT_MATRIX(evaluation_outputs));
   return scorer::r2_score(*this, evaluation_inputs, evaluation_outputs);
 }
 
 std::unique_ptr<Estimator> KernelRidgeRegressor::clone() const {
+  LUCID_TRACE("Cloning");
   std::unique_ptr<Estimator> out{std::make_unique<KernelRidgeRegressor>(kernel_->clone(), regularization_constant_)};
   static_cast<KernelRidgeRegressor*>(out.get())->training_inputs_ = training_inputs_;
   static_cast<KernelRidgeRegressor*>(out.get())->coefficients_ = coefficients_;

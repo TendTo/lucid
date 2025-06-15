@@ -94,8 +94,7 @@ bool LbfgsTuner::is_bounded() const {
 
 void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                            ConstMatrixRef training_outputs) const {
-  LUCID_DEBUG_FMT("({}, {})", LUCID_FORMAT_MATRIX_SHAPE(training_inputs), LUCID_FORMAT_MATRIX_SHAPE(training_outputs));
-  LUCID_TRACE_FMT("({}, {})", training_inputs, training_outputs);
+  LUCID_TRACE_FMT("({}, {})", LUCID_FORMAT_MATRIX(training_inputs), LUCID_FORMAT_MATRIX(training_outputs));
 
   LUCID_ASSERT(lb_.size() == ub_.size(), "lower and upper bounds must have the same size");
   LUCID_CHECK_ARGUMENT(dynamic_cast<GradientOptimizable*>(&estimator) != nullptr, "estimator",

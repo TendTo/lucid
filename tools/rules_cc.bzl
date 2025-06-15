@@ -123,6 +123,9 @@ def _get_defines(rule_defines):
     }) + select({
         "//tools:gurobi_build": ["LUCID_GUROBI_BUILD"],
         "//conditions:default": [],
+    }) + select({
+        "//tools:verbose_eigen_build": ["LUCID_VERBOSE_EIGEN_BUILD"],
+        "//conditions:default": [],
     })
 
 def _get_static(rule_linkstatic):
