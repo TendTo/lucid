@@ -58,10 +58,13 @@ def pipeline(
     *,
     T: int = 5,
     gamma: float = 1.0,
+    f_xp_samples: "NMatrix | Callable[[Estimator, NMatrix], NMatrix] | None" = None,
     f_det: "Callable[[NMatrix], NMatrix] | None" = None,
     estimator: "Estimator | None" = None,
     num_freq_per_dim: int = -1,
-    feature_map: "FeatureMap | None" = None,
+    oversample_factor: float = 2.0,
+    num_oversample: int = -1,
+    feature_map: "FeatureMap | type[FeatureMap] | Callable[[Estimator], FeatureMap] | None" = None,
     sigma_f: float = 1.0,
     verify: bool = True,
     plot: bool = True,
@@ -82,10 +85,13 @@ def pipeline(
         X_unsafe: Set representing the unsafe states
         T: Time horizon for the optimization
         gamma: Discount or scaling factor for the optimization
+        f_xp_samples: Precomputed samples of the next state variable x' or a function that computes them
         f_det: Deterministic function mapping states to outputs. Used to verify the barrier certificate.
         estimator: Estimator object for regression. If None, a default KernelRidgeRegressor is used
         num_freq_per_dim: Number of frequencies per dimension for the feature map
-        feature_map: Feature map class to use for transformation
+        oversample_factor: Factor by which to oversample the frequency space
+        num_oversample: Number of samples to use for the frequency space. If negative, it is computed based on the oversample_factor
+        feature_map: Feature map class to use for transformation or a callable that returns a feature map based on the estimator
         sigma_f: Signal variance parameter for the kernel
         verify: Whether to verify the barrier certificate using dReal
         plot: Whether to plot the solution using matplotlib
@@ -95,7 +101,15 @@ def pipeline(
     """
     assert x_samples.shape[0] == xp_samples.shape[0], "x_samples and xp_samples must have the same number of samples"
     assert isinstance(sigma_f, float) and sigma_f > 0, "sigma_f must be a positive float"
-    assert feature_map is None or num_freq_per_dim <= 0, "num_freq_per_dim and feature_map are mutually exclusive"
+    assert (
+        not isinstance(feature_map, FeatureMap) or num_freq_per_dim <= 0
+    ), "num_freq_per_dim and feature_map are mutually exclusive"
+    assert (
+        f_xp_samples is not None
+        or feature_map is None
+        or isinstance(feature_map, FeatureMap)
+        or isinstance(feature_map, type)
+    ), "f_xp_samples must be provided when feature_map is a function"
 
     if estimator is None:
         estimator = KernelRidgeRegressor(
@@ -103,7 +117,6 @@ def pipeline(
             regularization_constant=1e-6,
             tuner=MedianHeuristicTuner(),
         )
-        estimator.fit(x=x_samples, y=xp_samples)
     if feature_map is None:
         assert num_freq_per_dim > 0, "num_freq_per_dim must be set and positive if feature_map is None"
         feature_map = LinearTruncatedFourierFeatureMap(
@@ -112,16 +125,31 @@ def pipeline(
             sigma_f=sigma_f,
             x_limits=X_bounds,
         )
+    elif isinstance(feature_map, type) and issubclass(feature_map, FeatureMap):
+        assert num_freq_per_dim > 0, "num_freq_per_dim must be set and positive if feature_map is a class"
+        feature_map = feature_map(
+            num_frequencies=num_freq_per_dim,
+            sigma_l=estimator.get(Parameter.SIGMA_L),
+            sigma_f=sigma_f,
+            x_limits=X_bounds,
+        )
 
-    num_freq_per_dim = feature_map.num_frequencies
-    samples_per_dim = 2 * num_freq_per_dim
-    n_per_dim = 2 * samples_per_dim
+    num_freq_per_dim = feature_map.num_frequencies if num_freq_per_dim < 0 else num_freq_per_dim
+    n_per_dim = np.ceil((2 * num_freq_per_dim + 1) * oversample_factor) if num_oversample < 0 else num_oversample
+    n_per_dim = int(n_per_dim)
+    assert n_per_dim > 2 * num_freq_per_dim, "n_per_dim must be greater than nyquist (2 * num_freq_per_dim + 1)"
 
-    f_xp_samples = feature_map(xp_samples)  # Used to train the f_xp regressor
+    if f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
+        assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
+        f_xp_samples = feature_map(xp_samples)
 
     log_debug(f"Estimator pre-fit: {estimator}")
-    estimator.fit(x=x_samples, y=f_xp_samples)
+    estimator.fit(x=x_samples, y=f_xp_samples)  # Actual fitting of the regressor
     log_info(f"Estimator post-fit: {estimator}")
+
+    if callable(feature_map) and not isinstance(feature_map, FeatureMap):
+        feature_map = feature_map(estimator)  # Compute the feature map if it is a callable
+    assert isinstance(feature_map, FeatureMap), "feature_map must return a FeatureMap instance"
 
     log_debug(f"RMSE on f_xp_samples {rmse(estimator(x_samples), f_xp_samples)}")
     log_debug(f"Score on f_xp_samples {estimator.score(x_samples, f_xp_samples)}")

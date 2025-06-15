@@ -25,10 +25,13 @@ class ScenarioConfig:
     X_unsafe: "Set"
     T: int = 5
     gamma: float = 1.0
+    f_xp_samples: "NMatrix | Callable[[NMatrix], NMatrix] | None" = None
     f_det: "Callable[[NMatrix], NMatrix] | None" = None
     estimator: "Estimator | None" = None
     num_freq_per_dim: int = -1
-    feature_map: "FeatureMap | None" = None
+    oversample_factor: float = 2.0
+    num_oversample: int = -1
+    feature_map: "FeatureMap | type[FeatureMap] | Callable[[Estimator], FeatureMap] | None" = None
     sigma_f: float = 1.0
     verify: bool = True
     plot: bool = True
@@ -45,9 +48,12 @@ class ScenarioConfig:
             "X_unsafe",
             "T",
             "gamma",
+            "f_xp_samples",
             "f_det",
             "estimator",
             "num_freq_per_dim",
+            "oversample_factor",
+            "num_oversample",
             "feature_map",
             "sigma_f",
             "verify",
@@ -77,6 +83,8 @@ class CLIArgs(Namespace):
     problem_log_file: str
     iis_log_file: str
     num_frequencies: int  # Default number of frequencies per dimension for the Fourier feature map
+    oversample_factor: float
+    num_oversample: int
 
 
 def cli_scenario_config(args: CLIArgs) -> "ScenarioConfig":
@@ -224,6 +232,18 @@ def arg_parser() -> "ArgumentParser":
         type=int,
         default=4,
         help="number of frequencies per dimension for the Fourier feature map",
+    )
+    parser.add_argument(
+        "--oversample_factor",
+        type=float,
+        default=2.0,
+        help="factor by which to oversample the frequency space. If `num_oversample` is set, it takes precedence",
+    )
+    parser.add_argument(
+        "--num_oversample",
+        type=int,
+        default=-1,
+        help="number of samples to use for the frequency space. If negative, it is computed based on the oversample factor",
     )
     parser.add_argument(
         "--plot",
