@@ -4,7 +4,7 @@
 
 \begin{document}
 
-\title{Delta-Complete Linear Programming}
+\title{Lucid: Lifting-based Uncertain Control Invariant Dynamics}
 
 \author{Oliver Sch\"{o}n \and
 Ernesto Casablanca \and
@@ -40,17 +40,31 @@ P. Zuliani \at Universit\`{a} di Roma ``La Sapienza'', Rome, Italy\\ \email{zuli
 \section{Introduction}
 \label{sec:intro}
 
-Lucid is in implemented in C++ and it is meant to be used as a library.
+\paragraph{Motivation.}
+
+We present a software tool, called \lucid, able to address the challenges of verifying the safety of black-box noisy systems.
+A description that, for better or for worse, fits many modern AI-enabled systems, such as autonomous vehicles, robotics, and healthcare applications.
+To ensure their safety, we use \glspl{cbc}~\cite{prajna2006barrier,cosner2023generative}, which are a powerful tools that provides formal guarantees and a verifiable witness.
+The peculiar function template we chose for the \glspl{cbc} makes it easier for the model to be learned from limited data collected from the system, without the need for an explicit dynamical model.
+Note that the current version of the tool does not deal with external control inputs, which we plan to address in future work.
+
+\paragraph{Tool.}
+
+\lucid is implemented in C++ and it is meant to be used as a library.
 It provides a set of interfaces that allow users to have an high level of control and flexibility over the verification process.
 We also provide a Python wrapper, called PyLucid, to facilitate the integration of the tool into existing workflows and effortlessly leverage well-established libraries such as NumPy~\cite{numpy} and SciPy~\cite{scipy}.
-Lucid is available as an open-source project on GitHub at \url{https://github.com/TendTo/lucid}.
-More technical details about the implementation can be found in the documentation at \url{https://tendto.github.io/lucid/}.
+\lucid is available as an open-source project on GitHub at \url{https://github.com/TendTo/lucid}.
+More technical details about the implementation can be found in the online documentation at \url{https://tendto.github.io/lucid/}, but at an high level, the architecture of \lucid is illustrated in~\autoref{fig:architecture}.
+
+\input{fig/architecture}
+
+\paragraph{Literature Background.}
+\todo{Add relevant literature citations and background information here.}
+
+% \input{fig/architecture.tex}
 
 \section{Problem Statement}
 \label{sec:problem-statement}
-
-\subsection{Notation}
-\label{sec:notation}
 
 % Spaces and numbers
 We denote the sets of positive integers and non-negative reals as $\N_{>0}$ and $\R_{\geq 0}$, respectively.
@@ -128,9 +142,9 @@ Once the system is fully defined, the time horizon $T$ is set as a parameter of 
 \subsection{Control Barrier Certificates}
 \label{sec:cbc}
 Whilst certifying the safety of a stochastic system is generally challenging, \emph{control barrier certificates} (CBCs) and \emph{control barrier functions} (CBFs) leverage the concept of set invariance to arrive at an abstraction-free formulation. This has made CBCs/CBFs popular tools for safety verification and synthesis~\cite{prajna2006barrier,cosner2023generative}.
-We briefly recall the definition of a CBC.
+We briefly recall the definition of a \gls{cbc}.
 \begin{definition}[Control barrier certificate (CBC)]\label{def:cbc}
-  A function $\B:\X\rightarrow\R_{\geq 0}$ is called a CBC of an MDP $\M=(\X,\X_0,\U,\Tr)$ with reference to an unsafe set $\X_u$, if we have
+  A function $\B:\X\rightarrow\R_{\geq 0}$ is called a \gls{cbc} of an MDP $\M=(\X,\X_0,\U,\Tr)$ with reference to an unsafe set $\X_u$, if we have
   \begin{itemize}
     \item[(a)] $\forall x_0\in \X_0\!:\,\B(x_0)\leq\eta$;
     \item[(b)] $\forall x_u\in \X_u\!:\,\B(x_u)\geq\gamma$; and
@@ -138,7 +152,7 @@ We briefly recall the definition of a CBC.
   \end{itemize}
   for some constants $\gamma>\eta\geq0$ and $c\geq 0$.
 \end{definition}
-If one can find a CBC for a system $\M$, then, a lower bound on the probability of $\M$ being safe is given by the following proposition due to \cite{kushner1967stochastic}.
+If one can find a \gls{cbc} for a system $\M$, then, a lower bound on the probability of $\M$ being safe is given by the following proposition due to \cite{kushner1967stochastic}.
 \begin{proposition}[Finite-horizon safety]
   \label{prop:reach}
   Consider an MDP $\M=(\X,\X_0,\U,\Tr)$ and a safety specification $\psi_{\text{safe}}=(\X_u,T)$. Suppose there exists a CBC $B$ w.r.t. $\X_u$ (Definition~\autoref{def:cbc}) with constants $\eta$, $\gamma$, and $c$. Then, there exists a stationary policy $\pi$ such that
@@ -147,7 +161,7 @@ If one can find a CBC for a system $\M$, then, a lower bound on the probability 
 
 \paragraph{Implementation}
 
-When verifying the safety of a system, \lucid will search for a CBC $\B$ that satisfies the conditions in Definition~\ref{def:cbc}.
+When verifying the safety of a system, \lucid will search for a \gls{cbc} $\B$ that satisfies the conditions in Definition~\ref{def:cbc}.
 If it finds it, it will return the constants $\eta$, $\gamma$, and $c$, as well as the CBC $\B$ itself, which becomes a certificate of safety for the system $\M$.
 The template of the barrier function is explored later in section~\ref{sec:benchmarks}.
 
@@ -245,14 +259,21 @@ Via Lemma~\ref{lem:trig-bound}, we obtain a finite-constraint relaxation of the 
 where $\mathrm{max}_{\hat{N}}^\X:=\max_{x\in X_{\hat{N}}} \left\lbrace\phi_M(x)\T b\right\rbrace$ and $\mathrm{min}_{\hat{N}}^\X:=\min_{x\in X_{\hat{N}}} \left\lbrace\phi_M(x)\T b\right\rbrace$ for some desired lower bound $\mathrm{lb}\in\R$.
 Thus, we obtain strengthened constraints of the form
 \begin{align*}
-                               & \frac{1}{2}\big(\mathrm{max}_{\hat{N}}^\X + \mathrm{min}_{\hat{N}}^\X - C_{\hat{N}}\left(\mathrm{max}_{\hat{N}}^\X-\mathrm{min}_{\hat{N}}^\X\right)\big) \geq \mathrm{lb}, \\
-  \Leftrightarrow\hspace{10pt} &
   \mathrm{min}_{\hat{N}}^\X \geq \frac{2}{C_{\hat{N}}+1}\mathrm{lb} + \frac{C_{\hat{N}}-1}{C_{\hat{N}}+1}\mathrm{max}_{\hat{N}}^\X.
 \end{align*}
-For an upper bound $\forall x\in\X: f(x) \leq \mathrm{ub}$, we obtain analogous constraints of the form
-\begin{equation*}
-  \mathrm{max}_{\hat{N}}^\X \geq \frac{2}{C_{\hat{N}}+1}\mathrm{ub} + \frac{C_{\hat{N}}-1}{C_{\hat{N}}+1}\mathrm{min}_{\hat{N}}^\X.
-\end{equation*}
+We obtain an analogous constraints for an upper bound $\forall x\in\X: f(x) \leq \mathrm{ub}$.
+
+\paragraph{Implementation}
+
+The finite-constraint relaxation of the SIP \eqref{eq:semiinf-prog} is what \lucid uses to synthesize the \gls{cbc} $\B$.
+More precisely, we follow the steps outlined in~\autoref{fig:steps}.
+While the theory gives us precise indication on how to construct the \gls{lp} which would yield a correct-by-design solution,
+in practice the problem may become too conservative.
+To mitigate this, we can either increase the number of lattice points $Q$, worsening the computational efficiency, 
+or we may choose to adjust the coefficient $C_{\hat{N}}$, improving performance at the cost of loosening the guarantees, 
+which can still be checked with the verifier, provided we have access to the system's model.
+
+\input{fig/steps}
 
 \subsection{Tuning the Hyperparameters}
 \label{sec:tuning-hyperparameters}
@@ -284,8 +305,79 @@ The \texttt{GridSearchTuner} class implements the grid search method, while the 
 If the user wants to optimize the log marginal likelihood, they can use the \texttt{LBGSTuner} class, which runs the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming} over the log marginal likelihood function.
 Internally, \lucid uses the \texttt{LBFGS++} library~\footnote{https://github.com/yixuan/LBFGSpp} to perform the optimization.
 
-\section{Benchmarks}
-\label{sec:benchmarks}
+\section{Tool Evaluation}
+\label{sec:evaluation}
+
+We evaluate \lucid on a set of benchmarks, which are described in detail in the documentation.
+
+\paragraph{Linear System}
+
+To showcase the basic functionality of \lucid, we consider a simple linear system with the dynamics
+
+\begin{equation*}
+  \begin{bmatrix}
+    {x}_{1, t+1}
+  \end{bmatrix}
+  = \begin{bmatrix}
+    0.5
+  \end{bmatrix}
+  \begin{bmatrix}
+    {x}_{1, t}
+  \end{bmatrix} + w_t,
+\end{equation*}
+where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I)$ is a one-dimensional Gaussian noise.
+We restrict the state space to the interval $\X=[-1,1]$ and define the initial set $\X_0=[-0.5,0.5]$ and the unsafe set $\X_u=[-1,-0.9]\cup[0.9,1]$.
+Translating the system into the \lucid format, we obtain the following configuration file:
+\lstinputlisting[language=Python,caption={\texttt{linear.py} configuration file.}]{code/linear.py}
+It can then be run with the command
+\begin{lstlisting}[language=bash]
+python -m pylucid tests/bindings/pylucid/MinScenarioConfig.py --seed 42 --gamma 1.0 \
+  --time_horizon 5 --num_samples 1000 --lambda 1e-3 --sigma_f 15.0 \ 
+  --sigma_l 1.75555556 --num_frequencies 4 --plot --verify --oversample_factor 32.0
+\end{lstlisting}
+to produce the results shown in~\autoref{fig:linear}.
+By including the \texttt{--verify} flag, also get formal guarantees that the barrier is indeed a valid \gls{cbc} for the system.
+\begin{lstlisting}[language=bash]
+# ...
+[info] [thread 1] [-] The barrier has been verified via dReal
+# ...
+\end{lstlisting}
+
+\begin{figure}[ht]
+  \import{fig}{linear.pgf}
+  \caption{\gls{cbc} synthesis for the linear system benchmark.
+    The blue regions represent the initial set $\X_0$, while the red regions represent the unsafe set $\X_u$.
+    The pink surface indicates the value of $\gamma$.
+  }
+  \label{fig:linear}
+\end{figure}
+
+\paragraph{Barrier 3}
+
+The first benchmark is inspired by the example \barr from \cite{abate2021fossil}, which we extend by adding stochastic noise $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$ to arrive at the two-dimensional nonlinear stochastic dynamics
+\begin{equation*}
+  \begin{bmatrix}
+    {x}_{1, t+1} \\
+    {x}_{2, t+1}
+  \end{bmatrix}
+  = \begin{bmatrix}
+    {x}_{2, t} \\
+    \frac{1}{3} {x}^3_{1, t} - {x}_{1,t} - {x}_{2,t}
+  \end{bmatrix} + w_t.
+\end{equation*}
+We illustrate the setup in Figure~\ref{fig:CSBarr3}.
+
+The goal is to compute the probability that the system initialized in $[{x}_{1,0},{x}_{2,0}]\T\in \X_0$ (blue regions) does not enter the unsafe regions $\X_u$ (in red) within $T=10$ time steps.
+
+\begin{figure}[ht]
+  \import{fig}{barrier3.pgf}
+  \caption{\gls{cbc} synthesis for the \barr benchmark.
+    The blue regions represent the initial set $\X_0$, while the red regions represent the unsafe set $\X_u$.
+    The pink surface indicates the value of $\gamma$.
+  }
+  \label{fig:CSBarr3}
+\end{figure}
+
 
 \section*{Acknowledgements}
 The authors thank \dots.

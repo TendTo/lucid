@@ -1,0 +1,46 @@
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance=1.2cm and 1.8cm,
+            input-block/.style={rectangle, draw, fill=red!10, text width=3.5cm, minimum height=1.2cm, align=center, rounded corners},
+            output-block/.style={rectangle, draw, fill=green!10, text width=3.5cm, minimum height=1.2cm, align=center, rounded corners},
+            block/.style={rectangle, draw, fill=blue!10, text width=3.5cm, minimum height=1.2cm, align=center, rounded corners},
+            arrow/.style={thick,->,>=Stealth},
+            tool/.style={rectangle, draw, fill=magenta!10, text width=3cm, minimum height=0.8cm, align=center, rounded corners},
+            inv/.style={}
+        ]
+
+        % Input block
+        \node[input-block] (input) {Config File};
+
+        % Lucid blocks
+        \node[block, right=of input] (estimator) {Estimator};
+        \node[block, right=of estimator] (feature) {Feature map / Barrier template};
+        \node[block, below=of feature] (optimizer) {Optimizer};
+        \node[block, left=of optimizer] (verifier) {Verifier};
+        \node[draw, dashed, inner sep=0.3cm, rounded corners,
+        fit=(estimator)(feature)(optimizer)(verifier), label=above:{\textbf{Lucid}}] {};
+
+        % Output block
+        \node[output-block, left=of verifier] (output) {Barrier certificate};
+
+        % Smt solvers
+        \node[inv, below=2.5cm of verifier.north, anchor=north] (smtInv) {};
+        \node[tool, left=0.3cm of smtInv] (dreal) {dReal};
+        \node[tool, right=0.3cm of smtInv] (cvc5) {CVC5};
+        \node[draw, dashed, inner sep=0.3cm, rounded corners,
+        fit=(dreal)(cvc5), label=left:{\textbf{SMT Solver}}] {};
+
+        % Arrows
+        \draw[arrow] (input) -- (estimator);
+        \draw[arrow] (estimator) -- (feature);
+        \draw[arrow] (feature) -- (optimizer);
+        \draw[arrow] (optimizer) -- (verifier);
+        \draw[arrow] (verifier) -- (output);
+
+        \draw[arrow] (cvc5.north) -- (verifier.south);
+        \draw[arrow] (dreal.north) -- (verifier.south);
+
+    \end{tikzpicture}
+    \caption{General architecture of Lucid. \todo{Only dReal is supported at the moment}}
+    \label{fig:architecture}
+\end{figure}

@@ -37,6 +37,10 @@
 \usepackage{bbm}
 \usepackage{mathrsfs}
 \usepackage{blkarray}
+\usepackage{pgf}
+\usepackage{lmodern}
+\usepackage{import}
+
 % \usepackage{mathptmx}      % use Times fonts if available on your TeX system
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,7 +57,7 @@
 % }
 \renewcommand\UrlFont{\color{blue}\rmfamily} % Change URL font
 \urlstyle{rm} % Change URL style
-\usetikzlibrary{arrows.meta} % Tikz library for arrows
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit} % Tikz library for arrows
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \renewcommand{\sectionautorefname}{Section}
@@ -142,131 +146,39 @@
 \definecolor{variable}{HTML}{9e9b00}
 \definecolor{number}{HTML}{098658}
 \definecolor{function}{HTML}{795E26}
+\definecolor{backcolour}{rgb}{0.99,0.99,0.99}
 
 \lstset{language=C++,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{keywords}\ttfamily,
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{backcolour},
+    keywordstyle=\bfseries\color{keywords}\ttfamily,
     stringstyle=\color{orange}\ttfamily,
     commentstyle=\color{comments}\ttfamily,
-    morecomment=[l][\color{comments}]{\#}
-}
-\lstdefinelanguage{SMT2}{
-    alsoletter=-, % Include dashes as letters
-    sensitive=true,
-    morekeywords={set-logic, declare-fun, assert, check-sat, get-model},
-    morekeywords=[2]{Int, Bool, Real},
-    morekeywords=[3]{and, or, not, imply, ite},
-    morekeywords=[4]{a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z},
-    morecomment=[l]{;},
-    morestring=[b]",
-}
-\lstset{
-    language=SMT2,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{keywords},
-    keywordstyle={[2]\color{type}},
-    keywordstyle={[3]\color{operator}},
-    keywordstyle={[4]\color{variable}},
-    commentstyle=\color{comments},
-    stringstyle=\color{orange},
+    morecomment=[l][\color{comments}]{\#},
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
     showstringspaces=false,
+    showtabs=false,
     tabsize=2,
-    breaklines=true,
 }
-\lstdefinelanguage{mps}{
-    alsoletter=-, % Include dashes as letters
-    sensitive=true,
-    morekeywords={NAME, ROWS, COLUMNS, RHS, RANGES, BOUNDS, BINARIES, GENERALS, ENDATA},
-    morekeywords=[2]{N, L, E, G, UP, LO, FX, FR, MI, PL},
-    morecomment=[l]{*},
-    morestring=[b]",
-}
-\lstset{
-    language=mps,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{keywords},
-    keywordstyle={[2]\color{type}},
-    commentstyle=\color{comments},
-    stringstyle=\color{orange},
+\lstset{language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{backcolour},
+    keywordstyle=\color{magenta}\ttfamily,
+    stringstyle=\color{orange}\ttfamily,
+    commentstyle=\color{comments}\ttfamily,
+    morecomment=[l][\color{comments}]{\#},
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
     showstringspaces=false,
+    showtabs=false,
     tabsize=2,
-    breaklines=true,
-}
-\lstdefinelanguage{bazel}{
-    alsoletter=-, % Include dashes as letters
-    sensitive=true,
-    morekeywords={load, workspace, http_archive, cc_binary, cc_library, cc_test, cc_toolchain, cc_toolchain_suite, filegroup, genrule, package_group, package, sh_binary, sh_library, sh_test},
-    morekeywords=[2]{glob},
-    morecomment=[l]{\#},
-    morestring=[b]",
-}
-\lstset{
-    language=bazel,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{keywords},
-    keywordstyle={[2]\color{function}},
-    commentstyle=\color{comments},
-    stringstyle=\color{orange},
-    showstringspaces=false,
-    tabsize=2,
-    breaklines=true,
-}
-\lstdefinelanguage{yacc}{
-    alsoletter={\#, \%, -, _, :}, % Include dashes as letters
-    morekeywords={\#include, \#define, \#ifdef, \#endif},
-    morekeywords=[2]{% Bison keywords
-            \%union, \%token, \%type, \%nonassoc, \%left, \%prec, \%right, \%start,
-            \%grammar, \%pure_parser, \%define, \%expect, \%expect-rr, \%file, \%glr-parser,
-            \%parse-param, \%parse-param-rr, \%skeleton, \%debug, \%output,
-            \%locations, \%skeleton
-        },
-    morekeywords=[3]{% Bison variables
-            , stringVal,
-        }
-    keywordstyle=\color{keywords}\bfseries,
-    morecomment=[l][\color{comments}]{//}, % single-line comments
-    morecomment=[s][\color{comments}]{/*}{*/}, % multi-line comments
-    morestring=[b]",
-    morestring=[b]',
-}
-\lstset{
-    language=yacc,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{keywords},
-    keywordstyle={[2]\color{type}},
-    keywordstyle={[3]\color{variable}},
-    commentstyle=\color{comments},
-    stringstyle=\color{orange},
-    showstringspaces=false,
-    tabsize=2,
-    breaklines=true,
-}
-\lstdefinelanguage{flex}{
-    alsoletter={\#, \%, -, _, :}, % Include dashes as letters
-    morekeywords={\#include, \#define, \#ifdef, \#endif},
-    morekeywords=[2]{% Bison keywords
-            typedef
-        },
-    morekeywords=[3]{% Bison variables
-            , stringVal,
-        }
-    keywordstyle=\color{keywords}\bfseries,
-    morecomment=[l][\color{comments}]{//}, % single-line comments
-    morecomment=[s][\color{comments}]{/***}{*/}, % multi-line comments
-    morestring=[b]",
-    morestring=[b]',
-}
-\lstset{
-    language=flex,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{keywords},
-    keywordstyle={[2]\color{type}},
-    keywordstyle={[3]\color{variable}},
-    commentstyle=\color{comments},
-    stringstyle=\color{orange},
-    showstringspaces=false,
-    tabsize=2,
-    breaklines=true,
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -344,6 +256,7 @@
 \newcommand{\smtresult}{\textit{res}\xspace}
 \newcommand{\smttime}{$t$\xspace}
 \newcommand{\hp}{hyperparameters\xspace}
+\newcommand{\barr}{\texttt{Barr\textsubscript{3}}\xspace}
 % Math
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Z}{\mathbb{Z}}
