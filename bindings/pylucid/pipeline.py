@@ -58,7 +58,7 @@ def pipeline(
     *,
     T: int = 5,
     gamma: float = 1.0,
-    C_coefficient: float = 1.0,
+    c_coefficient: float = 1.0,
     f_xp_samples: "NMatrix | Callable[[Estimator, NMatrix], NMatrix] | None" = None,
     f_det: "Callable[[NMatrix], NMatrix] | None" = None,
     estimator: "Estimator | None" = None,
@@ -86,7 +86,7 @@ def pipeline(
         X_unsafe: Set representing the unsafe states
         T: Time horizon for the optimization
         gamma: Discount or scaling factor for the optimization
-        C_coefficient: coefficient that can be used to make the optimization more (> 1) or less (< 1) conservative
+        c_coefficient: coefficient that can be used to make the optimization more (> 1) or less (< 1) conservative
         f_xp_samples: Precomputed samples of the next state variable x' or a function that computes them
         f_det: Deterministic function mapping states to outputs. Used to verify the barrier certificate
         estimator: Estimator object for regression. If None, a default KernelRidgeRegressor is used
@@ -217,7 +217,7 @@ def pipeline(
         0,
         1,
         b_kappa=1,
-        C_coeff=C_coefficient,
+        C_coeff=c_coefficient,
         sigma_f=sigma_f,
         problem_log_file=problem_log_file,
         iis_log_file=iis_log_file,

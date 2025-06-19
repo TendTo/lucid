@@ -30,8 +30,6 @@ def scenario_config(
 
     f_det = lambda x: 1 / 2 * x
     # Add process noise
-    if args.seed >= 0:
-        np.random.seed(args.seed)  # For reproducibility
     f = lambda x: f_det(x) + np.random.normal(scale=0.4)
 
     # ################################## #

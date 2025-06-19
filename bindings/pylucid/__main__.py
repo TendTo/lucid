@@ -12,6 +12,9 @@ from .cli import CLIArgs, ScenarioConfig, arg_parser, cli_scenario_config
 def main(argv: "Sequence[str] | None" = None):
     args = arg_parser().parse_args(argv, namespace=CLIArgs())
     args.sigma_l = np.array(args.sigma_l) if len(args.sigma_l) > 1 else args.sigma_l[0]
+    if args.seed >= 0:
+        # If a seed is provided, set the random seed for reproducibility
+        np.random.seed(args.seed)
     # Set verbosity based on the command line argument
     set_verbosity(args.verbose)
 
