@@ -126,16 +126,15 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   LUCID_DEBUG("Restricting safety probabilities to be positive");
   LUCID_MODEL_ADD_CONSTRAINT(model, eta + T_ * c, GRB_LESS_EQUAL, gamma_, "eta+c*T<=gamma");
 
-  // TODO(tend): since we are using row major order, there is no need to copy each row of the matrix.
-  //  Just add an assertion to make sure this is not changed at a later date, breaking the LP problem.
   LUCID_DEBUG_FMT(
       "Positive barrier - {} constraints\n"
       "for all x: [ B(x) >= hatxi ] AND [ B(x) <= maxXX ]\n"
       "hatxi = (C - 1) / (C + 1) * maxXX",
       phi_mat.rows() * 2);
   for (Index row = 0; row < phi_mat.rows(); ++row) {
+    static_assert(phi_mat.IsRowMajor, "Row major order is expected to avoid copy/eval");
     GRBLinExpr expr{};
-    expr.addTerms(phi_mat.row(row).eval().data(), vars_.get(), static_cast<int>(phi_mat.cols()));
+    expr.addTerms(phi_mat.row(row).data(), vars_.get(), static_cast<int>(phi_mat.cols()));
     expr += maxXX * maxXX_coeff;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(x)>=hatxi[{}]", row));
     expr.remove(maxXX);
@@ -149,8 +148,9 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
       "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0",
       f0_lattice.rows() * 2);
   for (Index row = 0; row < f0_lattice.rows(); ++row) {
+    static_assert(f0_lattice.IsRowMajor, "Row major order is expected to avoid copy/eval");
     GRBLinExpr expr{};
-    expr.addTerms(f0_lattice.row(row).eval().data(), vars_.get(), static_cast<int>(f0_lattice.cols()));
+    expr.addTerms(f0_lattice.row(row).data(), vars_.get(), static_cast<int>(f0_lattice.cols()));
     expr += -fctr1 * eta - fctr2 * minX0;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, 0, fmt::format("B(x_0)<=hateta[{}]", row));
     expr.remove(eta);
@@ -165,8 +165,9 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
       "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU",
       fu_lattice.rows() * 2);
   for (Index row = 0; row < fu_lattice.rows(); ++row) {
+    static_assert(fu_lattice.IsRowMajor, "Row major order is expected to avoid copy/eval");
     GRBLinExpr expr{};
-    expr.addTerms(fu_lattice.row(row).eval().data(), vars_.get(), static_cast<int>(fu_lattice.cols()));
+    expr.addTerms(fu_lattice.row(row).data(), vars_.get(), static_cast<int>(fu_lattice.cols()));
     expr += -fctr2 * maxXU;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, unsafe_rhs, fmt::format("B(x_u)>=hatgamma[{}]", row));
     expr.remove(maxXU);
@@ -181,8 +182,9 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
       phi_mat.rows() * 2);
   const Matrix mult{w_mat - b_kappa_ * phi_mat};
   for (Index row = 0; row < mult.rows(); ++row) {
+    static_assert(mult.IsRowMajor, "Row major order is expected to avoid copy/eval");
     GRBLinExpr expr{};
-    expr.addTerms(mult.row(row).eval().data(), vars_.get(), static_cast<int>(mult.cols()));
+    expr.addTerms(mult.row(row).data(), vars_.get(), static_cast<int>(mult.cols()));
     expr += -fctr1 * c - fctr2 * minDelta;  // TODO(tend): c − εB̄κ
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, kushner_rhs, fmt::format("B(xp)-B(x)<=hatDelta[{}]", row));
     expr.remove(c);
