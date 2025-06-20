@@ -10,40 +10,54 @@
 
 namespace lucid::scorer {
 
+double r2_score(ConstMatrixRef x, ConstMatrixRef y) {
+  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
+  LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
+  const double ss_res = (y - x).array().square().sum();
+  const double ss_tot = (y.array() - y.mean()).square().sum();
+  return 1.0 - (ss_res / ss_tot);
+}
 double r2_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
   LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
   const Matrix predictions = estimator.predict(evaluation_inputs);
-  LUCID_ASSERT(predictions.rows() == evaluation_outputs.rows(),
-               "The number of rows in predictions must match the number of rows in evaluation outputs.");
   LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
-  const double ss_res = (evaluation_outputs - predictions).array().square().sum();
-  const double ss_tot = (evaluation_outputs.array() - evaluation_outputs.mean()).square().sum();
-  return 1.0 - (ss_res / ss_tot);
+  return r2_score(predictions, evaluation_outputs);
+}
+
+double mse_score(ConstMatrixRef x, ConstMatrixRef y) {
+  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
+  LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
+  const double mse = (y - x).array().square().mean();
+  LUCID_ASSERT(mse >= 0.0, "Mean squared error must be non-negative.");
+  return -mse;  // Return negative to follow the convention of scorer functions
 }
 
 double mse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
   LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
   const Matrix predictions = estimator.predict(evaluation_inputs);
-  LUCID_ASSERT(predictions.rows() == evaluation_outputs.rows(),
-               "The number of rows in predictions must match the number of rows in evaluation outputs.");
   LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
-  const double mse = (evaluation_outputs - predictions).array().square().mean();
-  LUCID_ASSERT(mse >= 0.0, "Mean squared error must be non-negative.");
-  return -mse;
+  return mse_score(predictions, evaluation_outputs);
+}
+
+double rmse_score(ConstMatrixRef x, ConstMatrixRef y) {
+  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
+  LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
+  const double rmse = std::sqrt((y - x).array().square().mean());
+  LUCID_ASSERT(rmse >= 0.0, "Root mean squared error must be non-negative.");
+  return -rmse;  // Return negative to follow the convention of scorer functions
 }
 
 double rmse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
   LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
   const Matrix predictions = estimator.predict(evaluation_inputs);
-  LUCID_ASSERT(predictions.rows() == evaluation_outputs.rows(),
-               "The number of rows in predictions must match the number of rows in evaluation outputs.");
   LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
-  const double rmse = std::sqrt((evaluation_outputs - predictions).array().square().mean());
-  LUCID_ASSERT(rmse >= 0.0, "Root mean squared error must be non-negative.");
-  return -rmse;
+  return rmse_score(predictions, evaluation_outputs);
 }
 
 }  // namespace lucid::scorer

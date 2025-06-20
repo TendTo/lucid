@@ -166,7 +166,13 @@ TEST(TestScorer, R2ScoreMismatchedDimensions) {
   EXPECT_THROW(r2_score(estimator, inputs, outputs), lucid::exception::LucidInvalidArgumentException);
 }
 
-TEST(TestScorer, R2ScoreMatchingSignature) { static_assert(std::is_convertible_v<decltype(r2_score), Scorer>); }
+TEST(TestScorer, R2ScoreDirectPrediction) {
+  const Matrix inputs{Matrix::Random(10, 3)};
+  const Matrix outputs{Matrix::Random(10, 2)};
+  const MockEstimator estimator{Matrix::Random(10, 2)};
+
+  EXPECT_EQ(r2_score(estimator, inputs, outputs), r2_score(estimator(inputs), outputs));
+}
 
 TEST(TestScorer, MSEScorePerfectPredictions) {
   const Matrix inputs{Matrix::Random(20, 5)};
@@ -335,7 +341,13 @@ TEST(TestScorer, MSEScoreNegativePredictions) {
   EXPECT_DOUBLE_EQ(mse_score(estimator, inputs, outputs), -100.0);
 }
 
-TEST(TestScorer, MSEScoreMatchingSignature) { static_assert(std::is_convertible_v<decltype(mse_score), Scorer>); }
+TEST(TestScorer, MSEScoreDirectPrediction) {
+  const Matrix inputs{Matrix::Random(10, 3)};
+  const Matrix outputs{Matrix::Random(10, 2)};
+  const MockEstimator estimator{Matrix::Random(10, 2)};
+
+  EXPECT_EQ(mse_score(estimator, inputs, outputs), mse_score(estimator(inputs), outputs));
+}
 
 TEST(TestScorer, RMSEScorePerfectPredictions) {
   const Matrix inputs{Matrix::Random(20, 3)};
@@ -482,4 +494,10 @@ TEST(TestScorer, RMSEScoreLinearFunction) {
   EXPECT_DOUBLE_EQ(rmse_score(estimator, inputs, outputs), -1.0);
 }
 
-TEST(TestScorer, RMSEScoreMatchingSignature) { static_assert(std::is_convertible_v<decltype(rmse_score), Scorer>); }
+TEST(TestScorer, RMSEScoreDirectPrediction) {
+  const Matrix inputs{Matrix::Random(10, 3)};
+  const Matrix outputs{Matrix::Random(10, 2)};
+  const MockEstimator estimator{Matrix::Random(10, 2)};
+
+  EXPECT_EQ(rmse_score(estimator, inputs, outputs), rmse_score(estimator(inputs), outputs));
+}
