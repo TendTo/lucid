@@ -16,6 +16,13 @@
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
+#ifndef NLOG
+#define LUCID_MODEL_ADD_CONSTRAINT(model, expr, op, rhs, name) \
+  model.addConstr(expr, op, rhs).set(GRB_StringAttr_ConstrName, name)
+#else
+#define LUCID_MODEL_ADD_CONSTRAINT(model, expr, op, rhs, name) model.addConstr(expr, op, rhs)
+#endif
+
 namespace lucid {
 
 GurobiLinearOptimiser::GurobiLinearOptimiser(const int T, const double gamma, const double epsilon, const double b_norm,
@@ -117,11 +124,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   // 1) eta + c*T >= 0 by design
   // 2) eta + c*T <= gamma
   LUCID_DEBUG("Restricting safety probabilities to be positive");
-  model
-      .addConstr(eta + T_ * c, GRB_LESS_EQUAL, gamma_)
-#ifndef NLOG
-      .set(GRB_StringAttr_ConstrName, "eta+c*T<=gamma");
-#endif
+  LUCID_MODEL_ADD_CONSTRAINT(model, eta + T_ * c, GRB_LESS_EQUAL, gamma_, "eta+c*T<=gamma");
 
   // TODO(tend): since we are using row major order, there is no need to copy each row of the matrix.
   //  Just add an assertion to make sure this is not changed at a later date, breaking the LP problem.
@@ -134,18 +137,10 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
     GRBLinExpr expr{};
     expr.addTerms(phi_mat.row(row).eval().data(), vars_.get(), static_cast<int>(phi_mat.cols()));
     expr += maxXX * maxXX_coeff;
-    model
-        .addConstr(expr, GRB_GREATER_EQUAL, 0)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(x)>=hatxi[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(x)>=hatxi[{}]", row));
     expr.remove(maxXX);
     expr += -maxXX;
-    model
-        .addConstr(expr, GRB_LESS_EQUAL, 0)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(x)<=maxXX[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, 0, fmt::format("B(x)<=maxXX[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
@@ -157,19 +152,11 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
     GRBLinExpr expr{};
     expr.addTerms(f0_lattice.row(row).eval().data(), vars_.get(), static_cast<int>(f0_lattice.cols()));
     expr += -fctr1 * eta - fctr2 * minX0;
-    model
-        .addConstr(expr, GRB_LESS_EQUAL, 0)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(x_0)>=hateta[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, 0, fmt::format("B(x_0)<=hateta[{}]", row));
     expr.remove(eta);
     expr.remove(minX0);
     expr += -minX0;
-    model
-        .addConstr(expr, GRB_GREATER_EQUAL, 0)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(x_0)>=minX0[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(x_0)>=minX0[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
@@ -181,18 +168,10 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
     GRBLinExpr expr{};
     expr.addTerms(fu_lattice.row(row).eval().data(), vars_.get(), static_cast<int>(fu_lattice.cols()));
     expr += -fctr2 * maxXU;
-    model
-        .addConstr(expr, GRB_GREATER_EQUAL, unsafe_rhs)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(x_u)>=hatgamma[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, unsafe_rhs, fmt::format("B(x_u)>=hatgamma[{}]", row));
     expr.remove(maxXU);
     expr += -maxXU;
-    model
-        .addConstr(expr, GRB_LESS_EQUAL, 0)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(x_u)<=maxXU[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, 0, fmt::format("B(x_u)<=maxXU[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
@@ -205,19 +184,11 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
     GRBLinExpr expr{};
     expr.addTerms(mult.row(row).eval().data(), vars_.get(), static_cast<int>(mult.cols()));
     expr += -fctr1 * c - fctr2 * minDelta;  // TODO(tend): c − εB̄κ
-    model
-        .addConstr(expr, GRB_LESS_EQUAL, kushner_rhs)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(xp)-B(x)<=hatDelta[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, kushner_rhs, fmt::format("B(xp)-B(x)<=hatDelta[{}]", row));
     expr.remove(c);
     expr.remove(minDelta);
     expr += -minDelta;
-    model
-        .addConstr(expr, GRB_GREATER_EQUAL, 0)
-#ifndef NLOG
-        .set(GRB_StringAttr_ConstrName, fmt::format("B(xp)-B(x)>=minDelta[{}]", row));
-#endif
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(xp)-B(x)>=minDelta[{}]", row));
   }
 
   // Objective function (η + cT)
@@ -238,7 +209,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   LUCID_INFO_FMT("Solution found, objective = {}", model.get(GRB_DoubleAttr_ObjVal));
   LUCID_INFO_FMT("Satisfaction probability is {:.6f}%", (1 - model.get(GRB_DoubleAttr_ObjVal)) * 100);
 
-  auto solution{Vector::NullaryExpr(rkhs_dim, [&vars](Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
+  const Vector solution{Vector::NullaryExpr(rkhs_dim, [&vars](Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
   double actual_norm = solution.norm();
   LUCID_INFO_FMT("Actual norm: {}", actual_norm);
   if (actual_norm > b_norm_) {
