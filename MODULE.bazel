@@ -55,6 +55,17 @@ bazel_dep(name = "depend_on_what_you_use", version = "0.9.0", dev_dependency = T
 # External dependencies not available in the Bazel registry
 #################################################################################
 
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# GPL 2+ | alglib library for numerical analysis and data processing
+http_archive(
+    name = "alglib",
+    build_file = "//third_party:alglib.BUILD.bazel",
+    sha256 = "a4b6f64cac2d5340cf507569db13d1178ce3788d9dda0cb1dba90666e619f3a7",
+    strip_prefix = "alglib-cpp",
+    url = "https://www.alglib.net/translator/re/alglib-4.05.0.cpp.gpl.zip",
+)
+
 # Gurobi installation. Must be already installed on the system.
 
 gurobi_repository = use_repo_rule("//tools:gurobi_build.bzl", "gurobi_repository")
@@ -92,9 +103,9 @@ github_archive(
 #################################################################################
 doxygen_extension = use_extension("@rules_doxygen//:extensions.bzl", "doxygen_extension")
 doxygen_extension.configuration(
-    version = "1.13.2",
-    sha256 = "f2c0a349403bc5b5ade3f501301e32b49ea31b3182666954bc398452fbc0dd1c",
     platform = "linux",
+    sha256 = "f2c0a349403bc5b5ade3f501301e32b49ea31b3182666954bc398452fbc0dd1c",
+    version = "1.13.2",
 )
 use_repo(doxygen_extension, "doxygen")
 

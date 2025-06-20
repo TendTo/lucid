@@ -1,0 +1,16 @@
+"""alglib library for Bazel"""
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+licenses(["notice"])  # GPL 2+
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "alglib",
+    hdrs = glob(["src/**/*.h"]),
+    srcs = glob(["src/**/*.cpp"]),
+    includes = ["."],
+    include_prefix = "alglib",
+    strip_include_prefix = "src",
+)

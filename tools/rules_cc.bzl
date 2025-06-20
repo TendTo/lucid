@@ -124,6 +124,9 @@ def _get_defines(rule_defines):
         "//tools:gurobi_build": ["LUCID_GUROBI_BUILD"],
         "//conditions:default": [],
     }) + select({
+        "//tools:alglib_build": ["LUCID_ALGLIB_BUILD"],
+        "//conditions:default": [],
+    }) + select({
         "//tools:verbose_eigen_build": ["LUCID_VERBOSE_EIGEN_BUILD"],
         "//conditions:default": [],
     })
