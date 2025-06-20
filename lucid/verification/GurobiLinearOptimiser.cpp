@@ -75,7 +75,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
   // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
   int nVars = static_cast<int>(rkhs_dim + 2 + 4);
-  std::unique_ptr<GRBVar> vars_{model.addVars(nVars)};
+  std::unique_ptr<GRBVar[]> vars_{model.addVars(nVars)};
   const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(nVars)};
   GRBVar& c = vars[vars.size() - 6];
   GRBVar& eta = vars[vars.size() - 5];
@@ -179,7 +179,7 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
       "for all x: [ B(xp) - B(x) <= hatDelta ] AND [ B(x) >= minDelta ]\n"
       "hatDelta = 2 / (C + 1) * (c - epsilon*Bnorm*kappa_x) + (C - 1) / (C + 1) * minDelta",
       phi_mat.rows() * 2);
-  auto mult = w_mat - b_kappa_ * phi_mat;
+  const Matrix mult{w_mat - b_kappa_ * phi_mat};
   for (Index row = 0; row < mult.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(mult.row(row).eval().data(), vars_.get(), static_cast<int>(mult.cols()));
