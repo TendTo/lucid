@@ -35,13 +35,13 @@ class AlglibLpProblem {
     init();
   }
 
-  template <char Op, int N>
-    requires(N >= 0 && (Op == '<' || Op == '>' || Op == '='))
+  template <char Op, std::size_t N>
+    requires(Op == '<' || Op == '>' || Op == '=')
   void add_constraint(std::span<const double> coeffs, std::array<alglib::ae_int_t, N> additional_vars,
                       std::array<double, N> additional_coeffs, const double rhs) {
-    LUCID_ASSERT(coeffs.size() + additional_coeffs.size() <= vars_.length(),
+    LUCID_ASSERT(coeffs.size() + additional_coeffs.size() <= static_cast<std::size_t>(vars_.length()),
                  "The number of coeffs and additional coeffs must not exceed the tot number of variables.");
-    LUCID_ASSERT(coeffs.size() + additional_coeffs.size() <= coeffs_.length(),
+    LUCID_ASSERT(coeffs.size() + additional_coeffs.size() <= static_cast<std::size_t>(coeffs_.length()),
                  "The number of coeffs and additional coeffs must not exceed the tot number of coefficients.");
 
     // Make sure the vars contain the original rkhs variables and the additional variables
@@ -69,11 +69,11 @@ class AlglibLpProblem {
                                       static_cast<alglib::ae_int_t>(coeffs.size() + additional_coeffs.size()));
   }
 
-  template <char Op, int N>
-    requires(N >= 0 && (Op == '<' || Op == '>' || Op == '='))
+  template <char Op, std::size_t N>
+    requires(Op == '<' || Op == '>' || Op == '=')
   void add_constraint(std::array<alglib::ae_int_t, N> vars, std::array<double, N> coeffs, const double rhs) {
-    alglib::integer_1d_array vars_;
-    vars_.setcontent(static_cast<alglib::ae_int_t>(vars.size()), vars.data());
+    alglib::integer_1d_array tot_vars;
+    tot_vars.setcontent(static_cast<alglib::ae_int_t>(vars.size()), vars.data());
 
     const alglib::ae_int_t new_row_idx = alglib::sparsegetnrows(A_);
     if constexpr (Op == '<') {
@@ -88,13 +88,13 @@ class AlglibLpProblem {
     }
     alglib::real_1d_array vals;
     vals.attach_to_ptr(static_cast<alglib::ae_int_t>(coeffs.size()), coeffs.data());
-    alglib::sparseappendcompressedrow(A_, vars_, vals, static_cast<alglib::ae_int_t>(coeffs.size()));
+    alglib::sparseappendcompressedrow(A_, tot_vars, vals, static_cast<alglib::ae_int_t>(coeffs.size()));
   }
 
   void set_bounds(alglib::ae_int_t var, const double lb = alglib::fp_neginf, const double ub = alglib::fp_posinf) {
-    LUCID_CHECK_ARGUMENT_CMP(var, >=, 0);
-    LUCID_CHECK_ARGUMENT_CMP(var, <, vars_.length());
-    LUCID_CHECK_ARGUMENT_CMP(lb, <=, ub);
+    LUCID_ASSERT(var >= 0, "Variable index must be non-negative.");
+    LUCID_ASSERT(var < vars_.length(), "Variable index must be less than the number of variables.");
+    LUCID_ASSERT(lb <= ub, "Lower bound must be less than or equal to upper bound.");
     var_lb_[var] = lb;
     var_ub_[var] = ub;
   }
@@ -160,7 +160,7 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
                             const SolutionCallback& cb) const {
   LUCID_CHECK_ARGUMENT_CMP(num_frequency_samples_per_dim, >, 0);
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
-  constexpr double max_num = alglib::fp_posinf;
+  const double max_num = alglib::fp_posinf;
   constexpr double min_eta = 0;
   const alglib::ae_int_t num_vars = static_cast<alglib::ae_int_t>(rkhs_dim + 2 + 4);
   const alglib::ae_int_t num_constraints =
