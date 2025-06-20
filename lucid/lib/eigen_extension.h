@@ -136,8 +136,9 @@ internal::ShiftOp<ArgType> shift(const Eigen::MatrixBase<ArgType>& x, const Eige
  * It is useful for visualizing the Fourier transform with the zero-frequency component in the center.
  * Undoes the result of @ref ifftshift.
  * - If `x` is a vector, then `fftshift` swaps the left and right halves of `x`.
- * 0 If `x` is a matrix, then `fftshift` swaps the first quadrant of `x` with the third,
+ * - If `x` is a matrix, then `fftshift` swaps the first quadrant of `x` with the third,
  * and the second quadrant with the fourth.
+ *
  * @tparam ArgType type of the matrix or vector
  * @param x matrix or vector
  * @return shifted matrix or vector
@@ -154,6 +155,7 @@ internal::ShiftOp<ArgType> fftshift(const Eigen::MatrixBase<ArgType>& x) {
  * - If `x` is a vector, then `ifftshift` swaps the left and right halves of `x`.
  * - If `x` is a matrix, then `ifftshift` swaps the first quadrant of `x` with the third,
  * and the second quadrant with the fourth.
+ *
  * @tparam ArgType type of the matrix or vector
  * @param x matrix or vector
  * @return shifted matrix or vector
