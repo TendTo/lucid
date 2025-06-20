@@ -10,24 +10,15 @@
 #include <string>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/verification/Optimiser.h"
 
 namespace lucid {
 
 /**
  * Linear optimiser using the Gurobi solver.
  */
-class GurobiLinearOptimiser {
+class GurobiLinearOptimiser final : public Optimiser {
  public:
-  /**
-   * Callback function called when the optimisation is done.
-   * @param success true if the optimisation was successful, false if no solution was found
-   * @param obj_val objective value. 0 if no solution was found
-   * @param eta eta value. 0 if no solution was found
-   * @param c c value. 0 if no solution was found
-   * @param norm actual norm of the barrier function. 0 if no solution was found
-   */
-  using SolutionCallback = std::function<void(bool, double, const Vector&, double, double, double)>;
-
   /**
    * Construct a new GurobiLinearOptimiser object.
    * @pre `T` must be greater than 0

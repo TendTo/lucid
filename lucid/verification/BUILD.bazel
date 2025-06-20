@@ -19,12 +19,17 @@ cpplint()
 lucid_cc_library(
     name = "optimiser",
     srcs = [
+        "AlglibOptimiser.cpp",
         "GurobiLinearOptimiser.cpp",
+        "Optimiser.cpp",
     ],
     hdrs = [
+        "AlglibOptimiser.h",
         "GurobiLinearOptimiser.h",
+        "Optimiser.h",
     ],
     implementation_deps = [
+        "//lucid/lib:alglib",
         "//lucid/lib:gurobi",
         "//lucid/util:error",
         "//lucid/util:logging",
