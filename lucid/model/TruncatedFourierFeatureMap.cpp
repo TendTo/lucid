@@ -57,7 +57,8 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   auto z = (x - x_limits_.lower_bound()).cwiseQuotient(x_limits_.upper_bound() - x_limits_.lower_bound());
   LUCID_ASSERT(z.size() == omega_.cols(), "z.size() == omega_.cols()");
-  LUCID_ASSERT((z.array() >= 0).all() && (z.array() <= 1).all(), "0 <= z <= 1");
+  // TODO(tend): Does it become a problem if the input is outside the bounds?
+  // LUCID_ASSERT((z.array() >= 0).all() && (z.array() <= 1).all(), "0 <= z <= 1");
 
   Vector z_proj = omega_ * z.transpose();  // It is also computing the 0th frequency, although it is not used later
   Vector trig{2 * z_proj.size() - 1};

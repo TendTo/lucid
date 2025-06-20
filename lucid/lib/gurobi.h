@@ -11,7 +11,9 @@
 #pragma once
 
 #ifdef LUCID_GUROBI_BUILD
+
 #include <gurobi_c++.h>
-#endif
 
 namespace lucid {}  // namespace lucid
+
+#endif

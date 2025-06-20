@@ -114,7 +114,7 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
   // Objective value at the optimal point
   double obj;
   // Number of iterations
-  int niter = 0;
+  [[maybe_unused]] int niter = 0;
 
   LUCID_CHECK_ARGUMENT_EXPECTED(x_out.size() == lb_.size() || lb_.size() == 0, "x_out.size() != lb.size()",
                                 x_out.size(), lb_.size());

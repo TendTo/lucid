@@ -10,10 +10,20 @@
  */
 #pragma once
 
-#ifndef LUCID_ALGIB_BUILD
+#ifdef LUCID_ALGLIB_BUILD
+
+#include <alglib/linalg.h>
 #include <alglib/optimization.h>
 #include <alglib/stdafx.h>
-#include <alglib/linalg.h>
-#endif
 
-namespace lucid {}  // namespace lucid
+#include <iosfwd>
+
+namespace lucid {
+
+std::ostream& operator<<(std::ostream& os, const alglib::sparsematrix& matrix);
+std::ostream& operator<<(std::ostream& os, const alglib::real_1d_array& array);
+void print_lp(const alglib::sparsematrix& matrix, const alglib::real_1d_array& lb, const alglib::real_1d_array& ub);
+
+}  // namespace lucid
+
+#endif

@@ -22,17 +22,11 @@ namespace lucid {
 namespace {
 class AlglibLpProblem {
  public:
-  AlglibLpProblem(const alglib::ae_int_t num_vars, const alglib::ae_int_t num_constraints)
-      : vars_{}, coeffs_{}, state_{}, rep_{}, var_lb_{}, var_ub_{}, A_lb_{}, A_ub_{}, A_{} {
+  AlglibLpProblem(const alglib::ae_int_t num_vars) : vars_{}, coeffs_{}, state_{}, rep_{} {
     alglib::minlpcreate(num_vars, state_);
-    alglib::sparsecreatecrsempty(num_vars, A_);
     vars_.setlength(num_vars);
     coeffs_.setlength(num_vars);
-    var_lb_.setlength(num_vars);
-    var_ub_.setlength(num_vars);
-    A_lb_.setlength(num_constraints);
-    A_ub_.setlength(num_constraints);
-    init();
+    for (alglib::ae_int_t i = 0; i < vars_.length(); ++i) vars_[i] = i;
   }
 
   template <char Op, std::size_t N>
@@ -53,20 +47,8 @@ class AlglibLpProblem {
     for (const double coeff : coeffs) coeffs_[i++] = coeff;
     for (const double coeff : additional_coeffs) coeffs_[i++] = coeff;
 
-    const alglib::ae_int_t new_row_idx = alglib::sparsegetnrows(A_);
-    if constexpr (Op == '<') {
-      A_lb_[new_row_idx] = rhs;
-      A_ub_[new_row_idx] = alglib::fp_posinf;
-    } else if constexpr (Op == '>') {
-      A_lb_[new_row_idx] = alglib::fp_neginf;
-      A_ub_[new_row_idx] = rhs;
-    } else if constexpr (Op == '=') {
-      A_lb_[new_row_idx] = rhs;
-      A_ub_[new_row_idx] = rhs;
-    }
-
-    alglib::sparseappendcompressedrow(A_, vars_, coeffs_,
-                                      static_cast<alglib::ae_int_t>(coeffs.size() + additional_coeffs.size()));
+    alglib::minlpaddlc2(state_, vars_, coeffs_, static_cast<alglib::ae_int_t>(coeffs.size() + additional_coeffs.size()),
+                        Op == '<' ? alglib::fp_neginf : rhs, Op == '>' ? alglib::fp_posinf : rhs);
   }
 
   template <char Op, std::size_t N>
@@ -75,28 +57,24 @@ class AlglibLpProblem {
     alglib::integer_1d_array tot_vars;
     tot_vars.setcontent(static_cast<alglib::ae_int_t>(vars.size()), vars.data());
 
-    const alglib::ae_int_t new_row_idx = alglib::sparsegetnrows(A_);
-    if constexpr (Op == '<') {
-      A_lb_[new_row_idx] = rhs;
-      A_ub_[new_row_idx] = alglib::fp_posinf;
-    } else if constexpr (Op == '>') {
-      A_lb_[new_row_idx] = alglib::fp_neginf;
-      A_ub_[new_row_idx] = rhs;
-    } else if constexpr (Op == '=') {
-      A_lb_[new_row_idx] = rhs;
-      A_ub_[new_row_idx] = rhs;
-    }
     alglib::real_1d_array vals;
     vals.attach_to_ptr(static_cast<alglib::ae_int_t>(coeffs.size()), coeffs.data());
-    alglib::sparseappendcompressedrow(A_, tot_vars, vals, static_cast<alglib::ae_int_t>(coeffs.size()));
+    alglib::minlpaddlc2(state_, tot_vars, vals, static_cast<alglib::ae_int_t>(coeffs.size()),
+                        Op == '<' ? alglib::fp_neginf : rhs, Op == '>' ? alglib::fp_posinf : rhs);
+  }
+
+  template <char Op, std::size_t N>
+    requires(Op == '<' || Op == '>' || Op == '=')
+  void add_constraint(const double* coeffs_ptr, std::array<alglib::ae_int_t, N> additional_vars,
+                      std::array<double, N> additional_coeffs, const double rhs) {
+    return add_constraint<Op>(std::span(coeffs_ptr, vars_.length() - 6), additional_vars, additional_coeffs, rhs);
   }
 
   void set_bounds(alglib::ae_int_t var, const double lb = alglib::fp_neginf, const double ub = alglib::fp_posinf) {
     LUCID_ASSERT(var >= 0, "Variable index must be non-negative.");
     LUCID_ASSERT(var < vars_.length(), "Variable index must be less than the number of variables.");
     LUCID_ASSERT(lb <= ub, "Lower bound must be less than or equal to upper bound.");
-    var_lb_[var] = lb;
-    var_ub_[var] = ub;
+    alglib::minlpsetbci(state_, var, lb, ub);
   }
 
   void set_min_objective(std::span<double> coeffs) {
@@ -106,8 +84,10 @@ class AlglibLpProblem {
   }
 
   void solve() {
-    minlpoptimize(state_);
-    minlpresults(state_, x_, rep_);
+    // minlpsetscale(state, s); // TODO(tend): do we want to specify a scaling vector?
+    // minlpsetalgoipm(state); // TODO(tend): do we want to specify an algorithm?
+    alglib::minlpoptimize(state_);
+    alglib::minlpresults(state_, x_, rep_);
   }
 
   [[nodiscard]] const alglib::minlpstate& state() const { return state_; }
@@ -115,28 +95,13 @@ class AlglibLpProblem {
   [[nodiscard]] const alglib::real_1d_array& solution() const { return x_; }
 
  private:
-  void init() {
-    for (alglib::ae_int_t i = 0; i < vars_.length(); ++i) vars_[i] = i;
-    for (alglib::ae_int_t i = 0; i < var_lb_.length(); ++i) {
-      var_lb_[i] = alglib::fp_neginf;
-      var_ub_[i] = alglib::fp_posinf;
-    }
-    for (alglib::ae_int_t i = 0; i < A_lb_.length(); ++i) {
-      A_lb_[i] = alglib::fp_neginf;
-      A_ub_[i] = alglib::fp_posinf;
-    }
-  }
+  void init() {}
 
   alglib::integer_1d_array vars_;
   alglib::real_1d_array coeffs_;
   alglib::real_1d_array x_;
   alglib::minlpstate state_;
   alglib::minlpreport rep_;
-  alglib::real_1d_array var_lb_;
-  alglib::real_1d_array var_ub_;
-  alglib::real_1d_array A_lb_;
-  alglib::real_1d_array A_ub_;
-  alglib::sparsematrix A_;
 };
 }  // namespace
 #endif
@@ -162,16 +127,15 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
   const double max_num = alglib::fp_posinf;
   constexpr double min_eta = 0;
-  const alglib::ae_int_t num_vars = static_cast<alglib::ae_int_t>(rkhs_dim + 2 + 4);
-  const alglib::ae_int_t num_constraints =
-      static_cast<alglib::ae_int_t>(phi_mat.rows() * 4 + f0_lattice.rows() * 2 + fu_lattice.rows() + 1);
+  const auto num_vars = static_cast<alglib::ae_int_t>(rkhs_dim + 2 + 4);
   const double C =
       std::pow(1 - C_coeff_ * 2.0 * num_frequencies_per_dim / num_frequency_samples_per_dim, -original_dim / 2.0);
+
   // What if we make C as big as it can be?
   // const double C = pow((1 - 2.0 * num_freq_per_dim / (2.0 * num_freq_per_dim + 1)), -original_dim / 2.0);
   LUCID_DEBUG_FMT("C: {}", C);
 
-  AlglibLpProblem lp_problem{num_vars, num_constraints};
+  AlglibLpProblem lp_problem{num_vars};
 
   // Specify constraints
   // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
@@ -215,11 +179,11 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       "hatxi = (C - 1) / (C + 1) * maxXX",
       phi_mat.rows() * 2);
   for (Index row = 0; row < phi_mat.rows(); ++row) {
-    const std::span coeffs{phi_mat.row(row).eval().data(), static_cast<std::size_t>(phi_mat.cols())};
+    static_assert(phi_mat.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(x) >= hatxi
-    lp_problem.add_constraint<'>'>(coeffs, std::array{maxXX}, std::array{maxXX_coeff}, 0.0);
+    lp_problem.add_constraint<'>'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{maxXX_coeff}, 0.0);
     // B(x) <= maxXX
-    lp_problem.add_constraint<'<'>(coeffs, std::array{maxXX}, std::array{-1.0}, 0.0);
+    lp_problem.add_constraint<'<'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{-1.0}, 0.0);
   }
 
   LUCID_DEBUG_FMT(
@@ -228,11 +192,11 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0",
       f0_lattice.rows() * 2);
   for (Index row = 0; row < f0_lattice.rows(); ++row) {
-    const std::span coeffs{f0_lattice.row(row).eval().data(), static_cast<std::size_t>(f0_lattice.cols())};
+    static_assert(f0_lattice.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(x_0) <= hateta
-    lp_problem.add_constraint<'<'>(coeffs, std::array{eta, minX0}, std::array{-fctr1, -fctr2}, 0.0);
+    lp_problem.add_constraint<'<'>(f0_lattice.row(row).data(), std::array{eta, minX0}, std::array{-fctr1, -fctr2}, 0.0);
     // B(x_0) >= minX0
-    lp_problem.add_constraint<'>'>(coeffs, std::array{minX0}, std::array{-1.0}, 0.0);
+    lp_problem.add_constraint<'>'>(f0_lattice.row(row).data(), std::array{minX0}, std::array{-1.0}, 0.0);
   }
 
   LUCID_DEBUG_FMT(
@@ -241,11 +205,11 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU",
       fu_lattice.rows() * 2);
   for (Index row = 0; row < fu_lattice.rows(); ++row) {
-    const std::span coeffs{fu_lattice.row(row).eval().data(), static_cast<std::size_t>(fu_lattice.cols())};
+    static_assert(fu_lattice.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(x_u) >= hatgamma
-    lp_problem.add_constraint<'>'>(coeffs, std::array{maxXU}, std::array{-fctr2}, unsafe_rhs);
+    lp_problem.add_constraint<'>'>(fu_lattice.row(row).data(), std::array{maxXU}, std::array{-fctr2}, unsafe_rhs);
     // B(x_u) <= maxXU
-    lp_problem.add_constraint<'<'>(coeffs, std::array{maxXU}, std::array{-1.0}, 0.0);
+    lp_problem.add_constraint<'<'>(fu_lattice.row(row).data(), std::array{maxXU}, std::array{-1.0}, 0.0);
   }
 
   LUCID_DEBUG_FMT(
@@ -253,13 +217,14 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       "for all x: [ B(xp) - B(x) <= hatDelta ] AND [ B(x) >= minDelta ]\n"
       "hatDelta = 2 / (C + 1) * (c - epsilon*Bnorm*kappa_x) + (C - 1) / (C + 1) * minDelta",
       phi_mat.rows() * 2);
-  auto mult = w_mat - b_kappa_ * phi_mat;
+  const Matrix mult{w_mat - b_kappa_ * phi_mat};
   for (Index row = 0; row < mult.rows(); ++row) {
-    const std::span coeffs{mult.row(row).eval().data(), static_cast<std::size_t>(mult.cols())};
+    static_assert(mult.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(xp) - B(x) <= hatDelta
-    lp_problem.add_constraint<'<'>(coeffs, std::array{c, minDelta}, std::array{-fctr1, -fctr2}, kushner_rhs);
+    lp_problem.add_constraint<'<'>(mult.row(row).data(), std::array{c, minDelta}, std::array{-fctr1, -fctr2},
+                                   kushner_rhs);
     // B(x) >= minDelta
-    lp_problem.add_constraint<'>'>(coeffs, std::array{minDelta}, std::array{-1.0}, 0.0);
+    lp_problem.add_constraint<'>'>(mult.row(row).data(), std::array{minDelta}, std::array{-1.0}, 0.0);
   }
 
   // Objective function (η + cT)
@@ -271,7 +236,7 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   LUCID_INFO("Optimizing");
   lp_problem.solve();
 
-  // Check if the problem is ifeasible
+  // Check if the problem is infeasible
   if (lp_problem.report().terminationtype < 1 && lp_problem.report().terminationtype > 4) {
     LUCID_INFO_FMT("No solution found, optimization status = {}", lp_problem.report().terminationtype);
     cb(false, 0, Vector{}, 0, 0, 0);
