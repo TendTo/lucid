@@ -34,6 +34,7 @@ class ScenarioConfig:
     num_oversample: int = -1
     feature_map: "FeatureMap | type[FeatureMap] | Callable[[Estimator], FeatureMap] | None" = None
     sigma_f: float = 1.0
+    noise_scale: float = 0.01
     verify: bool = True
     plot: bool = True
     problem_log_file: str = ""
@@ -58,6 +59,7 @@ class ScenarioConfig:
             "num_oversample",
             "feature_map",
             "sigma_f",
+            "noise_scale",
             "verify",
             "plot",
             "problem_log_file",
@@ -81,6 +83,7 @@ class CLIArgs(Namespace):
     sigma_l: "NVector | float"  # Can be a single float or an array of floats
     num_samples: int
     time_horizon: int
+    noise_scale: float
     plot: bool
     verify: bool
     problem_log_file: str
@@ -254,6 +257,12 @@ def arg_parser() -> "ArgumentParser":
         type=int,
         default=-1,
         help="number of samples to use for the frequency space. If negative, it is computed based on the oversample factor",
+    )
+    parser.add_argument(
+        "--noise_scale",
+        type=float,
+        default=0.01,
+        help="scale of the noise added to the input samples. If 0, no noise is added.",
     )
     parser.add_argument(
         "--plot",

@@ -139,6 +139,7 @@ def pipeline(
     num_freq_per_dim = feature_map.num_frequencies if num_freq_per_dim < 0 else num_freq_per_dim
     n_per_dim = np.ceil((2 * num_freq_per_dim + 1) * oversample_factor) if num_oversample < 0 else num_oversample
     n_per_dim = int(n_per_dim)
+    log_debug(f"Number of samples per dimension: {n_per_dim}")
     assert n_per_dim > 2 * num_freq_per_dim, "n_per_dim must be greater than nyquist (2 * num_freq_per_dim + 1)"
 
     if f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
@@ -162,6 +163,7 @@ def pipeline(
         log_debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
         log_debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
+    log_debug(f"Feature map: {feature_map}")
     x_lattice = X_bounds.lattice(n_per_dim, True)
     u_f_x_lattice = feature_map(x_lattice)
     u_f_xp_lattice_via_regressor = estimator(x_lattice)
