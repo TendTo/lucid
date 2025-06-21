@@ -83,12 +83,13 @@ Lucid comes with a few predefined build configuration for the most common use ca
 Just add the `--config` flag followed by the desired configuration when running Bazel.
 
 | Configuration | Optimisations | Debug symbols | Assertions | Input checks | Logging | Verbose Eigen Logs | Used for              |
-| ------------- | ------------- | ------------- | ---------- | ------------ |---------|--------------------| --------------------- |
-| **default**   | ?             | ?             | Yes        | Yes          | Yes     | No                 | A fast, default build |
+|---------------|---------------|---------------|------------| ------------ |---------|--------------------|-----------------------|
+| **default**   | ?             | ?             | Yes        | Yes          | Yes     | No                 | Default build         |
 | `dbg`         | No            | Yes           | Yes        | Yes          | Yes     | Yes                | Testing and debugging |
+| `snt`         | No            | Yes           | Yes        | Yes          | Yes     | No                 | Memory sanitization   |
 | `opt`         | Yes           | No            | No         | Yes          | Yes     | No                 | Production            |
-| `bench`       | Yes           | No            | No         | No           | No      | No                 | Benchmarking          |
 | `py`          | Yes           | No            | No         | Yes          | Yes     | No                 | Python bindings       |
+| `bench`       | Yes           | No            | No         | No           | No      | No                 | Benchmarking          |
 
 For example, to build Lucid with the `opt` configuration, you can run:
 
@@ -107,6 +108,7 @@ If you want even more fine-grained control over the build, you can also use the 
 | `enable_benchmark_build`               | Build Lucid with benchmarking support. Defaults to `False`. |
 | `enable_matplotlib_build`              | Build Lucid with Matplotlib support. Defaults to `True`.    |
 | `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.        |
+| `enable_alglib_build`                  | Build Lucid with ALGLIB support. Defaults to `True`.        |
 | `enable_verbose_eigen_build`           | Enable verbose logging for Eigen. Defaults to `False`.      |
 | `python_version`                       | Specify the Python version to use for the Python bindings.  |
 | `compilation_mode=[fastbuild,dbg,opt]` | Use Bazel's compilation modes. Default to `fastbuild`.      |
