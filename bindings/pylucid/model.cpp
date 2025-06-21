@@ -316,12 +316,18 @@ void init_model(py::module_ &m) {
   py::class_<Estimator, PyEstimator, Parametrizable> estimator(m, "Estimator");
 
   /**************************** Scorer ****************************/
-  m.def("r2_score", &scorer::r2_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
-        ARG_NONCONVERT("evaluation_outputs"));
-  m.def("mse_score", &scorer::mse_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
-        ARG_NONCONVERT("evaluation_outputs"));
-  m.def("rmse_score", &scorer::rmse_score, py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"),
-        ARG_NONCONVERT("evaluation_outputs"));
+  m.def("r2_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::r2_score),
+        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"));
+  m.def("r2_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::r2_score), ARG_NONCONVERT("x"),
+        ARG_NONCONVERT("y"));
+  m.def("mse_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::mse_score),
+        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"));
+  m.def("mse_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::mse_score), ARG_NONCONVERT("x"),
+        ARG_NONCONVERT("y"));
+  m.def("rmse_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score),
+        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"));
+  m.def("rmse_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score), ARG_NONCONVERT("x"),
+        ARG_NONCONVERT("y"));
 
   /**************************** Tuner ****************************/
   py::class_<Tuner, PyTuner, std::shared_ptr<Tuner>>(m, "Tuner")
