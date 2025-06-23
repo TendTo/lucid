@@ -34,7 +34,6 @@ class ScenarioConfig:
     num_oversample: int = -1
     feature_map: "FeatureMap | type[FeatureMap] | Callable[[Estimator], FeatureMap] | None" = None
     sigma_f: float = 1.0
-    noise_scale: float = 0.01
     verify: bool = True
     plot: bool = True
     problem_log_file: str = ""
@@ -59,7 +58,6 @@ class ScenarioConfig:
             "num_oversample",
             "feature_map",
             "sigma_f",
-            "noise_scale",
             "verify",
             "plot",
             "problem_log_file",
