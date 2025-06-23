@@ -41,3 +41,17 @@ lucid_cc_googletest(
         "//lucid/util:math",
     ],
 )
+
+lucid_cc_googletest(
+    name = "test_linear",
+    size = "medium",
+    data = select({
+        "//tools:gurobi_build": ["gurobi.lic"],
+        "//conditions:default": [],
+    }),
+    env = select({
+        "//tools:gurobi_build": {"GRB_LICENSE_FILE": "$(location gurobi.lic)"},
+        "//conditions:default": {},
+    }),
+    deps = ["//lucid:lucid_hdr"],
+)

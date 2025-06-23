@@ -123,6 +123,8 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
                             ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
                             const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
                             const SolutionCallback& cb) const {
+  static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
+  static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   LUCID_CHECK_ARGUMENT_CMP(num_frequency_samples_per_dim, >, 0);
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
   const double max_num = alglib::fp_posinf;
@@ -179,7 +181,6 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       "hatxi = (C - 1) / (C + 1) * maxXX",
       phi_mat.rows() * 2);
   for (Index row = 0; row < phi_mat.rows(); ++row) {
-    static_assert(phi_mat.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(x) >= hatxi
     lp_problem.add_constraint<'>'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{maxXX_coeff}, 0.0);
     // B(x) <= maxXX
@@ -192,7 +193,6 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0",
       f0_lattice.rows() * 2);
   for (Index row = 0; row < f0_lattice.rows(); ++row) {
-    static_assert(f0_lattice.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(x_0) <= hateta
     lp_problem.add_constraint<'<'>(f0_lattice.row(row).data(), std::array{eta, minX0}, std::array{-fctr1, -fctr2}, 0.0);
     // B(x_0) >= minX0
@@ -205,7 +205,6 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU",
       fu_lattice.rows() * 2);
   for (Index row = 0; row < fu_lattice.rows(); ++row) {
-    static_assert(fu_lattice.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(x_u) >= hatgamma
     lp_problem.add_constraint<'>'>(fu_lattice.row(row).data(), std::array{maxXU}, std::array{-fctr2}, unsafe_rhs);
     // B(x_u) <= maxXU
@@ -219,7 +218,6 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       phi_mat.rows() * 2);
   const Matrix mult{w_mat - b_kappa_ * phi_mat};
   for (Index row = 0; row < mult.rows(); ++row) {
-    static_assert(mult.IsRowMajor, "Row major order is expected to avoid copy/eval");
     // B(xp) - B(x) <= hatDelta
     lp_problem.add_constraint<'<'>(mult.row(row).data(), std::array{c, minDelta}, std::array{-fctr1, -fctr2},
                                    kushner_rhs);
