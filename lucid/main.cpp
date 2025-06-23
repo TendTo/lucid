@@ -189,7 +189,7 @@ struct CliArgs {
   std::string problem_log_file{""};
   std::string iis_log_file{""};
   double oversample_factor{2.0};
-  double num_oversample{-1.0};
+  int num_oversample{-1};
   double noise_scale{0.01};
   Solver solver{Solver::Gurobi};
 };
