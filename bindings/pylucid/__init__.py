@@ -11,6 +11,7 @@ from ._pylucid import __doc__ as __pylucid_doc__
 from ._pylucid import __version__ as __pylucid_version__
 from .cli import *
 from .ext import *
+from .parser import *
 
 __version__ = __pylucid_version__
 __doc__ = __pylucid_doc__

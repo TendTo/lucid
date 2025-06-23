@@ -42,6 +42,7 @@ py_library(
         "cli.py",
         "dreal.py",
         "ext.py",
+        "parser.py",
         "pipeline.py",
         "plot.py",
     ],
@@ -75,6 +76,8 @@ py_binary(
     deps = [
         requirement("pybind11_stubgen"),
         requirement("numpy"),
+        requirement("pyparsing"),
+        requirement("sympy"),
     ],
 )
 

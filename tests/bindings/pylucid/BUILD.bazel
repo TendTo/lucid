@@ -1,5 +1,4 @@
-load("@pypi//:requirements.bzl", "requirement")
-load("//tools:pytest.bzl", "pylucid_gurobi_py_test", "pylucid_py_test")
+load("//tools:pytest.bzl", "pylucid_py_test")
 
 pylucid_py_test(name = "test_main")
 
@@ -10,6 +9,8 @@ pylucid_py_test(name = "test_optimiser")
 pylucid_py_test(name = "test_estimator")
 
 pylucid_py_test(name = "test_set")
+
+pylucid_py_test(name = "test_parser")
 
 #pylucid_gurobi_py_test(
 #    name = "test_barrier_3",

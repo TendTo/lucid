@@ -47,7 +47,12 @@ def pylucid_py_test(name, srcs = None, deps = [], args = [], data = [], size = "
         name = name,
         srcs = srcs,
         args = args,
-        deps = deps + ["//bindings/pylucid:pylucid_lib", requirement("numpy")],
+        deps = deps + [
+            "//bindings/pylucid:pylucid_lib",
+            requirement("numpy"),
+            requirement("sympy"),
+            requirement("pyparsing"),
+        ],
         data = data,
         size = size,
         tags = tags + ["pylucid"],
