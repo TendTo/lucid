@@ -172,6 +172,123 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, const Sc
 }
 #endif
 
+enum class Solver { Gurobi, Alglib };
+
+struct CliArgs {
+  int seed{-1};
+  double gamma{1.0};
+  int time_horizon{5};
+  int num_samples{1000};
+  double lambda{1e-6};
+  double sigma_f{1.0};
+  double sigma_l{1.0};
+  int num_frequencies{4};
+  double c_coefficient{1.0};
+  bool plot{false};
+  bool verify{false};
+  std::string problem_log_file{""};
+  std::string iis_log_file{""};
+  double oversample_factor{2.0};
+  double num_oversample{-1.0};
+  double noise_scale{0.01};
+  Solver solver{Solver::Gurobi};
+};
+
+bool test_linear(const CliArgs& args) {
+  std::mt19937 gen{std::random_device{}()};  // NOLINT(whitespace/braces): standard initialisation
+  if (args.seed >= 0) gen.seed(args.seed);
+
+  auto f_det = [](const Matrix& x) -> Matrix {
+    // Linear function: f(x) = 0.5 * x
+    return 0.5 * x;
+  };
+  auto f = [&f_det, &gen, &args](const Matrix& x) -> Matrix {
+    std::normal_distribution d{0.0, args.noise_scale};
+    // Add noise to the linear function
+    const Matrix y{f_det(x)};
+    return f_det(x) + Matrix::NullaryExpr(y.rows(), y.cols(), [&d, &gen](Index, Index) { return d(gen); });
+  };
+
+  const RectSet X_bounds{{{-1, 1}}, args.seed};
+  const RectSet X_init{{{-0.5, 0.5}}};
+  const MultiSet X_unsafe{RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}};
+
+  const Matrix x_samples{X_bounds.sample(1000)};
+  const Matrix xp_samples{f(x_samples)};
+
+  KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(args.sigma_l, args.sigma_f), args.lambda};
+  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, args.sigma_l, args.sigma_f, X_bounds};
+
+  const Matrix f_xp_samples{feature_map(xp_samples)};
+
+  const int n_per_dim = args.num_oversample < 0
+                            ? static_cast<int>(std::ceil((2 * args.num_frequencies + 1) * args.oversample_factor))
+                            : args.num_oversample;
+  LUCID_DEBUG_FMT("Number of samples per dimension: {}", n_per_dim);
+  LUCID_ASSERT(n_per_dim > 2 * args.num_frequencies,
+               "n_per_dim must be greater than nyquist (2 * num_freq_per_dim + 1)");
+
+  LUCID_DEBUG_FMT("Estimator pre-fit: {}", estimator);
+  estimator.fit(x_samples, f_xp_samples);
+  LUCID_INFO_FMT("Estimator post-fit: {}", estimator);
+
+  {
+    LUCID_DEBUG_FMT("RMSE on f_xp_samples {}", scorer::rmse_score(estimator, x_samples, f_xp_samples));
+    LUCID_DEBUG_FMT("Score on f_xp_samples {}", estimator.score(x_samples, f_xp_samples));
+    Matrix x_evaluation = X_bounds.sample(x_samples.rows() / 2);
+    Matrix f_xp_evaluation = feature_map(f_det(x_evaluation));
+    LUCID_DEBUG_FMT("RMSE on f_det_evaluated {}", scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation));
+    LUCID_DEBUG_FMT("Score on f_det_evaluated {}", estimator.score(x_evaluation, f_xp_evaluation));
+  }
+
+  LUCID_DEBUG_FMT("Feature map: {}", feature_map);
+
+  const Matrix x_lattice = X_bounds.lattice(n_per_dim, true);
+  const Matrix u_f_x_lattice = feature_map(x_lattice);
+  Matrix u_f_xp_lattice_via_regressor = estimator(x_lattice);
+  // We are fixing the zero frequency to the constant value we computed in the feature map
+  // If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
+  u_f_xp_lattice_via_regressor.col(0).array() = feature_map.weights()[0] * args.sigma_f;
+
+  const Matrix x0_lattice = X_init.lattice(n_per_dim, true);
+  const Matrix f_x0_lattice = feature_map(x0_lattice);
+
+  const Matrix xu_lattice = X_unsafe.lattice(n_per_dim, true);
+  const Matrix f_xu_lattice = feature_map(xu_lattice);
+
+  [[maybe_unused]] auto check_cb = []([[maybe_unused]] const bool success, [[maybe_unused]] const float obj_val,
+                                      [[maybe_unused]] const Vector& sol, [[maybe_unused]] float eta,
+                                      [[maybe_unused]] float c, [[maybe_unused]] float norm) {
+    if (!success) {
+      std::cerr << "Optimization failed" << std::endl;
+    } else {
+      std::cout << "Optimization succeeded with ojb_val = " << obj_val << std::endl;
+      LUCID_INFO_FMT("obj_val = {}, eta = {}, c = {}, norm = {}", obj_val, eta, c, norm);
+      LUCID_INFO_FMT("sol = {}", sol);
+    }
+  };
+
+  switch (args.solver) {
+#ifdef LUCID_GUROBI_BUILD
+    case Solver::Gurobi:
+      return GurobiLinearOptimiser{
+          args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
+          args.problem_log_file, args.iis_log_file,
+      }
+          .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
+                 args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
+#endif
+#ifdef LUCID_ALGLIB_BUILD
+    case Solver::Alglib:
+      return AlglibOptimiser{args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient}.solve(
+          f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
+          args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
+#endif
+    default:
+      LUCID_NOT_SUPPORTED("The chosen solver");
+  }
+}
+
 }  // namespace
 
 /**
@@ -180,46 +297,37 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, const Sc
  * @param argv Arguments.
  * @return Execution status.
  */
-int main(int, char**) {
+int main(const int argc, char* argv[]) {
+  Solver solver = Solver::Gurobi;
+  if (argc > 1) {
+    if (std::string_view{argv[1]} == "alglib") {  // NOLINT(whitespace/braces): standard initialisation
+      solver = Solver::Alglib;
+    } else if (std::string_view{argv[1]} == "gurobi") {  // NOLINT(whitespace/braces): standard initialisation
+      solver = Solver::Gurobi;
+    } else {
+      fmt::print("Usage: {} [gurobi|alglib]\n", argv[0]);
+      return 1;
+    }
+  }
   LUCID_LOG_INIT_VERBOSITY(4);
-#ifdef LUCID_MATPLOTLIB_BUILD
-  plt::backend("WebAgg");
-  // Seeded randomness
-  std::srand(1);
-#endif
-
-#if 0
-
-
-  // KBCLP(scenario, tfm, kernel);
-
-  plt::show();
-#else
-  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
-  std::cout << set.lattice(3) << std::endl;
-  std::cout << set.lattice(3, true) << std::endl;
-#ifdef LUCID_MATPLOTLIB_BUILD
-  plt::plot(Vector::LinSpaced(100, -1, 1), Vector::Random(100), {.fmt = "r--"});
-#endif
-
-  Tensor<double> t{{1, 2, 3, 4, 5, 6}, {2, 3}};
-  std::cout << t << std::endl;
-
-  for (const auto& val : t) {
-    std::cout << val << std::endl;
-  }
-
-  std::cout << t.permute(1, 0) << std::endl;
-
-  for (const auto& val : t) {
-    std::cout << val << std::endl;
-  }
-
-  std::vector<double> v(t.begin(), t.end());
-  std::cout << Matrix::Map(v.data(), static_cast<Index>(t.dimensions()[0]), static_cast<Index>(t.dimensions()[1]))
-            << std::endl;
-
-#endif
+  test_linear({
+      .seed = 42,
+      .gamma = 1.0,
+      .time_horizon = 5,
+      .num_samples = 1000,
+      .lambda = 1e-3,
+      .sigma_f = 15.0,
+      .sigma_l = 1.75555556,
+      .num_frequencies = 4,
+      .plot = true,
+      .verify = true,
+      .problem_log_file = "problem.lp",
+      .iis_log_file = "iis.ilp",
+      .oversample_factor = 32.0,
+      .noise_scale = 0.0,
+      .solver = solver,
+  });
+  return 0;
 }
 
 // #pragma GCC diagnostic pop
