@@ -8,6 +8,7 @@
 
 #include "lucid/lib/alglib.h"
 
+#include <iostream>
 #include <ostream>
 #include <span>
 

@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * GurobiLinearOptimiser class.
+ * AlglibOptimiser class.
  */
 #pragma once
 
@@ -13,7 +13,7 @@
 namespace lucid {
 
 /**
- * Linear optimiser using the Gurobi solver.
+ * Linear optimiser using the Alglib mathematical library.
  */
 class AlglibOptimiser final : public Optimiser {
  public:

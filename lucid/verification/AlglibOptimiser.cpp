@@ -6,11 +6,13 @@
  */
 #include "lucid/verification/AlglibOptimiser.h"
 
+#include <array>
 #include <limits>
 #include <memory>
 #include <span>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "lucid/lib/alglib.h"
 #include "lucid/util/error.h"
@@ -22,7 +24,7 @@ namespace lucid {
 namespace {
 class AlglibLpProblem {
  public:
-  AlglibLpProblem(const alglib::ae_int_t num_vars) : vars_{}, coeffs_{}, state_{}, rep_{} {
+  explicit AlglibLpProblem(const alglib::ae_int_t num_vars) : vars_{}, coeffs_{}, state_{}, rep_{} {
     alglib::minlpcreate(num_vars, state_);
     vars_.setlength(num_vars);
     coeffs_.setlength(num_vars);
