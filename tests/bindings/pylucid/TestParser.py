@@ -1,10 +1,9 @@
-import pytest
-import numpy as np
 import sys
-
-from pylucid import Z3Parser, DrealParser, SympyParser
-
 from typing import TYPE_CHECKING
+
+import numpy as np
+import pytest
+from pylucid import DrealParser, SympyParser, Z3Parser
 
 if TYPE_CHECKING:
     from typing import TypeAlias

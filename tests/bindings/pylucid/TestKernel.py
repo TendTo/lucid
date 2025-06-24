@@ -1,10 +1,13 @@
+import sys
+
 import numpy as np
+import pytest
 from pylucid import GaussianKernel, Kernel, Parameter
 
 try:
     from sklearn.gaussian_process.kernels import RBF
 except ImportError:
-    RBF = None
+    pass
 
 
 class TestKernel:
@@ -67,18 +70,20 @@ class TestKernel:
             k = GaussianKernel(sigma_f=2, sigma_l=[3.0, 4.0, 5.0])
             assert k(np.array([[1.0, 2.0, 3.0]]), np.array([[1.0, 2.0, 3.0]])) == 4
 
+        @pytest.mark.skipif(
+            "sklearn.gaussian_process.kernels" not in sys.modules, reason="Required library is not installed"
+        )
         def test_call_baseline(self):
-            if RBF is None:
-                return
             k = GaussianKernel(sigma_f=1, sigma_l=[0.5, 0.5, 0.5])
             rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
             x = np.array([[1.0, 2.0, 3.0]])
             y = np.array([[4.0, 5.0, 6.0]])
             assert np.allclose(k(x, y), rbf(x, y))
 
+        @pytest.mark.skipif(
+            "sklearn.gaussian_process.kernels" not in sys.modules, reason="Required library is not installed"
+        )
         def test_call_baseline_anisotropic(self):
-            if RBF is None:
-                return
             k = GaussianKernel(sigma_f=1, sigma_l=[3, 4, 5])
             rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
             x = np.array([[1.0, 2.0, 3.0]])
@@ -89,9 +94,10 @@ class TestKernel:
             k = GaussianKernel(sigma_f=2, sigma_l=[3.0, 4.0, 5.0])
             assert k(np.array([[1.0, 2.0, 3.0]])) == 4
 
+        @pytest.mark.skipif(
+            "sklearn.gaussian_process.kernels" not in sys.modules, reason="Required library is not installed"
+        )
         def test_call_single_baseline(self):
-            if RBF is None:
-                return
             k = GaussianKernel(sigma_f=1, sigma_l=[3, 4, 5])
             rbf = RBF(length_scale=k.sigma_l, length_scale_bounds="fixed")
             x = np.array([[1.0, 2.0, 3.0]])

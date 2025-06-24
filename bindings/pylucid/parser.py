@@ -5,8 +5,9 @@ from typing import Callable, Generic, TypeVar, overload
 
 import numpy as np
 import pyparsing as pp
-from ._pylucid import log_trace, log_warn
 import sympy as sp
+
+from ._pylucid import log_trace, log_warn
 
 T = TypeVar("T")
 
