@@ -2,6 +2,7 @@
 import time
 
 import numpy as np
+
 from pylucid import *
 from pylucid import __version__
 from pylucid.pipeline import pipeline

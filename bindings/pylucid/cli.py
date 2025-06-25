@@ -1,4 +1,4 @@
-from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace, Action
+from argparse import Action, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -7,7 +7,7 @@ import numpy as np
 
 from ._pylucid import *
 from ._pylucid import __version__
-from .parser import SympyParser, SetParser
+from .parser import SetParser, SympyParser
 from .util import raise_error
 
 if TYPE_CHECKING:

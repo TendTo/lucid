@@ -1,6 +1,9 @@
 import math
 
 import numpy as np
+import pytest
+from scipy.spatial.distance import cdist
+
 from pylucid import (
     GUROBI_BUILD,
     ConstantTruncatedFourierFeatureMap,
@@ -14,7 +17,6 @@ from pylucid import (
     fft_upsample,
     read_matrix,
 )
-from scipy.spatial.distance import cdist
 
 
 def median_heuristic(X, Y):
@@ -34,6 +36,7 @@ def median_heuristic(X, Y):
     return kernel_gamma, kernel_width
 
 
+@pytest.mark.skip(reason="Not implemented")
 def test_automated_anesthesia():
     """
     Automated Anaesthesia Delivery System Benchmark

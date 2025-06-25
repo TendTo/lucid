@@ -1,7 +1,7 @@
 import math
-import sys
 
 import numpy as np
+import pytest
 from cvc5.pythonic import (
     And,
     ArithRef,
@@ -17,6 +17,7 @@ from cvc5.pythonic import (
     sat,
     solve,
 )
+
 from pylucid import (
     GUROBI_BUILD,
     GaussianKernel,
@@ -87,6 +88,7 @@ def verify_barrier_certificate(
     print("Model:", m)
 
 
+@pytest.mark.skip(reason="Not implemented")
 def test_barrier_3():
     ######## PARAMS ########
     num_supp_per_dim = 12

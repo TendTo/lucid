@@ -3,7 +3,16 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from pylucid import DrealParser, MultiSet, RectSet, SetParser, SympyParser, Z3Parser, LucidInvalidArgumentException
+
+from pylucid import (
+    DrealParser,
+    LucidInvalidArgumentException,
+    MultiSet,
+    RectSet,
+    SetParser,
+    SympyParser,
+    Z3Parser,
+)
 
 if TYPE_CHECKING:
     from typing import TypeAlias

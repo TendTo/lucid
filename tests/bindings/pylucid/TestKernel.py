@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 import pytest
+
 from pylucid import GaussianKernel, Kernel, Parameter
 
 try:

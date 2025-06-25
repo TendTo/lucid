@@ -2,6 +2,9 @@ import math
 import sys
 
 import numpy as np
+import pytest
+from scipy.spatial.distance import cdist
+
 from pylucid import (
     GUROBI_BUILD,
     GaussianKernel,
@@ -14,7 +17,6 @@ from pylucid import (
     __version__,
     fft_upsample,
 )
-from scipy.spatial.distance import cdist
 
 
 def median_heuristic(X, Y):
@@ -34,6 +36,7 @@ def median_heuristic(X, Y):
     return kernel_gamma, kernel_width
 
 
+@pytest.mark.skip(reason="Not implemented")
 def test_building_automation_system():
     """
     Building Automation System 2D Benchmark

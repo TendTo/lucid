@@ -1,5 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.spatial.distance import cdist
+
 from pylucid import (
     GUROBI_BUILD,
     LOG_DEBUG,
@@ -18,7 +20,6 @@ from pylucid import (
     set_verbosity,
 )
 from pylucid.plot import plot_solution
-from scipy.spatial.distance import cdist
 
 np.set_printoptions(linewidth=200, suppress=True)
 
