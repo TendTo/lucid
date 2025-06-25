@@ -96,7 +96,7 @@ Matrix RectSet::sample(const Index num_samples) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const RectSet& set) {
-  return os << fmt::format("RectSet( [{}], [{}] )", set.lower_bound().transpose(), set.upper_bound().transpose());
+  return os << fmt::format("RectSet( lb( [{}] ) ub( [{}] ) )", set.lower_bound(), set.upper_bound());
 }
 
 }  // namespace lucid

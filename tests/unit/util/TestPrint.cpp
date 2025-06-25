@@ -19,6 +19,7 @@ using lucid::LinearTruncatedFourierFeatureMap;
 using lucid::LogTruncatedFourierFeatureMap;
 using lucid::Matrix;
 using lucid::MedianHeuristicTuner;
+using lucid::MultiSet;
 using lucid::Parameter;
 using lucid::ParameterValue;
 using lucid::ParameterValues;
@@ -61,6 +62,20 @@ TEST(TestPrint, ParameterValues) {
             "ParameterValues( Parameter( Sigma_l ) values( [1 2 3 4, 5 6 7 8] )");
   EXPECT_EQ(fmt::format("{}", ParameterValues(Parameter::DEGREE, 1, 2, 3)),
             "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )");
+}
+
+TEST(TestPrint, RectSet) {
+  EXPECT_EQ(fmt::format("{}", RectSet(Vector::Zero(2), Vector::Constant(2, 1.2))),
+            "RectSet( lb( [0 0] ) ub( [1.2 1.2] ) )");
+}
+
+TEST(TestPrint, MultiSet) {
+  EXPECT_EQ(fmt::format("{}", MultiSet(RectSet(Vector::Zero(3), Vector::Constant(3, 1.5)),
+                                       RectSet(Vector::Constant(3, 1.0), Vector::Constant(3, 2.1)),
+                                       RectSet(Vector::Constant(3, -1.0), Vector::Constant(3, 0.2)))),
+            "MultiSet( RectSet( lb( [0 0 0] ) ub( [1.5 1.5 1.5] ) ) "
+            "RectSet( lb( [1 1 1] ) ub( [2.1 2.1 2.1] ) ) "
+            "RectSet( lb( [-1 -1 -1] ) ub( [0.2 0.2 0.2] ) ) )");
 }
 
 TEST(TestPrint, LinearTruncatedFourierFeatureMap) {
