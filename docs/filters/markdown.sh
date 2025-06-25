@@ -37,7 +37,11 @@ readonly regex_substitute_mermaid="<pre class='mermaid'>\n\1<\/pre>"
 readonly regex_match_code='\d30(\w+)\n([^\d30]*)\n\d30'
 readonly regex_substitute_code="<pre><code class='fragment language-\1'>\2<\/code><\/pre>"
 
+readonly regex_match_root_link='\]\(\/[^)]+\/([^)]+)\)'
+readonly regex_substitute_root_link='](\1)'
+
 readonly regex_title_logo='<img alt="Icon" src="docs\/_static\/logo.svg" align="left" width="35" height="35">'
+
 
 cat "${1}" \
 | sed -E \
@@ -53,4 +57,5 @@ cat "${1}" \
 | sed -E -z  \
     -e "s/$regex_match_mermaid/$regex_substitute_mermaid/g" \
     -e "s/$regex_match_code/$regex_substitute_code/g" \
+    -e "s/$regex_match_root_link/$regex_substitute_root_link/g" \
     -e "s/$regex_match_tab/$regex_substitute_tab/g"

@@ -1,9 +1,14 @@
+import importlib
+import json
 from argparse import Action, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+import yaml
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 
 from ._pylucid import *
 from ._pylucid import __version__
@@ -97,6 +102,106 @@ class CLIArgs(Namespace):
     num_oversample: int
 
 
+class ConfigAction(Action):
+    """Custom action to handle configuration files."""
+
+    def __call__(self, parser, namespace: CLIArgs, values: Path, option_string=None):
+        """Parse the configuration file and update the namespace."""
+        assert isinstance(values, Path), "Input must be a Path object"
+        assert values.exists(), f"Configuration file does not exist: {values}"
+
+        if values.suffix == ".py":  # No other actions, just return the path
+            return setattr(namespace, self.dest, values)
+
+        # We won't need to use the path later, just store an empty Path object
+        setattr(namespace, self.dest, Path(""))
+
+        # Load the configuration file and the JSON schema
+        with open(values, "r", encoding="utf-8") as f:
+            config = json.load(f) if values.suffix == ".json" else yaml.safe_load(f)
+        with importlib.resources.open_text("pylucid", "cliargs_schema.json") as schema_file:
+            schema = json.load(schema_file)
+
+        # Validate the configuration against the schema
+        try:
+            validate(instance=config, schema=schema)
+        except ValidationError as e:
+            error_msg = f"Configuration file validation failed: {e.message}"
+            raise raise_error(error_msg) from (e if namespace.verbose >= LOG_DEBUG else None)
+
+        # Convert the dictionary to CLIArgs and update the namespace
+        self.dict_to_cliargs(config, namespace)
+
+    def dict_to_cliargs(self, config_dict: dict, args: CLIArgs) -> CLIArgs:
+        """
+        Convert a dictionary parsed from a YAML or JSON file to a CLIArgs object.
+
+        Args:
+            config_dict: Dictionary parsed from a configuration file
+
+        Returns:
+            CLIArgs object with the configuration values
+        """
+        # Process basic parameters
+        setattr(args, "input", Path())
+        setattr(args, "verbose", int(config_dict.get("verbose", args.verbose)))
+        setattr(args, "seed", int(config_dict.get("seed", args.seed)))
+        setattr(args, "gamma", float(config_dict.get("gamma", args.gamma)))
+        setattr(args, "c_coefficient", float(config_dict.get("c_coefficient", args.c_coefficient)))
+        # Note: JSON uses "lambda", not "lambda_"
+        setattr(args, "lambda_", float(config_dict.get("lambda", args.lambda_)))
+        setattr(args, "num_samples", int(config_dict.get("num_samples", args.num_samples)))
+        setattr(args, "time_horizon", int(config_dict.get("time_horizon", args.time_horizon)))
+        setattr(args, "num_frequencies", int(config_dict.get("num_frequencies", args.num_frequencies)))
+        setattr(args, "oversample_factor", float(config_dict.get("oversample_factor", args.oversample_factor)))
+        setattr(args, "num_oversample", int(config_dict.get("num_oversample", args.num_oversample)))
+        setattr(args, "noise_scale", float(config_dict.get("noise_scale", args.noise_scale)))
+        setattr(args, "plot", bool(config_dict.get("plot", args.plot)))
+        setattr(args, "verify", bool(config_dict.get("verify", args.verify)))
+        setattr(args, "problem_log_file", str(config_dict.get("problem_log_file", args.problem_log_file)))
+        setattr(args, "iis_log_file", str(config_dict.get("iis_log_file", args.iis_log_file)))
+        setattr(args, "sigma_f", float(config_dict.get("sigma_f", args.sigma_f)))
+
+        # Handle sigma_l (can be single value or list)
+        sigma_l = config_dict.get("sigma_l", args.sigma_l)
+        if isinstance(sigma_l, list):
+            args.sigma_l = np.array(sigma_l)
+        elif isinstance(sigma_l, (int, float)):
+            args.sigma_l = float(sigma_l)
+        setattr(args, "sigma_l", sigma_l)
+
+        # Process system dynamics
+        system_dynamics = config_dict.get("system_dynamics", args.system_dynamics)
+        if isinstance(system_dynamics, list):
+            SystemDynamicsAction(option_strings=None, dest="system_dynamics")(None, args, system_dynamics)
+
+        # Process sets
+        set_parser = None
+        for set_name in ("X_bounds", "X_init", "X_unsafe"):
+            set_value = config_dict.get(set_name, getattr(args, set_name))
+            if set_value is None or isinstance(set_value, Set):
+                setattr(args, set_name, None)
+            elif isinstance(set_value, str):
+                set_parser = set_parser or SetParser()
+                setattr(args, set_name, set_parser.parse(config_dict[set_name]))
+            else:
+                set_value = self.parse_set_from_dict(config_dict[set_name])
+                setattr(args, set_name, set_value)
+
+    def parse_set_from_dict(self, set_dict: dict):
+        """Helper function to parse set objects from dictionary representation"""
+        assert isinstance(set_dict, dict), "Input must be a dictionary representing a set"
+        if "RectSet" in set_dict:
+            rect_data = set_dict["RectSet"]
+            return (
+                RectSet(rect_data) if isinstance(rect_data, list) else RectSet(rect_data["lower"], rect_data["upper"])
+            )
+        if "MultiSet" in set_dict:
+            multi_data = set_dict["MultiSet"]
+            return MultiSet(*tuple(self.parse_set_from_dict(rect_item) for rect_item in multi_data))
+        raise raise_error(f"Unsupported set type in dictionary: {set_dict}")
+
+
 class FloatOrNVectorAction(Action):
     def __init__(self, **kwargs):
         super().__init__(nargs="+", **kwargs)
@@ -142,7 +247,16 @@ def type_set(set_str: str) -> "Set":
 def arg_parser() -> "ArgumentParser":
     parser = ArgumentParser(prog="pylucid", description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
-    parser.add_argument("input", help="path to the input file", nargs="?", default="", type=type_valid_path)
+    parser.add_argument(
+        "input",
+        help="path to the configuration file. Can be a .py, .yaml or .json file. "
+        "Command line parameter will override the values in the file. "
+        "Python configuration files offer the most flexibility",
+        nargs="?",
+        action=ConfigAction,
+        default=Path(""),
+        type=type_valid_path,
+    )
     parser.add_argument(
         "-v",
         "--verbose",

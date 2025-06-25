@@ -5,6 +5,7 @@ doxygen(
     name = "docs",
     srcs = [
         "//:README.md",
+        "//bindings/pylucid:cliargs_schema.json",
         "//lucid:all_srcs",
     ] + glob([
         "_static/*",
@@ -97,6 +98,7 @@ doxygen(
     hide_undoc_members = True,
     html_colorstyle = "LIGHT",
     html_extra_files = [
+        "bindings/pylucid/cliargs_schema.json",
         "docs/_static/doxygen-awesome-darkmode-toggle.js",
         "docs/_static/doxygen-awesome-fragment-copy-button.js",
         "docs/_static/doxygen-awesome-interactive-toc.js",

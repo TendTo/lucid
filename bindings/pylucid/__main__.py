@@ -3,9 +3,6 @@ import inspect
 import sys
 import time
 
-from jsonschema import validate
-import json
-
 import numpy as np
 
 from pylucid import *
@@ -89,31 +86,9 @@ def main(argv: "Sequence[str] | None" = None) -> int:
             config: ScenarioConfig = mod.scenario_config()
         if not isinstance(config, (ScenarioConfig, dict)):
             raise raise_error("The 'scenario_config' function must return an instance of 'ScenarioConfig' or a dict")
-    elif args.input.suffix == ".json":
-        log_info(f"Loading scenario configuration from file '{args.input}'")
-        # Load the JSON configuration file
-        with open("cliargs_config.json", "r", encoding="utf-8") as schema_file:
-            schema = json.load(schema_file)
-        with open(args.input, "r", encoding="utf-8") as config_file:
-            config = json.load(config_file)
-        # Validate the configuration against the schema
-        validate(instance=config, schema=schema)
-        # Convert the dict to a ScenarioConfig instance
-        config = ScenarioConfig(**config)
-    elif args.input.suffix in (".yaml", ".yml"):
-        log_info(f"Loading scenario configuration from file '{args.input}'")
-        # Load the JSON configuration file
-        with open("cliargs_config.json", "r", encoding="utf-8") as schema_file:
-            schema = json.load(schema_file)
-        with open(args.input, "r", encoding="utf-8") as config_file:
-            config = json.load(config_file)
-        # Validate the configuration against the schema
-        validate(instance=config, schema=schema)
-        # Convert the dict to a ScenarioConfig instance
-        config = ScenarioConfig(**config)
     else:
         raise raise_error(f"Unsupported input file type: {args.input}")
-        
+
     # If all the checks pass, run the scenario
     from pylucid.pipeline import pipeline
 
