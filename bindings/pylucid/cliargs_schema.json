@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CLIArgs",
+  "description": "Representation of the command line arguments for pylucid expressed in a configuration file",
+  "type": "object",
+  "$defs": {
+    "set_type": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": ["RectSet"],
+          "properties": {
+            "RectSet": {
+              "$ref": "#/$defs/rect_set"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["MultiSet"],
+          "properties": {
+            "MultiSet": {
+              "$ref": "#/$defs/multi_set"
+            }
+          }
+        }
+      ]
+    },
+    "rect_set": {
+      "description": "A set of rectangles, each defined by a lower and upper bound for each dimension.",
+      "type": "object",
+      "required": ["lower", "upper"],
+      "additionalProperties": false,
+      "properties": {
+        "lower": {
+          "description": "Lower bounds for each dimension.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number"
+          }
+        },
+        "upper": {
+          "description": "Upper bounds for each dimension.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "multi_set": {
+      "description": "A set of multiple rectangles, each defined by a lower and upper bound for each dimension.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["RectSet"],
+        "additionalProperties": false,
+        "properties": {
+          "RectSet": {
+            "$ref": "#/$defs/rect_set"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "verbose": {
+      "description": "Verbosity level of the output.",
+      "type": "integer"
+    },
+    "seed": {
+      "description": "Seed for the random number generator.",
+      "type": "integer"
+    },
+    "system_dynamics": {
+      "description": "Dynamics of the system, describing how it evolves over time.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "X_bounds": {
+      "description": "Bounds for the state space.",
+      "$ref": "#/$defs/set_type"
+    },
+    "X_init": {
+      "description": "Initial state of the system.",
+      "$ref": "#/$defs/set_type"
+    },
+    "X_unsafe": {
+      "description": "Unsafe states of the system.",
+      "$ref": "#/$defs/set_type"
+    },
+    "gamma": {
+      "type": "number"
+    },
+    "c_coefficient": {
+      "type": "number"
+    },
+    "lambda": {
+      "type": "number"
+    },
+    "num_samples": {
+      "description": "Number of samples to use to fit the estimator.",
+      "type": "integer"
+    },
+    "time_horizon": {
+      "description": "Time horizon to consider in the specification.",
+      "type": "integer"
+    },
+    "sigma_f": {
+      "type": "number"
+    },
+    "sigma_l": {
+      "description": "Length scale for the feature map, can be a single value or a list.",
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      ]
+    },
+    "num_frequencies": {
+      "description": "Number of frequencies to use in the feature map.",
+      "type": "integer"
+    },
+    "oversample_factor": {
+      "description": "Factor by which to oversample the feature map.",
+      "type": "number"
+    },
+    "num_oversample": {
+      "description": "Number of oversamples to use, -1 for no oversampling.",
+      "type": "integer"
+    },
+    "noise_scale": {
+      "description": "Scale of the noise to add to the system dynamics.",
+
+      "type": "number"
+    },
+    "plot": {
+      "description": "Whether to plot the results.",
+
+      "type": "boolean"
+    },
+    "verify": {
+      "description": "Whether to verify the results.",
+      "type": "boolean"
+    },
+    "problem_log_file": {
+      "description": "File to log the problem formulation.",
+      "type": "string"
+    },
+    "iis_log_file": {
+      "description": "File to log the irreducible infeasible set (IIS).",
+      "type": "string"
+    }
+  }
+}

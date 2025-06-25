@@ -128,8 +128,9 @@ def type_valid_path(path_str: str) -> Path:
     path = Path(path_str)
     if not path.exists():
         raise raise_error(f"Path does not exist: {path_str}")
-    if not path.is_file() or not path.suffix == ".py":
-        raise raise_error(f"Path must be a Python file: {path_str}")
+    supported_types = (".py", ".yaml", ".json", ".yml")
+    if not path.is_file() or path.suffix not in supported_types:
+        raise raise_error(f"Supported file types are {supported_types}. Invalid file: {path_str}")
     return path
 
 

@@ -28,7 +28,13 @@ classifiers = [
 license-files = ["LICEN[CS]E*"]
 keywords = ["neural network", "kernel"]
 requires-python = ">= 3.8"
-dependencies = ["numpy<=2.2.5", "pyparsing<=3.2.3", "sympy<=1.14.0"]
+dependencies = [
+    "numpy<=2.2.5",
+    "pyparsing<=3.2.3",
+    "sympy<=1.14.0",
+    "jsonschema<=4.24.0",
+    "PyYAML<=6.0.2",
+]
 dynamic = ["version", "description"]
 
 [project.urls]
