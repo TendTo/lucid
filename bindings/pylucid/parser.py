@@ -321,6 +321,9 @@ class SympyParser(SymbolicParser[sp.Expr]):
             un_ops={
                 "~": Operation(pp.opAssoc.RIGHT, 1, sp.Not),
             },
+            bin_ops={
+                "=": Operation(pp.opAssoc.LEFT, 2, sp.Eq),
+            },
             funcs={
                 "and": Function(sp.And),
                 "or": Function(sp.Or),

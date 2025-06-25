@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from pylucid import DrealParser, SympyParser, Z3Parser
+from pylucid import DrealParser, MultiSet, RectSet, SetParser, SympyParser, Z3Parser, LucidInvalidArgumentException
 
 if TYPE_CHECKING:
     from typing import TypeAlias
@@ -252,48 +252,77 @@ class TestParser:
             # dReal substitution should evaluate to 8.0
             assert np.isclose(subbed_expr.Evaluate(), 8.0)
 
-    # class TestDomainParser:
-    #     """Tests for the domain parser"""
 
-    #     @pytest.fixture
-    #     def parser(self):
-    #         return DomainParser()
+class TestSetParser:
+    """Tests for the set parser"""
 
-    #     def test_sphere_parsing(self, parser: "Parser"):
-    #         """Test parsing a sphere domain"""
-    #         sphere_str = "Sphere([0.0, 0.0], 1.0)"
-    #         sphere = parser.expr.parseString(sphere_str, parseAll=True).asList()[0]
+    @pytest.fixture
+    def parser(self):
+        return SetParser()
 
-    #         assert isinstance(sphere, domains.Sphere)
-    #         assert np.array_equal(sphere.center, [0.0, 0.0])
-    #         assert sphere.radius == 1.0
+    def test_rectset_parsing(self, parser):
+        """Test parsing a rectangular set"""
+        rect_str = "RectSet([1.0, 2.0], [3.0, 4.0])"
+        rect = parser.parse(rect_str)
 
-    #     def test_rectangle_parsing(self, parser: "Parser"):
-    #         """Test parsing a rectangle domain"""
-    #         rect_str = "Rectangle([-1.0, -2.0], [3.0, 4.0])"
-    #         rect = parser.expr.parseString(rect_str, parseAll=True).asList()[0]
+        assert isinstance(rect, RectSet)
+        assert np.array_equal(rect.lower_bound, [1.0, 2.0])
+        assert np.array_equal(rect.upper_bound, [3.0, 4.0])
 
-    #         assert isinstance(rect, domains.Rectangle)
-    #         assert np.array_equal(rect.lower_bound, [-1.0, -2.0])
-    #         assert np.array_equal(rect.upper_bound, [3.0, 4.0])
+    def test_multiset_parsing(self, parser):
+        """Test parsing a multi-set"""
+        multi_str = "MultiSet([RectSet([1.0, 2.0], [3.0, 4.0]), RectSet([5.0, 6.0], [7.0, 8.0])])"
+        multi = parser.parse(multi_str)
 
-    #     def test_torus_parsing(self, parser: "Parser"):
-    #         """Test parsing a torus domain"""
-    #         torus_str = "Torus([0.0, 0.0], 3.0, 1.0)"
-    #         torus = parser.expr.parseString(torus_str, parseAll=True).asList()[0]
+        assert isinstance(multi, MultiSet)
+        assert len(multi) == 2
+        # Check first rectangle
+        assert np.array_equal(multi[0].lower_bound, [1.0, 2.0])
+        assert np.array_equal(multi[0].upper_bound, [3.0, 4.0])
+        # Check second rectangle
+        assert np.array_equal(multi[1].lower_bound, [5.0, 6.0])
+        assert np.array_equal(multi[1].upper_bound, [7.0, 8.0])
 
-    #         assert isinstance(torus, domains.Torus)
-    #         assert np.array_equal(torus.center, [0.0, 0.0])
-    #         assert torus.outer_radius == 3.0
-    #         assert torus.inner_radius == 1.0
+    def test_rectset_higher_dimensions(self, parser):
+        """Test parsing a rectangular set with higher dimensions"""
+        rect_str = "RectSet([5.0, 6.0, 8.0, 9.0], [7.0, 8.0, 1.0, 2.0])"
+        rect = parser.parse(rect_str)
 
-    #     def test_parsing_negative_values(self, parser: "Parser"):
-    #         """Test parsing with negative values"""
-    #         sphere_str = "Sphere([-1.5, -2.5], 1.0)"
-    #         sphere = parser.expr.parseString(sphere_str, parseAll=True).asList()[0]
+        assert isinstance(rect, RectSet)
+        assert np.array_equal(rect.lower_bound, [5.0, 6.0, 8.0, 9.0])
+        assert np.array_equal(rect.upper_bound, [7.0, 8.0, 1.0, 2.0])
 
-    #         assert np.array_equal(sphere.center, [-1.5, -2.5])
-    #         assert sphere.radius == 1.0
+    def test_parsing_negative_values(self, parser):
+        """Test parsing sets with negative values"""
+        rect_str = "RectSet([-1.5, -2.5], [3.0, 4.0])"
+        rect = parser.parse(rect_str)
+
+        assert isinstance(rect, RectSet)
+        assert np.array_equal(rect.lower_bound, [-1.5, -2.5])
+        assert np.array_equal(rect.upper_bound, [3.0, 4.0])
+
+    def test_parsing_integers(self, parser):
+        """Test parsing sets with integer values"""
+        rect_str = "RectSet([-1, -2], [3, 4])"
+        rect = parser.parse(rect_str)
+
+        assert isinstance(rect, RectSet)
+        assert np.array_equal(rect.lower_bound, [-1, -2])
+        assert np.array_equal(rect.upper_bound, [3, 4])
+
+    def test_invalid_syntax(self, parser):
+        """Test parsing with invalid syntax"""
+        with pytest.raises(Exception):
+            parser.parse("RectSet([1.0, 2.0], 3.0])")
+
+        with pytest.raises(Exception):
+            parser.parse("MultiSet(RectSet([1.0, 2.0], [3.0, 4.0]))")
+
+    def test_dimension_mismatch(self, parser):
+        """Test parsing with dimension mismatch"""
+        rect_str = "RectSet([1.0, 2.0], [3.0, 4.0, 5.0])"
+        with pytest.raises(LucidInvalidArgumentException):
+            parser.parse(rect_str)
 
     class TestErrorHandling:
         """Tests for error handling in parsers"""
