@@ -7,7 +7,7 @@ import numpy as np
 import pyparsing as pp
 import sympy as sp
 
-from ._pylucid import log_trace, log_warn
+from ._pylucid import MultiSet, RectSet, log_trace, log_warn
 
 T = TypeVar("T")
 
@@ -46,12 +46,35 @@ class SymbolicParser(ABC, Generic[T]):
         funcs: dictionary of functions with their names and actions
     """
 
-    def __init__(self, un_ops: "dict[str, Operation]", bin_ops: "dict[str, Operation]", funcs: "dict[str, Function]"):
+    def __init__(
+        self,
+        funcs: "dict[str, Function]",
+        un_ops: "dict[str, Operation] | None" = None,
+        bin_ops: "dict[str, Operation] | None" = None,
+    ):
         pp.ParserElement.enablePackrat()
+        bin_ops = bin_ops or {}
+        un_ops = un_ops or {}
+
         self._xs = {}
         self._us = {}
-        self._un_ops = un_ops
-        self._bin_ops = bin_ops
+        self._un_ops = {
+            "+": Operation(pp.opAssoc.RIGHT, 1, lambda x: x),
+            "-": Operation(pp.opAssoc.RIGHT, 1, lambda x: -x),
+            "~": Operation(pp.opAssoc.RIGHT, 1, lambda x: ~x),
+        } | un_ops
+        self._bin_ops = {
+            "**": Operation(pp.opAssoc.RIGHT, 2, lambda x1, x2: x1**x2),
+            "/": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 / x2),
+            "*": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 * x2),
+            "-": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 - x2),
+            "+": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 + x2),
+            "=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 == x2),
+            ">": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 > x2),
+            ">=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 >= x2),
+            "<": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 < x2),
+            "<=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 <= x2),
+        } | bin_ops
         self._funcs = funcs
         self._expr = self.create_grammar()
 
@@ -220,20 +243,7 @@ class Z3Parser(SymbolicParser["z3.ExprRef"]):
     def __init__(self):
         super().__init__(
             un_ops={
-                "-": Operation(pp.opAssoc.RIGHT, 1, lambda x: -x),
                 "~": Operation(pp.opAssoc.RIGHT, 1, z3.Not),
-            },
-            bin_ops={
-                "**": Operation(pp.opAssoc.RIGHT, 2, lambda x1, x2: x1**x2),
-                "/": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 / x2),
-                "*": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 * x2),
-                "-": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 - x2),
-                "+": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 + x2),
-                "=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 == x2),
-                ">": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 > x2),
-                ">=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 >= x2),
-                "<": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 < x2),
-                "<=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 <= x2),
             },
             funcs={
                 "and": Function(z3.And),
@@ -273,20 +283,7 @@ class DrealParser(SymbolicParser["dreal.Expression | dreal.Formula"]):
     def __init__(self):
         super().__init__(
             un_ops={
-                "-": Operation(pp.opAssoc.RIGHT, 1, lambda x: -x),
                 "~": Operation(pp.opAssoc.RIGHT, 1, dreal.Not),
-            },
-            bin_ops={
-                "**": Operation(pp.opAssoc.RIGHT, 2, lambda x1, x2: x1**x2),
-                "/": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 / x2),
-                "*": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 * x2),
-                "-": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 - x2),
-                "+": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 + x2),
-                "=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 == x2),
-                ">": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 > x2),
-                ">=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 >= x2),
-                "<": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 < x2),
-                "<=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 <= x2),
             },
             funcs={
                 "and": Function(dreal.And),
@@ -322,20 +319,7 @@ class SympyParser(SymbolicParser[sp.Expr]):
     def __init__(self):
         super().__init__(
             un_ops={
-                "-": Operation(pp.opAssoc.RIGHT, 1, lambda x: -x),
                 "~": Operation(pp.opAssoc.RIGHT, 1, sp.Not),
-            },
-            bin_ops={
-                "**": Operation(pp.opAssoc.RIGHT, 2, lambda x1, x2: x1**x2),
-                "/": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 / x2),
-                "*": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 * x2),
-                "-": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 - x2),
-                "+": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 + x2),
-                "=": Operation(pp.opAssoc.LEFT, 2, sp.Equality),
-                ">": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 > x2),
-                ">=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 >= x2),
-                "<": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 < x2),
-                "<=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 <= x2),
             },
             funcs={
                 "and": Function(sp.And),
@@ -376,55 +360,75 @@ class SympyParser(SymbolicParser[sp.Expr]):
         return sp.lambdify(list(self.xs.values()) + list(self.us.values()), expr, modules=[np])
 
 
-class DomainParser:
-    """Parser for domains"""
+class SetParser:
+    """Parser for sets"""
 
     def __init__(self):
-        self.expr = self.create_grammar()
+        self._expr = self.create_grammar()
 
-    def create_grammar(self):
-        """Create the grammar for the domain parser"""
+    def create_grammar(self) -> pp.Forward:
+        """Create the grammar for the set parser
+
+        Returns:
+            A pyparsing Forward object that defines the grammar for parsing set expressions.
+        """
         decimal = pp.Combine(pp.Optional(pp.oneOf("+ -")) + pp.Word(pp.nums) + "." + pp.Word(pp.nums)).setParseAction(
             lambda t: float(t[0])
         )
         integer = pp.Combine(pp.Optional(pp.oneOf("+ -")) + pp.Word(pp.nums)).setParseAction(lambda t: int(t[0]))
         number = decimal | integer
         number_list = pp.nestedExpr("[", "]", content=pp.delimitedList(number))
-        sphere_input = pp.Group(number_list + pp.Suppress(",") + number)
-        sphere = pp.Keyword("Sphere") + pp.nestedExpr("(", ")", content=sphere_input)
-        rectangle_input = pp.Group(number_list + pp.Suppress(",") + number_list)
-        rectangle = pp.Keyword("Rectangle") + pp.nestedExpr("(", ")", content=rectangle_input)
-        torus_input = pp.Group(number_list + pp.Suppress(",") + number + pp.Suppress(",") + number)
-        torus = pp.Keyword("Torus") + pp.nestedExpr("(", ")", content=torus_input)
-        domain = sphere | rectangle | torus
 
-        sphere.setParseAction(self.make_sphere)
-        rectangle.setParseAction(self.make_rectangle)
-        torus.setParseAction(self.make_torus)
+        rect_set_input = pp.Group(number_list + pp.Suppress(",") + number_list)
+        rect_set = pp.Keyword("RectSet") + pp.nestedExpr("(", ")", content=rect_set_input)
 
-        domain_expr = pp.Forward()
-        # Domain parser. TODO: Maybe add domain operations like intersection, union, etc.
-        domain_expr <<= domain
-        return domain_expr
+        plain_set_list = pp.nestedExpr("[", "]", content=pp.delimitedList(rect_set))
+        multi_set = pp.Keyword("MultiSet") + pp.nestedExpr("(", ")", content=pp.delimitedList(plain_set_list))
+
+        rect_set.setParseAction(self._to_rect_set)
+        multi_set.setParseAction(self._to_multi_set)
+
+        set_expr = pp.Forward()
+        set_expr <<= rect_set | multi_set
+        return set_expr
+
+    def parse(self, set_str: str) -> "RectSet | MultiSet":
+        """Parse a string into a set object.
+
+        Args:
+            set_str: string representing a set expression
+
+        Returns:
+            Parsed set object (RectSet or MultiSet)
+        """
+        parsed = self._expr.parseString(set_str, parseAll=True).asList()
+        log_trace(f"Parsed set expression: {parsed}")
+        assert len(parsed) == 1, "Set expression should be a single set"
+        return parsed[0]
 
     @staticmethod
-    def make_sphere(t):
-        """Make a sphere object from a parsed sphere token"""
-        center = t.asList()[1][0][0]
-        radius = t.asList()[1][0][1]
-        return domains.Sphere(center, radius)
+    def _to_rect_set(t: pp.ParseResults) -> "RectSet":
+        """Convert the parsed token to a RectSet object
 
-    @staticmethod
-    def make_rectangle(t):
-        """Make a rectangle object from a parsed rectangle token"""
+        Args:
+            t: parsed token containing lower and upper bounds of the rectangle
+
+        Returns:
+            RectSet object containing the parsed lower and upper bounds
+        """
         lb = t.asList()[1][0][0]
         ub = t.asList()[1][0][1]
-        return domains.Rectangle(lb, ub)
+        return RectSet(lb, ub)
 
     @staticmethod
-    def make_torus(t):
-        """Make a torus object from a parsed torus token"""
-        center = t.asList()[1][0][0]
-        out_radius = t.asList()[1][0][1]
-        inner_radius = t.asList()[1][0][2]
-        return domains.Torus(center, out_radius, inner_radius)
+    def _to_multi_set(t: pp.ParseResults) -> "MultiSet":
+        """Convert the parsed token to a MultiSet object
+
+        Args:
+            t: parsed token containing a list of RectSet objects
+
+        Returns:
+            MultiSet object containing the parsed RectSet objects
+        """
+        sets = t.asList()[1][0]
+        return MultiSet(*sets)
