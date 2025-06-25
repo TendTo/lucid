@@ -42,6 +42,9 @@ Changelog = "https://github.com/TendTo/lucid/blob/main/docs/Changelog.md"
 verification = ["dreal"]
 plot = ["matplotlib"]
 
+[project.scripts]
+pylucid = "pylucid.__main__:main"
+
 [tool.setuptools]
 packages = []
 

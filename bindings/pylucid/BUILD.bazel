@@ -45,6 +45,7 @@ py_library(
         "parser.py",
         "pipeline.py",
         "plot.py",
+        "util.py",
     ],
     data = [
         ":_pylucid.pyd",

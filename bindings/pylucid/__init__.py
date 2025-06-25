@@ -12,15 +12,10 @@ from ._pylucid import __version__ as __pylucid_version__
 from .cli import *
 from .ext import *
 from .parser import *
+from .util import raise_error
 
 __version__ = __pylucid_version__
 __doc__ = __pylucid_doc__
-
-
-def raise_error(message: str, error_type: type = ValueError):
-    """Raise an error with the given message."""
-    log_error(message)
-    return error_type(message)
 
 
 # Initial verbosity level. Can be changed later.

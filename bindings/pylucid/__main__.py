@@ -1,3 +1,4 @@
+import sys
 import importlib
 import inspect
 import time
@@ -6,12 +7,56 @@ import numpy as np
 from pylucid import *
 from pylucid import __version__
 
-from .cli import CLIArgs, ScenarioConfig, arg_parser, cli_scenario_config
+
+def cli_scenario_config(args: CLIArgs) -> ScenarioConfig:
+    """
+    Default scenario configuration function for CLI usage.
+    This function is called when no input file is provided.
+    """
+    if not all((args.system_dynamics, args.X_bounds, args.X_init, args.X_unsafe)):
+        raise raise_error(
+            "If no input file is provided, 'system_dynamics', 'X_bounds', 'X_init', and 'X_unsafe' must be specified"
+        )
+
+    # Define the system dynamics function
+    f_det = args.system_dynamics
+    f = lambda x: f_det(x) + np.random.normal(scale=args.noise_scale)  # Add noise to the dynamics
+
+    # Sample points from the bounds
+    x_samples = args.X_bounds.sample(args.num_samples)
+    xp_samples = f(x_samples)
+
+    # Create the estimator
+    estimator = KernelRidgeRegressor(
+        kernel=GaussianKernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
+        regularization_constant=args.lambda_,
+    )
+
+    # Return the scenario configuration
+    return ScenarioConfig(
+        x_samples=x_samples,
+        xp_samples=xp_samples,
+        X_bounds=args.X_bounds,
+        X_init=args.X_init,
+        X_unsafe=args.X_unsafe,
+        T=args.time_horizon,
+        gamma=args.gamma,
+        num_freq_per_dim=args.num_frequencies,
+        f_det=f_det,
+        estimator=estimator,
+        sigma_f=args.sigma_f,
+        oversample_factor=args.oversample_factor,
+        problem_log_file=args.problem_log_file,
+    )
 
 
-def main(argv: "Sequence[str] | None" = None):
+def main(argv: "Sequence[str] | None" = None) -> int:
+    argv = argv if argv is not None else sys.argv[1:]
+    if not argv:
+        # If no arguments are provided, print the help message and exit
+        arg_parser().print_help()
+        return 0
     args = arg_parser().parse_args(argv, namespace=CLIArgs())
-    args.sigma_l = np.array(args.sigma_l) if len(args.sigma_l) > 1 else args.sigma_l[0]
     if args.seed >= 0:
         # If a seed is provided, set the random seed for reproducibility
         np.random.seed(args.seed)
@@ -49,7 +94,8 @@ def main(argv: "Sequence[str] | None" = None):
     pipeline(**config)
     end = time.time()
     log_info(f"Elapsed time: {end - start}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())
