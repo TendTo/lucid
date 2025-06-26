@@ -25,30 +25,26 @@ constexpr double epsilon = 0;
 constexpr double c_coefficient = 1.0;
 constexpr double oversample_factor = 32.0;
 constexpr double noise_scale = 0.01;
-const RectSet X_bounds{{{-1, 1}}, seed};
+const RectSet X_bounds{{{-1, 1}}};
 const RectSet X_init{{{-0.5, 0.5}}};
 const MultiSet X_unsafe{RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}};
 
 template <class T>
 class TestLinear : public testing::Test {
  public:
-  TestLinear()
-      : gen_{std::random_device{}()}, optimiser_{time_horizon, gmma, epsilon, b_norm, b_kappa, sigma_f, c_coefficient} {
-    gen_.seed(seed);
-  }
+  TestLinear() : optimiser_{time_horizon, gmma, epsilon, b_norm, b_kappa, sigma_f, c_coefficient} { random::seed(42); }
 
   // Linear function: f(x) = 0.5 * x
   static Matrix f_det(const Matrix& x) { return 0.5 * x; }
 
   // Function with noise: f(x) = 0.5 * x + noise
-  Matrix f(const Matrix& x) {
+  static Matrix f(const Matrix& x) {
     std::normal_distribution d{0.0, noise_scale};
     // Add noise to the linear function
     const Matrix y{f_det(x)};
-    return y + Matrix::NullaryExpr(y.rows(), y.cols(), [this, &d](Index, Index) { return d(gen_); });
+    return y + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
   }
 
-  std::mt19937 gen_;
   T optimiser_;
 };
 
@@ -79,17 +75,13 @@ TYPED_TEST(TestLinear, TestLinear) {
   ASSERT_EQ(n_per_dim, 288);
 
   estimator.fit(x_samples, f_xp_samples);
-  // ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_samples, f_xp_samples), -0.44044197393970097);
-  ASSERT_GT(scorer::rmse_score(estimator, x_samples, f_xp_samples), -0.5);
-  // ASSERT_DOUBLE_EQ(estimator.score(x_samples, f_xp_samples), 0.9916043784029102);
-  ASSERT_GT(estimator.score(x_samples, f_xp_samples), 0.9);
+  ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_samples, f_xp_samples), -0.4711612131628251);
+  ASSERT_DOUBLE_EQ(estimator.score(x_samples, f_xp_samples), 0.9903926538293206);
 
   const Matrix x_evaluation = X_bounds.sample(x_samples.rows() / 2);
   const Matrix f_xp_evaluation = feature_map(this->f_det(x_evaluation));
-  // ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation), -0.44890088317861887);
-  ASSERT_GT(scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation), -0.5);
-  // ASSERT_DOUBLE_EQ(estimator.score(x_evaluation, f_xp_evaluation), 0.991279879391505);
-  ASSERT_GT(estimator.score(x_evaluation, f_xp_evaluation), 0.9);
+  ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation), -0.44500887787023974);
+  ASSERT_DOUBLE_EQ(estimator.score(x_evaluation, f_xp_evaluation), 0.991434699768147);
 
   const Matrix x_lattice = X_bounds.lattice(n_per_dim, true);
   const Matrix u_f_x_lattice = feature_map(x_lattice);
@@ -108,14 +100,12 @@ TYPED_TEST(TestLinear, TestLinear) {
                      [[maybe_unused]] const float eta, [[maybe_unused]] const float c,
                      [[maybe_unused]] const float norm) {
     ASSERT_TRUE(success);
-    // ASSERT_DOUBLE_EQ(obj_val, 0.0959934603357167);
-    ASSERT_LT(obj_val, 0.1);
-    // ASSERT_DOUBLE_EQ(eta, 0.059132017);
-    // ASSERT_DOUBLE_EQ(c, 0.0073722885);
-    // ASSERT_DOUBLE_EQ(norm, 0.08987535);
-    // ASSERT_THAT(
-    //     std::span(sol.data(), static_cast<std::size_t>(sol.size())),
-    //     ::testing::ElementsAre(0.0389474, 0.0567414, -4.37599e-05, 0.0497583, 2.76957e-05, 0.0294138, -0.000167759));
+    ASSERT_NEAR(obj_val, 0.09592434763, tolerance);
+    ASSERT_NEAR(eta, 0.0583335943, tolerance);
+    ASSERT_NEAR(c, 0.007518151, tolerance);
+    ASSERT_NEAR(norm, 0.09005303722312392, tolerance);
+    constexpr std::array expected{0.038942, 0.0567596, -7.46757e-05, 0.0499101, -0.000228021, 0.0296691, -0.000286279};
+    for (std::size_t i = 0; i < expected.size(); ++i) ASSERT_NEAR(sol[i], expected[i], tolerance);
   };
 
   ASSERT_TRUE(this->optimiser_.solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor,

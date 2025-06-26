@@ -170,7 +170,10 @@ lucid_cc_library(
         "RectSet.h",
         "Set.h",
     ],
-    implementation_deps = ["//lucid/util:error"],
+    implementation_deps = [
+        "//lucid/util:error",
+        "//lucid/util:random",
+    ],
     deps = [
         "//lucid/lib:eigen",
         "//lucid/util:logging",

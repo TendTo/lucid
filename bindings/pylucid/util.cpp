@@ -18,33 +18,39 @@ namespace py = pybind11;
 using namespace lucid;
 
 void init_util(py::module_& m) {
-  m.attr("LOG_NONE") = -1;
-  m.attr("LOG_CRITICAL") = 0;
-  m.attr("LOG_ERROR") = 1;
-  m.attr("LOG_WARN") = 2;
-  m.attr("LOG_INFO") = 3;
-  m.attr("LOG_DEBUG") = 4;
-  m.attr("LOG_TRACE") = 5;
-  m.def("set_verbosity", [](const int value) { LUCID_LOG_INIT_VERBOSITY(value); }, py::arg("level"));
+  py::module_ r = m.def_submodule("random");
+  r.def("seed", &random::seed, py::arg("seed") = -1);
 
-  m.def("log_trace", [](const std::string& message) { LUCID_TRACE_FMT("{}", message); }, py::arg("message"));
-  m.def("log_debug", [](const std::string& message) { LUCID_DEBUG_FMT("{}", message); }, py::arg("message"));
-  m.def("log_info", [](const std::string& message) { LUCID_INFO_FMT("{}", message); }, py::arg("message"));
-  m.def("log_warn", [](const std::string& message) { LUCID_WARN_FMT("{}", message); }, py::arg("message"));
-  m.def("log_error", [](const std::string& message) { LUCID_ERROR_FMT("{}", message); }, py::arg("message"));
-  m.def("log_critical", [](const std::string& message) { LUCID_CRITICAL_FMT("{}", message); }, py::arg("message"));
+  py::module_ log = m.def_submodule("log");
+  log.attr("LOG_NONE") = -1;
+  log.attr("LOG_CRITICAL") = 0;
+  log.attr("LOG_ERROR") = 1;
+  log.attr("LOG_WARN") = 2;
+  log.attr("LOG_INFO") = 3;
+  log.attr("LOG_DEBUG") = 4;
+  log.attr("LOG_TRACE") = 5;
 
-  py::register_exception<exception::LucidException>(m, "LucidException", PyExc_RuntimeError);
-  py::register_exception<exception::LucidInvalidArgumentException>(m, "LucidInvalidArgumentException",
+  log.def("set_verbosity", [](const int value) { LUCID_LOG_INIT_VERBOSITY(value); }, py::arg("level") = 3);
+
+  log.def("trace", [](const std::string& message) { LUCID_TRACE_FMT("{}", message); }, py::arg("message"));
+  log.def("debug", [](const std::string& message) { LUCID_DEBUG_FMT("{}", message); }, py::arg("message"));
+  log.def("info", [](const std::string& message) { LUCID_INFO_FMT("{}", message); }, py::arg("message"));
+  log.def("warn", [](const std::string& message) { LUCID_WARN_FMT("{}", message); }, py::arg("message"));
+  log.def("error", [](const std::string& message) { LUCID_ERROR_FMT("{}", message); }, py::arg("message"));
+  log.def("critical", [](const std::string& message) { LUCID_CRITICAL_FMT("{}", message); }, py::arg("message"));
+
+  const py::module_ e = m.def_submodule("exception");
+  py::register_exception<exception::LucidException>(e, "LucidException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidInvalidArgumentException>(e, "LucidInvalidArgumentException",
                                                                    PyExc_ValueError);
-  py::register_exception<exception::LucidAssertionException>(m, "LucidAssertionException", PyExc_AssertionError);
-  py::register_exception<exception::LucidParserException>(m, "LucidParserException", PyExc_RuntimeError);
-  py::register_exception<exception::LucidNotImplementedException>(m, "LucidNotImplementedException",
+  py::register_exception<exception::LucidAssertionException>(e, "LucidAssertionException", PyExc_AssertionError);
+  py::register_exception<exception::LucidParserException>(e, "LucidParserException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidNotImplementedException>(e, "LucidNotImplementedException",
                                                                   PyExc_NotImplementedError);
-  py::register_exception<exception::LucidNotSupportedException>(m, "LucidNotSupportedException",
+  py::register_exception<exception::LucidNotSupportedException>(e, "LucidNotSupportedException",
                                                                 PyExc_NotImplementedError);
-  py::register_exception<exception::LucidOutOfRangeException>(m, "LucidOutOfRangeException", PyExc_IndexError);
-  py::register_exception<exception::LucidUnreachableException>(m, "LucidUnreachableException", PyExc_RuntimeError);
-  py::register_exception<exception::LucidPyException>(m, "LucidPyException", PyExc_RuntimeError);
-  py::register_exception<exception::LucidLpSolverException>(m, "LucidLpSolverException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidOutOfRangeException>(e, "LucidOutOfRangeException", PyExc_IndexError);
+  py::register_exception<exception::LucidUnreachableException>(e, "LucidUnreachableException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidPyException>(e, "LucidPyException", PyExc_RuntimeError);
+  py::register_exception<exception::LucidLpSolverException>(e, "LucidLpSolverException", PyExc_RuntimeError);
 }

@@ -72,6 +72,12 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "random",
+    srcs = ["random.cpp"],
+    hdrs = ["random.h"],
+)
+
+lucid_cc_library(
     name = "math",
     hdrs = ["math.h"],
     deps = ["@boost.math"],
@@ -123,6 +129,7 @@ lucid_cc_library(
         ":exception",
         ":index_iterator",
         ":math",
+        ":random",
         ":tensor",
     ],
 )

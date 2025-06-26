@@ -15,3 +15,4 @@
 #include "lucid/util/definitions.h"
 #include "lucid/util/exception.h"
 #include "lucid/util/math.h"
+#include "lucid/util/random.h"

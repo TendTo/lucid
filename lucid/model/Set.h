@@ -31,6 +31,8 @@ class Set {
   [[nodiscard]] virtual Dimension dimension() const = 0;
   /**
    * Extract @N elements from @X using some kind of random distribution.
+   * @pre `num_samples` must be greater than 0
+   * @note The seed for the random number generator can be set using @ref random::seed.
    * @param num_samples number of samples to generate @N
    * @return @nxd matrix of samples, where @d is the dimension of @X.
    * In other words, the samples are stored as rows vectors in the matrix
@@ -38,6 +40,7 @@ class Set {
   [[nodiscard]] virtual Matrix sample(Index num_samples) const = 0;
   /**
    * Extract an element from @X using some kind of random distribution.
+   * @note The seed for the random number generator can be set using @ref random::seed.
    * @return element of the set
    */
   [[nodiscard]] Vector sample() const;

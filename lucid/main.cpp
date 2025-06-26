@@ -195,21 +195,21 @@ struct CliArgs {
 };
 
 bool test_linear(const CliArgs& args) {
-  std::mt19937 gen{std::random_device{}()};  // NOLINT(whitespace/braces): standard initialisation
-  if (args.seed >= 0) gen.seed(args.seed);
+  random::seed(args.seed);
 
   auto f_det = [](const Matrix& x) -> Matrix {
     // Linear function: f(x) = 0.5 * x
     return 0.5 * x;
   };
-  auto f = [&f_det, &gen, &args](const Matrix& x) -> Matrix {
+
+  auto f = [&f_det, &args](const Matrix& x) -> Matrix {
     std::normal_distribution d{0.0, args.noise_scale};
     // Add noise to the linear function
     const Matrix y{f_det(x)};
-    return f_det(x) + Matrix::NullaryExpr(y.rows(), y.cols(), [&d, &gen](Index, Index) { return d(gen); });
+    return f_det(x) + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
   };
 
-  const RectSet X_bounds{{{-1, 1}}, args.seed};
+  const RectSet X_bounds{{{-1, 1}}};
   const RectSet X_init{{{-0.5, 0.5}}};
   const MultiSet X_unsafe{RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}};
 
@@ -324,7 +324,7 @@ int main(const int argc, char* argv[]) {
       .problem_log_file = "problem.lp",
       .iis_log_file = "iis.ilp",
       .oversample_factor = 32.0,
-      .noise_scale = 0.0,
+      .noise_scale = 0.01,
       .solver = solver,
   });
   return 0;

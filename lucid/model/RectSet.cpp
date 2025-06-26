@@ -12,13 +12,12 @@
 #include <utility>
 
 #include "lucid/util/error.h"
+#include "lucid/util/random.h"
 
 namespace lucid {
 
 namespace {
 
-std::random_device rd;   // Will be used to obtain a seed for the random number engine
-std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
 std::uniform_real_distribution<> dis(0.0, 1.0);
 Vector initializer_list_to_vector(std::initializer_list<Scalar> list) {
   Vector v(list.size());
@@ -41,17 +40,16 @@ Vector bounds_to_vector(const T<std::pair<Scalar, Scalar>>& bounds) {
 
 }  // namespace
 
-RectSet::RectSet(Vector lb, Vector ub, const int seed) : lb_{std::move(lb)}, ub_{std::move(ub)} {
+RectSet::RectSet(Vector lb, Vector ub) : lb_{std::move(lb)}, ub_{std::move(ub)} {
   if (lb_.size() != ub_.size()) LUCID_INVALID_ARGUMENT("lb and ub", "must have the same size");
   if (lb_.size() == 0) LUCID_INVALID_ARGUMENT("lb and ub", "must have at least one element");
-  if (seed >= 0) gen.seed(seed);
 }
-RectSet::RectSet(const std::initializer_list<Scalar> lb, const std::initializer_list<Scalar> ub, const int seed)
-    : RectSet{initializer_list_to_vector(lb), initializer_list_to_vector(ub), seed} {}
-RectSet::RectSet(std::vector<std::pair<Scalar, Scalar>> bounds, const int seed)
-    : RectSet{bounds_to_vector<0, std::vector>(bounds), bounds_to_vector<1, std::vector>(bounds), seed} {}
-RectSet::RectSet(std::initializer_list<std::pair<Scalar, Scalar>> bounds, const int seed)
-    : RectSet{bounds_to_vector<0>(bounds), bounds_to_vector<1>(bounds), seed} {}
+RectSet::RectSet(const std::initializer_list<Scalar> lb, const std::initializer_list<Scalar> ub)
+    : RectSet{initializer_list_to_vector(lb), initializer_list_to_vector(ub)} {}
+RectSet::RectSet(const std::vector<std::pair<Scalar, Scalar>>& bounds)
+    : RectSet{bounds_to_vector<0, std::vector>(bounds), bounds_to_vector<1, std::vector>(bounds)} {}
+RectSet::RectSet(const std::initializer_list<std::pair<Scalar, Scalar>> bounds)
+    : RectSet{bounds_to_vector<0>(bounds), bounds_to_vector<1>(bounds)} {}
 
 bool RectSet::operator()(ConstVectorRef x) const {
   return (x.array() >= lb_.array()).all() && (x.array() <= ub_.array()).all();
@@ -89,7 +87,7 @@ Matrix RectSet::sample(const Index num_samples) const {
   const auto diff_vector{ub_ - lb_};
   for (int i = 0; i < num_samples; i++) {
     for (Index j = 0; j < dimension(); j++) {
-      samples(i, j) = diff_vector(j) * dis(gen) + lb_(j);
+      samples(i, j) = diff_vector(j) * dis(random::gen) + lb_(j);
     }
   }
   return samples;

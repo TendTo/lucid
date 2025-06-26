@@ -135,13 +135,13 @@ Matrix peaks(const Matrix& x, const Matrix& y);
  * \mu)\right)
  * @f]
  * Although the multivariate normal cdf does not have a closed form, mvncdf can compute cdf values numerically.
+ * @note The seed for the random number generator can be set using @ref random::seed.
  * @param mu mean vector
  * @param sigma covariance matrix
- * @param seed random seed. If negative, the seed is not set
  * @return random samples from the multivariate normal distribution
  * @see https://www.mathworks.com/help/stats/mvnrnd.html
  */
-Matrix mvnrnd(const Vector& mu, const Matrix& sigma, int seed = -1);
+Matrix mvnrnd(const Vector& mu, const Matrix& sigma);
 
 /**
  * Calculates differences between adjacent elements of `X` `n` times.

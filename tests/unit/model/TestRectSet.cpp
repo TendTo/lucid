@@ -44,7 +44,7 @@ TEST(TestRectSet, Multidimensional) {
 }
 
 TEST(TestRectSet, VectorSample) {
-  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
+  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}};
   for (int i = 0; i < 100; i++) {
     Vector2 x;
     set >> x;
@@ -53,7 +53,7 @@ TEST(TestRectSet, VectorSample) {
 }
 
 TEST(TestRectSet, MatrixSample) {
-  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
+  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}};
   for (int i = 0; i < 100; i++) {
     Matrix x{100, 2};
     set >> x;
@@ -63,7 +63,7 @@ TEST(TestRectSet, MatrixSample) {
 
 TEST(TestRectSet, LatticeNoEndpointsSamePointsPerDimension) {
   constexpr int points_per_dim = 3;
-  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
+  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}};
   const Matrix lattice{set.lattice(points_per_dim)};
   EXPECT_EQ(lattice.rows(), 9);
   EXPECT_EQ(lattice.cols(), 2);
@@ -79,7 +79,7 @@ TEST(TestRectSet, LatticeNoEndpointsSamePointsPerDimension) {
 
 TEST(TestRectSet, LatticeEndpointsSamePointsPerDimension) {
   constexpr int points_per_dim = 3;
-  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}, 0};
+  const RectSet set{Vector2{-1, -1}, Vector2{1, 1}};
   const Matrix lattice{set.lattice(points_per_dim, true)};
   EXPECT_EQ(lattice.rows(), 9);
   EXPECT_EQ(lattice.cols(), 2);

@@ -12,6 +12,7 @@
 
 #include "lucid/util/error.h"
 #include "lucid/util/math.h"
+#include "lucid/util/random.h"
 
 namespace lucid {
 
@@ -20,23 +21,19 @@ namespace {
  * @see https://stackoverflow.com/a/40245513/15153171
  */
 struct normal_random_variable {
-  explicit normal_random_variable(const Matrix& covar, const int seed = -1)
-      : normal_random_variable(Vector::Zero(covar.rows()), covar, seed) {}
+  explicit normal_random_variable(const Matrix& covar) : normal_random_variable(Vector::Zero(covar.rows()), covar) {}
 
-  normal_random_variable(Vector mean, const Matrix& covar, const int seed = -1)
-      : mean_{std::move(mean)}, transform_{}, gen_{std::random_device{}()}, dist_{} {
-    if (seed >= 0) gen_.seed(seed);
+  normal_random_variable(Vector mean, const Matrix& covar) : mean_{std::move(mean)}, transform_{}, dist_{} {
     const Eigen::SelfAdjointEigenSolver<Matrix> eigenSolver{covar};
     transform_ = (eigenSolver.eigenvectors() * eigenSolver.eigenvalues().cwiseSqrt().asDiagonal()).matrix();
   }
 
   Vector mean_;
   Matrix transform_;
-  mutable std::mt19937 gen_;
   mutable std::normal_distribution<> dist_;
 
   Vector operator()() const {
-    return mean_ + transform_ * Vector{mean_.size()}.unaryExpr([&](auto) { return dist_(gen_); });
+    return mean_ + transform_ * Vector{mean_.size()}.unaryExpr([&](auto) { return dist_(random::gen); });
   }
 };
 }  // namespace
@@ -55,8 +52,8 @@ Matrix peaks(const Matrix& x, const Matrix& y) {
   return z;
 }
 
-Matrix mvnrnd(const Vector& mu, const Matrix& sigma, const int seed) {
-  return normal_random_variable{mu, sigma, seed}();  // NOLINT(whitespace/braces)
+Matrix mvnrnd(const Vector& mu, const Matrix& sigma) {
+  return normal_random_variable{mu, sigma}();  // NOLINT(whitespace/braces)
 }
 Matrix combvec(ConstMatrixRef m) {
   if (m.rows() <= 1) return m;
