@@ -12,6 +12,8 @@ pylucid_py_test(name = "test_set")
 
 pylucid_py_test(name = "test_parser")
 
+pylucid_py_test(name = "test_cli")
+
 #pylucid_gurobi_py_test(
 #    name = "test_barrier_3",
 #    data = [

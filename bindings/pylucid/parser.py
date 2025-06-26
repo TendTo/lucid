@@ -53,8 +53,6 @@ class SymbolicParser(ABC, Generic[T]):
         bin_ops: "dict[str, Operation] | None" = None,
     ):
         pp.ParserElement.enablePackrat()
-        bin_ops = bin_ops or {}
-        un_ops = un_ops or {}
 
         self._xs = {}
         self._us = {}
@@ -62,7 +60,8 @@ class SymbolicParser(ABC, Generic[T]):
             "+": Operation(pp.opAssoc.RIGHT, 1, lambda x: x),
             "-": Operation(pp.opAssoc.RIGHT, 1, lambda x: -x),
             "~": Operation(pp.opAssoc.RIGHT, 1, lambda x: ~x),
-        } | un_ops
+        }
+        self._un_ops.update(un_ops or {})
         self._bin_ops = {
             "**": Operation(pp.opAssoc.RIGHT, 2, lambda x1, x2: x1**x2),
             "/": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 / x2),
@@ -74,7 +73,8 @@ class SymbolicParser(ABC, Generic[T]):
             ">=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 >= x2),
             "<": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 < x2),
             "<=": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 <= x2),
-        } | bin_ops
+        }
+        self._bin_ops.update(bin_ops or {})
         self._funcs = funcs
         self._expr = self.create_grammar()
 

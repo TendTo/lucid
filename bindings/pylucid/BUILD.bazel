@@ -52,6 +52,7 @@ py_library(
     data = [
         ":_pylucid.pyd",
         ":_pylucid.so",
+        ":cliargs_schema.json",
     ],
     imports = [".."],
     srcs_version = "PY3",
