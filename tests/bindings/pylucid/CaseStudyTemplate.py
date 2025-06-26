@@ -89,8 +89,8 @@ def scenario_config(
 
 
 if __name__ == "__main__":
-    log_info(f"Running benchmark (LUCID version: {__version__})")
+    log.info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
     pipeline(**scenario_config())
     end = time.time()
-    log_info(f"Elapsed time: {end - start}")
+    log.info(f"Elapsed time: {end - start}")

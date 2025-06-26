@@ -10,6 +10,7 @@ import yaml
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
+import sys
 from ._pylucid import *
 from ._pylucid import __version__
 from .parser import SetParser, SympyParser
@@ -100,6 +101,9 @@ class CLIArgs(Namespace):
     num_frequencies: int  # Default number of frequencies per dimension for the Fourier feature map
     oversample_factor: float
     num_oversample: int
+    estimator: "type[Estimator]"
+    kernel: "type[Kernel]"
+    feature_map: "type[FeatureMap]"
 
 
 class ConfigAction(Action):
@@ -120,8 +124,14 @@ class ConfigAction(Action):
         # Load the configuration file and the JSON schema
         with open(values, "r", encoding="utf-8") as f:
             config = json.load(f) if values.suffix == ".json" else yaml.safe_load(f)
-        with importlib.resources.open_text("pylucid", "cliargs_schema.json") as schema_file:
-            schema = json.load(schema_file)
+        if sys.version_info < (3, 9):
+            with importlib.resources.open_text("pylucid", "cliargs_schema.json", encoding="utf-8") as schema_file:
+                schema = json.load(schema_file)
+        else:
+            with importlib.resources.files("pylucid").joinpath("cliargs_schema.json").open(
+                "r", encoding="utf-8"
+            ) as schema_file:
+                schema = json.load(schema_file)
 
         # Validate the configuration against the schema
         try:
@@ -162,6 +172,12 @@ class ConfigAction(Action):
         setattr(args, "problem_log_file", str(config_dict.get("problem_log_file", args.problem_log_file)))
         setattr(args, "iis_log_file", str(config_dict.get("iis_log_file", args.iis_log_file)))
         setattr(args, "sigma_f", float(config_dict.get("sigma_f", args.sigma_f)))
+
+        EstimatorAction(option_strings=None, dest="estimator")(None, args, config_dict.get("estimator", args.estimator))
+        KernelAction(option_strings=None, dest="kernel")(None, args, config_dict.get("kernel", args.kernel))
+        FeatureMapAction(option_strings=None, dest="feature_map")(
+            None, args, config_dict.get("feature_map", args.feature_map)
+        )
 
         # Handle sigma_l (can be single value or list)
         sigma_l = config_dict.get("sigma_l", args.sigma_l)
@@ -243,6 +259,37 @@ def type_valid_path(path_str: str) -> Path:
 def type_set(set_str: str) -> "Set":
     """Convert a string representation of a function into a callable."""
     return SetParser().parse(set_str)
+
+
+class EstimatorAction(Action):
+    def __call__(self, parser, namespace, values: "str | type[Estimator]", option_string=None):
+        if isinstance(values, type) and issubclass(values, Estimator):
+            return setattr(namespace, self.dest, values)
+        if values == "KernelRidgeRegressor":
+            return setattr(namespace, self.dest, KernelRidgeRegressor)
+        raise raise_error(f"Unsupported estimator type: {values}")
+
+
+class KernelAction(Action):
+    def __call__(self, parser, namespace, values: "str | type[Kernel]", option_string=None):
+        if isinstance(values, type) and issubclass(values, Kernel):
+            return setattr(namespace, self.dest, values)
+        if values == "GaussianKernel":
+            return setattr(namespace, self.dest, GaussianKernel)
+        raise raise_error(f"Unsupported kernel type: {values}")
+
+
+class FeatureMapAction(Action):
+    def __call__(self, parser, namespace, values: "str | type[FeatureMap]", option_string=None):
+        if isinstance(values, type) and issubclass(values, FeatureMap):
+            return setattr(namespace, self.dest, values)
+        if values == "LogTruncatedFourierFeatureMap":
+            return setattr(namespace, self.dest, LogTruncatedFourierFeatureMap)
+        if values == "ConstantTruncatedFourierFeatureMap":
+            return setattr(namespace, self.dest, ConstantTruncatedFourierFeatureMap)
+        if values == "LinearTruncatedFourierFeatureMap":
+            return setattr(namespace, self.dest, LinearTruncatedFourierFeatureMap)
+        raise raise_error(f"Unsupported feature map type: {values}")
 
 
 def arg_parser() -> "ArgumentParser":
@@ -415,6 +462,32 @@ def arg_parser() -> "ArgumentParser":
         default=None,
         help="unsafe set X_U as a string. "
         "For example, `--X_unsafe 'MultiSet(RectSet([0.4, 0.1], [0.6, 0.5]), RectSet([0.4, 0.1], [0.8, 0.3]))'`",
+    )
+    parser.add_argument(
+        "--estimator",
+        action=EstimatorAction,
+        default=KernelRidgeRegressor,
+        choices=["KernelRidgeRegressor"],
+        help="estimator type to use. Currently only 'KernelRidgeRegressor' is supported",
+    )
+    parser.add_argument(
+        "--kernel",
+        action=KernelAction,
+        default=GaussianKernel,
+        choices=["GaussianKernel"],
+        help="kernel type to use for the estimator. Currently only 'GaussianKernel' is supported",
+    )
+    parser.add_argument(
+        "--feature_map",
+        action=FeatureMapAction,
+        default=LinearTruncatedFourierFeatureMap,
+        choices=[
+            "LinearTruncatedFourierFeatureMap",
+            "ConstantTruncatedFourierFeatureMap",
+            "LogTruncatedFourierFeatureMap",
+        ],
+        help="feature map type to use for the estimator. "
+        "Currently 'LogTruncatedFourierFeatureMap', 'ConstantTruncatedFourierFeatureMap', and 'LinearTruncatedFourierFeatureMap' are supported",
     )
 
     return parser

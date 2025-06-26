@@ -4,19 +4,7 @@ import numpy as np
 import pytest
 from scipy.spatial.distance import cdist
 
-from pylucid import (
-    GUROBI_BUILD,
-    ConstantTruncatedFourierFeatureMap,
-    GaussianKernel,
-    GurobiLinearOptimiser,
-    KernelRidgeRegressor,
-    LucidNotSupportedException,
-    MultiSet,
-    RectSet,
-    __version__,
-    fft_upsample,
-    read_matrix,
-)
+from pylucid import *
 
 
 def median_heuristic(X, Y):
@@ -166,7 +154,7 @@ def test_automated_anesthesia():
             check_cb,
         )
         assert GUROBI_BUILD
-    except LucidNotSupportedException:
+    except exception.LucidNotSupportedException:
         assert not GUROBI_BUILD  # Did not compile against Gurobi. Ignore this test.
 
 

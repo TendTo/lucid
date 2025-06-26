@@ -6,7 +6,6 @@ import re
 import shutil
 import subprocess
 import sysconfig
-import re
 
 import setuptools
 import setuptools.errors

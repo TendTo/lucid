@@ -96,11 +96,13 @@
       "description": "Verbosity level of the output.",
       "type": "integer",
       "minimum": -1,
-      "maximum": 5
+      "maximum": 5,
+      "default": 3
     },
     "seed": {
       "description": "Seed for the random number generator.",
-      "type": "integer"
+      "type": "integer",
+      "default": -1
     },
     "system_dynamics": {
       "description": "Dynamics of the system, describing how it evolves over time.",
@@ -133,11 +135,15 @@
     },
     "num_samples": {
       "description": "Number of samples to use to fit the estimator.",
-      "type": "integer"
+      "type": "integer",
+      "minimum": 1,
+      "default": 1000
     },
     "time_horizon": {
       "description": "Time horizon to consider in the specification.",
-      "type": "integer"
+      "type": "integer",
+      "minimum": 1,
+      "default": 5
     },
     "sigma_f": {
       "type": "number"
@@ -158,7 +164,9 @@
     },
     "num_frequencies": {
       "description": "Number of frequencies to use in the feature map.",
-      "type": "integer"
+      "type": "integer",
+      "minimum": 1,
+      "default": 4
     },
     "oversample_factor": {
       "description": "Factor by which to oversample the feature map.",
@@ -170,7 +178,8 @@
     },
     "noise_scale": {
       "description": "Scale of the noise to add to the system dynamics.",
-      "type": "number"
+      "type": "number",
+      "minimum": 0
     },
     "plot": {
       "description": "Whether to plot the results.",
@@ -182,11 +191,35 @@
     },
     "problem_log_file": {
       "description": "File to log the problem formulation.",
-      "type": "string"
+      "type": "string",
+      "default": "problem.lp"
     },
     "iis_log_file": {
       "description": "File to log the irreducible infeasible set (IIS).",
-      "type": "string"
+      "type": "string",
+      "default": "iis.ilp"
+    },
+    "estimator": {
+      "description": "Type of estimator to use.",
+      "type": "string",
+      "enum": ["KernelRidgeRegressor"],
+      "default": "KernelRidgeRegressor"
+    },
+    "kernel": {
+      "description": "Type of kernel to use for the estimator.",
+      "type": "string",
+      "enum": ["GaussianKernel"],
+      "default": "GaussianKernel"
+    },
+    "feature_map": {
+      "description": "Type of feature map to use for the estimator.",
+      "type": "string",
+      "enum": [
+        "LinearTruncatedFourierFeatureMap",
+        "ConstantTruncatedFourierFeatureMap",
+        "LogTruncatedFourierFeatureMap"
+      ],
+      "default": "LinearTruncatedFourierFeatureMap"
     }
   }
 }

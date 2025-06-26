@@ -2,28 +2,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
 
-from pylucid import (
-    GUROBI_BUILD,
-    LOG_DEBUG,
-    ConstantTruncatedFourierFeatureMap,
-    GaussianKernel,
-    GurobiLinearOptimiser,
-    KernelRidgeRegressor,
-    LinearTruncatedFourierFeatureMap,
-    LogTruncatedFourierFeatureMap,
-    LucidNotSupportedException,
-    MultiSet,
-    RectSet,
-    TruncatedFourierFeatureMap,
-    __version__,
-    fft_upsample,
-    set_verbosity,
-)
+from pylucid import *
 from pylucid.plot import plot_solution
 
 np.set_printoptions(linewidth=200, suppress=True)
 
-# set_verbosity(LOG_DEBUG)
+# log.set_verbosity(log.LOG_DEBUG)
 
 
 def rmse(x: "np.typing.NDArray[np.float64]", y: "np.typing.NDArray[np.float64]", ax=0):

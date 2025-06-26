@@ -18,18 +18,7 @@ from cvc5.pythonic import (
     solve,
 )
 
-from pylucid import (
-    GUROBI_BUILD,
-    GaussianKernel,
-    GurobiLinearOptimiser,
-    KernelRidgeRegressor,
-    LucidNotSupportedException,
-    MultiSet,
-    RectSet,
-    TruncatedFourierFeatureMap,
-    fft_upsample,
-    read_matrix,
-)
+from pylucid import *
 
 
 def set_contraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef":
@@ -198,7 +187,7 @@ def test_barrier_3():
             check_cb,
         )
         assert GUROBI_BUILD
-    except LucidNotSupportedException:
+    except exception.LucidNotSupportedException:
         assert not GUROBI_BUILD  # Did not compile against Gurobi. Ignore this test.
 
 

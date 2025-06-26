@@ -28,8 +28,8 @@ def cli_scenario_config(args: CLIArgs) -> ScenarioConfig:
     xp_samples = f(x_samples)
 
     # Create the estimator
-    estimator = KernelRidgeRegressor(
-        kernel=GaussianKernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
+    estimator = args.estimator(
+        kernel=args.kernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
         regularization_constant=args.lambda_,
     )
 
@@ -45,6 +45,7 @@ def cli_scenario_config(args: CLIArgs) -> ScenarioConfig:
         num_freq_per_dim=args.num_frequencies,
         f_det=f_det,
         estimator=estimator,
+        feature_map=args.feature_map,
         sigma_f=args.sigma_f,
         oversample_factor=args.oversample_factor,
         problem_log_file=args.problem_log_file,
