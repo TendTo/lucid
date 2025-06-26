@@ -99,7 +99,7 @@ python3 -c "import pylucid; print(pylucid.__version__)"
   - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
-> [!Important]  
+> [!IMPORTANT]  
 > While it is possible to run the Lucid binary following the instructions below,
 > right now it does nothing but print some random numbers.
 

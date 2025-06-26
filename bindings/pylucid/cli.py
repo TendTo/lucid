@@ -110,11 +110,12 @@ class ConfigAction(Action):
         assert isinstance(values, Path), "Input must be a Path object"
         assert values.exists(), f"Configuration file does not exist: {values}"
 
-        if values.suffix == ".py":  # No other actions, just return the path
-            return setattr(namespace, self.dest, values)
+        setattr(namespace, self.dest, values)
+        if values.suffix == ".py" or values == Path():
+            # We don't need to load a config file, just set the input path as provided
+            return
 
         # We won't need to use the path later, just store an empty Path object
-        setattr(namespace, self.dest, Path(""))
 
         # Load the configuration file and the JSON schema
         with open(values, "r", encoding="utf-8") as f:
@@ -127,7 +128,7 @@ class ConfigAction(Action):
             validate(instance=config, schema=schema)
         except ValidationError as e:
             error_msg = f"Configuration file validation failed: {e.message}"
-            raise raise_error(error_msg) from (e if namespace.verbose >= LOG_DEBUG else None)
+            raise raise_error(error_msg) from (e if namespace.verbose >= log.LOG_DEBUG else None)
 
         # Convert the dictionary to CLIArgs and update the namespace
         self.dict_to_cliargs(config, namespace)
@@ -254,7 +255,7 @@ def arg_parser() -> "ArgumentParser":
         "Python configuration files offer the most flexibility",
         nargs="?",
         action=ConfigAction,
-        default=Path(""),
+        default=Path(),
         type=type_valid_path,
     )
     parser.add_argument(

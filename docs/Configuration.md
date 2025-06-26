@@ -252,3 +252,6 @@ Configuration files and command line options can be mixed, but with a few caveat
   - `pylucid --verbose 2 config.yaml` _first_ sets `verbose` to `2` and _then_ overrides it with the value from `config.yaml`, if present
 - Python configuration files are always applied **last**, as they have complete control over what to do with the command line arguments.
   - `pylucid config.py --verbose 2 ` will forward the `verbose` argument to the user's `scenario_config` function, which can then choose to use it or ignore it.
+
+> [!IMPORTANT]
+> When multiple configuration sources compete, the last specified option will take precedence.

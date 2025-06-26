@@ -58,20 +58,20 @@ def main(argv: "Sequence[str] | None" = None) -> int:
         arg_parser().print_help()
         return 0
     args = arg_parser().parse_args(argv, namespace=CLIArgs())
+    # If a seed is provided, set the random seed for reproducibility
+    random.seed(args.seed)
     if args.seed >= 0:
-        # If a seed is provided, set the random seed for reproducibility
         np.random.seed(args.seed)
     # Set verbosity based on the command line argument
     log.set_verbosity(args.verbose)
 
-    if args.input.name == "":
-        # If no input file is provided, use the default scenario configuration
-        log.info("No input file provided, using default scenario configuration")
-        config = cli_scenario_config(args)
-    elif args.input.suffix == ".py":
+    if args.input.suffix == ".py":
         log.info(f"Loading scenario configuration from file '{args.input}'")
         # Import the input file as a module
-        mod = importlib.import_module(".".join(args.input.parts).removesuffix(".py"))
+        spec = importlib.util.spec_from_file_location(args.input.stem, args.input)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[args.input.stem] = mod
+        spec.loader.exec_module(mod)
         # Check if the module has a 'scenario_config' function
         if not hasattr(mod, "scenario_config") or not callable(mod.scenario_config):
             raise raise_error("The configuration file must contain a function called 'scenario_config'")
@@ -87,7 +87,9 @@ def main(argv: "Sequence[str] | None" = None) -> int:
         if not isinstance(config, (ScenarioConfig, dict)):
             raise raise_error("The 'scenario_config' function must return an instance of 'ScenarioConfig' or a dict")
     else:
-        raise raise_error(f"Unsupported input file type: {args.input}")
+        # If no input file is provided, use the default scenario configuration
+        log.info("No input file provided, using default scenario configuration")
+        config = cli_scenario_config(args)
 
     # If all the checks pass, run the scenario
     from pylucid.pipeline import pipeline
