@@ -44,7 +44,6 @@ jobs:
           cache: "pip"
 
       - name: Run tests
-        shell: bash
         run: |
           bazel test --config=py --python_version=${{ matrix.python_version }} --enable_gurobi_build=False //tests/bindings/pylucid/...
 

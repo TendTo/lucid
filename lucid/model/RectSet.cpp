@@ -10,6 +10,7 @@
 #include <random>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
