@@ -101,7 +101,10 @@ genrule(
         ":_pylucid.so",
     ],
     outs = [
-        "_pylucid.pyi",
+        "_pylucid/__init__.pyi",
+        "_pylucid/random.pyi",
+        "_pylucid/exception.pyi",
+        "_pylucid/log.pyi",
         "__init__.pyi",
         "py.typed",
     ],

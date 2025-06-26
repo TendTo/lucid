@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import sysconfig
+import re
 
 import setuptools
 import setuptools.errors
@@ -90,9 +91,9 @@ class BuildBazelExtension(build_ext.build_ext):
         )
         # Copy the built files to the extension directory
         for path in paths:
-            file = os.path.basename(path)
+            file = re.sub(r"^.*bindings/pylucid/", "", path)
             ext_dest_dir = os.path.dirname(self.get_ext_fullpath(ext.name))
-            os.makedirs(ext_dest_dir, exist_ok=True)
+            os.makedirs(os.path.join(ext_dest_dir, os.path.dirname(file)), exist_ok=True)
             shutil.copyfile(path, os.path.join(ext_dest_dir, file))
 
 

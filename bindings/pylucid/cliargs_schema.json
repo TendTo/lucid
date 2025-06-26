@@ -89,7 +89,7 @@
   "properties": {
     "$schema": {
       "description": "The path or URL to the JSON schema describing this file.",
-      "type": "",
+      "type": "string",
       "format": "uri"
     },
     "verbose": {

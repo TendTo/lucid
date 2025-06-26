@@ -201,7 +201,7 @@ def scenario_config(args: CLIArgs):
     f = lambda x: f_det(x) + np.random.normal(scale=args.noise_scale)
 
     # Sets
-    X_bounds = RectSet([(-1, 1)], seed=args.seed)
+    X_bounds = RectSet([(-1, 1)])
     X_init = RectSet([(-0.5, 0.5)])
     X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))
 

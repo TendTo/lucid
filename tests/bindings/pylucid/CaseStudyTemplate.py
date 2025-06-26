@@ -37,7 +37,7 @@ def scenario_config(
     # Safety specification               #
     # ################################## #
 
-    X_bounds = RectSet([(-1, 1)], seed=args.seed)  # State space
+    X_bounds = RectSet([(-1, 1)])  # State space
     X_init = RectSet([(-0.5, 0.5)])  # Initial set
     X_unsafe = MultiSet(  # Unsafe set
         RectSet([(-1, -0.9)]),

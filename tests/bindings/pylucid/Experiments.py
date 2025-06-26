@@ -160,7 +160,7 @@ def experiments():
     # Time horizon
     T = 5
     # State space X
-    X_bounds = RectSet(((-1, 1),), seed=50)
+    X_bounds = RectSet(((-1, 1),))
 
     # Initial set X_I
     X_init = RectSet(((-0.5, 0.5),))

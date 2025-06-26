@@ -19,7 +19,7 @@ using namespace lucid;
 
 void init_util(py::module_& m) {
   py::module_ r = m.def_submodule("random");
-  r.def("seed", &random::seed, py::arg("seed") = -1);
+  r.def("seed", &random::seed, py::arg("s") = -1);
 
   py::module_ log = m.def_submodule("log");
   log.attr("LOG_NONE") = -1;
