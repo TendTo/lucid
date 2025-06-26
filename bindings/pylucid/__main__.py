@@ -62,14 +62,14 @@ def main(argv: "Sequence[str] | None" = None) -> int:
         # If a seed is provided, set the random seed for reproducibility
         np.random.seed(args.seed)
     # Set verbosity based on the command line argument
-    set_verbosity(args.verbose)
+    log.set_verbosity(args.verbose)
 
     if args.input.name == "":
         # If no input file is provided, use the default scenario configuration
-        log_info("No input file provided, using default scenario configuration")
+        log.info("No input file provided, using default scenario configuration")
         config = cli_scenario_config(args)
     elif args.input.suffix == ".py":
-        log_info(f"Loading scenario configuration from file '{args.input}'")
+        log.info(f"Loading scenario configuration from file '{args.input}'")
         # Import the input file as a module
         mod = importlib.import_module(".".join(args.input.parts).removesuffix(".py"))
         # Check if the module has a 'scenario_config' function
@@ -92,11 +92,11 @@ def main(argv: "Sequence[str] | None" = None) -> int:
     # If all the checks pass, run the scenario
     from pylucid.pipeline import pipeline
 
-    log_info(f"Running scenario (LUCID version: {__version__})")
+    log.info(f"Running scenario (LUCID version: {__version__})")
     start = time.time()
     pipeline(**config)
     end = time.time()
-    log_info(f"Elapsed time: {end - start}")
+    log.info(f"Elapsed time: {end - start}")
     return 0
 
 

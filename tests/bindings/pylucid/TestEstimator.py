@@ -5,9 +5,9 @@ from pylucid import (
     Estimator,
     GaussianKernel,
     KernelRidgeRegressor,
-    LucidInvalidArgumentException,
     MedianHeuristicTuner,
     Parameter,
+    exception,
 )
 
 try:
@@ -110,7 +110,7 @@ class TestRegression:
 
         def test_call_before_fit(self):
             o = KernelRidgeRegressor(kernel=GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5]))
-            with pytest.raises(LucidInvalidArgumentException):
+            with pytest.raises(exception.LucidInvalidArgumentException):
                 o(x=np.array([[1.0, 2.0, 3.0]]))
 
         def test_clone(self):

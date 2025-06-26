@@ -52,6 +52,8 @@ def pylucid_py_test(name, srcs = None, deps = [], args = [], data = [], size = "
             requirement("numpy"),
             requirement("sympy"),
             requirement("pyparsing"),
+            requirement("pyyaml"),
+            requirement("jsonschema"),
         ],
         data = data,
         size = size,

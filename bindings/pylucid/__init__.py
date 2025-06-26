@@ -19,4 +19,4 @@ __doc__ = __pylucid_doc__
 
 
 # Initial verbosity level. Can be changed later.
-set_verbosity(LOG_INFO)
+log.set_verbosity(log.LOG_INFO)

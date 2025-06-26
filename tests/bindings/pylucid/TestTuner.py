@@ -8,10 +8,10 @@ from pylucid import (
     GridSearchTuner,
     KernelRidgeRegressor,
     LbfgsTuner,
-    LucidInvalidArgumentException,
     MedianHeuristicTuner,
     Parameter,
     ParameterValues,
+    exception,
 )
 
 
@@ -95,7 +95,7 @@ class TestTuner:
 
             # Should raise exception
             tuner = MedianHeuristicTuner()
-            with pytest.raises(LucidInvalidArgumentException):
+            with pytest.raises(exception.LucidInvalidArgumentException):
                 tuner.tune(estimator, X, y)
 
         def test_mismatched_inputs_outputs(self):
@@ -106,7 +106,7 @@ class TestTuner:
             y = np.random.uniform(size=(5, 1))  # Mismatched sample count
 
             tuner = MedianHeuristicTuner()
-            with pytest.raises(LucidInvalidArgumentException):
+            with pytest.raises(exception.LucidInvalidArgumentException):
                 tuner.tune(estimator, X, y)
 
     class TestLbfgsTuner:
@@ -148,7 +148,7 @@ class TestTuner:
 
             # Should raise exception
             tuner = LbfgsTuner()
-            with pytest.raises(LucidInvalidArgumentException):
+            with pytest.raises(exception.LucidInvalidArgumentException):
                 tuner.tune(estimator, X, y)
 
         def test_mismatched_inputs_outputs(self):
@@ -159,7 +159,7 @@ class TestTuner:
             y = np.random.uniform(size=(5, 1))  # Mismatched sample count
 
             tuner = LbfgsTuner()
-            with pytest.raises(LucidInvalidArgumentException):
+            with pytest.raises(exception.LucidInvalidArgumentException):
                 tuner.tune(estimator, X, y)
 
     class TestGridSearchTuner:

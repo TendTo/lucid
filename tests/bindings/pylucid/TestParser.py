@@ -3,15 +3,16 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from pyparsing.exceptions import ParseException
 
 from pylucid import (
     DrealParser,
-    LucidInvalidArgumentException,
     MultiSet,
     RectSet,
     SetParser,
     SympyParser,
     Z3Parser,
+    exception,
 )
 
 if TYPE_CHECKING:
@@ -321,16 +322,16 @@ class TestSetParser:
 
     def test_invalid_syntax(self, parser):
         """Test parsing with invalid syntax"""
-        with pytest.raises(Exception):
+        with pytest.raises(ParseException):
             parser.parse("RectSet([1.0, 2.0], 3.0])")
 
-        with pytest.raises(Exception):
+        with pytest.raises(ParseException):
             parser.parse("MultiSet(RectSet([1.0, 2.0], [3.0, 4.0]))")
 
     def test_dimension_mismatch(self, parser):
         """Test parsing with dimension mismatch"""
         rect_str = "RectSet([1.0, 2.0], [3.0, 4.0, 5.0])"
-        with pytest.raises(LucidInvalidArgumentException):
+        with pytest.raises(exception.LucidInvalidArgumentException):
             parser.parse(rect_str)
 
     class TestErrorHandling:
@@ -342,13 +343,13 @@ class TestSetParser:
 
         def test_invalid_syntax(self, sympy_parser: "Parser"):
             """Test parsing with invalid syntax"""
-            with pytest.raises(Exception):
+            with pytest.raises(ParseException):
                 sympy_parser.parse("x0 +")
 
         def test_unknown_variable(self, sympy_parser: "Parser"):
             """Test evaluation with unknown variables"""
             expr = sympy_parser.parse("x0 + x1")
-            with pytest.raises(Exception):
+            with pytest.raises(TypeError):
                 sympy_parser.evaluate(expr, x0=1.0)  # x1 is missing
 
         def test_division_by_zero(self, sympy_parser: "Parser"):
@@ -360,12 +361,12 @@ class TestSetParser:
 
         def test_invalid_function_args(self, sympy_parser: "Parser"):
             """Test calling a function with no arguments"""
-            with pytest.raises(Exception):
+            with pytest.raises(TypeError):
                 sympy_parser.parse("sin()")
 
         def test_unclosed_parentheses(self, sympy_parser: "Parser"):
             """Test parsing with unclosed parentheses"""
-            with pytest.raises(Exception):
+            with pytest.raises(ParseException):
                 sympy_parser.parse("(x0 + x1")
 
     class TestEdgeCases:

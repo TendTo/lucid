@@ -7,7 +7,7 @@ import numpy as np
 import pyparsing as pp
 import sympy as sp
 
-from ._pylucid import MultiSet, RectSet, log_trace, log_warn
+from ._pylucid import MultiSet, RectSet, log
 
 T = TypeVar("T")
 
@@ -15,12 +15,12 @@ T = TypeVar("T")
 try:
     import dreal
 except ImportError as e:
-    log_warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
+    log.warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
 
 try:
     from z3 import z3
 except ImportError as e:
-    log_warn("Could not import z3. Make sure it is installed with 'pip install z3-solver'")
+    log.warn("Could not import z3. Make sure it is installed with 'pip install z3-solver'")
 
 
 @dataclass(frozen=True)
@@ -88,7 +88,7 @@ class SymbolicParser(ABC, Generic[T]):
             Parsed symbolic expression
         """
         parsed = self._expr.parseString(expr_str, parseAll=True).asList()
-        log_trace(f"Parsed expression: {parsed}")
+        log.trace(f"Parsed expression: {parsed}")
         return self.convert_parse_to_ast(parsed)
 
     @overload
@@ -256,7 +256,7 @@ class Z3Parser(SymbolicParser["z3.ExprRef"]):
         )
 
     def var_parse_action(self, name: str):
-        log_trace(f"Creating z3 variable {name}")
+        log.trace(f"Creating z3 variable {name}")
         return z3.Real(name)
 
     def substitute(self, expr: "z3.ExprRef", **subs: "dict[str, float]") -> "z3.ExprRef":
@@ -301,7 +301,7 @@ class DrealParser(SymbolicParser["dreal.Expression | dreal.Formula"]):
         )
 
     def var_parse_action(self, name: str):
-        log_trace(f"Creating dreal variable {name}")
+        log.trace(f"Creating dreal variable {name}")
         return dreal.Variable(name)
 
     def substitute(self, expr: "dreal.Expression | dreal.Formula", **subs: "dict[str, float]"):
@@ -340,7 +340,7 @@ class SympyParser(SymbolicParser[sp.Expr]):
         )
 
     def var_parse_action(self, name: str):
-        log_trace(f"Creating sympy variable {name}")
+        log.trace(f"Creating sympy variable {name}")
         return sp.var(name)
 
     def substitute(self, expr: "sp.Expr", **subs: "dict[str, float]") -> "sp.Expr":
@@ -405,7 +405,7 @@ class SetParser:
             Parsed set object (RectSet or MultiSet)
         """
         parsed = self._expr.parseString(set_str, parseAll=True).asList()
-        log_trace(f"Parsed set expression: {parsed}")
+        log.trace(f"Parsed set expression: {parsed}")
         assert len(parsed) == 1, "Set expression should be a single set"
         return parsed[0]
 

@@ -261,9 +261,24 @@ def arg_parser() -> "ArgumentParser":
         "-v",
         "--verbose",
         type=int,
-        help=f"set verbosity level. {LOG_NONE}: no output, {LOG_CRITICAL}: critical, {LOG_ERROR}: errors, {LOG_WARN}: warning, {LOG_INFO}: info, {LOG_DEBUG}: debug, {LOG_TRACE}: trace",
-        choices=[LOG_NONE, LOG_CRITICAL, LOG_ERROR, LOG_WARN, LOG_INFO, LOG_DEBUG, LOG_TRACE],
-        default=LOG_INFO,
+        help=f"set verbosity level. "
+        f"{log.LOG_NONE}: no output, "
+        f"{log.LOG_CRITICAL}: critical, "
+        f"{log.LOG_ERROR}: errors, "
+        f"{log.LOG_WARN}: warning, "
+        f"{log.LOG_INFO}: info, "
+        f"{log.LOG_DEBUG}: debug, "
+        f"{log.LOG_TRACE}: trace",
+        choices=[
+            log.LOG_NONE,
+            log.LOG_CRITICAL,
+            log.LOG_ERROR,
+            log.LOG_WARN,
+            log.LOG_INFO,
+            log.LOG_DEBUG,
+            log.LOG_TRACE,
+        ],
+        default=log.LOG_INFO,
     )
     parser.add_argument(
         "-s",

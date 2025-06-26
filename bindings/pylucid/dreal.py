@@ -3,15 +3,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ._pylucid import (
-    Estimator,
-    MultiSet,
-    RectSet,
-    TruncatedFourierFeatureMap,
-    log_error,
-    log_info,
-    log_warn,
-)
+from ._pylucid import Estimator, MultiSet, RectSet, TruncatedFourierFeatureMap, log
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -24,7 +16,7 @@ try:
     from dreal import cos as Cosine
     from dreal import sin as Sine
 except ImportError as e:
-    log_warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
+    log.warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
     raise e
 
 Real.cos = lambda self: Cosine(self)
@@ -182,17 +174,17 @@ def verify_barrier_certificate(
     )
     res = CheckSatisfiability(constraints, 1e-8)
     if res is None:
-        log_info("The barrier has been verified via dReal")
+        log.info("The barrier has been verified via dReal")
         return True
 
-    log_error("Found counter example")
+    log.error("Found counter example")
     model = {str(x): res[x].lb() for x in xs}
-    log_error(f"Model: {model}")
+    log.error(f"Model: {model}")
     point = np.array([list(model.values())], dtype=np.float64)
     pointp = f_det(point)
-    log_error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
-    log_error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
-    log_error(f"Xp: estimated, barrier value: {estimator(point) @ sol.T}")
-    log_error(f"Barrier at Xp {tffm(pointp)[0]}")
-    log_error(f"Estimated barrier at Xp {estimator(point)[0]}")
+    log.error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
+    log.error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
+    log.error(f"Xp: estimated, barrier value: {estimator(point) @ sol.T}")
+    log.error(f"Barrier at Xp {tffm(pointp)[0]}")
+    log.error(f"Estimated barrier at Xp {estimator(point)[0]}")
     return False

@@ -2,15 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ._pylucid import (
-    Estimator,
-    FeatureMap,
-    LucidNotSupportedException,
-    MultiSet,
-    RectSet,
-    Set,
-    log_warn,
-)
+from ._pylucid import Estimator, FeatureMap, MultiSet, RectSet, Set, exception, log
 
 if TYPE_CHECKING:
     from typing import Callable
@@ -22,7 +14,7 @@ if TYPE_CHECKING:
 try:
     import matplotlib.pyplot as plt
 except ImportError as e:
-    log_warn("Could not import matplotlib. Make sure it is installed with 'pip install matplotlib'")
+    log.warn("Could not import matplotlib. Make sure it is installed with 'pip install matplotlib'")
     raise e
 
 
@@ -353,7 +345,7 @@ def plot_estimator(
     plot_estimator_fun = (plot_estimator_1d, plot_estimator_2d)
     if x_samples.shape[1] <= len(plot_estimator_fun) and xp_samples.shape[1] == 1:
         return plot_estimator_fun[x_samples.shape[1] - 1](estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe)
-    raise LucidNotSupportedException(
+    raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {x_samples.shape[1]} => {xp_samples.shape[1]}-dimensional sets. "
         f"Only (1D or 2D) => 1D are supported."
     )
@@ -377,7 +369,7 @@ def plot_solution(
         return plot_solution_fun[X_bounds.dimension - 1](
             X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c
         )
-    raise LucidNotSupportedException(
+    raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
     )
 
@@ -474,6 +466,6 @@ def plot_function(
     plot_function_fun = (plot_function_1d, plot_function_2d)  # Add more functions for higher dimensions if needed
     if X_bounds.dimension <= len(plot_function_fun):
         return plot_function_fun[X_bounds.dimension - 1](X_bounds, f, X_init, X_unsafe)
-    raise LucidNotSupportedException(
+    raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
     )

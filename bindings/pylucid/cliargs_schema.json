@@ -89,12 +89,14 @@
   "properties": {
     "$schema": {
       "description": "The path or URL to the JSON schema describing this file.",
-      "type": "string",
+      "type": "",
       "format": "uri"
     },
     "verbose": {
       "description": "Verbosity level of the output.",
-      "type": "integer"
+      "type": "integer",
+      "minimum": -1,
+      "maximum": 5
     },
     "seed": {
       "description": "Seed for the random number generator.",
@@ -168,12 +170,10 @@
     },
     "noise_scale": {
       "description": "Scale of the noise to add to the system dynamics.",
-
       "type": "number"
     },
     "plot": {
       "description": "Whether to plot the results.",
-
       "type": "boolean"
     },
     "verify": {

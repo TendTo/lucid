@@ -11,20 +11,16 @@ from ._pylucid import (
     GurobiLinearOptimiser,
     KernelRidgeRegressor,
     LinearTruncatedFourierFeatureMap,
-    LucidNotSupportedException,
     MedianHeuristicTuner,
     Parameter,
     Set,
-    log_debug,
-    log_error,
-    log_info,
-    log_warn,
+    log,
 )
 
 try:
     from .dreal import verify_barrier_certificate
 except ImportError:
-    log_warn("Verification disabled")
+    log.warn("Verification disabled")
 
     def verify_barrier_certificate(*args, **kwargs):
         pass
@@ -33,7 +29,7 @@ except ImportError:
 try:
     from .plot import plot_solution
 except ImportError:
-    log_warn("Plotting disabled")
+    log.warn("Plotting disabled")
 
     def plot_solution(*args, **kwargs):
         pass
@@ -139,31 +135,31 @@ def pipeline(
     num_freq_per_dim = feature_map.num_frequencies if num_freq_per_dim < 0 else num_freq_per_dim
     n_per_dim = np.ceil((2 * num_freq_per_dim + 1) * oversample_factor) if num_oversample < 0 else num_oversample
     n_per_dim = int(n_per_dim)
-    log_debug(f"Number of samples per dimension: {n_per_dim}")
+    log.debug(f"Number of samples per dimension: {n_per_dim}")
     assert n_per_dim > 2 * num_freq_per_dim, "n_per_dim must be greater than nyquist (2 * num_freq_per_dim + 1)"
 
     if f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
         assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
         f_xp_samples = feature_map(xp_samples)
 
-    log_debug(f"Estimator pre-fit: {estimator}")
+    log.debug(f"Estimator pre-fit: {estimator}")
     estimator.fit(x=x_samples, y=f_xp_samples)  # Actual fitting of the regressor
-    log_info(f"Estimator post-fit: {estimator}")
+    log.info(f"Estimator post-fit: {estimator}")
 
     if callable(feature_map) and not isinstance(feature_map, FeatureMap):
         feature_map = feature_map(estimator)  # Compute the feature map if it is a callable
     assert isinstance(feature_map, FeatureMap), "feature_map must return a FeatureMap instance"
 
-    log_debug(f"RMSE on f_xp_samples {rmse(estimator(x_samples), f_xp_samples)}")
-    log_debug(f"Score on f_xp_samples {estimator.score(x_samples, f_xp_samples)}")
+    log.debug(f"RMSE on f_xp_samples {rmse(estimator(x_samples), f_xp_samples)}")
+    log.debug(f"Score on f_xp_samples {estimator.score(x_samples, f_xp_samples)}")
     if f_det is not None:
         # Sample some other points (half of the x_samples) to evaluate the regressor against overfitting
         x_evaluation = X_bounds.sample(x_samples.shape[0] // 2)
         f_xp_evaluation = feature_map(f_det(x_evaluation))
-        log_debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
-        log_debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
+        log.debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
+        log.debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
-    log_debug(f"Feature map: {feature_map}")
+    log.debug(f"Feature map: {feature_map}")
     x_lattice = X_bounds.lattice(n_per_dim, True)
     u_f_x_lattice = feature_map(x_lattice)
     u_f_xp_lattice_via_regressor = estimator(x_lattice)
@@ -179,11 +175,11 @@ def pipeline(
 
     def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
         if not success:
-            log_error("Optimization failed")
+            log.error("Optimization failed")
         else:
-            log_info("Optimization succeeded")
-            log_debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
-            log_debug(f"{sol = }")
+            log.info("Optimization succeeded")
+            log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
+            log.debug(f"{sol = }")
         if plot:
             plot_solution(
                 X_bounds=X_bounds,

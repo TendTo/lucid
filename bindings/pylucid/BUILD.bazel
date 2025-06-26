@@ -56,6 +56,13 @@ py_library(
     imports = [".."],
     srcs_version = "PY3",
     visibility = ["//visibility:public"],
+    deps = [
+        requirement("numpy"),
+        requirement("pyparsing"),
+        requirement("sympy"),
+        requirement("pyyaml"),
+        requirement("jsonschema"),
+    ],
 )
 
 py_binary(
@@ -81,6 +88,8 @@ py_binary(
         requirement("numpy"),
         requirement("pyparsing"),
         requirement("sympy"),
+        requirement("pyyaml"),
+        requirement("jsonschema"),
     ],
 )
 
