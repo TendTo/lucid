@@ -10,9 +10,11 @@ LUCID_LICENSE = "Apache-2.0"
 
 # Can't parse the list
 LUCID_CLASSIFIERS = [
-    "Development Status :: 1 - Planning",
-    "License :: OSI Approved :: BSD License",
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -22,6 +24,9 @@ LUCID_CLASSIFIERS = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Typing :: Typed",
 ]
 
 def _expose_variable_impl(_):

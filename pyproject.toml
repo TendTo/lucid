@@ -13,8 +13,11 @@ maintainers = [
     { name = "Ernesto Casablanca", email = "casablancaernesto@gmail.com" },
 ]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -24,8 +27,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Typing :: Typed",
 ]
-license-files = ["LICEN[CS]E*"]
 keywords = ["neural network", "kernel"]
 requires-python = ">= 3.8"
 dependencies = [
@@ -54,6 +59,7 @@ pylucid = "pylucid.__main__:main"
 
 [tool.setuptools]
 packages = []
+license-files = ["LICEN[CS]E*"]
 
 # Black configuration (code formatter)
 [tool.black]
