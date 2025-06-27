@@ -47,6 +47,7 @@ Changelog = "https://github.com/TendTo/lucid/blob/main/docs/Changelog.md"
 [project.optional-dependencies]
 verification = ["dreal"]
 plot = ["matplotlib"]
+test = ["pytest"]
 
 [project.scripts]
 pylucid = "pylucid.__main__:main"
@@ -63,3 +64,6 @@ include = '(bindings/pylucid|tests/bindings/pylucid)\/.*\.py'
 # Isort configuration (import sorter)
 [tool.isort]
 profile = "black"
+
+[tool.pytest.ini_options]
+python_files = "Test*.py"

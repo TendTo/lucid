@@ -6,7 +6,13 @@ import numpy as np
 from pylucid import *
 from pylucid import __version__
 from pylucid.pipeline import pipeline
-from pylucid.plot import plot_function
+
+try:
+    from pylucid.plot import plot_function
+except ImportError:
+
+    def plot_function(*args, **kwargs):
+        pass
 
 
 def scenario_config(

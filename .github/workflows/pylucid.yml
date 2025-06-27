@@ -40,12 +40,18 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "${{ matrix.python_version }}"
           cache: "pip"
 
-      - name: Run tests
+      - name: Run tests (linux and macOS)
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
           bazel test --config=py --python_version=${{ matrix.python_version }} --enable_gurobi_build=False //tests/bindings/pylucid/...
+      - name: Run tests (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          pip3 install .[test]
+          pytest tests
 
   build:
     runs-on: ${{ matrix.os }}

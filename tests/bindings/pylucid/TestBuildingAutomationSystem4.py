@@ -3,7 +3,6 @@ import sys
 
 import numpy as np
 import pytest
-from scipy.spatial.distance import cdist
 
 from pylucid import *
 
@@ -12,6 +11,8 @@ def median_heuristic(X, Y):
     """
     the famous kernel median heuristic
     """
+    from scipy.spatial.distance import cdist
+
     kernel_width = np.zeros(X.shape[1])
     for i in range(X.shape[1]):
         distsqr = cdist(X[:, i].reshape(X.shape[0], 1), X[:, i].reshape(X.shape[0], 1), "euclidean") ** 2

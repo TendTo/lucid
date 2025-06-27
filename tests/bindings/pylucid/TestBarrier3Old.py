@@ -2,26 +2,26 @@ import math
 
 import numpy as np
 import pytest
-from cvc5.pythonic import (
-    And,
-    ArithRef,
-    BoolVal,
-    Cosine,
-    ExprRef,
-    Implies,
-    Not,
-    Or,
-    Real,
-    Sine,
-    Solver,
-    sat,
-    solve,
-)
 
 from pylucid import *
 
 
 def set_contraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef":
+    from cvc5.pythonic import (
+        And,
+        ArithRef,
+        BoolVal,
+        Cosine,
+        ExprRef,
+        Implies,
+        Not,
+        Or,
+        Real,
+        Sine,
+        Solver,
+        sat,
+        solve,
+    )
     if isinstance(X_set, RectSet):
         return And(*(b for i, x in enumerate(xs) for b in (x >= X_set.lower_bound[i], x <= X_set.upper_bound[i])))
     if isinstance(X_set, MultiSet):
@@ -43,7 +43,21 @@ def verify_barrier_certificate(
 ):
     if __name__ != "__main__":  # only verify if run as script
         return
-
+    from cvc5.pythonic import (
+        And,
+        ArithRef,
+        BoolVal,
+        Cosine,
+        ExprRef,
+        Implies,
+        Not,
+        Or,
+        Real,
+        Sine,
+        Solver,
+        sat,
+        solve,
+    )
     # Create symbolic variables for the input dimensions
     xs = [Real(f"x{i}") for i in range(X_bounds.dimension)]
 
