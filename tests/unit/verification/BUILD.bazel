@@ -3,7 +3,7 @@
 load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 
 lucid_cc_googletest(
-    name = "test_gurobi_linear_optimiser",
+    name = "test_gurobi_optimiser",
     deps = [
         "//lucid/util:exception",
         "//lucid/verification:optimiser",

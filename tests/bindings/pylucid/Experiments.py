@@ -259,7 +259,7 @@ def experiments():
     plt.legend()
     plt.show()
 
-    o = GurobiLinearOptimiser(T, gamma, 0, 1, b_kappa=1, sigma_f=sigma_f)
+    o = GurobiOptimiser(T, gamma, 0, 1, b_kappa=1, sigma_f=sigma_f)
 
     def check_cb(
         success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float

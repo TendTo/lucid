@@ -8,7 +8,7 @@
 #pragma once
 
 #include "lucid/verification/AlglibOptimiser.h"
-#include "lucid/verification/GurobiLinearOptimiser.h"
+#include "lucid/verification/GurobiOptimiser.h"
 #include "lucid/verification/Optimiser.h"
 
 /**

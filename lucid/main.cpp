@@ -271,7 +271,7 @@ bool test_linear(const CliArgs& args) {
   switch (args.solver) {
 #ifdef LUCID_GUROBI_BUILD
     case Solver::Gurobi:
-      return GurobiLinearOptimiser{
+      return GurobiOptimiser{
           args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
           args.problem_log_file, args.iis_log_file,
       }

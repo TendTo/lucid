@@ -133,7 +133,7 @@ def test_building_automation_system():
     f0_lattice = tffm(x0_lattice)
     fu_lattice = tffm(xu_lattice)
 
-    o = GurobiLinearOptimiser(T, gamma, 0, 1, 1, sigma_f)
+    o = GurobiOptimiser(T, gamma, 0, 1, 1, sigma_f)
 
     def check_cb(success: bool, obj_val: float, eta: float, c: float, norm: float):
         print(f"Result: {success = } | {obj_val = } | {eta = } | {c = } | {norm = }")

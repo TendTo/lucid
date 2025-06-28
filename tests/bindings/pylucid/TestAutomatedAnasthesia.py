@@ -134,7 +134,7 @@ def test_automated_anesthesia():
     f0_lattice = tffm(x0_lattice)
     fu_lattice = tffm(xu_lattice)
 
-    o = GurobiLinearOptimiser(T, gamma, 0, 1, 1, sigma_f)
+    o = GurobiOptimiser(T, gamma, 0, 1, 1, sigma_f)
 
     def check_cb(
         success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float

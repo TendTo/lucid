@@ -4,7 +4,7 @@
  * @licence BSD 3-Clause License
  * @file
  */
-#include "lucid/verification/GurobiLinearOptimiser.h"
+#include "lucid/verification/GurobiOptimiser.h"
 
 #include <limits>
 #include <memory>
@@ -25,7 +25,7 @@
 
 namespace lucid {
 
-GurobiLinearOptimiser::GurobiLinearOptimiser(const int T, const double gamma, const double epsilon, const double b_norm,
+GurobiOptimiser::GurobiOptimiser(const int T, const double gamma, const double epsilon, const double b_norm,
                                              const double b_kappa, const double sigma_f, const double C_coeff,
                                              std::string problem_log_file, std::string iis_log_file)
     : T_{T},
@@ -46,7 +46,7 @@ GurobiLinearOptimiser::GurobiLinearOptimiser(const int T, const double gamma, co
 }
 
 #ifdef LUCID_GUROBI_BUILD
-bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
+bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
                                   ConstMatrixRef w_mat, const Dimension rkhs_dim,
                                   const Dimension num_frequencies_per_dim,
                                   const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
@@ -220,9 +220,9 @@ bool GurobiLinearOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_l
   return true;
 }
 #else
-bool GurobiLinearOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
+bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                                   Dimension, Dimension, const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiLinearOptimiser::solve", "Gurobi");
+  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
   return false;
 }
 #endif  // LUCID_GUROBI_BUILD

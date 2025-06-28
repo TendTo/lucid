@@ -18,7 +18,7 @@ namespace lucid {
 class AlglibOptimiser final : public Optimiser {
  public:
   /**
-   * Construct a new GurobiLinearOptimiser object.
+   * Construct a new GurobiOptimiser object.
    * @pre `T` must be greater than 0
    * @pre If provided, `problem_log_file` and `iis_log_file` must be valid file paths.
    * The former must have the extension `.lp` or `.mps`, and the latter must have the extension `.ilp`.

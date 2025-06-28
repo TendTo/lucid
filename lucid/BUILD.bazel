@@ -1,5 +1,5 @@
 load("//tools:cpplint.bzl", "cpplint")
-load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_srcs")
+load("//tools:rules_cc.bzl", "lucid_cc_binary", "lucid_cc_library", "lucid_srcs")
 load("//tools:rules_py_cc.bzl", "lucid_cc_py_binary")
 load("//tools:variables.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION")
 
@@ -66,18 +66,12 @@ lucid_cc_py_binary(
     }),
 )
 
-# lucid_cc_binary(
-#     name = "temp",
-#     srcs = ["temp.cpp"],
-#     deps = [
-#         ":lucid_hdr",
-#         ":version",
-#         "//lucid/util",
-#         "//lucid/util:error",
-#         "//lucid/util:logging",
-#         "@fmt",
-#         "@spdlog",
-#     ],
-# )
+lucid_cc_binary(
+    name = "temp",
+    srcs = ["temp.cpp"],
+    deps = [
+        "@alglib",
+    ],
+)
 
 cpplint()

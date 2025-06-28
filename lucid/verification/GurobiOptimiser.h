@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * GurobiLinearOptimiser class.
+ * GurobiOptimiser class.
  */
 #pragma once
 
@@ -17,10 +17,10 @@ namespace lucid {
 /**
  * Linear optimiser using the Gurobi solver.
  */
-class GurobiLinearOptimiser final : public Optimiser {
+class GurobiOptimiser final : public Optimiser {
  public:
   /**
-   * Construct a new GurobiLinearOptimiser object.
+   * Construct a new GurobiOptimiser object.
    * @pre `T` must be greater than 0
    * @pre If provided, `problem_log_file` and `iis_log_file` must be valid file paths.
    * The former must have the extension `.lp` or `.mps`, and the latter must have the extension `.ilp`.
@@ -33,8 +33,8 @@ class GurobiLinearOptimiser final : public Optimiser {
    * @param problem_log_file file to log the problem to. If empty, no logging is done
    * @param iis_log_file file to log the irreducible infeasible set (IIS) to, if found. If empty, no logging is done
    */
-  GurobiLinearOptimiser(int T, double gamma, double epsilon, double b_norm, double b_kappa, double sigma_f,
-                        double C_coeff = 1.0, std::string problem_log_file = "", std::string iis_log_file = "");
+  GurobiOptimiser(int T, double gamma, double epsilon, double b_norm, double b_kappa, double sigma_f,
+                  double C_coeff = 1.0, std::string problem_log_file = "", std::string iis_log_file = "");
 
   /**
    * Solve the linear optimisation

@@ -20,12 +20,12 @@ lucid_cc_library(
     name = "optimiser",
     srcs = [
         "AlglibOptimiser.cpp",
-        "GurobiLinearOptimiser.cpp",
+        "GurobiOptimiser.cpp",
         "Optimiser.cpp",
     ],
     hdrs = [
         "AlglibOptimiser.h",
-        "GurobiLinearOptimiser.h",
+        "GurobiOptimiser.h",
         "Optimiser.h",
     ],
     implementation_deps = [

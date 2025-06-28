@@ -1,8 +1,8 @@
-from pylucid import GurobiLinearOptimiser
+from pylucid import GurobiOptimiser
 
 
 class TestOptimiser:
-    class TestGurobiLinearOptimiser:
+    class TestGurobiOptimiser:
 
         def test_init(self):
             T = 10
@@ -11,5 +11,5 @@ class TestOptimiser:
             b_norm = 0.5
             b_kappa = 0.3
             sigma_f = 0.3
-            o = GurobiLinearOptimiser(T, gamma, epsilon, b_norm, b_kappa, sigma_f)
+            o = GurobiOptimiser(T, gamma, epsilon, b_norm, b_kappa, sigma_f)
             assert o is not None

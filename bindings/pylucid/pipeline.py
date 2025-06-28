@@ -8,7 +8,7 @@ from ._pylucid import (
     Estimator,
     FeatureMap,
     GaussianKernel,
-    GurobiLinearOptimiser,
+    GurobiOptimiser,
     KernelRidgeRegressor,
     LinearTruncatedFourierFeatureMap,
     MedianHeuristicTuner,
@@ -209,7 +209,7 @@ def pipeline(
             )
 
     assert GUROBI_BUILD, "Gurobi is not supported in this build. Please install Gurobi and rebuild Lucid."
-    o = GurobiLinearOptimiser(
+    o = GurobiOptimiser(
         T,
         gamma,
         0,

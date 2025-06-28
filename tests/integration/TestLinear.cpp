@@ -56,7 +56,7 @@ using OptimizerTypes = ::testing::Types<
     ,
 #endif
 #ifdef LUCID_ALGLIB_BUILD
-    GurobiLinearOptimiser
+    GurobiOptimiser
 #endif
     >;
 TYPED_TEST_SUITE(TestLinear, OptimizerTypes);

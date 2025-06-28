@@ -130,7 +130,7 @@ TEST_F(TestInitCSOvertaking, InitCSOvertaking) {
   const Matrix f0_lattice{tffm(x0_lattice)};
   const Matrix fu_lattice{tffm(xu_lattice)};
 
-  [[maybe_unused]] GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
+  [[maybe_unused]] GurobiOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
 #ifdef LUCID_GUROBI_BUILD
   const bool res = optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1,
                                    n_per_dim, dimension,

@@ -171,7 +171,7 @@ def test_barrier_3():
     fu_lattice = tffm(xu_lattice)
     assert fu_lattice.shape == (1058, num_freq_per_dim**dimension * 2 - 1)
 
-    o = GurobiLinearOptimiser(T, gamma, epsilon, b_norm, kappa_b, sigma_f)
+    o = GurobiOptimiser(T, gamma, epsilon, b_norm, kappa_b, sigma_f)
 
     def check_cb(
         success: bool, obj_val: float, sol: "np.typing.NDArray[np.float64]", eta: float, c: float, norm: float

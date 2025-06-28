@@ -149,7 +149,7 @@ TEST_F(TestInitBarrier3, InitBarrier3) {
   const Matrix fu_lattice{tffm(xu_lattice)};
   ASSERT_TRUE(fu_lattice.isApprox(expected_fu_lattice, tolerance));
 
-  [[maybe_unused]] GurobiLinearOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
+  [[maybe_unused]] GurobiOptimiser optimiser{T, gmma, epsilon, b_norm, kappa_b, sigma_f};
 #ifdef LUCID_GUROBI_BUILD
   const bool res = optimiser.solve(f0_lattice, fu_lattice, phi_mat, w_mat, tffm.dimension(), num_freq_per_dim - 1,
                                    n_per_dim, dimension,
