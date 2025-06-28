@@ -49,6 +49,7 @@ def cli_scenario_config(args: CLIArgs) -> ScenarioConfig:
         sigma_f=args.sigma_f,
         oversample_factor=args.oversample_factor,
         problem_log_file=args.problem_log_file,
+        optimiser=args.optimiser,
     )
 
 

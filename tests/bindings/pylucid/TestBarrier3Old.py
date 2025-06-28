@@ -58,6 +58,7 @@ def verify_barrier_certificate(
         sat,
         solve,
     )
+
     # Create symbolic variables for the input dimensions
     xs = [Real(f"x{i}") for i in range(X_bounds.dimension)]
 

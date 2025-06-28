@@ -1,5 +1,6 @@
 import importlib
 import json
+import sys
 from argparse import Action, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,7 +11,6 @@ import yaml
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
-import sys
 from ._pylucid import *
 from ._pylucid import __version__
 from .parser import SetParser, SympyParser
@@ -44,6 +44,7 @@ class ScenarioConfig:
     sigma_f: float = 1.0
     verify: bool = True
     plot: bool = True
+    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser
     problem_log_file: str = ""
     iis_log_file: str = ""
 
@@ -68,6 +69,7 @@ class ScenarioConfig:
             "sigma_f",
             "verify",
             "plot",
+            "optimiser",
             "problem_log_file",
             "iis_log_file",
         ]
@@ -104,6 +106,7 @@ class CLIArgs(Namespace):
     estimator: "type[Estimator]"
     kernel: "type[Kernel]"
     feature_map: "type[FeatureMap]"
+    optimiser: "type[Optimiser]"
 
 
 class ConfigAction(Action):
@@ -178,6 +181,7 @@ class ConfigAction(Action):
         FeatureMapAction(option_strings=None, dest="feature_map")(
             None, args, config_dict.get("feature_map", args.feature_map)
         )
+        OptimiserAction(option_strings=None, dest="optimiser")(None, args, config_dict.get("optimiser", args.optimiser))
 
         # Handle sigma_l (can be single value or list)
         sigma_l = config_dict.get("sigma_l", args.sigma_l)
@@ -224,7 +228,7 @@ class FloatOrNVectorAction(Action):
         super().__init__(nargs="+", **kwargs)
 
     def __call__(self, parser, namespace, values: "list[float]", option_string=None):
-        setattr(namespace, self.dest, np.array(values) if len(values) > 1 else values[0])
+        setattr(namespace, self.dest, np.array(values, dtype=np.float64) if len(values) > 1 else float(values[0]))
 
 
 class SystemDynamicsAction(Action):
@@ -290,6 +294,17 @@ class FeatureMapAction(Action):
         if values == "LinearTruncatedFourierFeatureMap":
             return setattr(namespace, self.dest, LinearTruncatedFourierFeatureMap)
         raise raise_error(f"Unsupported feature map type: {values}")
+
+
+class OptimiserAction(Action):
+    def __call__(self, parser, namespace, values: "str | type[Optimiser]", option_string=None):
+        if isinstance(values, type) and issubclass(values, Optimiser):
+            return setattr(namespace, self.dest, values)
+        if values == "GurobiOptimiser":
+            return setattr(namespace, self.dest, GurobiOptimiser)
+        if values == "AlglibOptimiser":
+            return setattr(namespace, self.dest, AlglibOptimiser)
+        raise raise_error(f"Unsupported optimiser type: {values}")
 
 
 def arg_parser() -> "ArgumentParser":
@@ -486,8 +501,17 @@ def arg_parser() -> "ArgumentParser":
             "ConstantTruncatedFourierFeatureMap",
             "LogTruncatedFourierFeatureMap",
         ],
-        help="feature map type to use for the estimator. "
-        "Currently 'LogTruncatedFourierFeatureMap', 'ConstantTruncatedFourierFeatureMap', and 'LinearTruncatedFourierFeatureMap' are supported",
+        help="feature map type to use for the estimator",
+    )
+    parser.add_argument(
+        "--optimiser",
+        action=OptimiserAction,
+        default=GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser,
+        choices=[
+            "GurobiOptimiser",
+            "AlglibOptimiser",
+        ],
+        help="feature map type to use for the estimator",
     )
 
     return parser

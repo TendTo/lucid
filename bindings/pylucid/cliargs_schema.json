@@ -220,6 +220,12 @@
         "LogTruncatedFourierFeatureMap"
       ],
       "default": "LinearTruncatedFourierFeatureMap"
+    },
+    "optimiser": {
+      "description": "Type of optimiser to use for the estimator.",
+      "type": "string",
+      "enum": ["GurobiOptimiser", "AlglibOptimiser"],
+      "default": "GurobiOptimiser"
     }
   }
 }

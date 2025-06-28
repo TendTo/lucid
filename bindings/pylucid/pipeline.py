@@ -4,7 +4,7 @@ import numpy as np
 
 from ._pylucid import (
     GUROBI_BUILD,
-    ConstantTruncatedFourierFeatureMap,
+    AlglibOptimiser,
     Estimator,
     FeatureMap,
     GaussianKernel,
@@ -65,9 +65,10 @@ def pipeline(
     sigma_f: float = 1.0,
     verify: bool = True,
     plot: bool = True,
+    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser,
     problem_log_file: str = "",
     iis_log_file: str = "",
-) -> None:
+) -> bool:
     """Run Lucid with the given parameters.
     This function makes it easier to work with the library by providing
     reasonable defaults and a simple interface,
@@ -96,6 +97,9 @@ def pipeline(
 
     Raises:
         AssertionError: If the input samples do not match in size or if sigma_f is not a float.
+
+    Returns:
+        True if the optimization was successful, False otherwise.
     """
     assert x_samples.shape[0] == xp_samples.shape[0], "x_samples and xp_samples must have the same number of samples"
     assert isinstance(sigma_f, float) and sigma_f > 0, "sigma_f must be a positive float"
@@ -208,8 +212,10 @@ def pipeline(
                 sol=sol,
             )
 
-    assert GUROBI_BUILD, "Gurobi is not supported in this build. Please install Gurobi and rebuild Lucid."
-    o = GurobiOptimiser(
+    print(optimiser)
+    exit(0)  # --- IGNORE ---
+
+    return optimiser(
         T,
         gamma,
         0,
@@ -219,8 +225,7 @@ def pipeline(
         sigma_f=sigma_f,
         problem_log_file=problem_log_file,
         iis_log_file=iis_log_file,
-    )
-    o.solve(
+    ).solve(
         f0_lattice=f_x0_lattice,
         fu_lattice=f_xu_lattice,
         phi_mat=u_f_x_lattice,

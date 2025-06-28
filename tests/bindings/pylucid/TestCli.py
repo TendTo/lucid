@@ -2,19 +2,22 @@ import json
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from unittest.mock import patch
 
 import numpy as np
+import pyparsing as pp
 import pytest
 import yaml
 
 from pylucid import (
+    AlglibOptimiser,
     ConstantTruncatedFourierFeatureMap,
     GaussianKernel,
+    GurobiOptimiser,
     KernelRidgeRegressor,
     LinearTruncatedFourierFeatureMap,
     LogTruncatedFourierFeatureMap,
     MultiSet,
+    OptimiserAction,
     RectSet,
     log,
 )
@@ -96,6 +99,8 @@ class TestCli:
                     "KernelRidgeRegressor",
                     "--kernel",
                     "GaussianKernel",
+                    "--optimiser",
+                    "AlglibOptimiser",
                 ],
             )
 
@@ -115,6 +120,7 @@ class TestCli:
             assert args.feature_map == ConstantTruncatedFourierFeatureMap
             assert args.estimator == KernelRidgeRegressor
             assert args.kernel == GaussianKernel
+            assert args.optimiser == AlglibOptimiser
 
     class TestTypeConversions:
         """Test type conversion functions used in argument parsing"""
@@ -151,7 +157,7 @@ class TestCli:
             assert len(multi_set) == 2
 
             # Test invalid syntax
-            with pytest.raises(Exception):
+            with pytest.raises(pp.ParseException):
                 type_set("InvalidSet([1.0, 2.0], [3.0, 4.0])")
 
         def test_type_estimator(self):
@@ -163,7 +169,7 @@ class TestCli:
             assert args.estimator == KernelRidgeRegressor
 
             # Test invalid estimator string
-            with pytest.raises(Exception):
+            with pytest.raises(ValueError):
                 action(None, args, "InvalidEstimator")
 
         def test_type_kernel(self):
@@ -175,7 +181,7 @@ class TestCli:
             assert args.kernel == GaussianKernel
 
             # Test invalid kernel string
-            with pytest.raises(Exception):
+            with pytest.raises(ValueError):
                 action(None, args, "InvalidKernel")
 
         def test_type_feature_map(self):
@@ -191,8 +197,49 @@ class TestCli:
             assert args.feature_map == LogTruncatedFourierFeatureMap
 
             # Test invalid feature map string
-            with pytest.raises(Exception):
+            with pytest.raises(ValueError):
                 action(None, args, "InvalidFeatureMap")
+
+        def test_type_optimiser(self):
+            """Test parsing optimiser types from strings"""
+            # Test valid optimiser string
+            args = CLIArgs()
+            action = OptimiserAction(option_strings=None, dest="optimiser")
+            action(None, args, "AlglibOptimiser")
+            assert args.optimiser == AlglibOptimiser
+            action(None, args, "GurobiOptimiser")
+            assert args.optimiser == GurobiOptimiser
+
+            # Test invalid optimiser string
+            with pytest.raises(ValueError):
+                action(None, args, "InvalidOptimiser")
+
+        def test_type_float_or_n_vector(self):
+            """Test parsing float or vector arguments"""
+            # Test single float value
+            args = CLIArgs()
+            action = FloatOrNVectorAction(option_strings=None, dest="sigma_l")
+            action(None, args, ["1.5"], None)
+            assert isinstance(args.sigma_l, float)
+            assert args.sigma_l == 1.5
+
+            # Test vector of floats
+            action(None, args, ["1.0", "2.0", "3.0"], None)
+            assert isinstance(args.sigma_l, np.ndarray)
+            assert np.array_equal(args.sigma_l, np.array([1.0, 2.0, 3.0]))
+
+        def test_type_float_or_n_vector_invalid(self):
+            """Test invalid float or vector arguments"""
+            args = CLIArgs()
+            action = FloatOrNVectorAction(option_strings=None, dest="sigma_l")
+
+            # Test with invalid string
+            with pytest.raises(ValueError):
+                action(None, args, ["invalid"], None)
+
+            # Test with mixed types
+            with pytest.raises(ValueError):
+                action(None, args, ["1.0", "2.0", "invalid"], None)
 
     class TestSystemDynamicsAction:
         """Test the SystemDynamicsAction for parsing system dynamics"""
