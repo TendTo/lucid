@@ -1,0 +1,205 @@
+import { useCallback, useMemo, useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { jsonSchema } from "@utils/schema";
+import Header from "@components/Header";
+import ConfigSystem, { systemFormErrors } from "@components/ConfigSystem";
+import ConfigAlgorithm, {
+  algorithmFormErrors,
+} from "@components/ConfigAlgorithm";
+import ConfigExecution, {
+  executionFormErrors,
+} from "@components/ConfigExecution";
+import JsonPreview from "@components/JsonPreview";
+import { FaPaperPlane } from "react-icons/fa6";
+
+export type FormStep = {
+  name: string;
+  current: boolean;
+  error: (errors: Record<string, object>) => boolean;
+  href: string;
+};
+const initialFormSteps = {
+  system: {
+    name: "System",
+    href: "#",
+    current: true,
+    error: systemFormErrors,
+  },
+  algorithm: {
+    name: "Algorithm",
+    href: "#",
+    current: false,
+    error: algorithmFormErrors,
+  },
+  execution: {
+    name: "Execution",
+    href: "#",
+    current: false,
+    error: executionFormErrors,
+  },
+};
+export type FormSteps = typeof initialFormSteps;
+export type FormStepName = keyof FormSteps;
+
+type EstimatorType = "KernelRidgeRegressor";
+type KernelType = "GaussianKernel";
+type FeatureMapType =
+  | "LinearTruncatedFourierFeatureMap"
+  | "ConstantTruncatedFourierFeatureMap"
+  | "LogTruncatedFourierFeatureMap";
+type OptimiserType = "GurobiOptimiser" | "AlglibOptimiser";
+
+const defaultValues = {
+  verbose: 3,
+  seed: -1,
+  system_dynamics: [] as string[],
+  X_bounds: { RectSet: [] as [number, number][] },
+  X_init: { RectSet: [] as [number, number][] },
+  X_unsafe: { RectSet: [] as [number, number][] },
+  gamma: 1.0,
+  c_coefficient: 1.0,
+  lambda: 1.0,
+  num_samples: 1000,
+  time_horizon: 5,
+  sigma_f: 15.0,
+  sigma_l: 1.0,
+  num_frequencies: 4,
+  oversample_factor: 2.0,
+  num_oversample: -1,
+  noise_scale: 0.01,
+  plot: false,
+  verify: true,
+  problem_log_file: "problem.lp",
+  iis_log_file: "iis.ilp",
+  estimator: "KernelRidgeRegressor" as EstimatorType,
+  kernel: "GaussianKernel" as KernelType,
+  feature_map: "LinearTruncatedFourierFeatureMap" as FeatureMapType,
+  optimiser: "GurobiOptimiser" as OptimiserType,
+};
+
+export default function App() {
+  const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
+
+  const setCurrentStep = useCallback(
+    (step: FormStepName) => {
+      setFormSteps((prev) =>
+        Object.entries(prev).reduce((acc, [key, value]) => {
+          acc[key as FormStepName] = {
+            ...value,
+            current: key === step,
+          };
+          return acc;
+        }, {} as FormSteps)
+      );
+    },
+    [setFormSteps]
+  );
+
+  const methods = useForm({
+    resolver: zodResolver(jsonSchema),
+    defaultValues,
+  });
+
+  const disabled = useMemo(
+    () =>
+      Object.values(methods.formState.errors).some(
+        (error) => error !== undefined
+      ),
+    [methods.formState]
+  );
+
+  const onSubmit = (data: object) => {
+    console.log(JSON.stringify(data, null, 2));
+    // Here you would typically send the data to your API
+    alert("Configuration submitted successfully!");
+  };
+
+  return (
+    <div className="py-lucid-dashboard">
+      <Header
+        errors={methods.formState.errors}
+        steps={formSteps}
+        setCurrentStep={setCurrentStep}
+      />
+      <div className="dashboard-container">
+        <main className="content">
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+              {formSteps.system.current && <ConfigSystem />}
+              {formSteps.algorithm.current && <ConfigAlgorithm />}
+              {formSteps.execution.current && <ConfigExecution />}
+              <div className="flex flex-row-reverse">
+                <button
+                  type="submit"
+                  disabled={disabled}
+                  className={
+                    disabled
+                      ? "w-50 bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed flex items-center justify-center"
+                      : "w-50 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center"
+                  }
+                >
+                  <FaPaperPlane className="mr-2" />
+                  Submit
+                </button>
+              </div>
+            </form>
+          </FormProvider>
+        </main>
+
+        <aside className="preview-panel">
+          <h3>JSON Preview</h3>
+          <JsonPreview formData={methods.watch()} />
+        </aside>
+      </div>
+
+      <style>{`
+        .py-lucid-dashboard {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+        }
+        .dashboard-container {
+          display: flex;
+          flex: 1;
+        }
+        .sidebar {
+          width: 250px;
+          background: #2c3e50;
+          color: white;
+          padding: 20px;
+        }
+        .sidebar ul {
+          list-style: none;
+          padding: 0;
+        }
+        .sidebar li {
+          padding: 12px 15px;
+          margin-bottom: 5px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .sidebar li.active {
+          background: #3498db;
+        }
+        .content {
+          flex: 1;
+          padding: 20px;
+          background: #f5f5f5;
+          overflow-y: auto;
+        }
+        .preview-panel {
+          width: 350px;
+          padding: 20px;
+          background: #f8f9fa;
+          border-left: 1px solid #dee2e6;
+        }
+        .button-group {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+        }
+      `}</style>
+    </div>
+  );
+}

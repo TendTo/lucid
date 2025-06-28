@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root,
+html[data-theme="light"] {
+  --color-background: #fbfefb;
+  --color-foreground: #282728;
+  --color-accent: #6aa444;
+  --color-card: #e6e6e6;
+  --color-border: #569030;
+  --color-note: #2f81f7;
+  --color-warning: #9e6a03;
+  --color-imp: #8957e5;
+  --color-tip: #238636;
+  --color-caution: #da3633;
+}
+html[data-theme="dark"] {
+  --color-background: #212737;
+  --color-foreground: #eaedf3;
+  --color-accent: #9ccc6c;
+  --color-card: #343f60;
+  --color-border: #6aa444;
+  --color-note: #2f81f7;
+  --color-warning: #9e6a03;
+  --color-imp: #8957e5;
+  --color-tip: #238636;
+  --color-caution: #f84c49;
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-accent: var(--color-accent);
+  --color-card: var(--color-card);
+  --color-muted: var(--color-card-muted);
+  --color-border: var(--color-border);
+  --color-note: var(--color-note);
+  --color-warning: var(--color-warning);
+  --color-imp: var(--color-imp);
+  --color-tip: var(--color-tip);
+  --color-caution: var(--color-caution);
+
+  --breakpoint-sm: 640px;
+}
