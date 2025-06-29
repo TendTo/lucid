@@ -44,6 +44,7 @@ py_library(
         "cli.py",
         "dreal.py",
         "ext.py",
+        "gui.py",
         "parser.py",
         "pipeline.py",
         "plot.py",

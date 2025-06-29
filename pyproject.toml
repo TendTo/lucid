@@ -53,9 +53,11 @@ Changelog = "https://github.com/TendTo/lucid/blob/main/docs/Changelog.md"
 verification = ["dreal"]
 plot = ["matplotlib"]
 test = ["pytest"]
+gui = ["flask<=3.1.1", "flask-cors<=6.0.1", "mpld3<=0.5.10"]
 
 [project.scripts]
 pylucid = "pylucid.__main__:main"
+pylucid-gui = "pylucid.gui:main"
 
 [tool.setuptools]
 packages = []

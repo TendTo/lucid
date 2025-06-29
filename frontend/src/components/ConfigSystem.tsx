@@ -5,8 +5,9 @@ import {
   type FieldValues,
 } from "react-hook-form";
 import SetInput from "@components/SetInput";
-import { FaPlus, FaTrash } from "react-icons/fa6";
+import { FaEye, FaPlus, FaTrash } from "react-icons/fa6";
 import { ErrorMessage } from "@hookform/error-message";
+import { useCallback, useState } from "react";
 
 export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
   return Boolean(
@@ -18,16 +19,40 @@ export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
 }
 
 export default function ConfigSystem() {
-  const { register, control, formState } = useFormContext();
+  const { register, control, formState, getValues } = useFormContext();
+  const [graph, setGraph] = useState<string>("");
   const { fields, append, remove } = useFieldArray({
     control,
     name: "system_dynamics",
   });
 
-  return (
-    <div className="config-section">
-      <h2 className="font-bold text-lg mb-2">System Configuration</h2>
+  const handlePreview = useCallback(async () => {
+    const response = await fetch("http://127.0.0.1:5000/preview-graph", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(getValues()),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch graph data");
+    }
+    setGraph(await response.text());
+  }, [getValues, setGraph]);
 
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-bold text-lg mb-2">System Configuration</h2>
+        <button
+          type="button"
+          className="bg-blue-500 px-4 py-2 rounded flex items-center text-white"
+          onClick={handlePreview}
+        >
+          <FaEye className="inline-block mr-1 size-4" />
+          Preview
+        </button>
+      </div>
       <div className="form-group">
         <label className="block font-bold">System Dynamics</label>
         {fields.map((field, index) => (
@@ -77,6 +102,8 @@ export default function ConfigSystem() {
       <SetInput name="X_init" label="X init" />
 
       <SetInput name="X_unsafe" label="X unsafe" />
+
+      <div dangerouslySetInnerHTML={{ __html: graph }} />
     </div>
   );
 }
