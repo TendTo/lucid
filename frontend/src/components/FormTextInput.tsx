@@ -9,7 +9,7 @@ type FormTextInputProps = {
   description?: string;
   min?: number;
   max?: number;
-  step?: number;
+  step?: number | "any";
 };
 
 export default function FormTextInput({
@@ -20,7 +20,7 @@ export default function FormTextInput({
   placeholder,
   min = undefined,
   max = undefined,
-  step = undefined,
+  step = "any",
 }: FormTextInputProps) {
   const { register, formState } = useFormContext();
 

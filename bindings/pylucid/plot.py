@@ -422,9 +422,9 @@ def plot_function_1d(
     if X_unsafe is not None:
         plot_set_1d(X_unsafe, "red", label="Unsafe Set")
 
-    x_samples = X_bounds.lattice(n, True).flatten().reshape(-1, 1)  # Ensure x_samples is a 2D array with shape (n, 1)
+    x_samples = X_bounds.lattice(n, True).flatten()  # Ensure x_samples is a 2D array with shape (n, 1)
     y = np.linspace(0, 100, n).flatten()
-    y_samples = f(x_samples)
+    y_samples = f(x_samples.reshape(-1, 1)).flatten()  # Ensure y_samples is a 1D array
     assert y_samples.ndim == 1 or y_samples.shape[1] == 1, "Function f must return a 1D array for 1D plotting."
 
     u = np.repeat((y_samples - x_samples).reshape(1, -1), n, axis=0)

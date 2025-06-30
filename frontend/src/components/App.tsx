@@ -11,7 +11,8 @@ import ConfigExecution, {
   executionFormErrors,
 } from "@components/ConfigExecution";
 import JsonPreview from "@components/JsonPreview";
-import { FaPaperPlane } from "react-icons/fa6";
+import { FaFileImport, FaPaperPlane } from "react-icons/fa6";
+import JSONImportModal from "@components/JSONImportModal";
 
 export type FormStep = {
   name: string;
@@ -80,6 +81,7 @@ const defaultValues = {
 
 export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const setCurrentStep = useCallback(
     (step: FormStepName) => {
@@ -121,7 +123,9 @@ export default function App() {
         errors={methods.formState.errors}
         steps={formSteps}
         setCurrentStep={setCurrentStep}
+        setIsImportModalOpen={setIsImportModalOpen}
       />
+
       <div className="dashboard-container">
         <main className="content">
           <FormProvider {...methods}>
@@ -144,6 +148,10 @@ export default function App() {
                 </button>
               </div>
             </form>
+            <JSONImportModal
+              isOpen={isImportModalOpen}
+              onClose={() => setIsImportModalOpen(false)}
+            />
           </FormProvider>
         </main>
 

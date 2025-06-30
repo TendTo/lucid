@@ -33,8 +33,6 @@ export default function ConfigSystem() {
     name: "system_dynamics",
   });
 
-  console.log("ConfigSystem: useFormContext", formState.errors);
-
   const handlePreview = useCallback(async () => {
     if (
       !(await trigger(["system_dynamics", "X_bounds", "X_init", "X_unsafe"]))

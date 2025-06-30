@@ -27,6 +27,7 @@ export default function SetInput({ name, label }: SetInputProps) {
                 valueAsNumber: true,
                 required: true,
               })}
+              step="any"
               placeholder="0.0"
               type="number"
             />
@@ -37,6 +38,7 @@ export default function SetInput({ name, label }: SetInputProps) {
                 required: true,
               })}
               placeholder="0.0"
+              step="any"
               type="number"
             />
             <button

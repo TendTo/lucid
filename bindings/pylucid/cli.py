@@ -249,7 +249,13 @@ class SystemDynamicsAction(Action):
             """Dynamic function that takes a state vector and returns the next state."""
             assert x.ndim == 2, "Input must be a 2D array with shape (n_samples, n_features)"
             cols = {f"x{i + 1}": x[:, i] for i in range(x.shape[1])}
-            return np.column_stack(tuple(f(**cols) for f in functions))
+            f_cols = [f(**cols) for f in functions]
+            rows = max(len(f_col) for f_col in f_cols if isinstance(f_col, np.ndarray))
+            # Broadcast scalar values to match the number of rows of the output
+            for i, f_col in enumerate(f_cols):
+                if np.isscalar(f_col):
+                    f_cols[i] = np.full((rows,), f_col, dtype=np.float64)
+            return np.column_stack(f_cols)
 
         setattr(namespace, self.dest, system_dynamics_func if functions else None)
 

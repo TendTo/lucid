@@ -193,12 +193,14 @@ export const jsonSchema = z
   .superRefine((data, ctx) => {
     const xs = new Set();
     for (const f of data.system_dynamics ?? []) {
-      const match = f.match(/x(\d+)/);
-      if (match) {
-        const x = parseInt(match[1], 10);
+      const match = f.matchAll(/x(\d+)/g);
+      console.log("match", match);
+      for (const m of match ?? []) {
+        const x = parseInt(m[1], 10);
         xs.add(x);
       }
     }
+    console.log("xs", xs);
     if (xs.size !== data.X_bounds?.RectSet.length) {
       ctx.addIssue({
         path: ["system_dynamics"],

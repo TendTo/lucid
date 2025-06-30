@@ -1,5 +1,5 @@
 import { Disclosure } from "@headlessui/react";
-import { FaX, FaCheck } from "react-icons/fa6";
+import { FaX, FaCheck, FaFileImport } from "react-icons/fa6";
 import Logo from "@assets/logo.svg";
 import type { FormStepName, FormSteps } from "@components/App";
 
@@ -7,9 +7,15 @@ export type HeaderProps = {
   errors: object;
   steps: FormSteps;
   setCurrentStep: (step: FormStepName) => void;
+  setIsImportModalOpen: (isOpen: boolean) => void; // Optional for import modal
 };
 
-export default function Header({ steps, setCurrentStep, errors }: HeaderProps) {
+export default function Header({
+  steps,
+  setCurrentStep,
+  errors,
+  setIsImportModalOpen,
+}: HeaderProps) {
   return (
     <header>
       <Disclosure as="nav" className="bg-gray-800">
@@ -20,17 +26,15 @@ export default function Header({ steps, setCurrentStep, errors }: HeaderProps) {
                 <img alt="Lucid logo" src={Logo} className="size-8" />
               </div>
               <h1 className="text-white">Lucid</h1>
-              <div className="ml-10 flex items-baseline space-x-4">
+              <div className="ml-10 flex items-center space-x-4">
                 {Object.entries(steps).map(([key, item]) => (
                   <a
                     key={item.name}
                     href={item.href}
                     aria-current={item.current ? "page" : undefined}
                     className={
-                      "rounded-md px-3 py-2 text-sm font-medium " +
-                      (item.current
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white")
+                      "rounded-md px-4 py-2 text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 decoration-wavy underline-offset-4"
+                      + (item.current ? " underline" : "")
                     }
                     onClick={(e) => {
                       e.preventDefault();
@@ -45,6 +49,14 @@ export default function Header({ steps, setCurrentStep, errors }: HeaderProps) {
                     )}
                   </a>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded flex items-center cursor-pointer"
+                >
+                  <FaFileImport className="inline-block mr-1" />
+                  Import JSON
+                </button>
               </div>
             </div>
           </div>
