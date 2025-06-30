@@ -207,26 +207,29 @@ class ConfigAction(Action):
         for set_name in ("X_bounds", "X_init", "X_unsafe"):
             set_value = config_dict.get(set_name, getattr(args, set_name))
             if set_value is None or isinstance(set_value, Set):
-                setattr(args, set_name, None)
+                setattr(args, set_name, set_value)
             elif isinstance(set_value, str):
                 set_parser = set_parser or SetParser()
                 setattr(args, set_name, set_parser.parse(config_dict[set_name]))
             else:
-                set_value = self.parse_set_from_dict(config_dict[set_name])
+                set_value = self.parse_set_from_config(config_dict[set_name])
                 setattr(args, set_name, set_value)
 
-    def parse_set_from_dict(self, set_dict: dict):
-        """Helper function to parse set objects from dictionary representation"""
-        assert isinstance(set_dict, dict), "Input must be a dictionary representing a set"
-        if "RectSet" in set_dict:
-            rect_data = set_dict["RectSet"]
+    def parse_set_from_config(self, set_config: "dict | list") -> "Set":
+        """Helper function to parse set objects from dictionary/list representation"""
+        if not isinstance(set_config, dict):
+            if len(set_config) == 0:
+                raise raise_error("Set configuration cannot be empty")
+            if len(set_config) == 1 and isinstance(set_config[0], dict):
+                return self.parse_set_from_config(set_config[0])
+            return MultiSet(*tuple(self.parse_set_from_config(rect_item) for rect_item in set_config))
+        assert isinstance(set_config, dict), "Set configuration must be a dictionary or a list of dictionaries"
+        if "RectSet" in set_config:
+            rect_data = set_config["RectSet"]
             return (
-                RectSet(rect_data) if isinstance(rect_data, list) else RectSet(rect_data["lower"], rect_data["upper"])
+                RectSet(rect_data["lower"], rect_data["upper"]) if isinstance(rect_data, dict) else RectSet(rect_data)
             )
-        if "MultiSet" in set_dict:
-            multi_data = set_dict["MultiSet"]
-            return MultiSet(*tuple(self.parse_set_from_dict(rect_item) for rect_item in multi_data))
-        raise raise_error(f"Unsupported set type in dictionary: {set_dict}")
+        raise raise_error(f"Unsupported set type in dictionary: {set_config}")
 
 
 class FloatOrNVectorAction(Action):

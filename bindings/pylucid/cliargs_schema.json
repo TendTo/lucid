@@ -10,20 +10,16 @@
           "type": "string"
         },
         {
-          "type": "object",
-          "required": ["RectSet"],
-          "properties": {
-            "RectSet": {
-              "$ref": "#/$defs/rect_set"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": ["MultiSet"],
-          "properties": {
-            "MultiSet": {
-              "$ref": "#/$defs/multi_set"
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["RectSet"],
+            "properties": {
+              "RectSet": {
+                "$ref": "#/$defs/rect_set"
+              }
             }
           }
         }
@@ -68,21 +64,6 @@
           }
         }
       ]
-    },
-    "multi_set": {
-      "description": "A set of multiple rectangles, each defined by a lower and upper bound for each dimension.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "required": ["RectSet"],
-        "additionalProperties": false,
-        "properties": {
-          "RectSet": {
-            "$ref": "#/$defs/rect_set"
-          }
-        }
-      }
     }
   },
   "additionalProperties": false,

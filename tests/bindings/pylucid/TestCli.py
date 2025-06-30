@@ -322,14 +322,12 @@ class TestCli:
                     "verbose": 4,
                     "seed": 42,
                     "system_dynamics": ["x1 / 2"],
-                    "X_bounds": {"RectSet": {"lower": [-1], "upper": [1]}},
-                    "X_init": {"RectSet": {"lower": [-0.5], "upper": [0.5]}},
-                    "X_unsafe": {
-                        "MultiSet": [
-                            {"RectSet": {"lower": [-1], "upper": [-0.9]}},
-                            {"RectSet": {"lower": [0.9], "upper": [1]}},
-                        ]
-                    },
+                    "X_bounds": [{"RectSet": {"lower": [-1], "upper": [1]}}],
+                    "X_init": [{"RectSet": {"lower": [-0.5], "upper": [0.5]}}],
+                    "X_unsafe": [
+                        {"RectSet": {"lower": [-1], "upper": [-0.9]}},
+                        {"RectSet": {"lower": [0.9], "upper": [1]}},
+                    ],
                     "gamma": 1.0,
                     "c_coefficient": 1.0,
                     "lambda": 0.001,
