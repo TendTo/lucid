@@ -172,6 +172,50 @@ export const jsonSchema = z
       .default("GurobiOptimiser"),
   })
   .strict()
+  .superRefine((data, ctx) => {
+    const valid =
+      data.X_bounds?.RectSet !== undefined &&
+      data.X_bounds.RectSet.length === data.X_init?.RectSet.length &&
+      data.X_bounds.RectSet.length === data.X_unsafe?.RectSet.length;
+    if (valid) return;
+    for (const key of [
+      "X_bounds.RectSet",
+      "X_init.RectSet",
+      "X_unsafe.RectSet",
+    ] as const) {
+      ctx.addIssue({
+        path: [key],
+        code: "custom",
+        message: "X_bounds, X_init, and X_unsafe must have the same dimension.",
+      });
+    }
+  })
+  .superRefine((data, ctx) => {
+    const xs = new Set();
+    for (const f of data.system_dynamics ?? []) {
+      const match = f.match(/x(\d+)/);
+      if (match) {
+        const x = parseInt(match[1], 10);
+        xs.add(x);
+      }
+    }
+    if (xs.size !== data.X_bounds?.RectSet.length) {
+      ctx.addIssue({
+        path: ["system_dynamics"],
+        code: "custom",
+        message: `System dynamics must reference all and only inputs from 'x1' to 'x${data.X_bounds?.RectSet.length}'.`,
+      });
+    }
+    for (let i = 1; i <= xs.size; i++) {
+      if (!xs.has(i)) {
+        ctx.addIssue({
+          path: ["system_dynamics"],
+          code: "custom",
+          message: `System dynamics must reference all and only inputs from 'x1' to 'x${xs.size}'.`,
+        });
+      }
+    }
+  })
   .describe(
     "Representation of the command line arguments for pylucid expressed in a configuration file"
   );

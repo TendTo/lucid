@@ -46,7 +46,8 @@ def plot_solution_1d(
     estimator: "Estimator | None" = None,
     f: "callable | None" = None,
     c: float = 0.0,
-):
+    show: bool = True,
+) -> "plt.Figure":
     plt.xlim(X_bounds.lower_bound, X_bounds.upper_bound)
     # Draw the initial and unsafe sets
     if X_init is not None:
@@ -93,7 +94,9 @@ def plot_solution_1d(
     plt.title("Barrier certificate")
     plt.xlabel("State space")
     plt.legend()
-    plt.show()
+    if show:
+        plt.show()
+    return plt.gcf()
 
 
 def plot_set_2d(X_set: "RectSet | MultiSet", color: str, label: str = ""):
@@ -131,7 +134,8 @@ def plot_solution_2d(
     estimator: "Estimator" = None,
     f: "Callable[[NMatrix], NMatrix] | None" = None,
     c: float = 0.0,
-):
+    show: bool = True,
+) -> "plt.Figure":
     fig = plt.figure()
     ax: "Axes3D" = fig.add_subplot(111, projection="3d")
     ax.set_xlim(X_bounds.lower_bound[0], X_bounds.upper_bound[0])
@@ -176,7 +180,9 @@ def plot_solution_2d(
     ax.set_ylabel("State space x[1]")
     ax.set_zlabel("Barrier value")
     ax.legend()
-    plt.show()
+    if show:
+        plt.show()
+    return plt.gcf()
 
 
 def plot_estimator_1d(
@@ -186,6 +192,7 @@ def plot_estimator_1d(
     X_bounds: "RectSet | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
+    show: bool = True,
 ):
     """Plot the estimator's predictions against the true system dynamics in 2D.
 
@@ -195,6 +202,8 @@ def plot_estimator_1d(
         xp_samples: Sample points at the next time step
         X_init: Initial set of states
         X_unsafe: Unsafe set of states
+        X_bounds: Bounds of the state space
+        show: Whether to display the plot
     """
     if X_bounds is not None:
         plt.xlim(X_bounds.lower_bound[0], X_bounds.upper_bound[0])
@@ -213,7 +222,9 @@ def plot_estimator_1d(
     plt.xlabel("State")
     plt.ylabel("Next State")
     plt.legend()
-    plt.show()
+    if show:
+        plt.show()
+    return plt.gcf()
 
 
 def plot_estimator_2d(
@@ -223,6 +234,7 @@ def plot_estimator_2d(
     X_bounds: "RectSet | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
+    show: bool = True,
 ):
     """Plot the estimator's predictions against the true system dynamics in 2D.
 
@@ -232,6 +244,8 @@ def plot_estimator_2d(
         xp_samples: Sample points at the next time step
         X_init: Initial set of states
         X_unsafe: Unsafe set of states
+        X_bounds: Bounds of the state space
+        show: Whether to display the plot
     """
     fig = plt.figure()
     ax: "Axes3D" = fig.add_subplot(111, projection="3d")
@@ -255,7 +269,9 @@ def plot_estimator_2d(
     plt.ylabel("State x[1]")
     ax.set_zlabel("Next State")
     plt.legend()
-    plt.show()
+    if show:
+        plt.show()
+    return plt.gcf()
 
 
 def plot_feature_map(
@@ -266,7 +282,8 @@ def plot_feature_map(
     X_unsafe: "Set | None" = None,
     num_plots: int = 10,
     N: int = 300,
-):
+    show: bool = True,
+) -> "plt.Figure":
     """Plot the feature map of the system dynamics.
 
     Args:
@@ -277,6 +294,7 @@ def plot_feature_map(
         X_init: Initial state set
         X_unsafe: Unsafe state set
         N: Number of samples for plotting
+        show: Whether to display the plot
     """
     assert feature_map is not None, "Feature map must be provided."
     assert N > 0, "N must be a positive integer."
@@ -303,7 +321,9 @@ def plot_feature_map(
     plt.xlabel("State space")
     plt.ylabel("Feature Map Value")
     plt.legend()
-    plt.show()
+    if show:
+        plt.show()
+    return plt.gcf()
 
 
 def plot_estimator(
@@ -314,7 +334,8 @@ def plot_estimator(
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
     N: int = 300,
-):
+    show: bool = True,
+) -> "plt.Figure":
     """Plot the estimator's predictions against the true system dynamics.
 
     Args:
@@ -344,7 +365,9 @@ def plot_estimator(
 
     plot_estimator_fun = (plot_estimator_1d, plot_estimator_2d)
     if x_samples.shape[1] <= len(plot_estimator_fun) and xp_samples.shape[1] == 1:
-        return plot_estimator_fun[x_samples.shape[1] - 1](estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe)
+        return plot_estimator_fun[x_samples.shape[1] - 1](
+            estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe, show
+        )
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {x_samples.shape[1]} => {xp_samples.shape[1]}-dimensional sets. "
         f"Only (1D or 2D) => 1D are supported."
@@ -362,12 +385,13 @@ def plot_solution(
     estimator: "Estimator | None" = None,
     f: "Callable[[NMatrix], NMatrix] | None" = None,
     c: "float" = 0.0,
-):
+    show: bool = True,
+) -> "plt.Figure":
     assert X_bounds.dimension > 0, "X_bounds must have a positive dimension."
     plot_solution_fun = (plot_solution_1d, plot_solution_2d)
     if X_bounds.dimension <= len(plot_solution_fun):
         return plot_solution_fun[X_bounds.dimension - 1](
-            X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c
+            X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c, show
         )
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
@@ -380,7 +404,8 @@ def plot_function_1d(
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
     n: int = 100,
-):
+    show: bool = True,
+) -> "plt.Figure":
     """Plot a function f over the given samples in 1D.
 
     Args:
@@ -389,6 +414,7 @@ def plot_function_1d(
         X_init: Initial set of states
         X_unsafe: Unsafe set of states
         n: Number of lattice points to consider for plotting
+        show: Whether to display the plot
     """
     assert X_bounds.dimension == 1, "plot_function is only supported for 1D functions."
     if X_init is not None:
@@ -396,7 +422,7 @@ def plot_function_1d(
     if X_unsafe is not None:
         plot_set_1d(X_unsafe, "red", label="Unsafe Set")
 
-    x_samples = X_bounds.lattice(n, True).flatten()
+    x_samples = X_bounds.lattice(n, True).flatten().reshape(-1, 1)  # Ensure x_samples is a 2D array with shape (n, 1)
     y = np.linspace(0, 100, n).flatten()
     y_samples = f(x_samples)
     assert y_samples.ndim == 1 or y_samples.shape[1] == 1, "Function f must return a 1D array for 1D plotting."
@@ -408,7 +434,9 @@ def plot_function_1d(
     plt.title("Function Plot")
     plt.xlabel("Input")
     plt.ylabel("Output")
-    plt.show()
+    if show:
+        plt.show()
+    return plt.gcf()
 
 
 def plot_function_2d(
@@ -417,7 +445,8 @@ def plot_function_2d(
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
     n: int = 100,
-):
+    show: bool = True,
+) -> "plt.Figure":
     """Plot a function f over the given samples in 2D.
 
     Args:
@@ -426,6 +455,7 @@ def plot_function_2d(
         X_init: Initial set of states
         X_unsafe: Unsafe set of states
         n: Number of lattice points to consider for plotting
+        show: Whether to display the plot
     """
     assert X_bounds.dimension == 2, "plot_function is only supported for 2D functions."
     if X_init is not None:
@@ -448,12 +478,16 @@ def plot_function_2d(
     v = Yp - Y
 
     speed = np.sqrt(u**2 + v**2)
+    speed[speed == 0] = 1
 
+    print(f"Speed: {speed.max()}")
     plt.streamplot(X, Y, u, v, color="blue", linewidth=5 * speed / speed.max())
     plt.title("Function Plot")
     plt.xlabel("Input Dimension 1")
     plt.ylabel("Input Dimension 2")
-    plt.show()
+    if show:
+        plt.show()
+    return plt.gcf()
 
 
 def plot_function(
@@ -461,11 +495,12 @@ def plot_function(
     f: "Callable[[NMatrix], NMatrix]",
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
+    show: bool = True,
 ):
     """Plot a function f over the given samples."""
     plot_function_fun = (plot_function_1d, plot_function_2d)  # Add more functions for higher dimensions if needed
     if X_bounds.dimension <= len(plot_function_fun):
-        return plot_function_fun[X_bounds.dimension - 1](X_bounds, f, X_init, X_unsafe)
+        return plot_function_fun[X_bounds.dimension - 1](X_bounds, f, X_init, X_unsafe, show=show)
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
     )

@@ -127,6 +127,16 @@ class ConfigAction(Action):
         # Load the configuration file and the JSON schema
         with open(values, "r", encoding="utf-8") as f:
             config = json.load(f) if values.suffix == ".json" else yaml.safe_load(f)
+        if not isinstance(config, dict):
+            raise raise_error(f"Configuration file must contain a dictionary, got {type(config)} instead")
+        # Validate the configuration dictionary against the schema
+        self.validate(config, verbosity=namespace.verbose)
+
+        # Convert the dictionary to CLIArgs and update the namespace
+        self.dict_to_cliargs(config, namespace)
+
+    def validate(self, config_dict: dict, verbosity: int = log.LOG_INFO):
+        """Validate the configuration dictionary against the schema."""
         if sys.version_info < (3, 9):
             with importlib.resources.open_text("pylucid", "cliargs_schema.json", encoding="utf-8") as schema_file:
                 schema = json.load(schema_file)
@@ -136,15 +146,11 @@ class ConfigAction(Action):
             ) as schema_file:
                 schema = json.load(schema_file)
 
-        # Validate the configuration against the schema
         try:
-            validate(instance=config, schema=schema)
+            validate(instance=config_dict, schema=schema)
         except ValidationError as e:
             error_msg = f"Configuration file validation failed: {e.message}"
-            raise raise_error(error_msg) from (e if namespace.verbose >= log.LOG_DEBUG else None)
-
-        # Convert the dictionary to CLIArgs and update the namespace
-        self.dict_to_cliargs(config, namespace)
+            raise raise_error(error_msg, ValidationError) from (e if verbosity >= log.LOG_DEBUG else None)
 
     def dict_to_cliargs(self, config_dict: dict, args: CLIArgs) -> CLIArgs:
         """

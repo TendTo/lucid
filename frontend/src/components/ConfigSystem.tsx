@@ -8,6 +8,7 @@ import SetInput from "@components/SetInput";
 import { FaEye, FaPlus, FaTrash } from "react-icons/fa6";
 import { ErrorMessage } from "@hookform/error-message";
 import { useCallback, useState } from "react";
+import { DangerousElement } from "@components/DangerousElement";
 
 export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
   return Boolean(
@@ -18,15 +19,29 @@ export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
   );
 }
 
+type ErrorMessage = {
+  message: string;
+  cause: string;
+};
+
 export default function ConfigSystem() {
-  const { register, control, formState, getValues } = useFormContext();
+  const { register, control, formState, getValues, trigger, setError } =
+    useFormContext();
   const [graph, setGraph] = useState<string>("");
   const { fields, append, remove } = useFieldArray({
     control,
     name: "system_dynamics",
   });
 
+  console.log("ConfigSystem: useFormContext", formState.errors);
+
   const handlePreview = useCallback(async () => {
+    if (
+      !(await trigger(["system_dynamics", "X_bounds", "X_init", "X_unsafe"]))
+    ) {
+      console.error("Form validation failed");
+      return;
+    }
     const response = await fetch("http://127.0.0.1:5000/preview-graph", {
       method: "POST",
       headers: {
@@ -35,10 +50,18 @@ export default function ConfigSystem() {
       body: JSON.stringify(getValues()),
     });
     if (!response.ok) {
-      throw new Error("Failed to fetch graph data");
+      setGraph("");
+      const error: ErrorMessage = await response.json();
+      if (error.cause) {
+        setError(error.cause, {
+          type: "value",
+          message: error.message,
+        });
+      }
+      throw new Error(`Error fetching graph preview: ${error.message}`);
     }
     setGraph(await response.text());
-  }, [getValues, setGraph]);
+  }, [getValues, setGraph, trigger, setError]);
 
   return (
     <div>
@@ -103,7 +126,7 @@ export default function ConfigSystem() {
 
       <SetInput name="X_unsafe" label="X unsafe" />
 
-      <div dangerouslySetInnerHTML={{ __html: graph }} />
+      <DangerousElement markup={graph} />
     </div>
   );
 }
