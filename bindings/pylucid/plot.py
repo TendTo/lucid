@@ -480,7 +480,6 @@ def plot_function_2d(
     speed = np.sqrt(u**2 + v**2)
     speed[speed == 0] = 1
 
-    print(f"Speed: {speed.max()}")
     plt.streamplot(X, Y, u, v, color="blue", linewidth=5 * speed / speed.max())
     plt.title("Function Plot")
     plt.xlabel("Input Dimension 1")

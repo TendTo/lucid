@@ -4,17 +4,25 @@ import { FaPlus, FaTrash } from "react-icons/fa6";
 
 type SetInputProps = {
   name: string;
+  idx: number;
   label: string;
+  type: "RectSet";
+  removeItself: (index: number) => void;
 };
 
-export default function SetInput({ name, label }: SetInputProps) {
-  const { register, control, formState } = useFormContext();
+export default function SetInput({
+  name,
+  idx,
+  type,
+  label,
+  removeItself,
+}: SetInputProps) {
+  const { register, control, formState, getValues } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `${name}.RectSet`,
+    name: `${name}.${idx}.${type}`,
   });
 
-  // Very basic structure display - you'd want a proper editor here
   return (
     <div className="form-group">
       <label className="block font-bold">{label}</label>
@@ -22,21 +30,23 @@ export default function SetInput({ name, label }: SetInputProps) {
         <div className="my-2" key={field.id}>
           <div className="flex items-center gap-2">
             <input
-              className="flex-grow-1 border rounded px-3 py-2 border-solid border-[#ddd] min-w-16"
-              {...register(`${name}.RectSet.${index}.0`, {
+              className="border rounded px-3 py-2 border-solid border-[#ddd] w-24"
+              {...register(`${name}.${idx}.${type}.${index}.0`, {
                 valueAsNumber: true,
                 required: true,
               })}
+              max={getValues(`${name}.${idx}.${type}.${index}.1`)}
               step="any"
               placeholder="0.0"
               type="number"
             />
             <input
-              className="flex-grow-1 border rounded px-3 py-2 border-solid border-[#ddd] min-w-16"
-              {...register(`${name}.RectSet.${index}.1`, {
+              className="border rounded px-3 py-2 border-solid border-[#ddd] w-24"
+              {...register(`${name}.${idx}.${type}.${index}.1`, {
                 valueAsNumber: true,
                 required: true,
               })}
+              min={getValues(`${name}.${idx}.${type}.${index}.0`)}
               placeholder="0.0"
               step="any"
               type="number"
@@ -44,21 +54,21 @@ export default function SetInput({ name, label }: SetInputProps) {
             <button
               type="button"
               onClick={() => remove(index)}
-              className="bg-red-500 size-8 p-2 rounded"
+              className="btn btn-danger"
             >
               <FaTrash />
             </button>
           </div>
           <ErrorMessage
             errors={formState.errors}
-            name={`${name}.RectSet.${index}`}
+            name={`${name}.${idx}.${type}.${index}`}
             render={({ message }) => (
               <small className="text-red-500">{message}</small>
             )}
           />
           <ErrorMessage
             errors={formState.errors}
-            name={`${name}.RectSet.${index}.root`}
+            name={`${name}.${idx}.${type}.${index}.root`}
             render={({ message }) => (
               <small className="text-red-500">{message}</small>
             )}
@@ -67,19 +77,28 @@ export default function SetInput({ name, label }: SetInputProps) {
       ))}
       <ErrorMessage
         errors={formState.errors}
-        name={`${name}.RectSet`}
+        name={`${name}.${idx}.${type}`}
         render={({ message }) => (
           <small className="text-red-500 block mb-1">{message}</small>
         )}
       />
-      <button
-        type="button"
-        onClick={() => append([[0, 1]])}
-        className="bg-green-500 px-4 py-2 rounded flex items-center"
-      >
-        <FaPlus className="inline-block mr-1 size-4" />
-        Add dimension
-      </button>
+      <div className="flex items-center gap-2 mt-2">
+        <button
+          type="button"
+          onClick={() => append([[0, 1]])}
+          className="btn btn-success flex items-center"
+        >
+          <FaPlus className="inline-block mr-1 size-4" />
+          Add dimension
+        </button>
+        <button
+          type="button"
+          onClick={() => removeItself(idx)}
+          className="btn btn-danger"
+        >
+          <FaTrash />
+        </button>
+      </div>
     </div>
   );
 }

@@ -33,8 +33,8 @@ export default function Header({
                     href={item.href}
                     aria-current={item.current ? "page" : undefined}
                     className={
-                      "rounded-md px-4 py-2 text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 decoration-wavy underline-offset-4"
-                      + (item.current ? " underline" : "")
+                      "rounded-md px-4 py-2 text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 decoration-wavy underline-offset-4" +
+                      (item.current ? " underline" : "")
                     }
                     onClick={(e) => {
                       e.preventDefault();
@@ -52,7 +52,7 @@ export default function Header({
                 <button
                   type="button"
                   onClick={() => setIsImportModalOpen(true)}
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded flex items-center cursor-pointer"
+                  className="btn btn-secondary flex items-center justify-center"
                 >
                   <FaFileImport className="inline-block mr-1" />
                   Import JSON

@@ -86,14 +86,14 @@ export default function JSONImportModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleImport}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center"
+            className="btn btn-primary flex items-center"
           >
             <FaFileImport className="mr-2" />
             Import

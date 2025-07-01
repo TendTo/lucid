@@ -21,7 +21,7 @@ export default function JsonPreview({ formData }: JsonPreviewProps) {
         <h4>Current Configuration (JSON)</h4>
         <button
           onClick={copyToClipboard}
-          className="bg-gray-800 p-2 text-white rounded cursor-pointer hover:bg-gray-700"
+          className="btn btn-secondary"
           title="Copy to clipboard"
         >
           {copied ? (

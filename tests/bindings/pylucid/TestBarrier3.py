@@ -29,7 +29,7 @@ def scenario_config(
         verify=True,
         problem_log_file="problem.lp",
         iis_log_file="iis.ilp",
-        oversample_factor=32.0,
+        oversample_factor=40.0,
         c_coefficient=1.0,
     )
 ) -> "ScenarioConfig":

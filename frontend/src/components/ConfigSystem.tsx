@@ -4,7 +4,7 @@ import {
   type FieldErrors,
   type FieldValues,
 } from "react-hook-form";
-import SetInput from "@components/SetInput";
+import SetsInput from "@app/components/SetsInput";
 import { FaEye, FaPlus, FaTrash } from "react-icons/fa6";
 import { ErrorMessage } from "@hookform/error-message";
 import { useCallback, useState } from "react";
@@ -67,7 +67,8 @@ export default function ConfigSystem() {
         <h2 className="font-bold text-lg mb-2">System Configuration</h2>
         <button
           type="button"
-          className="bg-blue-500 px-4 py-2 rounded flex items-center text-white"
+          className="btn btn-primary"
+          disabled={systemFormErrors(formState.errors)}
           onClick={handlePreview}
         >
           <FaEye className="inline-block mr-1 size-4" />
@@ -87,9 +88,9 @@ export default function ConfigSystem() {
               <button
                 type="button"
                 onClick={() => remove(index)}
-                className="bg-red-500 size-8 p-2 rounded"
+                className="btn btn-danger size-8"
               >
-                <FaTrash />
+                <FaTrash className="flex-grow-1" />
               </button>
             </div>
             <ErrorMessage
@@ -111,18 +112,18 @@ export default function ConfigSystem() {
         <button
           type="button"
           onClick={() => append(`x${fields.length + 1}`)}
-          className="bg-green-500 px-4 py-2 rounded flex items-center"
+          className="btn btn-success"
         >
           <FaPlus className="inline-block mr-1 size-4" />
           Add output dimension
         </button>
       </div>
 
-      <SetInput name="X_bounds" label="X bounds" />
+      <SetsInput name="X_bounds" label="X bounds" />
 
-      <SetInput name="X_init" label="X init" />
+      <SetsInput name="X_init" label="X init" />
 
-      <SetInput name="X_unsafe" label="X unsafe" />
+      <SetsInput name="X_unsafe" label="X unsafe" />
 
       <DangerousElement markup={graph} />
     </div>

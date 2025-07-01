@@ -11,7 +11,7 @@ import ConfigExecution, {
   executionFormErrors,
 } from "@components/ConfigExecution";
 import JsonPreview from "@components/JsonPreview";
-import { FaFileImport, FaPaperPlane } from "react-icons/fa6";
+import { FaPaperPlane } from "react-icons/fa6";
 import JSONImportModal from "@components/JSONImportModal";
 
 export type FormStep = {
@@ -51,13 +51,17 @@ type FeatureMapType =
   | "LogTruncatedFourierFeatureMap";
 type OptimiserType = "GurobiOptimiser" | "AlglibOptimiser";
 
+type RectSet = {
+  RectSet: [number, number][];
+};
+
 const defaultValues = {
   verbose: 3,
   seed: -1,
   system_dynamics: [] as string[],
-  X_bounds: { RectSet: [] as [number, number][] },
-  X_init: { RectSet: [] as [number, number][] },
-  X_unsafe: { RectSet: [] as [number, number][] },
+  X_bounds: [] as RectSet[],
+  X_init: [] as RectSet[],
+  X_unsafe: [] as RectSet[],
   gamma: 1.0,
   c_coefficient: 1.0,
   lambda: 1.0,
@@ -78,6 +82,17 @@ const defaultValues = {
   feature_map: "LinearTruncatedFourierFeatureMap" as FeatureMapType,
   optimiser: "GurobiOptimiser" as OptimiserType,
 };
+
+async function onSubmit(data: typeof defaultValues) {
+  const response = await fetch("http://127.0.0.1:5000/run", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  console.log("Response", response);
+}
 
 export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
@@ -100,7 +115,8 @@ export default function App() {
 
   const methods = useForm({
     resolver: zodResolver(jsonSchema),
-    defaultValues,
+    defaultValues: defaultValues as unknown as any,
+    mode: "onChange",
   });
 
   const disabled = useMemo(
@@ -110,12 +126,6 @@ export default function App() {
       ),
     [methods.formState]
   );
-
-  const onSubmit = (data: object) => {
-    console.log(JSON.stringify(data, null, 2));
-    // Here you would typically send the data to your API
-    alert("Configuration submitted successfully!");
-  };
 
   return (
     <div className="py-lucid-dashboard">
@@ -129,7 +139,7 @@ export default function App() {
       <div className="dashboard-container">
         <main className="content">
           <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)}>
+            <form onSubmit={methods.handleSubmit(onSubmit as any)}>
               {formSteps.system.current && <ConfigSystem />}
               {formSteps.algorithm.current && <ConfigAlgorithm />}
               {formSteps.execution.current && <ConfigExecution />}
@@ -138,9 +148,7 @@ export default function App() {
                   type="submit"
                   disabled={disabled}
                   className={
-                    disabled
-                      ? "w-50 bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed flex items-center justify-center"
-                      : "w-50 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center"
+                    "btn btn-primary flex items-center justify-center w-50"
                   }
                 >
                   <FaPaperPlane className="mr-2" />

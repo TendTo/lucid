@@ -212,8 +212,10 @@ def pipeline(
                 sol=sol,
             )
 
-    print(optimiser)
-    exit(0)  # --- IGNORE ---
+    files = {
+        "problem_log_file": problem_log_file,
+        "iis_log_file": iis_log_file,
+    }
 
     return optimiser(
         T,
@@ -223,8 +225,7 @@ def pipeline(
         b_kappa=1,
         C_coeff=c_coefficient,
         sigma_f=sigma_f,
-        problem_log_file=problem_log_file,
-        iis_log_file=iis_log_file,
+        **(files if isinstance(optimiser, GurobiOptimiser) else {}),
     ).solve(
         f0_lattice=f_x0_lattice,
         fu_lattice=f_xu_lattice,

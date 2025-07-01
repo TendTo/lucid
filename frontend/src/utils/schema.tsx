@@ -1,5 +1,32 @@
 import { z } from "zod";
 
+const set = z
+  .array(
+    z.object({
+      RectSet: z
+        .array(
+          z
+            .tuple([z.number(), z.number()])
+            .refinement(([min, max]) => min < max, {
+              message: "Inverted bounds.",
+              code: "custom",
+            })
+        )
+        .nonempty()
+        .describe(
+          "Bounds for the state space, each tuple is a [lower, upper] bound."
+        ),
+    })
+  )
+  .nonempty()
+  .refinement(
+    (rectSet) =>
+      rectSet.every((r) => r.RectSet.length === rectSet[0].RectSet.length),
+    {
+      message: "All sets must have the same dimension.",
+      code: "custom",
+    }
+  );
 export const jsonSchema = z
   .object({
     verbose: z
@@ -17,69 +44,11 @@ export const jsonSchema = z
       .default(-1),
     system_dynamics: z
       .array(z.string().nonempty())
-      .min(1)
-      .describe("Dynamics of the system, describing how it evolves over time.")
-      .optional(),
-    X_bounds: z
-      .object({
-        RectSet: z
-          .array(
-            z
-              .tuple([z.number(), z.number()])
-              .refinement(([min, max]) => min < max, {
-                message:
-                  "Invalid bounds: lower bound must be less than upper bound.",
-                code: "custom",
-              })
-          )
-          .min(1)
-          .describe(
-            "Bounds for the state space, each tuple is a [lower, upper] bound."
-          )
-          .default([]),
-      })
-      .describe("Bounds for the state space.")
-      .optional(),
-    X_init: z
-      .object({
-        RectSet: z
-          .array(
-            z
-              .tuple([z.number(), z.number()])
-              .refinement(([min, max]) => min < max, {
-                message:
-                  "Invalid bounds: lower bound must be less than upper bound.",
-                code: "custom",
-              })
-          )
-          .min(1)
-          .describe(
-            "Initial state of the system, each tuple is a [lower, upper] bound."
-          )
-          .default([]),
-      })
-      .describe("Initial state of the system.")
-      .optional(),
-    X_unsafe: z
-      .object({
-        RectSet: z
-          .array(
-            z
-              .tuple([z.number(), z.number()])
-              .refinement(([min, max]) => min < max, {
-                message:
-                  "Invalid bounds: lower bound must be less than upper bound.",
-                code: "custom",
-              })
-          )
-          .min(1)
-          .describe(
-            "Unsafe states of the system, each tuple is a [lower, upper] bound."
-          )
-          .default([]),
-      })
-      .describe("Unsafe states of the system.")
-      .optional(),
+      .nonempty()
+      .describe("Dynamics of the system, describing how it evolves over time."),
+    X_bounds: set,
+    X_init: set,
+    X_unsafe: set,
     gamma: z.number().optional(),
     c_coefficient: z.number().optional(),
     lambda: z.number().optional(),
@@ -173,16 +142,15 @@ export const jsonSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
+    const inputDimensions = data.X_bounds.length
+      ? data.X_bounds[0].RectSet.length
+      : 0;
     const valid =
-      data.X_bounds?.RectSet !== undefined &&
-      data.X_bounds.RectSet.length === data.X_init?.RectSet.length &&
-      data.X_bounds.RectSet.length === data.X_unsafe?.RectSet.length;
+      data.X_bounds.every((r) => r.RectSet.length === inputDimensions) &&
+      data.X_init.every((r) => r.RectSet.length === inputDimensions) &&
+      data.X_unsafe.every((r) => r.RectSet.length === inputDimensions);
     if (valid) return;
-    for (const key of [
-      "X_bounds.RectSet",
-      "X_init.RectSet",
-      "X_unsafe.RectSet",
-    ] as const) {
+    for (const key of ["X_bounds", "X_init", "X_unsafe"] as const) {
       ctx.addIssue({
         path: [key],
         code: "custom",
@@ -191,21 +159,22 @@ export const jsonSchema = z
     }
   })
   .superRefine((data, ctx) => {
+    const inputDimensions = data.X_bounds.length
+      ? data.X_bounds[0].RectSet.length
+      : 0;
     const xs = new Set();
     for (const f of data.system_dynamics ?? []) {
       const match = f.matchAll(/x(\d+)/g);
-      console.log("match", match);
       for (const m of match ?? []) {
         const x = parseInt(m[1], 10);
         xs.add(x);
       }
     }
-    console.log("xs", xs);
-    if (xs.size !== data.X_bounds?.RectSet.length) {
+    if (xs.size !== inputDimensions) {
       ctx.addIssue({
         path: ["system_dynamics"],
         code: "custom",
-        message: `System dynamics must reference all and only inputs from 'x1' to 'x${data.X_bounds?.RectSet.length}'.`,
+        message: `System dynamics must reference all and only inputs from 'x1' to 'x${inputDimensions}'.`,
       });
     }
     for (let i = 1; i <= xs.size; i++) {
