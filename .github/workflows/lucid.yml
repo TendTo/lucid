@@ -3,12 +3,12 @@ name: lucid CI
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - "lucid/**"
       - "test/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - "lucid/**"
       - "test/**"
@@ -18,7 +18,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os:
+          - ubuntu-latest
+          # - macos-latest
+          # - windows-latest
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -42,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     needs: build
 
@@ -66,7 +69,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     runs-on: ${{ matrix.os }}
     needs: build
 
@@ -91,10 +97,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs: build
-    if: false  # Temporarily disabled due to faulty integration
+    if: false # Temporarily disabled due to faulty integration
 
     steps:
       - uses: actions/checkout@v4
@@ -117,7 +123,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     needs: build
 
