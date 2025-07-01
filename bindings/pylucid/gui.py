@@ -10,21 +10,24 @@ from pyparsing import ParseException
 from pylucid.cli import CLIArgs, ConfigAction, arg_parser
 from pylucid.plot import plot_function
 from pylucid import log
-
+import webbrowser
 import warnings
 import matplotlib
 
+
 warnings.filterwarnings("ignore", category=matplotlib.MatplotlibDeprecationWarning)
+
+DEBUG = True
 
 
 def main():
-    app = Flask(__name__, static_folder="../frontend/dist", static_url_path="")
+    app = Flask(__name__, static_folder="frontend", static_url_path="")
     CORS(app, origins=["*"])
 
     @app.route("/", methods=["GET"])
     def index():
         log.info("Received request for index page.")
-        return send_from_directory("../frontend/dist", "index.html")
+        return send_from_directory("frontend", "index.html")
 
     @app.route("/preview-graph", methods=["GET", "POST"])
     def preview_graph():
@@ -102,4 +105,8 @@ def main():
             "safety_probability": 0.95,
         }
 
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    if not DEBUG:
+        log.info("Opening the app in the default web browser.")
+        # Open the app in the default web browser
+        webbrowser.open("http://localhost:5000", new=2)  # Open the app in the default web browser
+    app.run(debug=DEBUG, host="0.0.0.0", port=5000)

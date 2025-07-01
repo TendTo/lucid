@@ -45,11 +45,12 @@ BUILD_DEPS = [
 ]]
 
 vite_bin.vite(
-    name = "build",
+    name = "frontend",
     srcs = BUILD_DEPS,
     args = ["build"],
     chdir = package_name(),
     out_dirs = ["dist"],
+    visibility = ["//visibility:public"],
 )
 
 vite_bin.vite_binary(

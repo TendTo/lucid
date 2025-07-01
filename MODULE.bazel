@@ -12,6 +12,9 @@ bazel_dep(name = "rules_cc", version = "0.1.1")
 # Apache License 2.0 | utility rules for Bazel
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 
+# Apache License 2.0 | utility rules for Bazel
+bazel_dep(name = "aspect_bazel_lib", version = "2.19.4")
+
 # Apache License 2.0 | rules housing all canonical settings for cross-platform builds
 bazel_dep(name = "platforms", version = "1.0.0")
 

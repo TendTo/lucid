@@ -3,6 +3,7 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 load("//tools:rules_cc.bzl", "lucid_pybind_extension", "lucid_pybind_library")
 load("//tools:variables.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION")
+load("@aspect_bazel_lib//lib:copy_directory.bzl", "copy_directory")
 
 exports_files(["cliargs_schema.json"])
 
@@ -11,6 +12,12 @@ lucid_pybind_library(
     srcs = ["interrupt.cpp"],
     hdrs = ["interrupt.h"],
     visibility = ["//lucid:__subpackages__"],
+)
+
+copy_directory(
+    name = "frontend",
+    src = "//frontend",
+    out = "frontend",
 )
 
 lucid_pybind_extension(
@@ -54,6 +61,7 @@ py_library(
         ":_pylucid.pyd",
         ":_pylucid.so",
         ":cliargs_schema.json",
+        ":frontend",
     ],
     imports = [".."],
     srcs_version = "PY3",
@@ -122,6 +130,7 @@ filegroup(
         ":_pylucid",
         ":pylucid_lib",
         ":stubgen",
+        ":frontend",
     ],
 )
 

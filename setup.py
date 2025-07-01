@@ -93,7 +93,12 @@ class BuildBazelExtension(build_ext.build_ext):
             file = re.sub(r"^.*bindings/pylucid/", "", path)
             ext_dest_dir = os.path.dirname(self.get_ext_fullpath(ext.name))
             os.makedirs(os.path.join(ext_dest_dir, os.path.dirname(file)), exist_ok=True)
-            shutil.copyfile(path, os.path.join(ext_dest_dir, file))
+            if os.path.isdir(path):
+                # If the path is a directory, copy it recursively
+                shutil.copytree(path, os.path.join(ext_dest_dir, file), dirs_exist_ok=True)
+            else:
+                # If the path is a file, copy it directly
+                shutil.copyfile(path, os.path.join(ext_dest_dir, file))
 
 
 config_vars = GlobalVariables()
