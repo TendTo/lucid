@@ -1,11 +1,12 @@
 {
-  "name": "lucid-frontend",
+  "name": "frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "prebuild": "tsc -b",
+    "build": "vite build -v",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -34,5 +35,19 @@
     "typescript-eslint": "^8.34.1",
     "vite": "^7.0.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "@tailwindcss/oxide",
+      "esbuild"
+    ]
+  },
+  "packageExtensions": {
+    "@hookform/resolvers": {
+      "dependencies": {
+        "zod": "^3.25.0"
+      }
+    }
   }
 }

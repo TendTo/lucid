@@ -39,6 +39,12 @@ bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 # Apache License 2.0 | Bazel rules for packaging the project
 bazel_dep(name = "rules_pkg", version = "1.1.0")
 
+# Apache License 2.0 | Node.js toolchain for Bazel
+bazel_dep(name = "rules_nodejs", version = "6.4.0")
+
+# Apache License 2.0 | rules for running javascript applications in Bazel
+bazel_dep(name = "aspect_rules_js", version = "2.0.2")
+
 # https://github.com/cpplint/cpplint/blob/develop/LICENSE | Google C++ Style Guide
 bazel_dep(name = "cpplint", version = "2.0.2", dev_dependency = True)
 
@@ -108,6 +114,22 @@ doxygen_extension.configuration(
     version = "1.13.2",
 )
 use_repo(doxygen_extension, "doxygen")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version = "20.19.2")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "npm",
+    npmrc = "//frontend:.npmrc",
+    data = [
+        "//frontend:package.json",
+    ],
+    pnpm_lock = "//frontend:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
+    # update_pnpm_lock = 1, # Only needed if you want to update the pnpm lock file
+)
+use_repo(npm, "npm")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(

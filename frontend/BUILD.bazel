@@ -1,0 +1,61 @@
+load("@npm//frontend:vite/package_json.bzl", vite_bin = "bin")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+exports_files([
+    ".npmrc",
+    "package.json",
+    "pnpm-lock.yaml",
+])
+
+npm_link_all_packages()
+
+BUILD_DEPS = [
+    "index.html",
+    "package.json",
+    "tsconfig.app.json",
+    "tsconfig.json",
+    "tsconfig.node.json",
+    "vite.config.ts",
+] + glob([
+    "src/**",
+    "public/**",
+]) + [":node_modules/" + d for d in [
+    "zod",
+    "@headlessui/react",
+    "@hookform/error-message",
+    "@hookform/resolvers",
+    "@tailwindcss/vite",
+    "react",
+    "react-dom",
+    "react-hook-form",
+    "react-icons",
+    "tailwindcss",
+    "vite",
+    "vite-tsconfig-paths",
+    "@vitejs/plugin-react-swc",
+    "@eslint/js",
+    "@types/react",
+    "@types/react-dom",
+    "eslint",
+    "eslint-plugin-react-hooks",
+    "eslint-plugin-react-refresh",
+    "globals",
+    "typescript",
+    "typescript-eslint",
+]]
+
+vite_bin.vite(
+    name = "build",
+    srcs = BUILD_DEPS,
+    args = ["build"],
+    chdir = package_name(),
+    out_dirs = ["dist"],
+)
+
+vite_bin.vite_binary(
+    name = "dev",
+    chdir = package_name(),
+    data = BUILD_DEPS,
+    # Under ibazel, let vite hot-reload changed files rather than restart it
+    tags = ["ibazel_notify_changes"],
+)

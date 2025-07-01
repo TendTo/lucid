@@ -5,3 +5,4 @@ bazel-out
 bazel-testlogs
 bazel-win-bazel
 .vscode
+frontend/node_modules
