@@ -142,6 +142,15 @@ class PyTuner final : public Tuner {
   }
 };
 
+class PyFeatureMap final : public FeatureMap {
+ public:
+  using FeatureMap::FeatureMap;
+
+  [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override {
+    pybind11::pybind11_fail("Tried to call pure virtual function \"FeatureMap::clone\"");
+  }
+};
+
 class PySet final : public Set {
  public:
   using Set::Set;
@@ -367,6 +376,29 @@ void init_model(py::module_ &m) {
              return GridSearchTuner(std::move(parameter_values), n_jobs);
            }),
            py::kw_only(), py::arg("n_jobs") = 0)
+      .def("tune", py::overload_cast<Estimator &, ConstMatrixRef, ConstMatrixRef>(&Tuner::tune, py::const_),
+           py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"))
+      .def(
+          "tune",
+          [](const GridSearchTuner &self, Estimator &estimator_, ConstMatrixRef training_inputs,
+             ConstMatrixRef training_outputs, const py::type &feature_map_type, const int num_frequencies,
+             const RectSet &x_limits) {
+            if (feature_map_type.is(py::type::of<ConstantTruncatedFourierFeatureMap>())) {
+              return self.tune<ConstantTruncatedFourierFeatureMap>(estimator_, training_inputs, training_outputs,
+                                                                   num_frequencies, x_limits);
+            }
+            if (feature_map_type.is(py::type::of<LinearTruncatedFourierFeatureMap>())) {
+              return self.tune<LinearTruncatedFourierFeatureMap>(estimator_, training_inputs, training_outputs,
+                                                                 num_frequencies, x_limits);
+            }
+            if (feature_map_type.is(py::type::of<LogTruncatedFourierFeatureMap>())) {
+              return self.tune<LogTruncatedFourierFeatureMap>(estimator_, training_inputs, training_outputs,
+                                                              num_frequencies, x_limits);
+            }
+            throw std::runtime_error("Unsupported feature map type");
+          },
+          py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
+          py::arg("feature_map_type"), py::arg("num_frequencies"), py::arg("x_limits"))
       .def_property_readonly("n_jobs", &GridSearchTuner::n_jobs)
       .def_property_readonly("parameters", &GridSearchTuner::parameters);
 
@@ -388,7 +420,9 @@ void init_model(py::module_ &m) {
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
 
   /**************************** FeatureMap ****************************/
-  py::class_<FeatureMap>(m, "FeatureMap").def("__str__", STRING_LAMBDA(FeatureMap));
+py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap")
+      .def("clone", &FeatureMap::clone)
+      .def("__str__", STRING_LAMBDA(FeatureMap));
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("prob_dim_wise"),
            py::arg("sigma_f"), py::arg("x_limits"))

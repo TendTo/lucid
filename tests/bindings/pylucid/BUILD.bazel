@@ -14,6 +14,10 @@ pylucid_py_test(name = "test_parser")
 
 pylucid_py_test(name = "test_cli")
 
+pylucid_py_test(name = "test_tuner")
+
+pylucid_py_test(name = "test_feature_map")
+
 #pylucid_gurobi_py_test(
 #    name = "test_barrier_3",
 #    data = [

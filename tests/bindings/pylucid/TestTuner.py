@@ -4,13 +4,17 @@ import numpy as np
 import pytest
 
 from pylucid import (
+    ConstantTruncatedFourierFeatureMap,
     GaussianKernel,
     GridSearchTuner,
     KernelRidgeRegressor,
     LbfgsTuner,
+    LinearTruncatedFourierFeatureMap,
+    LogTruncatedFourierFeatureMap,
     MedianHeuristicTuner,
     Parameter,
     ParameterValues,
+    RectSet,
     exception,
 )
 
@@ -306,6 +310,34 @@ class TestTuner:
             estimator = KernelRidgeRegressor(kernel=kernel, regularization_constant=1.0)
 
             tuner.tune(estimator, X, y)
+
+            # It should have selected one of our test values
+            assert estimator.get(Parameter.REGULARIZATION_CONSTANT) in [0.001, 0.01, 0.1, 1.0]
+
+        @pytest.mark.parametrize(
+            "feature_map_type",
+            [
+                LinearTruncatedFourierFeatureMap,
+                ConstantTruncatedFourierFeatureMap,
+                LogTruncatedFourierFeatureMap,
+            ],
+        )
+        def test_feature_map(self, feature_map_type: type):
+            X = np.random.uniform(size=(20, 2))
+            y = np.column_stack((np.sin(X[:, 0] * np.pi) + np.cos(X[:, 1] * np.pi), X[:, 0] * X[:, 1]))
+
+            # Define grid including regularization parameter
+            params = [
+                ParameterValues(Parameter.SIGMA_L, [np.array([1.0, 1.0])]),
+                ParameterValues(Parameter.SIGMA_F, [1.0]),
+                ParameterValues(Parameter.REGULARIZATION_CONSTANT, [0.001, 0.01, 0.1, 1.0]),
+            ]
+
+            tuner = GridSearchTuner(params)
+            kernel = GaussianKernel(sigma_l=1.0)
+            estimator = KernelRidgeRegressor(kernel=kernel, regularization_constant=1.0)
+
+            tuner.tune(estimator, X, y, feature_map_type, 2, RectSet([-1, -1], [1, 1]))
 
             # It should have selected one of our test values
             assert estimator.get(Parameter.REGULARIZATION_CONSTANT) in [0.001, 0.01, 0.1, 1.0]

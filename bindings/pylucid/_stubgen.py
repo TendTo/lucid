@@ -61,6 +61,7 @@ def generate_stub_files(out_dir: str, _pylucid_pyi: str):
             # Clone types
             .replace(b"def clone(self) -> Estimator:", b"def clone(self) -> typing.Self:")
             .replace(b"def clone(self) -> Kernel:", b"def clone(self) -> typing.Self:")
+            .replace(b"def clone(self) -> FeatureMap:", b"def clone(self) -> typing.Self:")
             # Parametrizable get method types
             .replace(
                 b"def get(self, parameter: Parameter) -> typing.Any:",
@@ -77,6 +78,10 @@ def generate_stub_files(out_dir: str, _pylucid_pyi: str):
             .replace(
                 b"def __init__(self, parameters: dict, n_jobs: int = 0) -> None:",
                 b"def __init__(self, parameters: dict[Parameter, ParameterValuesType], n_jobs: int = 0) -> None:",
+            )
+            .replace(
+                b"feature_map_type: type",
+                b"feature_map_type: type[TruncatedFourierFeatureMap]",
             )
         )
 
