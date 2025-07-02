@@ -29,6 +29,8 @@ class ConstantTruncatedFourierFeatureMap final : public TruncatedFourierFeatureM
   ConstantTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f,
                                      const RectSet& x_limits);
   ConstantTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits);
+
+  [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const ConstantTruncatedFourierFeatureMap& f);

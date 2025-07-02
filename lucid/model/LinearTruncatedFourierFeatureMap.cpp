@@ -40,6 +40,10 @@ LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num
                                                                    const Scalar sigma_f, const RectSet& x_limits)
     : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                        x_limits} {}
+std::unique_ptr<FeatureMap> LinearTruncatedFourierFeatureMap::clone() const {
+  LUCID_TRACE("Cloning");
+  return std::make_unique<LinearTruncatedFourierFeatureMap>(*this);
+}
 
 std::ostream& operator<<(std::ostream& os, const LinearTruncatedFourierFeatureMap& f) {
   return os << "LinearTruncatedFourierFeatureMap( "

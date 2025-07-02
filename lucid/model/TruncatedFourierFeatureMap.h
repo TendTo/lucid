@@ -80,6 +80,8 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   /** @getter{probability captured by the Fourier expansion, truncated Fourier feature map, NaN if not computed} */
   [[nodiscard]] Scalar captured_probability() const { return captured_probability_; }
 
+  [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
+
  protected:
   int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
   Matrix omega_;                       ///< Frequencies matrix

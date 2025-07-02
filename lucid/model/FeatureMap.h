@@ -32,6 +32,13 @@ class FeatureMap {
    * @return @f$ n \times M @f$ output, where @f$ M @f$ is the dimension of the feature space
    */
   [[nodiscard]] virtual Matrix operator()(ConstMatrixRef x) const = 0;
+
+  /**
+   * Clone the feature map.
+   * Create a new instance of the feature map with the same parameters.
+   * @return new instance of the feature map
+   */
+  [[nodiscard]] virtual std::unique_ptr<FeatureMap> clone() const = 0;
 };
 
 std::ostream &operator<<(std::ostream &os, const FeatureMap &f);

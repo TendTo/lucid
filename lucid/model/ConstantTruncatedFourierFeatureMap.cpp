@@ -45,6 +45,11 @@ ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int
     : ConstantTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                          x_limits} {}
 
+std::unique_ptr<FeatureMap> ConstantTruncatedFourierFeatureMap::clone() const {
+  LUCID_TRACE("Cloning");
+  return std::make_unique<ConstantTruncatedFourierFeatureMap>(*this);
+}
+
 std::ostream& operator<<(std::ostream& os, const ConstantTruncatedFourierFeatureMap& f) {
   return os << "ConstantTruncatedFourierFeatureMap( "
             << "num_frequencies( " << f.num_frequencies() << " ) "

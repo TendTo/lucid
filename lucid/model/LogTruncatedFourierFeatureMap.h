@@ -30,6 +30,8 @@ class LogTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap {
  public:
   LogTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& x_limits);
   LogTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits);
+
+  [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const LogTruncatedFourierFeatureMap& f);
