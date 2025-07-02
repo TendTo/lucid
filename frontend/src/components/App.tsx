@@ -13,6 +13,7 @@ import ConfigExecution, {
 import JsonPreview from "@components/JsonPreview";
 import { FaPaperPlane } from "react-icons/fa6";
 import JSONImportModal from "@components/JSONImportModal";
+import { DangerousElement } from "@components/DangerousElement";
 
 export type FormStep = {
   name: string;
@@ -83,20 +84,22 @@ const defaultValues = {
   optimiser: "GurobiOptimiser" as OptimiserType,
 };
 
-async function onSubmit(data: typeof defaultValues) {
-  const response = await fetch("http://127.0.0.1:5000/run", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  console.log("Response", response);
-}
-
 export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [graph, setGraph] = useState<string>("");
+
+  async function onSubmit(data: typeof defaultValues) {
+    const response = await fetch("http://127.0.0.1:5000/run", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const json = await response.json();
+    setGraph(json.graph);
+  }
 
   const setCurrentStep = useCallback(
     (step: FormStepName) => {
@@ -115,7 +118,7 @@ export default function App() {
 
   const methods = useForm({
     resolver: zodResolver(jsonSchema),
-    defaultValues: defaultValues as unknown as any,
+    defaultValues: defaultValues as any,
     mode: "onChange",
   });
 
@@ -124,7 +127,7 @@ export default function App() {
       Object.values(methods.formState.errors).some(
         (error) => error !== undefined
       ),
-    [methods.formState]
+    [methods]
   );
 
   return (
@@ -156,6 +159,8 @@ export default function App() {
                 </button>
               </div>
             </form>
+            <DangerousElement markup={graph} />
+
             <JSONImportModal
               isOpen={isImportModalOpen}
               onClose={() => setIsImportModalOpen(false)}

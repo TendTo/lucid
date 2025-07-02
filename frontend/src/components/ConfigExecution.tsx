@@ -23,6 +23,7 @@ export default function ConfigExecution() {
         <FormSelectionInput
           name="verbose"
           label="Verbosity Level"
+          valueAsNumber
           options={{
             [-1]: "Silent",
             0: "Critical",

@@ -8,6 +8,7 @@ type FormTextInputProps = {
   description?: string;
   options: Record<string | number, string>;
   defaultValue?: string | number;
+  valueAsNumber?: boolean;
 };
 
 export default function FormTextInput({
@@ -15,9 +16,9 @@ export default function FormTextInput({
   name,
   description,
   options,
+  valueAsNumber = false,
 }: FormTextInputProps) {
   const { register, formState } = useFormContext();
-
   return (
     <div>
       <label className="block font-bold mb-1" htmlFor={name}>
@@ -26,7 +27,7 @@ export default function FormTextInput({
       <select
         id={name}
         className="w-full border rounded mb-1 px-3 py-2 border-solid border-[#ddd]"
-        {...register(name)}
+        {...register(name, { valueAsNumber })}
       >
         {Object.entries(options).map(([value, label]) => (
           <option key={value} value={value}>
