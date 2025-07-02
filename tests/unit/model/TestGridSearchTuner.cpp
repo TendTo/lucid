@@ -15,6 +15,7 @@
 #include "lucid/util/error.h"
 #include "lucid/util/exception.h"
 
+using lucid::ConstantTruncatedFourierFeatureMap;
 using lucid::ConstMatrixRef;
 using lucid::ConstMatrixRefCopy;
 using lucid::Estimator;
@@ -23,9 +24,12 @@ using lucid::GridSearchTuner;
 using lucid::Index;
 using lucid::Kernel;
 using lucid::KernelRidgeRegressor;
+using lucid::LinearTruncatedFourierFeatureMap;
+using lucid::LogTruncatedFourierFeatureMap;
 using lucid::Matrix;
 using lucid::Parameter;
 using lucid::ParameterValues;
+using lucid::RectSet;
 using lucid::Requests;
 using lucid::Vector;
 using lucid::scorer::r2_score;
@@ -106,15 +110,14 @@ class MockEstimator_ : public Estimator {
 
 using MockEstimator = testing::NiceMock<MockEstimator_>;
 
-class TestGridSearchTuner : public ::testing::Test {
+class TestGridSearchTuner : public ::testing::TestWithParam<std::size_t> {
  protected:
   const int num_samples_{10};
   const int dim_{3};
-  const double sigma_f_{0.0};
-  const double sigma_l_{0.0};
-  const double regularization_constant_{1e-6};
   const Matrix training_inputs_{Matrix::Random(num_samples_, dim_)};
   const Matrix training_outputs_{Matrix::Random(num_samples_, 2)};
+  // TODO(tend): This is needed when tuning with the feature map, because we need to match the sigma_l dimension (?)
+  const Matrix training_outputs_full_{Matrix::Random(num_samples_, dim_)};
   const std::vector<ParameterValues> parameters_{
       ParameterValues{Parameter::SIGMA_L, std::vector<Vector>{Vector::Constant(dim_, 0.1), Vector::Constant(dim_, 1.0),
                                                               Vector::Constant(dim_, 10.0)}},
@@ -128,41 +131,41 @@ class TestGridSearchTuner : public ::testing::Test {
   const std::vector<Index> parameters_max_indices_{
       static_cast<Index>(parameters_[0].size()), static_cast<Index>(parameters_[1].size()),
       static_cast<Index>(parameters_[2].size()), static_cast<Index>(parameters_[3].size())};
-  const Index total_iterations_{std::accumulate(parameters_max_indices_.begin(), parameters_max_indices_.end(),
-                                                Index{1}, std::multiplies<Index>())};
+  const int num_frequencies_{4};
+  const RectSet x_limits_{{-1, 1}, {-1, 1}, {-1, 1}};
+  const int num_iterations_ = static_cast<int>(std::accumulate(
+      parameters_max_indices_.begin(), parameters_max_indices_.end(), Index{1}, std::multiplies<Index>()));
+  const GridSearchTuner tuner_{parameters_, GetParam()};
 };
 
-TEST_F(TestGridSearchTuner, Constructor) { EXPECT_NO_THROW(GridSearchTuner{parameters_}); }
+INSTANTIATE_TEST_SUITE_P(TestGridSearchTuner, TestGridSearchTuner, testing::Values(1, 2));
 
-TEST_F(TestGridSearchTuner, ConstructorEstimator) {
+TEST_P(TestGridSearchTuner, Constructor) { EXPECT_NO_THROW(GridSearchTuner{parameters_}); }
+
+TEST_P(TestGridSearchTuner, ConstructorEstimator) {
   const KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3), 0,
                                        std::make_shared<GridSearchTuner>(parameters_)};
   EXPECT_NE(dynamic_cast<const GridSearchTuner *>(regressor.tuner().get()), nullptr);
 }
 
-TEST_F(TestGridSearchTuner, TuneSingleThread) {
-  // Initialise the input search grid values
-  const GridSearchTuner tuner{parameters_, 1};
-
-  // Get the necessary information to iterate over all possible parameter combinations
-  const int parameters_max_size = static_cast<int>(std::accumulate(
-      parameters_max_indices_.begin(), parameters_max_indices_.end(), Index{1}, std::multiplies<Index>()));
-
+TEST_P(TestGridSearchTuner, Tune) {
   for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
     testing::NiceMock<MockEstimator_> estimator{
         training_outputs_, sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
 
-    // Predict and score should be called once for each parameter combination
-    EXPECT_CALL(estimator, predict).Times(parameters_max_size);
-    EXPECT_CALL(estimator, score).Times(parameters_max_size);
-    // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
-    EXPECT_CALL(estimator, consolidate).Times(parameters_max_size + 1);
-    EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(parameters_max_size + 1);
-    EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (parameters_max_size + 1));
-    EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(parameters_max_size + 1);
+    if (GetParam() == 1) {
+      // Predict and score should be called once for each parameter combination
+      EXPECT_CALL(estimator, predict).Times(num_iterations_);
+      EXPECT_CALL(estimator, score).Times(num_iterations_);
+      // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
+      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
+    }
 
-    estimator.fit(training_inputs_, training_outputs_, tuner);
+    estimator.fit(training_inputs_, training_outputs_, tuner_);
 
     ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
     ASSERT_EQ(estimator.get<Parameter::SIGMA_F>(), estimator.expected_sigma_f());
@@ -171,16 +174,27 @@ TEST_F(TestGridSearchTuner, TuneSingleThread) {
   }
 }
 
-TEST_F(TestGridSearchTuner, TuneAutoThreads) {
-  // Initialise the input search grid values
-  const GridSearchTuner tuner{parameters_};
-
+TEST_P(TestGridSearchTuner, TuneOnline) {
   // Get the necessary information to iterate over all possible parameter combinations
   for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
     testing::NiceMock<MockEstimator_> estimator{
         training_outputs_, sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
-    estimator.fit(training_inputs_, training_outputs_, tuner);
+
+    if (GetParam() == 1) {
+      // Predict and score should be called once for each parameter combination
+      EXPECT_CALL(estimator, predict).Times(num_iterations_);
+      EXPECT_CALL(estimator, score).Times(num_iterations_);
+      // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
+      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
+    }
+
+    estimator.fit_online(
+        training_inputs_, [this](const Estimator &, ConstMatrixRef) -> ConstMatrixRefCopy { return training_outputs_; },
+        tuner_);
 
     // Even with multiple threads, the estimator should be set with the best parameters
     ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
@@ -190,18 +204,85 @@ TEST_F(TestGridSearchTuner, TuneAutoThreads) {
   }
 }
 
-TEST_F(TestGridSearchTuner, TuneOnlineAutoThreads) {
-  // Initialise the input search grid values
-  const GridSearchTuner tuner{parameters_};
-
-  // Get the necessary information to iterate over all possible parameter combinations
+TEST_P(TestGridSearchTuner, TuneLinearTruncatedFourierFeatureMap) {
   for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
+    LinearTruncatedFourierFeatureMap feature_map{num_frequencies_, sigma_l_values_.get<Vector>()[it[0]],
+                                                 sigma_f_values_.get<double>()[it[1]], x_limits_};
     testing::NiceMock<MockEstimator_> estimator{
-        training_outputs_, sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
+        feature_map(training_outputs_full_), sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
-    estimator.fit_online(
-        training_inputs_, [this](const Estimator &, ConstMatrixRef) -> ConstMatrixRefCopy { return training_outputs_; },
-        tuner);
+
+    if (GetParam() == 1) {
+      // Predict and score should be called once for each parameter combination
+      EXPECT_CALL(estimator, predict).Times(num_iterations_);
+      EXPECT_CALL(estimator, score).Times(num_iterations_);
+      // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
+      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
+    }
+
+    tuner_.tune<LinearTruncatedFourierFeatureMap>(estimator, training_inputs_, training_outputs_full_, num_frequencies_,
+                                                  x_limits_);
+
+    // Even with multiple threads, the estimator should be set with the best parameters
+    ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_F>(), estimator.expected_sigma_f());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_L>(), estimator.expected_sigma_l());
+    ASSERT_EQ(estimator.get<Parameter::DEGREE>(), estimator.expected_degree());
+  }
+}
+TEST_P(TestGridSearchTuner, TuneConstantTruncatedFourierFeatureMap) {
+  for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
+    ConstantTruncatedFourierFeatureMap feature_map{num_frequencies_, sigma_l_values_.get<Vector>()[it[0]],
+                                                   sigma_f_values_.get<double>()[it[1]], x_limits_};
+    testing::NiceMock<MockEstimator_> estimator{
+        feature_map(training_outputs_full_), sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
+        regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
+
+    if (GetParam() == 1) {
+      // Predict and score should be called once for each parameter combination
+      EXPECT_CALL(estimator, predict).Times(num_iterations_);
+      EXPECT_CALL(estimator, score).Times(num_iterations_);
+      // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
+      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
+    }
+
+    tuner_.tune<ConstantTruncatedFourierFeatureMap>(estimator, training_inputs_, training_outputs_full_,
+                                                    num_frequencies_, x_limits_);
+
+    // Even with multiple threads, the estimator should be set with the best parameters
+    ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_F>(), estimator.expected_sigma_f());
+    ASSERT_EQ(estimator.get<Parameter::SIGMA_L>(), estimator.expected_sigma_l());
+    ASSERT_EQ(estimator.get<Parameter::DEGREE>(), estimator.expected_degree());
+  }
+}
+TEST_P(TestGridSearchTuner, TuneLogTruncatedFourierFeatureMap) {
+  for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
+    LogTruncatedFourierFeatureMap feature_map{num_frequencies_, sigma_l_values_.get<Vector>()[it[0]],
+                                              sigma_f_values_.get<double>()[it[1]], x_limits_};
+    testing::NiceMock<MockEstimator_> estimator{
+        feature_map(training_outputs_full_), sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
+        regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
+
+    if (GetParam() == 1) {
+      // Predict and score should be called once for each parameter combination
+      EXPECT_CALL(estimator, predict).Times(num_iterations_);
+      EXPECT_CALL(estimator, score).Times(num_iterations_);
+      // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
+      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
+      EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
+    }
+
+    tuner_.tune<LogTruncatedFourierFeatureMap>(estimator, training_inputs_, training_outputs_full_, num_frequencies_,
+                                               x_limits_);
 
     // Even with multiple threads, the estimator should be set with the best parameters
     ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());

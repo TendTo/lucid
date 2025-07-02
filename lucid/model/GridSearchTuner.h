@@ -10,8 +10,13 @@
 #include <concepts>
 #include <vector>
 
+#include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
+#include "lucid/model/LinearTruncatedFourierFeatureMap.h"
+#include "lucid/model/LogTruncatedFourierFeatureMap.h"
 #include "lucid/model/ParameterValues.h"
+#include "lucid/model/RectSet.h"
 #include "lucid/model/Tuner.h"
+#include "lucid/util/concept.h"
 
 namespace lucid {
 
@@ -35,9 +40,22 @@ class GridSearchTuner final : public Tuner {
   /** @getter{parameters, grid search} */
   [[nodiscard]] const std::vector<ParameterValues>& parameters() const { return parameters_; }
 
+  template <
+      IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
+  void tune(Estimator& estimator, ConstMatrixRef training_inputs, const ConstMatrixRef& training_outputs,
+            int num_frequencies, const RectSet& x_limits) const;
+  template <
+      IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
+  void tune_online(Estimator& estimator, ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
+                   int num_frequencies, const RectSet& x_limits) const;
+
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                  const OutputComputer& training_outputs) const override;
+
+  template <class T>
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
+                 int num_frequencies, const RectSet& x_limits) const;
 
   std::size_t n_jobs_;                         ///< Number of parallel jobs to run during tuning
   std::vector<ParameterValues> parameters_;    ///< List of parameter values to be tuned, with the values to be tested

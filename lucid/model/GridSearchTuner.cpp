@@ -25,14 +25,20 @@ namespace lucid {
 
 namespace {
 
+struct Null {};
+const RectSet x_limits_empty{{0}, {1}};  ///< Default empty limits for the input space
+
 /**
  * Utility class to perform grid search tuning on an Estimator in parallel.
  * It captures all the relevant data for the task and then launches a future to solve the tuning process.
  * @todo The mutexes used here are not the most efficient.
- * They force sinchronization on every index increment and score update.
+ * They force synchronization on every index increment and score update.
  * While that is sure not to be the bottleneck in all real-world scenarios,
  * we could consider splitting the tuning process a-priori and let the main thread update the score if needed.
  */
+template <
+    IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap, Null>
+        T>
 class GridSearchTuning {
  public:
   /**
@@ -46,11 +52,14 @@ class GridSearchTuning {
    * @param best_parameters_indices indices of the parameter values that produce the best score
    * @param it index interator going over all combinations of parameter values
    * @param best_score current best score found
+   * @param num_frequencies number of frequencies to use in the estimator
+   * @param x_limits limits of the input space for the estimator
    */
   GridSearchTuning(std::mutex& index_mutex, std::mutex& score_mutex, Estimator& estimator,
                    const std::vector<ParameterValues>& parameters, ConstMatrixRef training_inputs,
                    const OutputComputer& training_outputs, std::vector<Index>& best_parameters_indices,
-                   IndexIterator<std::vector<Index>>& it, double& best_score)
+                   IndexIterator<std::vector<Index>>& it, double& best_score, const int num_frequencies,
+                   const RectSet& x_limits)
       : index_mutex_{index_mutex},
         score_mutex_{score_mutex},
         estimator_{estimator},
@@ -60,7 +69,9 @@ class GridSearchTuning {
         best_parameters_indices_{best_parameters_indices},
         it_{it},
         best_score_{best_score},
-        current_parameters_indices_{} {}
+        current_parameters_indices_{},
+        num_frequencies_{num_frequencies},
+        x_limits_{x_limits} {}
 
   /**
    * Launch the tuning process.
@@ -84,8 +95,18 @@ class GridSearchTuning {
   void tune() {
     // Iterate over all possible combinations of parameter values
     while (increase_index()) {
-      estimator_.consolidate(training_inputs_, training_outputs_(estimator_, training_inputs_));
-      const double score = estimator_.score(training_inputs_, training_outputs_(estimator_, training_inputs_));
+      double score = std::numeric_limits<double>::lowest();
+      if constexpr (std::is_same_v<T, Null>) {
+        auto training_outputs = training_outputs_(estimator_, training_inputs_);
+        estimator_.consolidate(training_inputs_, training_outputs);
+        score = estimator_.score(training_inputs_, training_outputs);
+      } else {
+        T feature_map{num_frequencies_, estimator_.get<Parameter::SIGMA_L>(), estimator_.get<Parameter::SIGMA_F>(),
+                      x_limits_};
+        Matrix training_outputs{feature_map(training_outputs_(estimator_, training_inputs_))};
+        estimator_.consolidate(training_inputs_, training_outputs);
+        score = estimator_.score(training_inputs_, training_outputs);
+      }
 
       // If the new score is better than the best score, update the best score and keep track of the parameter index
       LUCID_TRACE_FMT("parameters = {}, score = {}", current_parameters_indices_, score);
@@ -139,6 +160,8 @@ class GridSearchTuning {
   IndexIterator<std::vector<Index>>& it_;        ///< Index iterator for iterating over parameter values
   double& best_score_;  ///< Best score achieved during the tuning process, initialized to a very low value
   std::vector<Index> current_parameters_indices_;  ///< Current parameter indices being tested
+  int num_frequencies_;                            ///< Number of frequencies for the estimator, if applicable
+  const RectSet& x_limits_;                        ///< Limits of the input space for the estimator, if applicable
 };
 
 }  // namespace
@@ -157,6 +180,29 @@ GridSearchTuner::GridSearchTuner(std::vector<ParameterValues> parameters, const 
 
 void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                 const OutputComputer& training_outputs) const {
+  tune_impl<Null>(estimator, training_inputs, training_outputs, 0, x_limits_empty);
+}
+
+template <
+    IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
+void GridSearchTuner::tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                           int num_frequencies, const RectSet& x_limits) const {
+  tune_impl<T>(
+      estimator, training_inputs, [training_outputs](const Estimator&, ConstMatrixRef) { return training_outputs; },
+      num_frequencies, x_limits);
+}
+template <
+    IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
+void GridSearchTuner::tune_online(Estimator& estimator, ConstMatrixRef training_inputs,
+                                  const OutputComputer& training_outputs, const int num_frequencies,
+                                  const RectSet& x_limits) const {
+  tune_impl<T>(estimator, training_inputs, training_outputs, num_frequencies, x_limits);
+}
+
+template <class T>
+void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                                const OutputComputer& training_outputs, const int num_frequencies,
+                                const RectSet& x_limits) const {
   // Mutex to protect access to the best parameter indices during tuning
   std::mutex index_mutex, score_mutex;
   // Prepare the shared data: the best score and the best parameter indices and the index iterator
@@ -165,14 +211,14 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
   IndexIterator<std::vector<Index>> it{parameters_max_indices_};
 
   // Create a vector of n_jobs GridSearchTuning objects
-  std::vector<GridSearchTuning> tuners;
+  std::vector<GridSearchTuning<T>> tuners;
   tuners.reserve(parameters_.size());
   std::vector<std::unique_ptr<Estimator>> estimators;
   estimators.reserve(n_jobs_ - 1);
   for (std::size_t i = 0; i < n_jobs_; ++i) {
     if (i > 0) estimators.emplace_back(estimator.clone());
     tuners.emplace_back(index_mutex, score_mutex, i == 0 ? estimator : *estimators.back(), parameters_, training_inputs,
-                        training_outputs, best_parameters_indices, it, best_score);
+                        training_outputs, best_parameters_indices, it, best_score, num_frequencies, x_limits);
   }
 
   LUCID_ASSERT(tuners.size() == n_jobs_, "The number of tuners must match the number of jobs.");
@@ -199,5 +245,21 @@ std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner) {
   return os << "GridSearchTuner( parameters( " << fmt::format("{}", tuner.parameters()) << " ) n_jobs( "
             << tuner.n_jobs() << " )";
 }
+
+template void GridSearchTuner::tune<ConstantTruncatedFourierFeatureMap>(Estimator&, ConstMatrixRef, ConstMatrixRef, int,
+                                                                        const RectSet&) const;
+template void GridSearchTuner::tune<LinearTruncatedFourierFeatureMap>(Estimator&, ConstMatrixRef, ConstMatrixRef, int,
+                                                                      const RectSet&) const;
+template void GridSearchTuner::tune<LogTruncatedFourierFeatureMap>(Estimator&, ConstMatrixRef, ConstMatrixRef, int,
+                                                                   const RectSet&) const;
+template void GridSearchTuner::tune_online<ConstantTruncatedFourierFeatureMap>(Estimator&, ConstMatrixRef,
+                                                                               const OutputComputer&, int,
+                                                                               const RectSet&) const;
+template void GridSearchTuner::tune_online<LinearTruncatedFourierFeatureMap>(Estimator&, ConstMatrixRef,
+                                                                             const OutputComputer&, int,
+                                                                             const RectSet&) const;
+template void GridSearchTuner::tune_online<LogTruncatedFourierFeatureMap>(Estimator&, ConstMatrixRef,
+                                                                          const OutputComputer&, int,
+                                                                          const RectSet&) const;
 
 }  // namespace lucid
