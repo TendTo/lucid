@@ -21,7 +21,10 @@ jobs:
     if: false # TODO: enable this again
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          # - macos-latest
+          - windows-latest
         python_version:
           - "3.8"
           # - "3.9"
@@ -45,7 +48,10 @@ jobs:
     # needs: test # TODO: enable this again
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          # - macos-latest
+          - windows-latest
         python_version:
           - "3.8"
           # - "3.9"
@@ -79,7 +85,7 @@ jobs:
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
+          name: python-package-${{ matrix.os }}-${{ matrix.python_version }}
           path: dist/
 
   publish:
@@ -93,7 +99,6 @@ jobs:
       - name: Retrieve release distributions
         uses: actions/download-artifact@v4
         with:
-          name: release-dists
           path: dist/
 
       - name: Publish release distributions to PyPI

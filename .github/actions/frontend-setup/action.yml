@@ -18,17 +18,16 @@ runs:
       name: Install pnpm
       with:
         version: ${{ inputs.pnpm_version }}
-        run_install: false
+        run_install: true
 
     - name: Install Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node_version }}
         cache: "pnpm"
+        cache-dependency-path: "frontend/pnpm-lock.yaml"
 
     - name: Build frontend
-      shell: cmd
-      run: |
-        cd frontend
-        pnpm install
-        pnpm run build
+      working-directory: "frontend"
+      shell: powershell
+      run: pnpm run build
