@@ -60,7 +60,7 @@ class BazelExtension(setuptools.Extension):
         files = []
         for folder in folders:
             files += [file for file in glob.glob(f"{folder}/**/*", recursive=True) if "node_modules" not in file]
-        files += ["BUILD.bazel", "MODULE.bazel", ".bazelversion", ".bazelrc", ".bazelignore"]
+        files += ["BUILD.bazel", "MODULE.bazel", ".bazelversion", ".bazelrc", ".bazelignore", "frontend/.npmrc"]
         setuptools.Extension.__init__(self, ext_name, sources=files)
 
 

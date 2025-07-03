@@ -11,7 +11,6 @@ LUCID_LICENSE = "Apache-2.0"
 # Can't parse the list
 LUCID_CLASSIFIERS = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",
