@@ -9,9 +9,10 @@ exports_files([
 
 npm_link_all_packages()
 
-BUILD_DEPS = [
+FILE_DEPS = [
     "index.html",
     "package.json",
+    "pnpm-lock.yaml",
     "tsconfig.app.json",
     "tsconfig.json",
     "tsconfig.node.json",
@@ -19,7 +20,9 @@ BUILD_DEPS = [
 ] + glob([
     "src/**",
     "public/**",
-]) + [":node_modules/" + d for d in [
+])
+
+BUILD_DEPS = [":node_modules/" + d for d in [
     "zod",
     "@headlessui/react",
     "@hookform/error-message",
@@ -46,7 +49,7 @@ BUILD_DEPS = [
 
 vite_bin.vite(
     name = "frontend",
-    srcs = BUILD_DEPS,
+    srcs = FILE_DEPS + BUILD_DEPS,
     args = ["build"],
     chdir = package_name(),
     out_dirs = ["dist"],
@@ -56,7 +59,13 @@ vite_bin.vite(
 vite_bin.vite_binary(
     name = "dev",
     chdir = package_name(),
-    data = BUILD_DEPS,
+    data = FILE_DEPS + BUILD_DEPS,
     # Under ibazel, let vite hot-reload changed files rather than restart it
     tags = ["ibazel_notify_changes"],
+)
+
+filegroup(
+    name = "build",
+    srcs = ["dist"],
+    visibility = ["//visibility:public"],
 )

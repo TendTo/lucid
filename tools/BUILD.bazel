@@ -58,6 +58,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "enable_gui_build",
+    build_setting_default = True,
+)
+
+bool_flag(
     name = "enable_matplotlib_build",
     build_setting_default = True,
 )
@@ -94,6 +99,11 @@ config_setting(
 config_setting(
     name = "python_build",
     flag_values = {":enable_python_build": "True"},
+)
+
+config_setting(
+    name = "gui_build",
+    flag_values = {":enable_gui_build": "True"},
 )
 
 config_setting(

@@ -7,6 +7,7 @@ build --@spdlog//:header_only=False
 build --flag_alias=enable_static_build=//tools:enable_static_build
 build --flag_alias=enable_dynamic_build=//tools:enable_dynamic_build
 build --flag_alias=enable_python_build=//tools:enable_python_build
+build --flag_alias=enable_gui_build=//tools:enable_gui_build
 build --flag_alias=enable_benchmark_build=//tools:enable_benchmark_build
 build --flag_alias=enable_matplotlib_build=//tools:enable_matplotlib_build
 build --flag_alias=enable_gurobi_build=//tools:enable_gurobi_build

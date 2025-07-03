@@ -130,6 +130,11 @@ npm.npm_translate_lock(
     ],
     pnpm_lock = "//frontend:pnpm-lock.yaml",
     verify_node_modules_ignored = "//:.bazelignore",
+    lifecycle_hooks_exclude = [
+        "@swc/core",
+        "@tailwindcss/oxide",
+        "esbuild",
+    ],
     # update_pnpm_lock = 1, # Only needed if you want to update the pnpm lock file
 )
 use_repo(npm, "npm")

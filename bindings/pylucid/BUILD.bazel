@@ -14,9 +14,16 @@ lucid_pybind_library(
     visibility = ["//lucid:__subpackages__"],
 )
 
+# The following is a workaround since, on windows, rules_js does not work properly.
+# Instead, we expect the frontend to be built with npm and then copied over.
 copy_directory(
     name = "frontend",
-    src = "//frontend",
+    src = select(
+        {
+            "@platforms//os:windows": "//frontend:build",
+            "//conditions:default": "//frontend",
+        },
+    ),
     out = "frontend",
 )
 
@@ -51,18 +58,22 @@ py_library(
         "cli.py",
         "dreal.py",
         "ext.py",
-        "gui.py",
         "parser.py",
         "pipeline.py",
         "plot.py",
         "util.py",
-    ],
+    ] + select({
+        "//tools:gui_build": ["gui.py"],
+        "//conditions:default": [],
+    }),
     data = [
         ":_pylucid.pyd",
         ":_pylucid.so",
         ":cliargs_schema.json",
-        ":frontend",
-    ],
+    ] + select({
+        "//tools:gui_build": [":frontend"],
+        "//conditions:default": [],
+    }),
     imports = [".."],
     srcs_version = "PY3",
     visibility = ["//visibility:public"],
@@ -130,8 +141,10 @@ filegroup(
         ":_pylucid",
         ":pylucid_lib",
         ":stubgen",
-        ":frontend",
-    ],
+    ] + select({
+        "//tools:gui_build": [":frontend"],
+        "//conditions:default": [],
+    }),
 )
 
 py_wheel(

@@ -13,6 +13,10 @@ You can either run it withing the Bazel environment, or you can install it in yo
 > [!NOTE]  
 > All bindings use the C++ Lucid library under the hood, which means that you need to ensure all the requirements listed in the [Installation](Installation.md) section are met.
 
+> [!IMPORTANT]  
+> Building the bindings on Windows with GUI support requires an additional step.
+> See [Building on Windows](#building-on-windows-gui) for more details.
+
 ### Installing in your Python environment
 
 You can install the bindings in your Python environment using the following command:
@@ -29,8 +33,24 @@ This will install the bindings in your Python environment, allowing you to use t
 After installing, you can run the following command to check if everything is working correctly:
 
 ```bash
-python3 -c "import pylucid; print(pylucid.__version__)"
+pylucid --help
 ```
+
+#### Building on Windows
+
+The Javascript Bazel rules, needed to build the GUI, have limited support for Windows, so you need to run the build script manually.
+First, ensure you have the required dependencies installed:
+
+- [Node.js](https://nodejs.org/)
+- [pnpm](https://pnpm.io/)
+
+Then, run the following command from the `lucid` root directory:
+
+```bash
+scripts\build_frontend.bat
+```
+
+You can then follow
 
 ### Use
 
