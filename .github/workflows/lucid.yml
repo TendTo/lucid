@@ -26,17 +26,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Cache Bazel
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/bazel
-            /private/var/tmp/_bazel_*
-            ~/_bazel_*
-          key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-
+      - uses: ./.github/actions/bazel-cache
 
       - name: Build
         run: bazel build --enable_gurobi_build=False --enable_matplotlib_build=False //lucid
@@ -51,16 +41,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Cache Bazel
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/bazel
-            /private/var/tmp/_bazel_*
-            ~/_bazel_*
-          key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-
+      - uses: ./.github/actions/bazel-cache
 
       - name: Lint
         run: bazel test --build_tests_only --enable_gurobi_build=False --enable_matplotlib_build=False //lucid/...
@@ -78,17 +59,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Cache Bazel
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/bazel
-            /private/var/tmp/_bazel_*
-            ~/_bazel_*
-          key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-
+      - uses: ./.github/actions/bazel-cache
 
       - name: Test
         run: bazel test --enable_gurobi_build=False --enable_matplotlib_build=False //tests/unit/...
@@ -104,17 +75,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Cache Bazel
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/bazel
-            /private/var/tmp/_bazel_*
-            ~/_bazel_*
-          key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-
+      - uses: ./.github/actions/bazel-cache
 
       - name: Test
         run: bazel test --enable_gurobi_build=False --enable_matplotlib_build=False //tests/integration/...
@@ -129,17 +90,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Cache Bazel
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/bazel
-            /private/var/tmp/_bazel_*
-            ~/_bazel_*
-          key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
-          restore-keys: |
-            ${{ runner.os }}-bazel-
+      - uses: ./.github/actions/bazel-cache
 
       - name: Test
         run: bazel build --enable_gurobi_build=False --enable_matplotlib_build=False --config=dwyu //lucid

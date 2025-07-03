@@ -56,10 +56,10 @@ class BazelExtension(setuptools.Extension):
 
     def __init__(self, ext_name, bazel_target):
         self.bazel_target = bazel_target
-        folders = ("lucid", "bindings/pylucid", "tools", "third_party")
+        folders = ("lucid", "bindings/pylucid", "tools", "third_party", "frontend")
         files = []
         for folder in folders:
-            files += glob.glob(f"{folder}/**/*", recursive=True)
+            files += [file for file in glob.glob(f"{folder}/**/*", recursive=True) if "node_modules" not in file]
         files += ["BUILD.bazel", "MODULE.bazel", ".bazelversion", ".bazelrc", ".bazelignore"]
         setuptools.Extension.__init__(self, ext_name, sources=files)
 

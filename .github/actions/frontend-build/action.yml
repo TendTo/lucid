@@ -1,0 +1,34 @@
+name: "Setup Frontend Build Environment"
+description: "Set up PNPM, Node.js and build frontend"
+
+inputs:
+  pnpm_version:
+    description: "PNPM version to install"
+    required: false
+    default: "10"
+  node_version:
+    description: "Node.js version to install"
+    required: false
+    default: "20"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v4
+      name: Install pnpm
+      with:
+        version: ${{ inputs.pnpm_version }}
+        run_install: false
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node_version }}
+        cache: "pnpm"
+
+    - name: Build frontend
+      shell: cmd
+      run: |
+        cd frontend
+        pnpm install
+        pnpm run build
