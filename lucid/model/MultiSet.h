@@ -29,18 +29,23 @@ class MultiSet final : public Set {
 
   template <class... S>
     requires(std::derived_from<S, Set> && ...)
-  explicit MultiSet(S&&... sets) : sets_{}, dis_{0, sizeof...(S)} {
+  explicit MultiSet(S&&... sets) : sets_{} {
     sets_.reserve(sizeof...(S));
     (sets_.emplace_back(std::make_unique<S>(std::forward<S>(sets))), ...);
+#ifndef NCHECK
+    validate();
+#endif
   }
   template <class... S>
     requires(std::derived_from<S, Set> && ...)
-  explicit MultiSet(std::unique_ptr<S>&&... sets) : sets_{}, dis_{0, sizeof...(S)} {
+  explicit MultiSet(std::unique_ptr<S>&&... sets) : sets_{} {
     sets_.reserve(sizeof...(S));
     (sets_.emplace_back(std::forward<S>(sets)), ...);
+#ifndef NCHECK
+    validate();
+#endif
   }
-  explicit MultiSet(std::vector<std::unique_ptr<Set>> sets)
-      : sets_{std::move(sets)}, dis_{0, static_cast<int>(sets_.size())} {}
+  explicit MultiSet(std::vector<std::unique_ptr<Set>> sets);
 
   /** @getter{sets, multi set} */
   [[nodiscard]] const std::vector<std::unique_ptr<Set>>& sets() const { return sets_; }
@@ -53,8 +58,11 @@ class MultiSet final : public Set {
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
 
  private:
+#ifndef NCHECK
+  /** Utility function to validate the MultiSet. */
+  void validate();
+#endif
   std::vector<std::unique_ptr<Set>> sets_;  ///< Sets in the union
-  std::uniform_int_distribution<> dis_;     ///< Random distribution for picking the set to sample from
 };
 
 std::ostream& operator<<(std::ostream& os, const MultiSet& set);

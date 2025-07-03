@@ -10,17 +10,21 @@
 #include <string>
 
 #include "lucid/util/error.h"
+#include "lucid/util/random.h"
 
 namespace lucid {
 
 namespace {
 
-std::random_device rd;
-std::mt19937 gen(rd());
 std::uniform_int_distribution<std::size_t> dist;
 
 }  // namespace
 
+MultiSet::MultiSet(std::vector<std::unique_ptr<Set>> sets) : sets_{std::move(sets)} {
+#ifndef NCHECK
+  validate();
+#endif
+}
 Matrix MultiSet::sample(const Index num_samples) const {
   if (sets_.empty()) return Matrix::Zero(0, 0);
   // TODO(tend): not thread-safe
@@ -28,7 +32,7 @@ Matrix MultiSet::sample(const Index num_samples) const {
   // This is clearly not uniform in terms of the probability distribution of the union of the sets.
   dist.param(std::uniform_int_distribution<std::size_t>::param_type{0, sets_.size() - 1});
   Matrix samples(num_samples, dimension());
-  for (int i = 0; i < num_samples; i++) samples.row(i) = sets_.at(dist(gen))->sample();
+  for (int i = 0; i < num_samples; i++) samples.row(i) = sets_.at(dist(random::gen))->sample();
   return samples;
 }
 bool MultiSet::operator()(ConstVectorRef x) const {
@@ -44,7 +48,15 @@ Matrix MultiSet::lattice(const VectorI& points_per_dim, const bool include_endpo
   }
   return rect_multiset_lattice;
 }
-
+#ifndef NCHECK
+void MultiSet::validate() {
+  LUCID_CHECK_ARGUMENT_CMP(sets_.size(), >, 0);
+  [[maybe_unused]] const Dimension dim = sets_.front()->dimension();
+  LUCID_CHECK_ARGUMENT(
+      std::ranges::all_of(sets_, [dim](const std::unique_ptr<Set>& set) { return set->dimension() == dim; }), "sets",
+      "all sets must have the same dimension");
+}
+#endif
 std::ostream& operator<<(std::ostream& os, const MultiSet& set) {
   os << "MultiSet( ";
   for (const std::unique_ptr<Set>& s : set.sets()) os << *s << " ";
