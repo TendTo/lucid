@@ -1,20 +1,23 @@
 import { Disclosure } from "@headlessui/react";
-import { FaX, FaCheck, FaFileImport } from "react-icons/fa6";
+import { FaX, FaCheck } from "react-icons/fa6";
 import Logo from "@assets/logo.svg";
-import type { FormStepName, FormSteps } from "@components/App";
+import type { FormStepName, FormSteps } from "@app/types/types";
+import Examples from "./Examples";
+import type { FieldValues, UseFormReset } from "react-hook-form";
+import JSONImportModal from "./JSONImportModal";
 
 export type HeaderProps = {
   errors: object;
   steps: FormSteps;
   setCurrentStep: (step: FormStepName) => void;
-  setIsImportModalOpen: (isOpen: boolean) => void; // Optional for import modal
+  reset: UseFormReset<FieldValues>;
 };
 
 export default function Header({
   steps,
   setCurrentStep,
   errors,
-  setIsImportModalOpen,
+  reset,
 }: HeaderProps) {
   return (
     <header>
@@ -49,14 +52,8 @@ export default function Header({
                     )}
                   </a>
                 ))}
-                <button
-                  type="button"
-                  onClick={() => setIsImportModalOpen(true)}
-                  className="btn btn-secondary flex items-center justify-center"
-                >
-                  <FaFileImport className="inline-block mr-1" />
-                  Import JSON
-                </button>
+                <JSONImportModal reset={reset} />
+                <Examples reset={reset} />
               </div>
             </div>
           </div>

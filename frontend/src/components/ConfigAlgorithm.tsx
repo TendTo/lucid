@@ -35,7 +35,7 @@ export default function ConfigAlgorithm() {
           placeholder="Gamma value"
           type="number"
           step={0.01}
-          max={0}
+          min={0}
           description="Gamma value for the algorithm"
         />
 
@@ -54,7 +54,6 @@ export default function ConfigAlgorithm() {
           label="Lambda"
           placeholder="Lambda value"
           type="number"
-          step={0.001}
           min={0}
           description="Regularization parameter for the algorithm"
         />

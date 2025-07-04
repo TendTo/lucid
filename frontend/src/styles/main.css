@@ -27,3 +27,26 @@ small {
 .btn[disabled] {
   @apply bg-gray-400 cursor-not-allowed hover:bg-gray-400;
 }
+
+code {
+  @apply bg-gray-100 text-sm overflow-x-auto;
+}
+
+span.log-critical {
+  @apply text-purple-500 font-bold italic;
+}
+span.log-error {
+  @apply text-red-500 font-bold italic;
+}
+span.log-warning {
+  @apply text-yellow-500 font-bold italic;
+}
+span.log-info {
+  @apply text-blue-500 font-bold italic;
+}
+span.log-debug {
+  @apply text-gray-500 font-bold italic;
+}
+span.log-trace {
+  @apply text-gray-400 font-bold italic;
+}

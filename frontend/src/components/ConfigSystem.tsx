@@ -27,7 +27,7 @@ type ErrorMessage = {
 export default function ConfigSystem() {
   const { register, control, formState, getValues, trigger, setError } =
     useFormContext();
-  const [graph, setGraph] = useState<string>("");
+  const [fig, setFig] = useState<string>("");
   const { fields, append, remove } = useFieldArray({
     control,
     name: "system_dynamics",
@@ -40,7 +40,7 @@ export default function ConfigSystem() {
       console.error("Form validation failed");
       return;
     }
-    const response = await fetch("http://127.0.0.1:5000/preview-graph", {
+    const response = await fetch("/api/preview-graph", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export default function ConfigSystem() {
       body: JSON.stringify(getValues()),
     });
     if (!response.ok) {
-      setGraph("");
+      setFig("");
       const error: ErrorMessage = await response.json();
       if (error.cause) {
         setError(error.cause, {
@@ -58,8 +58,9 @@ export default function ConfigSystem() {
       }
       throw new Error(`Error fetching graph preview: ${error.message}`);
     }
-    setGraph(await response.text());
-  }, [getValues, setGraph, trigger, setError]);
+    const json = await response.json();
+    setFig(json.fig || "");
+  }, [getValues, setFig, trigger, setError]);
 
   return (
     <div>
@@ -125,7 +126,7 @@ export default function ConfigSystem() {
 
       <SetsInput name="X_unsafe" label="X unsafe" />
 
-      <DangerousElement markup={graph} />
+      <DangerousElement markup={fig} />
     </div>
   );
 }

@@ -12,15 +12,20 @@ import ConfigExecution, {
 } from "@components/ConfigExecution";
 import JsonPreview from "@components/JsonPreview";
 import { FaPaperPlane } from "react-icons/fa6";
-import JSONImportModal from "@components/JSONImportModal";
-import { DangerousElement } from "@components/DangerousElement";
+import type {
+  EstimatorType,
+  FeatureMapType,
+  FormStepName,
+  FormSteps,
+  KernelType,
+  LogEntry,
+  OptimiserType,
+  RectSet,
+  ServerResponse,
+} from "@app/types/types";
+import { parseLogEntry } from "@app/utils/parseLog";
+import Result from "./Result";
 
-export type FormStep = {
-  name: string;
-  current: boolean;
-  error: (errors: Record<string, object>) => boolean;
-  href: string;
-};
 const initialFormSteps = {
   system: {
     name: "System",
@@ -40,21 +45,7 @@ const initialFormSteps = {
     current: false,
     error: executionFormErrors,
   },
-};
-export type FormSteps = typeof initialFormSteps;
-export type FormStepName = keyof FormSteps;
-
-type EstimatorType = "KernelRidgeRegressor";
-type KernelType = "GaussianKernel";
-type FeatureMapType =
-  | "LinearTruncatedFourierFeatureMap"
-  | "ConstantTruncatedFourierFeatureMap"
-  | "LogTruncatedFourierFeatureMap";
-type OptimiserType = "GurobiOptimiser" | "AlglibOptimiser";
-
-type RectSet = {
-  RectSet: [number, number][];
-};
+} as FormSteps;
 
 const defaultValues = {
   verbose: 3,
@@ -86,19 +77,56 @@ const defaultValues = {
 
 export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [graph, setGraph] = useState<string>("");
+  const [fig, setFig] = useState<string>("");
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [, setIsConnected] = useState(false);
 
   async function onSubmit(data: typeof defaultValues) {
-    const response = await fetch("http://127.0.0.1:5000/run", {
+    setLogs([]);
+    setFig("");
+    const response = await fetch("/api/run", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
-    const json = await response.json();
-    setGraph(json.graph);
+    if (response.status !== 202) {
+      const json: ServerResponse = await response.json();
+      console.error("Error:", json.error || "Unknown error");
+      return;
+    }
+
+    // Create SSE connection
+    const eventSource = new EventSource("/api/run", {});
+
+    // Handle incoming messages
+    eventSource.onmessage = (event) => {
+      const data: ServerResponse = JSON.parse(event.data);
+      if (data.log)
+        setLogs((prevLogs) => [...prevLogs, parseLogEntry(data.log)]);
+      if (data.fig) setFig(data.fig);
+      console.log();
+    };
+
+    // Handle connection open
+    eventSource.onopen = () => {
+      setIsConnected(true);
+    };
+
+    // Handle errors and close events
+    eventSource.onerror = (error) => {
+      if (error.eventPhase !== EventSource.CLOSED)
+        console.error("SSE error:", error);
+      setIsConnected(false);
+      eventSource.close();
+    };
+
+    // Clean up on unmount
+    return () => {
+      eventSource.close();
+      setIsConnected(false);
+    };
   }
 
   const setCurrentStep = useCallback(
@@ -136,7 +164,7 @@ export default function App() {
         errors={methods.formState.errors}
         steps={formSteps}
         setCurrentStep={setCurrentStep}
-        setIsImportModalOpen={setIsImportModalOpen}
+        reset={methods.reset}
       />
 
       <div className="dashboard-container">
@@ -159,12 +187,7 @@ export default function App() {
                 </button>
               </div>
             </form>
-            <DangerousElement markup={graph} />
-
-            <JSONImportModal
-              isOpen={isImportModalOpen}
-              onClose={() => setIsImportModalOpen(false)}
-            />
+            <Result logs={logs} fig={fig} />
           </FormProvider>
         </main>
 

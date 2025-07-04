@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
 import { jsonSchema } from "@utils/schema";
 import { FaX, FaFileImport } from "react-icons/fa6";
+import type { FieldValues, UseFormReset } from "react-hook-form";
 
 interface JSONImportModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  reset: UseFormReset<FieldValues>;
 }
 
-export default function JSONImportModal({
-  isOpen,
-  onClose,
-}: JSONImportModalProps) {
+export default function JSONImportModal({ reset }: JSONImportModalProps) {
   const [jsonText, setJsonText] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { reset } = useFormContext();
 
   useEffect(() => {
     // Load the last saved JSON from local storage if available
@@ -42,7 +38,7 @@ export default function JSONImportModal({
       // Reset form with new values
       reset(parsedJson);
       setError(null);
-      onClose();
+      setIsOpen(false);
     } catch (e) {
       setError(
         "Invalid JSON: " + (e instanceof Error ? e.message : "Unknown error")
@@ -50,56 +46,68 @@ export default function JSONImportModal({
     }
   };
 
-  return isOpen ? (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Import Configuration JSON</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <FaX className="size-5" />
-          </button>
-        </div>
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="btn btn-secondary flex items-center justify-center"
+      >
+        <FaFileImport className="inline-block mr-1" />
+        Import JSON
+      </button>
+      {isOpen ? (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Import Configuration JSON</h2>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaX className="size-5" />
+              </button>
+            </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <p>{error}</p>
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <p>{error}</p>
+              </div>
+            )}
+
+            <div className="mb-4 flex-grow">
+              <label className="block mb-2 font-medium">
+                Paste your JSON configuration below:
+              </label>
+              <textarea
+                className="w-full h-64 border border-gray-300 rounded p-2 font-mono text-sm"
+                value={jsonText}
+                onChange={(e) => setJsonText(e.target.value)}
+                placeholder='{"verbose": 3, "seed": -1, ...}'
+                autoFocus
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleImport}
+                className="btn btn-primary flex items-center"
+              >
+                <FaFileImport className="mr-2" />
+                Import
+              </button>
+            </div>
           </div>
-        )}
-
-        <div className="mb-4 flex-grow">
-          <label className="block mb-2 font-medium">
-            Paste your JSON configuration below:
-          </label>
-          <textarea
-            className="w-full h-64 border border-gray-300 rounded p-2 font-mono text-sm"
-            value={jsonText}
-            onChange={(e) => setJsonText(e.target.value)}
-            placeholder='{"verbose": 3, "seed": -1, ...}'
-            autoFocus
-          />
         </div>
-
-        <div className="flex justify-end space-x-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="btn btn-secondary"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleImport}
-            className="btn btn-primary flex items-center"
-          >
-            <FaFileImport className="mr-2" />
-            Import
-          </button>
-        </div>
-      </div>
-    </div>
-  ) : null;
+      ) : null}
+    </>
+  );
 }
