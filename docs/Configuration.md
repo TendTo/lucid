@@ -28,7 +28,7 @@ Create a file named `config.yaml` and define your configuration options.
 You can use the following example as a template:
 
 ```yaml
-# yaml-language-server: \$schema=https://tendto.github.io/lucid/cliargs_schema.json
+# yaml-language-server: \$schema=https://tendto.github.io/lucid/configuration_schema.json
 # Basic configuration
 verbose: 3 # LOG_INFO
 seed: 42
@@ -92,7 +92,7 @@ Then, you can run Lucid with the following command:
 lucid config.yaml
 ```
 
-The full [JSON schema](https://json-schema.org/) of the configuration options can be found in the [CLI arguments schema](/bindings/pylucid/cliargs_schema.json).
+The full [JSON schema](https://json-schema.org/) of the configuration options can be found in the [CLI arguments schema](/bindings/pylucid/configuration_schema.json).
 
 [//]: # "@end-tab"
 [//]: # "@tab"
@@ -104,7 +104,7 @@ You can use the following example as a template:
 
 ```json
 {
-  "$schema": "https://tendto.github.io/lucid/cliargs_schema.json",
+  "$schema": "https://tendto.github.io/lucid/configuration_schema.json",
   // Basic configuration
   "verbose": 3, // LOG_INFO
   "seed": 42,
@@ -177,7 +177,7 @@ Then, you can run Lucid with the following command:
 lucid config.json
 ```
 
-The full [JSON schema](https://json-schema.org/) of the configuration options can be found in the [CLI arguments schema](/bindings/pylucid/cliargs_schema.json).
+The full [JSON schema](https://json-schema.org/) of the configuration options can be found in the [CLI arguments schema](/bindings/pylucid/configuration_schema.json).
 
 [//]: # "@end-tab"
 [//]: # "@tab"

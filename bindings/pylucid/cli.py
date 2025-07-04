@@ -2,13 +2,13 @@ import importlib
 import json
 import sys
 from argparse import Action, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 import yaml
-from jsonschema import validate
+from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 from ._pylucid import *
@@ -22,97 +22,52 @@ if TYPE_CHECKING:
     from ._pyludic import NMatrix, NVector
 
 
-@dataclass(frozen=True)
-class ScenarioConfig:
-    """Configuration used to launch the pipeline."""
+@dataclass
+class Configuration(Namespace):
+    """Configuration determining the scenario."""
 
-    x_samples: "NMatrix"
-    xp_samples: "NMatrix"
-    X_bounds: "Set"
-    X_init: "Set"
-    X_unsafe: "Set"
-    T: int = 5
+    verbose: int = log.LOG_INFO  # Default verbosity level
+    seed: int = -1  # Default seed, -1 means no seeding
+    input: Path = field(default_factory=Path)  # Default to empty Path, can be set by ConfigAction
+
+    system_dynamics: "Callable[[NMatrix], NMatrix] | None" = None
+    X_bounds: "Set | None" = None
+    X_init: "Set | None" = None
+    X_unsafe: "Set | None" = None
+
+    x_samples: "NMatrix" = field(default_factory=lambda: np.empty((0, 0), dtype=np.float64))
+    xp_samples: "NMatrix | Callable[[NMatrix], NMatrix]" = field(
+        default_factory=lambda: np.empty((0, 0), dtype=np.float64)
+    )
+    f_xp_samples: "NMatrix | Callable[[NMatrix], NMatrix] | None" = None
+
     gamma: float = 1.0
     c_coefficient: float = 1.0
-    f_xp_samples: "NMatrix | Callable[[NMatrix], NMatrix] | None" = None
-    f_det: "Callable[[NMatrix], NMatrix] | None" = None
-    estimator: "Estimator | None" = None
-    num_freq_per_dim: int = -1
-    oversample_factor: float = 2.0
-    num_oversample: int = -1
-    feature_map: "FeatureMap | type[FeatureMap] | Callable[[Estimator], FeatureMap] | None" = None
-    sigma_f: float = 1.0
-    verify: bool = True
-    plot: bool = True
-    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser
+    lambda_: float = 1e-6  # Use 'lambda_' to avoid conflict with the Python keyword 'lambda'
+    sigma_f: float = 1.0  # Hyperparameter for the feature map, sigma_f
+    sigma_l: "NVector | float" = 1.0  # Can be a single float or an array of floats
+    num_samples: int = 1000  # Default number of samples
+    time_horizon: int = 5  # Default time horizon
+    noise_scale: float = 0.1  # Default noise scale
+    plot: bool = False  # Default plot flag
+    verify: bool = False  # Default verify flag
     problem_log_file: str = ""
     iis_log_file: str = ""
-
-    def keys(self) -> "list[str]":
-        """Returns a list of keys for the configuration attributes."""
-        return [
-            "x_samples",
-            "xp_samples",
-            "X_bounds",
-            "X_init",
-            "X_unsafe",
-            "T",
-            "gamma",
-            "c_coefficient",
-            "f_xp_samples",
-            "f_det",
-            "estimator",
-            "num_freq_per_dim",
-            "oversample_factor",
-            "num_oversample",
-            "feature_map",
-            "sigma_f",
-            "verify",
-            "plot",
-            "optimiser",
-            "problem_log_file",
-            "iis_log_file",
-        ]
-
-    def __getitem__(self, key) -> "NMatrix | Callable[[NMatrix], NMatrix] | Set | int | float | str | None":
-        return getattr(self, key)
-
-
-class CLIArgs(Namespace):
-    """Command line arguments for the CLI interface."""
-
-    system_dynamics: "Callable[[NMatrix], NMatrix] | None"
-    X_bounds: "Set | None"
-    X_init: "Set | None"
-    X_unsafe: "Set | None"
-    verbose: int
-    input: Path
-    seed: int
-    gamma: float
-    c_coefficient: float
-    lambda_: float  # Use 'lambda_' to avoid conflict with the Python keyword 'lambda'
-    sigma_f: float
-    sigma_l: "NVector | float"  # Can be a single float or an array of floats
-    num_samples: int
-    time_horizon: int
-    noise_scale: float
-    plot: bool
-    verify: bool
-    problem_log_file: str
-    iis_log_file: str
-    num_frequencies: int  # Default number of frequencies per dimension for the Fourier feature map
-    oversample_factor: float
-    num_oversample: int
-    estimator: "type[Estimator]"
-    kernel: "type[Kernel]"
-    feature_map: "type[FeatureMap]"
-    optimiser: "type[Optimiser]"
+    num_frequencies: int = 10  # Default number of frequencies per dimension for the Fourier feature map
+    oversample_factor: float = 2.0
+    num_oversample: int = (
+        -1
+    )  # Default number of oversamples, -1 means it will be computed based on the oversample factor
+    estimator: "type[Estimator]" = KernelRidgeRegressor
+    kernel: "type[Kernel]" = GaussianKernel
+    feature_map: "type[FeatureMap] | FeatureMap | Callable[[Estimator], FeatureMap]" = LinearTruncatedFourierFeatureMap
+    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser
 
 
 class ConfigAction(Action):
     """Custom action to handle configuration files."""
 
-    def __call__(self, parser, namespace: CLIArgs, values: Path, option_string=None):
+    def __call__(self, parser, namespace: Configuration, values: Path, option_string=None):
         """Parse the configuration file and update the namespace."""
         assert isinstance(values, Path), "Input must be a Path object"
         assert values.exists(), f"Configuration file does not exist: {values}"
@@ -138,21 +93,23 @@ class ConfigAction(Action):
     def validate(self, config_dict: dict, verbosity: int = log.LOG_INFO):
         """Validate the configuration dictionary against the schema."""
         if sys.version_info < (3, 9):
-            with importlib.resources.open_text("pylucid", "cliargs_schema.json", encoding="utf-8") as schema_file:
+            with importlib.resources.open_text("pylucid", "configuration_schema.json", encoding="utf-8") as schema_file:
                 schema = json.load(schema_file)
         else:
-            with importlib.resources.files("pylucid").joinpath("cliargs_schema.json").open(
+            with importlib.resources.files("pylucid").joinpath("configuration_schema.json").open(
                 "r", encoding="utf-8"
             ) as schema_file:
                 schema = json.load(schema_file)
 
         try:
-            validate(instance=config_dict, schema=schema)
+            Draft202012Validator(schema).validate(instance=config_dict)
         except ValidationError as e:
-            error_msg = f"Configuration file validation failed: {e.message}"
-            raise raise_error(error_msg, ValidationError) from (e if verbosity >= log.LOG_DEBUG else None)
+            prefix = f'[validation] {".".join(e.absolute_path) if e.absolute_path else ""}'
+            raise raise_error(f"{prefix}: {e.message}", ValidationError) from (
+                e if verbosity >= log.LOG_DEBUG else None
+            )
 
-    def dict_to_cliargs(self, config_dict: dict, args: CLIArgs) -> CLIArgs:
+    def dict_to_cliargs(self, config_dict: dict, args: Configuration) -> Configuration:
         """
         Convert a dictionary parsed from a YAML or JSON file to a CLIArgs object.
 
@@ -323,6 +280,7 @@ class OptimiserAction(Action):
 
 
 def arg_parser() -> "ArgumentParser":
+    config = Configuration()
     parser = ArgumentParser(prog="pylucid", description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument(
@@ -356,27 +314,27 @@ def arg_parser() -> "ArgumentParser":
             log.LOG_DEBUG,
             log.LOG_TRACE,
         ],
-        default=log.LOG_INFO,
+        default=config.verbose,
     )
     parser.add_argument(
         "-s",
         "--seed",
         type=int,
-        default=-1,
+        default=config.seed,
         help="random seed for reproducibility. Set to < 0 to disable seeding",
     )
     parser.add_argument(
         "-g",
         "--gamma",
         type=float,
-        default=1.0,
+        default=config.gamma,
         help="discount factor for future rewards",
     )
     parser.add_argument(
         "-c",
         "--c_coefficient",
         type=float,
-        default=1.0,
+        default=config.c_coefficient,
         help="coefficient to make the barrier certificate more (> 1) or less (< 1) conservative",
     )
     parser.add_argument(
@@ -384,25 +342,25 @@ def arg_parser() -> "ArgumentParser":
         "--lambda",
         dest="lambda_",
         type=float,
-        default=1.0,
+        default=config.lambda_,
         help="regularization constant for the estimator",
     )
     parser.add_argument(
         "-N",
         "--num_samples",
         type=int,
-        default=1000,
+        default=config.num_samples,
         help="number of samples to use to train the estimator",
     )
     parser.add_argument(
         "--sigma_f",
         type=float,
-        default=15.0,
+        default=1.0,
         help="hyperparameter for the feature map, sigma_f",
     )
     parser.add_argument(
         "--sigma_l",
-        default=[1.0],
+        default=config.sigma_l,
         type=float,
         action=FloatOrNVectorAction,
         help="hyperparameter for the feature map, sigma_l",
@@ -411,32 +369,32 @@ def arg_parser() -> "ArgumentParser":
         "-T",
         "--time_horizon",
         type=int,
-        default=10,
+        default=config.time_horizon,
         help="time horizon for the scenario",
     )
     parser.add_argument(
         "-f",
         "--num_frequencies",
         type=int,
-        default=4,
+        default=config.num_frequencies,
         help="number of frequencies per dimension for the Fourier feature map",
     )
     parser.add_argument(
         "--oversample_factor",
         type=float,
-        default=2.0,
+        default=config.oversample_factor,
         help="factor by which to oversample the frequency space. If `num_oversample` is set, it takes precedence",
     )
     parser.add_argument(
         "--num_oversample",
         type=int,
-        default=-1,
+        default=config.num_oversample,
         help="number of samples to use for the frequency space. If negative, it is computed based on the oversample factor",
     )
     parser.add_argument(
         "--noise_scale",
         type=float,
-        default=0.01,
+        default=config.noise_scale,
         help="scale of the noise added to the input samples. If 0, no noise is added.",
     )
     parser.add_argument(
@@ -452,19 +410,19 @@ def arg_parser() -> "ArgumentParser":
     parser.add_argument(
         "--problem_log_file",
         type=str,
-        default="",
+        default=config.problem_log_file,
         help="file to save the optimization problem in LP format. If empty, the problem will not be saved.",
     )
     parser.add_argument(
         "--iis_log_file",
         type=str,
-        default="",
+        default=config.iis_log_file,
         help="file to save the irreducible infeasible set (IIS) in ILP format. If empty, the IIS will not be saved.",
     )
     parser.add_argument(
         "--system_dynamics",
         type=str,
-        default=None,
+        default=config.system_dynamics,
         action=SystemDynamicsAction,
         help="system dynamics function as a string. "
         "Specify a function for each dimension of the output space. "
@@ -476,41 +434,41 @@ def arg_parser() -> "ArgumentParser":
     parser.add_argument(
         "--X_bounds",
         type=type_set,
-        default=None,
+        default=config.X_bounds,
         help="state space X bounds as a string. For example, `--X_bounds 'RectSet([-3, -2], [2.5, 1])'`",
     )
     parser.add_argument(
         "--X_init",
         type=type_set,
-        default=None,
+        default=config.X_init,
         help="initial set X_0 as a string. "
         "For example, `--X_init 'MultiSet(RectSet([1, -0.5], [2, 0.5]), RectSet([-1.8, -0.1], [-1.2, 0.1]))'`",
     )
     parser.add_argument(
         "--X_unsafe",
         type=type_set,
-        default=None,
+        default=config.X_unsafe,
         help="unsafe set X_U as a string. "
         "For example, `--X_unsafe 'MultiSet(RectSet([0.4, 0.1], [0.6, 0.5]), RectSet([0.4, 0.1], [0.8, 0.3]))'`",
     )
     parser.add_argument(
         "--estimator",
         action=EstimatorAction,
-        default=KernelRidgeRegressor,
+        default=config.estimator,
         choices=["KernelRidgeRegressor"],
         help="estimator type to use. Currently only 'KernelRidgeRegressor' is supported",
     )
     parser.add_argument(
         "--kernel",
         action=KernelAction,
-        default=GaussianKernel,
+        default=config.kernel,
         choices=["GaussianKernel"],
         help="kernel type to use for the estimator. Currently only 'GaussianKernel' is supported",
     )
     parser.add_argument(
         "--feature_map",
         action=FeatureMapAction,
-        default=LinearTruncatedFourierFeatureMap,
+        default=config.feature_map,
         choices=[
             "LinearTruncatedFourierFeatureMap",
             "ConstantTruncatedFourierFeatureMap",
@@ -521,7 +479,7 @@ def arg_parser() -> "ArgumentParser":
     parser.add_argument(
         "--optimiser",
         action=OptimiserAction,
-        default=GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser,
+        default=config.optimiser,
         choices=[
             "GurobiOptimiser",
             "AlglibOptimiser",

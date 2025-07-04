@@ -5,7 +5,7 @@ load("//tools:rules_cc.bzl", "lucid_pybind_extension", "lucid_pybind_library")
 load("//tools:variables.bzl", "LUCID_AUTHOR", "LUCID_AUTHOR_EMAIL", "LUCID_CLASSIFIERS", "LUCID_DESCRIPTION", "LUCID_HOMEPAGE", "LUCID_LICENSE", "LUCID_SOURCE", "LUCID_TRACKER", "LUCID_VERSION")
 load("@aspect_bazel_lib//lib:copy_directory.bzl", "copy_directory")
 
-exports_files(["cliargs_schema.json"])
+exports_files(["configuration_schema.json"])
 
 lucid_pybind_library(
     name = "interrupt",
@@ -69,7 +69,7 @@ py_library(
     data = [
         ":_pylucid.pyd",
         ":_pylucid.so",
-        ":cliargs_schema.json",
+        ":configuration_schema.json",
     ] + select({
         "//tools:gui_build": [":frontend"],
         "//conditions:default": [],
@@ -137,7 +137,7 @@ genrule(
 filegroup(
     name = "pylucid_files",
     srcs = [
-        "cliargs_schema.json",
+        "configuration_schema.json",
         ":_pylucid",
         ":pylucid_lib",
         ":stubgen",

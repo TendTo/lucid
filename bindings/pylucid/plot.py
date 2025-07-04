@@ -46,6 +46,7 @@ def plot_solution_1d(
     estimator: "Estimator | None" = None,
     f: "callable | None" = None,
     c: float = 0.0,
+    num_samples: "int | None" = None,
     show: bool = True,
 ) -> "plt.Figure":
     plt.xlim(X_bounds.lower_bound, X_bounds.upper_bound)
@@ -65,7 +66,7 @@ def plot_solution_1d(
         )
 
     if feature_map is not None and sol is not None:
-        x_lattice: np.ndarray = X_bounds.lattice(200, True)
+        x_lattice: np.ndarray = X_bounds.lattice(num_samples or 200, True)
         values = feature_map(x_lattice) @ sol.T
         plt.plot(x_lattice, values, color="green", label="B(x)")
         plt.fill_between(x_lattice.reshape(-1), values, values + c + 1e-8, color="lightgreen")
@@ -78,7 +79,7 @@ def plot_solution_1d(
                 color="purple",
                 label="B(xp) via regression",
             )
-        x_lattice_grid = X_bounds.lattice(feature_map.num_frequencies * 4, True)
+        x_lattice_grid = X_bounds.lattice(num_samples or (feature_map.num_frequencies * 4), True)
         plt.scatter(x_lattice_grid, feature_map(x_lattice_grid) @ sol.T, color="green", label="B(x) (lattice)")
         if f is not None:
             plt.scatter(x_lattice_grid, feature_map(f(x_lattice_grid)) @ sol.T, color="black", label="B(xp) (lattice)")
@@ -134,6 +135,7 @@ def plot_solution_2d(
     estimator: "Estimator" = None,
     f: "Callable[[NMatrix], NMatrix] | None" = None,
     c: float = 0.0,
+    num_samples: "int | None" = None,
     show: bool = True,
 ) -> "plt.Figure":
     fig = plt.figure()
@@ -148,8 +150,8 @@ def plot_solution_2d(
 
     # Plot the barrier certificate as a surface
     if feature_map is not None and sol is not None:
-        x = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], 25)
-        y = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], 25)
+        x = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], num_samples or 25)
+        y = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], num_samples or 25)
         X, Y = np.meshgrid(x, y)
         points = np.stack([X.ravel(), Y.ravel()], axis=1)
         Z = feature_map(points) @ sol.T
@@ -385,13 +387,14 @@ def plot_solution(
     estimator: "Estimator | None" = None,
     f: "Callable[[NMatrix], NMatrix] | None" = None,
     c: "float" = 0.0,
+    num_samples: "int | None" = None,
     show: bool = True,
 ) -> "plt.Figure":
     assert X_bounds.dimension > 0, "X_bounds must have a positive dimension."
     plot_solution_fun = (plot_solution_1d, plot_solution_2d)
     if X_bounds.dimension <= len(plot_solution_fun):
         return plot_solution_fun[X_bounds.dimension - 1](
-            X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c, show
+            X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c, num_samples, show
         )
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."

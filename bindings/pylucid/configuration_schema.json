@@ -151,16 +151,21 @@
     },
     "oversample_factor": {
       "description": "Factor by which to oversample the feature map.",
-      "type": "number"
+      "type": "number",
+      "minimum": 1,
+      "default": 2
     },
     "num_oversample": {
       "description": "Number of oversamples to use, -1 for no oversampling.",
-      "type": "integer"
+      "type": "integer",
+      "minimum": -1,
+      "default": -1
     },
     "noise_scale": {
       "description": "Scale of the noise to add to the system dynamics.",
       "type": "number",
-      "minimum": 0
+      "minimum": 0,
+      "default": 0.01
     },
     "plot": {
       "description": "Whether to plot the results.",

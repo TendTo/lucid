@@ -9,7 +9,7 @@ from pylucid import *
 from pylucid import __version__
 
 
-def cli_scenario_config(args: CLIArgs) -> ScenarioConfig:
+def cli_scenario_config(args: Configuration) -> Configuration:
     """
     Default scenario configuration function for CLI usage.
     This function is called when no input file is provided.
@@ -24,33 +24,11 @@ def cli_scenario_config(args: CLIArgs) -> ScenarioConfig:
     f = lambda x: f_det(x) + np.random.normal(scale=args.noise_scale)  # Add noise to the dynamics
 
     # Sample points from the bounds
-    x_samples = args.X_bounds.sample(args.num_samples)
-    xp_samples = f(x_samples)
-
-    # Create the estimator
-    estimator = args.estimator(
-        kernel=args.kernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
-        regularization_constant=args.lambda_,
-    )
+    args.x_samples = args.X_bounds.sample(args.num_samples)
+    args.xp_samples = f(args.x_samples)
 
     # Return the scenario configuration
-    return ScenarioConfig(
-        x_samples=x_samples,
-        xp_samples=xp_samples,
-        X_bounds=args.X_bounds,
-        X_init=args.X_init,
-        X_unsafe=args.X_unsafe,
-        T=args.time_horizon,
-        gamma=args.gamma,
-        num_freq_per_dim=args.num_frequencies,
-        f_det=f_det,
-        estimator=estimator,
-        feature_map=args.feature_map,
-        sigma_f=args.sigma_f,
-        oversample_factor=args.oversample_factor,
-        problem_log_file=args.problem_log_file,
-        optimiser=args.optimiser,
-    )
+    return args
 
 
 def main(argv: "Sequence[str] | None" = None) -> int:
@@ -59,7 +37,7 @@ def main(argv: "Sequence[str] | None" = None) -> int:
         # If no arguments are provided, print the help message and exit
         arg_parser().print_help()
         return 0
-    args = arg_parser().parse_args(argv, namespace=CLIArgs())
+    args: Configuration = arg_parser().parse_args(argv, namespace=Configuration())
     # If a seed is provided, set the random seed for reproducibility
     random.seed(args.seed)
     if args.seed >= 0:
@@ -83,11 +61,11 @@ def main(argv: "Sequence[str] | None" = None) -> int:
             p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD, p.VAR_POSITIONAL) for p in sign.parameters.values()
         )
         if has_params:
-            config: ScenarioConfig = mod.scenario_config(args)
+            config: Configuration = mod.scenario_config(args)
         else:
-            config: ScenarioConfig = mod.scenario_config()
-        if not isinstance(config, (ScenarioConfig, dict)):
-            raise raise_error("The 'scenario_config' function must return an instance of 'ScenarioConfig' or a dict")
+            config: Configuration = mod.scenario_config()
+        if not isinstance(config, Configuration):
+            raise raise_error("The 'scenario_config' function must return an instance of 'Configuration'")
     else:
         # If no input file is provided, use the default scenario configuration
         log.info("No input file provided, using default scenario configuration")
@@ -98,7 +76,7 @@ def main(argv: "Sequence[str] | None" = None) -> int:
 
     log.info(f"Running scenario (LUCID version: {__version__})")
     start = time.time()
-    pipeline(**config)
+    pipeline(config)
     end = time.time()
     log.info(f"Elapsed time: {end - start}")
     return 0

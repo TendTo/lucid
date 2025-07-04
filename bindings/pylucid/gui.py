@@ -1,37 +1,35 @@
+import logging
+import secrets
 import threading
 import warnings
 import webbrowser
+from queue import Queue
 
 import matplotlib
 import mpld3
-from flask import Flask, request, send_from_directory, Blueprint, Response, session
+import numpy as np
+from flask import Blueprint, Flask, Response, request, send_from_directory, session
 from flask_cors import CORS
 from jsonschema import ValidationError
 from matplotlib import pyplot as plt
 from pyparsing import ParseException
 
 from pylucid import *
-from pylucid.cli import CLIArgs, ConfigAction, arg_parser
-from pylucid.plot import plot_function, plot_solution
+from pylucid.cli import ConfigAction
 from pylucid.dreal import verify_barrier_certificate
-import numpy as np
-from queue import Queue
-import logging
-import secrets
+from pylucid.plot import plot_function, plot_solution
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-matplotlib.use('agg')
-
 
 warnings.filterwarnings("ignore", category=matplotlib.MatplotlibDeprecationWarning)
 
 DEBUG = True
 
-QUEUES: "dict[int, Queue[str]]" = {}    
+QUEUES: "dict[int, Queue[str]]" = {}
 
-def run_lucid(args: CLIArgs):
+
+def run_lucid(args: Configuration):
     # Define the system dynamics function
     if args.seed >= 0:
         np.random.seed(args.seed)
@@ -137,6 +135,7 @@ def run_lucid(args: CLIArgs):
                 estimator=estimator,
                 c=c if success else None,
                 show=False,
+                num_samples=n_per_dim,
             )
             response["fig"] = mpld3.fig_to_html(fig)
 
@@ -192,13 +191,14 @@ def run_lucid(args: CLIArgs):
 
 def handle_log(log_entry: str):
     """Handle log entries by putting them into the queue for the current thread."""
-    QUEUES.setdefault(threading.get_ident(), Queue(maxsize=1)).put({'log': log_entry})
-    print(log_entry, end='')  # Print to console for debugging
+    QUEUES.setdefault(threading.get_ident(), Queue(maxsize=1)).put({"log": log_entry})
+    print(log_entry, end="")  # Print to console for debugging
 
-def get_args(config_dict: "dict | None" = None) -> CLIArgs:
+
+def get_args(config_dict: "dict | None" = None) -> Configuration:
     config_dict = config_dict or request.json
     try:
-        args: CLIArgs = arg_parser().parse_args([])  # Create an empty CLIArgs object
+        args: Configuration = Configuration()
         config_action = ConfigAction(option_strings=None, dest="")
         config_action.validate(config_dict)
         config_action.dict_to_cliargs(config_dict, args)
@@ -220,6 +220,7 @@ def get_args(config_dict: "dict | None" = None) -> CLIArgs:
         return {"message": f"Error processing configuration. {e}"}, 500
     return args
 
+
 def event_streamer(worker_id: int):
     q = QUEUES.setdefault(worker_id, Queue(maxsize=1))
     while True:
@@ -227,10 +228,12 @@ def event_streamer(worker_id: int):
         if log_entry is None:
             break
         q.task_done()
-        yield f'data: {json.dumps(log_entry)}\n\n'
+        yield f"data: {json.dumps(log_entry)}\n\n"
     del QUEUES[worker_id]  # Clean up the queue after the worker is done
 
+
 blueprint = Blueprint("pylucid", __name__, static_folder="frontend", static_url_path="")
+
 
 @blueprint.route("/preview-graph", methods=["POST"])
 def preview_graph():
@@ -249,11 +252,13 @@ def preview_graph():
     logger.info("Graph preview generated successfully.")
     return {"fig": mpld3.fig_to_html(fig)}, 200
 
+
 @blueprint.route("/run", methods=["POST"])
 def post_run():
     logger.info("Received request to run lucid. Storing config_dict in session.")
     session["config_dict"] = request.json
     return Response(status=202)
+
 
 @blueprint.route("/run", methods=["GET"])
 def get_run():
@@ -276,7 +281,7 @@ def get_run():
 def main():
     app = Flask(__name__, static_folder="frontend", static_url_path="")
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex())
-    app.register_blueprint(blueprint, url_prefix='/api')
+    app.register_blueprint(blueprint, url_prefix="/api")
     CORS(app)
     log.set_sink(handle_log)
 
@@ -291,4 +296,3 @@ def main():
         webbrowser.open("http://localhost:5000", new=2)  # Open the app in the default web browser
 
     app.run(debug=DEBUG, host="0.0.0.0", port=5000)
-
