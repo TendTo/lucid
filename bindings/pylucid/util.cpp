@@ -11,6 +11,8 @@
 
 #include "lucid/util/util.h"
 
+#include <pybind11/functional.h>
+
 #include "bindings/pylucid/pylucid.h"
 #include "lucid/util/logging.h"
 
@@ -31,6 +33,8 @@ void init_util(py::module_& m) {
   log.attr("LOG_TRACE") = 5;
 
   log.def("set_verbosity", [](const int value) { LUCID_LOG_INIT_VERBOSITY(value); }, py::arg("level") = 3);
+  log.def("set_sink", py::overload_cast<std::function<void(std::string)>>(log::set_logger_sink), py::arg("cb"));
+  log.def("clear", log::clear_logger);
 
   log.def("trace", [](const std::string& message) { LUCID_TRACE_FMT("{}", message); }, py::arg("message"));
   log.def("debug", [](const std::string& message) { LUCID_DEBUG_FMT("{}", message); }, py::arg("message"));

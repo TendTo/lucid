@@ -196,6 +196,7 @@ struct CliArgs {
 
 bool test_linear(const CliArgs& args) {
   random::seed(args.seed);
+  log::set_logger_sink([](std::string msg) { std::cerr << "VTF: " << msg << std::endl; });
 
   auto f_det = [](const Matrix& x) -> Matrix {
     // Linear function: f(x) = 0.5 * x
@@ -231,6 +232,7 @@ bool test_linear(const CliArgs& args) {
   LUCID_DEBUG_FMT("Estimator pre-fit: {}", estimator);
   estimator.fit(x_samples, f_xp_samples);
   LUCID_INFO_FMT("Estimator post-fit: {}", estimator);
+  log::clear_logger();
 
   {
     LUCID_DEBUG_FMT("RMSE on f_xp_samples {}", scorer::rmse_score(estimator, x_samples, f_xp_samples));

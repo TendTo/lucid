@@ -25,7 +25,7 @@ namespace {
 Matrix get_prob_dim_wise(const int num_frequencies, ConstVectorRef sigma_l) {
   Matrix prob_dim_wise{sigma_l.size(), num_frequencies};
   for (Dimension i = 0; i < sigma_l.size(); i++) {
-    Vector intervals{Vector::LinSpaced(num_frequencies + 1, 0, log(3 * sigma_l(i) + 1))};
+    Vector intervals{Vector::LinSpaced(num_frequencies + 1, 0, std::log(3 * sigma_l(i) + 1))};
     intervals = (intervals.array().exp() - 1).eval();
     prob_dim_wise.row(i) = normal_cdf(intervals.tail(num_frequencies), 0, sigma_l(i)) -
                            normal_cdf(intervals.head(num_frequencies), 0, sigma_l(i));
