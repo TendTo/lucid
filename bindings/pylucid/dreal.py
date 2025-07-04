@@ -94,7 +94,7 @@ def build_barrier_expression(
             Cosine(
                 sum(
                     o / (ub - lb) * (x - lb)
-                    for o, x, lb, ub in zip(row, xs, X_bounds.lower_bound, X_bounds.upper_bound, strict=True)
+                    for o, x, lb, ub in zip(row, xs, X_bounds.lower_bound, X_bounds.upper_bound)
                 )
             )
         )
@@ -102,11 +102,11 @@ def build_barrier_expression(
             Sine(
                 sum(
                     o / (ub - lb) * (x - lb)
-                    for o, x, lb, ub in zip(row, xs, X_bounds.lower_bound, X_bounds.upper_bound, strict=True)
+                    for o, x, lb, ub in zip(row, xs, X_bounds.lower_bound, X_bounds.upper_bound)
                 )
             )
         )
-    for i, (w, s) in enumerate(zip(tffm.weights, sol, strict=True)):
+    for i, (w, s) in enumerate(zip(tffm.weights, sol)):
         sym_tffm[i] *= w * sigma_f * s
     return sum(sym_tffm)
 
