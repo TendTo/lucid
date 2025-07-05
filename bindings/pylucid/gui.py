@@ -1,17 +1,13 @@
 import logging
 import secrets
 import threading
-import warnings
 import webbrowser
 from queue import Queue
 
-import matplotlib
-import mpld3
 import numpy as np
 from flask import Blueprint, Flask, Response, request, send_from_directory, session
 from flask_cors import CORS
 from jsonschema import ValidationError
-from matplotlib import pyplot as plt
 from pyparsing import ParseException
 
 from pylucid import *
@@ -21,8 +17,6 @@ from pylucid.plot import plot_function, plot_solution
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-warnings.filterwarnings("ignore", category=matplotlib.MatplotlibDeprecationWarning)
 
 DEBUG = True
 
@@ -122,7 +116,6 @@ def run_lucid(args: Configuration):
             response["c"] = c
             response["norm"] = norm
         if args.plot:
-            plt.figure()
             fig = plot_solution(
                 X_bounds=args.X_bounds,
                 X_init=args.X_init,
@@ -137,7 +130,7 @@ def run_lucid(args: Configuration):
                 show=False,
                 num_samples=n_per_dim,
             )
-            response["fig"] = mpld3.fig_to_html(fig)
+            response["fig"] = fig.to_html(include_plotlyjs=False, full_html=False)
 
         if args.verify and f_det is not None and success:
             response["verified"] = verify_barrier_certificate(
@@ -241,7 +234,6 @@ def preview_graph():
     args = get_args()
     if not isinstance(args, Namespace):
         return args
-    plt.figure()
     fig = plot_function(
         X_bounds=args.X_bounds,
         X_init=args.X_init,
@@ -250,7 +242,7 @@ def preview_graph():
         show=False,
     )
     logger.info("Graph preview generated successfully.")
-    return {"fig": mpld3.fig_to_html(fig)}, 200
+    return {"fig": fig.to_html(include_plotlyjs=False, full_html=False)}, 200
 
 
 @blueprint.route("/run", methods=["POST"])

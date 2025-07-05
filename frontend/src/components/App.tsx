@@ -25,6 +25,7 @@ import type {
 } from "@app/types/types";
 import { parseLogEntry } from "@app/utils/parseLog";
 import Result from "./Result";
+import "plotly.js-dist-min"
 
 const initialFormSteps = {
   system: {
