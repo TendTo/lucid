@@ -4,6 +4,15 @@
   "description": "Representation of the command line arguments for pylucid expressed in a configuration file",
   "type": "object",
   "$defs": {
+    "matrix": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
+    },
     "set_type": {
       "oneOf": [
         {
@@ -85,10 +94,17 @@
       "type": "integer",
       "default": -1
     },
+    "x_samples": {
+      "description": "Samples from the state space.",
+      "$ref": "#/$defs/matrix"
+    },
+    "xp_samples": {
+      "description": "Transition samples from the state space.",
+      "$ref": "#/$defs/matrix"
+    },
     "system_dynamics": {
       "description": "Dynamics of the system, describing how it evolves over time.",
       "type": "array",
-      "minItems": 1,
       "items": {
         "type": "string"
       }

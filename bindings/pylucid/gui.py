@@ -67,21 +67,24 @@ def get_args(config_dict: "dict | None" = None) -> Configuration:
         config_action.validate(config_dict)
         config_action.dict_to_cliargs(config_dict, args)
         # Just to ensure the system dynamics function is compatible with the initial state
-        args.system_dynamics(args.X_init.lattice(1))
+        if args.system_dynamics is None and len(args.xp_samples) == 0:
+            return {"error": "System dynamics must be provided if xp_samples is not given.", "cause": "system_dynamics"}, 400 
+        if args.system_dynamics is not None:
+            args.system_dynamics(args.X_init.lattice(1))
         logger.debug("Parsed CLI arguments: %s", args)
     except ValidationError as val_err:
         logger.error("Validation error: %s", val_err.message)
-        return {"message": val_err.message}, 400
+        return {"error": val_err.message}, 400
     except ParseException as parse_err:
         logger.error("Parse error: %s", parse_err)
-        return {"message": f"Error parsing system dynamics. {parse_err}", "cause": "system_dynamics"}, 400
+        return {"error": f"Error parsing system dynamics. {parse_err}", "cause": "system_dynamics"}, 400
     except TypeError as type_err:
         if "_lambdifygenerated()" in str(type_err):
-            return {"message": str(type_err).split("_lambdifygenerated()")[1], "cause": "system_dynamics"}, 400
-        return {"message": f"Error processing configuration. {type_err}"}, 500
+            return {"error": str(type_err).split("_lambdifygenerated()")[1], "cause": "system_dynamics"}, 400
+        return {"error": f"Error processing configuration. {type_err}"}, 500
     except Exception as e:
         logger.error(f"Error processing configuration: {e}")
-        return {"message": f"Error processing configuration. {e}"}, 500
+        return {"error": f"Error processing configuration. {e}"}, 500
     return args
 
 
@@ -110,6 +113,8 @@ def preview_graph():
         X_init=args.X_init,
         X_unsafe=args.X_unsafe,
         f=args.system_dynamics,
+        x_samples=args.x_samples,
+        xp_samples=args.xp_samples,
         show=False,
     )
     logger.info("Graph preview generated successfully.")
@@ -119,6 +124,9 @@ def preview_graph():
 @blueprint.route("/run", methods=["POST"])
 def post_run():
     logger.info("Received request to run lucid. Storing config_dict in session.")
+    args = get_args()
+    if not isinstance(args, Configuration):
+        return args
     session["config_dict"] = request.json
     return Response(status=202)
 
@@ -128,7 +136,7 @@ def get_run():
     logger.info("Received request to get run status.")
     config_dict = session.get("config_dict", None)
     if config_dict is None:
-        return {"message": "You must submit config_dict before starting a run"}, 404
+        return {"error": "You must submit config_dict before starting a run"}, 404
     args = get_args(config_dict)
     if not isinstance(args, Configuration):
         return args

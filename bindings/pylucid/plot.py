@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ._pylucid import Estimator, FeatureMap, MultiSet, RectSet, Set, exception, log
+from .util import assert_or_raise
 
 if TYPE_CHECKING:
     from typing import Callable
@@ -573,9 +574,11 @@ def plot_solution(
 
 def plot_function_1d(
     X_bounds: "RectSet",
-    f: "Callable[[NMatrix], NMatrix]",
+    f: "Callable[[NMatrix], NMatrix] | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
+    x_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
+    xp_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
     n: int = 100,
     show: bool = True,
 ) -> go.Figure:
@@ -589,31 +592,27 @@ def plot_function_1d(
     if X_unsafe is not None:
         fig = plot_set_1d(X_unsafe, "red", label="Unsafe Set", fig=fig)
 
-    x_samples = X_bounds.lattice(n, True).flatten()
-    y_samples = f(x_samples.reshape(-1, 1)).flatten()
-    assert y_samples.ndim == 1 or y_samples.shape[1] == 1, "Function f must return a 1D array for 1D plotting."
+    if len(x_samples) == 0:
+        x_samples = X_bounds.lattice(n, True).flatten()
+    n = len(x_samples)
+    if len(xp_samples) == 0:
+        assert_or_raise(f is not None, "Function f must be provided if xp_samples is not given.")
+        xp_samples = f(x_samples.reshape(-1, 1)).flatten()
+    assert xp_samples.ndim == 1 or xp_samples.shape[1] == 1, "Function f must return a 1D array for 1D plotting."
 
-    # Create vector field using quiver plot
-    fig.add_trace(
-        go.Scatter(x=x_samples, y=y_samples, mode="markers+lines", name="Function values", line=dict(color="blue"))
+    y = np.linspace(0, 1, n)
+
+    u = np.repeat((xp_samples - x_samples).reshape(1, -1), n, axis=0)
+    v = np.zeros((n, n))  # Assuming a 1D function, v is zero
+
+    fig = ff.create_streamline(
+        x_samples,
+        y,
+        u,
+        v,arrow_scale=0.05, 
+        density=0.2,
     )
-
-    # Add arrows to show direction
-    for i in range(0, len(x_samples), max(1, len(x_samples) // 20)):
-        fig.add_annotation(
-            x=x_samples[i],
-            y=y_samples[i],
-            ax=x_samples[i],
-            ay=y_samples[i] - (y_samples[i] - x_samples[i]) * 0.8,
-            arrowhead=2,
-            arrowsize=1,
-            arrowwidth=2,
-            arrowcolor="blue",
-            showarrow=True,
-        )
-
-    fig.update_layout(title="Function Plot", xaxis_title="Input", yaxis_title="Output")
-
+    fig.update_layout(title="Function Plot", xaxis_title="Input Dimension")
     if show:
         fig.show()
     return fig
@@ -621,20 +620,26 @@ def plot_function_1d(
 
 def plot_function_2d(
     X_bounds: "RectSet",
-    f: "Callable[[NMatrix], NMatrix]",
+    f: "Callable[[NMatrix], NMatrix] | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
+    x_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
+    xp_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
     n: int = 100,
     show: bool = True,
 ) -> go.Figure:
     """Plot a function f over the given samples in 2D."""
     assert X_bounds.dimension == 2, "plot_function is only supported for 2D functions."
 
-    x_samples = X_bounds.lattice(n, True)
+    if len(x_samples) == 0:
+        x_samples = X_bounds.lattice(n, True)
+    n = int(np.sqrt(len(x_samples)))
     X = x_samples[:, 0].reshape(n, n)
     Y = x_samples[:, 1].reshape(n, n)
 
-    xp_samples = f(x_samples)
+    if len(xp_samples) == 0:
+        assert_or_raise(f is not None, "Function f must be provided if xp_samples is not given.")
+        xp_samples = f(x_samples)
 
     assert xp_samples.ndim == 2 and xp_samples.shape[1] == 2, "Function f must return a 2D array for 2D plotting."
 
@@ -661,16 +666,18 @@ def plot_function_2d(
 
 def plot_function(
     X_bounds: "RectSet",
-    f: "Callable[[NMatrix], NMatrix]",
+    f: "Callable[[NMatrix], NMatrix] | None" = None,
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
+    x_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
+    xp_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
     n: int = 100,
     show: bool = True,
 ) -> go.Figure:
     """Plot a function f over the given samples."""
     plot_function_fun = (plot_function_1d, plot_function_2d)
     if X_bounds.dimension <= len(plot_function_fun):
-        return plot_function_fun[X_bounds.dimension - 1](X_bounds, f, X_init, X_unsafe, n, show=show)
+        return plot_function_fun[X_bounds.dimension - 1](X_bounds= X_bounds, f=f, X_init=X_init, X_unsafe=X_unsafe, x_samples=x_samples, xp_samples=xp_samples, n=n, show=show)
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
     )

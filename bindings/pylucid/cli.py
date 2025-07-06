@@ -190,18 +190,19 @@ class ConfigAction(Action):
             None, args, config_dict.get("feature_map", args.feature_map)
         )
         OptimiserAction(option_strings=None, dest="optimiser")(None, args, config_dict.get("optimiser", args.optimiser))
-
-        # Handle sigma_l (can be single value or list)
-        sigma_l = config_dict.get("sigma_l", args.sigma_l)
-        if isinstance(sigma_l, (int, float)):
-            args.sigma_l = float(sigma_l)
-        else:
-            args.sigma_l = np.array(sigma_l, dtype=np.float64)
-        args.sigma_l = sigma_l
+        NMatrixAction(option_strings=None, dest="x_samples")(
+            None, args, config_dict.get("x_samples", args.x_samples)
+        )
+        NMatrixAction(option_strings=None, dest="xp_samples")(
+            None, args, config_dict.get("xp_samples", config_dict.get("f_xp_samples", args.xp_samples))
+        )
+        FloatOrNVectorAction(option_strings=None, dest="sigma_l")(
+            None, args, config_dict.get("sigma_l", args.sigma_l)
+        )
 
         # Process system dynamics
         system_dynamics = config_dict.get("system_dynamics", args.system_dynamics)
-        if isinstance(system_dynamics, list):
+        if isinstance(system_dynamics, list) and len(system_dynamics) > 0:
             SystemDynamicsAction(option_strings=None, dest="system_dynamics")(None, args, system_dynamics)
 
         # Process sets
@@ -238,7 +239,9 @@ class FloatOrNVectorAction(Action):
     def __init__(self, **kwargs):
         super().__init__(nargs="+", **kwargs)
 
-    def __call__(self, parser, namespace, values: "list[float]", option_string=None):
+    def __call__(self, parser, namespace, values: "float | list[float]", option_string=None):
+        if isinstance(values, float):
+            values = [values]
         setattr(namespace, self.dest, np.array(values, dtype=np.float64) if len(values) > 1 else float(values[0]))
 
 
@@ -325,6 +328,8 @@ class NMatrixAction(Action):
     def __call__(self, parser, namespace, values: "str | type[NMatrix]", option_string=None):
         if isinstance(values, np.ndarray):
             return setattr(namespace, self.dest, values)
+        if isinstance(values, list):
+            return setattr(namespace, self.dest, np.array(values, dtype=np.float64))
         suffixes = (".npy", ".npz", ".csv")
         path_to_file = Path(values)
         if path_to_file.suffix in suffixes:
