@@ -13,6 +13,8 @@ const Linear = {
   verbose: 3,
   seed: 42,
   system_dynamics: ["x1 / 2"],
+  x_samples: [],
+  xp_samples: [],
   X_bounds: [{ RectSet: [[-1, 1]] }],
   X_init: [{ RectSet: [[-0.5, 0.5]] }],
   X_unsafe: [
@@ -40,13 +42,15 @@ const Linear = {
   iis_log_file: "iis.ilp",
   estimator: "KernelRidgeRegressor",
   feature_map: "LinearTruncatedFourierFeatureMap",
-  optimiser: "AlglibOptimiser",
+  optimiser: "GurobiOptimiser",
 } as const;
 
 const Barrier3 = {
   verbose: 3,
   seed: 42,
   system_dynamics: ["x2", "-x1 - x2 + 1 / 3 * x1 ** 3"],
+  x_samples: [],
+  xp_samples: [],
   X_bounds: [
     {
       RectSet: [
@@ -88,7 +92,7 @@ const Barrier3 = {
   iis_log_file: "iis.ilp",
   estimator: "KernelRidgeRegressor",
   feature_map: "LinearTruncatedFourierFeatureMap",
-  optimiser: "AlglibOptimiser",
+  optimiser: "GurobiOptimiser",
   kernel: "GaussianKernel",
 } as const;
 

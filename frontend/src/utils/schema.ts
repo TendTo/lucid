@@ -27,6 +27,38 @@ const set = z
       code: "custom",
     }
   );
+const matrix = z
+  .array(z.array(z.any()))
+  .refinement(
+    (samples) => {
+      let expectedColumns: number | null = null;
+      for (const sample of samples) {
+        expectedColumns ??= sample.length;
+        if (sample.length !== expectedColumns) {
+          return false;
+        }
+      }
+      return true;
+    },
+    {
+      message: "All samples must have the same number of columns.",
+      code: "custom",
+    }
+  )
+  .refinement(
+    (samples) => {
+      for (const sample of samples) {
+        if (sample.filter((x) => isNaN(x) || typeof x !== "number").length > 0) {
+          return false;
+        }
+      }
+      return true;
+    },
+    {
+      message: "The CSV is invalid or contains non-numeric values.",
+      code: "custom",
+    }
+  );
 export const jsonSchema = z
   .object({
     verbose: z
@@ -42,9 +74,14 @@ export const jsonSchema = z
       .describe("Seed for the random number generator.")
       .gte(-1)
       .default(-1),
+    x_samples: matrix.describe(
+      "Samples of the state space, each sample is an array of numbers."
+    ),
+    xp_samples: matrix.describe(
+      "Samples of the state space at the next time step, each sample is an array of numbers."
+    ),
     system_dynamics: z
       .array(z.string().nonempty())
-      .nonempty()
       .describe("Dynamics of the system, describing how it evolves over time."),
     X_bounds: set,
     X_init: set,
@@ -162,6 +199,8 @@ export const jsonSchema = z
     const inputDimensions = data.X_bounds.length
       ? data.X_bounds[0].RectSet.length
       : 0;
+    if (data.system_dynamics.length === 0) return;
+    if (inputDimensions === 0) return;
     const xs = new Set();
     for (const f of data.system_dynamics ?? []) {
       const match = f.matchAll(/x(\d+)/g);
@@ -174,7 +213,7 @@ export const jsonSchema = z
       ctx.addIssue({
         path: ["system_dynamics"],
         code: "custom",
-        message: `System dynamics must reference all and only inputs from 'x1' to 'x${inputDimensions}'.`,
+        message: `System dynamics must reference all and only input components [x1, ..., x${inputDimensions}].`,
       });
     }
     for (let i = 1; i <= xs.size; i++) {
@@ -182,9 +221,20 @@ export const jsonSchema = z
         ctx.addIssue({
           path: ["system_dynamics"],
           code: "custom",
-          message: `System dynamics must reference all and only inputs from 'x1' to 'x${xs.size}'.`,
+          message: `System dynamics must reference all and only input components [x1, ..., x${xs.size}].`,
         });
       }
+    }
+  })
+  .superRefine((data, ctx) => {
+    if (data.system_dynamics.length !== 0 || data.xp_samples.length !== 0)
+      return;
+    for (const cause of ["system_dynamics", "xp_samples"] as const) {
+      ctx.addIssue({
+        path: [cause],
+        code: "custom",
+        message: `Either 'system_dynamics' or 'xp_samples' must be provided.`,
+      });
     }
   })
   .describe(

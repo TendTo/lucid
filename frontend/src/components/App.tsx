@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { jsonSchema } from "@utils/schema";
@@ -25,7 +25,7 @@ import type {
 } from "@app/types/types";
 import { parseLogEntry } from "@app/utils/parseLog";
 import Result from "./Result";
-import "plotly.js-dist-min"
+import "plotly.js-dist-min";
 
 const initialFormSteps = {
   system: {
@@ -48,9 +48,11 @@ const initialFormSteps = {
   },
 } as FormSteps;
 
-const defaultValues = {
+export const defaultValues = {
   verbose: 3,
   seed: -1,
+  x_samples: [] as number[][],
+  xp_samples: [] as number[][],
   system_dynamics: [] as string[],
   X_bounds: [] as RectSet[],
   X_init: [] as RectSet[],
@@ -82,53 +84,85 @@ export default function App() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [, setIsConnected] = useState(false);
 
-  async function onSubmit(data: typeof defaultValues) {
-    setLogs([]);
-    setFig("");
-    const response = await fetch("/api/run", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    if (response.status !== 202) {
-      const json: ServerResponse = await response.json();
-      console.error("Error:", json.error || "Unknown error");
-      return;
-    }
+  const methods = useForm({
+    resolver: zodResolver(jsonSchema),
+    defaultValues: defaultValues as any,
+    mode: "onChange",
+  });
 
-    // Create SSE connection
-    const eventSource = new EventSource("/api/run", {});
+  const onSubmit = useCallback(
+    async (data: typeof defaultValues) => {
+      // Validate form data
+      const isValid =
+        (await methods.trigger()) &&
+        !(await methods.trigger([
+          "system_dynamics",
+          "X_bounds",
+          "X_init",
+          "X_unsafe",
+          "x_samples",
+          "xp_samples",
+        ]));
+      if (!isValid) {
+        console.error("Form validation failed");
+        console.error(methods.formState.errors);
+        return;
+      }
+      setLogs([]);
+      setFig("");
+      const response = await fetch("/api/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.status !== 202) {
+        const error: ServerResponse = await response.json();
+        if (error.cause) {
+          methods.setError(error.cause, {
+            type: "value",
+            message: error.error,
+          });
+        }
+        throw new Error(
+          `Error fetching graph preview: ${error.error ?? "Unknown error"}`
+        );
+        return;
+      }
 
-    // Handle incoming messages
-    eventSource.onmessage = (event) => {
-      const data: ServerResponse = JSON.parse(event.data);
-      if (data.log)
-        setLogs((prevLogs) => [...prevLogs, parseLogEntry(data.log)]);
-      if (data.fig) setFig(data.fig);
-      console.log();
-    };
+      // Create SSE connection
+      const eventSource = new EventSource("/api/run", {});
 
-    // Handle connection open
-    eventSource.onopen = () => {
-      setIsConnected(true);
-    };
+      // Handle incoming messages
+      eventSource.onmessage = (event) => {
+        const data: ServerResponse = JSON.parse(event.data);
+        if (data.log)
+          setLogs((prevLogs) => [...prevLogs, parseLogEntry(data.log)]);
+        if (data.fig) setFig(data.fig);
+      };
 
-    // Handle errors and close events
-    eventSource.onerror = (error) => {
-      if (error.eventPhase !== EventSource.CLOSED)
-        console.error("SSE error:", error);
-      setIsConnected(false);
-      eventSource.close();
-    };
+      // Handle connection open
+      eventSource.onopen = () => {
+        setIsConnected(true);
+      };
 
-    // Clean up on unmount
-    return () => {
-      eventSource.close();
-      setIsConnected(false);
-    };
-  }
+      // Handle errors and close events
+      eventSource.onerror = (error) => {
+        if (error.eventPhase !== EventSource.CLOSED)
+          console.error("SSE error:", error);
+        setIsConnected(false);
+        eventSource.close();
+      };
+
+      // Clean up on unmount
+      return () => {
+        eventSource.close();
+        setIsConnected(false);
+      };
+    },
+    [setIsConnected, setLogs, setFig, methods]
+  );
 
   const setCurrentStep = useCallback(
     (step: FormStepName) => {
@@ -143,20 +177,6 @@ export default function App() {
       );
     },
     [setFormSteps]
-  );
-
-  const methods = useForm({
-    resolver: zodResolver(jsonSchema),
-    defaultValues: defaultValues as any,
-    mode: "onChange",
-  });
-
-  const disabled = useMemo(
-    () =>
-      Object.values(methods.formState.errors).some(
-        (error) => error !== undefined
-      ),
-    [methods]
   );
 
   return (
@@ -178,7 +198,6 @@ export default function App() {
               <div className="flex flex-row-reverse">
                 <button
                   type="submit"
-                  disabled={disabled}
                   className={
                     "btn btn-primary flex items-center justify-center w-50"
                   }

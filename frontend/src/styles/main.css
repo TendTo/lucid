@@ -50,3 +50,7 @@ span.log-debug {
 span.log-trace {
   @apply text-gray-400 font-bold italic;
 }
+
+.drag-over {
+  @apply border-2 border-dashed border-blue-500 bg-blue-50;
+}
