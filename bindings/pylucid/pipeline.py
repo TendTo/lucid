@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 import numpy as np
 
@@ -13,12 +13,21 @@ from ._pylucid import (
     log,
 )
 
+if TYPE_CHECKING:
+    from typing import Callable
+
+    from plotly.graph_objects import Figure
+
+    from ._pylucid import NMatrix, NVector
+    from .cli import Configuration
+
+
 try:
     from .dreal import verify_barrier_certificate
 except ImportError:
     log.warn("Verification disabled")
 
-    def verify_barrier_certificate(*args, **kwargs):
+    def verify_barrier_certificate(*args, **kwargs) -> "bool":
         pass
 
 
@@ -27,15 +36,21 @@ try:
 except ImportError:
     log.warn("Plotting disabled")
 
-    def plot_solution(*args, **kwargs):
+    def plot_solution(*args, **kwargs) -> "Figure":
         pass
 
 
-if TYPE_CHECKING:
-    from typing import Callable
+class OptimiserResult(TypedDict):
+    """Result of the optimisation process."""
 
-    from ._pylucid import NMatrix, NVector
-    from .cli import Configuration
+    success: bool
+    obj_val: float
+    sol: "NVector"
+    eta: float
+    c: float
+    norm: float
+    fig: "Figure"
+    verified: bool
 
 
 def rmse(x: "NMatrix", y: "NMatrix", ax=0):
@@ -53,7 +68,9 @@ def tune() -> "Estimator":
     return estimator
 
 
-def pipeline(args: "Configuration") -> bool:
+def pipeline(
+    args: "Configuration", show: bool = True, optimiser_cb: "Callable[[OptimiserResult], None]" = None
+) -> bool:
     """Run Lucid with the given parameters.
     This function makes it easier to work with the library by providing
     reasonable defaults and a simple interface,
@@ -61,6 +78,8 @@ def pipeline(args: "Configuration") -> bool:
     If you need more control, use the individual functions and classes directly.
 
     Args:
+        args: The configuration object containing all the parameters.
+        optimiser_cb: A callback function to handle the optimization results.
 
 
     Raises:
@@ -87,7 +106,7 @@ def pipeline(args: "Configuration") -> bool:
         estimator = args.estimator(
             kernel=args.kernel(sigma_l=1, sigma_f=args.sigma_f),
             regularization_constant=1e-6,
-            tuner=MedianHeuristicTuner(),
+            **({"tuner": args.tuner} if args.tuner is not None else {}),
         )
     else:
         estimator = args.estimator
@@ -104,12 +123,12 @@ def pipeline(args: "Configuration") -> bool:
         feature_map = args.feature_map
 
     num_frequencies = feature_map.num_frequencies if args.num_frequencies < 0 else args.num_frequencies
-    num_samples_per_dim = (
+    num_oversample = (
         np.ceil((2 * num_frequencies + 1) * args.oversample_factor) if args.num_oversample < 0 else args.num_oversample
     )
-    num_samples_per_dim = int(num_samples_per_dim)
-    log.debug(f"Number of samples per dimension: {num_samples_per_dim}")
-    assert num_samples_per_dim > 2 * num_frequencies, "n_per_dim must be greater than nyquist (2 * num_frequencies + 1)"
+    num_oversample = int(num_oversample)
+    log.debug(f"Number of samples per dimension: {num_oversample}")
+    assert num_oversample > 2 * num_frequencies, "n_per_dim must be greater than nyquist (2 * num_frequencies + 1)"
 
     if args.f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
         assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
@@ -133,20 +152,23 @@ def pipeline(args: "Configuration") -> bool:
         log.debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
     log.debug(f"Feature map: {feature_map}")
-    x_lattice = args.X_bounds.lattice(num_samples_per_dim, True)
+    x_lattice = args.X_bounds.lattice(num_oversample, True)
     u_f_x_lattice = feature_map(x_lattice)
     u_f_xp_lattice_via_regressor = estimator(x_lattice)
     # We are fixing the zero frequency to the constant value we computed in the feature map
     # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
     u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * args.sigma_f
 
-    x0_lattice = args.X_init.lattice(num_samples_per_dim, True)
+    x0_lattice = args.X_init.lattice(num_oversample, True)
     f_x0_lattice = feature_map(x0_lattice)
 
-    xu_lattice = args.X_unsafe.lattice(num_samples_per_dim, True)
+    xu_lattice = args.X_unsafe.lattice(num_oversample, True)
     f_xu_lattice = feature_map(xu_lattice)
 
     def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
+        result = OptimiserResult(
+            success=success, obj_val=obj_val, sol=sol, eta=eta, c=c, norm=norm, fig=None, verified=False
+        )
         if not success:
             log.error("Optimization failed")
         else:
@@ -154,7 +176,7 @@ def pipeline(args: "Configuration") -> bool:
             log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
             log.debug(f"{sol = }")
         if args.plot:
-            plot_solution(
+            result["fig"] = plot_solution(
                 X_bounds=args.X_bounds,
                 X_init=args.X_init,
                 X_unsafe=args.X_unsafe,
@@ -164,11 +186,12 @@ def pipeline(args: "Configuration") -> bool:
                 sol=sol if success else None,
                 f=args.system_dynamics,
                 estimator=estimator,
-                num_samples=num_samples_per_dim,
+                num_samples=num_oversample,
                 c=c if success else None,
+                show=show,
             )
         if args.verify and args.system_dynamics is not None and success:
-            verify_barrier_certificate(
+            result["verified"] = verify_barrier_certificate(
                 X_bounds=args.X_bounds,
                 X_init=args.X_init,
                 X_unsafe=args.X_unsafe,
@@ -181,6 +204,8 @@ def pipeline(args: "Configuration") -> bool:
                 tffm=feature_map,
                 sol=sol,
             )
+        if optimiser_cb is not None:
+            optimiser_cb(result)
 
     files = {
         "problem_log_file": args.problem_log_file,
@@ -203,7 +228,7 @@ def pipeline(args: "Configuration") -> bool:
         w_mat=u_f_xp_lattice_via_regressor,
         rkhs_dim=feature_map.dimension,
         num_frequencies_per_dim=args.num_frequencies - 1,
-        num_frequency_samples_per_dim=num_samples_per_dim,
+        num_frequency_samples_per_dim=num_oversample,
         original_dim=args.X_bounds.dimension,
         callback=check_cb,
     )

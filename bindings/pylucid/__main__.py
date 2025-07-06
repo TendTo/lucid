@@ -9,7 +9,7 @@ from pylucid import *
 from pylucid import __version__
 
 
-def cli_scenario_config(args: Configuration) -> Configuration:
+def scenario_config(args: Configuration) -> Configuration:
     """
     Default scenario configuration function for CLI usage.
     This function is called when no input file is provided.
@@ -81,7 +81,7 @@ def main(argv: "Sequence[str] | None" = None) -> int:
     else:
         # If no input file is provided, use the default scenario configuration
         log.info("No input file provided, using default scenario configuration")
-        config = cli_scenario_config(args)
+        config = scenario_config(args)
 
     # If all the checks pass, run the scenario
     from pylucid.pipeline import pipeline

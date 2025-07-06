@@ -101,6 +101,7 @@ class Configuration(Namespace):
     kernel: "type[Kernel]" = GaussianKernel
     feature_map: "type[FeatureMap] | FeatureMap | Callable[[Estimator], FeatureMap]" = LinearTruncatedFourierFeatureMap
     optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser
+    tuner: "Tuner | None" = None  # Tuner for the estimator, if any
 
 
 class ConfigAction(Action):
