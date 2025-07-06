@@ -3,17 +3,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ._pylucid import (
-    GUROBI_BUILD,
-    AlglibOptimiser,
     Estimator,
     FeatureMap,
     GaussianKernel,
     GurobiOptimiser,
     KernelRidgeRegressor,
-    LinearTruncatedFourierFeatureMap,
     MedianHeuristicTuner,
     Parameter,
-    Set,
     log,
 )
 
@@ -65,24 +61,7 @@ def pipeline(args: "Configuration") -> bool:
     If you need more control, use the individual functions and classes directly.
 
     Args:
-        x_samples: Input samples for the state variable x
-        xp_samples: Input samples for the next state variable x'
-        X_bounds: Set representing the bounds of the state space
-        X_init: Set representing the initial states
-        X_unsafe: Set representing the unsafe states
-        T: Time horizon for the optimization
-        gamma: Discount or scaling factor for the optimization
-        c_coefficient: coefficient that can be used to make the optimization more (> 1) or less (< 1) conservative
-        f_xp_samples: Precomputed samples of the next state variable x' or a function that computes them
-        f_det: Deterministic function mapping states to outputs. Used to verify the barrier certificate
-        estimator: Estimator object for regression. If None, a default KernelRidgeRegressor is used
-        num_frequencies: Number of frequencies per dimension for the feature map
-        oversample_factor: Factor by which to oversample the frequency space
-        num_oversample: Number of samples to use for the frequency space. If negative, it is computed based on the oversample_factor
-        feature_map: Feature map class to use for transformation or a callable that returns a feature map based on the estimator
-        sigma_f: Signal variance parameter for the kernel
-        verify: Whether to verify the barrier certificate using dReal
-        plot: Whether to plot the solution using matplotlib
+
 
     Raises:
         AssertionError: If the input samples do not match in size or if sigma_f is not a float.

@@ -22,6 +22,7 @@ def set_contraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef
         sat,
         solve,
     )
+
     if isinstance(X_set, RectSet):
         return And(*(b for i, x in enumerate(xs) for b in (x >= X_set.lower_bound[i], x <= X_set.upper_bound[i])))
     if isinstance(X_set, MultiSet):

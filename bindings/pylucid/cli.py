@@ -14,7 +14,7 @@ from jsonschema.exceptions import ValidationError
 from ._pylucid import *
 from ._pylucid import __version__
 from .parser import SetParser, SympyParser
-from .util import raise_error
+from .util import assert_or_raise, raise_error
 
 if TYPE_CHECKING:
     from typing import Callable
@@ -24,7 +24,45 @@ if TYPE_CHECKING:
 
 @dataclass
 class Configuration(Namespace):
-    """Configuration determining the scenario."""
+    """Configuration determining the scenario.
+
+    Attributes:
+        verbose: Verbosity level for logging
+        seed: Random seed for reproducibility. If < 0, no seeding is done
+        input: Path to the configuration file. Can be a .py, .yaml or .json file.
+
+        system_dynamics: Deterministic function that maps the state variable x to the next state variable x'
+        X_bounds: Set representing the bounds of the state space
+        X_init: Set representing the initial states
+        X_unsafe: Set representing the unsafe states
+
+        x_samples: Input samples for the state variable x
+        xp_samples: Input samples for the next state variable x'
+        f_xp_samples: Precomputed samples of the next state variable x' or a function that computes them
+
+        gamma: Discount or scaling factor for the optimization
+        c_coefficient: coefficient that can be used to make the optimization more (> 1) or less (< 1) conservative
+        lambda_: Regularization constant for the estimator
+        sigma_f: Estimated mean parameter for the feature map
+        sigma_l: Signal variance parameter for the feature map, can be a single float or an array of floats
+        num_samples: Number of samples to use for training the estimator
+        time_horizon: Time horizon for the scenario
+        noise_scale: Scale of the noise added to the input samples. If 0, no noise is added.
+        plot: Whether to plot the solution using matplotlib
+        verify: Whether to verify the barrier certificate using dReal
+        problem_log_file: File to save the optimization problem in LP format. If empty, the problem will not be saved.
+        iis_log_file: File to save the irreducible infeasible set (IIS) in ILP format. If empty, the IIS will not be saved
+
+        num_frequencies: Number of frequencies per dimension for the feature map
+        oversample_factor: Factor by which to oversample the frequency space
+        num_oversample: Number of samples to use for the frequency space. If negative, it is computed based on the oversample_factor
+
+        estimator: Estimator class to use for regression
+        kernel: Kernel class to use for the estimator
+        feature_map: Feature map class to use for transformation or a callable that returns a feature map
+        optimiser: Optimiser class to use for the optimization
+        plot: Whether to plot the solution using matplotlib
+    """
 
     verbose: int = log.LOG_INFO  # Default verbosity level
     seed: int = -1  # Default seed, -1 means no seeding
@@ -48,11 +86,12 @@ class Configuration(Namespace):
     sigma_l: "NVector | float" = 1.0  # Can be a single float or an array of floats
     num_samples: int = 1000  # Default number of samples
     time_horizon: int = 5  # Default time horizon
-    noise_scale: float = 0.1  # Default noise scale
+    noise_scale: float = 0.01  # Default noise scale
     plot: bool = False  # Default plot flag
     verify: bool = False  # Default verify flag
     problem_log_file: str = ""
     iis_log_file: str = ""
+
     num_frequencies: int = 10  # Default number of frequencies per dimension for the Fourier feature map
     oversample_factor: float = 2.0
     num_oversample: int = (
@@ -70,12 +109,17 @@ class ConfigAction(Action):
     def __call__(self, parser, namespace: Configuration, values: Path, option_string=None):
         """Parse the configuration file and update the namespace."""
         assert isinstance(values, Path), "Input must be a Path object"
-        assert values.exists(), f"Configuration file does not exist: {values}"
+        assert_or_raise(values.exists(), f"Configuration file does not exist: {values}")
 
         setattr(namespace, self.dest, values)
         if values.suffix == ".py" or values == Path():
             # We don't need to load a config file, just set the input path as provided
             return
+
+        suffixes = (".py", ".yaml", ".json", ".yml")
+        assert_or_raise(
+            values.suffix in suffixes, f"Unsupported file type: {values.suffix}. Supported types are {suffixes}"
+        )
 
         # We won't need to use the path later, just store an empty Path object
 
@@ -120,24 +164,24 @@ class ConfigAction(Action):
             CLIArgs object with the configuration values
         """
         # Process basic parameters
-        setattr(args, "input", Path())
-        setattr(args, "verbose", int(config_dict.get("verbose", args.verbose)))
-        setattr(args, "seed", int(config_dict.get("seed", args.seed)))
-        setattr(args, "gamma", float(config_dict.get("gamma", args.gamma)))
-        setattr(args, "c_coefficient", float(config_dict.get("c_coefficient", args.c_coefficient)))
+        args.input = Path()
+        args.verbose = int(config_dict.get("verbose", args.verbose))
+        args.seed = int(config_dict.get("seed", args.seed))
+        args.gamma = float(config_dict.get("gamma", args.gamma))
+        args.c_coefficient = float(config_dict.get("c_coefficient", args.c_coefficient))
         # Note: JSON uses "lambda", not "lambda_"
-        setattr(args, "lambda_", float(config_dict.get("lambda", args.lambda_)))
-        setattr(args, "num_samples", int(config_dict.get("num_samples", args.num_samples)))
-        setattr(args, "time_horizon", int(config_dict.get("time_horizon", args.time_horizon)))
-        setattr(args, "num_frequencies", int(config_dict.get("num_frequencies", args.num_frequencies)))
-        setattr(args, "oversample_factor", float(config_dict.get("oversample_factor", args.oversample_factor)))
-        setattr(args, "num_oversample", int(config_dict.get("num_oversample", args.num_oversample)))
-        setattr(args, "noise_scale", float(config_dict.get("noise_scale", args.noise_scale)))
-        setattr(args, "plot", bool(config_dict.get("plot", args.plot)))
-        setattr(args, "verify", bool(config_dict.get("verify", args.verify)))
-        setattr(args, "problem_log_file", str(config_dict.get("problem_log_file", args.problem_log_file)))
-        setattr(args, "iis_log_file", str(config_dict.get("iis_log_file", args.iis_log_file)))
-        setattr(args, "sigma_f", float(config_dict.get("sigma_f", args.sigma_f)))
+        args.lambda_ = float(config_dict.get("lambda", args.lambda_))
+        args.num_samples = int(config_dict.get("num_samples", args.num_samples))
+        args.time_horizon = int(config_dict.get("time_horizon", args.time_horizon))
+        args.num_frequencies = int(config_dict.get("num_frequencies", args.num_frequencies))
+        args.oversample_factor = float(config_dict.get("oversample_factor", args.oversample_factor))
+        args.num_oversample = int(config_dict.get("num_oversample", args.num_oversample))
+        args.noise_scale = float(config_dict.get("noise_scale", args.noise_scale))
+        args.plot = bool(config_dict.get("plot", args.plot))
+        args.verify = bool(config_dict.get("verify", args.verify))
+        args.problem_log_file = str(config_dict.get("problem_log_file", args.problem_log_file))
+        args.iis_log_file = str(config_dict.get("iis_log_file", args.iis_log_file))
+        args.sigma_f = float(config_dict.get("sigma_f", args.sigma_f))
 
         EstimatorAction(option_strings=None, dest="estimator")(None, args, config_dict.get("estimator", args.estimator))
         KernelAction(option_strings=None, dest="kernel")(None, args, config_dict.get("kernel", args.kernel))
@@ -148,11 +192,11 @@ class ConfigAction(Action):
 
         # Handle sigma_l (can be single value or list)
         sigma_l = config_dict.get("sigma_l", args.sigma_l)
-        if isinstance(sigma_l, list):
-            args.sigma_l = np.array(sigma_l)
-        elif isinstance(sigma_l, (int, float)):
+        if isinstance(sigma_l, (int, float)):
             args.sigma_l = float(sigma_l)
-        setattr(args, "sigma_l", sigma_l)
+        else:
+            args.sigma_l = np.array(sigma_l, dtype=np.float64)
+        args.sigma_l = sigma_l
 
         # Process system dynamics
         system_dynamics = config_dict.get("system_dynamics", args.system_dynamics)
@@ -226,9 +270,6 @@ def type_valid_path(path_str: str) -> Path:
     path = Path(path_str)
     if not path.exists():
         raise raise_error(f"Path does not exist: {path_str}")
-    supported_types = (".py", ".yaml", ".json", ".yml")
-    if not path.is_file() or path.suffix not in supported_types:
-        raise raise_error(f"Supported file types are {supported_types}. Invalid file: {path_str}")
     return path
 
 
@@ -279,6 +320,35 @@ class OptimiserAction(Action):
         raise raise_error(f"Unsupported optimiser type: {values}")
 
 
+class NMatrixAction(Action):
+    def __call__(self, parser, namespace, values: "str | type[NMatrix]", option_string=None):
+        if isinstance(values, np.ndarray):
+            return setattr(namespace, self.dest, values)
+        suffixes = (".npy", ".npz", ".csv")
+        path_to_file = Path(values)
+        if path_to_file.suffix in suffixes:
+            assert_or_raise(path_to_file.exists(), f"File does not exist: {values}")
+            if path_to_file.suffix in (".npy", ".npz"):
+                data = np.load(path_to_file, allow_pickle=True)
+                if isinstance(data, np.lib.npyio.NpzFile):
+                    # If it's a .npz file, we need to extract the first array
+                    data = next(iter(data.values()))
+            elif path_to_file.suffix == ".csv":
+                with open(path_to_file, "rb") as f:
+                    # Load CSV data, assuming it is a 2D array
+                    lines = f.readlines()
+                data = np.genfromtxt(lines, delimiter=",", dtype=np.float64).reshape(len(lines), -1)
+                data = data[~np.isnan(data).any(axis=1)]
+        else:
+            try:
+                data = np.array(json.loads(values), dtype=np.float64)
+            except json.JSONDecodeError:
+                raise raise_error(f"Invalid JSON string: {values}")
+        assert_or_raise(len(data) > 0, f"CSV file is empty: {values}")
+        assert_or_raise(data.ndim == 2, f"Data must be a 2D array, got {data.ndim}D array instead")
+        return setattr(namespace, self.dest, data)
+
+
 def arg_parser() -> "ArgumentParser":
     config = Configuration()
     parser = ArgumentParser(prog="pylucid", description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter)
@@ -292,6 +362,24 @@ def arg_parser() -> "ArgumentParser":
         action=ConfigAction,
         default=Path(),
         type=type_valid_path,
+    )
+    parser.add_argument(
+        "-i",
+        "--x-samples",
+        help="json-like 2D array or path to the input samples file. "
+        "Can be a .npy, .npz or .csv file. "
+        "If not provided, the input samples will be collected from the state space bounds",
+        action=NMatrixAction,
+        type=str,
+    )
+    parser.add_argument(
+        "-o",
+        "--xp-samples",
+        help="json-like 2D array or path to the next state samples file. "
+        "Can be a .npy, .npz or .csv file. "
+        "If not provided, the next state samples will be computed from the x_samples using the system dynamics function",
+        action=NMatrixAction,
+        type=str,
     )
     parser.add_argument(
         "-v",
@@ -350,7 +438,7 @@ def arg_parser() -> "ArgumentParser":
         "--num_samples",
         type=int,
         default=config.num_samples,
-        help="number of samples to use to train the estimator",
+        help="number of samples to use to train the estimator. Ignored if x_samples is provided",
     )
     parser.add_argument(
         "--sigma_f",

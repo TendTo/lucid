@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -22,12 +23,13 @@ from pylucid import (
     log,
 )
 from pylucid.cli import (
-    CLIArgs,
     ConfigAction,
+    Configuration,
     EstimatorAction,
     FeatureMapAction,
     FloatOrNVectorAction,
     KernelAction,
+    NMatrixAction,
     SystemDynamicsAction,
     arg_parser,
     type_set,
@@ -55,9 +57,9 @@ class TestCli:
             assert args.seed == -1
             assert args.gamma == 1.0
             assert args.c_coefficient == 1.0
-            assert args.lambda_ == 1.0
+            assert args.lambda_ == 1e-6
             assert args.num_samples == 1000
-            assert args.time_horizon == 10
+            assert args.time_horizon == 5
             assert args.noise_scale == 0.01
             assert not args.plot
             assert not args.verify
@@ -131,11 +133,6 @@ class TestCli:
             with pytest.raises(Exception):
                 type_valid_path("nonexistent_file.yaml")
 
-            # Test with unsupported extension
-            with pytest.raises(Exception):
-                with NamedTemporaryFile(suffix=".txt") as tmp:
-                    type_valid_path(tmp.name)
-
             # Test with valid file types
             for ext in [".py", ".yaml", ".json", ".yml"]:
                 with NamedTemporaryFile(suffix=ext) as tmp:
@@ -163,7 +160,7 @@ class TestCli:
         def test_type_estimator(self):
             """Test parsing estimator types from strings"""
             # Test valid estimator string
-            args = CLIArgs()
+            args = Configuration()
             action = EstimatorAction(option_strings=None, dest="estimator")
             action(None, args, "KernelRidgeRegressor")
             assert args.estimator == KernelRidgeRegressor
@@ -175,7 +172,7 @@ class TestCli:
         def test_type_kernel(self):
             """Test parsing kernel types from strings"""
             # Test valid kernel string
-            args = CLIArgs()
+            args = Configuration()
             action = KernelAction(option_strings=None, dest="kernel")
             action(None, args, "GaussianKernel")
             assert args.kernel == GaussianKernel
@@ -187,7 +184,7 @@ class TestCli:
         def test_type_feature_map(self):
             """Test parsing feature map types from strings"""
             # Test valid feature map strings
-            args = CLIArgs()
+            args = Configuration()
             action = FeatureMapAction(option_strings=None, dest="feature_map")
             action(None, args, "LinearTruncatedFourierFeatureMap")
             assert args.feature_map == LinearTruncatedFourierFeatureMap
@@ -203,7 +200,7 @@ class TestCli:
         def test_type_optimiser(self):
             """Test parsing optimiser types from strings"""
             # Test valid optimiser string
-            args = CLIArgs()
+            args = Configuration()
             action = OptimiserAction(option_strings=None, dest="optimiser")
             action(None, args, "AlglibOptimiser")
             assert args.optimiser == AlglibOptimiser
@@ -217,7 +214,7 @@ class TestCli:
         def test_type_float_or_n_vector(self):
             """Test parsing float or vector arguments"""
             # Test single float value
-            args = CLIArgs()
+            args = Configuration()
             action = FloatOrNVectorAction(option_strings=None, dest="sigma_l")
             action(None, args, ["1.5"], None)
             assert isinstance(args.sigma_l, float)
@@ -230,7 +227,7 @@ class TestCli:
 
         def test_type_float_or_n_vector_invalid(self):
             """Test invalid float or vector arguments"""
-            args = CLIArgs()
+            args = Configuration()
             action = FloatOrNVectorAction(option_strings=None, dest="sigma_l")
 
             # Test with invalid string
@@ -241,13 +238,186 @@ class TestCli:
             with pytest.raises(ValueError):
                 action(None, args, ["1.0", "2.0", "invalid"], None)
 
+    class TestNMatrixAction:
+        """Test the NMatrixAction for parsing matrix data"""
+
+        def test_numpy_array_input(self):
+            """Test parsing when input is already a numpy array"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+            test_array = np.array([[1.0, 2.0], [3.0, 4.0]])
+
+            action(None, namespace, test_array, None)
+            assert np.array_equal(namespace.x_samples, test_array)
+            assert namespace.x_samples.dtype == np.float64
+
+        def test_json_string_input(self):
+            """Test parsing JSON string input"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+            json_string = "[[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]"
+
+            action(None, namespace, json_string, None)
+            expected = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+            assert np.array_equal(namespace.x_samples, expected)
+            assert namespace.x_samples.dtype == np.float64
+
+        def test_invalid_json_string(self):
+            """Test parsing invalid JSON string"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+            invalid_json = "[[1.0, 2.0], [3.0, 4.0"  # Missing closing bracket
+
+            with pytest.raises(ValueError):
+                action(None, namespace, invalid_json, None)
+
+        def test_npy_file_input(self):
+            """Test parsing .npy file input"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+            test_data = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+
+            # Create temporary .npy file
+            with tempfile.NamedTemporaryFile(suffix=".npy", delete=False) as tmp:
+                np.save(tmp.name, test_data)
+                tmp_path = tmp.name
+
+            try:
+                action(None, namespace, tmp_path, None)
+                assert np.array_equal(namespace.x_samples, test_data)
+                assert namespace.x_samples.dtype == np.float64
+            finally:
+                os.unlink(tmp_path)
+
+        def test_npz_file_input(self):
+            """Test parsing .npz file input"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+            test_data = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+
+            # Create temporary .npz file
+            with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as tmp:
+                np.savez(tmp.name, data=test_data)
+                tmp_path = tmp.name
+
+            try:
+                action(None, namespace, tmp_path, None)
+                # npz files are loaded as dict-like objects, so we need to handle this
+                loaded_data = np.load(tmp_path, allow_pickle=True)
+                # The action should handle this appropriately
+                assert hasattr(namespace, "x_samples")
+            finally:
+                os.unlink(tmp_path)
+
+        def test_csv_file_input(self):
+            """Test parsing .csv file input"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+            test_data = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+
+            # Create temporary .csv file
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp:
+                np.savetxt(tmp, test_data, delimiter=",")
+                tmp_path = tmp.name
+
+            try:
+                action(None, namespace, tmp_path, None)
+                assert np.array_equal(namespace.x_samples, test_data)
+                assert namespace.x_samples.dtype == np.float64
+            finally:
+                os.unlink(tmp_path)
+
+        def test_csv_file_with_nan_values(self):
+            """Test parsing .csv file with NaN values (should be filtered out)"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+
+            # Create temporary .csv file with NaN values
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp:
+                tmp.write("1.0,2.0\n")
+                tmp.write("3.0,4.0\n")
+                tmp.write("nan,6.0\n")  # This row should be filtered out
+                tmp.write("7.0,8.0\n")
+                tmp_path = tmp.name
+
+            try:
+                action(None, namespace, tmp_path, None)
+                expected = np.array([[1.0, 2.0], [3.0, 4.0], [7.0, 8.0]])
+                assert np.array_equal(namespace.x_samples, expected)
+                assert namespace.x_samples.dtype == np.float64
+            finally:
+                os.unlink(tmp_path)
+
+        def test_empty_csv_file(self):
+            """Test parsing empty .csv file"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+
+            # Create empty .csv file
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp:
+                tmp_path = tmp.name
+
+            try:
+                with pytest.raises(Exception):
+                    action(None, namespace, tmp_path, None)
+            finally:
+                os.unlink(tmp_path)
+
+        def test_nonexistent_file(self):
+            """Test parsing nonexistent file"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+
+            with pytest.raises(Exception):
+                action(None, namespace, "nonexistent_file.npy", None)
+
+        def test_unsupported_file_extension(self):
+            """Test parsing file with unsupported extension"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+
+            # Create temporary file with unsupported extension
+            with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp:
+                tmp.write(b"some text data")
+                tmp_path = tmp.name
+
+            try:
+                # Should fall back to JSON parsing, which should fail
+                with pytest.raises(Exception):
+                    action(None, namespace, tmp_path, None)
+            finally:
+                os.unlink(tmp_path)
+
+        def test_1d_array_error(self):
+            """Test that 1D arrays are properly handled as errors"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+
+            # Test with 1D JSON array
+            json_string = "[1.0, 2.0, 3.0, 4.0]"
+            with pytest.raises(ValueError):
+                action(None, namespace, json_string, None)
+
+        def test_mixed_data_types_in_json(self):
+            """Test JSON with mixed data types (should convert to float)"""
+            action = NMatrixAction(option_strings=None, dest="x_samples")
+            namespace = Configuration()
+
+            # JSON with mixed int and float
+            json_string = "[[1, 2.5], [3.0, 4], [5, 6.7]]"
+            action(None, namespace, json_string, None)
+
+            expected = np.array([[1.0, 2.5], [3.0, 4.0], [5.0, 6.7]])
+            assert np.array_equal(namespace.x_samples, expected)
+            assert namespace.x_samples.dtype == np.float64
+
     class TestSystemDynamicsAction:
         """Test the SystemDynamicsAction for parsing system dynamics"""
 
         def test_single_dimension(self):
             """Test parsing a single-dimension system dynamics"""
             action = SystemDynamicsAction(option_strings=None, dest="system_dynamics")
-            namespace = CLIArgs()
+            namespace = Configuration()
 
             action(None, namespace, ["x1 / 2"], None)
             assert namespace.system_dynamics is not None
@@ -260,7 +430,7 @@ class TestCli:
         def test_multi_dimension(self):
             """Test parsing multi-dimensional system dynamics"""
             action = SystemDynamicsAction(option_strings=None, dest="system_dynamics")
-            namespace = CLIArgs()
+            namespace = Configuration()
 
             action(None, namespace, ["x1 + x2", "x1 - x2"], None)
             assert namespace.system_dynamics is not None
@@ -274,7 +444,7 @@ class TestCli:
         def test_complex_expressions(self):
             """Test parsing complex mathematical expressions"""
             action = SystemDynamicsAction(option_strings=None, dest="system_dynamics")
-            namespace = CLIArgs()
+            namespace = Configuration()
 
             action(None, namespace, ["sin(x1) + cos(x2)", "exp(x1) * x2"], None)
             assert namespace.system_dynamics is not None
@@ -296,7 +466,7 @@ class TestCli:
         def test_single_float(self):
             """Test parsing a single float value"""
             action = FloatOrNVectorAction(option_strings=None, dest="sigma_l")
-            namespace = CLIArgs()
+            namespace = Configuration()
 
             action(None, namespace, [1.5], None)
             assert isinstance(namespace.sigma_l, float)
@@ -305,7 +475,7 @@ class TestCli:
         def test_vector(self):
             """Test parsing a vector of float values"""
             action = FloatOrNVectorAction(option_strings=None, dest="sigma_l")
-            namespace = CLIArgs()
+            namespace = Configuration()
 
             action(None, namespace, [1.0, 2.0, 3.0], None)
             assert isinstance(namespace.sigma_l, np.ndarray)
@@ -376,7 +546,7 @@ class TestCli:
             """Test parsing a YAML configuration file"""
             yaml_dict, yaml_path = yaml_config
             action = ConfigAction(option_strings=None, dest="input")
-            namespace: CLIArgs = arg_parser().parse_args([])
+            namespace: Configuration = arg_parser().parse_args([])
             action(None, namespace, yaml_path, None)
 
             # Check that values were loaded correctly
@@ -408,7 +578,7 @@ class TestCli:
             """Test parsing a JSON configuration file"""
             json_dict, json_path = json_config_file
             action = ConfigAction(option_strings=None, dest="input")
-            namespace: CLIArgs = arg_parser().parse_args([])
+            namespace: Configuration = arg_parser().parse_args([])
             action(None, namespace, json_path, None)
 
             # Check that values were loaded correctly

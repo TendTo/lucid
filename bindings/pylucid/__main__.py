@@ -14,18 +14,29 @@ def cli_scenario_config(args: Configuration) -> Configuration:
     Default scenario configuration function for CLI usage.
     This function is called when no input file is provided.
     """
-    if not all((args.system_dynamics, args.X_bounds, args.X_init, args.X_unsafe)):
-        raise raise_error(
-            "If no input file is provided, 'system_dynamics', 'X_bounds', 'X_init', and 'X_unsafe' must be specified"
+    assert_or_raise(
+        all((args.X_bounds, args.X_init, args.X_unsafe)),
+        "'X_bounds', 'X_init', and 'X_unsafe' must be specified",
+    )
+
+    if len(args.x_samples) == 0:
+        # If x_samples is not provided, sample it from the bounds
+        args.x_samples = args.X_bounds.sample(args.num_samples)
+    if len(args.xp_samples) == 0:
+        assert_or_raise(
+            args.system_dynamics is not None,
+            "If no outputs are provided, 'system_dynamics' must be specified",
         )
+        # If xp_samples is not provided, compute it using the system dynamics function
+        # Noisy system dynamics
+        f = lambda x: args.system_dynamics(x) + np.random.normal(scale=args.noise_scale)  # Add noise to the dynamics
+        args.xp_samples = f(args.x_samples)
 
-    # Define the system dynamics function
-    f_det = args.system_dynamics
-    f = lambda x: f_det(x) + np.random.normal(scale=args.noise_scale)  # Add noise to the dynamics
-
-    # Sample points from the bounds
-    args.x_samples = args.X_bounds.sample(args.num_samples)
-    args.xp_samples = f(args.x_samples)
+    assert_or_raise(len(args.x_samples) > 0, "No samples to use for the scenario")
+    assert_or_raise(len(args.xp_samples) > 0, "No transition samples to use for the scenario")
+    assert args.x_samples.shape == args.xp_samples.shape, "x_samples and xp_samples must have the same shape"
+    assert args.x_samples.ndim == 2, "x_samples must be a 2D array"
+    assert args.xp_samples.ndim == 2, "xp_samples must be a 2D array"
 
     # Return the scenario configuration
     return args
@@ -38,6 +49,7 @@ def main(argv: "Sequence[str] | None" = None) -> int:
         arg_parser().print_help()
         return 0
     args: Configuration = arg_parser().parse_args(argv, namespace=Configuration())
+
     # If a seed is provided, set the random seed for reproducibility
     random.seed(args.seed)
     if args.seed >= 0:

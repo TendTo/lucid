@@ -16,7 +16,7 @@ except ImportError:
 
 
 def scenario_config(
-    args: CLIArgs = CLIArgs(
+    args: Configuration = Configuration(
         seed=42,
         gamma=2.0,
         time_horizon=5,
