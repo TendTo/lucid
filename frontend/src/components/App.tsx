@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { jsonSchema } from "@utils/schema";
@@ -95,7 +95,7 @@ export default function App() {
       // Validate form data
       const isValid =
         (await methods.trigger()) &&
-        !(await methods.trigger([
+        (await methods.trigger([
           "system_dynamics",
           "X_bounds",
           "X_init",
@@ -128,7 +128,6 @@ export default function App() {
         throw new Error(
           `Error fetching graph preview: ${error.error ?? "Unknown error"}`
         );
-        return;
       }
 
       // Create SSE connection
