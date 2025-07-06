@@ -76,6 +76,14 @@ void set_logger_sink(spdlog::custom_log_callback cb);
  */
 void set_logger_sink(std::function<void(std::string)> cb);
 /**
+ * Set the format of the logger.
+ * This will replace the default format.
+ * @note See [spdlog's documentation](https://github.com/gabime/spdlog/wiki/Custom-formatting)
+ * for more information on the format string.
+ * @param format format string to use for the logger
+ */
+void set_pattern(const std::string& format);
+/**
  * Clear the logger, removing all loggers and their sinks.
  * This will remove all loggers created by @ref get_logger and @ref set_logger_sink.
  * After this call, the loggers will need to be recreated using @ref get_logger.

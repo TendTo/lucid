@@ -19,6 +19,7 @@
 namespace lucid::log {
 
 spdlog::level::level_enum level_ = spdlog::level::off;  ///< Default logging level is off. It can be set by the user.
+std::string pattern_ = "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [thread %t] %v";  ///< Default logging pattern.
 
 std::shared_ptr<spdlog::logger> get_logger(const LoggerType logger_type) {
   // Checks if there exists a logger with the name. If it exists, return it.
@@ -35,12 +36,11 @@ std::shared_ptr<spdlog::logger> get_logger(const LoggerType logger_type) {
   // Ensure that the logger flushes on error or critical messages.
   logger->flush_on(spdlog::level::err);
 
-  // Set format.
-  logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [thread %t] %v");
+  // Set format pattern for the logger
+  logger->set_pattern(pattern_);
 
   return logger;
 }
-
 void set_logger_sink(spdlog::custom_log_callback cb) {
   clear_logger();
 
@@ -58,6 +58,12 @@ void set_logger_sink(std::function<void(std::string)> cb) {
     formatter->format(msg, formatted);
     cb(std::move(fmt::to_string(formatted)));
   });
+}
+void set_pattern(const std::string &format) {
+  pattern_ = format;
+  // Update the pattern for both loggers.
+  get_logger(LoggerType::OUT)->set_pattern(pattern_);
+  get_logger(LoggerType::ERR)->set_pattern(pattern_);
 }
 void clear_logger() {
   // Drop existing loggers
