@@ -53,8 +53,9 @@ void set_logger_sink(spdlog::custom_log_callback cb) {
 void set_logger_sink(std::function<void(std::string)> cb) {
   // Format the log message so that we can use the resulting string in the callback.
   set_logger_sink([cb = std::move(cb)](const spdlog::details::log_msg &msg) {
-    const auto formatter{spdlog::details::make_unique<spdlog::pattern_formatter>()};
     spdlog::memory_buf_t formatted;
+    const auto formatter{spdlog::details::make_unique<spdlog::pattern_formatter>()};
+    formatter->set_pattern(pattern_);
     formatter->format(msg, formatted);
     cb(std::move(fmt::to_string(formatted)));
   });
