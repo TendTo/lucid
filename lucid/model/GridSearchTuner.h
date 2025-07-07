@@ -42,7 +42,7 @@ class GridSearchTuner final : public Tuner {
 
   template <
       IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
-  void tune(Estimator& estimator, ConstMatrixRef training_inputs, const ConstMatrixRef& training_outputs,
+  void tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
             int num_frequencies, const RectSet& x_limits) const;
   template <
       IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>

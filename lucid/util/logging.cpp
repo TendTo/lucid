@@ -57,7 +57,7 @@ void set_logger_sink(std::function<void(std::string)> cb) {
     const auto formatter{spdlog::details::make_unique<spdlog::pattern_formatter>()};
     formatter->set_pattern(pattern_);
     formatter->format(msg, formatted);
-    cb(std::move(fmt::to_string(formatted)));
+    cb(fmt::to_string(formatted));
   });
 }
 void set_pattern(const std::string &format) {
