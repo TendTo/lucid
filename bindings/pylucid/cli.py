@@ -538,7 +538,7 @@ def arg_parser() -> "ArgumentParser":
         "--noise_scale",
         type=float,
         default=config.noise_scale,
-        help="scale of the noise added to the input samples. If 0, no noise is added.",
+        help="variance of the additive Gaussian process noise to be added to the system dynamics. If 0, no noise is added. If data is used, this parameter is ignored.",
     )
     parser.add_argument(
         "--plot",
