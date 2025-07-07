@@ -79,6 +79,7 @@ py_library(
     visibility = ["//visibility:public"],
     deps = [
         requirement("numpy"),
+        requirement("scipy"),
         requirement("pyparsing"),
         requirement("sympy"),
         requirement("pyyaml"),
@@ -107,6 +108,7 @@ py_binary(
     deps = [
         requirement("pybind11_stubgen"),
         requirement("numpy"),
+        requirement("scipy"),
         requirement("pyparsing"),
         requirement("sympy"),
         requirement("pyyaml"),
