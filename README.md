@@ -66,7 +66,7 @@ docker run --name lucid -it --rm \
 # Clone the repository
 git clone https://github.com/TendTo/lucid.git
 
-# Change directory
+# Move to the root of the repository
 cd lucid
 
 # Create a virtual environment (optional)
@@ -109,7 +109,7 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 # Clone the repository
 git clone https://github.com/TendTo/lucid.git
 
-# Change directory
+# Move to the root of the repository
 cd lucid
 
 # Compile and run lucid

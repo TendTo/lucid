@@ -58,7 +58,7 @@ Assuming all requirements have been met, the first step is to obtain the source 
 # Clone the repository
 git clone https://github.com/TendTo/lucid.git
 
-# Change directory
+# Move to the root of the repository
 cd lucid
 ```
 

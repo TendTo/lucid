@@ -92,7 +92,7 @@ Then, you can run Lucid with the following command:
 lucid config.yaml
 ```
 
-The full [JSON schema](https://json-schema.org/) of the configuration options can be found in the [CLI arguments schema](/bindings/pylucid/configuration_schema.json).
+The full [JSON schema](https://json-schema.org/) of the configuration options can be found [here](/bindings/pylucid/configuration_schema.json).
 
 [//]: # "@end-tab"
 [//]: # "@tab"
@@ -177,7 +177,7 @@ Then, you can run Lucid with the following command:
 lucid config.json
 ```
 
-The full [JSON schema](https://json-schema.org/) of the configuration options can be found in the [CLI arguments schema](/bindings/pylucid/configuration_schema.json).
+The full [JSON schema](https://json-schema.org/) of the configuration options can be found [here](/bindings/pylucid/configuration_schema.json).
 
 [//]: # "@end-tab"
 [//]: # "@tab"
