@@ -68,7 +68,10 @@ def get_args(config_dict: "dict | None" = None) -> Configuration:
         config_action.dict_to_cliargs(config_dict, args)
         # Just to ensure the system dynamics function is compatible with the initial state
         if args.system_dynamics is None and len(args.xp_samples) == 0:
-            return {"error": "System dynamics must be provided if xp_samples is not given.", "cause": "system_dynamics"}, 400 
+            return {
+                "error": "System dynamics must be provided if xp_samples is not given.",
+                "cause": "system_dynamics",
+            }, 400
         if args.system_dynamics is not None:
             args.system_dynamics(args.X_init.lattice(1))
         logger.debug("Parsed CLI arguments: %s", args)

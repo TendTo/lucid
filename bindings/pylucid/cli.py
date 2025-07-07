@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+import scipy.io
 import yaml
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
@@ -17,7 +18,7 @@ from .parser import SetParser, SympyParser
 from .util import assert_or_raise, raise_error
 
 if TYPE_CHECKING:
-    from typing import Callable
+    from typing import Any, Callable
 
     from ._pyludic import NMatrix, NVector
 
@@ -190,15 +191,11 @@ class ConfigAction(Action):
             None, args, config_dict.get("feature_map", args.feature_map)
         )
         OptimiserAction(option_strings=None, dest="optimiser")(None, args, config_dict.get("optimiser", args.optimiser))
-        NMatrixAction(option_strings=None, dest="x_samples")(
-            None, args, config_dict.get("x_samples", args.x_samples)
-        )
+        NMatrixAction(option_strings=None, dest="x_samples")(None, args, config_dict.get("x_samples", args.x_samples))
         NMatrixAction(option_strings=None, dest="xp_samples")(
             None, args, config_dict.get("xp_samples", config_dict.get("f_xp_samples", args.xp_samples))
         )
-        FloatOrNVectorAction(option_strings=None, dest="sigma_l")(
-            None, args, config_dict.get("sigma_l", args.sigma_l)
-        )
+        FloatOrNVectorAction(option_strings=None, dest="sigma_l")(None, args, config_dict.get("sigma_l", args.sigma_l))
 
         # Process system dynamics
         system_dynamics = config_dict.get("system_dynamics", args.system_dynamics)
@@ -330,7 +327,7 @@ class NMatrixAction(Action):
             return setattr(namespace, self.dest, values)
         if isinstance(values, list):
             return setattr(namespace, self.dest, np.array(values, dtype=np.float64))
-        suffixes = (".npy", ".npz", ".csv")
+        suffixes = (".npy", ".npz", ".csv", ".mat")
         path_to_file = Path(values)
         if path_to_file.suffix in suffixes:
             assert_or_raise(path_to_file.exists(), f"File does not exist: {values}")
@@ -345,14 +342,56 @@ class NMatrixAction(Action):
                     lines = f.readlines()
                 data = np.genfromtxt(lines, delimiter=",", dtype=np.float64).reshape(len(lines), -1)
                 data = data[~np.isnan(data).any(axis=1)]
+            elif path_to_file.suffix == ".mat":
+                mat_data: "dict[str, Any]" = scipy.io.loadmat(path_to_file)
+                for k, v in mat_data.items():
+                    if k.startswith("__"):
+                        continue
+                    data = v
         else:
             try:
                 data = np.array(json.loads(values), dtype=np.float64)
             except json.JSONDecodeError:
                 raise raise_error(f"Invalid JSON string: {values}")
+        assert_or_raise(isinstance(data, np.ndarray), f"Expected a numpy array, got {type(data)}")
         assert_or_raise(len(data) > 0, f"CSV file is empty: {values}")
         assert_or_raise(data.ndim == 2, f"Data must be a 2D array, got {data.ndim}D array instead")
         return setattr(namespace, self.dest, data)
+
+
+class MultiNMatrixAction(Action):
+    def __call__(self, parser, namespace: Configuration, values: "str", option_string=None):
+        assert_or_raise(isinstance(values, str), "Input must be a string representing a file path and parsing info")
+        if ":" in values:
+            path_to_file, info = values.split(":")
+            path_to_file = Path(path_to_file)
+        else:
+            path_to_file, info = Path(values), ""
+        assert_or_raise(path_to_file.exists(), f"File does not exist: {values}")
+        if path_to_file.suffix == ".npz":
+            raise NotImplementedError("MultiNMatrixAction does not support .npz files with multiple arrays. ")
+        elif path_to_file.suffix == ".csv":
+            cols = int(info) if info.isdigit() else (namespace.X_bounds.dimension if namespace.X_bounds else 0)
+            assert_or_raise(cols > 0, f"Invalid number of columns specified: {cols}")
+            with open(path_to_file, "rb") as f:
+                # Load CSV data, assuming it is a 2D array
+                lines = f.readlines()
+            data = np.genfromtxt(lines, delimiter=",", dtype=np.float64).reshape(len(lines), -1)
+            data = data[~np.isnan(data).any(axis=1)]
+            x_samples, xp_samples = data[:, :cols], data[:, cols:]
+        elif path_to_file.suffix == ".mat":
+            if "," in info:
+                x_key, xp_key = info.split(",")
+            else:
+                x_key, xp_key = "x_samples", "xp_samples"
+            mat_data: "dict[str, Any]" = scipy.io.loadmat(path_to_file)
+            x_samples, xp_samples = mat_data.get(x_key), mat_data.get(xp_key)
+        for data in (x_samples, xp_samples):
+            assert_or_raise(isinstance(data, np.ndarray), f"Expected a numpy array, got {type(data)}")
+            assert_or_raise(len(data) > 0, f"CSV file is empty: {values}")
+            assert_or_raise(data.ndim == 2, f"Data must be a 2D array, got {data.ndim}D array instead")
+        namespace.x_samples = x_samples
+        namespace.xp_samples = xp_samples
 
 
 def arg_parser() -> "ArgumentParser":
@@ -368,6 +407,16 @@ def arg_parser() -> "ArgumentParser":
         action=ConfigAction,
         default=Path(),
         type=type_valid_path,
+    )
+    parser.add_argument(
+        "--samples",
+        help="path to the samples file followed by additional information on how to parse it. "
+        "Can be a .npz, .csv or .mat file. The additional information follows a colon (:). "
+        "For .mat files, you must specify the variable names to extract, e.g., '/path/to/samples.mat:X,XP'. "
+        "For .csv files, you must specify the input dimension, e.g., '/path/to/samples.csv:3'. ",
+        nargs="?",
+        action=MultiNMatrixAction,
+        type=str,
     )
     parser.add_argument(
         "-i",

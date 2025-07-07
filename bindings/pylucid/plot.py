@@ -609,7 +609,8 @@ def plot_function_1d(
         x_samples,
         y,
         u,
-        v,arrow_scale=0.05, 
+        v,
+        arrow_scale=0.05,
         density=0.2,
     )
     fig.update_layout(title="Function Plot", xaxis_title="Input Dimension")
@@ -677,7 +678,16 @@ def plot_function(
     """Plot a function f over the given samples."""
     plot_function_fun = (plot_function_1d, plot_function_2d)
     if X_bounds.dimension <= len(plot_function_fun):
-        return plot_function_fun[X_bounds.dimension - 1](X_bounds= X_bounds, f=f, X_init=X_init, X_unsafe=X_unsafe, x_samples=x_samples, xp_samples=xp_samples, n=n, show=show)
+        return plot_function_fun[X_bounds.dimension - 1](
+            X_bounds=X_bounds,
+            f=f,
+            X_init=X_init,
+            X_unsafe=X_unsafe,
+            x_samples=x_samples,
+            xp_samples=xp_samples,
+            n=n,
+            show=show,
+        )
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
     )
