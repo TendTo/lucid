@@ -39,7 +39,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
 
   const Vector prod{combvec(prob_dim_wise).colwise().prod()};
-  if (captured_probability_ = prod.sum(); captured_probability_ > 0.9)
+  if (captured_probability_ = prod.sum(); captured_probability_ > 0.94)
     LUCID_INFO_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
   else
     LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", captured_probability_);
@@ -72,9 +72,9 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   const Vector basis = sigma_f_ * weights_.cwiseProduct(trig);
 #ifndef NLOG
   if (Scalar checksum = (basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f_).abs().maxCoeff();
-      checksum > 1e-3) {
+      checksum > .06) {
     // TODO(tend): this will probably need to be a warning. Maybe only put it for the matrix case?
-    LUCID_TRACE_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 1e-3", checksum);
+    LUCID_TRACE_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 0.06", checksum);
   }
 #endif
   return basis;
