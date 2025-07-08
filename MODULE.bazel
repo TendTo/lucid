@@ -30,6 +30,9 @@ bazel_dep(name = "fmt", version = "11.2.0")
 # MIT | logging library
 bazel_dep(name = "spdlog", version = "1.15.2")
 
+# MIT | Linear optimization software
+bazel_dep(name = "highs", version = "1.11.0")
+
 # https://www.boost.org/users/license.html | Boost C++ Libraries for math
 bazel_dep(name = "boost.math", version = "1.87.0")
 
@@ -124,17 +127,17 @@ node.toolchain(node_version = "20.19.2")
 npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
 npm.npm_translate_lock(
     name = "npm",
-    npmrc = "//frontend:.npmrc",
     data = [
         "//frontend:package.json",
     ],
-    pnpm_lock = "//frontend:pnpm-lock.yaml",
-    verify_node_modules_ignored = "//:.bazelignore",
     lifecycle_hooks_exclude = [
         "@swc/core",
         "@tailwindcss/oxide",
         "esbuild",
     ],
+    npmrc = "//frontend:.npmrc",
+    pnpm_lock = "//frontend:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
     # update_pnpm_lock = 1, # Only needed if you want to update the pnpm lock file
 )
 use_repo(npm, "npm")

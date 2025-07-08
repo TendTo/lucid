@@ -78,6 +78,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "enable_highs_build",
+    build_setting_default = True,
+)
+
+bool_flag(
     name = "enable_verbose_eigen_build",
     build_setting_default = False,
 )
@@ -119,6 +124,11 @@ config_setting(
 config_setting(
     name = "alglib_build",
     flag_values = {":enable_alglib_build": "True"},
+)
+
+config_setting(
+    name = "highs_build",
+    flag_values = {":enable_highs_build": "True"},
 )
 
 config_setting(
