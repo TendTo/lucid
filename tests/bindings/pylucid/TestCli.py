@@ -14,6 +14,7 @@ from pylucid import (
     ConstantTruncatedFourierFeatureMap,
     GaussianKernel,
     GurobiOptimiser,
+    HighsOptimiser,
     KernelRidgeRegressor,
     LinearTruncatedFourierFeatureMap,
     LogTruncatedFourierFeatureMap,
@@ -206,6 +207,8 @@ class TestCli:
             assert args.optimiser == AlglibOptimiser
             action(None, args, "GurobiOptimiser")
             assert args.optimiser == GurobiOptimiser
+            action(None, args, "HighsOptimiser")
+            assert args.optimiser == HighsOptimiser
 
             # Test invalid optimiser string
             with pytest.raises(ValueError):

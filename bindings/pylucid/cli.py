@@ -2,7 +2,7 @@ import importlib
 import json
 import sys
 from argparse import Action, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -103,6 +103,28 @@ class Configuration(Namespace):
     feature_map: "type[FeatureMap] | FeatureMap | Callable[[Estimator], FeatureMap]" = LinearTruncatedFourierFeatureMap
     optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser
     tuner: "Tuner | None" = None  # Tuner for the estimator, if any
+
+    def to_safe_dict(self) -> dict:
+        config_dict = asdict(self)  # Convert the Configuration object to a dictionary
+        for k, v in config_dict.items():
+            if isinstance(v, np.ndarray):
+                config_dict[k] = v.tolist()
+            if isinstance(v, type):
+                config_dict[k] = v.__name__
+            if isinstance(v, Path):
+                config_dict[k] = str(v)
+        return config_dict
+
+    def to_yaml(self, path: "str | Path | None" = None) -> str:
+        """Convert the configuration to a YAML string or save it to a file."""
+        import yaml
+
+        config_dict = self.to_safe_dict()
+        yaml_str = yaml.safe_dump(config_dict, default_flow_style=False, sort_keys=False)
+        if path is not None:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(yaml_str)
+        return yaml_str
 
 
 class ConfigAction(Action):
@@ -318,11 +340,15 @@ class OptimiserAction(Action):
             return setattr(namespace, self.dest, GurobiOptimiser)
         if values == "AlglibOptimiser":
             return setattr(namespace, self.dest, AlglibOptimiser)
+        if values == "HighsOptimiser":
+            return setattr(namespace, self.dest, HighsOptimiser)
         raise raise_error(f"Unsupported optimiser type: {values}")
 
 
 class NMatrixAction(Action):
     def __call__(self, parser, namespace, values: "str | type[NMatrix]", option_string=None):
+        if values is None:
+            return setattr(namespace, self.dest, np.empty((0, 0), dtype=np.float64))
         if isinstance(values, np.ndarray):
             return setattr(namespace, self.dest, values)
         if isinstance(values, list):
@@ -626,6 +652,7 @@ def arg_parser() -> "ArgumentParser":
         choices=[
             "GurobiOptimiser",
             "AlglibOptimiser",
+            "HighsOptimiser",
         ],
         help="feature map type to use for the estimator",
     )

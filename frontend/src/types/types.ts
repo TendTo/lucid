@@ -19,7 +19,7 @@ export type FeatureMapType =
   | "LinearTruncatedFourierFeatureMap"
   | "ConstantTruncatedFourierFeatureMap"
   | "LogTruncatedFourierFeatureMap";
-export type OptimiserType = "GurobiOptimiser" | "AlglibOptimiser";
+export type OptimiserType = "GurobiOptimiser" | "AlglibOptimiser" | "HighsOptimiser";
 export type ServerResponse = {
   success: boolean;
   obj_val?: number;

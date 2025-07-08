@@ -173,7 +173,7 @@ export const jsonSchema = z
       .describe("Type of feature map to use for the estimator.")
       .default("LinearTruncatedFourierFeatureMap"),
     optimiser: z
-      .enum(["GurobiOptimiser", "AlglibOptimiser"])
+      .enum(["GurobiOptimiser", "AlglibOptimiser", "HighsOptimiser"])
       .describe("Type of optimiser to use for the estimator.")
       .default("GurobiOptimiser"),
   })

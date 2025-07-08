@@ -207,11 +207,6 @@ def pipeline(
         if optimiser_cb is not None:
             optimiser_cb(result)
 
-    files = {
-        "problem_log_file": args.problem_log_file,
-        "iis_log_file": args.iis_log_file,
-    }
-
     return args.optimiser(
         args.time_horizon,
         args.gamma,
@@ -220,7 +215,8 @@ def pipeline(
         b_kappa=1.0,
         C_coeff=args.c_coefficient,
         sigma_f=args.sigma_f,
-        **(files if isinstance(args.optimiser, GurobiOptimiser) else {}),
+        problem_log_file=args.problem_log_file,
+        iis_log_file=args.iis_log_file,
     ).solve(
         f0_lattice=f_x0_lattice,
         fu_lattice=f_xu_lattice,
