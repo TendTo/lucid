@@ -58,6 +58,12 @@ using OptimizerTypes = ::testing::Types<
 #ifdef LUCID_ALGLIB_BUILD
     GurobiOptimiser
 #endif
+#if (defined(LUCID_ALGLIB_BUILD) || defined(LUCID_GUROBI_BUILD)) && defined(LUCID_HIGHS_BUILD)
+    ,
+#endif
+#ifdef LUCID_HIGHS_BUILD
+    HighsOptimiser
+#endif
     >;
 TYPED_TEST_SUITE(TestLinear, OptimizerTypes);
 

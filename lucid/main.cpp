@@ -172,7 +172,7 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, const Sc
 }
 #endif
 
-enum class Solver { Gurobi, Alglib };
+enum class Solver { Gurobi, Alglib, HiGHS };
 
 struct CliArgs {
   int seed{-1};
@@ -282,9 +282,21 @@ bool test_linear(const CliArgs& args) {
 #endif
 #ifdef LUCID_ALGLIB_BUILD
     case Solver::Alglib:
-      return AlglibOptimiser{args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient}.solve(
-          f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
-          args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
+      return AlglibOptimiser{
+          args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
+          args.problem_log_file, args.iis_log_file,
+      }
+          .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
+                 args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
+#endif
+#ifdef LUCID_HIGHS_BUILD
+    case Solver::HiGHS:
+      return HighsOptimiser{
+          args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
+          args.problem_log_file, args.iis_log_file,
+      }
+          .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
+                 args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
 #endif
     default:
       LUCID_NOT_SUPPORTED("The chosen solver");
@@ -306,12 +318,17 @@ int main(const int argc, char* argv[]) {
       solver = Solver::Alglib;
     } else if (std::string_view{argv[1]} == "gurobi") {  // NOLINT(whitespace/braces): standard initialisation
       solver = Solver::Gurobi;
+    } else if (std::string_view{argv[1]} == "highs") {  // NOLINT(whitespace/braces): standard initialisation
+      solver = Solver::HiGHS;
     } else {
-      fmt::print("Usage: {} [gurobi|alglib]\n", argv[0]);
+      fmt::print("Usage: {} [gurobi|alglib|highs]\n", argv[0]);
       return 1;
     }
   }
   LUCID_LOG_INIT_VERBOSITY(4);
+  std::string log_file = fmt::format("{}.problem.lp", solver == Solver::Gurobi   ? "gurobi"
+                                                      : solver == Solver::Alglib ? "alglib"
+                                                                                 : "highs");
   test_linear({
       .seed = 42,
       .gamma = 1.0,
@@ -323,7 +340,7 @@ int main(const int argc, char* argv[]) {
       .num_frequencies = 4,
       .plot = true,
       .verify = true,
-      .problem_log_file = "problem.lp",
+      .problem_log_file = log_file,
       .iis_log_file = "iis.ilp",
       .oversample_factor = 32.0,
       .noise_scale = 0.01,

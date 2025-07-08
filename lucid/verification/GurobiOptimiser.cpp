@@ -25,32 +25,11 @@
 
 namespace lucid {
 
-GurobiOptimiser::GurobiOptimiser(const int T, const double gamma, const double epsilon, const double b_norm,
-                                             const double b_kappa, const double sigma_f, const double C_coeff,
-                                             std::string problem_log_file, std::string iis_log_file)
-    : T_{T},
-      gamma_{gamma},
-      epsilon_{epsilon},
-      b_norm_{b_norm},
-      b_kappa_{b_kappa},
-      sigma_f_{sigma_f},
-      C_coeff_{C_coeff},
-      problem_log_file_{std::move(problem_log_file)},
-      iis_log_file_{std::move(iis_log_file)} {
-  LUCID_CHECK_ARGUMENT_CMP(T, >, 0);
-  LUCID_CHECK_ARGUMENT_EXPECTED(
-      problem_log_file_.empty() || (problem_log_file_.ends_with(".lp") || problem_log_file_.ends_with(".mps")),
-      "problem_log_file", problem_log_file_, "must be a valid file path with .lp or .mps extension");
-  LUCID_CHECK_ARGUMENT_EXPECTED(iis_log_file_.empty() || iis_log_file_.ends_with(".ilp"), "iis_log_file", iis_log_file_,
-                                "must be a valid file path with .ilp extension");
-}
-
 #ifdef LUCID_GUROBI_BUILD
 bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
-                                  ConstMatrixRef w_mat, const Dimension rkhs_dim,
-                                  const Dimension num_frequencies_per_dim,
-                                  const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
-                                  const SolutionCallback& cb) const {
+                            ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
+                            const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
+                            const SolutionCallback& cb) const {
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   LUCID_CHECK_ARGUMENT_CMP(num_frequency_samples_per_dim, >, 0);
@@ -221,7 +200,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
 }
 #else
 bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
-                                  Dimension, Dimension, const SolutionCallback&) const {
+                            Dimension, Dimension, const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
   return false;
 }

@@ -61,8 +61,8 @@ class AlglibLpProblem {
 
     alglib::real_1d_array vals;
     vals.attach_to_ptr(static_cast<alglib::ae_int_t>(coeffs.size()), coeffs.data());
-    alglib::minlpaddlc2(state_, tot_vars, vals, static_cast<alglib::ae_int_t>(coeffs.size()),
-                        Op == '<' ? alglib::fp_neginf : rhs, Op == '>' ? alglib::fp_posinf : rhs);
+    alglib::minlpaddlc2(state_, tot_vars, vals, tot_vars.length(), Op == '<' ? alglib::fp_neginf : rhs,
+                        Op == '>' ? alglib::fp_posinf : rhs);
   }
 
   template <char Op, std::size_t N>
@@ -97,8 +97,6 @@ class AlglibLpProblem {
   [[nodiscard]] const alglib::real_1d_array& solution() const { return x_; }
 
  private:
-  void init() {}
-
   alglib::integer_1d_array vars_;
   alglib::real_1d_array coeffs_;
   alglib::real_1d_array x_;
@@ -107,18 +105,6 @@ class AlglibLpProblem {
 };
 }  // namespace
 #endif
-
-AlglibOptimiser::AlglibOptimiser(const int T, const double gamma, const double epsilon, const double b_norm,
-                                 const double b_kappa, const double sigma_f, const double C_coeff)
-    : T_{T},
-      gamma_{gamma},
-      epsilon_{epsilon},
-      b_norm_{b_norm},
-      b_kappa_{b_kappa},
-      sigma_f_{sigma_f},
-      C_coeff_{C_coeff} {
-  LUCID_CHECK_ARGUMENT_CMP(T, >, 0);
-}
 
 #ifdef LUCID_ALGLIB_BUILD
 bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,

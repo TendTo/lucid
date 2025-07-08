@@ -1,9 +1,9 @@
 /**
- * @author Room 6.030
+ * @author c3054737
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * AlglibOptimiser class.
+ * HighsOptimiser class.
  */
 #pragma once
 
@@ -13,9 +13,9 @@
 namespace lucid {
 
 /**
- * Linear optimiser using the [Alglib](https://www.alglib.net/) mathematical library.
+ * Linear optimiser using the [HiGHS](https://ergo-code.github.io/HiGHS/dev/) mathematical library.
  */
-class AlglibOptimiser final : public Optimiser {
+class HighsOptimiser final : public Optimiser {
  public:
   using Optimiser::Optimiser;
   /**
@@ -36,6 +36,23 @@ class AlglibOptimiser final : public Optimiser {
                            ConstMatrixRef w_mat, Dimension rkhs_dim, Dimension num_frequencies_per_dim,
                            Dimension num_frequency_samples_per_dim, Dimension original_dim,
                            const SolutionCallback& cb) const;
+
+  /** @getter{time horizon, solver} */
+  [[nodiscard]] int T() const { return T_; }
+  /** @getter{gamma, solver} */
+  [[nodiscard]] double gamma() const { return gamma_; }
+  /** @getter{epsilon, solver} */
+  [[nodiscard]] double epsilon() const { return epsilon_; }
+  /** @getter{b_norm, solver} */
+  [[nodiscard]] double b_norm() const { return b_norm_; }
+  /** @getter{kappa, solver} */
+  [[nodiscard]] double b_kappa() const { return b_kappa_; }
+  /** @getter{sigma_f, solver} */
+  [[nodiscard]] double sigma_f() const { return sigma_f_; }
+  /** @getter{C coefficient, solver} */
+  [[nodiscard]] double C_coeff() const { return C_coeff_; }
+
+ private:
 };
 
 }  // namespace lucid

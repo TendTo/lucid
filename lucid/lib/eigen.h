@@ -22,6 +22,7 @@
 #include <Eigen/Cholesky>                  // NOLINT(build/include_order): must be after the plugin
 #include <Eigen/Core>                      // NOLINT(build/include_order): must be after the plugin
 #include <Eigen/LU>                        // NOLINT(build/include_order): must be after the plugin
+#include <Eigen/SparseCore>                // NOLINT(build/include_order): must be after the plugin
 #include <unsupported/Eigen/CXX11/Tensor>  // NOLINT(build/include_order): must be after the plugin
 #include <unsupported/Eigen/FFT>           // NOLINT(build/include_order): must be after the plugin
 

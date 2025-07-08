@@ -9,6 +9,7 @@
 
 #include "lucid/verification/AlglibOptimiser.h"
 #include "lucid/verification/GurobiOptimiser.h"
+#include "lucid/verification/HighsOptimiser.h"
 #include "lucid/verification/Optimiser.h"
 
 /**
