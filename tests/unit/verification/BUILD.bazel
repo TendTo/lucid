@@ -5,6 +5,7 @@ load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 lucid_cc_googletest(
     name = "test_gurobi_optimiser",
     deps = [
+        "//lucid/lib:gurobi",
         "//lucid/util:exception",
         "//lucid/verification:optimiser",
     ],

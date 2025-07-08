@@ -44,11 +44,45 @@ Other versions may work as well, but they have not been tested.
   - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
 - [Gurobi](https://www.gurobi.com/) 12.0.1
 
-> [!NOTE]  
-> Both a Gurobi installation and a valid license are required to build and run Lucid.  
-> To indicate the location of the Gurobi installation, ensure that the `GUROBI_HOME` environment variable is set correctly.
-> Alternatively, provide the flag `--repo_env=GUROBI_HOME=/path/to/gurobi` when running Bazel or set the `default_gurobi_home` parameter in the `MODULE.bazel` file.
-> You can also add the `--action_env=GUROBI_HOME=/path/to/gurobi` flag so that the gurobi installation is added to the `rpath` of the binary.
+### Gurobi requirements
+
+While there are other solvers supported by Lucid, [Gurobi](https://www.gurobi.com/) is the recommended one.
+Being a commercial solver, it must be installed separately and requires a valid license to run.
+
+Before the installation, ensure that the `GUROBI_HOME` environment variable is set correctly.
+
+[//]: # "@tabbed"
+[//]: # "@tab"
+
+## Linux
+
+Ensure that the `GUROBI_HOME` environment variable is set correctly with `echo $GUROBI_HOME`.
+You can set it for the duration of the current shell with `export GUROBI_HOME=/path/to/gurobi` (e.g., `export GUROBI_HOME=/opt/gurobi1201/linux64`).
+
+[//]: # "@end-tab"
+[//]: # "@tab"
+
+## Windows
+
+Ensure that the `GUROBI_HOME` environment variable is set correctly with `echo %GUROBI_HOME%` or `echo $env:GUROBI_HOME`.
+You can set it for the duration of the current shell with `set GUROBI_HOME=\path\to\gurobi` (e.g., `set GUROBI_HOME=C:\gurobi1201\win64`).
+
+[//]: # "@end-tab"
+[//]: # "@tab"
+
+## macOS
+
+Ensure that the `GUROBI_HOME` environment variable is set correctly with `echo $GUROBI_HOME`.
+You can set it for the duration of the current shell with `export GUROBI_HOME=/path/to/gurobi` (e.g., `export GUROBI_HOME=/Library/gurobi1201/macos_universal2`).
+
+[//]: # "@end-tab"
+[//]: # "@end-tabbed"
+
+Instead of setting the `GUROBI_HOME` environment variable, you can add the flag `--repo_env=GUROBI_HOME=/path/to/gurobi` when running Bazel or set the `default_gurobi_home` parameter in the `MODULE.bazel` file.
+The `--action_env=GUROBI_HOME=/path/to/gurobi` flag will make it so that the gurobi installation is added to the `rpath` of the binary.
+
+When running the software, ensure that the Gurobi license file can be found via the `GRB_LICENSE_FILE` environment variable.
+For more information, refer to the [Gurobi documentation](https://support.gurobi.com/hc/en-us/articles/13443862111761-How-do-I-set-system-environment-variables-for-Gurobi).
 
 ### Building Lucid
 
@@ -83,7 +117,7 @@ Lucid comes with a few predefined build configuration for the most common use ca
 Just add the `--config` flag followed by the desired configuration when running Bazel.
 
 | Configuration | Optimisations | Debug symbols | Assertions | Input checks | Logging | Verbose Eigen Logs | Used for              |
-|---------------|---------------|---------------|------------| ------------ |---------|--------------------|-----------------------|
+| ------------- | ------------- | ------------- | ---------- | ------------ | ------- | ------------------ | --------------------- |
 | **default**   | ?             | ?             | Yes        | Yes          | Yes     | No                 | Default build         |
 | `dbg`         | No            | Yes           | Yes        | Yes          | Yes     | Yes                | Testing and debugging |
 | `snt`         | No            | Yes           | Yes        | Yes          | Yes     | No                 | Memory sanitization   |
@@ -101,7 +135,7 @@ bazel build --config=opt //lucid
 If you want even more fine-grained control over the build, you can also use the following flags or even add more custom compiler flags.
 
 | Flag                                   | Description                                                 |
-|----------------------------------------|-------------------------------------------------------------|
+| -------------------------------------- | ----------------------------------------------------------- |
 | `enable_static_build`                  | Build Lucid as a static library. Defaults to `False`.       |
 | `enable_dynamic_build`                 | Build Lucid as a dynamic library. Defaults to `False`.      |
 | `enable_python_build`                  | Build Lucid with Python bindings. Defaults to `False`.      |

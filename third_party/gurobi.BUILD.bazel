@@ -11,6 +11,11 @@ filegroup(
 )
 
 filegroup(
+    name = "libgurobi.dylib",
+    srcs = glob(["lib/libgurobi*.dylib"], allow_empty = True, exclude = ["lib/libgurobi*_light.dylib"]),
+)
+
+filegroup(
     name = "gurobi.dll",
     srcs = glob(["bin/gurobi*.dll"], allow_empty = True, exclude = ["bin/gurobi*_light.dll"]),
 )
@@ -37,39 +42,45 @@ cc_import(
     name = "_gurobi_c_unix",
     hdrs = ["include/gurobi_c.h"],
     shared_library = ":libgurobi.so",
-    visibility = ["//visibility:private"],
 )
 
 cc_import(
     name = "_gurobi_cpp_unix",
     hdrs = ["include/gurobi_c++.h", "include/gurobi_c.h"],
     static_library = "lib/libgurobi_c++.a",
-    visibility = ["//visibility:private"],
+)
+
+cc_import(
+    name = "_gurobi_c_macos",
+    hdrs = ["include/gurobi_c.h"],
+    shared_library = ":libgurobi.dylib",
+)
+
+cc_import(
+    name = "_gurobi_cpp_macos",
+    hdrs = ["include/gurobi_c++.h", "include/gurobi_c.h"],
+    static_library = "lib/libgurobi_c++.a",
 )
 
 cc_import(
     name = "_gurobi_dll_windows",
     shared_library = ":gurobi.dll",
-    visibility = ["//visibility:private"],
 )
 
 cc_import(
     name = "_gurobi_dll_netstandard_windows",
     shared_library = ":gurobi.netstandard.lib",
-    visibility = ["//visibility:private"],
 )
 
 cc_import(
     name = "_gurobi_lib_windows",
     hdrs = ["include/gurobi_c++.h", "include/gurobi_c.h"],
     static_library = ":gurobi.lib",
-    visibility = ["//visibility:private"],
 )
 
 cc_import(
     name = "_gurobi_lib_md_windows",
     static_library = ":gurobi_c++md.lib",
-    visibility = ["//visibility:private"],
 )
 
 make_var_substitution(name = "env_vars")
@@ -78,13 +89,15 @@ cc_library(
     name = "gurobi",
     deps = select({
         "@platforms//os:windows": [":_gurobi_dll_windows", ":_gurobi_dll_netstandard_windows", ":_gurobi_lib_windows", ":_gurobi_lib_md_windows"],
-        "//conditions:default": [":_gurobi_c_unix", ":_gurobi_cpp_unix"],
-    }),
+        "@platforms//os:linux": [":_gurobi_c_unix", ":_gurobi_cpp_unix"],
+        "@platforms//os:macos": [":_gurobi_c_macos", ":_gurobi_cpp_macos"],
+    }, "Unsupported platform for Gurobi library"),
     includes = ["include"],
     visibility = ["//visibility:public"],
     linkopts = select({
         "@platforms//os:windows": [],
-        "//conditions:default": ["-Wl,-rpath,$(GUROBI_HOME)/lib"],
-    }),
+        "@platforms//os:linux": ["-Wl,-rpath,$(GUROBI_HOME)/lib"],
+        "@platforms//os:macos": ["-Wl,-rpath,$(GUROBI_HOME)/lib"],
+    }, "Unsupported platform for Gurobi library"),
     toolchains = [":env_vars"],
 )
