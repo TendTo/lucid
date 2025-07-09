@@ -8,6 +8,7 @@
 
 #include <numbers>
 #include <utility>
+#include <memory>
 
 #include "lucid/util/IndexIterator.h"
 #include "lucid/util/error.h"

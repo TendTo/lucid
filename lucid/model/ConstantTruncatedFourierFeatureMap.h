@@ -8,6 +8,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <memory>
 
 #include "TruncatedFourierFeatureMap.h"
 #include "lucid/lib/eigen.h"

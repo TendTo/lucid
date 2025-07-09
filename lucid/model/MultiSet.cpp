@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"

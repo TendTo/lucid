@@ -6,6 +6,11 @@
  */
 #include "lucid/util/logging.h"
 
+// Just because of the linter, these imports are above the compiler guard. They don't need to be.
+#include <memory>
+#include <string>
+#include <utility>
+
 #ifndef NLOG
 
 #include <spdlog/common.h>
@@ -14,12 +19,13 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#include <memory>
-
 namespace lucid::log {
 
-spdlog::level::level_enum level_ = spdlog::level::off;  ///< Default logging level is off. It can be set by the user.
+namespace {
+// NOLINTNEXTLINE(runtime/string): Global logging pattern.
 std::string pattern_ = "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [thread %t] %v";  ///< Default logging pattern.
+spdlog::level::level_enum level_ = spdlog::level::off;  ///< Default logging level is off. It can be set by the user.
+}  // namespace
 
 std::shared_ptr<spdlog::logger> get_logger(const LoggerType logger_type) {
   // Checks if there exists a logger with the name. If it exists, return it.

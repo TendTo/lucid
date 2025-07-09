@@ -7,6 +7,9 @@
  */
 #include "lucid/verification/Optimiser.h"
 
+#include <string>
+#include <utility>
+
 #include "lucid/util/error.h"
 
 namespace lucid {

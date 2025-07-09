@@ -6,6 +6,7 @@
  */
 #include "lucid/model/LogTruncatedFourierFeatureMap.h"
 
+#include <memory>
 #include <numbers>
 
 #include "lucid/util/math.h"

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <memory>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/RectSet.h"

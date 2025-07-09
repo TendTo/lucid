@@ -7,7 +7,10 @@
  */
 #include "lucid/verification/HighsOptimiser.h"
 
-#include <src/ap.h>
+#include <limits>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "lucid/lib/highs.h"
 #include "lucid/util/error.h"
@@ -15,7 +18,7 @@
 #ifndef NLOG
 #define LUCID_FORMAT_NAME(str, ...) fmt::format(str, __VA_ARGS__)
 #else
-const std::string emtpy_string{};
+const char[] emtpy_string = "";
 #define LUCID_FORMAT_NAME(str, ...) emtpy_string
 #endif
 

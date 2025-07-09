@@ -39,6 +39,7 @@ constexpr int LUCID_LOG_TRACE_LEVEL = 5;
 #include <spdlog/sinks/callback_sink.h>
 
 #include <memory>
+#include <string>
 
 /**
  * @namespace lucid::log

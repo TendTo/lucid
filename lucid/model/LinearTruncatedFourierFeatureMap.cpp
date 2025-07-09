@@ -6,6 +6,8 @@
  */
 #include "lucid/model/LinearTruncatedFourierFeatureMap.h"
 
+#include <memory>
+
 #include "lucid/util/error.h"
 
 namespace lucid {
