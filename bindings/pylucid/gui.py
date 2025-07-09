@@ -16,7 +16,7 @@ from .__main__ import scenario_config
 from ._pylucid import *
 from .cli import ConfigAction, Configuration
 from .pipeline import OptimiserResult, pipeline
-from .plot import plot_function
+from .plot import plot_data, plot_function
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -111,15 +111,28 @@ def preview_graph():
     args = get_args()
     if not isinstance(args, Configuration):
         return args
-    fig = plot_function(
-        X_bounds=args.X_bounds,
-        X_init=args.X_init,
-        X_unsafe=args.X_unsafe,
-        f=args.system_dynamics,
-        x_samples=args.x_samples,
-        xp_samples=args.xp_samples,
-        show=False,
-    )
+    if args.system_dynamics is not None:
+        fig = plot_function(
+            X_bounds=args.X_bounds,
+            X_init=args.X_init,
+            X_unsafe=args.X_unsafe,
+            f=args.system_dynamics,
+            show=False,
+        )
+    elif len(args.x_samples) > 0 and (len(args.xp_samples) > 0 or args.system_dynamics is not None):
+        if len(args.xp_samples) == 0 and args.system_dynamics is not None:
+            # If xp_samples is not provided, compute it using the system dynamics function
+            args.xp_samples = args.system_dynamics(args.x_samples)
+        fig = plot_data(
+            X_bounds=args.X_bounds,
+            X_init=args.X_init,
+            X_unsafe=args.X_unsafe,
+            x_samples=args.x_samples,
+            xp_samples=args.xp_samples,
+            show=False,
+        )
+    else:
+        return {"error": "No system dynamics or samples provided for graph preview."}, 400
     logger.info("Graph preview generated successfully.")
     return {"fig": fig.to_html(include_plotlyjs=False, full_html=False)}, 200
 

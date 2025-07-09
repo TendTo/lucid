@@ -18,6 +18,30 @@ except ImportError as e:
     raise e
 
 
+def validate_inputs(
+    x_samples: "NMatrix | None",
+    xp_samples: "NMatrix | None",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+):
+    dimensions = {s.dimension for s in (X_bounds, X_init, X_unsafe) if s is not None}
+    assert_or_raise(
+        len(dimensions) <= 1,
+        "X_bounds, X_init, and X_unsafe must have the same dimension if provided.",
+    )
+    if x_samples is not None and xp_samples is not None:
+        assert_or_raise(
+            x_samples.shape == xp_samples.shape,
+            "x_samples and xp_samples must have the same shape.",
+        )
+        if len(dimensions) == 1:
+            assert_or_raise(
+                x_samples.shape[1] == next(iter(dimensions)),
+                f"x_samples must have {next(iter(dimensions))} dimensions.",
+            )
+
+
 def plot_set(
     plt_fun: "Callable[[Set, str, str, go.Figure], None]",
     x_set: "RectSet | MultiSet",
@@ -235,6 +259,45 @@ def plot_set_2d_plane(X_set: "RectSet | MultiSet", color: str, label: str = "", 
         )
 
     return plot_set(plot_rect_2d, X_set, color, label, fig)
+
+
+def plot_set_3d(X_set: "RectSet | MultiSet", color: str, label: str = "", fig: go.Figure = None):
+    """
+    Plot the given set in 3D.
+
+    Args:
+        X_set: A RectSet or MultiSet representing the set to be plotted.
+        color: The color to use for plotting the set.
+        label: Label for the set.
+        fig: Existing figure to add to.
+    """
+
+    def plot_rect_3d(rect: RectSet, color: str, label: str, fig: go.Figure):
+        x_l, x_u = rect.lower_bound[0], rect.upper_bound[0]
+        y_l, y_u = rect.lower_bound[1], rect.upper_bound[1]
+        z_l, z_u = rect.lower_bound[2], rect.upper_bound[2]
+        # Draw a cube for the rectangle
+        # TODO: I'm sure there is a more elegant way to do this
+        x = [x_l, x_u, x_u, x_l, x_l, None, x_l, x_u, x_u, x_l, x_l, None]
+        y = [y_l, y_l, y_u, y_u, y_l, None, y_l, y_l, y_u, y_u, y_l, None]
+        z = [z_l, z_l, z_l, z_l, z_l, None, z_u, z_u, z_u, z_u, z_u, None]
+        x += [x_l, x_l, None, x_u, x_u, None, x_l, x_l, None, x_u, x_u, None]
+        y += [y_l, y_l, None, y_l, y_l, None, y_u, y_u, None, y_u, y_u, None]
+        z += [z_l, z_u, None, z_l, z_u, None, z_l, z_u, None, z_l, z_u, None]
+
+        fig.add_trace(
+            go.Scatter3d(
+                x=x,
+                y=y,
+                z=z,
+                mode="lines",
+                line=dict(color=color),
+                name=label,
+                showlegend=bool(label),
+            )
+        )
+
+    return plot_set(plot_rect_3d, X_set, color, label, fig)
 
 
 def plot_solution_2d(
@@ -574,30 +637,17 @@ def plot_solution(
 
 def plot_function_1d(
     X_bounds: "RectSet",
-    f: "Callable[[NMatrix], NMatrix] | None" = None,
+    f: "Callable[[NMatrix], NMatrix]",
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
-    x_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
-    xp_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
     n: int = 100,
     show: bool = True,
 ) -> go.Figure:
     """Plot a function f over the given samples in 1D."""
     assert X_bounds.dimension == 1, "plot_function is only supported for 1D functions."
 
-    fig = go.Figure()
-
-    if X_init is not None:
-        fig = plot_set_1d(X_init, "blue", label="Initial Set", fig=fig)
-    if X_unsafe is not None:
-        fig = plot_set_1d(X_unsafe, "red", label="Unsafe Set", fig=fig)
-
-    if len(x_samples) == 0:
-        x_samples = X_bounds.lattice(n, True).flatten()
-    n = len(x_samples)
-    if len(xp_samples) == 0:
-        assert_or_raise(f is not None, "Function f must be provided if xp_samples is not given.")
-        xp_samples = f(x_samples.reshape(-1, 1)).flatten()
+    x_samples = X_bounds.lattice(n, True).flatten()
+    xp_samples = f(x_samples.reshape(-1, 1)).flatten()
     assert xp_samples.ndim == 1 or xp_samples.shape[1] == 1, "Function f must return a 1D array for 1D plotting."
 
     y = np.linspace(0, 1, n)
@@ -605,15 +655,17 @@ def plot_function_1d(
     u = np.repeat((xp_samples - x_samples).reshape(1, -1), n, axis=0)
     v = np.zeros((n, n))  # Assuming a 1D function, v is zero
 
-    fig = ff.create_streamline(
-        x_samples,
-        y,
-        u,
-        v,
-        arrow_scale=0.05,
-        density=0.2,
+    fig = (
+        ff.create_streamline(x_samples, y, u, v, arrow_scale=0.05, density=0.2)
+        if x_samples.shape[0] > 1
+        else go.Figure()
     )
+    if X_init is not None:
+        fig = plot_set_1d(X_init, "blue", label="Initial Set", fig=fig)
+    if X_unsafe is not None:
+        fig = plot_set_1d(X_unsafe, "red", label="Unsafe Set", fig=fig)
     fig.update_layout(title="Function Plot", xaxis_title="Input Dimension")
+
     if show:
         fig.show()
     return fig
@@ -621,26 +673,20 @@ def plot_function_1d(
 
 def plot_function_2d(
     X_bounds: "RectSet",
-    f: "Callable[[NMatrix], NMatrix] | None" = None,
+    f: "Callable[[NMatrix], NMatrix]",
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
-    x_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
-    xp_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
     n: int = 100,
     show: bool = True,
 ) -> go.Figure:
     """Plot a function f over the given samples in 2D."""
     assert X_bounds.dimension == 2, "plot_function is only supported for 2D functions."
 
-    if len(x_samples) == 0:
-        x_samples = X_bounds.lattice(n, True)
-    n = int(np.sqrt(len(x_samples)))
+    x_samples = X_bounds.lattice(n, True)
     X = x_samples[:, 0].reshape(n, n)
     Y = x_samples[:, 1].reshape(n, n)
 
-    if len(xp_samples) == 0:
-        assert_or_raise(f is not None, "Function f must be provided if xp_samples is not given.")
-        xp_samples = f(x_samples)
+    xp_samples = f(x_samples)
 
     assert xp_samples.ndim == 2 and xp_samples.shape[1] == 2, "Function f must return a 2D array for 2D plotting."
 
@@ -650,10 +696,7 @@ def plot_function_2d(
     u = Xp - X
     v = Yp - Y
 
-    speed = np.sqrt(u**2 + v**2)
-    speed[speed == 0] = 1
-
-    fig = ff.create_streamline(X[0, :], Y[:, 0], u, v, density=2)
+    fig = ff.create_streamline(X[0, :], Y[:, 0], u, v, density=2) if X.shape[0] > 1 else go.Figure()
     if X_init is not None:
         fig = plot_set_2d_plane(X_init, "blue", label="Initial Set", fig=fig)
     if X_unsafe is not None:
@@ -667,11 +710,9 @@ def plot_function_2d(
 
 def plot_function(
     X_bounds: "RectSet",
-    f: "Callable[[NMatrix], NMatrix] | None" = None,
+    f: "Callable[[NMatrix], NMatrix]",
     X_init: "Set | None" = None,
     X_unsafe: "Set | None" = None,
-    x_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
-    xp_samples: "NMatrix" = np.empty((0, 0), dtype=np.float64),
     n: int = 100,
     show: bool = True,
 ) -> go.Figure:
@@ -683,11 +724,258 @@ def plot_function(
             f=f,
             X_init=X_init,
             X_unsafe=X_unsafe,
-            x_samples=x_samples,
-            xp_samples=xp_samples,
             n=n,
             show=show,
         )
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D and 2D are supported."
+    )
+
+
+def plot_data_1d(
+    X_bounds: "RectSet",
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    show: bool = True,
+) -> go.Figure:
+    """Plot a function f over the given samples in 1D."""
+    assert X_bounds.dimension == 1, "plot_function is only supported for 1D functions."
+
+    fig = go.Figure()
+
+    if X_init is not None:
+        fig = plot_set_1d(X_init, "blue", label="Initial Set", fig=fig)
+    if X_unsafe is not None:
+        fig = plot_set_1d(X_unsafe, "red", label="Unsafe Set", fig=fig)
+
+    idxs = x_samples.flatten().argsort()
+    x_sub = x_samples.flatten()[idxs]
+    xp_sub = xp_samples.flatten()[idxs]
+    y_sub = np.linspace(0, 1, num=len(x_sub))  # y-coordinates are evenly spaced for 1D plot
+
+    # Create vector field using scatter with arrows
+    fig.add_traces(
+        (
+            go.Scatter(
+                x=x_sub,
+                y=y_sub,
+                mode="markers",
+                marker=dict(color="blue", size=0.1),
+                name="Current state points",
+                showlegend=False,
+            ),
+            go.Scatter(
+                x=xp_sub,
+                y=y_sub,
+                mode="markers",
+                marker=dict(color="orange", size=0.1),
+                name="Next state points",
+                showlegend=False,
+            ),
+        )
+    )
+
+    # Add arrows to show direction
+    # Add arrows to show vector field
+    for x_el, xp_el, y_el in zip(x_sub, xp_sub, y_sub):
+        fig.add_annotation(
+            x=xp_el,
+            y=y_el,
+            ax=x_el,
+            ay=y_el,
+            axref="x",
+            ayref="y",
+            arrowhead=2,
+            showarrow=True,
+            arrowsize=1,
+            arrowwidth=1,
+            arrowcolor="blue",
+        )
+
+    fig.update_layout(title="Data Plot", xaxis_title="Input", yaxis_title="Output")
+
+    if show:
+        fig.show()
+    return fig
+
+
+def plot_data_2d(
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    show: bool = True,
+) -> go.Figure:
+    """Plot a function f over the given samples in 2D."""
+    assert x_samples.ndim == 2 and x_samples.shape[1] == 2, "x_samples must be a 2D array with shape (n_samples, 2)."
+    assert xp_samples.ndim == 2 and xp_samples.shape[1] == 2, "xp_samples must be a 2D array with shape (n_samples, 2)."
+
+    fig = go.Figure()
+
+    if X_init is not None:
+        fig = plot_set_2d_plane(X_init, "blue", label="Initial Set", fig=fig)
+    if X_unsafe is not None:
+        fig = plot_set_2d_plane(X_unsafe, "red", label="Unsafe Set", fig=fig)
+
+    # Subsample for cleaner visualization
+    separator = np.full_like(x_samples[:, 0], np.nan)  # Separator for lines
+    x = np.column_stack((x_samples[:, 0], xp_samples[:, 0], separator)).flatten()
+    y = np.column_stack((x_samples[:, 1], xp_samples[:, 1], separator)).flatten()
+
+    # Create vector field using scatter with arrows
+    fig.add_trace(
+        go.Scatter(
+            x=x,
+            y=y,
+            line=dict(color="blue", width=0.5),
+            mode="lines+markers",
+            marker=dict(
+                symbol="arrow",
+                color="blue",
+                size=10,
+                angleref="previous",
+            ),
+            name="Samples",
+            showlegend=False,
+        )
+    )
+
+    if X_bounds is not None:
+        fig.update_xaxes(range=[X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+        fig.update_yaxes(range=[X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
+
+    fig.update_layout(title="Data Plot", xaxis_title="Input Dimension 1", yaxis_title="Input Dimension 2")
+
+    if show:
+        fig.show()
+    return fig
+
+
+def plot_data_3d(
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    show: bool = True,
+) -> go.Figure:
+    """Plot a function f over the given samples in 3D."""
+    assert x_samples.ndim == 2 and x_samples.shape[1] == 3, "x_samples must be a 2D array with shape (n_samples, 3)."
+    assert xp_samples.ndim == 2 and xp_samples.shape[1] == 3, "xp_samples must be a 2D array with shape (n_samples, 3)."
+
+    fig = go.Figure()
+
+    if X_init is not None:
+        fig = plot_set_3d(X_init, "blue", label="Initial Set", fig=fig)
+    if X_unsafe is not None:
+        fig = plot_set_3d(X_unsafe, "red", label="Unsafe Set", fig=fig)
+
+    # Subsample for cleaner visualization
+    x_sub = x_samples[:, 0]
+    y_sub = x_samples[:, 1]
+    z_sub = x_samples[:, 2]
+    xp_sub = xp_samples[:, 0]
+    yp_sub = xp_samples[:, 1]
+    zp_sub = xp_samples[:, 2]
+
+    separator = np.full_like(x_sub, np.nan)  # Separator for lines
+    x = np.column_stack((x_sub, xp_sub, separator)).flatten()
+    y = np.column_stack((y_sub, yp_sub, separator)).flatten()
+    z = np.column_stack((z_sub, zp_sub, separator)).flatten()
+
+    # Create vector field using scatter with arrows
+    fig.add_trace(
+        go.Scatter3d(
+            x=x,
+            y=y,
+            z=z,
+            mode="lines",
+            name="Current state points",
+            showlegend=False,
+            line=dict(
+                color="blue",
+                width=2,
+            ),
+        ),
+    )
+
+    # Taken from https://stackoverflow.com/a/66792953/15153171
+    arrow_tip_ratio = 0.2
+    arrow_starting_ratio = 0.98
+    for x_el, y_el, z_el in zip(x.reshape(-1, 3), y.reshape(-1, 3), z.reshape(-1, 3)):
+        fig.add_trace(
+            go.Cone(
+                x=[x_el[0] + arrow_starting_ratio * (x_el[1] - x_el[0])],
+                y=[y_el[0] + arrow_starting_ratio * (y_el[1] - y_el[0])],
+                z=[z_el[0] + arrow_starting_ratio * (z_el[1] - z_el[0])],
+                u=[arrow_tip_ratio * (x_el[1] - x_el[0])],
+                v=[arrow_tip_ratio * (y_el[1] - y_el[0])],
+                w=[arrow_tip_ratio * (z_el[1] - z_el[0])],
+                showlegend=False,
+                showscale=False,
+                colorscale=[[0, "blue"], [1, "blue"]],
+            )
+        )
+
+    if X_bounds is not None:
+        fig.update_xaxes(range=[X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+        fig.update_yaxes(range=[X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
+
+    fig.update_layout(
+        title="Data Plot",
+        scene=dict(
+            xaxis=dict(
+                title=dict(
+                    text="Input Dimension 1",
+                )
+            ),
+            yaxis=dict(
+                title=dict(
+                    text="Input Dimension 2",
+                )
+            ),
+            zaxis=dict(
+                title=dict(
+                    text="Input Dimension 3",
+                )
+            ),
+        ),
+    )
+
+    if show:
+        fig.show()
+    return fig
+
+
+def plot_data(
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    show: bool = True,
+) -> go.Figure:
+    """Plot a function f over the given samples."""
+    validate_inputs(
+        x_samples=x_samples,
+        xp_samples=xp_samples,
+        X_bounds=X_bounds,
+        X_init=X_init,
+        X_unsafe=X_unsafe,
+    )
+    plot_function_fun = (plot_data_1d, plot_data_2d, plot_data_3d)
+    if X_bounds.dimension <= len(plot_function_fun):
+        return plot_function_fun[X_bounds.dimension - 1](
+            x_samples=x_samples,
+            xp_samples=xp_samples,
+            X_bounds=X_bounds,
+            X_init=X_init,
+            X_unsafe=X_unsafe,
+            show=show,
+        )
+    raise exception.LucidNotSupportedException(
+        f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 1D, 2D and 3D are supported."
     )
