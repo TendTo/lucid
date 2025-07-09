@@ -71,7 +71,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-/pylucid/
+/pylucid*/
 /examples/
 
 # Docs
