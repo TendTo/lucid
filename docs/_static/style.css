@@ -86,3 +86,15 @@ div.memdoc {
   padding: 0 13px !important;
   margin-top: -1px !important;
 }
+
+/** Plotly **/
+html div[data-plot] {
+}
+@media (prefers-color-scheme: dark) {
+  html:not(.light-mode) div[data-plot] {
+    filter: invert(75%) hue-rotate(180deg);
+  }
+}
+html.dark-mode div[data-plot] {
+  filter: invert(75%) hue-rotate(180deg);
+}

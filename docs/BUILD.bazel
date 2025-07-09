@@ -36,8 +36,8 @@ doxygen(
         "nxd=@f$ \\texttip{n}{Number of samples} \\times \\texttip{d}{Dimension of the vector space} @f$",
         "nxdx=@f$ \\texttip{n}{Number of samples} \\times \\texttip{d_x}{Dimension of the input vector space} @f$",
         "nxdy=@f$ \\texttip{n}{Number of samples} \\times \\texttip{d_y}{Dimension of the output vector space} @f$",
-        "sigma_l=@f$ \\sigma_l @f$",
-        "sigma_f=@f$ \\sigma_f @f$",
+        "sigmal=@f$ \\sigma_l @f$",
+        "sigmaf=@f$ \\sigma_f @f$",
         # Method descriptors
         "constructor{1}=Construct a new \\1 object.^^",
         "getter{2}=Get read-only access to the \\1 of the \\2.^^@return \\1 of the \\2^^",
@@ -62,6 +62,9 @@ doxygen(
         # Mermaid support in docstrings
         "mermaid=^^<pre class='mermaid'>",
         "endmermaid=</pre>^^",
+        # Plot support in docstrings
+        "plot=^^<div data-plot='",
+        "endplot='/>^^",
         # Tabs
         "tab{2|}=@htmlonly<li><span class='tab-title'>@endhtmlonly\\1@htmlonly</span>@endhtmlonly\\2@htmlonly</li>@endhtmlonly",
         "tab2{2||}=@tab{ \\1 | \\2 }",
@@ -106,6 +109,8 @@ doxygen(
         "docs/_static/doxygen-awesome-tabs.js",
         "docs/_static/highlight.min.js",
         "docs/_static/mermaid.dist.js",
+        "docs/_static/plotly.js",
+        "docs/_static/plotly.min.js",
     ],
     html_extra_stylesheet = [
         "docs/_static/doxygen-awesome.css",
