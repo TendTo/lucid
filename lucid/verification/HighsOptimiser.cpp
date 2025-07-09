@@ -18,7 +18,7 @@
 #ifndef NLOG
 #define LUCID_FORMAT_NAME(str, ...) fmt::format(str, __VA_ARGS__)
 #else
-const char[] emtpy_string = "";
+const char* emtpy_string = "";
 #define LUCID_FORMAT_NAME(str, ...) emtpy_string
 #endif
 
