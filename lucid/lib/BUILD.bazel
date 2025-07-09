@@ -69,5 +69,8 @@ lucid_cc_library(
 lucid_cc_library(
     name = "highs",
     hdrs = ["highs.h"],
-    deps = ["@highs"],
+    deps = select({
+        "//tools:highs_build": ["@highs"],
+        "//conditions:default": [],
+    }),
 )

@@ -12,7 +12,16 @@ import setuptools
 import setuptools.errors
 from setuptools.command import build_ext
 
-PERMISSIONS = stat.S_IWUSR | stat.S_IRUSR | stat.S_IXUSR | stat.S_IWGRP | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+PERMISSIONS = (
+    stat.S_IWUSR
+    | stat.S_IRUSR
+    | stat.S_IXUSR
+    | stat.S_IWGRP
+    | stat.S_IRGRP
+    | stat.S_IXGRP
+    | stat.S_IROTH
+    | stat.S_IXOTH
+)
 
 
 def get_bazel_target_args(command):
@@ -23,6 +32,8 @@ def get_bazel_target_args(command):
             "--config=py",
             f"--python_version={sysconfig.get_python_version()}",
             f"--enable_gurobi_build={'True' if 'GUROBI_HOME' in os.environ else 'False'}",
+            # Highs is not supported on Windows for now
+            f"--enable_highs_build={'True' if os.name != 'nt' else 'False'}",
         ]
     if command == "cquery":
         return [
@@ -32,6 +43,8 @@ def get_bazel_target_args(command):
             "--config=py",
             f"--python_version={sysconfig.get_python_version()}",
             f"--enable_gurobi_build={'True' if 'GUROBI_HOME' in os.environ else 'False'}",
+            # Highs is not supported on Windows for now
+            f"--enable_highs_build={'True' if os.name != 'nt' else 'False'}",
         ]
     if command == "query":
         return [
