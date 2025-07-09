@@ -21,7 +21,7 @@ const std::string emtpy_string{};
 
 namespace lucid {
 
-#ifdef LUCID_ALGLIB_BUILD
+#ifdef LUCID_HIGHS_BUILD
 namespace {
 
 constexpr double infinity = std::numeric_limits<double>::infinity();
@@ -156,9 +156,7 @@ class HighsLpProblem {
   HighsModel model_;
 };  // namespace
 }  // namespace
-#endif
 
-#ifdef LUCID_HIGHS_BUILD
 bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
                            ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
                            const Dimension num_frequency_samples_per_dim, const Dimension original_dim,

@@ -104,9 +104,7 @@ class AlglibLpProblem {
   alglib::minlpreport rep_;
 };
 }  // namespace
-#endif
 
-#ifdef LUCID_ALGLIB_BUILD
 bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
                             ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
                             const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
