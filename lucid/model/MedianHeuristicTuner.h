@@ -14,7 +14,7 @@ namespace lucid {
 /**
  * Tuner that adjusts the kernel parameters using the median heuristic method.
  * It computes the median of pairwise distances between input data points for each dimension.
- * These computed medians are used to update the @sigma_l parameters of the kernel in the given estimator.
+ * These computed medians are used to update the @sigmal parameters of the kernel in the given estimator.
  * More specifically, given a set of training inputs @f$ \{x_1, x_2, \ldots, x_n\} @f$ from @XsubRd,
  * @f[
  * \sigma_l = \sqrt{\text{median}\{\|x_i - x_j\|^2 : 1 \le i < j \le n\}}

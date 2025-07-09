@@ -287,8 +287,8 @@ Matrix pdist(const Eigen::MatrixBase<DerivedX>& x, const Eigen::MatrixBase<Deriv
 /**
  * Compute the Cumulative distribution function (CDF) of the normal distribution at oll point listed in @x.
  * @param x points at which to evaluate the CDF
- * @param sigma_f @sigma_f value used in the normal distribution (mean)
- * @param sigma_l @sigma_l value used in the normal distribution (standard deviation)
+ * @param sigma_f @sigmaf value used in the normal distribution (mean)
+ * @param sigma_l @sigmal value used in the normal distribution (standard deviation)
  * @return vector of CDF values at each point in @x
  */
 Vector normal_cdf(ConstVectorRef x, Scalar sigma_f, Scalar sigma_l);

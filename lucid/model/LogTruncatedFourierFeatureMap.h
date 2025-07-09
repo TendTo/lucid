@@ -20,7 +20,7 @@ namespace lucid {
  * Truncated Fourier feature map using log-sized intervals between each interval of the normal distribution,
  * from the origin to 3 standard deviations on each side.
  * The weights are computed from the n-dimensional cumulative distribution function
- * of the normal distribution with standard deviation @sigma_l, i.e.
+ * of the normal distribution with standard deviation @sigmal, i.e.
  * @f[
  *  w_j^2 := \int_{(2\hat{\zeta}_j-1)\pi}^{(2\hat{\zeta}_j+1)\pi}\mathcal{N}(d\xi|0,\Sigma), 1 \le j \le M .
  * @f]
