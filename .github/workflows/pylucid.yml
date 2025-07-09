@@ -15,6 +15,9 @@ on:
       - "bindings/pylucid/**"
       - "test/**"
 
+env:
+  LUCID_FLAGS: --enable_gurobi_build=False --enable_matplotlib_build=False
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -41,7 +44,7 @@ jobs:
 
       - name: Run tests
         run: |
-          bazel test --config=py --python_version=${{ matrix.python_version }} --enable_gurobi_build=False //tests/bindings/pylucid/...
+          bazel test --config=py --python_version=${{ matrix.python_version }} ${{ env.LUCID_FLAGS }} //tests/bindings/pylucid/...
 
   build:
     runs-on: ${{ matrix.os }}
