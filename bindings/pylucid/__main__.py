@@ -34,9 +34,12 @@ def scenario_config(args: Configuration) -> Configuration:
 
     assert_or_raise(len(args.x_samples) > 0, "No samples to use for the scenario")
     assert_or_raise(len(args.xp_samples) > 0, "No transition samples to use for the scenario")
-    assert args.x_samples.shape == args.xp_samples.shape, "x_samples and xp_samples must have the same shape"
-    assert args.x_samples.ndim == 2, "x_samples must be a 2D array"
-    assert args.xp_samples.ndim == 2, "xp_samples must be a 2D array"
+    assert_or_raise(args.x_samples.ndim == 2, "x_samples must be a 2D array")
+    assert_or_raise(args.xp_samples.ndim == 2, "xp_samples must be a 2D array")
+    assert_or_raise(
+        args.x_samples.shape[0] == args.xp_samples.shape[0],
+        "x_samples and xp_samples must have the same number of samples",
+    )
 
     # Return the scenario configuration
     return args
