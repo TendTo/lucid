@@ -6,10 +6,13 @@ import re
 import shutil
 import subprocess
 import sysconfig
+import stat
 
 import setuptools
 import setuptools.errors
 from setuptools.command import build_ext
+
+PERMISSIONS = stat.S_IWUSR | stat.S_IRUSR | stat.S_IXUSR | stat.S_IWGRP | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
 
 
 def get_bazel_target_args(command):
@@ -93,12 +96,20 @@ class BuildBazelExtension(build_ext.build_ext):
             file = re.sub(r"^.*bindings/pylucid/", "", path)
             ext_dest_dir = os.path.dirname(self.get_ext_fullpath(ext.name))
             os.makedirs(os.path.join(ext_dest_dir, os.path.dirname(file)), exist_ok=True)
+            out_path = os.path.join(ext_dest_dir, file)
             if os.path.isdir(path):
                 # If the path is a directory, copy it recursively
-                shutil.copytree(path, os.path.join(ext_dest_dir, file), dirs_exist_ok=True)
+                shutil.copytree(path, out_path, dirs_exist_ok=True)
+                # Set permissions for all files in the directory
+                os.chmod(out_path, PERMISSIONS)
+                for root, dirs, files in os.walk(out_path):
+                    for name in files + dirs:
+                        file_path = os.path.join(root, name)
+                        os.chmod(file_path, PERMISSIONS)
             else:
                 # If the path is a file, copy it directly
-                shutil.copyfile(path, os.path.join(ext_dest_dir, file))
+                shutil.copyfile(path, out_path)
+                os.chmod(out_path, PERMISSIONS)
 
 
 config_vars = GlobalVariables()
