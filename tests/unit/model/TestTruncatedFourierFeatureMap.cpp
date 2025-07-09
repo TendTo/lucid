@@ -100,13 +100,24 @@ TEST(TestTruncatedFourierFeatureMap, CorrectSpread) {
   constexpr int exp_num_frequencies = 4;
   constexpr double exp_sigma_l = 3.0;
   const RectSet exp_x_limits{std::vector<std::pair<Scalar, Scalar>>{{-1, 1}}};
-  LinearTruncatedFourierFeatureMap feature_map{exp_num_frequencies, exp_sigma_l, 1.0, exp_x_limits};
+  const LinearTruncatedFourierFeatureMap feature_map{exp_num_frequencies, exp_sigma_l, 1.0, exp_x_limits};
 
-  const Vector intervals{Vector::LinSpaced(exp_num_frequencies + 1, 0, 3 * exp_sigma_l)};
+  // Let's divide the interval [0, 3 * exp_sigma_l] into 7 intervals: 1 for the 0th frequency and 2 for each of the
+  // remaining frequencies.
+  constexpr double offset = 3 * exp_sigma_l / (2 * exp_num_frequencies - 1);
+  // The intervals are [0, offset], [offset, 3 * offset], ..., [(2 * exp_num_frequencies - 2) * offset, 3 * exp_sigma_l]
+  Vector intervals{exp_num_frequencies + 1};
+  intervals(0) = 0.0;
+  intervals(1) = offset;
+  for (Index i = 2; i < intervals.size(); ++i) intervals(i) = intervals(i - 1) + offset * 2;
+
   Vector expected_values{normal_cdf(intervals.tail(exp_num_frequencies), 0, exp_sigma_l) -
-                               normal_cdf(intervals.head(exp_num_frequencies), 0, exp_sigma_l)};
-  // The first value is the 0th frequency, which does not need to be repeated
-  expected_values.rightCols(expected_values.size() - 1) *= 2;
+                         normal_cdf(intervals.head(exp_num_frequencies), 0, exp_sigma_l)};
+  // We need to consider the left side of the normal distribution as well, so we multiply by 2.
+  expected_values *= 2;
+
+  std::cout << "Intervals: " << intervals << std::endl;
+  std::cout << "Expected values: " << expected_values.transpose() << std::endl;
 
   const TruncatedFourierFeatureMap expected_feature_map{exp_num_frequencies, expected_values, 1.0, exp_x_limits};
 

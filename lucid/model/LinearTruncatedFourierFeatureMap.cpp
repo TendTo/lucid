@@ -23,12 +23,17 @@ namespace {
  * @return matrix containing the CDF values for each dimension
  */
 Matrix get_prob_dim_wise(const int num_frequencies, ConstVectorRef sigma_l) {
+  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
   Matrix prob_dim_wise{sigma_l.size(), num_frequencies};
   for (Dimension i = 0; i < sigma_l.size(); i++) {
-    const Vector intervals{Vector::LinSpaced(num_frequencies + 1, 0, 3 * sigma_l(i))};
+    const double offset = 3 * sigma_l(i) / (2 * num_frequencies - 1);
+    Vector intervals{num_frequencies + 1};
+    intervals(0) = 0;
+    intervals(1) = offset;
+    for (Index j = 2; j < intervals.size(); j++) intervals(j) = intervals(j - 1) + offset * 2;
     prob_dim_wise.row(i) = normal_cdf(intervals.tail(num_frequencies), 0, sigma_l(i)) -
                            normal_cdf(intervals.head(num_frequencies), 0, sigma_l(i));
-    prob_dim_wise.row(i).rightCols(prob_dim_wise.cols() - 1) *= 2;
+    prob_dim_wise.row(i) *= 2;
   }
   return prob_dim_wise;
 }
