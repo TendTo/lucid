@@ -65,20 +65,20 @@ void set_verbosity_level(spdlog::level::level_enum level);
 /**
  * Replace the standard logger sink with a custom callback.
  * This action can be undone by calling @ref clear_logger.
- * @note The logger will no longer output to stdout or stderr, unless the callback does so.
+ * @note The logger will no longer output to stdout or stderr, unless `cb` explicitly does so.
  * @param cb custom callback that will be called with the log message
  */
 void set_logger_sink(spdlog::custom_log_callback cb);
 /**
  * Replace the standard logger sink with a custom callback.
  * This action can be undone by calling @ref clear_logger.
- * @note The logger will no longer output to stdout or stderr.
+ * @note The logger will no longer output to stdout or stderr, unless `cb` explicitly does so.
  * @param cb custom callback that will be called with the log message
  */
 void set_logger_sink(std::function<void(std::string)> cb);
 /**
  * Set the format of the logger.
- * This will replace the default format.
+ * This will replace the default format `[%%Y-%%m-%%d %%H:%%M:%%S.%%e] [%^%l%$] [thread %%t] %%v`.
  * @note See [spdlog's documentation](https://github.com/gabime/spdlog/wiki/Custom-formatting)
  * for more information on the format string.
  * @param format format string to use for the logger

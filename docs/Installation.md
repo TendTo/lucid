@@ -56,7 +56,7 @@ Before the installation, ensure that the `GUROBI_HOME` environment variable is s
 
 ## Linux
 
-Ensure that the `GUROBI_HOME` environment variable is set correctly with `echo $GUROBI_HOME`.
+Ensure that the `GUROBI_HOME` environment variable is set correctly with `printenv | grep GUROBI_HOME`.
 You can set it for the duration of the current shell with `export GUROBI_HOME=/path/to/gurobi` (e.g., `export GUROBI_HOME=/opt/gurobi1201/linux64`).
 
 [//]: # "@end-tab"
@@ -64,15 +64,15 @@ You can set it for the duration of the current shell with `export GUROBI_HOME=/p
 
 ## Windows
 
-Ensure that the `GUROBI_HOME` environment variable is set correctly with `echo %GUROBI_HOME%` or `echo $env:GUROBI_HOME`.
-You can set it for the duration of the current shell with `set GUROBI_HOME=\path\to\gurobi` (e.g., `set GUROBI_HOME=C:\gurobi1201\win64`).
+Using [powershell](https://learn.microsoft.com/powershell/scripting/overview?view=powershell-7.5), ensure that the `GUROBI_HOME` environment variable is set correctly with `[Environment]::GetEnvironmentVariable("GUROBI_HOME")`.
+You can set it for the duration of the current shell with `[Environment]::SetEnvironmentVariable("GUROBI_HOME","\path\to\gurobi")` (e.g., `[Environment]::SetEnvironmentVariable("GUROBI_HOME","C:\gurobi1201\win64")`.
 
 [//]: # "@end-tab"
 [//]: # "@tab"
 
 ## macOS
 
-Ensure that the `GUROBI_HOME` environment variable is set correctly with `echo $GUROBI_HOME`.
+Ensure that the `GUROBI_HOME` environment variable is set correctly with `printenv | grep GUROBI_HOME`.
 You can set it for the duration of the current shell with `export GUROBI_HOME=/path/to/gurobi` (e.g., `export GUROBI_HOME=/Library/gurobi1201/macos_universal2`).
 
 [//]: # "@end-tab"
