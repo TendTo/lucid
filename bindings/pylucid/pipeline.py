@@ -181,7 +181,7 @@ def pipeline(
                 X_init=args.X_init,
                 X_unsafe=args.X_unsafe,
                 feature_map=feature_map,
-                eta=eta if success is None else None,
+                eta=eta if success else None,
                 gamma=args.gamma,
                 sol=sol if success else None,
                 f=args.system_dynamics,
