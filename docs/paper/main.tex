@@ -6,18 +6,18 @@
 
 \title{Lucid: Lifting-based Uncertain Control Invariant Dynamics}
 
-\author{Oliver Sch\"{o}n \and
-Ernesto Casablanca \and
-Sadegh Soudjani \and
-Paolo Zuliani
+\begin{comment}
+\author{Ernesto Casablanca \and
+Oliver Sch\"{o}n \and
+Paolo Zuliani \and
+Sadegh Soudjani
 }
 
-\begin{comment}
 \institute{O. Sh\"{o}n,E. Casablanca \at Newcastle University, Newcastle upon Tyne, United Kingdgom \\ \email{e.casablanca2@newcastle.ac.uk}, \email{o.schoen2@newcastle.ac.uk}
 \and
-S. Soudjani \at Max Planck Institute for Software Systems, Kaiserslautern, Germany \\ \email{sadegh@mpi-sws.org}
-\and
 P. Zuliani \at Universit\`{a} di Roma ``La Sapienza'', Rome, Italy\\ \email{zuliani@di.uniroma1.it}
+\and
+S. Soudjani \at Max Planck Institute for Software Systems, Kaiserslautern, Germany \\ \email{sadegh@mpi-sws.org}
 }
 \end{comment}
 
@@ -45,7 +45,7 @@ P. Zuliani \at Universit\`{a} di Roma ``La Sapienza'', Rome, Italy\\ \email{zuli
 We present a software tool, called \lucid, able to address the challenges of verifying the safety of black-box noisy systems.
 A description that, for better or for worse, fits many modern AI-enabled systems, such as autonomous vehicles, robotics, and healthcare applications.
 To ensure their safety, we use \glspl{cbc}~\cite{prajna2006barrier,cosner2023generative}, which are a powerful tools that provides formal guarantees and a verifiable witness.
-The peculiar function template we chose for the \glspl{cbc} makes it easier for the model to be learned from limited data collected from the system, without the need for an explicit dynamical model.
+The particular function template we chose for the \glspl{cbc} makes it easier for the model to be learned from limited data collected from the system, without the need for an explicit dynamical model.
 Note that the current version of the tool does not deal with external control inputs, which we plan to address in future work.
 
 \paragraph{Tool.}
@@ -302,7 +302,7 @@ Borrowing a technique from Gaussian processes, we can also try to optimize the \
 
 While it is possible to tune the \hp with any method and then set them manually in the estimator, \lucid provides a set of classes, which specialize the \texttt{Tuner} interface, to automate the process.
 The \texttt{GridSearchTuner} class implements the grid search method, while the \texttt{MedianHeuristicTuner} class implements the median heuristic.
-If the user wants to optimize the log marginal likelihood, they can use the \texttt{LBGSTuner} class, which runs the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming} over the log marginal likelihood function.
+If the user wants to optimize the log marginal likelihood, they can use the \texttt{LBFGSTuner} class, which runs the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming} over the log marginal likelihood function.
 Internally, \lucid uses the \texttt{LBFGS++} library~\footnote{https://github.com/yixuan/LBFGSpp} to perform the optimization.
 
 \section{Tool Evaluation}
@@ -377,6 +377,23 @@ The goal is to compute the probability that the system initialized in $[{x}_{1,0
   }
   \label{fig:CSBarr3}
 \end{figure}
+
+\begin{table}
+    \centering
+    \begin{tabular}{cccc}
+        \toprule
+        \textbf{Benchmark} & \textbf{Dim} & \textbf{Runtime} & \textbf{Safety Prob.} \\
+         & & [m:ss] & [\%] \\ % Units
+        \midrule
+        Barr3 & 2 & X:XX & XX \\
+        name1 & 3 & X:XX & XX \\
+        name2 & 7 & X:XX & XX \\
+        \bottomrule
+    \end{tabular}
+    \caption{Computational benchmarks: ...}
+    \label{tbl:benchmarks}
+\end{table}
+
 
 
 \section*{Acknowledgements}
