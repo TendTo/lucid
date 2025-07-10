@@ -29,7 +29,7 @@ readonly regex_match_tabbed_end='\[\/\/\]: # "@end-tabbed"'
 readonly regex_substitute_tabbed_end='<\/ul><\/div>'
 
 readonly regex_match_tab='\d16[^#]+#+ *([^\n]*)\n([^\d17]+)\d17'
-readonly regex_substitute_tab='<li><b class="tab-title">\1<\/b>\n\2\n<\/li>'
+readonly regex_substitute_tab='<li><b id="\1" class="tab-title">\1<\/b>\n\2\n<\/li>'
 
 readonly regex_match_mermaid='\d30mermaid\n([^\d30]*)\n\d30'
 readonly regex_substitute_mermaid="<pre class='mermaid'>\n\1<\/pre>"

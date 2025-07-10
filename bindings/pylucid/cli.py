@@ -155,8 +155,8 @@ class ConfigAction(Action):
         # Validate the configuration dictionary against the schema
         self.validate(config, verbosity=namespace.verbose)
 
-        # Convert the dictionary to CLIArgs and update the namespace
-        self.dict_to_cliargs(config, namespace)
+        # Convert the dictionary to configuration and update the namespace
+        self.dict_to_configuration(config, namespace)
 
     def validate(self, config_dict: dict, verbosity: int = log.LOG_INFO):
         """Validate the configuration dictionary against the schema."""
@@ -177,15 +177,15 @@ class ConfigAction(Action):
                 e if verbosity >= log.LOG_DEBUG else None
             )
 
-    def dict_to_cliargs(self, config_dict: dict, args: Configuration) -> Configuration:
+    def dict_to_configuration(self, config_dict: dict, args: Configuration) -> Configuration:
         """
-        Convert a dictionary parsed from a YAML or JSON file to a CLIArgs object.
+        Convert a dictionary parsed from a YAML or JSON file to a Configuration object.
 
         Args:
             config_dict: Dictionary parsed from a configuration file
 
         Returns:
-            CLIArgs object with the configuration values
+            Configuration object with the configuration values
         """
         # Process basic parameters
         args.input = Path()

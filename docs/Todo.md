@@ -73,19 +73,30 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 ### Extension 4
 
 - [x] Add support ALGLIB
-- [ ] Add support HiGHS
+- [x] Add support HiGHS
+- [ ] Add support SoPlex
 
 ### Extension 8
 
-- [ ] Parse the arithmetic expressions
-- [ ] Create Flask server
-- [ ] Create HTML interface
+- [x] Parse the arithmetic expressions
+- [x] Create Flask server
+- [x] Create HTML interface
 
 ## Miscellaneous
 
 ## Adding new features
 
-- [ ] Centralised seed setting
+- [x] Centralised seed setting
+- [x] Create the flask server
+- [x] Create the HTML interface
+- [x] Allow estimator, kernel and feature_map selection
+- [x] Improve the default scenario_configuration
+- [x] Support multi-set in frontend
+- [x] Improve error handling in the frontend
+- [x] Support more kinds of functions in preview-graph
+- [x] Support csv upload for samples
+- [ ] Highlight set on over
+- [ ] Update figure without rerendering it
 
 ### Performance
 
@@ -100,15 +111,16 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 
 - [ ] Publish the package to PyPI with a wheel for Linux, Windows and MacOS
 
-## Notes
-
-- Expectation oracle: given a set of pairs (input, output), produce an oracle such
-  that $\mathbb{E}_{x^+\approx\bar{t}(\cdot|x,u)}[\cdot(x^+)] = y$ for all pairs $(x,y)$
-
 ## Tests
 
-- [ ] Use the LP in a white-box environment to check whether it can produce the barriers
+- [x] Use the LP in a white-box environment to check whether it can produce the barriers
 - [x] Feature map visualisation
 - [x] Add fill_area of tolerance over the barrier
 - [x] Plot f_det vs estimator
 - [ ] Write down formulas on overleaf
+
+- [x] Linear fourier probabilities
+- [x] Alglib constraint on eta
+- [ ] Add report button
+- [ ] Make it run on a server
+- [x] Bug with assertion in main

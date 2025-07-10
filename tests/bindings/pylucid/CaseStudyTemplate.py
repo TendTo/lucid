@@ -9,7 +9,7 @@ from pylucid.pipeline import pipeline
 
 
 def scenario_config(
-    args: CLIArgs = CLIArgs(
+    args: Configuration = Configuration(
         seed=42,
         gamma=1,
         time_horizon=5,

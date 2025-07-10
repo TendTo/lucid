@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "CLIArgs",
+  "title": "Lucid configuration",
   "description": "Representation of the command line arguments for pylucid expressed in a configuration file",
   "type": "object",
   "$defs": {

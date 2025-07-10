@@ -185,52 +185,45 @@ The full [JSON schema](https://json-schema.org/) of the configuration options ca
 ### Python configuration
 
 Create a file named `config.py` and define your configuration options.
-There are no restrictions on how what you do in the script, as long as you define a `scenario_config(args)` function that returns a `ScenarioConfig` object.
+There are no restrictions on how what you do in the script, as long as you define a `scenario_config(args: Configuration)` function that returns a `Configuration` object.
 For example:
 
 ```python
-# config.py
+# my_config.py
 from pylucid import *
 
 
-# args will contain the command line arguments.
+# args will contain the command line arguments and default values.
 # You can choose to use or ignore them.
-def scenario_config(args: CLIArgs):
+def scenario_config(args: Configuration) -> Configuration:
     # Model
-    f_det = lambda x: 0.5 * x
-    f = lambda x: f_det(x) + np.random.normal(scale=args.noise_scale)
+    args.system_dynamics = lambda x: 0.5 * x
+    noisy_system_dynamics = lambda x: args.system_dynamics(x) + np.random.normal(scale=args.noise_scale)
 
     # Sets
-    X_bounds = RectSet([(-1, 1)])
-    X_init = RectSet([(-0.5, 0.5)])
-    X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))
+    args.X_bounds = RectSet([(-1, 1)])
+    args.X_init = RectSet([(-0.5, 0.5)])
+    args.X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))
 
     # Sampling
-    x_samples = X_bounds.sample(args.num_samples)
-    xp_samples = f(x_samples)
+    args.x_samples = args.X_bounds.sample(args.num_samples)
+    args.xp_samples = noisy_system_dynamics(args.x_samples)
 
     # Estimator
-    estimator = KernelRidgeRegressor(
+    args.estimator = KernelRidgeRegressor(
         kernel=GaussianKernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
         regularization_constant=args.lambda_,
     )
 
-    # Lucid configuration
-    return ScenarioConfig(
-        x_samples=x_samples,
-        xp_samples=xp_samples,
-        X_bounds=X_bounds,
-        X_init=X_init,
-        X_unsafe=X_unsafe,
-        T=args.time_horizon,
-        gamma=args.gamma,
-        num_freq_per_dim=args.num_frequencies,
-        f_det=f_det,
-        estimator=estimator,
-        sigma_f=args.sigma_f,
-        oversample_factor=args.oversample_factor,
-        problem_log_file=args.problem_log_file,
-    )
+    # Oversampling
+    args.oversample_factor = 16.0
+
+    # Plotting and verification
+    args.plot = True
+    args.verify = True
+
+    # You have to return a Configuration object
+    return args
 ```
 
 Then, you can run Lucid with the following command:

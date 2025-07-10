@@ -143,6 +143,7 @@ If you want even more fine-grained control over the build, you can also use the 
 | `enable_matplotlib_build`              | Build Lucid with Matplotlib support. Defaults to `True`.    |
 | `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.        |
 | `enable_alglib_build`                  | Build Lucid with ALGLIB support. Defaults to `True`.        |
+| `enable_highs_build`                   | Build Lucid with HiGHS support. Defaults to `True`.         |
 | `enable_verbose_eigen_build`           | Enable verbose logging for Eigen. Defaults to `False`.      |
 | `python_version`                       | Specify the Python version to use for the Python bindings.  |
 | `compilation_mode=[fastbuild,dbg,opt]` | Use Bazel's compilation modes. Default to `fastbuild`.      |

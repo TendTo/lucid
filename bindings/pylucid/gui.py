@@ -64,7 +64,7 @@ def get_args(config_dict: "dict | None" = None) -> Configuration:
         args: Configuration = Configuration()
         config_action = ConfigAction(option_strings=None, dest="")
         config_action.validate(config_dict)
-        config_action.dict_to_cliargs(config_dict, args)
+        config_action.dict_to_configuration(config_dict, args)
         # Just to ensure the system dynamics function is compatible with the initial state
         if args.system_dynamics is None and len(args.xp_samples) == 0:
             return {
