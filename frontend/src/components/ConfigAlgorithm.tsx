@@ -168,6 +168,7 @@ export default function ConfigAlgorithm() {
           options={{
             GurobiOptimiser: "Gurobi Optimiser",
             AlglibOptimiser: "Alglib Optimiser",
+            HighsOptimiser: "Highs Optimiser",
           }}
         />
       </div>

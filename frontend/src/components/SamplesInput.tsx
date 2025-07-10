@@ -107,9 +107,11 @@ export default function SamplesInput({ name, label }: SamplesInputProps) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         className="form-control w-full h-32"
-        placeholder={`1.0,2.0,3.0
-4.0,5.0,6.0
-...`}
+        placeholder={`1.2,2.4,3.1
+4.1,5.2,6.2
+
+Or drag and drop a CSV file here
+`}
       />
 
       <ErrorMessage

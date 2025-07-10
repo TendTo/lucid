@@ -11,7 +11,7 @@ import ConfigExecution, {
   executionFormErrors,
 } from "@components/ConfigExecution";
 import JsonPreview from "@components/JsonPreview";
-import { FaPaperPlane } from "react-icons/fa6";
+import { FaPaperPlane, FaSpinner } from "react-icons/fa6";
 import type {
   EstimatorType,
   FeatureMapType,
@@ -82,7 +82,8 @@ export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
   const [fig, setFig] = useState<string>("");
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [submitError, setSubmitError] = useState<string>("");
 
   const methods = useForm({
     resolver: zodResolver(jsonSchema),
@@ -92,6 +93,10 @@ export default function App() {
 
   const onSubmit = useCallback(
     async (data: typeof defaultValues) => {
+      if (isConnected) {
+        console.warn("Already connected, ignoring new submission");
+        return;
+      }
       // Validate form data
       const isValid =
         (await methods.trigger()) &&
@@ -124,10 +129,9 @@ export default function App() {
             type: "value",
             message: error.error,
           });
+        } else {
+          setSubmitError(error.error ?? "Unknown error");
         }
-        throw new Error(
-          `Error fetching graph preview: ${error.error ?? "Unknown error"}`
-        );
       }
 
       // Create SSE connection
@@ -160,7 +164,7 @@ export default function App() {
         setIsConnected(false);
       };
     },
-    [setIsConnected, setLogs, setFig, methods]
+    [isConnected, setIsConnected, setLogs, setFig, methods]
   );
 
   const setCurrentStep = useCallback(
@@ -197,13 +201,28 @@ export default function App() {
               <div className="flex flex-row-reverse">
                 <button
                   type="submit"
+                  disabled={isConnected}
                   className={
-                    "btn btn-primary flex items-center justify-center w-50"
+                    "btn btn-primary flex items-center justify-center w-36"
                   }
                 >
-                  <FaPaperPlane className="mr-2" />
-                  Submit
+                  {isConnected ? (
+                    <>
+                      <FaSpinner className="mr-2 animate-spin" />
+                      Computing
+                    </>
+                  ) : (
+                    <>
+                      <FaPaperPlane className="mr-2" />
+                      Submit
+                    </>
+                  )}
                 </button>
+                <div className="flex items-center mr-2">
+                  {submitError && (
+                    <small className="text-red-500">{submitError}</small>
+                  )}
+                </div>
               </div>
             </form>
             <Result logs={logs} fig={fig} />

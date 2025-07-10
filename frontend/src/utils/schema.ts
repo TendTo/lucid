@@ -48,7 +48,9 @@ const matrix = z
   .refinement(
     (samples) => {
       for (const sample of samples) {
-        if (sample.filter((x) => isNaN(x) || typeof x !== "number").length > 0) {
+        if (
+          sample.filter((x) => isNaN(x) || typeof x !== "number").length > 0
+        ) {
           return false;
         }
       }
@@ -234,6 +236,21 @@ export const jsonSchema = z
         path: [cause],
         code: "custom",
         message: `Either 'system_dynamics' or 'xp_samples' must be provided.`,
+      });
+    }
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.x_samples.length == 0 ||
+      data.xp_samples.length === 0 ||
+      data.x_samples.length === data.xp_samples.length
+    )
+      return;
+    for (const cause of ["x_samples", "xp_samples"] as const) {
+      ctx.addIssue({
+        path: [cause],
+        code: "custom",
+        message: `x_samples and xp_samples must contain the same number of samples.`,
       });
     }
   })
