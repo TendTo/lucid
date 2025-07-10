@@ -9,6 +9,7 @@
  * Inspired by Benno Evers' matplotlib-cpp
  */
 #pragma once
+
 #ifndef LUCID_MATPLOTLIB_BUILD
 #error "This file should not be included without LUCID_LUCID_MATPLOTLIB_BUILD"
 #endif

@@ -7,6 +7,10 @@
  */
 #pragma once
 
+#ifndef LUCID_PYTHON_BUILD
+#error LUCID_PYTHON_BUILD is not defined. Ensure you are building with the option '--config=py'
+#endif
+
 namespace lucid {
 
 /**
