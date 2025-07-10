@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import os
@@ -20,8 +21,6 @@ from .plot import plot_data, plot_function
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-DEBUG = True
 
 QUEUES: "dict[int, Queue[str]]" = {}
 
@@ -164,22 +163,54 @@ def get_run():
     return Response(event_streamer(worker.ident), mimetype="text/event-stream")
 
 
+class CliArgs(argparse.Namespace):
+    release: bool
+    host: str
+    port: int
+
+
+def parse_args(args: "list[str] | None" = None) -> CliArgs:
+    parser = argparse.ArgumentParser(description="Run the PyLucid GUI.")
+    parser.add_argument(
+        "--host",
+        type=str,
+        help="Host to run the application on.",
+        default="0.0.0.0",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="Port to run the application on.",
+        default=5000,
+    )
+    parser.add_argument(
+        "--release",
+        action="store_true",
+        help="Run the app in release mode.",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
     app = Flask(__name__, static_folder="frontend", static_url_path="")
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex())
     app.register_blueprint(blueprint, url_prefix="/api")
-    CORS(app)
-    log.set_sink(handle_log)
-    log.set_pattern("[%Y-%m-%d %H:%M:%S] [%l] %v")  # Set the log pattern
 
     @app.route("/", methods=["GET"])
     def index():
         logger.info("Received request for index page.")
         return send_from_directory("frontend", "index.html")
 
-    if not DEBUG:
+    CORS(app)
+    # Setup the logging configuration so that logs can be captured and sent to the frontend
+    log.set_sink(handle_log)
+    log.set_pattern("[%Y-%m-%d %H:%M:%S] [%l] %v")  # Set the log pattern
+
+    if args.release:
         log.info("Opening the app in the default web browser.")
         # Open the app in the default web browser
         webbrowser.open("http://localhost:5000", new=2)  # Open the app in the default web browser
 
-    app.run(debug=DEBUG, host="0.0.0.0", port=5000)
+    app.run(debug=not args.release, host=args.host, port=args.port)
