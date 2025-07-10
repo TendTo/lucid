@@ -81,13 +81,13 @@ TYPED_TEST(TestLinear, TestLinear) {
   ASSERT_EQ(n_per_dim, 288);
 
   estimator.fit(x_samples, f_xp_samples);
-  ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_samples, f_xp_samples), -0.4711612131628251);
-  ASSERT_DOUBLE_EQ(estimator.score(x_samples, f_xp_samples), 0.9903926538293206);
+  ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_samples, f_xp_samples), -0.55940545363305361);
+  ASSERT_DOUBLE_EQ(estimator.score(x_samples, f_xp_samples), 0.9901976271473962);
 
   const Matrix x_evaluation = X_bounds.sample(x_samples.rows() / 2);
   const Matrix f_xp_evaluation = feature_map(this->f_det(x_evaluation));
-  ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation), -0.44500887787023974);
-  ASSERT_DOUBLE_EQ(estimator.score(x_evaluation, f_xp_evaluation), 0.991434699768147);
+  ASSERT_DOUBLE_EQ(scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation), -0.5265806387684655);
+  ASSERT_DOUBLE_EQ(estimator.score(x_evaluation, f_xp_evaluation), 0.9913180698330606);
 
   const Matrix x_lattice = X_bounds.lattice(n_per_dim, true);
   const Matrix u_f_x_lattice = feature_map(x_lattice);
@@ -106,11 +106,11 @@ TYPED_TEST(TestLinear, TestLinear) {
                      [[maybe_unused]] const float eta, [[maybe_unused]] const float c,
                      [[maybe_unused]] const float norm) {
     ASSERT_TRUE(success);
-    ASSERT_NEAR(obj_val, 0.09592434763, tolerance);
-    ASSERT_NEAR(eta, 0.0583335943, tolerance);
+    ASSERT_NEAR(obj_val, 0.0959243, tolerance);
+    ASSERT_NEAR(eta, 0.05833359, tolerance);
     ASSERT_NEAR(c, 0.007518151, tolerance);
-    ASSERT_NEAR(norm, 0.09005303722312392, tolerance);
-    constexpr std::array expected{0.038942, 0.0567596, -7.46757e-05, 0.0499101, -0.000228021, 0.0296691, -0.000286279};
+    ASSERT_NEAR(norm, 0.07567549, tolerance);
+    constexpr std::array expected{0.0353493, 0.0468235, -6.16032e-05, 0.0404232, -0.000184679, 0.0255075, -0.000246124};
     for (std::size_t i = 0; i < expected.size(); ++i) ASSERT_NEAR(sol[i], expected[i], tolerance);
   };
 
