@@ -68,6 +68,10 @@ class Optimiser {
   [[nodiscard]] double sigma_f() const { return sigma_f_; }
   /** @getter{C coefficient, solver} */
   [[nodiscard]] double C_coeff() const { return C_coeff_; }
+  /** @checker{configured to log the lp problem, solver} */
+  [[nodiscard]] bool should_log_problem() const { return !problem_log_file_.empty(); }
+  /** @checker{configured to log the iis, solver} */
+  [[nodiscard]] bool should_log_iis() const { return !iis_log_file_.empty(); }
 
  protected:
   const int T_;                   ///< Time horizon

@@ -15,11 +15,14 @@
 #include "lucid/lib/highs.h"
 #include "lucid/util/error.h"
 
+#ifdef LUCID_PYTHON_BUILD
+#include "bindings/pylucid/interrupt.h"
+#endif
+
 #ifndef NLOG
-#define LUCID_FORMAT_NAME(str, ...) fmt::format(str, __VA_ARGS__)
+#define LUCID_FORMAT_NAME(should_log, str, ...) (should_log) ? fmt::format(str, __VA_ARGS__) : ""
 #else
-const char* emtpy_string = "";
-#define LUCID_FORMAT_NAME(str, ...) emtpy_string
+#define LUCID_FORMAT_NAME(should_log, str, ...) ""
 #endif
 
 namespace lucid {
@@ -27,13 +30,19 @@ namespace lucid {
 #ifdef LUCID_HIGHS_BUILD
 namespace {
 
+#ifdef LUCID_PYTHON_BUILD
+void interrupt_callback(const int, const char*, const HighsCallbackDataOut*, HighsCallbackDataIn*, void*) {
+  py_check_signals();
+}
+#endif
+
 constexpr double infinity = std::numeric_limits<double>::infinity();
 constexpr double neg_infinity = -std::numeric_limits<double>::infinity();
 
 class HighsLpProblem {
  public:
-  explicit HighsLpProblem(const Dimension num_vars, const Dimension num_constraints)
-      : triplets_{}, A_{num_constraints, num_vars}, model_{} {
+  explicit HighsLpProblem(const Dimension num_vars, const Dimension num_constraints, const bool should_log)
+      : triplets_{}, A_{num_constraints, num_vars}, model_{}, should_log_{should_log} {
     LUCID_ASSERT(num_vars > 0, "Number of variables must be greater than 0.");
     LUCID_ASSERT(num_constraints > 0, "Number of constraints must be greater than 0.");
 
@@ -49,9 +58,12 @@ class HighsLpProblem {
     triplets_.reserve(num_vars * num_constraints);
 
 #ifndef NLOG
-    model_.lp_.row_names_.reserve(num_constraints);
-    model_.lp_.col_names_.resize(num_vars);
-    for (Dimension i = 0; i < num_vars; i++) model_.lp_.col_names_[i] = fmt::format("b[{}]", i);
+    if (should_log_) {
+      model_.lp_.row_names_.reserve(num_constraints);
+      model_.lp_.row_names_.reserve(num_constraints);
+      model_.lp_.col_names_.resize(num_vars);
+      for (Dimension i = 0; i < num_vars; i++) model_.lp_.col_names_[i] = fmt::format("b[{}]", i);
+    }
 #endif
     LUCID_ASSERT(model_.lp_.col_cost_.size() == static_cast<std::size_t>(A_.cols()),
                  "The number of objective coefficients must match the number of variables.");
@@ -84,7 +96,7 @@ class HighsLpProblem {
   void add_constraint(const std::array<Dimension, N>& vars, const std::array<double, N>& coeffs, const double rhs,
                       [[maybe_unused]] std::string name = "") {
 #ifndef NLOG
-    model_.lp_.row_names_.emplace_back(std::move(name));
+    if (should_log_) model_.lp_.row_names_.emplace_back(std::move(name));
 #endif
 
     const Dimension new_row_idx = model_.lp_.row_lower_.size();
@@ -141,7 +153,8 @@ class HighsLpProblem {
     model_.lp_.col_names_.at(var) = std::move(name);
   }
 
-  void solve() {
+  void consolidate() {
+    LUCID_DEBUG("Consolidating");
     // copy data from eigen sparse matrix into HiGHs sparse matrix
     A_.setFromTriplets(triplets_.begin(), triplets_.end());
     model_.lp_.a_matrix_.format_ = MatrixFormat::kColwise;
@@ -157,6 +170,7 @@ class HighsLpProblem {
   std::vector<Eigen::Triplet<double>> triplets_;
   Eigen::SparseMatrix<double, Eigen::ColMajor> A_;
   HighsModel model_;
+  const bool should_log_ = true;
 };  // namespace
 }  // namespace
 
@@ -178,7 +192,7 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
   // const double C = pow((1 - 2.0 * num_freq_per_dim / (2.0 * num_freq_per_dim + 1)), -original_dim / 2.0);
   LUCID_DEBUG_FMT("C: {}", C);
 
-  HighsLpProblem lp_problem{num_vars, num_constraints};
+  HighsLpProblem lp_problem{num_vars, num_constraints, should_log_problem()};
 
   // Specify constraints
   // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
@@ -193,12 +207,14 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
   const Dimension minDelta = num_vars - 1;  // Index of the minDelta variable
 
 #ifndef NLOG
-  lp_problem.set_var_name(c, "c");
-  lp_problem.set_var_name(eta, "eta");
-  lp_problem.set_var_name(minX0, "minX0");
-  lp_problem.set_var_name(maxXU, "maxXU");
-  lp_problem.set_var_name(maxXX, "maxXX");
-  lp_problem.set_var_name(minDelta, "minDelta");
+  if (should_log_problem()) {
+    lp_problem.set_var_name(c, "c");
+    lp_problem.set_var_name(eta, "eta");
+    lp_problem.set_var_name(minX0, "minX0");
+    lp_problem.set_var_name(maxXU, "maxXU");
+    lp_problem.set_var_name(maxXX, "maxXX");
+    lp_problem.set_var_name(minDelta, "minDelta");
+  }
 #endif
 
   // Variables related to the feature map
@@ -232,10 +248,10 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
   for (Index row = 0; row < phi_mat.rows(); ++row) {
     // B(x) >= hatxi
     lp_problem.add_constraint<'>'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{maxXX_coeff}, 0.0,
-                                   LUCID_FORMAT("B(x)>=hatxi[{}]", row));
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)>=hatxi[{}]", row));
     // B(x) <= maxXX
     lp_problem.add_constraint<'<'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT("B(x)<=maxXX[{}]", row));
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)<=maxXX[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
@@ -246,10 +262,10 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
   for (Index row = 0; row < f0_lattice.rows(); ++row) {
     // B(x_0) <= hateta
     lp_problem.add_constraint<'<'>(f0_lattice.row(row).data(), std::array{eta, minX0}, std::array{-fctr1, -fctr2}, 0.0,
-                                   LUCID_FORMAT("B(x_0)<=hateta[{}]", row));
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)<=hateta[{}]", row));
     // B(x_0) >= minX0
     lp_problem.add_constraint<'>'>(f0_lattice.row(row).data(), std::array{minX0}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT("B(x_0)>=minX0[{}]", row));
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)>=minX0[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
@@ -260,10 +276,10 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
   for (Index row = 0; row < fu_lattice.rows(); ++row) {
     // B(x_u) >= hatgamma
     lp_problem.add_constraint<'>'>(fu_lattice.row(row).data(), std::array{maxXU}, std::array{-fctr2}, unsafe_rhs,
-                                   LUCID_FORMAT("B(x_u)>=hatgamma[{}]", row));
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)>=hatgamma[{}]", row));
     // B(x_u) <= maxXU
     lp_problem.add_constraint<'<'>(fu_lattice.row(row).data(), std::array{maxXU}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT("B(x_u)<=maxXU[{}]", row));
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)<=maxXU[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
@@ -275,19 +291,23 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
   for (Index row = 0; row < mult.rows(); ++row) {
     // B(xp) - B(x) <= hatDelta
     lp_problem.add_constraint<'<'>(mult.row(row).data(), std::array{c, minDelta}, std::array{-fctr1, -fctr2},
-                                   kushner_rhs, LUCID_FORMAT("B(xp)-B(x)<=hatDelta[{}]", row));
+                                   kushner_rhs,
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)<=hatDelta[{}]", row));
     // B(x) >= minDelta
     lp_problem.add_constraint<'>'>(mult.row(row).data(), std::array{minDelta}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT("B(xp)-B(x)>=minDelta[{}]", row));
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)>=minDelta[{}]", row));
   }
 
   // Objective function (cT + n)
   lp_problem.set_min_objective(std::array{c, eta}, std::array{static_cast<double>(T_) / gamma_, 1.0 / gamma_});
+  lp_problem.consolidate();
   LUCID_INFO("Optimizing");
 
-  lp_problem.solve();
-
   Highs highs{};
+#ifdef LUCID_PYTHON_BUILD
+  highs.setCallback(interrupt_callback);
+  highs.startCallback(HighsCallbackType::kCallbackSimplexInterrupt);
+#endif
   highs.setOptionValue("time_limit", 10000);
   highs.setOptionValue("primal_feasibility_tolerance", 1e-9);
   highs.setOptionValue("log_to_console", LUCID_DEBUG_ENABLED);
