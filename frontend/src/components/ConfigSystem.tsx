@@ -3,13 +3,13 @@ import {
   type FieldErrors,
   type FieldValues,
 } from "react-hook-form";
-import SetsInput from "@app/components/SetsInput";
+import SetsInput from "@/components/SetsInput";
 import { FaEye, FaSpinner } from "react-icons/fa6";
 import { useCallback, useState } from "react";
-import { DangerousElement } from "@components/DangerousElement";
-import SystemDynamicsInput from "./SystemDynamicsInput";
-import type { ServerResponse } from "@app/types/types";
-import SamplesInput from "./SamplesInput";
+import { DangerousElement } from "@/components/DangerousElement";
+import SystemDynamicsInput from "@/components/SystemDynamicsInput";
+import type { ServerResponse } from "@/types/types";
+import SamplesInput from "@/components/SamplesInput";
 
 export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
   return Boolean(

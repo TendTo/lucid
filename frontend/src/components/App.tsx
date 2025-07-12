@@ -1,16 +1,16 @@
 import { useCallback, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { jsonSchema } from "@utils/schema";
-import Header from "@components/Header";
-import ConfigSystem, { systemFormErrors } from "@components/ConfigSystem";
+import { jsonSchema } from "@/utils/schema";
+import Header from "@/components/Header";
+import ConfigSystem, { systemFormErrors } from "@/components/ConfigSystem";
 import ConfigAlgorithm, {
   algorithmFormErrors,
-} from "@components/ConfigAlgorithm";
+} from "@/components/ConfigAlgorithm";
 import ConfigExecution, {
   executionFormErrors,
-} from "@components/ConfigExecution";
-import JsonPreview from "@components/JsonPreview";
+} from "@/components/ConfigExecution";
+import JsonPreview from "@/components/JsonPreview";
 import { FaPaperPlane, FaSpinner } from "react-icons/fa6";
 import type {
   EstimatorType,
@@ -22,8 +22,8 @@ import type {
   OptimiserType,
   RectSet,
   ServerResponse,
-} from "@app/types/types";
-import { parseLogEntry } from "@app/utils/parseLog";
+} from "@/types/types";
+import { parseLogEntry } from "@/utils/parseLog";
 import Result from "./Result";
 import "plotly.js-dist-min";
 

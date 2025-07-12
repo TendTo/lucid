@@ -1,4 +1,4 @@
-import { DangerousElement } from "@components/DangerousElement";
+import { DangerousElement } from "@/components/DangerousElement";
 import type { LogEntry } from "@app/types/types";
 
 type ResultProps = {

@@ -1,5 +1,5 @@
 import { FaFileImport } from "react-icons/fa6";
-import type { FormStepName, FormSteps } from "@app/types/types";
+import type { FormStepName, FormSteps } from "@/types/types";
 import type { FieldValues, UseFormReset } from "react-hook-form";
 
 export type HeaderProps = {

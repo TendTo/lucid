@@ -12,26 +12,8 @@
     "skipLibCheck": true,
     "baseUrl": "src",
     "paths": {
-      "@app/*": [
+      "@/*": [
         "./*"
-      ],
-      "@components/*": [
-        "./components/*"
-      ],
-      "@hooks/*": [
-        "./hooks/*"
-      ],
-      "@utils/*": [
-        "./utils/*"
-      ],
-      "@styles/*": [
-        "./styles/*"
-      ],
-      "@assets/*": [
-        "./assets/*"
-      ],
-      "@context/*": [
-        "./context/*"
       ],
     },
     /* Bundler mode */

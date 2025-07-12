@@ -1,5 +1,5 @@
-import FormTextInput from "@components/FormTextInput";
-import FormSelectionInput from "@components/FormSelectionInput";
+import FormTextInput from "@/components/FormTextInput";
+import FormSelectionInput from "@/components/FormSelectionInput";
 import { type FieldErrors, type FieldValues } from "react-hook-form";
 
 export function algorithmFormErrors(errors: FieldErrors<FieldValues>): boolean {
