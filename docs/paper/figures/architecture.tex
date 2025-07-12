@@ -1,9 +1,9 @@
 \begin{figure}
     \centering
-    \begin{tikzpicture}[node distance=1.2cm and 1.8cm,
-            input-block/.style={rectangle, draw, fill=red!10, text width=3.5cm, minimum height=1.2cm, align=center, rounded corners},
-            output-block/.style={rectangle, draw, fill=green!10, text width=3.5cm, minimum height=1.2cm, align=center, rounded corners},
-            block/.style={rectangle, draw, fill=blue!10, text width=3.5cm, minimum height=1.2cm, align=center, rounded corners},
+    \begin{tikzpicture}[node distance=0.6cm and 0.6cm,
+            input-block/.style={rectangle, draw, fill=red!10, text width=2.5cm, minimum height=1.2cm, align=center, rounded corners},
+            output-block/.style={rectangle, draw, fill=green!10, text width=2.5cm, minimum height=1.2cm, align=center, rounded corners},
+            block/.style={rectangle, draw, fill=blue!10, text width=2.0cm, minimum height=1.2cm, align=center, rounded corners},
             arrow/.style={thick,->,>=Stealth},
             tool/.style={rectangle, draw, fill=magenta!10, text width=3cm, minimum height=0.8cm, align=center, rounded corners},
             inv/.style={}
@@ -13,34 +13,43 @@
         \node[input-block] (input) {Configuration};
 
         % Lucid blocks
-        \node[block, right=of input] (estimator) {Estimator};
-        \node[block, right=of estimator] (feature) {Feature map / Barrier template};
-        \node[block, below=of feature] (optimizer) {Optimizer};
-        \node[block, left=of optimizer] (verifier) {Verifier};
+        \node[block, below=of input] (estimator) {Estimator};
+        \node[block, right=of estimator] (tuner) {Tuner};
+        \node[block, left=of estimator] (sets) {Sets};
+        \node[block, below=of estimator] (feature) {Feature map / Barrier template};
+        \node[block, left=of feature] (optimizer) {Optimizer};
+        % \node[block, below=of optimizer] (verifier) {Verifier};
         \node[draw, dashed, inner sep=0.3cm, rounded corners,
-        fit=(estimator)(feature)(optimizer)(verifier), label=above:{\textbf{Lucid}}] {};
+        % fit=(estimator)(feature)(optimizer)(verifier), label=above:{\textbf{Lucid}}] {};
+        fit=(estimator)(feature)(optimizer)(sets)(tuner), label=below:{\textbf{Lucid}}] {};
 
         % Output block
-        \node[output-block, left=of verifier] (output) {Barrier certificate};
+        % \node[output-block, left=of verifier] (output) {Barrier certificate};
+        \node[output-block, below=of optimizer] (output) {Barrier certificate};
 
         % Smt solvers
-        \node[inv, below=2.5cm of verifier.north, anchor=north] (smtInv) {};
-        \node[tool, left=0.3cm of smtInv] (dreal) {dReal};
-        \node[tool, right=0.3cm of smtInv] (cvc5) {CVC5};
-        \node[draw, dashed, inner sep=0.3cm, rounded corners,
-        fit=(dreal)(cvc5), label=left:{\textbf{SMT Solver}}] {};
+        % \node[inv, below=2.5cm of verifier.north, anchor=north] (smtInv) {};
+        % \node[tool, left=0.3cm of smtInv] (dreal) {dReal};
+        % \node[tool, right=0.3cm of smtInv] (cvc5) {CVC5};
+        % \node[draw, dashed, inner sep=0.3cm, rounded corners,
+        % fit=(dreal)(cvc5), label=left:{\textbf{SMT Solver}}] {};
 
         % Arrows
         \draw[arrow] (input) -- (estimator);
+        \draw[arrow] (input) -- (tuner);
+        \draw[arrow] (input) -- (sets);
+        \draw[arrow] (sets) -- (optimizer);
+        \draw[arrow] (tuner) -- (estimator);
         \draw[arrow] (estimator) -- (feature);
         \draw[arrow] (feature) -- (optimizer);
-        \draw[arrow] (optimizer) -- (verifier);
-        \draw[arrow] (verifier) -- (output);
+        % \draw[arrow] (optimizer) -- (verifier);
+        % \draw[arrow] (verifier) -- (output);
+        \draw[arrow] (optimizer) -- (output);
 
-        \draw[arrow] (cvc5.north) -- (verifier.south);
-        \draw[arrow] (dreal.north) -- (verifier.south);
+        % \draw[arrow] (cvc5.north) -- (verifier.south);
+        % \draw[arrow] (dreal.north) -- (verifier.south);
 
     \end{tikzpicture}
-    \caption{General architecture of Lucid. \todo{Only dReal is supported at the moment}}
+    \caption{General architecture of Lucid, highlighting its core components and their connections.}
     \label{fig:architecture}
 \end{figure}

@@ -1,0 +1,22 @@
+seed: 42
+# System parameters
+system_dynamics: ["x1 / 2"]
+X_bounds: "RectSet([-1], [1])"
+X_init: "RectSet([-0.5], [0.5])"
+X_unsafe: "Multiset([RectSet([-1], [-0.9]), RectSet([0.9], [1])])"
+# Algorithm parameters
+gamma: 10.0
+lambda: 0.001
+num_samples: 1000
+time_horizon: 5
+# Feature map parameters
+sigma_f: 15
+sigma_l: [1.75555556]
+num_frequencies: 10
+oversample_factor: 32.0
+# Execution options
+noise_scale: 0.01
+plot: true
+verify: true
+feature_map: "LinearTruncatedFourierFeatureMap"
+optimiser: "GurobiOptimiser"
