@@ -1,17 +1,12 @@
-import { useCallback, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { jsonSchema } from "@/utils/schema";
-import Header from "@/components/Header";
-import ConfigSystem, { systemFormErrors } from "@/components/ConfigSystem";
 import ConfigAlgorithm, {
   algorithmFormErrors,
 } from "@/components/ConfigAlgorithm";
 import ConfigExecution, {
   executionFormErrors,
 } from "@/components/ConfigExecution";
+import ConfigSystem, { systemFormErrors } from "@/components/ConfigSystem";
+import Header from "@/components/Header";
 import JsonPreview from "@/components/JsonPreview";
-import { FaPaperPlane, FaSpinner } from "react-icons/fa6";
 import type {
   EstimatorType,
   FeatureMapType,
@@ -23,9 +18,17 @@ import type {
   RectSet,
   ServerResponse,
 } from "@/types/types";
+import { emptyFigure } from "@/utils/constants";
 import { parseLogEntry } from "@/utils/parseLog";
-import Result from "./Result";
+import { jsonSchema } from "@/utils/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import "plotly.js-dist-min";
+import { useCallback, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { FaPaperPlane, FaSpinner } from "react-icons/fa6";
+import type { PlotParams } from "react-plotly.js";
+import Result from "./Result";
+import Tabs from "./TabGroup";
 
 const initialFormSteps = {
   system: {
@@ -80,7 +83,7 @@ export const defaultValues = {
 
 export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
-  const [fig, setFig] = useState<string>("");
+  const [fig, setFig] = useState<PlotParams>(emptyFigure);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [submitError, setSubmitError] = useState<string>("");
@@ -114,7 +117,7 @@ export default function App() {
         return;
       }
       setLogs([]);
-      setFig("");
+      setFig(emptyFigure);
       const response = await fetch("/api/run", {
         method: "POST",
         headers: {
@@ -142,7 +145,12 @@ export default function App() {
         const data: ServerResponse = JSON.parse(event.data);
         if (data.log)
           setLogs((prevLogs) => [...prevLogs, parseLogEntry(data.log)]);
-        if (data.fig) setFig(data.fig);
+        try {
+          setFig(data.fig ? JSON.parse(data.fig) : emptyFigure);
+        } catch (e) {
+          setFig(emptyFigure);
+          console.error("Failed to parse figure data:", e);
+        }
       };
 
       // Handle connection open

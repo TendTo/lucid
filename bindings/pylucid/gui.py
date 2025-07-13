@@ -38,7 +38,7 @@ def run_lucid(args: Configuration):
         else:
             result["sol"] = result["sol"].tolist()
         if result["fig"] is not None:
-            result["fig"] = result["fig"].to_html(include_plotlyjs=False, full_html=False)
+            result["fig"] = result["fig"].to_json(validate=False)
         QUEUES[threading.get_ident()].put(result)
 
     try:
@@ -133,7 +133,7 @@ def preview_graph():
     else:
         return {"error": "No system dynamics or samples provided for graph preview."}, 400
     logger.info("Graph preview generated successfully.")
-    return {"fig": fig.to_html(include_plotlyjs=False, full_html=False)}, 200
+    return {"fig": fig.to_json(validate=False)}, 200
 
 
 @blueprint.route("/run", methods=["POST"])

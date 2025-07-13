@@ -1,8 +1,8 @@
-import { ErrorMessage } from "@hookform/error-message";
-import { useFormContext } from "react-hook-form";
-import { useCallback, useRef } from "react";
-import { FaUpload } from "react-icons/fa6";
 import { parseCSVData } from "@/utils/csvParser";
+import { ErrorMessage } from "@hookform/error-message";
+import { useCallback, useRef } from "react";
+import { useFormContext } from "react-hook-form";
+import { FaUpload } from "react-icons/fa6";
 
 type SamplesInputProps = {
   name: string;

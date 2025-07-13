@@ -1,15 +1,18 @@
+import SamplesInput from "@/components/SamplesInput";
+import SetsInput from "@/components/SetsInput";
+import SystemDynamicsInput from "@/components/SystemDynamicsInput";
+import type { ServerResponse } from "@/types/types";
+import { emptyFigure } from "@/utils/constants";
+import { useCallback, useState } from "react";
 import {
   useFormContext,
   type FieldErrors,
   type FieldValues,
 } from "react-hook-form";
-import SetsInput from "@/components/SetsInput";
 import { FaEye, FaSpinner } from "react-icons/fa6";
-import { useCallback, useState } from "react";
-import { DangerousElement } from "@/components/DangerousElement";
-import SystemDynamicsInput from "@/components/SystemDynamicsInput";
-import type { ServerResponse } from "@/types/types";
-import SamplesInput from "@/components/SamplesInput";
+import type { PlotParams } from "react-plotly.js";
+import Figure from "./Figure";
+import TabGroup from "./TabGroup";
 
 export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
   return Boolean(
@@ -24,7 +27,7 @@ export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
 
 export default function ConfigSystem() {
   const { getValues, trigger, setError } = useFormContext();
-  const [fig, setFig] = useState<string>("");
+  const [fig, setFig] = useState<PlotParams>(emptyFigure);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -52,7 +55,7 @@ export default function ConfigSystem() {
     });
     setLoading(false);
     if (!response.ok) {
-      setFig("");
+      setFig({ data: [], layout: {} });
       const error: ServerResponse = await response.json();
       if (error.cause) {
         setError(error.cause, {
@@ -63,7 +66,12 @@ export default function ConfigSystem() {
       setSubmitError(error.error ?? "Unknown error");
     }
     const json = await response.json();
-    setFig(json.fig || "");
+    try {
+      setFig(json.fig ? JSON.parse(json.fig) : emptyFigure);
+    } catch (e){
+      setFig(emptyFigure);
+      console.error("Failed to parse figure data:", e);
+    }
   }, [getValues, setFig, trigger, setError, setSubmitError, setLoading]);
 
   return (
@@ -96,10 +104,18 @@ export default function ConfigSystem() {
           </div>
         </div>
       </div>
-      <SamplesInput name="x_samples" label="Samples" />
-      <SamplesInput name="xp_samples" label="Transition samples" />
-
-      <SystemDynamicsInput />
+      <TabGroup
+        tabs={{
+          Data: (
+            <>
+              {" "}
+              <SamplesInput name="x_samples" label="Samples" />
+              <SamplesInput name="xp_samples" label="Transition samples" />
+            </>
+          ),
+          "Closed-form expression": <SystemDynamicsInput />,
+        }}
+      />
 
       <SetsInput name="X_bounds" label="X bounds" />
 
@@ -107,7 +123,7 @@ export default function ConfigSystem() {
 
       <SetsInput name="X_unsafe" label="X unsafe" />
 
-      <DangerousElement markup={fig} />
+      <Figure data={fig.data} layout={fig.layout} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 /**
  * Test file for CSV parser utility
  */
-import { parseCSVData, formatCSVData } from './csvParser';
+import { formatCSVData, parseCSVData } from './csvParser';
 
 // Test basic parsing
 console.log('Testing basic CSV parsing:');

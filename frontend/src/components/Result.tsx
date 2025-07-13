@@ -1,9 +1,10 @@
-import { DangerousElement } from "@/components/DangerousElement";
-import type { LogEntry } from "@app/types/types";
+import Figure from "@/components/Figure";
+import type { LogEntry } from "@/types/types";
+import type { PlotParams } from "react-plotly.js";
 
 type ResultProps = {
   logs: LogEntry[];
-  fig: string;
+  fig: PlotParams;
 };
 
 export default function Result({ logs, fig }: ResultProps) {
@@ -24,7 +25,7 @@ export default function Result({ logs, fig }: ResultProps) {
           ))}
         </code>
       </pre>
-      <DangerousElement markup={fig} />
+      <Figure {...fig} />
     </div>
   );
 }

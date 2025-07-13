@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaCopy, FaCheck } from "react-icons/fa6";
+import { FaCheck, FaCopy } from "react-icons/fa6";
 
 type JsonPreviewProps = {
   formData: object;

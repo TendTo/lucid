@@ -1,10 +1,10 @@
-import { Disclosure } from "@headlessui/react";
-import { FaX, FaCheck } from "react-icons/fa6";
 import Logo from "@/assets/logo.svg";
-import type { FormStepName, FormSteps } from "@/types/types";
 import Examples from "@/components/Examples";
-import type { FieldValues, UseFormReset } from "react-hook-form";
 import JSONImportModal from "@/components/JSONImportModal";
+import type { FormStepName, FormSteps } from "@/types/types";
+import { Disclosure } from "@headlessui/react";
+import type { FieldValues, UseFormReset } from "react-hook-form";
+import { FaCheck, FaX } from "react-icons/fa6";
 
 export type HeaderProps = {
   errors: object;

@@ -1,4 +1,4 @@
-import type { LogEntry } from "@app/types/types";
+import type { LogEntry } from "@/types/types";
 
 export function parseLogEntry(entry?: string): LogEntry {
   if (!entry) throw new Error("Invalid log entry");
