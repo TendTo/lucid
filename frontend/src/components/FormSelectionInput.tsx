@@ -11,7 +11,7 @@ type FormTextInputProps = {
   valueAsNumber?: boolean;
 };
 
-export default function FormTextInput({
+export default function FormSelectionInput({
   label,
   name,
   description,

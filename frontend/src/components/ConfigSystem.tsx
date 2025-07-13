@@ -11,8 +11,8 @@ import {
 } from "react-hook-form";
 import { FaEye, FaSpinner } from "react-icons/fa6";
 import type { PlotParams } from "react-plotly.js";
-import Figure from "./Figure";
 import TabGroup from "./TabGroup";
+import { Button } from "./ui/button";
 
 export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
   return Boolean(
@@ -25,65 +25,28 @@ export function systemFormErrors(errors: FieldErrors<FieldValues>): boolean {
   );
 }
 
-export default function ConfigSystem() {
-  const { getValues, trigger, setError } = useFormContext();
-  const [fig, setFig] = useState<PlotParams>(emptyFigure);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+type ConfigSystemProps = {
+  onSubmit: (data: FieldValues) => Promise<void>;
+  loading: boolean;
+  error: string | null;
+};
 
-  const handlePreview = useCallback(async () => {
-    if (
-      !(await trigger([
-        "system_dynamics",
-        "X_bounds",
-        "X_init",
-        "X_unsafe",
-        "x_samples",
-        "xp_samples",
-      ]))
-    ) {
-      console.error("Form validation failed");
-      return;
-    }
-    setLoading(true);
-    const response = await fetch("/api/preview-graph", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(getValues()),
-    });
-    setLoading(false);
-    if (!response.ok) {
-      setFig({ data: [], layout: {} });
-      const error: ServerResponse = await response.json();
-      if (error.cause) {
-        setError(error.cause, {
-          type: "value",
-          message: error.error,
-        });
-      }
-      setSubmitError(error.error ?? "Unknown error");
-    }
-    const json = await response.json();
-    try {
-      setFig(json.fig ? JSON.parse(json.fig) : emptyFigure);
-    } catch (e){
-      setFig(emptyFigure);
-      console.error("Failed to parse figure data:", e);
-    }
-  }, [getValues, setFig, trigger, setError, setSubmitError, setLoading]);
+export default function ConfigSystem({
+  onSubmit,
+  loading,
+  error,
+}: ConfigSystemProps) {
+  const { setValue, clearErrors, handleSubmit } = useFormContext();
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-lg mb-2">System Configuration</h2>
-        <div className="flex flex-row-reverse">
-          <button
+    <>
+      <div className="flex flex-row justify-between">
+        <h2 className="text-lg font-semibold">System dynamics</h2>
+        <div className="flex flex-col items-end">
+          <Button
             type="button"
-            className="btn btn-primary flex items-center justify-center w-36"
             disabled={loading}
-            onClick={handlePreview}
+            onClick={() => handleSubmit(onSubmit)()}
           >
             {loading ? (
               <>
@@ -96,34 +59,36 @@ export default function ConfigSystem() {
                 Preview
               </>
             )}
-          </button>
-          <div className="flex items-center mr-2">
-            {submitError && (
-              <small className="text-red-500">{submitError}</small>
-            )}
-          </div>
+          </Button>
+          <small className="text-red-500 mt-1">{error}</small>
         </div>
       </div>
       <TabGroup
+        className="my-4"
         tabs={{
-          Data: (
-            <>
-              {" "}
-              <SamplesInput name="x_samples" label="Samples" />
-              <SamplesInput name="xp_samples" label="Transition samples" />
-            </>
-          ),
-          "Closed-form expression": <SystemDynamicsInput />,
+          Data: {
+            content: (
+              <div className="flex flex-col gap-4">
+                <h3 className="font-semibold">Dataset</h3>
+                <SamplesInput name="x_samples" label="Initial states" />
+                <SamplesInput name="xp_samples" label="Consecutive states" />
+              </div>
+            ),
+            onClick: () => {
+              setValue("x_samples", []);
+              setValue("xp_samples", []);
+              clearErrors(["x_samples", "xp_samples"]);
+            },
+          },
+          "Closed-form expression": {
+            content: <SystemDynamicsInput />,
+            onClick: () => {
+              setValue("system_dynamics", []);
+              clearErrors("system_dynamics");
+            },
+          },
         }}
       />
-
-      <SetsInput name="X_bounds" label="X bounds" />
-
-      <SetsInput name="X_init" label="X init" />
-
-      <SetsInput name="X_unsafe" label="X unsafe" />
-
-      <Figure data={fig.data} layout={fig.layout} />
-    </div>
+    </>
   );
 }

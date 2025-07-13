@@ -1,5 +1,6 @@
-import { ErrorMessage } from "@hookform/error-message";
 import { useFormContext } from "react-hook-form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import { Input } from "./ui/input";
 
 type FormTextInputProps = {
   type?: "text" | "number";
@@ -22,33 +23,24 @@ export default function FormTextInput({
   max = undefined,
   step = "any",
 }: FormTextInputProps) {
-  const { register, formState } = useFormContext();
+  const { control } = useFormContext();
 
   return (
-    <div>
-      <label className="block font-bold mb-1" htmlFor={name}>
-        {label}
-      </label>
-      <input
-        type={type}
-        id={name}
-        placeholder={placeholder}
-        min={min}
-        max={max}
-        step={step}
-        className="w-full border rounded px-3 py-2 border-solid border-[#ddd]"
-        {...register(name, {
-          valueAsNumber: type === "number",
-        })}
-      />
-      {description && <small>{description}</small>}
-      <ErrorMessage
-        errors={formState.errors}
-        name={name}
-        render={({ message }) => (
-          <small className="text-red-500">{message}</small>
-        )}
-      />
-    </div>
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <div className="flex items-center justify-between w-full">
+            <FormLabel>{label}</FormLabel>
+            <FormMessage />
+          </div>
+          <FormControl>
+            <Input type={type} placeholder={placeholder} min={min} max={max} step={step} {...field} />
+          </FormControl>
+          <FormDescription>{description}</FormDescription>
+        </FormItem>
+      )}
+    />
   );
 }

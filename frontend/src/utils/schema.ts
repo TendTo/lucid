@@ -41,7 +41,7 @@ const matrix = z
       return true;
     },
     {
-      message: "All samples must have the same number of columns.",
+      message: "Column size mismatch",
       code: "custom",
     }
   )
@@ -57,11 +57,11 @@ const matrix = z
       return true;
     },
     {
-      message: "The CSV is invalid or contains non-numeric values.",
+      message: "Failed to parse samples",
       code: "custom",
     }
   );
-export const jsonSchema = z
+export const configurationSchema = z
   .object({
     verbose: z
       .number()
@@ -89,7 +89,7 @@ export const jsonSchema = z
     X_init: set,
     X_unsafe: set,
     gamma: z.number().optional(),
-    c_coefficient: z.number().optional(),
+    c_coefficient: z.coerce.number().gte(0).optional(),
     lambda: z.number().optional(),
     num_samples: z
       .number()
@@ -128,7 +128,7 @@ export const jsonSchema = z
         "Length scale for the feature map, can be a single value or a list."
       )
       .optional(),
-    num_frequencies: z
+    num_frequencies: z.coerce
       .number()
       .int()
       .gte(1)
@@ -229,31 +229,37 @@ export const jsonSchema = z
     }
   })
   .superRefine((data, ctx) => {
-    if (data.system_dynamics.length !== 0 || data.xp_samples.length !== 0)
+    if (
+      data.system_dynamics.length !== 0 ||
+      (data.x_samples.length !== 0 && data.xp_samples.length !== 0)
+    ) {
       return;
-    for (const cause of ["system_dynamics", "xp_samples"] as const) {
+    }
+    for (const cause of [
+      "system_dynamics",
+      "x_samples",
+      "xp_samples",
+    ] as const) {
+      if (data[cause].length > 0) continue;
       ctx.addIssue({
         path: [cause],
         code: "custom",
-        message: `Either 'system_dynamics' or 'xp_samples' must be provided.`,
+        message: `Required`,
       });
     }
   })
   .superRefine((data, ctx) => {
-    if (
-      data.x_samples.length == 0 ||
-      data.xp_samples.length === 0 ||
-      data.x_samples.length === data.xp_samples.length
-    )
-      return;
+    if (data.x_samples.length === data.xp_samples.length) return;
     for (const cause of ["x_samples", "xp_samples"] as const) {
       ctx.addIssue({
         path: [cause],
         code: "custom",
-        message: `x_samples and xp_samples must contain the same number of samples.`,
+        message: `Number of samples mismatch`,
       });
     }
   })
   .describe(
     "Representation of the command line arguments for pylucid expressed in a configuration file"
   );
+
+export type Configuration = z.infer<typeof configurationSchema>;

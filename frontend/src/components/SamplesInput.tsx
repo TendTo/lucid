@@ -1,8 +1,16 @@
 import { parseCSVData } from "@/utils/csvParser";
-import { ErrorMessage } from "@hookform/error-message";
 import { useCallback, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { FaUpload } from "react-icons/fa6";
+import { Textarea } from "./ui/textarea";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
+import { FileUpload } from "./ui/fileupload";
 
 type SamplesInputProps = {
   name: string;
@@ -10,17 +18,19 @@ type SamplesInputProps = {
 };
 
 function handleDragOver(e: React.DragEvent<HTMLElement>) {
+  e.stopPropagation();
   e.preventDefault();
   e.currentTarget.classList.add("drag-over");
 }
 
 function handleDragLeave(e: React.DragEvent<HTMLElement>) {
+  e.stopPropagation();
   e.preventDefault();
   e.currentTarget.classList.remove("drag-over");
 }
 
 export default function SamplesInput({ name, label }: SamplesInputProps) {
-  const { formState, register, setValue } = useFormContext();
+  const { register, setValue, control } = useFormContext();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { ref, ...rest } = register(name, {
     setValueAs: parseCSVData,
@@ -53,6 +63,7 @@ export default function SamplesInput({ name, label }: SamplesInputProps) {
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
+      e.stopPropagation();
       e.preventDefault();
       e.currentTarget.classList.remove("drag-over");
 
@@ -72,55 +83,43 @@ export default function SamplesInput({ name, label }: SamplesInputProps) {
   );
 
   return (
-    <div className="form-group">
-      <div className="flex items-center justify-between mb-2">
-        <label htmlFor={name} className="block font-bold">
-          {label}
-        </label>
-        <div>
-          <label
-            htmlFor={`${name}-file-upload`}
-            className="btn btn-secondary flex items-center justify-center cursor-pointer"
-          >
-            <FaUpload className="inline-block mr-1 size-3" />
-            Upload CSV
-          </label>
-          <input
-            className="hidden"
-            type="file"
-            id={`${name}-file-upload`}
-            name={`${name}-file-upload`}
-            accept="text/csv"
-            onChange={handleFileInputChange}
-          />
-        </div>
-      </div>
-
-      <textarea
-        {...rest}
-        ref={(e) => {
-          ref(e);
-          inputRef.current = e;
-        }}
-        id={name}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        className="form-control w-full h-32"
-        placeholder={`1.2,2.4,3.1
-4.1,5.2,6.2
-
-Or drag and drop a CSV file here
-`}
-      />
-
-      <ErrorMessage
-        errors={formState.errors}
+    <>
+      <FormField
+        control={control}
         name={name}
-        render={({ message }) => (
-          <small className="text-red-500 block mb-1">{message}</small>
+        render={() => (
+          <FormItem>
+            <div className="flex items-center justify-between w-full">
+              <FormLabel htmlFor={name}>{label}</FormLabel>
+              <FormMessage />
+              <FileUpload
+                id={`${name}-file-upload`}
+                name={`${name}-file-upload`}
+                accept=".csv, .txt"
+                onChange={handleFileInputChange}
+                label="Upload CSV"
+              />
+            </div>
+            <FormControl>
+              <Textarea
+                {...rest}
+                ref={(e) => {
+                  ref(e);
+                  inputRef.current = e;
+                }}
+                id={name}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                placeholder={`1,2,3
+4,5,6
+
+Or drag and drop a CSV file here`}
+              />
+            </FormControl>
+          </FormItem>
         )}
       />
-    </div>
+    </>
   );
 }

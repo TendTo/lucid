@@ -5,30 +5,28 @@ import ConfigExecution, {
   executionFormErrors,
 } from "@/components/ConfigExecution";
 import ConfigSystem, { systemFormErrors } from "@/components/ConfigSystem";
-import Header from "@/components/Header";
+import Header from "@/layout/Header";
 import JsonPreview from "@/components/JsonPreview";
 import type {
-  EstimatorType,
-  FeatureMapType,
   FormStepName,
   FormSteps,
-  KernelType,
   LogEntry,
-  OptimiserType,
-  RectSet,
   ServerResponse,
 } from "@/types/types";
-import { emptyFigure } from "@/utils/constants";
+import { defaultValues, emptyFigure } from "@/utils/constants";
 import { parseLogEntry } from "@/utils/parseLog";
-import { jsonSchema } from "@/utils/schema";
+import { configurationSchema } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "plotly.js-dist-min";
 import { useCallback, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { FaPaperPlane, FaSpinner } from "react-icons/fa6";
 import type { PlotParams } from "react-plotly.js";
-import Result from "./Result";
+import Result from "@/components/Result";
 import Tabs from "./TabGroup";
+import Footer from "./Footer";
+import OutputSection from "./OutputSection";
+import InputSection from "./InputSection";
 
 const initialFormSteps = {
   system: {
@@ -51,36 +49,6 @@ const initialFormSteps = {
   },
 } as FormSteps;
 
-export const defaultValues = {
-  verbose: 3,
-  seed: -1,
-  x_samples: [] as number[][],
-  xp_samples: [] as number[][],
-  system_dynamics: [] as string[],
-  X_bounds: [] as RectSet[],
-  X_init: [] as RectSet[],
-  X_unsafe: [] as RectSet[],
-  gamma: 1.0,
-  c_coefficient: 1.0,
-  lambda: 1.0,
-  num_samples: 1000,
-  time_horizon: 5,
-  sigma_f: 15.0,
-  sigma_l: 1.0,
-  num_frequencies: 4,
-  oversample_factor: 2.0,
-  num_oversample: -1,
-  noise_scale: 0.01,
-  plot: false,
-  verify: true,
-  problem_log_file: "problem.lp",
-  iis_log_file: "iis.ilp",
-  estimator: "KernelRidgeRegressor" as EstimatorType,
-  kernel: "GaussianKernel" as KernelType,
-  feature_map: "LinearTruncatedFourierFeatureMap" as FeatureMapType,
-  optimiser: "GurobiOptimiser" as OptimiserType,
-};
-
 export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
   const [fig, setFig] = useState<PlotParams>(emptyFigure);
@@ -89,7 +57,7 @@ export default function App() {
   const [submitError, setSubmitError] = useState<string>("");
 
   const methods = useForm({
-    resolver: zodResolver(jsonSchema),
+    resolver: zodResolver(configurationSchema),
     defaultValues: defaultValues as any,
     mode: "onChange",
   });
@@ -191,105 +159,22 @@ export default function App() {
   );
 
   return (
-    <div className="py-lucid-dashboard">
+    <div className="bg-background text-foreground flex min-h-svh flex-col">
       <Header
         errors={methods.formState.errors}
         steps={formSteps}
         setCurrentStep={setCurrentStep}
         reset={methods.reset}
       />
-
-      <div className="dashboard-container">
-        <main className="content">
-          <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit as any)}>
-              {formSteps.system.current && <ConfigSystem />}
-              {formSteps.algorithm.current && <ConfigAlgorithm />}
-              {formSteps.execution.current && <ConfigExecution />}
-              <div className="flex flex-row-reverse">
-                <button
-                  type="submit"
-                  disabled={isConnected}
-                  className={
-                    "btn btn-primary flex items-center justify-center w-36"
-                  }
-                >
-                  {isConnected ? (
-                    <>
-                      <FaSpinner className="mr-2 animate-spin" />
-                      Computing
-                    </>
-                  ) : (
-                    <>
-                      <FaPaperPlane className="mr-2" />
-                      Submit
-                    </>
-                  )}
-                </button>
-                <div className="flex items-center mr-2">
-                  {submitError && (
-                    <small className="text-red-500">{submitError}</small>
-                  )}
-                </div>
-              </div>
-            </form>
-            <Result logs={logs} fig={fig} />
-          </FormProvider>
-        </main>
-
-        <aside className="preview-panel">
+      <main className="flex-grow min-w-full mx-auto p-4 flex flex-row justify-evenly relative">
+        <InputSection />
+        <OutputSection />
+        <aside className="">
           <h3>JSON Preview</h3>
           <JsonPreview formData={methods.watch()} />
         </aside>
-      </div>
-
-      <style>{`
-        .py-lucid-dashboard {
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-        }
-        .dashboard-container {
-          display: flex;
-          flex: 1;
-        }
-        .sidebar {
-          width: 250px;
-          background: #2c3e50;
-          color: white;
-          padding: 20px;
-        }
-        .sidebar ul {
-          list-style: none;
-          padding: 0;
-        }
-        .sidebar li {
-          padding: 12px 15px;
-          margin-bottom: 5px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        .sidebar li.active {
-          background: #3498db;
-        }
-        .content {
-          flex: 1;
-          padding: 20px;
-          background: #f5f5f5;
-          overflow-y: auto;
-        }
-        .preview-panel {
-          width: 350px;
-          padding: 20px;
-          background: #f8f9fa;
-          border-left: 1px solid #dee2e6;
-        }
-        .button-group {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 20px;
-        }
-      `}</style>
+      </main>
+      <Footer />
     </div>
   );
 }

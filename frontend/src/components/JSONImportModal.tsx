@@ -1,5 +1,5 @@
-import { defaultValues } from "@/components/App";
-import { jsonSchema } from "@/utils/schema";
+import { defaultValues } from "@/utils/constants";
+import { configurationSchema } from "@/utils/schema";
 import { useEffect, useState } from "react";
 import type { FieldValues, UseFormReset } from "react-hook-form";
 import { FaFileImport, FaX } from "react-icons/fa6";
@@ -27,7 +27,7 @@ export default function JSONImportModal({ reset }: JSONImportModalProps) {
       const parsedJson = { ...defaultValues, ...JSON.parse(jsonText) };
 
       // Validate against schema
-      const result = jsonSchema.safeParse(parsedJson);
+      const result = configurationSchema.safeParse(parsedJson);
 
       if (!result.success) {
         setError("Invalid JSON format: " + result.error.message);
