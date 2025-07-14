@@ -15,3 +15,10 @@ export function handleDragLeave(e: React.DragEvent<HTMLElement>) {
   e.preventDefault();
   e.currentTarget.classList.remove("drag-over");
 }
+
+export function parseNumberList(value: string) {
+  const numbers = Array.from(value.matchAll(/-?\d+(\.\d+)?/g)).map((match) =>
+    Number(match[0])
+  );
+  return numbers;
+}

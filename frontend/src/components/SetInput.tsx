@@ -13,6 +13,7 @@ import {
 import { availableSets } from "@/utils/constants";
 import { useState } from "react";
 import { Input } from "./ui/input";
+import { parseNumberList } from "@/utils/utils";
 
 type SetInputProps = {
   name: string;
@@ -68,6 +69,31 @@ export default function SetInput({ name, idx, removeItself }: SetInputProps) {
           <div className="flex items-center gap-2">
             <div className="flex flex-col gap-1 p-1 border border-blue-300 rounded border-dashed">
               <Input
+                onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {
+                  if (e.clipboardData == null) return;
+                  e.preventDefault();
+                  const values = parseNumberList(
+                    e.clipboardData.getData("text")
+                  );
+                  let valuesPointer = 0;
+                  for (
+                    let i = index;
+                    i < fields.length && valuesPointer < values.length;
+                    i++
+                  ) {
+                    setValue(
+                      `${name}.${idx}.${type}.${i}.0`,
+                      values[valuesPointer]
+                    );
+                    valuesPointer++;
+                    if (valuesPointer >= values.length) continue;
+                    setValue(
+                      `${name}.${idx}.${type}.${i}.1`,
+                      values[valuesPointer]
+                    );
+                    valuesPointer++;
+                  }
+                }}
                 {...register(`${name}.${idx}.${type}.${index}.0`, {
                   valueAsNumber: true,
                   required: true,
@@ -82,6 +108,35 @@ export default function SetInput({ name, idx, removeItself }: SetInputProps) {
                   valueAsNumber: true,
                   required: true,
                 })}
+                onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {
+                  if (e.clipboardData == null) return;
+                  e.preventDefault();
+                  const values = parseNumberList(
+                    e.clipboardData.getData("text")
+                  );
+                  setValue(
+                    `${name}.${idx}.${type}.${index}.1`,
+                    values[0] || ""
+                  );
+                  let valuesPointer = 1;
+                  for (
+                    let i = index + 1;
+                    i < fields.length && valuesPointer < values.length;
+                    i++
+                  ) {
+                    setValue(
+                      `${name}.${idx}.${type}.${i}.0`,
+                      values[valuesPointer]
+                    );
+                    valuesPointer++;
+                    if (valuesPointer >= values.length) continue;
+                    setValue(
+                      `${name}.${idx}.${type}.${i}.1`,
+                      values[valuesPointer]
+                    );
+                    valuesPointer++;
+                  }
+                }}
                 className="max-w-24"
                 placeholder="0.0"
                 step="any"
