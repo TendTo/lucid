@@ -8,7 +8,6 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
-import { onChangeNumber } from "@/utils/utils";
 
 type FormTextInputProps = {
   type?: "text" | "number";
@@ -21,7 +20,7 @@ type FormTextInputProps = {
   step?: number | "any";
   required?: boolean;
   form?: string;
-  onChange?: <T>(value: T) => T;
+  onChange?: (value: number | string) => number | string;
 };
 
 export default function FormTextInput({

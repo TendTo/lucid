@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 export default function SystemDynamicsInput() {
-  const { register, control, formState, watch } = useFormContext();
+  const { register, control, formState } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "system_dynamics",

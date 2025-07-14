@@ -19,8 +19,9 @@ function setDimension(
     value: Configuration["X_bounds"][number]["RectSet"] | number
   ) => void
 ) {
-  return (value: number | "") => {
-    if (value === "" || isNaN(value) || value < 1 || value > 9) return value;
+  return (value: number | string) => {
+    if (typeof value === "string" || isNaN(value) || value < 1 || value > 9)
+      return value;
 
     for (const setName of ["X_bounds", "X_init", "X_unsafe"]) {
       const prevSets = getValue(setName);

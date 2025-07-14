@@ -2,7 +2,6 @@ import { algorithmFormErrors } from "@/components/ConfigAlgorithm";
 import { executionFormErrors } from "@/components/ConfigExecution";
 import { systemFormErrors } from "@/components/ConfigSystemDynamics";
 import Header from "@/layout/Header";
-import JsonPreview from "@/components/JsonPreview";
 import type {
   FormStepName,
   FormSteps,
@@ -14,7 +13,6 @@ import { defaultValues, emptyFigure } from "@/utils/constants";
 import { parseLogEntry } from "@/utils/parseLog";
 import { configurationSchema, type Configuration } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import "plotly.js-dist-min";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { PlotParams } from "react-plotly.js";
@@ -266,6 +264,7 @@ export default function App() {
         setCurrentStep={setCurrentStep}
         // @ts-expect-error reset is not typed properly
         reset={methods.reset}
+        // @ts-expect-error methods is not typed properly
         methods={methods}
       />
       <main className="h-[calc(100vh-4rem)] min-w-full mx-auto flex flex-row justify-evenly relative overflow-y-hidden">

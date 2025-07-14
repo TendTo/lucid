@@ -1,5 +1,11 @@
 import { useFormContext } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel } from "./ui/form";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "./ui/form";
 import { Checkbox } from "./ui/checkbox";
 
 type FormCheckboxInputProps = {
@@ -21,10 +27,16 @@ export default function FormCheckboxInput({
       name={name}
       render={({ field }) => (
         <FormItem className="flex flex-row items-center gap-2">
-          <FormControl>
-            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-          </FormControl>
-          <FormLabel className="text-sm font-normal">{label}</FormLabel>
+          <div className="flex flex-row items-center gap-2">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+            <FormLabel className="text-sm font-normal">{label}</FormLabel>
+          </div>
+          <FormDescription>{description}</FormDescription>
         </FormItem>
       )}
     />

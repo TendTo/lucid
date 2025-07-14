@@ -14,7 +14,6 @@ import type { useForm } from "react-hook-form";
 import { FaArrowDown } from "react-icons/fa6";
 import Logo from "@/assets/logo.svg";
 import JsonImportModal from "@/components/JsonImportModal";
-import Examples from "@/components/Examples";
 
 type FooterProps = {
   methods: ReturnType<typeof useForm<Configuration>>;
@@ -29,7 +28,6 @@ export default function Footer({ methods }: FooterProps) {
       </div>
       <h1 className="text-white">Lucid</h1>
       <JsonImportModal reset={reset} />
-      <Examples reset={reset} />
       <Drawer fixed={false}>
         <DrawerTrigger asChild>
           <Button variant="outline">Advanced</Button>

@@ -47,13 +47,11 @@ export default function ConfigExecution() {
         <FormCheckboxInput
           name="plot"
           label="Enable Plot"
-          placeholder="Enable plotting of results"
         />
 
         <FormCheckboxInput
           name="verify"
           label="Verify Results"
-          placeholder="Enable result verification"
         />
 
         <FormTextInput

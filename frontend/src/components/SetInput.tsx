@@ -25,8 +25,7 @@ type SetInputProps = {
 
 export default function SetInput({ name, idx, removeItself }: SetInputProps) {
   const [type, setType] = useState<string>("RectSet");
-  const { register, formState, getValues, setValue, control } =
-    useFormContext();
+  const { register, formState, setValue, control } = useFormContext();
 
   const { fields } = useFieldArray({
     control,

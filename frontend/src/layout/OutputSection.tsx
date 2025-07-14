@@ -66,7 +66,9 @@ export default function OutputSection({
                 </Label>
                 <Input
                   id="resultObj_val"
-                  value={`${formatNumber((1 - successData.obj_val) * 100)}%`}
+                  value={`${formatNumber(
+                    1 - (successData.obj_val ?? 1) * 100
+                  )}%`}
                   readOnly
                 />
                 <Label htmlFor="resultEta" className="font-bold">
