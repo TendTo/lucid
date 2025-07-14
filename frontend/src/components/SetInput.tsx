@@ -1,63 +1,93 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { FaPlus, FaTrash } from "react-icons/fa6";
+import { FaMinus } from "react-icons/fa6";
+import { Button } from "./ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { availableSets } from "@/utils/constants";
+import { useState } from "react";
+import { Input } from "./ui/input";
 
 type SetInputProps = {
   name: string;
   idx: number;
   label: string;
   type: "RectSet";
-  removeItself: (index: number) => void;
+  removeItself?: () => void;
 };
 
-export default function SetInput({
-  name,
-  idx,
-  type,
-  label,
-  removeItself,
-}: SetInputProps) {
-  const { register, control, formState, getValues } = useFormContext();
-  const { fields, append, remove } = useFieldArray({
+export default function SetInput({ name, idx, removeItself }: SetInputProps) {
+  const [type, setType] = useState<string>("RectSet");
+  const { register, formState, getValues, setValue, control } =
+    useFormContext();
+
+  const { fields } = useFieldArray({
     control,
     name: `${name}.${idx}.${type}`,
   });
 
   return (
-    <div className="form-group">
-      <label className="block font-bold">{label}</label>
+    <div className="flex flex-row gap-2 items-center">
+      <Button
+        onClick={removeItself}
+        variant="destructive"
+        disabled={removeItself == undefined}
+      >
+        <FaMinus />
+      </Button>
+      <Select
+        onValueChange={(e) => {
+          setValue(`${name}.${idx}`, { [e]: [] });
+          setType(e);
+        }}
+        defaultValue={Object.keys(availableSets).at(0)}
+      >
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {Object.entries(availableSets).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <span className="font-semibold">Bounds</span>
+
       {fields.map((field, index) => (
         <div className="my-2" key={field.id}>
           <div className="flex items-center gap-2">
-            <input
-              className="border rounded px-3 py-2 border-solid border-[#ddd] w-24"
-              {...register(`${name}.${idx}.${type}.${index}.0`, {
-                valueAsNumber: true,
-                required: true,
-              })}
-              max={getValues(`${name}.${idx}.${type}.${index}.1`)}
-              step="any"
-              placeholder="0.0"
-              type="number"
-            />
-            <input
-              className="border rounded px-3 py-2 border-solid border-[#ddd] w-24"
-              {...register(`${name}.${idx}.${type}.${index}.1`, {
-                valueAsNumber: true,
-                required: true,
-              })}
-              min={getValues(`${name}.${idx}.${type}.${index}.0`)}
-              placeholder="0.0"
-              step="any"
-              type="number"
-            />
-            <button
-              type="button"
-              onClick={() => remove(index)}
-              className="btn btn-danger"
-            >
-              <FaTrash />
-            </button>
+            <div className="flex flex-col gap-1 p-1 border border-blue-300 rounded border-dashed">
+              <Input
+                {...register(`${name}.${idx}.${type}.${index}.0`, {
+                  valueAsNumber: true,
+                  required: true,
+                })}
+                className="max-w-24"
+                step="any"
+                placeholder="0.0"
+                type="number"
+              />
+              <Input
+                {...register(`${name}.${idx}.${type}.${index}.1`, {
+                  valueAsNumber: true,
+                  required: true,
+                })}
+                className="max-w-24"
+                placeholder="0.0"
+                step="any"
+                type="number"
+              />
+            </div>
           </div>
           <ErrorMessage
             errors={formState.errors}
@@ -82,23 +112,6 @@ export default function SetInput({
           <small className="text-red-500 block mb-1">{message}</small>
         )}
       />
-      <div className="flex items-center gap-2 mt-2">
-        <button
-          type="button"
-          onClick={() => append([[0, 1]])}
-          className="btn btn-success flex items-center"
-        >
-          <FaPlus className="inline-block mr-1 size-4" />
-          Add dimension
-        </button>
-        <button
-          type="button"
-          onClick={() => removeItself(idx)}
-          className="btn btn-danger"
-        >
-          <FaTrash />
-        </button>
-      </div>
     </div>
   );
 }

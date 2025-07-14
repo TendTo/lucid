@@ -1,10 +1,6 @@
-import ConfigAlgorithm, {
-  algorithmFormErrors,
-} from "@/components/ConfigAlgorithm";
-import ConfigExecution, {
-  executionFormErrors,
-} from "@/components/ConfigExecution";
-import ConfigSystem, { systemFormErrors } from "@/components/ConfigSystem";
+import { algorithmFormErrors } from "@/components/ConfigAlgorithm";
+import { executionFormErrors } from "@/components/ConfigExecution";
+import { systemFormErrors } from "@/components/ConfigSystemDynamics";
 import Header from "@/layout/Header";
 import JsonPreview from "@/components/JsonPreview";
 import type {
@@ -15,16 +11,12 @@ import type {
 } from "@/types/types";
 import { defaultValues, emptyFigure } from "@/utils/constants";
 import { parseLogEntry } from "@/utils/parseLog";
-import { configurationSchema } from "@/utils/schema";
+import { configurationSchema, type Configuration } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "plotly.js-dist-min";
 import { useCallback, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { FaPaperPlane, FaSpinner } from "react-icons/fa6";
+import { useForm } from "react-hook-form";
 import type { PlotParams } from "react-plotly.js";
-import Result from "@/components/Result";
-import Tabs from "./TabGroup";
-import Footer from "./Footer";
 import OutputSection from "./OutputSection";
 import InputSection from "./InputSection";
 
@@ -53,18 +45,37 @@ export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
   const [fig, setFig] = useState<PlotParams>(emptyFigure);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
+
   const [submitError, setSubmitError] = useState<string>("");
+  const [previewError, setPreviewError] = useState<string>("");
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+  const [previewLoading, setPreviewLoading] = useState<boolean>(false);
 
   const methods = useForm({
     resolver: zodResolver(configurationSchema),
-    defaultValues: defaultValues as any,
+    defaultValues: defaultValues,
     mode: "onChange",
   });
 
+  const resetOutput = useCallback(() => {
+    setFig(emptyFigure);
+    setLogs([]);
+    setSubmitError("");
+    setPreviewError("");
+    setSubmitLoading(false);
+    setPreviewLoading(false);
+  }, [
+    setFig,
+    setLogs,
+    setSubmitError,
+    setPreviewError,
+    setSubmitLoading,
+    setPreviewLoading,
+  ]);
+
   const onSubmit = useCallback(
-    async (data: typeof defaultValues) => {
-      if (isConnected) {
+    async (data: Configuration) => {
+      if (previewLoading || submitLoading) {
         console.warn("Already connected, ignoring new submission");
         return;
       }
@@ -84,8 +95,8 @@ export default function App() {
         console.error(methods.formState.errors);
         return;
       }
-      setLogs([]);
-      setFig(emptyFigure);
+      resetOutput();
+      setSubmitLoading(true);
       const response = await fetch("/api/run", {
         method: "POST",
         headers: {
@@ -96,13 +107,15 @@ export default function App() {
       if (response.status !== 202) {
         const error: ServerResponse = await response.json();
         if (error.cause) {
-          methods.setError(error.cause, {
+          methods.setError(error.cause as keyof Configuration, {
             type: "value",
             message: error.error,
           });
         } else {
           setSubmitError(error.error ?? "Unknown error");
         }
+        setSubmitLoading(false);
+        return;
       }
 
       // Create SSE connection
@@ -123,25 +136,97 @@ export default function App() {
 
       // Handle connection open
       eventSource.onopen = () => {
-        setIsConnected(true);
+        setSubmitLoading(true);
       };
 
       // Handle errors and close events
       eventSource.onerror = (error) => {
-        if (error.eventPhase !== EventSource.CLOSED)
+        if (error.eventPhase !== EventSource.CLOSED) {
           console.error("SSE error:", error);
-        setIsConnected(false);
+          setSubmitError("Error during submission");
+        }
+        setSubmitLoading(false);
         eventSource.close();
       };
 
       // Clean up on unmount
       return () => {
         eventSource.close();
-        setIsConnected(false);
+        setSubmitLoading(false);
       };
     },
-    [isConnected, setIsConnected, setLogs, setFig, methods]
+    [
+      setLogs,
+      setFig,
+      methods,
+      setSubmitError,
+      setSubmitLoading,
+      previewLoading,
+      submitLoading,
+      resetOutput,
+    ]
   );
+
+  const onPreview = useCallback(async () => {
+    if (
+      !(await methods.trigger([
+        "system_dynamics",
+        "X_bounds",
+        "X_init",
+        "X_unsafe",
+        "x_samples",
+        "xp_samples",
+      ]))
+    ) {
+      console.error("Form validation failed");
+      return;
+    }
+    const [x_samples, xp_samples] = methods.getValues([
+      "x_samples",
+      "xp_samples",
+    ]);
+    if (x_samples.length > 0 && xp_samples.length > 0) {
+      if (x_samples[0].length !== xp_samples[0].length) {
+        return setPreviewError(
+          "Samples must have the same dimension to be previewed"
+        );
+      }
+      if (x_samples[0].length > 3) {
+        return setPreviewError(
+          "4+ dimensional samples cannot be previewed"
+        );
+      }
+    }
+    resetOutput();
+    setPreviewLoading(true);
+    const response = await fetch("/api/preview-graph", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(methods.getValues()),
+    });
+    setPreviewLoading(false);
+    if (!response.ok) {
+      setFig({ data: [], layout: {} });
+      const error: ServerResponse = await response.json();
+      if (error.cause) {
+        methods.setError(error.cause as keyof Configuration, {
+          type: "value",
+          message: error.error,
+        });
+      }
+      setPreviewError(error.error ?? "Unknown error");
+      return;
+    }
+    const json = await response.json();
+    try {
+      setFig(json.fig ? JSON.parse(json.fig) : emptyFigure);
+    } catch (e) {
+      setFig(emptyFigure);
+      console.error("Failed to parse figure data:", e);
+    }
+  }, [methods, setFig, setPreviewError, setPreviewLoading, resetOutput]);
 
   const setCurrentStep = useCallback(
     (step: FormStepName) => {
@@ -159,22 +244,33 @@ export default function App() {
   );
 
   return (
-    <div className="bg-background text-foreground flex min-h-svh flex-col">
+    <div className="bg-background text-foreground min-h-svh">
       <Header
         errors={methods.formState.errors}
         steps={formSteps}
         setCurrentStep={setCurrentStep}
+        // @ts-expect-error reset is not typed properly
         reset={methods.reset}
+        methods={methods}
       />
-      <main className="flex-grow min-w-full mx-auto p-4 flex flex-row justify-evenly relative">
-        <InputSection />
-        <OutputSection />
-        <aside className="">
-          <h3>JSON Preview</h3>
-          <JsonPreview formData={methods.watch()} />
-        </aside>
+      <main className="h-[calc(100vh-4rem)] min-w-full mx-auto flex flex-row justify-evenly relative overflow-y-hidden">
+        <InputSection
+          // @ts-expect-error methods is not typed properly
+          methods={methods}
+          submitError={submitError}
+          previewError={previewError}
+          handlePreview={onPreview}
+          handleSubmit={methods.handleSubmit(onSubmit)}
+          submitLoading={submitLoading}
+          previewLoading={previewLoading}
+        />
+        <OutputSection
+          fig={fig}
+          logs={logs}
+          loading={submitLoading || previewLoading}
+        />
       </main>
-      <Footer />
+      {/* <Footer methods={methods} /> */}
     </div>
   );
 }

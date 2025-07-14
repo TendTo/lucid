@@ -1,29 +1,8 @@
 import FormSelectionInput from "@/components/FormSelectionInput";
 import FormTextInput from "@/components/FormTextInput";
-import { type FieldErrors, type FieldValues } from "react-hook-form";
+import FormCheckboxInput from "./FormCheckboxInput";
 
-export function algorithmFormErrors(errors: FieldErrors<FieldValues>): boolean {
-  return Boolean(
-    errors.verbose ||
-      errors.gamma ||
-      errors.c_coefficient ||
-      errors.lambda ||
-      errors.num_samples ||
-      errors.time_horizon ||
-      errors.sigma_f ||
-      errors.sigma_l ||
-      errors.num_frequencies ||
-      errors.oversample_factor ||
-      errors.num_oversample ||
-      errors.noise_scale ||
-      errors.estimator ||
-      errors.kernel ||
-      errors.feature_map ||
-      errors.optimiser
-  );
-}
-
-export default function ConfigAlgorithm() {
+export default function ConfigAdvanced() {
   return (
     <div>
       <h2 className="font-bold text-lg mb-2">Algorithm Parameters</h2>
@@ -181,6 +160,54 @@ export default function ConfigAlgorithm() {
             AlglibOptimiser: "Alglib Optimiser",
             HighsOptimiser: "Highs Optimiser",
           }}
+        />
+      </div>
+
+      <hr className="my-5" />
+
+      <h2 className="font-bold text-lg mb-2">Execution and Output</h2>
+
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
+        <FormSelectionInput
+          name="verbose"
+          label="Verbosity Level"
+          valueAsNumber
+          options={{
+            [-1]: "Silent",
+            0: "Critical",
+            1: "Error",
+            2: "Warning",
+            3: "Info",
+            4: "Debug",
+            5: "Trace",
+          }}
+        />
+
+        <FormTextInput
+          name="seed"
+          label="Random Seed"
+          placeholder="Enter random seed"
+          type="number"
+          min={-1}
+          description="Use -1 for random seed"
+        />
+
+        <FormCheckboxInput
+          name="plot"
+          label="Enable Plot"
+          description="Enable plotting of results"
+        />
+
+        <FormTextInput
+          name="problem_log_file"
+          label="Problem Log File"
+          placeholder="Enter problem log file path"
+        />
+
+        <FormTextInput
+          name="iis_log_file"
+          label="IIS Log File"
+          placeholder="Enter IIS log file path"
         />
       </div>
     </div>

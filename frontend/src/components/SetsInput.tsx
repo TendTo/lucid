@@ -2,6 +2,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { FaPlus } from "react-icons/fa6";
 import SetInput from "./SetInput";
+import { Button } from "./ui/button";
 
 type SetsInputProps = {
   name: string;
@@ -9,7 +10,7 @@ type SetsInputProps = {
 };
 
 export default function SetsInput({ name, label }: SetsInputProps) {
-  const { control, formState } = useFormContext();
+  const { control, formState, getValues } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: `${name}`,
@@ -17,17 +18,17 @@ export default function SetsInput({ name, label }: SetsInputProps) {
 
   // Very basic structure display - you'd want a proper editor here
   return (
-    <div className="form-group">
+    <div>
       <label className="block font-bold">{label}</label>
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-col gap-1">
         {fields.map((field, index) => (
-          <div className="my-2" key={field.id}>
+          <div key={field.id}>
             <SetInput
               name={name}
               idx={index}
               type="RectSet"
               label={`RectSet ${index + 1}`}
-              removeItself={remove}
+              removeItself={fields.length > 1 ? () => remove(index) : undefined}
             />
             <ErrorMessage
               errors={formState.errors}
@@ -39,21 +40,21 @@ export default function SetsInput({ name, label }: SetsInputProps) {
           </div>
         ))}
       </div>
+      <Button
+        onClick={() =>
+          append({ RectSet: Array(getValues("dimension")).fill([0, 1]) })
+        }
+        variant={"default"}
+      >
+        <FaPlus className="inline-block size-4" />
+      </Button>
       <ErrorMessage
         errors={formState.errors}
-        name={name}
+        name={`${name}.root`}
         render={({ message }) => (
           <small className="text-red-500 block mb-1">{message}</small>
         )}
       />
-      <button
-        type="button"
-        onClick={() => append({ RectSet: [[0, 1]] })}
-        className="btn btn-success flex items-center"
-      >
-        <FaPlus className="inline-block mr-1 size-4" />
-        Add set
-      </button>
     </div>
   );
 }

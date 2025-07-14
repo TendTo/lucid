@@ -75,7 +75,6 @@
       ]
     }
   },
-  "additionalProperties": false,
   "properties": {
     "$schema": {
       "description": "The path or URL to the JSON schema describing this file.",

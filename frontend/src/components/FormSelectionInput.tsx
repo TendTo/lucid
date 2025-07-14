@@ -1,5 +1,21 @@
-import { ErrorMessage } from "@hookform/error-message";
 import { useFormContext } from "react-hook-form";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 type FormTextInputProps = {
   label: string;
@@ -7,7 +23,6 @@ type FormTextInputProps = {
   placeholder?: string;
   description?: string;
   options: Record<string | number, string>;
-  defaultValue?: string | number;
   valueAsNumber?: boolean;
 };
 
@@ -18,31 +33,46 @@ export default function FormSelectionInput({
   options,
   valueAsNumber = false,
 }: FormTextInputProps) {
-  const { register, formState } = useFormContext();
+  const { control } = useFormContext();
   return (
-    <div>
-      <label className="block font-bold mb-1" htmlFor={name}>
-        {label}
-      </label>
-      <select
-        id={name}
-        className="w-full border rounded mb-1 px-3 py-2 border-solid border-[#ddd]"
-        {...register(name, { valueAsNumber })}
-      >
-        {Object.entries(options).map(([value, label]) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
-      {description && <small>{description}</small>}
-      <ErrorMessage
-        errors={formState.errors}
+    <>
+      <FormField
+        control={control}
         name={name}
-        render={({ message }) => (
-          <small className="text-red-500">{message}</small>
+        render={({ field }) => (
+          <FormItem>
+            <div className="flex items-center justify-between">
+              <FormLabel htmlFor={name}>{label}</FormLabel>
+              <FormMessage />
+            </div>
+            <FormControl className="">
+              <Select
+                onValueChange={(v) =>
+                  field.onChange(valueAsNumber ? Number(v) : v)
+                }
+                defaultValue={field.value.toString()}
+                name={field.name}
+                key={field.name}
+              >
+                <SelectTrigger id={field.name} className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>{label}</SelectLabel>
+                    {Object.entries(options).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormDescription>{description}</FormDescription>
+          </FormItem>
         )}
       />
-    </div>
+    </>
   );
 }

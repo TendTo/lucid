@@ -1,63 +1,136 @@
 import Logo from "@/assets/logo.svg";
-import Examples from "@/components/Examples";
-import JSONImportModal from "@/components/JSONImportModal";
+import JsonImportModal from "@/components/JsonImportModal";
 import type { FormStepName, FormSteps } from "@/types/types";
+import type { Configuration } from "@/utils/schema";
 import { Disclosure } from "@headlessui/react";
-import type { FieldValues, UseFormReset } from "react-hook-form";
-import { FaCheck, FaX } from "react-icons/fa6";
+import type { FieldErrors, useForm, UseFormReset } from "react-hook-form";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { FaArrowDown, FaShare } from "react-icons/fa6";
+import { Form } from "@/components/ui/form";
+import { useMemo } from "react";
+import ConfigAdvanced from "@/components/ConfigAdvanced";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import JsonPreview from "@/components/JsonPreview";
 
 export type HeaderProps = {
+  methods: ReturnType<typeof useForm<Configuration>>;
   errors: object;
   steps: FormSteps;
   setCurrentStep: (step: FormStepName) => void;
-  reset: UseFormReset<FieldValues>;
+  reset: UseFormReset<Configuration>;
 };
 
-export default function Header({
-  steps,
-  setCurrentStep,
-  errors,
-  reset,
-}: HeaderProps) {
+export function advancedError(errors: FieldErrors<Configuration>): boolean {
+  return Boolean(
+    errors.system_dynamics ||
+      errors.X_bounds ||
+      errors.X_init ||
+      errors.X_unsafe ||
+      errors.x_samples ||
+      errors.xp_samples
+  );
+}
+
+export default function Header({ reset, methods }: HeaderProps) {
+  const { formState } = methods;
+
+  const errors = useMemo(() => {
+    return [
+      "verbose",
+      "gamma",
+      "c_coefficient",
+      "lambda",
+      "num_samples",
+      "time_horizon",
+      "sigma_f",
+      "sigma_l",
+      "num_frequencies",
+      "oversample_factor",
+      "num_oversample",
+      "noise_scale",
+      "estimator",
+      "kernel",
+      "feature_map",
+      "optimiser",
+    ].some((key) => Object.hasOwn(formState.errors, key));
+  }, [formState]);
+
   return (
-    <header>
+    <header className="sticky top-0 h-16 z-50">
       <Disclosure as="nav" className="bg-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center justify-between h-16 px-6">
             <div className="flex items-center">
-              <div className="shrink-0">
-                <img alt="Lucid logo" src={Logo} className="size-8" />
-              </div>
+              <img alt="Lucid logo" src={Logo} className="size-8" />
               <h1 className="text-white">Lucid</h1>
-              <div className="ml-10 flex items-center space-x-4">
-                {Object.entries(steps).map(([key, item]) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    aria-current={item.current ? "page" : undefined}
-                    className={
-                      "rounded-md px-4 py-2 text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 decoration-wavy underline-offset-4" +
-                      (item.current ? " underline" : "")
-                    }
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCurrentStep(key as FormStepName);
-                    }}
-                  >
-                    {item.name}
-                    {item.error(errors) ? (
-                      <FaX className="inline-block ml-1 text-red-500" />
-                    ) : (
-                      <FaCheck className="inline-block ml-1 text-green-500" />
-                    )}
-                  </a>
-                ))}
-                <JSONImportModal reset={reset} />
-                <Examples reset={reset} />
-              </div>
+            </div>
+            <Drawer fixed={false}>
+              <DrawerTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={errors ? "text-red-500 border-red-500" : ""}
+                >
+                  Advanced
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="px-4">
+                <div className="mx-auto w-full">
+                  <DrawerHeader>
+                    <DrawerTitle>Advanced configuration</DrawerTitle>
+                    <DrawerDescription>
+                      Customize the scenario further with advanced settings.
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <Form {...methods}>
+                    <ConfigAdvanced />
+                  </Form>
+                  <DrawerFooter>
+                    <DrawerClose asChild>
+                      <Button variant="outline">
+                        <FaArrowDown />
+                      </Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </div>
+              </DrawerContent>
+            </Drawer>
+            <div className="ml-10 flex items-center space-x-4">
+              <JsonImportModal reset={reset} />
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline">
+                    <FaShare />
+                    Export
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="min-w-md">
+                  <SheetHeader>
+                    <SheetTitle>Export configuration</SheetTitle>
+                    <SheetDescription>
+                      Export the current configuration as a JSON file.
+                    </SheetDescription>
+                  </SheetHeader>
+                  <JsonPreview formData={methods.watch()} />
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
-        </div>
       </Disclosure>
     </header>
   );
