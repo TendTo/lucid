@@ -63,6 +63,15 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
       localStorage.setItem("lucid-import-json", jsonText);
       // Reset form with new values
       reset(parsedJson);
+      // Ugly workaround to properly format the samples input
+      for (const sample of ["x_samples", "xp_samples"]) {
+        const element = document.getElementById(sample) as HTMLTextAreaElement | null;
+        if (element) {
+          element.value = parsedJson[sample]
+            .map((s: number[]) => s.join(","))
+            .join("\n");
+        }
+      }
       setError(null);
       setOpen(false);
     } catch (e) {
@@ -165,7 +174,9 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         />
-        <small className="text-red-500">{error}</small>
+        <small className="text-red-500 max-h-48 overflow-y-scroll">
+          {error}
+        </small>
         <DialogFooter>
           <FileUpload
             label="Upload JSON"

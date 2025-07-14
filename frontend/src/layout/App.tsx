@@ -109,14 +109,18 @@ export default function App() {
         body: JSON.stringify(data),
       });
       if (response.status !== 202) {
-        const error: ServerResponse = await response.json();
-        if (error.cause) {
-          methods.setError(error.cause as keyof Configuration, {
-            type: "value",
-            message: error.error,
-          });
-        } else {
-          setSubmitError(error.error ?? "Unknown error");
+        try {
+          const error: ServerResponse = await response.json();
+          if (error.cause) {
+            methods.setError(error.cause as keyof Configuration, {
+              type: "value",
+              message: error.error,
+            });
+          } else {
+            setSubmitError(error.error ?? "Unknown error");
+          }
+        } catch {
+          setSubmitError("Unknown error");
         }
         setSubmitLoading(false);
         return;
