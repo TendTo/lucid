@@ -78,6 +78,7 @@ coverage.xml
 docs/out/
 
 # Temporary files and directories
+/flask_session/
 temp/
 temp.*
 

@@ -53,7 +53,7 @@ Changelog = "https://github.com/TendTo/lucid/blob/main/docs/Changelog.md"
 verification = ["dreal"]
 plot = ["plotly<=6.2.0"]
 test = ["pytest"]
-gui = ["flask<=3.1.1", "plotly<=6.2.0", "flask-cors<=6.0.1"]
+gui = ["flask<=3.1.1", "plotly<=6.2.0", "flask-cors<=6.0.1", "flask-session[cachelib]<=0.8.0"]
 
 [project.scripts]
 pylucid = "pylucid.__main__:main"

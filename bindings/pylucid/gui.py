@@ -8,8 +8,10 @@ import webbrowser
 from queue import Queue
 
 import numpy as np
+from cachelib import FileSystemCache
 from flask import Blueprint, Flask, Response, request, send_from_directory, session
 from flask_cors import CORS
+from flask_session import Session
 from jsonschema import ValidationError
 from pyparsing import ParseException
 
@@ -170,6 +172,8 @@ class CliArgs(argparse.Namespace):
     release: bool
     host: str
     port: int
+    cache_dir: str
+    threshold: int
 
 
 def parse_args(args: "list[str] | None" = None) -> CliArgs:
@@ -192,6 +196,20 @@ def parse_args(args: "list[str] | None" = None) -> CliArgs:
         action="store_true",
         help="Run the app in release mode.",
     )
+    parser.add_argument(
+        "-c",
+        "--cache-dir",
+        type=str,
+        help="Directory to store cache files.",
+        default="flask_session",
+    )
+    parser.add_argument(
+        "-t",
+        "--threshold",
+        type=int,
+        help="Threshold for cache size.",
+        default=500,
+    )
     return parser.parse_args()
 
 
@@ -199,6 +217,9 @@ def main():
     args = parse_args()
     app = Flask(__name__, static_folder="frontend", static_url_path="")
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex())
+    app.config["SESSION_TYPE"] = "cachelib"
+    app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir=args.cache_dir, threshold=args.threshold)
+    Session(app)
     app.register_blueprint(blueprint, url_prefix="/api")
 
     @app.route("/", methods=["GET"])
