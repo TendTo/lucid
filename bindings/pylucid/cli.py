@@ -172,8 +172,7 @@ class ConfigAction(Action):
         try:
             Draft202012Validator(schema).validate(instance=config_dict)
         except ValidationError as e:
-            prefix = f'[validation] {".".join(e.absolute_path) if e.absolute_path else ""}'
-            raise raise_error(f"{prefix}: {e.message}", ValidationError) from (
+            raise raise_error(f"{e.message}", ValidationError) from (
                 e if verbosity >= log.LOG_DEBUG else None
             )
 
@@ -259,7 +258,7 @@ class FloatOrNVectorAction(Action):
         super().__init__(nargs="+", **kwargs)
 
     def __call__(self, parser, namespace, values: "float | list[float]", option_string=None):
-        if isinstance(values, float):
+        if isinstance(values, (float, int)):
             values = [values]
         setattr(namespace, self.dest, np.array(values, dtype=np.float64) if len(values) > 1 else float(values[0]))
 

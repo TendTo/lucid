@@ -19,7 +19,6 @@ from .cli import ConfigAction, Configuration
 from .pipeline import OptimiserResult, pipeline
 from .plot import plot_data, plot_function
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 QUEUES: "dict[int, Queue[str]]" = {}
@@ -35,7 +34,7 @@ def run_lucid(args: Configuration):
     def check_cb(result: "OptimiserResult"):
         if not result["success"]:
             result["error"] = "Optimization failed"
-        else:
+        if isinstance(result["sol"], np.ndarray):
             result["sol"] = result["sol"].tolist()
         if result["fig"] is not None:
             result["fig"] = result["fig"].to_json(validate=False)
@@ -111,13 +110,17 @@ def preview_graph():
     if not isinstance(args, Configuration):
         return args
     if args.system_dynamics is not None:
-        fig = plot_function(
-            X_bounds=args.X_bounds,
-            X_init=args.X_init,
-            X_unsafe=args.X_unsafe,
-            f=args.system_dynamics,
-            show=False,
-        )
+        try:
+            fig = plot_function(
+                X_bounds=args.X_bounds,
+                X_init=args.X_init,
+                X_unsafe=args.X_unsafe,
+                f=args.system_dynamics,
+                show=False,
+            )
+        except ValueError as ve:
+            logger.error(f"Could not plot function: {ve}")
+            return {"error": f"Could not plot function: {ve}"}, 400
     elif len(args.x_samples) > 0 and (len(args.xp_samples) > 0 or args.system_dynamics is not None):
         if len(args.xp_samples) == 0 and args.system_dynamics is not None:
             # If xp_samples is not provided, compute it using the system dynamics function
