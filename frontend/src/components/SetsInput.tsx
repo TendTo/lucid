@@ -42,7 +42,9 @@ export default function SetsInput({ name, label }: SetsInputProps) {
       </div>
       <Button
         onClick={() =>
-          append({ RectSet: Array(getValues("dimension")).fill([0, 1]) })
+          append({
+            RectSet: Array(getValues("X_bounds.0.RectSet").length).fill([0, 1]),
+          })
         }
         variant={"default"}
       >

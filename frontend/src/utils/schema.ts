@@ -246,7 +246,7 @@ export const configurationSchema = z
   })
   .superRefine((data, ctx) => {
     const sampleDimension = data.x_samples.at(0)?.length ?? 0;
-    if (sampleDimension === data.dimension) return;
+    if (sampleDimension === 0 || sampleDimension === data.dimension) return;
     for (const cause of ["x_samples", "dimension"] as const) {
       ctx.addIssue({
         path: [cause],
