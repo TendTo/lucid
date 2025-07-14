@@ -2,7 +2,8 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] [%(threadName)s] [-] %(message)s")
 log = logging.getLogger(__name__)
-                        
+
+
 def raise_error(message: str, error_type: type = ValueError):
     """Raise an error with the given message."""
     log.error(message)

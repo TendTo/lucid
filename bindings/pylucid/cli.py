@@ -20,7 +20,7 @@ from .util import assert_or_raise, raise_error
 if TYPE_CHECKING:
     from typing import Any, Callable
 
-    from ._pyludic import NMatrix, NVector
+    from ._pylucid import NMatrix, NVector
 
 
 @dataclass
@@ -172,9 +172,7 @@ class ConfigAction(Action):
         try:
             Draft202012Validator(schema).validate(instance=config_dict)
         except ValidationError as e:
-            raise raise_error(f"{e.message}", ValidationError) from (
-                e if verbosity >= log.LOG_DEBUG else None
-            )
+            raise raise_error(f"{e.message}", ValidationError) from (e if verbosity >= log.LOG_DEBUG else None)
 
     def dict_to_configuration(self, config_dict: dict, args: Configuration) -> Configuration:
         """
