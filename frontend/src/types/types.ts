@@ -31,7 +31,6 @@ export type ServerResponse = {
   error?: string;
   log?: string;
   cause?: string;
-  uuid?: string;
   verified?: boolean;
 };
 
@@ -43,4 +42,13 @@ export type LogEntry = {
 
 export type RectSet = {
   RectSet: [number, number][];
+};
+
+export type SuccessResponseData = {
+  success: boolean;
+  obj_val?: number;
+  eta?: number;
+  c?: number;
+  norm?: number;
+  verified?: boolean;
 };

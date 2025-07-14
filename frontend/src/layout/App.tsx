@@ -8,6 +8,7 @@ import type {
   FormSteps,
   LogEntry,
   ServerResponse,
+  SuccessResponseData,
 } from "@/types/types";
 import { defaultValues, emptyFigure } from "@/utils/constants";
 import { parseLogEntry } from "@/utils/parseLog";
@@ -45,6 +46,9 @@ export default function App() {
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
   const [fig, setFig] = useState<PlotParams>(emptyFigure);
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [successData, setSuccessData] = useState<SuccessResponseData | null>(
+    null
+  );
 
   const [submitError, setSubmitError] = useState<string>("");
   const [previewError, setPreviewError] = useState<string>("");
@@ -60,6 +64,7 @@ export default function App() {
   const resetOutput = useCallback(() => {
     setFig(emptyFigure);
     setLogs([]);
+    setSuccessData(null);
     setSubmitError("");
     setPreviewError("");
     setSubmitLoading(false);
@@ -67,6 +72,7 @@ export default function App() {
   }, [
     setFig,
     setLogs,
+    setSuccessData,
     setSubmitError,
     setPreviewError,
     setSubmitLoading,
@@ -132,6 +138,17 @@ export default function App() {
           setFig(emptyFigure);
           console.error("Failed to parse figure data:", e);
         }
+
+        if (data.success !== undefined) {
+          setSuccessData({
+            success: data.success,
+            obj_val: data.obj_val,
+            eta: data.eta,
+            c: data.c,
+            norm: data.norm,
+            verified: data.verified,
+          });
+        }
       };
 
       // Handle connection open
@@ -192,9 +209,7 @@ export default function App() {
         );
       }
       if (x_samples[0].length > 3) {
-        return setPreviewError(
-          "4+ dimensional samples cannot be previewed"
-        );
+        return setPreviewError("4+ dimensional samples cannot be previewed");
       }
     }
     resetOutput();
@@ -268,6 +283,7 @@ export default function App() {
           fig={fig}
           logs={logs}
           loading={submitLoading || previewLoading}
+          successData={successData}
         />
       </main>
       {/* <Footer methods={methods} /> */}

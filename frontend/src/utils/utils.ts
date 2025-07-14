@@ -22,3 +22,8 @@ export function parseNumberList(value: string) {
   );
   return numbers;
 }
+
+export function formatNumber(value: number | undefined) {
+  if (value === undefined) return "N/A";
+  return typeof value === "number" ? value.toFixed(6) : value;
+}
