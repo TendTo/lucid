@@ -32,11 +32,11 @@ def generate_stub_files(out_dir: str, _pylucid_pyi: str):
                 b"import numpy.typing as npt\n"
                 b"K = typing.TypeVar('K', bound=Kernel)\n"
                 b"T = typing.TypeVar('T', bound=Tuner)\n"
-                b"NVector: typing.TypeAlias = np.ndarray[tuple[int], np.float64]\n"
-                b"NMatrix: typing.TypeAlias = np.ndarray[tuple[int, int], np.float64]\n"
-                b"NArray: typing.TypeAlias = npt.NDArray[np.float64]\n"
-                b"ParameterValueType: typing.TypeAlias = int | float | NVector\n"
-                b"ParameterValuesType: typing.TypeAlias = tuple[int, ...] | tuple[float, ...] | tuple[NVector, ...]\n",
+                b"NVector = np.ndarray[tuple[int], np.float64]\n"
+                b"NMatrix = np.ndarray[tuple[int, int], np.float64]\n"
+                b"NArray = npt.NDArray[np.float64]\n"
+                b"ParameterValueType = int | float | NVector\n"
+                b"ParameterValuesType = tuple[int, ...] | tuple[float, ...] | tuple[NVector, ...]\n",
                 1,
             )
             # Generics
