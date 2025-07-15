@@ -234,8 +234,11 @@ class ConfigAction(Action):
                 set_value = self.parse_set_from_config(config_dict[set_name])
                 setattr(args, set_name, set_value)
 
-    def parse_set_from_config(self, set_config: "dict | list") -> "Set":
+    def parse_set_from_config(self, set_config: "dict | list | str") -> "Set":
         """Helper function to parse set objects from dictionary/list representation"""
+        if isinstance(set_config, str):
+            set_parser = SetParser()
+            return set_parser.parse(set_config)
         if not isinstance(set_config, dict):
             if len(set_config) == 0:
                 raise raise_error("Set configuration cannot be empty")

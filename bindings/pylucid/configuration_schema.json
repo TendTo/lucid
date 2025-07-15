@@ -22,14 +22,21 @@
           "type": "array",
           "minItems": 1,
           "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["RectSet"],
-            "properties": {
-              "RectSet": {
-                "$ref": "#/$defs/rect_set"
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["RectSet"],
+                "properties": {
+                  "RectSet": {
+                    "$ref": "#/$defs/rect_set"
+                  }
+                }
               }
-            }
+            ]
           }
         }
       ]
