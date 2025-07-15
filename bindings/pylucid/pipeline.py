@@ -88,6 +88,7 @@ def pipeline(
     Returns:
         True if the optimization was successful, False otherwise.
     """
+    log.debug(f"Pipeline started with {args}")
     assert (
         args.x_samples.shape[0] == args.xp_samples.shape[0]
     ), "x_samples and xp_samples must have the same number of samples"
@@ -104,8 +105,8 @@ def pipeline(
 
     if isinstance(args.estimator, type):
         estimator = args.estimator(
-            kernel=args.kernel(sigma_l=1, sigma_f=args.sigma_f),
-            regularization_constant=1e-6,
+            kernel=args.kernel(sigma_l=args.sigma_l, sigma_f=args.sigma_f),
+            regularization_constant=args.lambda_,
             **({"tuner": args.tuner} if args.tuner is not None else {}),
         )
     else:
