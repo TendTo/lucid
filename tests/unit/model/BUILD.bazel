@@ -8,6 +8,14 @@ lucid_cc_googletest(
 )
 
 lucid_cc_googletest(
+    name = "test_sphere_set",
+    deps = [
+        "//lucid/model:set",
+        "//lucid/util:exception",
+    ],
+)
+
+lucid_cc_googletest(
     name = "test_multi_set",
     deps = [
         "//lucid/model:set",
