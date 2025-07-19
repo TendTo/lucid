@@ -1,6 +1,6 @@
 import numpy as np
 
-from pylucid import MultiSet, SphereSet, RectSet, Set
+from pylucid import MultiSet, RectSet, Set, SphereSet
 
 
 class TestSet:

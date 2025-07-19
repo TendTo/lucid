@@ -2,7 +2,16 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ._pylucid import Estimator, FeatureMap, MultiSet, RectSet, Set, exception, log
+from ._pylucid import (
+    Estimator,
+    FeatureMap,
+    MultiSet,
+    RectSet,
+    Set,
+    SphereSet,
+    exception,
+    log,
+)
 from .util import assert_or_raise
 
 if TYPE_CHECKING:
@@ -44,56 +53,141 @@ def validate_inputs(
 
 def plot_set(
     plt_fun: "Callable[[Set, str, str, go.Figure], None]",
-    x_set: "RectSet | MultiSet",
+    x_set: "Set",
     color: str,
     label: str = "",
     fig: go.Figure = None,
 ) -> go.Figure:
     if fig is None:
         fig = go.Figure()
-    if isinstance(x_set, RectSet):
-        plt_fun(x_set, color, label, fig)
-    elif isinstance(x_set, MultiSet):
+    if isinstance(x_set, MultiSet):
         for i, rect in enumerate(x_set):
             plt_fun(rect, color, label if i == 0 else "", fig)
-    else:
-        raise ValueError("X_set must be a RectSet or MultiSet.")
+    plt_fun(x_set, color, label, fig)
 
     return fig
 
 
-def plot_set_1d(X_set: "RectSet | MultiSet", color: str, label: str = "", fig: go.Figure = None) -> go.Figure:
+def plot_set_1d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None) -> go.Figure:
     """
     Plot the given set in 1D.
 
     Args:
-        X_set: A RectSet or MultiSet representing the set to be plotted.
+        X_set: A Set representing the set to be plotted.
         color: The color to use for plotting the set.
         label: Label for the set.
         fig: Existing figure to add to.
     """
 
-    def plot_rect_1d(rect: RectSet, color: str, label: str, fig: go.Figure):
-        fig.add_shape(
-            type="line",
-            xref="x",
-            yref="y",
-            x0=rect.lower_bound[0],
-            y0=0,
-            x1=rect.upper_bound[0],
-            y1=0,
-            line=dict(color=color, width=3),
-            name=label,
-            showlegend=bool(label),
-        )
+    def plot_rect_1d(s: Set, color: str, label: str, fig: go.Figure):
+        if isinstance(s, RectSet):
+            fig.add_shape(
+                type="line",
+                xref="x",
+                yref="y",
+                x0=s.lower_bound[0],
+                y0=0,
+                x1=s.upper_bound[0],
+                y1=0,
+                line=dict(color=color, width=3),
+                name=label,
+                showlegend=bool(label),
+            )
+        elif isinstance(s, SphereSet):
+            fig.add_shape(
+                type="line",
+                xref="x",
+                yref="y",
+                x0=s.center[0] - s.radius,
+                y0=0,
+                x1=s.center[0] + s.radius,
+                y1=0,
+                line=dict(color=color, width=3),
+                name=label,
+                showlegend=bool(label),
+            )
 
     return plot_set(plot_rect_1d, X_set, color, label, fig)
 
 
+def plot_set_2d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None):
+    """
+    Plot the given set in 2D.
+
+    Args:
+        X_set: A Set representing the set to be plotted.
+        color: The color to use for plotting the set.
+        label: Label for the set.
+        fig: Existing figure to add to.
+    """
+
+    def plot_rect_2d(s: Set, color: str, label: str, fig: go.Figure):
+        if isinstance(s, RectSet):
+            x = [s.lower_bound[0], s.upper_bound[0], s.upper_bound[0], s.lower_bound[0], s.lower_bound[0]]
+            y = [s.lower_bound[1], s.lower_bound[1], s.upper_bound[1], s.upper_bound[1], s.lower_bound[1]]
+            z = [0, 0, 0, 0, 0]
+
+            fig.add_scatter3d(
+                x=x, y=y, z=z, mode="lines", line=dict(color=color, width=5), name=label, showlegend=bool(label)
+            )
+        elif isinstance(s, SphereSet):
+            theta = np.linspace(0, 2 * np.pi, 100)
+            x = s.center[0] + s.radius * np.cos(theta)
+            y = s.center[1] + s.radius * np.sin(theta)
+            z = np.zeros_like(x)
+
+            fig.add_scatter3d(
+                x=x, y=y, z=z, mode="lines", line=dict(color=color, width=5), name=label, showlegend=bool(label)
+            )
+            # TODO: fix
+
+    return plot_set(plot_rect_2d, X_set, color, label, fig)
+
+
+def plot_set_2d_plane(X_set: "Set", color: str, label: str = "", fig: go.Figure = None):
+    """
+    Plot the given set in 2D.
+
+    Args:
+        X_set: A Set representing the set to be plotted.
+        color: The color to use for plotting the set.
+        label: Label for the set.
+        fig: Existing figure to add to.
+    """
+
+    def plot_rect_2d(s: Set, color: str, label: str, fig: go.Figure):
+        if isinstance(s, RectSet):
+            fig.add_shape(
+                type="rect",
+                x0=s.lower_bound[0],
+                y0=s.lower_bound[1],
+                x1=s.upper_bound[0],
+                y1=s.upper_bound[1],
+                line=dict(color=color),
+                name=label,
+                showlegend=bool(label),
+            )
+        elif isinstance(s, SphereSet):
+            fig.add_shape(
+                type="circle",
+                xref="x",
+                yref="y",
+                x0=s.center[0] - s.radius,
+                y0=s.center[1] - s.radius,
+                x1=s.center[0] + s.radius,
+                y1=s.center[1] + s.radius,
+                line=dict(color=color),
+                name=label,
+                showlegend=bool(label),
+            )
+
+    return plot_set(plot_rect_2d, X_set, color, label, fig)
+
+
 def plot_solution_1d(
     X_bounds: "RectSet",
-    X_init: "RectSet | None" = None,
-    X_unsafe: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
     feature_map: "FeatureMap | None" = None,
     sol: "NVector | None" = None,
     eta: "float | None" = None,
@@ -129,78 +223,64 @@ def plot_solution_1d(
         values = feature_map(x_lattice) @ sol.T
 
         # Plot B(x)
-        fig.add_trace(
-            go.Scatter(x=x_lattice.flatten(), y=values.flatten(), mode="lines", line=dict(color="green"), name="B(x)")
-        )
+        fig.add_scatter(x=x_lattice.flatten(), y=values.flatten(), mode="lines", line=dict(color="green"), name="B(x)")
 
         # Fill area for barrier
-        fig.add_trace(
-            go.Scatter(
-                x=x_lattice.flatten(),
-                y=(values + c + 1e-8).flatten(),
-                fill="tonexty",
-                fillcolor="rgba(144, 238, 144, 0.3)",
-                line=dict(color="rgba(255,255,255,0)"),
-                showlegend=False,
-                name="Barrier region",
-            )
+        fig.add_scatter(
+            x=x_lattice.flatten(),
+            y=(values + c + 1e-8).flatten(),
+            fill="tonexty",
+            fillcolor="rgba(144, 238, 144, 0.3)",
+            line=dict(color="rgba(255,255,255,0)"),
+            showlegend=False,
+            name="Barrier region",
         )
 
         if f is not None:
             f_values = feature_map(f(x_lattice)) @ sol.T
-            fig.add_trace(
-                go.Scatter(
-                    x=x_lattice.flatten(), y=f_values.flatten(), mode="lines", line=dict(color="black"), name="B(xp)"
-                )
+            fig.add_scatter(
+                x=x_lattice.flatten(), y=f_values.flatten(), mode="lines", line=dict(color="black"), name="B(xp)"
             )
 
         if estimator is not None:
             est_values = estimator(x_lattice) @ sol.T
-            fig.add_trace(
-                go.Scatter(
-                    x=x_lattice.flatten(),
-                    y=est_values.flatten(),
-                    mode="lines",
-                    line=dict(color="purple"),
-                    name="B(xp) via regression",
-                )
+            fig.add_scatter(
+                x=x_lattice.flatten(),
+                y=est_values.flatten(),
+                mode="lines",
+                line=dict(color="purple"),
+                name="B(xp) via regression",
             )
 
         # Lattice points
         x_lattice_grid = X_bounds.lattice(num_samples or (feature_map.num_frequencies * 4), True)
         lattice_values = feature_map(x_lattice_grid) @ sol.T
-        fig.add_trace(
-            go.Scatter(
-                x=x_lattice_grid.flatten(),
-                y=lattice_values.flatten(),
-                mode="markers",
-                marker=dict(color="green"),
-                name="B(x) (lattice)",
-            )
+        fig.add_scatter(
+            x=x_lattice_grid.flatten(),
+            y=lattice_values.flatten(),
+            mode="markers",
+            marker=dict(color="green"),
+            name="B(x) (lattice)",
         )
 
         if f is not None:
             f_lattice_values = feature_map(f(x_lattice_grid)) @ sol.T
-            fig.add_trace(
-                go.Scatter(
-                    x=x_lattice_grid.flatten(),
-                    y=f_lattice_values.flatten(),
-                    mode="markers",
-                    marker=dict(color="black"),
-                    name="B(xp) (lattice)",
-                )
+            fig.add_scatter(
+                x=x_lattice_grid.flatten(),
+                y=f_lattice_values.flatten(),
+                mode="markers",
+                marker=dict(color="black"),
+                name="B(xp) (lattice)",
             )
 
         if estimator is not None:
             est_lattice_values = estimator(x_lattice_grid) @ sol.T
-            fig.add_trace(
-                go.Scatter(
-                    x=x_lattice_grid.flatten(),
-                    y=est_lattice_values.flatten(),
-                    mode="markers",
-                    marker=dict(color="purple"),
-                    name="B(xp) via regression (lattice)",
-                )
+            fig.add_scatter(
+                x=x_lattice_grid.flatten(),
+                y=est_lattice_values.flatten(),
+                mode="markers",
+                marker=dict(color="purple"),
+                name="B(xp) via regression (lattice)",
             )
 
     fig.update_layout(title="Barrier certificate", xaxis_title="State space", showlegend=True)
@@ -210,83 +290,32 @@ def plot_solution_1d(
     return fig
 
 
-def plot_set_2d(X_set: "RectSet | MultiSet", color: str, label: str = "", fig: go.Figure = None):
-    """
-    Plot the given set in 2D.
-
-    Args:
-        X_set: A RectSet or MultiSet representing the set to be plotted.
-        color: The color to use for plotting the set.
-        label: Label for the set.
-        fig: Existing figure to add to.
-    """
-
-    def plot_rect_2d(rect: RectSet, color: str, label: str, fig: go.Figure):
-        x = [rect.lower_bound[0], rect.upper_bound[0], rect.upper_bound[0], rect.lower_bound[0], rect.lower_bound[0]]
-        y = [rect.lower_bound[1], rect.lower_bound[1], rect.upper_bound[1], rect.upper_bound[1], rect.lower_bound[1]]
-        z = [0, 0, 0, 0, 0]
-
-        fig.add_trace(
-            go.Scatter3d(
-                x=x, y=y, z=z, mode="lines", line=dict(color=color, width=5), name=label, showlegend=bool(label)
-            )
-        )
-
-    return plot_set(plot_rect_2d, X_set, color, label, fig)
-
-
-def plot_set_2d_plane(X_set: "RectSet | MultiSet", color: str, label: str = "", fig: go.Figure = None):
-    """
-    Plot the given set in 2D.
-
-    Args:
-        X_set: A RectSet or MultiSet representing the set to be plotted.
-        color: The color to use for plotting the set.
-        label: Label for the set.
-        fig: Existing figure to add to.
-    """
-
-    def plot_rect_2d(rect: RectSet, color: str, label: str, fig: go.Figure):
-        fig.add_shape(
-            type="rect",
-            x0=rect.lower_bound[0],
-            y0=rect.lower_bound[1],
-            x1=rect.upper_bound[0],
-            y1=rect.upper_bound[1],
-            line=dict(color=color),
-            name=label,
-            showlegend=bool(label),
-        )
-
-    return plot_set(plot_rect_2d, X_set, color, label, fig)
-
-
-def plot_set_3d(X_set: "RectSet | MultiSet", color: str, label: str = "", fig: go.Figure = None):
+def plot_set_3d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None):
     """
     Plot the given set in 3D.
 
     Args:
-        X_set: A RectSet or MultiSet representing the set to be plotted.
+        X_set: A Set representing the set to be plotted.
         color: The color to use for plotting the set.
         label: Label for the set.
         fig: Existing figure to add to.
     """
 
-    def plot_rect_3d(rect: RectSet, color: str, label: str, fig: go.Figure):
-        x_l, x_u = rect.lower_bound[0], rect.upper_bound[0]
-        y_l, y_u = rect.lower_bound[1], rect.upper_bound[1]
-        z_l, z_u = rect.lower_bound[2], rect.upper_bound[2]
-        # Draw a cube for the rectangle
-        # TODO: I'm sure there is a more elegant way to do this
-        x = [x_l, x_u, x_u, x_l, x_l, None, x_l, x_u, x_u, x_l, x_l, None]
-        y = [y_l, y_l, y_u, y_u, y_l, None, y_l, y_l, y_u, y_u, y_l, None]
-        z = [z_l, z_l, z_l, z_l, z_l, None, z_u, z_u, z_u, z_u, z_u, None]
-        x += [x_l, x_l, None, x_u, x_u, None, x_l, x_l, None, x_u, x_u, None]
-        y += [y_l, y_l, None, y_l, y_l, None, y_u, y_u, None, y_u, y_u, None]
-        z += [z_l, z_u, None, z_l, z_u, None, z_l, z_u, None, z_l, z_u, None]
+    def plot_rect_3d(s: Set, color: str, label: str, fig: go.Figure):
+        if isinstance(s, RectSet):
+            x_l, x_u = s.lower_bound[0], s.upper_bound[0]
+            y_l, y_u = s.lower_bound[1], s.upper_bound[1]
+            z_l, z_u = s.lower_bound[2], s.upper_bound[2]
+            # Draw a cube for the rectangle
+            # TODO: I'm sure there is a more elegant way to do this
+            x = [x_l, x_u, x_u, x_l, x_l, None, x_l, x_u, x_u, x_l, x_l, None]
+            y = [y_l, y_l, y_u, y_u, y_l, None, y_l, y_l, y_u, y_u, y_l, None]
+            z = [z_l, z_l, z_l, z_l, z_l, None, z_u, z_u, z_u, z_u, z_u, None]
+            x += [x_l, x_l, None, x_u, x_u, None, x_l, x_l, None, x_u, x_u, None]
+            y += [y_l, y_l, None, y_l, y_l, None, y_u, y_u, None, y_u, y_u, None]
+            z += [z_l, z_u, None, z_l, z_u, None, z_l, z_u, None, z_l, z_u, None]
 
-        fig.add_trace(
-            go.Scatter3d(
+            fig.add_scatter3d(
                 x=x,
                 y=y,
                 z=z,
@@ -295,15 +324,35 @@ def plot_set_3d(X_set: "RectSet | MultiSet", color: str, label: str = "", fig: g
                 name=label,
                 showlegend=bool(label),
             )
-        )
+        elif isinstance(s, SphereSet):
+            # Adapted from https://community.plotly.com/t/adding-wireframe-around-a-sphere/37661/2
+            theta = np.linspace(0, 2 * np.pi, 120)
+            phi = np.linspace(0, np.pi, 60)
+            x = []
+            y = []
+            z = []
+            for t in [theta[10 * k] for k in range(12)]:  # meridians:
+                x.extend(
+                    list(s.center[0] + s.radius * np.cos(t) * np.sin(phi)) + [None]
+                )  # None is inserted to mark the end of a meridian line
+                y.extend(list(s.center[1] + s.radius * np.sin(t) * np.sin(phi)) + [None])
+                z.extend(list(s.center[2] + s.radius * np.cos(phi)) + [None])
+            for p in [phi[6 * k] for k in range(10)]:  # parallels
+                x.extend(
+                    list(s.center[0] + s.radius * np.cos(theta) * np.sin(p)) + [None]
+                )  # None is inserted to mark the end of a parallel line
+                y.extend(list(s.center[1] + s.radius * np.sin(theta) * np.sin(p)) + [None])
+                z.extend([s.center[2] + s.radius * np.cos(p)] * 120 + [None])
+
+            fig.add_scatter3d(x=x, y=y, z=z, mode="lines", line_color=color, name=label, showlegend=bool(label))
 
     return plot_set(plot_rect_3d, X_set, color, label, fig)
 
 
 def plot_solution_2d(
     X_bounds: "RectSet",
-    X_init: "RectSet | None" = None,
-    X_unsafe: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
     feature_map: "FeatureMap | None" = None,
     sol: "NVector | None" = None,
     eta: "float | None" = None,
@@ -340,36 +389,30 @@ def plot_solution_2d(
         Z = feature_map(points) @ sol.T
         Z = Z.reshape(X.shape)
 
-        fig.add_trace(
-            go.Surface(x=X, y=Y, z=Z, colorscale="Viridis", opacity=0.7, name="B(x)", showscale=False, showlegend=True)
-        )
+        fig.add_surface(x=X, y=Y, z=Z, colorscale="Viridis", opacity=0.7, name="B(x)", showscale=False, showlegend=True)
 
         # Plot eta and gamma as planes
         if eta is not None:
-            fig.add_trace(
-                go.Surface(
-                    x=X,
-                    y=Y,
-                    z=np.full_like(X, eta),
-                    colorscale=[[0, "green"], [1, "green"]],
-                    opacity=0.2,
-                    name="eta",
-                    showscale=False,
-                    showlegend=True,
-                )
+            fig.add_surface(
+                x=X,
+                y=Y,
+                z=np.full_like(X, eta),
+                colorscale=[[0, "green"], [1, "green"]],
+                opacity=0.2,
+                name="eta",
+                showscale=False,
+                showlegend=True,
             )
         if gamma is not None:
-            fig.add_trace(
-                go.Surface(
-                    x=X,
-                    y=Y,
-                    z=np.full_like(X, gamma),
-                    colorscale=[[0, "red"], [1, "red"]],
-                    opacity=0.2,
-                    name="gamma",
-                    showscale=False,
-                    showlegend=True,
-                )
+            fig.add_surface(
+                x=X,
+                y=Y,
+                z=np.full_like(X, gamma),
+                colorscale=[[0, "red"], [1, "red"]],
+                opacity=0.2,
+                name="gamma",
+                showscale=False,
+                showlegend=True,
             )
             fig.update_layout(scene=dict(zaxis=dict(range=[0, gamma + 1])))
 
@@ -378,33 +421,29 @@ def plot_solution_2d(
             points_f = f(points)
             Zp = feature_map(points_f) @ sol.T
             Zp = Zp.reshape(X.shape)
-            fig.add_trace(
-                go.Surface(
-                    x=X,
-                    y=Y,
-                    z=Zp,
-                    colorscale=[[0, "black"], [1, "black"]],
-                    opacity=0.3,
-                    name="B(xp)",
-                    showscale=False,
-                    showlegend=True,
-                )
+            fig.add_surface(
+                x=X,
+                y=Y,
+                z=Zp,
+                colorscale=[[0, "black"], [1, "black"]],
+                opacity=0.3,
+                name="B(xp)",
+                showscale=False,
+                showlegend=True,
             )
 
         if estimator is not None:
             Z_est = estimator(points) @ sol.T
             Z_est = Z_est.reshape(X.shape)
-            fig.add_trace(
-                go.Surface(
-                    x=X,
-                    y=Y,
-                    z=Z_est,
-                    colorscale=[[0, "purple"], [1, "purple"]],
-                    opacity=0.3,
-                    name="B(xp) via regression",
-                    showscale=False,
-                    showlegend=True,
-                )
+            fig.add_surface(
+                x=X,
+                y=Y,
+                z=Z_est,
+                colorscale=[[0, "purple"], [1, "purple"]],
+                opacity=0.3,
+                name="B(xp) via regression",
+                showscale=False,
+                showlegend=True,
             )
 
     fig.update_layout(
@@ -440,24 +479,20 @@ def plot_estimator_1d(
     xp_pred = estimator.predict(x_samples)
 
     # Plot the true vs predicted next states
-    fig.add_trace(
-        go.Scatter(
-            x=x_samples.flatten(),
-            y=xp_samples.flatten(),
-            mode="markers",
-            marker=dict(color="blue", symbol="circle"),
-            name="Ground truth",
-        )
+    fig.add_scatter(
+        x=x_samples.flatten(),
+        y=xp_samples.flatten(),
+        mode="markers",
+        marker=dict(color="blue", symbol="circle"),
+        name="Ground truth",
     )
 
-    fig.add_trace(
-        go.Scatter(
-            x=x_samples.flatten(),
-            y=xp_pred.flatten(),
-            mode="markers",
-            marker=dict(color="orange", symbol="x"),
-            name="Estimator prediction",
-        )
+    fig.add_scatter(
+        x=x_samples.flatten(),
+        y=xp_pred.flatten(),
+        mode="markers",
+        marker=dict(color="orange", symbol="x"),
+        name="Estimator prediction",
     )
 
     fig.update_layout(title="Estimator Predictions vs True Dynamics", xaxis_title="State", yaxis_title="Next State")
@@ -495,26 +530,22 @@ def plot_estimator_2d(
     xp_pred = estimator.predict(x_samples)
 
     # Plot the true vs predicted next states
-    fig.add_trace(
-        go.Scatter3d(
-            x=x_samples[:, 0],
-            y=x_samples[:, 1],
-            z=xp_samples[:, 0],
-            mode="markers",
-            marker=dict(color="blue", symbol="circle"),
-            name="Ground truth",
-        )
+    fig.add_scatter(
+        x=x_samples[:, 0],
+        y=x_samples[:, 1],
+        z=xp_samples[:, 0],
+        mode="markers",
+        marker=dict(color="blue", symbol="circle"),
+        name="Ground truth",
     )
 
-    fig.add_trace(
-        go.Scatter3d(
-            x=x_samples[:, 0],
-            y=x_samples[:, 1],
-            z=xp_pred[:, 0],
-            mode="markers",
-            marker=dict(color="orange", symbol="x"),
-            name="Estimator prediction",
-        )
+    fig.add_scatter(
+        x=x_samples[:, 0],
+        y=x_samples[:, 1],
+        z=xp_pred[:, 0],
+        mode="markers",
+        marker=dict(color="orange", symbol="x"),
+        name="Estimator prediction",
     )
 
     fig.update_layout(
@@ -554,9 +585,7 @@ def plot_feature_map(
         sol = np.random.rand(B_x.shape[1]) * 20 - 10
         val = B_x @ sol.T
 
-        fig.add_trace(
-            go.Scatter(x=x_samples.flatten(), y=val.flatten(), mode="lines", name=f"Feature {i+1}", showlegend=False)
-        )
+        fig.add_scatter(x=x_samples.flatten(), y=val.flatten(), mode="lines", name=f"Feature {i+1}", showlegend=False)
 
     if X_bounds is not None:
         fig.update_xaxes(range=[X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
@@ -612,8 +641,8 @@ def plot_estimator(
 
 def plot_solution(
     X_bounds: "RectSet",
-    X_init: "RectSet | None" = None,
-    X_unsafe: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
     feature_map: "FeatureMap | None" = None,
     sol: "NVector | None" = None,
     eta: "float | None" = None,
@@ -826,21 +855,19 @@ def plot_data_2d(
     y = np.column_stack((x_samples[:, 1], xp_samples[:, 1], separator)).flatten()
 
     # Create vector field using scatter with arrows
-    fig.add_trace(
-        go.Scatter(
-            x=x,
-            y=y,
-            line=dict(color="blue", width=0.5),
-            mode="lines+markers",
-            marker=dict(
-                symbol="arrow",
-                color="blue",
-                size=10,
-                angleref="previous",
-            ),
-            name="Samples",
-            showlegend=False,
-        )
+    fig.add_scatter(
+        x=x,
+        y=y,
+        line=dict(color="blue", width=0.5),
+        mode="lines+markers",
+        marker=dict(
+            symbol="arrow",
+            color="blue",
+            size=10,
+            angleref="previous",
+        ),
+        name="Samples",
+        showlegend=False,
     )
 
     if X_bounds is not None:
@@ -887,18 +914,16 @@ def plot_data_3d(
     z = np.column_stack((z_sub, zp_sub, separator)).flatten()
 
     # Create vector field using scatter with arrows
-    fig.add_trace(
-        go.Scatter3d(
-            x=x,
-            y=y,
-            z=z,
-            mode="lines",
-            name="Current state points",
-            showlegend=False,
-            line=dict(
-                color="blue",
-                width=2,
-            ),
+    fig.add_scatter3d(
+        x=x,
+        y=y,
+        z=z,
+        mode="lines",
+        name="Current state points",
+        showlegend=False,
+        line=dict(
+            color="blue",
+            width=2,
         ),
     )
 
@@ -906,18 +931,16 @@ def plot_data_3d(
     arrow_tip_ratio = 0.2
     arrow_starting_ratio = 0.98
     for x_el, y_el, z_el in zip(x.reshape(-1, 3), y.reshape(-1, 3), z.reshape(-1, 3)):
-        fig.add_trace(
-            go.Cone(
-                x=[x_el[0] + arrow_starting_ratio * (x_el[1] - x_el[0])],
-                y=[y_el[0] + arrow_starting_ratio * (y_el[1] - y_el[0])],
-                z=[z_el[0] + arrow_starting_ratio * (z_el[1] - z_el[0])],
-                u=[arrow_tip_ratio * (x_el[1] - x_el[0])],
-                v=[arrow_tip_ratio * (y_el[1] - y_el[0])],
-                w=[arrow_tip_ratio * (z_el[1] - z_el[0])],
-                showlegend=False,
-                showscale=False,
-                colorscale=[[0, "blue"], [1, "blue"]],
-            )
+        fig.add_cone(
+            x=[x_el[0] + arrow_starting_ratio * (x_el[1] - x_el[0])],
+            y=[y_el[0] + arrow_starting_ratio * (y_el[1] - y_el[0])],
+            z=[z_el[0] + arrow_starting_ratio * (z_el[1] - z_el[0])],
+            u=[arrow_tip_ratio * (x_el[1] - x_el[0])],
+            v=[arrow_tip_ratio * (y_el[1] - y_el[0])],
+            w=[arrow_tip_ratio * (z_el[1] - z_el[0])],
+            showlegend=False,
+            showscale=False,
+            colorscale=[[0, "blue"], [1, "blue"]],
         )
 
     if X_bounds is not None:

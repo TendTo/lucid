@@ -7,7 +7,7 @@ import numpy as np
 import pyparsing as pp
 import sympy as sp
 
-from ._pylucid import MultiSet, RectSet, log
+from ._pylucid import MultiSet, RectSet, SphereSet, log
 
 T = TypeVar("T")
 
@@ -385,17 +385,21 @@ class SetParser:
         rect_set_input = pp.Group(number_list + pp.Suppress(",") + number_list)
         rect_set = pp.Keyword("RectSet") + pp.nestedExpr("(", ")", content=rect_set_input)
 
-        plain_set_list = pp.nestedExpr("[", "]", content=pp.delimitedList(rect_set))
+        sphere_set_input = pp.Group(number_list + pp.Suppress(",") + number)
+        sphere_set = pp.Keyword("SphereSet") + pp.nestedExpr("(", ")", content=sphere_set_input)
+
+        plain_set_list = pp.nestedExpr("[", "]", content=pp.delimitedList(rect_set | sphere_set))
         multi_set = pp.Keyword("MultiSet") + pp.nestedExpr("(", ")", content=pp.delimitedList(plain_set_list))
 
         rect_set.setParseAction(self._to_rect_set)
+        sphere_set.setParseAction(self._to_sphere_set)
         multi_set.setParseAction(self._to_multi_set)
 
         set_expr = pp.Forward()
-        set_expr <<= rect_set | multi_set
+        set_expr <<= rect_set | sphere_set | multi_set
         return set_expr
 
-    def parse(self, set_str: str) -> "RectSet | MultiSet":
+    def parse(self, set_str: str) -> "Set":
         """Parse a string into a set object.
 
         Args:
@@ -422,6 +426,20 @@ class SetParser:
         lb = t.asList()[1][0][0]
         ub = t.asList()[1][0][1]
         return RectSet(lb, ub)
+
+    @staticmethod
+    def _to_sphere_set(t: pp.ParseResults) -> "SphereSet":
+        """Convert the parsed token to a SphereSet object
+
+        Args:
+            t: parsed token containing center and radius of the sphere
+
+        Returns:
+            SphereSet object containing the parsed center and radius
+        """
+        center = t.asList()[1][0][0]
+        radius = t.asList()[1][0][1]
+        return SphereSet(center, radius)
 
     @staticmethod
     def _to_multi_set(t: pp.ParseResults) -> "MultiSet":

@@ -3,7 +3,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ._pylucid import Estimator, MultiSet, RectSet, TruncatedFourierFeatureMap, log
+from ._pylucid import (
+    Estimator,
+    MultiSet,
+    RectSet,
+    SphereSet,
+    TruncatedFourierFeatureMap,
+    log,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -28,7 +35,7 @@ math.cos = lambda x: Cosine(x) if isinstance(x, Real) else math_original_cos(x)
 math.sin = lambda x: Sine(x) if isinstance(x, Real) else math_original_sin(x)
 
 
-def build_set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
+def build_set_constraint(xs: "list", X_set: "Set"):
     """
     Generate a set constraint for the given variables to ensure they lie within the bounds of the given set.
 
@@ -41,7 +48,7 @@ def build_set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
         (e.g., RectSet([0, 0], [1, 1]) or MultiSet(RectSet([0, 0], [1, 1]), RectSet([2, 2], [3, 3])))
 
     Raises:
-        ValueError: if X_set is not a RectSet or MultiSet
+        ValueError: if X_set is not a supported set type
 
     Returns:
         Symbolic formula representing the set constraint.
@@ -49,6 +56,8 @@ def build_set_constraint(xs: "list", X_set: "RectSet | MultiSet"):
     """
     if isinstance(X_set, RectSet):
         return And(*(b for i, x in enumerate(xs) for b in (x >= X_set.lower_bound[i], x <= X_set.upper_bound[i])))
+    if isinstance(X_set, SphereSet):
+        return And((sum((x - c) ** 2 for x, c in zip(xs, X_set.center)) <= X_set.radius**2))
     if isinstance(X_set, MultiSet):
         expr = None
         for rect in X_set:
@@ -113,8 +122,8 @@ def build_barrier_expression(
 
 def verify_barrier_certificate(
     X_bounds: "RectSet",
-    X_init: "RectSet | MultiSet",
-    X_unsafe: "RectSet | MultiSet",
+    X_init: "Set",
+    X_unsafe: "Set",
     sigma_f: float,
     eta: float,
     gamma: float,

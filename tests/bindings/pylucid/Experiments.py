@@ -21,7 +21,7 @@ from dreal import cos as Cosine
 from dreal import sin as Sine
 
 
-def set_constraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef":
+def set_constraint(xs: "list[ArithRef]", X_set: "Set") -> "ExprRef":
     if isinstance(X_set, RectSet):
         return And(*(b for i, x in enumerate(xs) for b in (x >= X_set.lower_bound[i], x <= X_set.upper_bound[i])))
     if isinstance(X_set, MultiSet):

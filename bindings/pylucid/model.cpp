@@ -309,6 +309,8 @@ void init_model(py::module_ &m) {
         for (const auto &set : sets) {
           if (py::isinstance<RectSet>(set)) {
             unique_sets.emplace_back(std::make_unique<RectSet>(set.cast<RectSet>()));
+          } else if (py::isinstance<SphereSet>(set)) {
+            unique_sets.emplace_back(std::make_unique<SphereSet>(set.cast<SphereSet>()));
           } else {
             throw std::runtime_error("Unsupported set type");
           }

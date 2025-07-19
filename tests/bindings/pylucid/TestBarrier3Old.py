@@ -6,7 +6,7 @@ import pytest
 from pylucid import *
 
 
-def set_contraint(xs: "list[ArithRef]", X_set: "RectSet | MultiSet") -> "ExprRef":
+def set_contraint(xs: "list[ArithRef]", X_set: "Set") -> "ExprRef":
     from cvc5.pythonic import (
         And,
         ArithRef,

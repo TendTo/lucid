@@ -35,11 +35,40 @@
                     "$ref": "#/$defs/rect_set"
                   }
                 }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["SphereSet"],
+                "properties": {
+                  "SphereSet": {
+                    "$ref": "#/$defs/sphere_set"
+                  }
+                }
               }
             ]
           }
         }
       ]
+    },
+    "sphere_set": {
+      "type": "object",
+      "required": ["center", "radius"],
+      "additionalProperties": false,
+      "properties": {
+        "center": {
+          "description": "Center of the sphere in each dimension.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "number"
+          }
+        },
+        "radius": {
+          "description": "Radius of the sphere.",
+          "type": "number"
+        }
+      }
     },
     "rect_set": {
       "description": "A set of rectangles, each defined by a lower and upper bound for each dimension.",

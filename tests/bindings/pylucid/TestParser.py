@@ -10,6 +10,7 @@ from pylucid import (
     MultiSet,
     RectSet,
     SetParser,
+    SphereSet,
     SympyParser,
     Z3Parser,
     exception,
@@ -319,6 +320,30 @@ class TestSetParser:
         assert isinstance(rect, RectSet)
         assert np.array_equal(rect.lower_bound, [-1, -2])
         assert np.array_equal(rect.upper_bound, [3, 4])
+
+    def test_sphere_set_parsing(self, parser):
+        """Test parsing a sphere set"""
+        sphere_str = "SphereSet([1.0, 2.0], 3.0)"
+        sphere = parser.parse(sphere_str)
+
+        assert isinstance(sphere, SphereSet)
+        assert np.array_equal(sphere.center, [1.0, 2.0])
+        assert sphere.radius == 3.0
+
+    def test_multiset_with_sphere(self, parser):
+        """Test parsing a multi-set that includes a sphere set"""
+        multi_str = "MultiSet([RectSet([1.0, 2.0], [3.0, 4.0]), SphereSet([5.0, 6.0], 2.0)])"
+        multi = parser.parse(multi_str)
+
+        assert isinstance(multi, MultiSet)
+        assert len(multi) == 2
+        # Check first rectangle
+        assert np.array_equal(multi[0].lower_bound, [1.0, 2.0])
+        assert np.array_equal(multi[0].upper_bound, [3.0, 4.0])
+        # Check sphere
+        assert isinstance(multi[1], SphereSet)
+        assert np.array_equal(multi[1].center, [5.0, 6.0])
+        assert multi[1].radius == 2.0
 
     def test_invalid_syntax(self, parser):
         """Test parsing with invalid syntax"""

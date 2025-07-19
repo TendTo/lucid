@@ -251,6 +251,9 @@ class ConfigAction(Action):
             return (
                 RectSet(rect_data["lower"], rect_data["upper"]) if isinstance(rect_data, dict) else RectSet(rect_data)
             )
+        if "SphereSet" in set_config:
+            sphere_data = set_config["SphereSet"]
+            return SphereSet(sphere_data["center"], sphere_data["radius"])
         raise raise_error(f"Unsupported set type in dictionary: {set_config}")
 
 
