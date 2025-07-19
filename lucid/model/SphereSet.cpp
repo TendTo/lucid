@@ -9,36 +9,47 @@
 
 #include <iostream>
 
+#include "RectSet.h"
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
 
 namespace lucid {
 
 namespace {
-std::uniform_real_distribution<> dis(0.0, 1.0);
-}
+std::uniform_real_distribution<> uniform(0.0, 1.0);
+std::normal_distribution<> normal(0.0, 1.0);
+}  // namespace
 
 SphereSet::SphereSet(ConstVectorRef center, Scalar radius) : center_(center), radius_(radius) {
   LUCID_CHECK_ARGUMENT_CMP(center.size(), >, 0);
   LUCID_CHECK_ARGUMENT_CMP(radius, >=, 0);
 }
 Matrix SphereSet::sample(const Index num_samples) const {
-  Matrix u{Matrix::NullaryExpr(num_samples, dimension(), [](const Index, const Index) { return dis(random::gen); })};
-  std::cout << "u: " << u << std::endl;
+  Matrix u{Matrix::NullaryExpr(num_samples, dimension(), [](const Index, const Index) { return normal(random::gen); })};
   const Vector norm{u.rowwise().norm()};
-  std::cout << "norm: " << norm << std::endl;
-  const Matrix r{
-      radius_ * Matrix::NullaryExpr(num_samples, dimension(), [](const Index, const Index) { return dis(random::gen); })
-                    .array()
-                    .pow(1.0 / dimension())};
-  std::cout << "r: " << r << std::endl;
-  return u.cwiseProduct(r).cwiseQuotient(norm) + center_.replicate(num_samples, 1);
+  const Matrix r{radius_ * Matrix::NullaryExpr(num_samples, dimension(),
+                                               [](const Index, const Index) { return uniform(random::gen); })
+                               .array()
+                               .pow(1.0 / dimension())};
+  return (u.cwiseProduct(r).array().colwise() / norm.transpose().array()).rowwise() + center_.array();
 }
 bool SphereSet::operator()(ConstVectorRef x) const {
   // Check if the vector is in the sphere set
   LUCID_CHECK_ARGUMENT_CMP(x.size(), ==, center_.size());
-  return (x - center_).squaredNorm() <= radius_ * radius_;
+  [[maybe_unused]] const auto a = (x - center_).squaredNorm();
+  return (x - center_).squaredNorm() <= radius_ * radius_ + std::numeric_limits<Scalar>::epsilon();
 }
-Matrix SphereSet::lattice(const VectorI&, bool) const { LUCID_NOT_IMPLEMENTED(); }
+Matrix SphereSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {
+  // TODO(tend): Implement a more efficient lattice generation. This is generic, but not optimal.
+  //  We could limit ourself to a 1/2**d square and then apply it symmetrically to the rest of the space.
+  const RectSet rect_set{center_.array() - radius_, center_.array() + radius_};
+  const Matrix lattice{rect_set.lattice(points_per_dim, include_endpoints)};
+  std::vector<int> mask_rows;
+  mask_rows.reserve(lattice.rows());
+  for (Index i = 0; i < lattice.rows(); ++i) {
+    if (this->contains(lattice.row(i))) mask_rows.push_back(i);
+  }
+  return lattice(mask_rows, Eigen::all);
+}
 
 }  // namespace lucid

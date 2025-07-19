@@ -12,6 +12,7 @@ lucid_cc_googletest(
     deps = [
         "//lucid/model:set",
         "//lucid/util:exception",
+        "//lucid/util:random",
     ],
 )
 

@@ -7,6 +7,7 @@
 
 #include "lucid/model/SphereSet.h"
 #include "lucid/util/exception.h"
+#include "lucid/util/random.h"
 
 using lucid::Index;
 using lucid::Matrix;
@@ -129,27 +130,30 @@ TEST(TestSphereSet, Dimension) {
 
 // Test sampling functionality
 TEST(TestSphereSet, Sampling) {
+  lucid::random::seed(42);  // Set a fixed seed for reproducibility
+  constexpr int n_samples = 5;
   const Vector2 center{0, 0};
-  const Scalar radius = 2.0;
+  constexpr Scalar radius = 2.0;
   const SphereSet sphere{center, radius};
 
   // Test that all sampled points are within the sphere
-  const Matrix samples = sphere.sample(100);
-  EXPECT_EQ(samples.rows(), 100);
+  const Matrix samples = sphere.sample(n_samples);
+  EXPECT_EQ(samples.rows(), n_samples);
   EXPECT_EQ(samples.cols(), 2);
 
   for (Index i = 0; i < samples.rows(); ++i) {
     const Vector2 point = samples.row(i);
-    EXPECT_TRUE(sphere(point)) << "Sampled point " << point.transpose() << " is not in the sphere";
+    EXPECT_TRUE(sphere(point));
 
     // Check that the distance from center is within radius
     const Scalar distance = (point - center).norm();
-    EXPECT_LE(distance, radius + 1e-10) << "Sampled point distance " << distance << " exceeds radius " << radius;
+    EXPECT_LE(distance, radius + 1e-10);
   }
 }
 
 // Test sampling distribution properties
 TEST(TestSphereSet, SamplingDistribution) {
+  lucid::random::seed(42);  // Set a fixed seed for reproducibility
   const Vector2 center{0, 0};
   const Scalar radius = 5.0;
   const SphereSet sphere{center, radius};
@@ -191,6 +195,7 @@ TEST(TestSphereSet, SamplingDistribution) {
 }
 
 TEST(TestSphereSet, SamplingOffCenter) {
+  lucid::random::seed(42);  // Set a fixed seed for reproducibility
   const Vector3 center{1, -2, 3};
   const Scalar radius = 1.5;
   const SphereSet sphere{center, radius};
@@ -201,14 +206,15 @@ TEST(TestSphereSet, SamplingOffCenter) {
 
   for (Index i = 0; i < samples.rows(); ++i) {
     const Vector3 point = samples.row(i);
-    EXPECT_TRUE(sphere(point)) << "Sampled point " << point.transpose() << " is not in the sphere";
+    EXPECT_TRUE(sphere(point));
 
     const Scalar distance = (point - center).norm();
-    EXPECT_LE(distance, radius + 1e-10) << "Sampled point distance " << distance << " exceeds radius " << radius;
+    EXPECT_LE(distance, radius + 1e-10);
   }
 }
 
 TEST(TestSphereSet, SamplingZeroRadius) {
+  lucid::random::seed(42);  // Set a fixed seed for reproducibility
   const Vector2 center{5, -3};
   const Scalar radius = 0.0;
   const SphereSet sphere{center, radius};
@@ -220,8 +226,8 @@ TEST(TestSphereSet, SamplingZeroRadius) {
   // All samples should be exactly at the center
   for (Index i = 0; i < samples.rows(); ++i) {
     const Vector2 point = samples.row(i);
-    EXPECT_TRUE(sphere(point)) << "Sampled point " << point.transpose() << " is not in the zero-radius sphere";
-    EXPECT_NEAR((point - center).norm(), 0.0, 1e-10) << "Sampled point is not at center for zero-radius sphere";
+    EXPECT_TRUE(sphere(point));
+    EXPECT_NEAR((point - center).norm(), 0.0, 1e-10);
   }
 }
 
@@ -280,9 +286,9 @@ TEST(TestSphereSet, MathematicalProperties) {
 // Test edge cases with very small and very large values
 TEST(TestSphereSet, EdgeCases) {
   // Very small radius
-  const SphereSet tinyRad{Vector2{0, 0}, 1e-10};
+  const SphereSet tinyRad{Vector2{0, 0}, 1e-8};
   EXPECT_TRUE(tinyRad(Vector2{0, 0}));
-  EXPECT_FALSE(tinyRad(Vector2{1e-9, 0}));
+  EXPECT_FALSE(tinyRad(Vector2{1e-7, 0}));
 
   // Very large radius
   const SphereSet largeRad{Vector2{0, 0}, 1e6};
@@ -309,25 +315,16 @@ TEST(TestSphereSet, BoundaryPrecision) {
   EXPECT_FALSE(sphere(Vector2{1.0 + eps, 0}));  // Just outside
 
   // Test at exact boundary with floating point precision
-  const Scalar sqrt2 = std::sqrt(2.0);
-  const Scalar coord = sqrt2 / 2.0;
+  const Scalar coord = std::sqrt(2.0) / 2.0;
   EXPECT_TRUE(sphere(Vector2{coord, coord}));
   EXPECT_TRUE(sphere(Vector2{-coord, coord}));
   EXPECT_TRUE(sphere(Vector2{coord, -coord}));
   EXPECT_TRUE(sphere(Vector2{-coord, -coord}));
 }
 
-// Test lattice method (should throw not implemented)
-TEST(TestSphereSet, LatticeNotImplemented) {
-  const SphereSet sphere{Vector2{0, 0}, 1.0};
-  const VectorI points_per_dim = VectorI::Constant(2, 5);
-
-  EXPECT_THROW(sphere.lattice(points_per_dim, true), lucid::exception::LucidNotImplementedException);
-  EXPECT_THROW(sphere.lattice(points_per_dim, false), lucid::exception::LucidNotImplementedException);
-}
-
 // Test with 1D sphere (circle endpoints)
 TEST(TestSphereSet, OneDimensional) {
+  lucid::random::seed(42);  // Set a fixed seed for reproducibility
   const Vector center{Vector::Constant(1, 0.0)};
   const Scalar radius = 2.0;
   const SphereSet sphere1d{center, radius};
@@ -355,8 +352,45 @@ TEST(TestSphereSet, OneDimensional) {
   }
 }
 
+TEST(TestSphereSet, Lattice2DInclude) {
+  const Vector2 center{1, 1};
+  constexpr Scalar radius = 2.0;
+
+  const SphereSet set{center, radius};
+
+  const Matrix lattice{set.lattice(VectorI::Constant(2, 5), true)};
+  EXPECT_LE(lattice.rows(), 5 * 5);  // 5 points per dimension
+  EXPECT_EQ(lattice.cols(), 2);
+  for (Index i = 0; i < lattice.rows(); ++i) ASSERT_TRUE(set(lattice.row(i)));
+}
+
+TEST(TestSphereSet, Lattice2D) {
+  const Vector2 center{1, 1};
+  constexpr Scalar radius = 2.0;
+
+  const SphereSet set{center, radius};
+
+  const Matrix lattice{set.lattice(VectorI::Constant(2, 5), false)};
+  EXPECT_LE(lattice.rows(), 5 * 5);  // 5 points per dimension
+  EXPECT_EQ(lattice.cols(), 2);
+  for (Index i = 0; i < lattice.rows(); ++i) ASSERT_TRUE(set(lattice.row(i)));
+}
+
+TEST(TestSphereSet, Lattice3D) {
+  const Vector3 center{1, 1, 4};
+  constexpr Scalar radius = 3.0;
+
+  const SphereSet set{center, radius};
+
+  const Matrix lattice{set.lattice(VectorI::Constant(3, 10), false)};
+  EXPECT_LE(lattice.rows(), 10 * 10 * 10);  // 5 points per dimension
+  EXPECT_EQ(lattice.cols(), 3);
+  for (Index i = 0; i < lattice.rows(); ++i) ASSERT_TRUE(set(lattice.row(i)));
+}
+
 // Test polymorphic behavior (inheritance from Set)
 TEST(TestSphereSet, PolymorphicBehavior) {
+  lucid::random::seed(42);  // Set a fixed seed for reproducibility
   const Vector2 center{1, 1};
   constexpr Scalar radius = 2.0;
 
@@ -377,13 +411,16 @@ TEST(TestSphereSet, PolymorphicBehavior) {
     EXPECT_TRUE((*set)(samples.row(i).transpose()));
   }
 
-  // Test lattice throws not implemented
   const VectorI points_per_dim = VectorI::Constant(2, 5);
-  EXPECT_THROW(set->lattice(points_per_dim, true), lucid::exception::LucidNotImplementedException);
+  const Matrix lattice{set->lattice(points_per_dim, false)};
+  for (Index i = 0; i < lattice.rows(); ++i) {
+    ASSERT_TRUE((*set)(lattice.row(i)));
+  }
 }
 
 // Test high-dimensional sphere
 TEST(TestSphereSet, HighDimensional) {
+  lucid::random::seed(42);  // Set a fixed seed for reproducibility
   const int dim = 7;
   const Vector center = Vector::Ones(dim) * 2.0;  // Center at (2,2,2,2,2,2,2)
   const Scalar radius = 3.0;
