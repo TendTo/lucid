@@ -19,7 +19,10 @@ export type FeatureMapType =
   | "LinearTruncatedFourierFeatureMap"
   | "ConstantTruncatedFourierFeatureMap"
   | "LogTruncatedFourierFeatureMap";
-export type OptimiserType = "GurobiOptimiser" | "AlglibOptimiser" | "HighsOptimiser";
+export type OptimiserType =
+  | "GurobiOptimiser"
+  | "AlglibOptimiser"
+  | "HighsOptimiser";
 export type ServerResponse = {
   success: boolean;
   obj_val?: number;
@@ -33,7 +36,15 @@ export type ServerResponse = {
   cause?: string;
   verified?: boolean;
 };
-
+export type ServerCapabilities = {
+  GUROBI: boolean;
+  ALGLIB: boolean;
+  HIGHS: boolean;
+  MATPLOTLIB: boolean;
+  PLOT: boolean;
+  VERIFICATION: boolean;
+  GUI: boolean;
+};
 export type LogEntry = {
   text: string;
   type: "trace" | "debug" | "info" | "warning" | "error" | "critical";

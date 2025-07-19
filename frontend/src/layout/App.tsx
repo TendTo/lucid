@@ -13,11 +13,13 @@ import { defaultValues, emptyFigure } from "@/utils/constants";
 import { parseLogEntry } from "@/utils/parseLog";
 import { configurationSchema, type Configuration } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { PlotParams } from "react-plotly.js";
 import OutputSection from "./OutputSection";
 import InputSection from "./InputSection";
+import { capableConfiguration } from "@/utils/utils";
+import { useCapabilities } from "@/hooks/useCapabilities";
 
 const initialFormSteps = {
   system: {
@@ -41,6 +43,7 @@ const initialFormSteps = {
 } as FormSteps;
 
 export default function App() {
+  const capabilities = useCapabilities();
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
   const [fig, setFig] = useState<PlotParams>(emptyFigure);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -56,8 +59,13 @@ export default function App() {
   const methods = useForm({
     resolver: zodResolver(configurationSchema),
     defaultValues: defaultValues,
-    mode: "onChange",
+    mode: "onBlur",
   });
+
+  useEffect(() => {
+    // If the capabilities change, reset the form to the correct defaults
+    methods.reset(capableConfiguration(defaultValues, capabilities));
+  }, [methods, capabilities]);
 
   const resetOutput = useCallback(() => {
     setFig(emptyFigure);

@@ -4,8 +4,10 @@ import { FaMinus, FaPlus } from "react-icons/fa6";
 import FormCheckboxInput from "./FormCheckboxInput";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useCapabilities } from "@/hooks/useCapabilities";
 
 export default function SystemDynamicsInput() {
+  const { VERIFICATION } = useCapabilities();
   const { register, control, formState } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -14,7 +16,7 @@ export default function SystemDynamicsInput() {
 
   return (
     <div className="form-group">
-      <label className="block font-bold">System Dynamics</label>
+      <label className="block font-bold">Formula</label>
       {fields.map((field, index) => (
         <div className="my-2" key={field.id}>
           <div className="flex items-center gap-2">
@@ -56,13 +58,15 @@ export default function SystemDynamicsInput() {
       <Button onClick={() => append(`x${fields.length + 1}`)}>
         <FaPlus />
       </Button>
-      <div className="mt-4">
-        <FormCheckboxInput
-          name="verify"
-          label="Verify Results"
-          description="Enable result verification"
-        />
-      </div>
+      {VERIFICATION && (
+        <div className="mt-4">
+          <FormCheckboxInput
+            name="verify"
+            label="Verify Results"
+            description="Enable result verification"
+          />
+        </div>
+      )}
     </div>
   );
 }

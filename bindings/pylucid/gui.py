@@ -16,6 +16,7 @@ from pyparsing import ParseException
 
 from flask_session import Session
 
+from . import CAPABILITIES
 from .__main__ import scenario_config
 from ._pylucid import *
 from .cli import ConfigAction, Configuration
@@ -104,6 +105,11 @@ def event_streamer(worker_id: int):
 
 
 blueprint = Blueprint("pylucid", __name__, static_folder="frontend", static_url_path="")
+
+
+@blueprint.route("/capabilities", methods=["GET"])
+def capabilities():
+    return CAPABILITIES, 200
 
 
 @blueprint.route("/preview-graph", methods=["POST"])

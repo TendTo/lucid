@@ -1,8 +1,11 @@
 import FormSelectionInput from "@/components/FormSelectionInput";
 import FormTextInput from "@/components/FormTextInput";
 import FormCheckboxInput from "./FormCheckboxInput";
+import { useCapabilities } from "@/hooks/useCapabilities";
+import { parseNumberListOrString } from "@/utils/utils";
 
 export default function ConfigAdvanced() {
+  const { ALGLIB, GUROBI, HIGHS, PLOT } = useCapabilities();
   return (
     <div>
       <h2 className="font-bold text-lg mb-2">Algorithm Parameters</h2>
@@ -78,6 +81,10 @@ export default function ConfigAdvanced() {
           type="text"
           description="Single value or comma-separated list of Sigma L values"
           required
+          onChange={(value: string | number) => {
+            if (typeof value === "number") return value;
+            return parseNumberListOrString(value);
+          }}
         />
 
         <FormTextInput
@@ -156,9 +163,9 @@ export default function ConfigAdvanced() {
           name="optimiser"
           label="Optimiser"
           options={{
-            GurobiOptimiser: "Gurobi Optimiser",
-            AlglibOptimiser: "Alglib Optimiser",
-            HighsOptimiser: "Highs Optimiser",
+            ...(GUROBI ? { GurobiOptimiser: "Gurobi Optimiser" } : {}),
+            ...(ALGLIB ? { AlglibOptimiser: "Alglib Optimiser" } : {}),
+            ...(HIGHS ? { HighsOptimiser: "Highs Optimiser" } : {}),
           }}
         />
       </div>
@@ -192,11 +199,13 @@ export default function ConfigAdvanced() {
           description="Use -1 for random seed"
         />
 
-        <FormCheckboxInput
-          name="plot"
-          label="Enable Plot"
-          description="Enable plotting of results"
-        />
+        {PLOT && (
+          <FormCheckboxInput
+            name="plot"
+            label="Enable Plot"
+            description="Enable plotting of results"
+          />
+        )}
 
         <FormTextInput
           name="problem_log_file"

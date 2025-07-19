@@ -24,13 +24,19 @@ import {
   SelectValue,
 } from "./ui/select";
 import { FileUpload } from "./ui/fileupload";
-import { handleDragLeave, handleDragOver } from "@/utils/utils";
+import {
+  capableConfiguration,
+  handleDragLeave,
+  handleDragOver,
+} from "@/utils/utils";
+import { useCapabilities } from "@/hooks/useCapabilities";
 
 interface JsonImportModalProps {
   reset: UseFormReset<Configuration>;
 }
 
 export default function JsonImportModal({ reset }: JsonImportModalProps) {
+  const capabilities = useCapabilities();
   const [jsonText, setJsonText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -46,7 +52,10 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
   const handleImport = () => {
     try {
       // Parse the JSON
-      const parsedJson = { ...defaultValues, ...JSON.parse(jsonText) };
+      const parsedJson = {
+        ...capableConfiguration(defaultValues, capabilities),
+        ...JSON.parse(jsonText),
+      };
 
       // Validate against schema
       const result = configurationSchema.safeParse(parsedJson);
@@ -65,7 +74,9 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
       reset(parsedJson);
       // Ugly workaround to properly format the samples input
       for (const sample of ["x_samples", "xp_samples"]) {
-        const element = document.getElementById(sample) as HTMLTextAreaElement | null;
+        const element = document.getElementById(
+          sample
+        ) as HTMLTextAreaElement | null;
         if (element) {
           element.value = parsedJson[sample]
             .map((s: number[]) => s.join(","))
@@ -141,7 +152,13 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
         </DialogHeader>
         <Select
           onValueChange={(v) =>
-            setJsonText(JSON.stringify(examples[v].config, null, 2))
+            setJsonText(
+              JSON.stringify(
+                capableConfiguration(examples[v].config, capabilities),
+                null,
+                2
+              )
+            )
           }
           name="example"
         >

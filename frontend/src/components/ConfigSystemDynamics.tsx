@@ -42,15 +42,12 @@ function setDimension(
 }
 
 function onChangeTab(
-  tabName: "Data" | "Closed-form expression",
+  tabName: "Data" | "Model",
   setValue: (name: string, value: any) => void,
   clearErrors: (name?: string | string[]) => void
 ) {
   return () => {
-    setValue(
-      "system_dynamics",
-      tabName === "Closed-form expression" ? ["x1 + 1"] : []
-    );
+    setValue("system_dynamics", tabName === "Model" ? ["x1 + 1"] : []);
     clearErrors("system_dynamics");
     setValue("x_samples", []);
     setValue("xp_samples", []);
@@ -148,13 +145,9 @@ export default function ConfigSystemDynamics({
             ),
             onClick: onChangeTab("Data", setValue, clearErrors),
           },
-          "Closed-form expression": {
+          Model: {
             content: <SystemDynamicsInput />,
-            onClick: onChangeTab(
-              "Closed-form expression",
-              setValue,
-              clearErrors
-            ),
+            onClick: onChangeTab("Model", setValue, clearErrors),
           },
         }}
       />

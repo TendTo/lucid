@@ -35,7 +35,7 @@ export const defaultValues: Configuration = {
   oversample_factor: 2.0,
   num_oversample: -1,
   noise_scale: 0.01,
-  plot: false,
+  plot: true,
   verify: true,
   problem_log_file: "",
   iis_log_file: "",

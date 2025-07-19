@@ -20,7 +20,7 @@ type FormTextInputProps = {
   step?: number | "any";
   required?: boolean;
   form?: string;
-  onChange?: (value: number | string) => number | string;
+  onChange?: (value: number | string) => number | string | number[] | string[];
 };
 
 export default function FormTextInput({

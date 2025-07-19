@@ -102,7 +102,7 @@ export default function SamplesInput({ name, label }: SamplesInputProps) {
 4,5,6
 
 Or drag and drop a CSV file here`}
-              className="h-28"
+              className="h-25"
             />
           </FormControl>
         </FormItem>

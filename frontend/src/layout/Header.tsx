@@ -28,6 +28,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import JsonPreview from "@/components/JsonPreview";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export type HeaderProps = {
   methods: ReturnType<typeof useForm<Configuration>>;
@@ -75,62 +76,62 @@ export default function Header({ reset, methods }: HeaderProps) {
   return (
     <header className="sticky top-0 h-16 z-50">
       <Disclosure as="nav" className="bg-gray-800">
-          <div className="flex items-center justify-between h-16 px-6">
-            <div className="flex items-center">
-              <img alt="Lucid logo" src={Logo} className="size-8" />
-              <h1 className="text-white">Lucid</h1>
-            </div>
-            <Drawer fixed={false}>
-              <DrawerTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={errors ? "text-red-500 border-red-500" : ""}
-                >
-                  Advanced
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="px-4">
-                <div className="mx-auto w-full">
-                  <DrawerHeader>
-                    <DrawerTitle>Advanced configuration</DrawerTitle>
-                    <DrawerDescription>
-                      Customize the scenario further with advanced settings.
-                    </DrawerDescription>
-                  </DrawerHeader>
-                  <Form {...methods}>
-                    <ConfigAdvanced />
-                  </Form>
-                  <DrawerFooter>
-                    <DrawerClose asChild>
-                      <Button variant="outline">
-                        <FaArrowDown />
-                      </Button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </div>
-              </DrawerContent>
-            </Drawer>
-            <div className="ml-10 flex items-center space-x-4">
-              <JsonImportModal reset={reset} />
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline">
-                    <FaShare />
-                    Export
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="min-w-md">
-                  <SheetHeader>
-                    <SheetTitle>Export configuration</SheetTitle>
-                    <SheetDescription>
-                      Export the current configuration as a JSON file.
-                    </SheetDescription>
-                  </SheetHeader>
-                  <JsonPreview formData={methods.watch()} />
-                </SheetContent>
-              </Sheet>
-            </div>
+        <div className="flex items-center justify-between h-16 px-6">
+          <div className="flex items-center">
+            <img alt="Lucid logo" src={Logo} className="size-8" />
+            <h1 className="text-white">Lucid</h1>
           </div>
+          <Drawer fixed={false}>
+            <DrawerTrigger asChild>
+              <Button
+                variant="outline"
+                className={errors ? "text-red-500 border-red-500" : ""}
+              >
+                Advanced
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="px-4">
+              <DrawerHeader>
+                <DrawerTitle>Advanced configuration</DrawerTitle>
+                <DrawerDescription>
+                  Customize the scenario further with advanced settings.
+                </DrawerDescription>
+              </DrawerHeader>
+              <ScrollArea className="mx-auto w-full p-4 h-[50vh]">
+                <Form {...methods}>
+                  <ConfigAdvanced />
+                </Form>
+              </ScrollArea>
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button variant="outline">
+                    <FaArrowDown />
+                  </Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+          <div className="ml-10 flex items-center space-x-4">
+            <JsonImportModal reset={reset} />
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline">
+                  <FaShare />
+                  Export
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="min-w-md">
+                <SheetHeader>
+                  <SheetTitle>Export configuration</SheetTitle>
+                  <SheetDescription>
+                    Export the current configuration as a JSON file.
+                  </SheetDescription>
+                </SheetHeader>
+                <JsonPreview formData={methods.watch()} />
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
       </Disclosure>
     </header>
   );

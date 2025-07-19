@@ -199,7 +199,7 @@ export const configurationSchema = z
       ctx.addIssue({
         path: ["system_dynamics"],
         code: "custom",
-        message: `System dynamics must reference all and only input components [x1, ..., x${inputDimensions}].`,
+        message: `The model must reference all and only input components [x1, ..., x${inputDimensions}].`,
       });
     }
   })
@@ -214,7 +214,7 @@ export const configurationSchema = z
       ctx.addIssue({
         path: [cause],
         code: "custom",
-        message: `You can either define system dynamics or provide samples, not both.`,
+        message: `You can either define the model or provide samples, not both.`,
       });
     }
   })
@@ -230,7 +230,7 @@ export const configurationSchema = z
       ctx.addIssue({
         path: [cause],
         code: "custom",
-        message: `You must provide either system dynamics or samples.`,
+        message: `You must provide either model or samples.`,
       });
     }
   })
@@ -254,6 +254,19 @@ export const configurationSchema = z
         message: `Samples dimension mismatch (${sampleDimension} != ${data.dimension}).`,
       });
     }
+  })
+  .superRefine((data, ctx) => {
+    if (
+      typeof data.sigma_l === "number" ||
+      data.sigma_l.length === 1 ||
+      data.sigma_l.length === data.dimension
+    )
+      return;
+    ctx.addIssue({
+      path: ["sigma_l"],
+      code: "custom",
+      message: `Must be a number or an array of length ${data.dimension}.`,
+    });
   })
   .describe(
     "Representation of the command line arguments for pylucid expressed in a configuration file"
