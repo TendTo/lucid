@@ -10,6 +10,7 @@
 
 #include "bindings/pylucid/pylucid.h"
 
+#include "lucid/util/constants.h"
 #include "lucid/version.h"
 
 namespace py = pybind11;
@@ -29,16 +30,8 @@ PYBIND11_MODULE(_pylucid, m) {
 #else
 #error "LUCID_VERSION_STRING is not defined"
 #endif
-  m.attr("MATPLOTLIB_BUILD")
-#ifdef LUCID_MATPLOTLIB_BUILD
-      = true;
-#else
-      = false;
-#endif
-  m.attr("GUROBI_BUILD")
-#ifdef LUCID_GUROBI_BUILD
-      = true;
-#else
-      = false;
-#endif
+  m.attr("MATPLOTLIB_BUILD") = lucid::constants::MATPLOTLIB_BUILD;
+  m.attr("GUROBI_BUILD") = lucid::constants::GUROBI_BUILD;
+  m.attr("ALGLIB_BUILD") = lucid::constants::ALGLIB_BUILD;
+  m.attr("HIGHS_BUILD") = lucid::constants::HIGHS_BUILD;
 }

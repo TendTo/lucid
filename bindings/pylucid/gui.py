@@ -11,9 +11,10 @@ import numpy as np
 from cachelib import FileSystemCache
 from flask import Blueprint, Flask, Response, request, send_from_directory, session
 from flask_cors import CORS
-from flask_session import Session
 from jsonschema import ValidationError
 from pyparsing import ParseException
+
+from flask_session import Session
 
 from .__main__ import scenario_config
 from ._pylucid import *

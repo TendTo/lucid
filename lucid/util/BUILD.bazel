@@ -52,6 +52,11 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "constants",
+    hdrs = ["constants.h"],
+)
+
+lucid_cc_library(
     name = "exception",
     hdrs = ["exception.h"],
 )
@@ -125,6 +130,7 @@ lucid_cc_library(
     hdrs = ["util.h"],
     deps = [
         ":concepts",
+        ":constants",
         ":definitions",
         ":exception",
         ":index_iterator",
