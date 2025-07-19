@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <iosfwd>
+
 #include "lucid/model/Set.h"
 
 namespace lucid {
@@ -17,10 +19,10 @@ class SphereSet final : public Set {
   [[nodiscard]] Dimension dimension() const override { return center_.size(); }
   [[nodiscard]] Matrix sample(Index num_samples) const override;
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
-  [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
+  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool include_endpoints) const override;
 
   /** @getter{center, sphere set} */
-  [[nodiscard]] const Vector& center() const { return center_; }
+  [[nodiscard]] const Vector &center() const { return center_; }
   /** @getter{radius, sphere set} */
   [[nodiscard]] Scalar radius() const { return radius_; }
 
@@ -29,4 +31,14 @@ class SphereSet final : public Set {
   Scalar radius_;
 };
 
+std::ostream &operator<<(std::ostream &os, const SphereSet &set);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::SphereSet)
+
+#endif

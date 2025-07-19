@@ -25,6 +25,7 @@ using lucid::ParameterValue;
 using lucid::ParameterValues;
 using lucid::RectSet;
 using lucid::Request;
+using lucid::SphereSet;
 using lucid::Vector;
 
 TEST(TestPrint, Request) {
@@ -67,6 +68,10 @@ TEST(TestPrint, ParameterValues) {
 TEST(TestPrint, RectSet) {
   EXPECT_EQ(fmt::format("{}", RectSet(Vector::Zero(2), Vector::Constant(2, 1.2))),
             "RectSet( lb( [0 0] ) ub( [1.2 1.2] ) )");
+}
+
+TEST(TestPrint, SphereSet) {
+  EXPECT_EQ(fmt::format("{}", SphereSet(Vector::Zero(3), 1.5)), "SphereSet( center( [0 0 0] ) radius( 1.5 ) )");
 }
 
 TEST(TestPrint, MultiSet) {

@@ -18,6 +18,7 @@
 
 #include "bindings/pylucid/pylucid.h"
 #include "lucid/model/Scorer.h"
+#include "lucid/model/SphereSet.h"
 #include "lucid/util/Tensor.h"
 #include "lucid/util/TensorView.h"
 #include "lucid/util/error.h"
@@ -296,8 +297,11 @@ void init_model(py::module_ &m) {
       .def(py::init<Vector, Vector>(), py::arg("lb"), py::arg("ub"))
       .def(py::init<std::vector<std::pair<Scalar, Scalar>>>(), py::arg("bounds"))
       .def_property_readonly("lower_bound", &RectSet::lower_bound)
-      .def_property_readonly("upper_bound", &RectSet::upper_bound)
-      .def("__str__", STRING_LAMBDA(RectSet));
+      .def_property_readonly("upper_bound", &RectSet::upper_bound);
+  py::class_<SphereSet, Set>(m, "SphereSet")
+      .def(py::init<Vector, double>(), py::arg("center"), py::arg("radius"))
+      .def_property_readonly("center", &SphereSet::center)
+      .def_property_readonly("radius", &SphereSet::radius);
   py::class_<MultiSet, Set>(m, "MultiSet")
       .def(py::init([](const py::args &sets) {
         std::vector<std::unique_ptr<Set>> unique_sets;
@@ -320,8 +324,7 @@ void init_model(py::module_ &m) {
       .def("__len__", [](const MultiSet &self) { return self.sets().size(); })
       .def(
           "__getitem__", [](const MultiSet &self, const Index index) -> const Set & { return *self.sets()[index]; },
-          py::return_value_policy::reference_internal)
-      .def("__str__", STRING_LAMBDA(MultiSet));
+          py::return_value_policy::reference_internal);
 
   /**************************** Forward declarations ****************************/
   py::class_<Estimator, PyEstimator, Parametrizable> estimator(m, "Estimator");
@@ -422,7 +425,7 @@ void init_model(py::module_ &m) {
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
 
   /**************************** FeatureMap ****************************/
-py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap")
+  py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap")
       .def("clone", &FeatureMap::clone)
       .def("__str__", STRING_LAMBDA(FeatureMap));
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")

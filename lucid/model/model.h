@@ -28,5 +28,6 @@
 #include "lucid/model/Request.h"
 #include "lucid/model/Scorer.h"
 #include "lucid/model/Set.h"
+#include "lucid/model/SphereSet.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 #include "lucid/model/Tuner.h"

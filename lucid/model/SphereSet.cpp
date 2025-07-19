@@ -52,4 +52,8 @@ Matrix SphereSet::lattice(const VectorI& points_per_dim, const bool include_endp
   return lattice(mask_rows, Eigen::all);
 }
 
+std::ostream& operator<<(std::ostream& os, const SphereSet& set) {
+  return os << fmt::format("SphereSet( center( [{}] ) radius( {} ) )", set.center(), set.radius());
+}
+
 }  // namespace lucid
