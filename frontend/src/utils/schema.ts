@@ -1,24 +1,52 @@
 import { z } from "zod";
 
+function getSetDimension(set: RectSet | SphereSet): number {
+  if ("RectSet" in set) {
+    return set.RectSet.length;
+  } else if ("SphereSet" in set) {
+    return set.SphereSet.center.length;
+  }
+  throw new Error(`Invalid set type: ${JSON.stringify(set)}`);
+}
+
+function compareSetDimension(
+  set: (RectSet | SphereSet)[],
+  expected: number
+): boolean {
+  console.log(
+    `Comparing set dimension: expected ${expected}, got ${set.map(
+      getSetDimension
+    )}`
+  );
+  if (set.length === 0) return true;
+  return set.every((r) => getSetDimension(r) === expected);
+}
+
+const rectSet = z.object({
+  RectSet: z
+    .array(
+      z.tuple([z.number(), z.number()]).refine(([min, max]) => min < max, {
+        message: "Inverted bounds.",
+      })
+    )
+    .nonempty()
+    .describe(
+      "Rectangular set with bounds, each bound is a tuple of two numbers [lower, upper]."
+    ),
+});
+const sphereSet = z.object({
+  SphereSet: z.object({
+    center: z.array(z.number()).nonempty().describe("Center of the sphere."),
+    radius: z.number().gte(0).describe("Radius of the sphere."),
+  }),
+});
 const set = z
-  .array(
-    z.object({
-      RectSet: z
-        .array(
-          z.tuple([z.number(), z.number()]).refine(([min, max]) => min < max, {
-            message: "Inverted bounds.",
-          })
-        )
-        .nonempty()
-        .describe(
-          "Bounds for the state space, each tuple is a [lower, upper] bound."
-        ),
-    })
-  )
+  .array(z.union([rectSet, sphereSet]))
   .nonempty()
   .refine(
     (rectSet) =>
-      rectSet.every((r) => r.RectSet.length === rectSet[0].RectSet.length),
+      rectSet.length === 0 ||
+      compareSetDimension(rectSet, getSetDimension(rectSet[0])),
     {
       message: "All sets must have the same dimension.",
     }
@@ -86,7 +114,9 @@ export const configurationSchema = z
     system_dynamics: z
       .array(z.string().nonempty())
       .describe("Dynamics of the system, describing how it evolves over time."),
-    X_bounds: set,
+    X_bounds: set.refine((set) => set.length === 1 && "RectSet" in set[0], {
+      message: "Must be a single RectSet.",
+    }),
     X_init: set,
     X_unsafe: set,
     gamma: z.number(),
@@ -159,27 +189,21 @@ export const configurationSchema = z
       .default("GurobiOptimiser"),
   })
   .strict()
-  // [Enforced by dimension]
-  // .superRefine((data, ctx) => {
-  //   const inputDimensions = data.X_bounds.length
-  //     ? data.X_bounds[0].RectSet.length
-  //     : 0;
-  //   const valid =
-  //     data.X_bounds.every((r) => r.RectSet.length === inputDimensions) &&
-  //     data.X_init.every((r) => r.RectSet.length === inputDimensions) &&
-  //     data.X_unsafe.every((r) => r.RectSet.length === inputDimensions);
-  //   if (valid) return;
-  //   for (const key of ["X_bounds", "X_init", "X_unsafe"] as const) {
-  //     ctx.addIssue({
-  //       path: [key],
-  //       code: "custom",
-  //       message: "X_bounds, X_init, and X_unsafe must have the same dimension.",
-  //     });
-  //   }
-  // })
+  .superRefine((data, ctx) => {
+    for (const key of ["X_bounds", "X_init", "X_unsafe"] as const) {
+      if (data[key].length === 0) continue;
+      const dimension = getSetDimension(data[key][0]);
+      if (dimension === data.dimension) continue;
+      ctx.addIssue({
+        path: [key],
+        code: "custom",
+        message: "Unexpected set dimension.",
+      });
+    }
+  })
   .superRefine((data, ctx) => {
     const inputDimensions = data.X_bounds.length
-      ? data.X_bounds[0].RectSet.length
+      ? getSetDimension(data.X_bounds[0])
       : 0;
     if (data.system_dynamics.length === 0) return;
     if (inputDimensions === 0) return;
@@ -273,3 +297,6 @@ export const configurationSchema = z
   );
 
 export type Configuration = z.infer<typeof configurationSchema>;
+export type LucidSet = z.infer<typeof set>;
+export type RectSet = z.infer<typeof rectSet>;
+export type SphereSet = z.infer<typeof sphereSet>;

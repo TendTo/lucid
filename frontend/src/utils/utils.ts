@@ -1,5 +1,6 @@
 import type { ServerCapabilities } from "@/types/types";
 import type { Configuration } from "./schema";
+import type { availableSets } from "./constants";
 
 export function onChangeNumber(
   onChange: (value: number | "") => void
@@ -52,4 +53,20 @@ export function capableConfiguration<T extends Partial<Configuration>>(
     plot: capabilities.PLOT,
     verify: capabilities.VERIFICATION,
   };
+}
+
+export function defaultSetWithDimension(
+  set: keyof typeof availableSets,
+  dimension: number
+) {
+  if (set === "RectSet") {
+    return Array.from({ length: dimension }, () => [0, 1]);
+  } else if (set === "SphereSet") {
+    return {
+      center: Array.from({ length: dimension }).fill(1.0),
+      radius: 1,
+    };
+  } else {
+    throw new Error(`Unknown set type: ${set}`);
+  }
 }

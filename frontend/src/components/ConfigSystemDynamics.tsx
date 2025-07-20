@@ -4,20 +4,18 @@ import {
   useFormContext,
   type FieldErrors,
   type FieldValues,
+  type UseFormSetValue,
 } from "react-hook-form";
 import { FaEye, FaSpinner } from "react-icons/fa6";
 import TabGroup from "./TabGroup";
 import { Button } from "./ui/button";
-import type { Configuration } from "@/utils/schema";
+import type { Configuration, RectSet, SphereSet } from "@/utils/schema";
 import FormTextInput from "./FormTextInput";
 import { useEffect, useState } from "react";
 
 function setDimension(
   getValue: (name: string) => Configuration["X_bounds"],
-  setValue: (
-    name: string,
-    value: Configuration["X_bounds"][number]["RectSet"] | number
-  ) => void
+  setValue: UseFormSetValue<Record<string, any>>
 ) {
   return (value: number | string) => {
     if (typeof value === "string" || isNaN(value) || value < 1 || value > 9)
@@ -27,13 +25,24 @@ function setDimension(
       const prevSets = getValue(setName);
       for (let i = 0; i < prevSets.length; i++) {
         Object.entries(prevSets[i]).forEach(([key, prevSet]) => {
-          if (prevSet.length == value) return;
-          const newSet = [
-            ...prevSet,
-          ] as Configuration["X_bounds"][number]["RectSet"];
-          newSet.length = value;
-          newSet.fill([0, 1], prevSet.length);
-          setValue(`${setName}.${i}.${key}`, newSet);
+          if (key === "RectSet") {
+            if (prevSet.length == value) return;
+            const newSet = [...prevSet] as RectSet["RectSet"];
+            newSet.length = value;
+            newSet.fill([0, 1], prevSet.length);
+            setValue(`${setName}.${i}.RectSet`, newSet);
+          } else if (key === "SphereSet") {
+            if (prevSet.center.length == value) return;
+            const newCenter = [
+              ...prevSet.center,
+            ] as SphereSet["SphereSet"]["center"];
+            newCenter.length = value;
+            newCenter.fill(1.0, prevSet.center.length);
+            setValue(`${setName}.${i}.SphereSet.center`, newCenter);
+          } else {
+            console.warn(`Unknown set type: ${key}`);
+            return;
+          }
         });
       }
     }

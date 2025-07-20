@@ -45,10 +45,6 @@ export const defaultValues: Configuration = {
   optimiser: "GurobiOptimiser",
 };
 
-export const availableSets = {
-  RectSet: "Rect Set",
-};
-
 const Linear: Partial<Configuration> = {
   verbose: 3,
   seed: 42,
@@ -141,3 +137,12 @@ export const examples: Record<
   linear: { config: Linear, name: "Linear System" },
   barrier3: { config: Barrier3, name: "Barrier 3" },
 };
+
+export const availableSets = {
+  RectSet: "Rect Set",
+  SphereSet: "Sphere Set",
+};
+export const defaultSet: Record<keyof typeof availableSets, object> = {
+  RectSet: [[0, 1]],
+  SphereSet: { center: [0], radius: 1 },
+} as const;

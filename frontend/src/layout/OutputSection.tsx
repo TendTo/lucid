@@ -67,7 +67,7 @@ export default function OutputSection({
                 <Input
                   id="resultObj_val"
                   value={`${formatNumber(
-                    1 - (successData.obj_val ?? 1) * 100
+                    (1 - (successData.obj_val ?? 1)) * 100
                   )}%`}
                   readOnly
                 />

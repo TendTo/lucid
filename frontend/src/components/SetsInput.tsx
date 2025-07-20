@@ -3,6 +3,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { FaPlus } from "react-icons/fa6";
 import SetInput from "./SetInput";
 import { Button } from "./ui/button";
+import { defaultSetWithDimension } from "@/utils/utils";
 
 type SetsInputProps = {
   name: string;
@@ -40,16 +41,21 @@ export default function SetsInput({ name, label }: SetsInputProps) {
           </div>
         ))}
       </div>
-      <Button
-        onClick={() =>
-          append({
-            RectSet: Array(getValues("X_bounds.0.RectSet").length).fill([0, 1]),
-          })
-        }
-        variant={"default"}
-      >
-        <FaPlus className="inline-block size-4" />
-      </Button>
+      {name !== "X_bounds" && (
+        <Button
+          onClick={() =>
+            append({
+              RectSet: defaultSetWithDimension(
+                "RectSet",
+                getValues("dimension")
+              ),
+            })
+          }
+          variant={"default"}
+        >
+          <FaPlus className="inline-block size-4" />
+        </Button>
+      )}
       <ErrorMessage
         errors={formState.errors}
         name={`${name}.root`}

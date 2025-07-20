@@ -23,6 +23,7 @@ export type OptimiserType =
   | "GurobiOptimiser"
   | "AlglibOptimiser"
   | "HighsOptimiser";
+export type SetType = "RectSet" | "SphereSet";
 export type ServerResponse = {
   success: boolean;
   obj_val?: number;
@@ -49,10 +50,6 @@ export type LogEntry = {
   text: string;
   type: "trace" | "debug" | "info" | "warning" | "error" | "critical";
   timestamp: string;
-};
-
-export type RectSet = {
-  RectSet: [number, number][];
 };
 
 export type SuccessResponseData = {
