@@ -92,7 +92,7 @@ gurobi_repository(
 
 github_archive = use_repo_rule("//tools:git_archive.bzl", "github_archive")
 
-# MIT | logging library
+# MIT | numerical optimization library
 github_archive(
     name = "lbfgscpp",
     build_file = "//third_party:lbfgscpp.BUILD.bazel",
@@ -101,13 +101,22 @@ github_archive(
     sha256 = "39c4aaebd8b94ccdc98191d51913a31cddd618cc0869d99f07a4b6da83ca6254",
 )
 
-# MIT | logging library
+# MIT | fast fourier transform library
 github_archive(
     name = "pocketfft",
     build_file = "//third_party:pocketfft.BUILD.bazel",
     commit = "0fa0ef591e38c2758e3184c6c23e497b9f732ffa",
     repository = "mreineck/pocketfft",
     sha256 = "1cfd0494ac6fe88e034579cb655b0ef9731b39a0432558e50fe41c4abd6d8684",
+)
+
+# MIT | polytopic computation library
+github_archive(
+    name = "hops",
+    build_file = "//third_party:hops.BUILD.bazel",
+    commit = "19fdc4c60701f5081ff501f47068c28a477e7fdc",
+    repository = "modsim/hops",
+    sha256 = "4eb38d42fb8652b153416fca1ed2c64bda69075c0956568da77c4383fd341467",
 )
 
 #################################################################################

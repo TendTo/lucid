@@ -1,0 +1,20 @@
+"""hops library for Bazel"""
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+licenses(["notice"])  # https://github.com/modsim/hops/blob/main/LICENSE
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "hops",
+    hdrs = glob(["src/**/*.hpp"], exclude = ["src/external/*"]),
+    srcs = glob(["src/**/*.cpp"], exclude = [
+        "src/**/SimpleExpectedSquaredJumpDistanceTuner.cpp",
+        "src/hops/extern/*",
+        "src/hops/NestedSampling/DNest4*",
+    ]),
+    includes = ["src"],
+    defines = ["HOPS_GUROBI_FOUND"],
+    deps = ["@eigen", "@gurobi"],
+)

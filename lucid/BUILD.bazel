@@ -68,9 +68,10 @@ lucid_cc_py_binary(
 
 lucid_cc_binary(
     name = "temp",
-    srcs = ["temp.cpp"],
+    srcs = ["temp.hops.cpp"],
     deps = [
-        "@alglib",
+        "@eigen",
+        "@hops",
     ],
 )
 

@@ -44,7 +44,7 @@ Matrix SphereSet::lattice(const VectorI& points_per_dim, const bool include_endp
   //  We could limit ourself to a 1/2**d square and then apply it symmetrically to the rest of the space.
   const RectSet rect_set{center_.array() - radius_, center_.array() + radius_};
   const Matrix lattice{rect_set.lattice(points_per_dim, include_endpoints)};
-  std::vector<int> mask_rows;
+  std::vector<Index> mask_rows;
   mask_rows.reserve(lattice.rows());
   for (Index i = 0; i < lattice.rows(); ++i) {
     if (this->contains(lattice.row(i))) mask_rows.push_back(i);
