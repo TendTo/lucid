@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
+import itertools
+import multiprocessing
 import time
 
 import numpy as np
-from benchmark import benchmark
+from benchmark import single_benchmark
 
 from pylucid import *
 from pylucid import __version__
 
 
-def scenario_config():
+def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) -> Configuration:
     """Benchmark scenario taken from
     https://github.com/oxford-oxcav/fossil/blob/10f1f071784d16b2a5ee5da2f51ff2a81d753e2e/experiments/benchmarks/models.py#L350C1-L360C1
     """
@@ -56,17 +58,12 @@ def scenario_config():
     # Running the pipeline
     # ################################## #
 
-    benchmark(
-        name="Barrier3",
+    for key, value in zip(param_name, param_combinations):
+        setattr(config, key, value)
+    single_benchmark(
+        name="Linear",
         config=config,
-        grid={
-            "c_coefficient": [0.2, 1.0],
-            "time_horizon": [5, 10],
-            # "oversample_factor": [20.0, 40.0, 64.0],
-        },
     )
-
-    return config
 
 
 if __name__ == "__main__":
@@ -75,6 +72,22 @@ if __name__ == "__main__":
     # ################################## #
     log.info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    scenario_config()
+
+    grid = {
+        "c_coefficient": [0.2, 1.0],
+        "time_horizon": [5, 10],
+        "oversample_factor": [20.0, 40.0, 60.0],
+    }
+
+    param_combinations = list(itertools.product(*grid.values()))
+    grid_keys = list(grid.keys())
+
+    # Prepare arguments for multiprocessing
+    args_list = [(grid_keys, param_combination) for param_combination in param_combinations]
+
+    # Run benchmarks in parallel using multiprocessing
+    with multiprocessing.Pool(processes=max(1, multiprocessing.cpu_count() - 2)) as pool:
+        pool.starmap(scenario_config, args_list)
+
     end = time.time()
     log.info(f"Elapsed time: {end - start}")

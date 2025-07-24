@@ -1,4 +1,5 @@
 import itertools
+import multiprocessing
 from datetime import datetime
 from typing import Any
 
@@ -20,6 +21,14 @@ except ImportError:
 
 def rmse(x: "NMatrix", y: "NMatrix", ax=0) -> "np.ndarray":
     return np.sqrt(((x - y) ** 2).mean(axis=ax))
+
+
+def grid_to_config(grid_keys: list[str], param_combination: list[Any]) -> Configuration:
+    """Convert grid parameters to a configuration object."""
+    config = Configuration()
+    for key, value in zip(grid_keys, param_combination):
+        setattr(config, key, value)
+    return config
 
 
 def benchmark(name: str, config: Configuration, grid: dict[str, list[Any]]):
@@ -49,6 +58,64 @@ def benchmark(name: str, config: Configuration, grid: dict[str, list[Any]]):
                 mlflow.end_run(status=status)
             logs = []
     log.clear()
+
+
+def single_benchmark(name: str, config: Configuration):
+    """Run the benchmark scenario."""
+    logs: list[str] = []
+    log.set_sink(logs.append)
+    log.set_verbosity(log.LOG_DEBUG)
+
+    config = config.shallow_copy()
+    mlflow.set_experiment(experiment_name=name)
+    with mlflow.start_run(run_name=f"{name}-{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"):
+        mlflow.log_input(dataset=mlflow.data.from_numpy(config.x_samples, targets=config.xp_samples))
+        mlflow.set_tag("scenario", name)
+        try:
+            benchmark_pipeline(config=config)
+            status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FINISHED)
+        except Exception as ex:
+            log.error(f"Error in benchmark {name} with configuration {config.to_safe_dict()}: {ex}")
+            status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FAILED)
+        finally:
+            log.clear()
+        mlflow.log_text("\n".join(logs), "logs.log")
+        mlflow.end_run(status=status)
+
+
+def _run_single_benchmark_with_params_factory(config: Configuration):
+    """Factory function to create a helper function for running a single benchmark with specific parameters."""
+
+    def _run_single_benchmark_with_params(values):
+        """Run a single benchmark with the given parameters."""
+        # Create a copy of the configuration and apply the parameter combination
+        name, grid_keys, param_combination, run_index = values
+        config_copy = config.shallow_copy()
+        for key, value in zip(grid_keys, param_combination):
+            setattr(config_copy, key, value)
+
+        # Create a unique name for this parameter combination
+        param_str = "_".join([f"{k}={v}" for k, v in zip(grid_keys, param_combination)])
+        run_name = f"{name}_run{run_index}_{param_str}"
+
+        # Run the single benchmark
+        single_benchmark(run_name, config_copy)
+
+    return _run_single_benchmark_with_params
+
+
+def multi_benchmark(name: str, config: Configuration, grid: dict[str, list[Any]]):
+    """Run the benchmark scenario with each grid combination in a separate process."""
+    # Generate all parameter combinations
+    param_combinations = list(itertools.product(*grid.values()))
+    grid_keys = list(grid.keys())
+
+    # Prepare arguments for multiprocessing
+    args_list = [(name, grid_keys, param_combination, i) for i, param_combination in enumerate(param_combinations)]
+
+    # Run benchmarks in parallel using multiprocessing
+    with multiprocessing.Pool() as pool:
+        pool.map(_run_single_benchmark_with_params_factory(config), args_list)
 
 
 class TimeLogger:
@@ -142,8 +209,6 @@ def benchmark_pipeline(config: Configuration):
             for i, val in enumerate(rmse(estimator(x_evaluation), f_xp_evaluation)):
                 mlflow.log_metric(f"f_xp_evaluation.rmse.{i}", val)
             mlflow.log_metric("f_xp_evaluation.score", estimator.score(x_evaluation, f_xp_evaluation))
-        if config.c_coefficient == 1.0:
-            raise ValueError("This is a test error to check the logging of evaluation samples.")
 
         log.debug(f"Feature map: {feature_map}")
         x_lattice = config.X_bounds.lattice(num_oversample, True)
@@ -196,6 +261,8 @@ def check_cb_factory(config: Configuration, num_oversample: int, feature_map: Fe
                 "run.norm": norm,
             }
         )
+        if success:
+            mlflow.log_table({"solution": sol.tolist()}, "solution.json")
         if config.plot:
             fig = plot_solution(
                 X_bounds=config.X_bounds,

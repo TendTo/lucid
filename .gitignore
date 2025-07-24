@@ -81,6 +81,7 @@ docs/out/
 /flask_session/
 temp/
 temp.*
+/mlruns/
 
 # Tests
 /*.log
