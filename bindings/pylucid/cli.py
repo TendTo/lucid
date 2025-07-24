@@ -2,7 +2,7 @@ import importlib
 import json
 import sys
 from argparse import Action, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -105,13 +105,16 @@ class Configuration(Namespace):
     tuner: "Tuner | None" = None  # Tuner for the estimator, if any
 
     def to_safe_dict(self) -> dict:
-        config_dict = asdict(self)  # Convert the Configuration object to a dictionary
+        config_dict = self.__dict__.copy()
+        config_dict["system_dynamics"] = []
         for k, v in config_dict.items():
             if isinstance(v, np.ndarray):
                 config_dict[k] = v.tolist()
             if isinstance(v, type):
                 config_dict[k] = v.__name__
             if isinstance(v, Path):
+                config_dict[k] = str(v)
+            if isinstance(v, Set):
                 config_dict[k] = str(v)
         return config_dict
 
@@ -125,6 +128,10 @@ class Configuration(Namespace):
             with open(path, "w", encoding="utf-8") as f:
                 f.write(yaml_str)
         return yaml_str
+
+    def shallow_copy(self) -> "Configuration":
+        """Create a shallow copy of the configuration."""
+        return Configuration(**self.__dict__.copy())
 
 
 class ConfigAction(Action):

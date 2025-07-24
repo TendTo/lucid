@@ -97,10 +97,7 @@ def pipeline(
         not isinstance(args.feature_map, FeatureMap) or args.num_frequencies <= 0
     ), "num_frequencies and feature_map are mutually exclusive"
     assert (
-        args.f_xp_samples is not None
-        or args.feature_map is None
-        or isinstance(args.feature_map, FeatureMap)
-        or isinstance(args.feature_map, type)
+        args.f_xp_samples is not None or args.feature_map is None or isinstance(args.feature_map, (FeatureMap, type))
     ), "f_xp_samples must be provided when feature_map is a callback"
 
     if isinstance(args.estimator, type):

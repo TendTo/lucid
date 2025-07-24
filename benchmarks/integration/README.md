@@ -1,0 +1,8 @@
+# Integration benchmarks
+
+This directory contains integration benchmarks for LUCID, which are designed to test the functionality and performance of the LUCID framework in various scenarios.
+The benchmarks are structured to evaluate different aspects of the system, including problem solving, optimization, and data handling.
+
+> [!NOTE]  
+> We use [MLflow 3.x](https://mlflow.org/) to track the results of the benchmarks.
+> Only Python 3.9 and later versions are supported.

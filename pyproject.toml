@@ -54,6 +54,7 @@ verification = ["dreal"]
 plot = ["plotly<=6.2.0"]
 test = ["pytest"]
 gui = ["flask<=3.1.1", "plotly<=6.2.0", "flask-cors<=6.0.1", "flask-session[cachelib]<=0.8.0"]
+benchmark = ["mlflow>=3.1"]
 
 [project.scripts]
 pylucid = "pylucid.__main__:main"
@@ -67,7 +68,7 @@ license-files = ["LICEN[CS]E*"]
 [tool.black]
 target-version = ['py38', 'py39', 'py310', 'py311', 'py312', 'py313']
 line-length = 120
-include = '(bindings/pylucid|tests/bindings/pylucid)\/.*\.py'
+include = '(benchmarks|bindings/pylucid|tests/bindings/pylucid)\/.*\.py'
 
 # Isort configuration (import sorter)
 [tool.isort]
