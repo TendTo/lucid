@@ -33,7 +33,7 @@
 \usepgfplotslibrary{fillbetween} % to fill an area under function
 % define gaussian pdf and cdf
 \pgfmathdeclarefunction{gauss}{3}{%
-  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+    \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
 }
 \usepackage[outline]{contour} % halo around text
 \usetikzlibrary{patterns}
@@ -272,8 +272,8 @@ literate =  {---}{{\ProcessThreeDashes}}3
 \newcommand{\todo}[1]{\textcolor{purple}{\textbf{TODO}: \textit{#1}}}
 \newcommand{\new}[1]{#1}
 \newcommand{\OS}[1]{{\color{blue}[Oliver]: #1}}
+\newcommand{\EC}[1]{{\color{brown}[Ernesto]: #1}}
 
-%
 % These are are recommended to typeset listings but not required. See the subsubsection on listing. Remove this block if you don't have listings in your paper.
 \usepackage{newfloat}
 \usepackage{listings}
@@ -286,6 +286,7 @@ literate =  {---}{{\ProcessThreeDashes}}3
 \floatstyle{ruled}
 \newfloat{listing}{tb}{lst}{}
 \floatname{listing}{Listing}
+\lstdefinestyle{nonumber}{numbers=none,numberstyle=\footnotesize,xleftmargin=0em}
 %
 % Keep the \pdfinfo as shown here. There's no need
 % for you to add the /Title and /Author tags.
@@ -352,34 +353,34 @@ literate =  {---}{{\ProcessThreeDashes}}3
 % taken from manual
 \makeatletter
 \pgfdeclareshape{document}{
-\inheritsavedanchors[from=rectangle] % this is nearly a rectangle
-\inheritanchorborder[from=rectangle]
-\inheritanchor[from=rectangle]{center}
-\inheritanchor[from=rectangle]{north}
-\inheritanchor[from=rectangle]{south}
-\inheritanchor[from=rectangle]{west}
-\inheritanchor[from=rectangle]{east}
-% ... and possibly more
-\backgroundpath{% this is new
-% store lower right in xa/ya and upper right in xb/yb
-\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
-\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
-% compute corner of ‘‘flipped page’’
-\pgf@xc=\pgf@xb \advance\pgf@xc by-10pt % this should be a parameter
-\pgf@yc=\pgf@yb \advance\pgf@yc by-10pt
-% construct main path
-\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
-\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
-\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yb}}
-\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
-\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
-\pgfpathclose
-% add little corner
-\pgfpathmoveto{\pgfpoint{\pgf@xc}{\pgf@yb}}
-\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
-\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
-\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
-}
+    \inheritsavedanchors[from=rectangle] % this is nearly a rectangle
+    \inheritanchorborder[from=rectangle]
+    \inheritanchor[from=rectangle]{center}
+    \inheritanchor[from=rectangle]{north}
+    \inheritanchor[from=rectangle]{south}
+    \inheritanchor[from=rectangle]{west}
+    \inheritanchor[from=rectangle]{east}
+    % ... and possibly more
+    \backgroundpath{% this is new
+        % store lower right in xa/ya and upper right in xb/yb
+        \southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+        \northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+        % compute corner of ‘‘flipped page’’
+        \pgf@xc=\pgf@xb \advance\pgf@xc by-10pt % this should be a parameter
+        \pgf@yc=\pgf@yb \advance\pgf@yc by-10pt
+        % construct main path
+        \pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+        \pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+        \pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yb}}
+        \pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
+        \pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+        \pgfpathclose
+        % add little corner
+        \pgfpathmoveto{\pgfpoint{\pgf@xc}{\pgf@yb}}
+        \pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+        \pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
+        \pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+    }
 }
 \makeatother
 

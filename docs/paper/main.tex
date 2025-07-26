@@ -404,14 +404,31 @@ where the weights $w_0,\ldots,w_{M}\in\R_{\geq 0}$ associated with each frequenc
 \lucid is implemented in C++ and it is meant to be used as a library or as a standalone executable.
 The choice of a low level language gives us plenty of freedom and fine-grained control over the execution of the software.
 We expose a set of interfaces allowing users to highly customize the verification process.
-A high-level visualization of \lucid's architecture is illustrated in Figure~\ref{fig:architecture}, while a more technical description can be found in the online documentation at \url{https://tendto.github.io/lucid/}.
+A high-level visualization of \lucid's architecture is illustrated in Figure~\ref{fig:architecture}, while a more technical description can be found in the online documentation at \url{https://lucidtoolsource.gitlab.io/lucid/}.
+% \lucid's source code is hosted at \url{https://gitlab.com/lucidtoolsource/lucid}.
 
 We also provide a Python wrapper, called \pylucid, to facilitate the integration of the tool into existing workflows and effortlessly leverage well-established libraries such as NumPy~\cite{numpy} and SciPy~\cite{scipy}.
-Moreover, \pylucid can be extensively configured in a variety of ways (e.g., Python scripts, YAML files, GUI) and can be installed with a single command after having cloned the repository(\todo{or \lstinline|pip install pylucid|}), making it the recommended way to operate \lucid.
-Hence, for rest of the paper, we will focus on \pylucid when referring to the user interfaces.
-% \lucid is available as an open-source project on GitHub at \url{https://github.com/TendTo/lucid}.
+Moreover, \pylucid can be extensively configured in a variety of ways (e.g., Python scripts, YAML files, GUI), making it the recommended way to operate \lucid.
+Hence, for rest of the paper, we will focus on \pylucid when describing the user interfaces.
 
-In its current form, \lucid implements all functionality needed to certify safety of closed-loop system with a given control policy $\pi$. Future releases will expand this core functionality to synthesize controllers that render the system safe as well. Due to its modular architecture, \lucid can be easily extended in multiple directions, as outlined in Section~\ref{sec:future_extensions}.
+Provided \texttt{Python>=3.8} is already present, \pylucid can be installed with the command
+\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
+pip install pylucid[gui,plot] --index-url \
+  https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
+\end{lstlisting}
+\EC{The command is long, but at the moment it cannot be shortened (we would need to host the package on PyPI).}
+To define the configuration, we suggest using a \yaml or equivalent \json file.
+\footnote{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}
+\OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
+If more flexibility is needed, a Python script can be provided instead,
+with the only requirement being that it must contain a function named \lstinline|scenario_config| returning a \texttt{Configuration} object.
+Regardless of their format, configuration files will then be loaded with the command \lstinline|pylucid <config file>| to start the tool's verification pipeline.
+The same configuration values can also be given directly as command line arguments.
+For a list of all available options, run \lstinline|pylucid --help|.
+
+In its current form, \lucid implements all functionality needed to certify safety of closed-loop system with a given control policy $\pi$. 
+Future releases will expand this core functionality to synthesize controllers that render the system safe as well. 
+Due to its modular architecture, \lucid can be easily extended in multiple directions, as outlined in Section~\ref{sec:future_extensions}.
 
 \subsection{Components}
 \todo{Map the theoretical modules from Section~\ref{sec:theory} to components/modules of the code.}
@@ -419,39 +436,102 @@ In its current form, \lucid implements all functionality needed to certify safet
 \lucid is built with a modular architecture where each component is responsible for a specific task in the certification process.
 Moreover, since they extend from a common interface, they can be easily replaced or extended to suit the user's needs or in future versions of the tool.
 An overview of the core components and how they interact is shown in Figure~\ref{fig:architecture}.
+Classes and interfaces available in \pylucid are written in \texttt{monospace font}.
+
+To make the explanation more intuitive, we will use the example system characterized by
+\begin{equation}
+    \label{eq:linear-system}
+    \begin{bmatrix}
+        {x}_{1, t+1}
+    \end{bmatrix}
+    = \begin{bmatrix}
+        0.5
+    \end{bmatrix}
+    \begin{bmatrix}
+        {x}_{1, t}
+    \end{bmatrix} + w_t,
+    \quad w_t \sim \mathcal{N}(\cdot | 0, 0.01)
+\end{equation}
+where $x_t$ is the state at time $t$ and $w_t$ is Gaussian noise.
+Given the state space $\X = [-1, 1]$, the goal is to certify that, starting from an initial set $X_0 = [-0.5, 0.5]$, the system avoids the unsafe regions $X_u = [-1, -0.9] \cup [0.9, 1]$ over a finite time horizon.
+While going over each component, we will show how they can be configured within a \yaml configuration file to capture the system~\eqref{eq:linear-system} and its safety specification.
 
 \paragraph{Dataset}
 % \todo{Should this be considered a component? It is more about the data loader} \Sadegh{This is good to have as a separate component.}
 Due to its data-driven nature, all that \lucid needs to operate is a set of sampled transitions from the system, as shown in \eqref{eq:data}, and the safety specification itself.
 Data can be obtained by defining a function that takes as input the current state and control input and returns the next state, adding i.i.d. noise sampled from an appropriate distribution, or it may be collected from an external simulator or real-world system.
-The transitions are then fed into \lucid, either programmatically, via a script that generates them on the fly, or through a file.
-\pylucid natively supports \texttt{.csv}, \texttt{.mat}, \texttt{.npy} and \texttt{.npz} files. \todo{HDF5?}
+The easiest way to provide the samples is to add the to the configuration file
+\begin{lstlisting}[language=yaml]
+x_samples: [[5.930e-01], ..., [-1.937e-01]]
+xp_samples: [[3.015e-01], ..., [-1.018e-01]]
+\end{lstlisting}
+Alternatively, the samples can either be generated programmatically in the user-provided Python configuration script, or be stored in a separate file.
+\pylucid natively supports common formats such as \texttt{.csv}, \texttt{.mat}, \texttt{.npy} and \texttt{.npz}.
+Refer to the documentation for more details.
+\begin{comment}
+\begin{lstlisting}[language=iPython]
+    def scenario_config():
+    # ...
+    # Sampling
+    f = lambda x: x / 2
+    c.x_samples = c.X_bounds.sample(1000)
+    c.xp_samples = f(c.x_samples) + np.random.normal(scale=0.01)
+    # ...
+    return c
+\end{lstlisting}
+\end{comment}
+\EC{Explaining in details how the configuration file works would take quite a bit of space.}
+% \todo{HDF5?}
 \OS{What do you mean by a script that generates them? Can we include this visually in Figure~\ref{fig:architecture}?}
 
 \input{figures/architecture}
 
 \paragraph{\Circled{1}~Safety Specification}
 \lucid understands \texttt{RectSet}s, \texttt{SphereSet}s, and \texttt{Multiset}s, i.e., collections of sets.
-These are mainly used to indicate the bounds of the whole state space $\X$, the initial set $\X_0$ and the unsafe set $\X_U$ when defining the safety specification.
-% They also provide some utility methods for sampling and creating a lattice of the subspaces they define.
+Sets are mainly used to indicate the bounds of the whole state space $\X$, the initial set $\X_0$ and the unsafe set $\X_U$ in the context of defining the safety specification to verify.
+They can be included in the configuration as shown below.
+\begin{lstlisting}[language=yaml]
+X_bounds: "RectSet([-1], [1])"
+X_init: "RectSet([-0.5], [0.5])"
+X_unsafe: 
+  - "RectSet([-1], [-0.9])"
+  - "RectSet([0.9], [1])"
+\end{lstlisting}
 
 \paragraph{\mbox{\Circled{2}\hspace{.4em}Estimator}}
-The core of \lucid is its \texttt{KernelRidgeRegressor}\OS{Since the name is exposed, can we call this sth less controversial like KernelRegressor (see also \url{https://en.wikipedia.org/wiki/Kernel_regression}) or simply Estimator. It is easier to use consistent names in Figure~\ref{fig:architecture}.}, which uses a \texttt{GaussianKernel} to learn the underlying system dynamics from the samples.
+The core of \lucid is its \estimator, namely the \texttt{KernelRidgeRegressor}\OS{Since the name is exposed, can we call this sth less controversial like KernelRegressor (see also \url{https://en.wikipedia.org/wiki/Kernel_regression}) or simply Estimator. It is easier to use consistent names in Figure~\ref{fig:architecture}.}, which uses a \texttt{GaussianKernel} to learn the underlying system dynamics from the samples.
 Its predictions are then used to produce the next state of all the lattice points we need from $\X$, necessary to determine the constraints for the \gls{cbc}.
+The \hp of the \texttt{KernelRidgeRegressor} can be set explicitly in the configuration file.
+\begin{lstlisting}[language=yaml]
+kernel: "GaussianKernel"
+sigma_f: 15
+sigma_l: [1.75555556]
+estimator: "KernelRidgeRegressor"
+lambda: 0.00001
+\end{lstlisting}
 
 \paragraph{\Circled{3}~Tuners}
 Kernel methods do not require the expensive learning process of other machine learning methods, such as neural networks.
-However, they still depend on a number of \hp, such as the kernel bandwidth $\sigma_f$, the lengthscale $\sigma_l$, and the number of Fourier coefficients $M$.
+However, they still depend on a number of \hp, such as the kernel bandwidth $\sigma_f$, the lengthscale $\sigma_l$, and the regularization constant $\lambda$.
 Changes in their values can have a significant impact on the \estimator's efficiency and accuracy.
 The process of finding good values for these \hp is known as \emph{hyperparameter tuning}, with the optimal parameters being problem dependent.
 \lucid provides a set of utilities, which specialize the \texttt{Tuner} interface, to aid in this task.
-    {\color{blue}The following tuners are available:
-        \begin{itemize}
-            \item \texttt{MedianHeuristicTuner}: ... (mention that this is restricted to $\sigma_f$ and $\sigma_l$)
-            \item \texttt{GridSearchTuner}: ...
-            \item \texttt{LBFGSTuner}: ...
-        \end{itemize}}
-\OS{We can also present the 3 different choices as bullets.}
+\begin{itemize}
+    \item \texttt{MedianHeuristicTuner}: it uses the \emph{median heuristic} \cite{garreau2018largesampleanalysismedian}, to produce initial estimates for the hyperparameters $\sigma_f$ and $\sigma_l$.
+          Can be a cheap starting point when working with a Gaussian kernel as in~\eqref{eq:gaussian_kernel}.
+    \item \texttt{LBFGSTuner}: borrowing the technique from Gaussian processes, we optimize the \hp to maximize the \emph{log marginal likelihood}, defined as
+          \begin{equation}
+              \begin{split}
+                   & \log p(X^+_N | X_N,\theta) =  - \frac{1}{2}X^+_N{}\T (K_{X}^N + N\lambda I_N)^{-1} X^+_N \\
+                   & \hspace{40pt} -\frac{1}{2}\log |K_{X}^N + N\lambda I_N| - \frac{N}{2}\log(2\pi),
+              \end{split}
+          \end{equation}
+          where $\theta$ is a tuple of learnable hyperparameters of the \estimator determined by the user.
+          The \texttt{LBFGSTuner} uses the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming},
+          implemented in the \texttt{LBFGS++} library\footnote{https://github.com/yixuan/LBFGSpp}.
+    \item \texttt{GridSearchTuner}: implements the grid search method, exploring the space of possible \hp values to find the one that yields the best \estimator $R^2$ score defined as $R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}$.
+\end{itemize}
+\begin{comment}
 A cheap starting point when working with a Gaussian kernel as in~\eqref{eq:gaussian_kernel} is to use the \emph{median heuristic} \cite{garreau2018largesampleanalysismedian}, implemented in the \texttt{MedianHeuristicTuner}.
 \OS{We can cut the following to save space. This is standard knowledge:}
 {\color{gray}
@@ -474,6 +554,7 @@ Borrowing a technique from Gaussian processes, we can also optimize the \hp to m
 where $\theta:=(\sigma_f,\sigma_l, M)$ \OS{Which are implemented?} contains all learnable hyperparameters (of the kernel).
 To do so, the \texttt{LBFGSTuner} uses the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming},
 implemented in the \texttt{LBFGS++} library\footnote{https://github.com/yixuan/LBFGSpp}.
+\end{comment}
 
 \paragraph{\Circled{4}~Feature Map}
 We exploit the spectral kernel expansion in \eqref{eq:sqexp_kernel_fourier} by building an explicit approximated feature map, composed of a linear sum of trigonometric functions with increasingly high frequencies.
@@ -501,16 +582,31 @@ or adjust the coefficient $C_{\hat{N}}$, improving performance at the cost of lo
 The resulting barrier can then be checked with the verifier, provided we have access to the system's model, to ensure its correctness.
 \lucid can be configured to work with any of the following linear optimizers: \gurobi, \alglib or \highs.
 
+
 \OS{Plot barrier here and give sat. prob.}
 
 \paragraph{Validation (optional)}
-Albeit, if \lucid finds a barrier, this is already formally sound with respect to the data-driven estimator, we provide an option to check the validity using an SMT solver.
-The solution, if found, will determine the barrier certificate coefficients, as well as the satisfaction probability.
-\lucid provides the option to employ the \dreal SMT solver~\cite{dreal} to verify the barrier formally if the system dynamics are known.
+Albeit, if \lucid finds a barrier, this is already formally sound with respect to the data-driven estimator, 
+if the system dynamics are known, \lucid provides the option to formally verify its correctness using the \dreal SMT solver~\cite{dreal}.
 
-\OS{Here just say we know the expected behavior. Thus, via the SMT we get passed}
+Since we know the expected behavior of the example system \EC{we should refer to the system (its equation?)}, we can run the formal validation to confirm that the barrier $\B$ is indeed a \gls{cbc} for the system $\S$.
 
 \subsection{GUI}
+
+\pylucid also provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
+To start the \gls{gui}, make sure to have installed the necessary dependencies with 
+\begin{lstlisting}[language=bash,style=nonumber]
+pip install pylucid[gui] ...
+\end{lstlisting}
+and run the command \lstinline|pylucid-gui|.
+A browser tab containing the interface shown in Figure~\ref{fig:gui} will automatically open, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
+\todo{Improve picture of the GUI}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/frontend.png}
+    \caption{The GUI of \lucid with the main functions highlighted. \EC{Being originally full page, shrinking it to half a column makes the immage illegible. Should I zoom on some parts?}}
+    \label{fig:gui}
+\end{figure}
 
 \OS{End then end the chapter}
 
@@ -518,23 +614,13 @@ The solution, if found, will determine the barrier certificate coefficients, as 
 
 The recommended way to use \lucid is through its Python wrapper \pylucid.
 After being installed, it can be invoked from the command line with \lstinline|pylucid|.
-To define the scenario to run, we suggest using a \yaml or equivalent \json file.
-\footnote{The Json schema for \yaml and \json files can be found at \url{https://tendto.github.io/lucid//configuration_schema.json}}\OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
+To define the configuration, we suggest using a \yaml or equivalent \json file.
+\footnote{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}\OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
 The same configuration values can also be given to the executable directly as command line arguments.
 For a list of all available options, run \lstinline|pylucid --help|.
 If more flexibility is needed, a python script can be provided instead,
 with the only requirement being that it must contains a function named \lstinline|scenario_config| returning \texttt{Configuration} object.
 Any configuration file can be loaded with the command \lstinline|pylucid <config file>|.
-\pylucid also provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
-To start the \gls{gui}, make sure to have installed the necessary dependencies with \lstinline|pip install pylucid[gui]| \todo{Installation guide?} \Sadegh{Check the level of details provided in the other similar tools papers accepted in the same/similar venue (not control/HSCC, but AI conferences). We can add some basic details here, like a paragraph. Extensive details can go into the appendix, or simply including the user manual as a pdf in the suppelmentary materials.} and run the command \lstinline|pylucid-gui|.
-This will open a browser tab containing the interface shown in Figure~\ref{fig:gui}, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
-\todo{Improve picture of the GUI}
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figures/placeholder.jpeg}
-    \caption{The GUI of \lucid with the main functions highlighted.}
-    \label{fig:gui}
-\end{figure}
 
 \subsection{Functionality}
 
@@ -544,10 +630,7 @@ The samples will be used to fit and optionally tune the \estimator so that, give
 \lucid will then store a lattice of points from each of the set provided to which apply the feature map.
 These values will be used to define the constraints of the \gls{lp} that the chosen optimizer will solve.
 
-
 \Sadegh{In the following figure, when you say collect samples, it should be the dataset mentioned earlier in the paper. You also need the next state.}
-
-
 
 \section{Example Use Case}
 \label{sec:example}
