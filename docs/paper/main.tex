@@ -395,9 +395,6 @@ where the weights $w_0,\ldots,w_{M}\in\R_{\geq 0}$ associated with each frequenc
 
 \OS{\lucid provides statistically correct results if a RKHS radius is provided.}
 
-
-
-
 \section{Tool Structure and Functionalities}
 \label{sec:tool}
 
@@ -419,8 +416,8 @@ pip install pylucid[gui,plot] --index-url \
 \EC{The command is long, but at the moment it cannot be shortened (we would need to host the package on PyPI).}
 To define the configuration, we suggest using a \yaml or equivalent \json file.
 \footnote{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}
-\OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
-If more flexibility is needed, a Python script can be provided instead,
+% \OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
+If more flexibility is needed, a Python configuration script can be specified instead,
 with the only requirement being that it must contain a function named \lstinline|scenario_config| returning a \texttt{Configuration} object.
 Regardless of their format, configuration files will then be loaded with the command \lstinline|pylucid <config file>| to start the tool's verification pipeline.
 The same configuration values can also be given directly as command line arguments.
@@ -441,7 +438,7 @@ Classes and interfaces available in \pylucid are written in \texttt{monospace fo
 To make the explanation more intuitive, we will use the example system characterized by
 \begin{equation}
     \label{eq:linear-system}
-    \begin{bmatrix}
+    \LS\colon\begin{bmatrix}
         {x}_{1, t+1}
     \end{bmatrix}
     = \begin{bmatrix}
@@ -502,6 +499,8 @@ X_unsafe:
 The core of \lucid is its \estimator, namely the \texttt{KernelRidgeRegressor}\OS{Since the name is exposed, can we call this sth less controversial like KernelRegressor (see also \url{https://en.wikipedia.org/wiki/Kernel_regression}) or simply Estimator. It is easier to use consistent names in Figure~\ref{fig:architecture}.}, which uses a \texttt{GaussianKernel} to learn the underlying system dynamics from the samples.
 Its predictions are then used to produce the next state of all the lattice points we need from $\X$, necessary to determine the constraints for the \gls{cbc}.
 The \hp of the \texttt{KernelRidgeRegressor} can be set explicitly in the configuration file.
+% We provide the \hp values for the kernel, namely the bandwidth $\sigma_f = 1$, the length scale $\sigma_l = 1.75555556$, values obtained from a previous tuning process, 
+% and the regularization constant $\lambda = 0.00001$.
 \begin{lstlisting}[language=yaml]
 kernel: "GaussianKernel"
 sigma_f: 15
@@ -522,15 +521,28 @@ The process of finding good values for these \hp is known as \emph{hyperparamete
     \item \texttt{LBFGSTuner}: borrowing the technique from Gaussian processes, we optimize the \hp to maximize the \emph{log marginal likelihood}, defined as
           \begin{equation}
               \begin{split}
-                   & \log p(X^+_N | X_N,\theta) =  - \frac{1}{2}X^+_N{}\T (K_{X}^N + N\lambda I_N)^{-1} X^+_N \\
+                   & \log p(X^+_N | X_N,\sigma_l) =  - \frac{1}{2}X^+_N{}\T (K_{X}^N + N\lambda I_N)^{-1} X^+_N \\
                    & \hspace{40pt} -\frac{1}{2}\log |K_{X}^N + N\lambda I_N| - \frac{N}{2}\log(2\pi),
               \end{split}
           \end{equation}
-          where $\theta$ is a tuple of learnable hyperparameters of the \estimator determined by the user.
+          where $\sigma_l$ is the hyperparameter being optimized.
           The \texttt{LBFGSTuner} uses the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming},
           implemented in the \texttt{LBFGS++} library\footnote{https://github.com/yixuan/LBFGSpp}.
     \item \texttt{GridSearchTuner}: implements the grid search method, exploring the space of possible \hp values to find the one that yields the best \estimator $R^2$ score defined as $R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}$.
 \end{itemize}
+Tuners open a wide range of possibilities to the user.
+We recommend using them within a Python configuration script to automate the tuning process before finalizing the \estimator's \hp values.
+\begin{lstlisting}[language=iPython,style=nonumbers]
+def scenario_config(c: Configuration):
+    # ...
+    t = LbfgsTuner(lb=[1e-5], ub=[1e5])
+    c.estimator = KernelRidgeRegressor(
+        kernel=GaussianKernel(),
+    )
+    c.estimator.fit(c.x_samples, c.xp_samples, tuner=t)
+    return c
+\end{lstlisting}
+
 \begin{comment}
 A cheap starting point when working with a Gaussian kernel as in~\eqref{eq:gaussian_kernel} is to use the \emph{median heuristic} \cite{garreau2018largesampleanalysismedian}, implemented in the \texttt{MedianHeuristicTuner}.
 \OS{We can cut the following to save space. This is standard knowledge:}
@@ -560,14 +572,20 @@ implemented in the \texttt{LBFGS++} library\footnote{https://github.com/yixuan/L
 We exploit the spectral kernel expansion in \eqref{eq:sqexp_kernel_fourier} by building an explicit approximated feature map, composed of a linear sum of trigonometric functions with increasingly high frequencies.
 The full expansion of the kernel would need a sum of infinitely many terms with diminishing impact on the overall result, which we truncate arbitrarily short, a decision based on the tradeoff we are looking for between efficiency and accuracy.
 After being defined with the same \hp that characterize the \texttt{KernelRidgeRegressor}, the function can be used to map any point from $\X$ to the \gls{rkhs} defined by the kernel.
-\todo{link to the theory} There are currently three different ways the probability distribution can be divided in when associated to the frequency bands as shown in Figure~\ref{fig:spectral_measure_abstraction}:
+There are currently three different ways the probability distribution can be divided in when associated to the frequency bands as shown in Figure~\ref{fig:spectral_measure_abstraction}:
 \begin{itemize}
-    \item ...
-    \item ...
-    \item ...
+    \item \texttt{LinearTruncatedFourierFeatureMap}: the frequency bands are equally spaced, capturing the interval $[-3\sigma_l,3\sigma_l]$.
+    \item \texttt{LogTruncatedFourierFeatureMap}: the frequency bands are spaced logarithmically, capturing the interval $[-3\sigma_l,3\sigma_l]$.
+    \item \texttt{ConstantTruncatedFourierFeatureMap}: the frequency bands have a fixed size.
 \end{itemize}
-The whole interval can be divided equally, with a logarithmic scale or in smaller intervals with an arbitrary size.
-Trying out different feature map implementations may yield different results.
+Different feature map implementations may yield different results.
+In our example, we truncate the Fourier expansion to $5$ terms, including the constant term, and use $64$ times the Nyquist frequency of lattice points to build the constraints of the optimization problem, to avoid it being too conservative.
+\begin{lstlisting}[language=yaml]
+feature_map: |
+    "LinearTruncatedFourierFeatureMap"
+num_frequencies: 5
+oversample_factor: 64
+\end{lstlisting}
 
 \paragraph{\Circled{5} Solver}
 \todo{Barriers should probably be an explicit class in \lucid that hides the opitmisation implementation}
@@ -580,26 +598,46 @@ in practice the constraints may prove to be too conservative.
 To mitigate this, the user can either increase the number of lattice points $Q$, worsening the computational efficiency,
 or adjust the coefficient $C_{\hat{N}}$, improving performance at the cost of loosening the guarantees.
 The resulting barrier can then be checked with the verifier, provided we have access to the system's model, to ensure its correctness.
-\lucid can be configured to work with any of the following linear optimizers: \gurobi, \alglib or \highs.
+\lucid can be configured to work with any of the following linear optimizers: \gurobi, \alglib or \highs as shown below.
+\begin{lstlisting}[language=yaml]
+optimiser: "GurobiOptimiser"
+\end{lstlisting}
 
+\subsection{Running the Tool}
 
-\OS{Plot barrier here and give sat. prob.}
+We have configured all the components needed to run \lucid.
+Putting it all together in a single configuration file \texttt{config.yaml} we can run the tool with the command \lstinline|pylucid config.yaml --plot|.
+\lucid will parse the configuration, synthesize a barrier certificate and plot the result.
+In this case, we are able to obtain a barrier certificate for a time horizon of $T = 15$ which shows a $95.15\%$ satisfaction probability, with $\eta = 0.257, c = 0.031, \|B\| = 1.72$.
+The solution was verified with \dreal, ensuring its formal correctness.
+The plot is shown in Figure~\ref{fig:example}.
+
+\begin{figure}
+    \centering
+    \resizebox{\columnwidth}{!}{\import{figures}{example.pgf}}
+    \caption{Barrier certificate for the linear system example.
+        The state space $\X$ is plotted in the X axis, while the value of the barrier $\B$ is plotted in the Y axis.
+        The green line represents the barrier value at time $t$ while the purple one represents the barrier value at time $t+1$.
+        The initial and unsafe sets are highlighted in blue and red respectively.}
+    \label{fig:example}
+\end{figure}
 
 \paragraph{Validation (optional)}
 Albeit, if \lucid finds a barrier, this is already formally sound with respect to the data-driven estimator, 
 if the system dynamics are known, \lucid provides the option to formally verify its correctness using the \dreal SMT solver~\cite{dreal}.
+Note that \dreal has to be installed separately with \lstinline|pip install dreal| and may not be available on all systems.
 
-Since we know the expected behavior of the example system \EC{we should refer to the system (its equation?)}, we can run the formal validation to confirm that the barrier $\B$ is indeed a \gls{cbc} for the system $\S$.
+Since we know the expected behavior of the example system $\LS$ from~\eqref{eq:linear-system}, we can run the formal validation by adding the following two lines to the configuration
+\begin{lstlisting}[language=yaml]
+system_dynamics: ["x1 / 2"]
+verify: true
+\end{lstlisting}
+Doing so confirms that the $\B$ is indeed a valid \gls{cbc} for the system.
 
 \subsection{GUI}
 
-\pylucid also provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
-To start the \gls{gui}, make sure to have installed the necessary dependencies with 
-\begin{lstlisting}[language=bash,style=nonumber]
-pip install pylucid[gui] ...
-\end{lstlisting}
-and run the command \lstinline|pylucid-gui|.
-A browser tab containing the interface shown in Figure~\ref{fig:gui} will automatically open, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
+\pylucid provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
+Running \lstinline|pylucid-gui| will open a browser tab containing the interface shown in Figure~\ref{fig:gui}, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
 \todo{Improve picture of the GUI}
 \begin{figure}
     \centering
@@ -610,18 +648,8 @@ A browser tab containing the interface shown in Figure~\ref{fig:gui} will automa
 
 \OS{End then end the chapter}
 
-\subsection{Configuration}
-
-The recommended way to use \lucid is through its Python wrapper \pylucid.
-After being installed, it can be invoked from the command line with \lstinline|pylucid|.
-To define the configuration, we suggest using a \yaml or equivalent \json file.
-\footnote{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}\OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
-The same configuration values can also be given to the executable directly as command line arguments.
-For a list of all available options, run \lstinline|pylucid --help|.
-If more flexibility is needed, a python script can be provided instead,
-with the only requirement being that it must contains a function named \lstinline|scenario_config| returning \texttt{Configuration} object.
-Any configuration file can be loaded with the command \lstinline|pylucid <config file>|.
-
+\begin{comment}
+    
 \subsection{Functionality}
 
 Having parsed and validated the scenario configuration, \lucid will begin the main pipeline to produce the expected result.
@@ -633,35 +661,6 @@ These values will be used to define the constraints of the \gls{lp} that the cho
 \Sadegh{In the following figure, when you say collect samples, it should be the dataset mentioned earlier in the paper. You also need the next state.}
 
 \section{Example Use Case}
-\label{sec:example}
-
-To illustrate \lucid's workflow, we present a simple linear test case.
-This example demonstrates how to configure and run the tool to certify the safety of a one-dimensional linear system subject to stochastic noise.\OS{Would it be useful to use this simple example throughout the main text as a running example?}
-
-\paragraph{System Description}
-Consider the following discrete-time linear system:
-\begin{equation*}
-    \begin{bmatrix}
-        {x}_{1, t+1}
-    \end{bmatrix}
-    = \begin{bmatrix}
-        0.5
-    \end{bmatrix}
-    \begin{bmatrix}
-        {x}_{1, t}
-    \end{bmatrix} + w_t,
-    \quad w_t \sim \mathcal{N}(\cdot | 0, 0.01)
-\end{equation*}
-where $x_t$ is the state at time $t$ and $w_t$ is Gaussian noise.
-Given the state space $\X = [-1, 1]$, the goal is to certify that, starting from an initial set $X_0 = [-0.5, 0.5]$, the system avoids the unsafe regions $X_u = [-1, -0.9] \cup [0.9, 1]$ over a finite time horizon.
-
-\paragraph{Configuration via YAML}
-We can define the system dynamics, sets, and algorithmic parameters in a YAML configuration file
-\lstinputlisting[language=yaml,caption={\texttt{example.yaml} configuration file.}]{code/example.yaml}
-
-We truncate the Fourier expansion to $5$ terms, including the constant term, and use $64$ times the Nyquist frequency of lattice points to build the constraints of the optimization problem, to avoid it being too conservative.
-We also provide the \hp values for the kernel, namely the bandwidth $\sigma_f = 1$ and the length scale $\sigma_l = 1.75555556$, values obtained from a previous tuning process.
-The user can adjust these values to match their scenario and experiment with different settings.
 
 \paragraph{Configuration via Python}
 We can also define the same exact configuration in Python, allowing for more flexibility and programmatic control.
@@ -669,25 +668,13 @@ We can also define the same exact configuration in Python, allowing for more fle
 Note that in this case we are building the \estimator ourself instead of just providing the type of \estimator to use.
 This gives us absolute control over how the \estimator is tuned before being used.
 
-\paragraph{Running the Example}
-To run the test case, use the command \lstinline|pylucid example.yaml|.
-\lucid will parse the configuration, sample the state space and apply the transition function to produce the data used to fit the \estimator, synthesize a barrier certificate, plot and verify the result.
-In this case, we are able to obtain a barrier certificate for a time horizon of $T = 15$ which shows a $95.15\%$ satisfaction probability, with $\eta = 0.257, c = 0.031, \|B\| = 1.72$.
-The solution was verified with \dreal, ensuring its formal correctness.
-The barrier is shown in Figure~\ref{fig:example}.
 
-\begin{figure}
-    \centering
-    \resizebox{\columnwidth}{!}{\import{figures}{example.pgf}}
-    \caption{Barrier certificate for the linear system example. The green line represents the barrier value at time $t$ while the purple one represents the barrier value at time $t+1$.
-        The initial and unsafe sets are highlighted in blue and red respectively.}
-    \label{fig:example}
-\end{figure}
+\end{comment}
 
 \section{Experimental Evaluation}
 \label{sec:experiments}
 
-Platform, configuration, seed
+\todo{Platform, configuration, seed for reproducibility}
 
 \subsection{Barrier 3}
 

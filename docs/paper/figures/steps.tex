@@ -10,10 +10,10 @@
         ]
 
         % Input block
-        \node[input-block] (input) {Collect samples $\{(x^i,a^i, x_+^i)\}_{i=1}^N$};
+        \node[input-block] (samples) {Collect samples $\{(x^i,a^i, x_+^i)\}_{i=1}^N$};
 
         % Lucid blocks
-        \node[block, right=of input] (estimator) {Fit the estimator $\hat{f}\colon \X\times\A \to \X$};
+        \node[block, right=of samples] (estimator) {Fit the estimator $\hat{f}\colon \X\times\A \to \X$};
         \node[block, below=of estimator] (feature) {Construct the feature map $\phi_M\colon \X\times\A \to \mathbb{R}^M$};
         \node[block, below=of feature] (lattice) {Construct lattices on $\X, \X_0, \X_u$};
         \node[block, below=of lattice] (apply-lattice) {Apply the feature map to the lattice points};
@@ -21,11 +21,15 @@
         \node[draw, dashed, inner sep=0.3cm, rounded corners,
         fit=(estimator)(feature)(lattice)(apply-lattice)(optimizer), label=above:{\textbf{\lucid}}] {};
 
+        \node[input-block, left=of lattice] (specification) {Specification $\X$, $\X_0$, $\X_u$};
+
+
         % Output block
         \node[output-block, left=of optimizer] (output) {Barrier certificate\\+\\Safety probability};
 
         % Arrows
-        \draw[arrow] (input) -- (estimator);
+        \draw[arrow] (samples) -- (estimator);
+        \draw[arrow] (specification) -- (lattice);
         \draw[arrow] (estimator) -- (feature);
         \draw[arrow] (feature) -- (lattice);
         \draw[arrow] (lattice) -- (apply-lattice);
