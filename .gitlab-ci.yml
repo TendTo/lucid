@@ -1,0 +1,23 @@
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+default:
+  image: ubuntu:jammy
+
+include:
+  - local: /.gitlab/docs.yml
+    rules:
+      - if: $CI_COMMIT_BRANCH == "docs"
+
+no_job:
+  rules:
+    - when: never
+  script:
+    - echo 'This job should not run'

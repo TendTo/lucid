@@ -1,0 +1,7 @@
+pages:
+  stage: deploy
+  script:
+    - touch public/.nojekyll
+  artifacts:
+    paths:
+      - public
