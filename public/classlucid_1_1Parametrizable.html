@@ -1,0 +1,914 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: lucid::Parametrizable Class Reference</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classlucid_1_1Parametrizable.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="classlucid_1_1Parametrizable-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">lucid::Parametrizable Class Reference</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Interface for objects that allow setting and getting parameters dynamically.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;Parametrizable.h&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for lucid::Parametrizable:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classlucid_1_1Parametrizable.png" usemap="#lucid::Parametrizable_map" alt=""/>
+  <map id="lucid::Parametrizable_map" name="lucid::Parametrizable_map">
+<area href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates ." alt="lucid::Estimator" shape="rect" coords="0,56,172,80"/>
+<area href="classlucid_1_1Kernel.html" title="Represents a kernel function." alt="lucid::Kernel" shape="rect" coords="182,56,354,80"/>
+<area href="classlucid_1_1GradientOptimizable.html" title="Interface for objects that can be optimised using gradient-based methods (e.g., LbfgsTuner)." alt="lucid::GradientOptimizable" shape="rect" coords="0,112,172,136"/>
+<area href="classlucid_1_1GaussianKernel.html" title="RKHS Gaussian kernel." alt="lucid::GaussianKernel" shape="rect" coords="182,112,354,136"/>
+<area href="classlucid_1_1KernelRidgeRegressor.html" title="Ridge regressor with a kernel function." alt="lucid::KernelRidgeRegressor" shape="rect" coords="0,168,172,192"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a2f7fe13875f27ee8933f37d97a225d97" id="r_a2f7fe13875f27ee8933f37d97a225d97"><td class="memTemplParams" colspan="2">template&lt;IsAnyOf&lt; int, double, const Vector &amp; &gt; T&gt; </td></tr>
+<tr class="memitem:a2f7fe13875f27ee8933f37d97a225d97"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a2f7fe13875f27ee8933f37d97a225d97">get</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const</td></tr>
+<tr class="memdesc:a2f7fe13875f27ee8933f37d97a225d97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a2f7fe13875f27ee8933f37d97a225d97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83ccd4dad5641b09438adc7e0bf0f394" id="r_a83ccd4dad5641b09438adc7e0bf0f394"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a83ccd4dad5641b09438adc7e0bf0f394"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structlucid_1_1internal_1_1ParameterType.html">internal::ParameterType</a>&lt; P &gt;::ref_type&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a83ccd4dad5641b09438adc7e0bf0f394">get</a> () const</td></tr>
+<tr class="memdesc:a83ccd4dad5641b09438adc7e0bf0f394"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a83ccd4dad5641b09438adc7e0bf0f394"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53c999f2ed58c1f153bbcd358628e93c" id="r_a53c999f2ed58c1f153bbcd358628e93c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a53c999f2ed58c1f153bbcd358628e93c">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, const std::variant&lt; int, double, Vector &gt; &amp;value)</td></tr>
+<tr class="memdesc:a53c999f2ed58c1f153bbcd358628e93c"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a53c999f2ed58c1f153bbcd358628e93c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a567f65ca91c3f5fe55ed3aebc88a2c37" id="r_a567f65ca91c3f5fe55ed3aebc88a2c37"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a567f65ca91c3f5fe55ed3aebc88a2c37"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a567f65ca91c3f5fe55ed3aebc88a2c37">set</a> (const std::variant&lt; int, double, Vector &gt; &amp;value)</td></tr>
+<tr class="memdesc:a567f65ca91c3f5fe55ed3aebc88a2c37"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a567f65ca91c3f5fe55ed3aebc88a2c37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96cf4345e06513bbf3fbd581ef8f41a3" id="r_a96cf4345e06513bbf3fbd581ef8f41a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a96cf4345e06513bbf3fbd581ef8f41a3">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, std::size_t idx, const std::variant&lt; std::vector&lt; int &gt;, std::vector&lt; double &gt;, std::vector&lt; Vector &gt; &gt; &amp;values)</td></tr>
+<tr class="memdesc:a96cf4345e06513bbf3fbd581ef8f41a3"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the <code>index</code>-th value among the indicated <code>values</code>.  <br /></td></tr>
+<tr class="separator:a96cf4345e06513bbf3fbd581ef8f41a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fc70f2cf975cd9eb7525a65ac5b3a24" id="r_a2fc70f2cf975cd9eb7525a65ac5b3a24"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a2fc70f2cf975cd9eb7525a65ac5b3a24"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a2fc70f2cf975cd9eb7525a65ac5b3a24">set</a> (std::size_t idx, const std::variant&lt; std::vector&lt; int &gt;, std::vector&lt; double &gt;, std::vector&lt; Vector &gt; &gt; &amp;values)</td></tr>
+<tr class="memdesc:a2fc70f2cf975cd9eb7525a65ac5b3a24"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the <code>index</code>-th value among the indicated <code>values</code>.  <br /></td></tr>
+<tr class="separator:a2fc70f2cf975cd9eb7525a65ac5b3a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c1f1948d0225cdbe7dbd45e14f5902e" id="r_a0c1f1948d0225cdbe7dbd45e14f5902e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0c1f1948d0225cdbe7dbd45e14f5902e">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, int value)</td></tr>
+<tr class="memdesc:a0c1f1948d0225cdbe7dbd45e14f5902e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a0c1f1948d0225cdbe7dbd45e14f5902e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4771298ff348ce94ca5f521facb642a9" id="r_a4771298ff348ce94ca5f521facb642a9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4771298ff348ce94ca5f521facb642a9">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, double value)</td></tr>
+<tr class="memdesc:a4771298ff348ce94ca5f521facb642a9"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a4771298ff348ce94ca5f521facb642a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36ced514a005266abd4c35d2b75bd350" id="r_a36ced514a005266abd4c35d2b75bd350"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a36ced514a005266abd4c35d2b75bd350">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, const Vector &amp;value)</td></tr>
+<tr class="memdesc:a36ced514a005266abd4c35d2b75bd350"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a36ced514a005266abd4c35d2b75bd350"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a523ce483283fc5fb881ab9c1b78e4d8e" id="r_a523ce483283fc5fb881ab9c1b78e4d8e"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a523ce483283fc5fb881ab9c1b78e4d8e"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a523ce483283fc5fb881ab9c1b78e4d8e">set</a> (typename <a class="el" href="structlucid_1_1internal_1_1ParameterType.html">internal::ParameterType</a>&lt; P &gt;::ref_type value)</td></tr>
+<tr class="memdesc:a523ce483283fc5fb881ab9c1b78e4d8e"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a523ce483283fc5fb881ab9c1b78e4d8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9aeaa85d55e01638aa10f9ce1b091e7" id="r_aa9aeaa85d55e01638aa10f9ce1b091e7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9aeaa85d55e01638aa10f9ce1b091e7">has</a> (const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const</td></tr>
+<tr class="memdesc:aa9aeaa85d55e01638aa10f9ce1b091e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the <code>parameter</code> is present in this object.  <br /></td></tr>
+<tr class="separator:aa9aeaa85d55e01638aa10f9ce1b091e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7621ca2528b5d925e3fbf33ad6317124" id="r_a7621ca2528b5d925e3fbf33ad6317124"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7621ca2528b5d925e3fbf33ad6317124">parameters</a> () const</td></tr>
+<tr class="memdesc:a7621ca2528b5d925e3fbf33ad6317124"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the parameters of the parametrizable object.  <br /></td></tr>
+<tr class="separator:a7621ca2528b5d925e3fbf33ad6317124"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a9e19c5fe95618bb58baa9e0d83398e" id="r_a2a9e19c5fe95618bb58baa9e0d83398e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a9e19c5fe95618bb58baa9e0d83398e">parameters_list</a> () const</td></tr>
+<tr class="memdesc:a2a9e19c5fe95618bb58baa9e0d83398e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the list of parameters of the parametrizable object.  <br /></td></tr>
+<tr class="separator:a2a9e19c5fe95618bb58baa9e0d83398e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:ac6d66995da051b000b194d6a93608570" id="r_ac6d66995da051b000b194d6a93608570"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac6d66995da051b000b194d6a93608570">get_i</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const</td></tr>
+<tr class="memdesc:ac6d66995da051b000b194d6a93608570"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:ac6d66995da051b000b194d6a93608570"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ad9c2fa5aad85bf31a3bd1cf56d3751" id="r_a0ad9c2fa5aad85bf31a3bd1cf56d3751"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ad9c2fa5aad85bf31a3bd1cf56d3751">get_d</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const</td></tr>
+<tr class="memdesc:a0ad9c2fa5aad85bf31a3bd1cf56d3751"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a0ad9c2fa5aad85bf31a3bd1cf56d3751"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad26e3d2c135649f0ec55afda0ce873c1" id="r_ad26e3d2c135649f0ec55afda0ce873c1"><td class="memItemLeft" align="right" valign="top">virtual const Vector &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad26e3d2c135649f0ec55afda0ce873c1">get_v</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const</td></tr>
+<tr class="memdesc:ad26e3d2c135649f0ec55afda0ce873c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:ad26e3d2c135649f0ec55afda0ce873c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a48d4f35c0ca25348dd4736db3776b366" id="r_a48d4f35c0ca25348dd4736db3776b366"><td class="memItemLeft" align="right" valign="top"><a id="a48d4f35c0ca25348dd4736db3776b366" name="a48d4f35c0ca25348dd4736db3776b366"></a>
+<a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&#160;</td><td class="memItemRight" valign="bottom"><b>parameters_</b></td></tr>
+<tr class="memdesc:a48d4f35c0ca25348dd4736db3776b366"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232" title="Efficient set of parameters as bitset.">Parameters</a> supported by this object. <br /></td></tr>
+<tr class="separator:a48d4f35c0ca25348dd4736db3776b366"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Interface for objects that allow setting and getting parameters dynamically. </p>
+<p><a class="el" href="classlucid_1_1Parametrizable.html" title="Interface for objects that allow setting and getting parameters dynamically.">Parametrizable</a> objects can have parameters of different types, i.e., int, double, and eigen Vectors. </p><div class="fragment"><div class="line">std::unique_ptr&lt;Parametrizable&gt; obj{make_unique&lt;...&gt;(...)};</div>
+<div class="line">obj-&gt;has(<a class="code hl_enumvalue" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">Parameter::SIGMA_L</a>);  <span class="comment">// true if the parameter is present, false otherwise</span></div>
+<div class="line">obj-&gt;set(<a class="code hl_enumvalue" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">Parameter::SIGMA_L</a>, 1.0); <span class="comment">// set the parameter to 1.0</span></div>
+<div class="line">obj-&gt;get&lt;<span class="keywordtype">double</span>&gt;(<a class="code hl_enumvalue" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">Parameter::SIGMA_L</a>); <span class="comment">// get the value of the parameter</span></div>
+<div class="ttc" id="anamespacelucid_html_af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9"><div class="ttname"><a href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">lucid::Parameter::SIGMA_L</a></div><div class="ttdeci">@ SIGMA_L</div><div class="ttdoc">Sigma_l parameter.</div><div class="ttdef"><b>Definition</b> Parameter.h:40</div></div>
+</div><!-- fragment --> </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a83ccd4dad5641b09438adc7e0bf0f394" name="a83ccd4dad5641b09438adc7e0bf0f394"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83ccd4dad5641b09438adc7e0bf0f394">&#9670;&#160;</a></span>get() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlucid_1_1internal_1_1ParameterType.html">internal::ParameterType</a>&lt; P &gt;::ref_type lucid::Parametrizable::get </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">P</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present. </dd></dl>
+
+</div>
+</div>
+<a id="a2f7fe13875f27ee8933f37d97a225d97" name="a2f7fe13875f27ee8933f37d97a225d97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f7fe13875f27ee8933f37d97a225d97">&#9670;&#160;</a></span>get() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;IsAnyOf&lt; int, double, const Vector &amp; &gt; T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">template const Vector &amp; lucid::Parametrizable::get&lt; const Vector &amp; &gt; </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>type of the value to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>T</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a0ad9c2fa5aad85bf31a3bd1cf56d3751" name="a0ad9c2fa5aad85bf31a3bd1cf56d3751"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ad9c2fa5aad85bf31a3bd1cf56d3751">&#9670;&#160;</a></span>get_d()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double lucid::Parametrizable::get_d </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel protected">protected</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>double</code>. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classlucid_1_1GaussianKernel.html#a52d200654a95fd3644894fcc668a82a5">lucid::GaussianKernel</a>, and <a class="el" href="classlucid_1_1KernelRidgeRegressor.html#a182ce676d4d8b8d81ada36c232d19fea">lucid::KernelRidgeRegressor</a>.</p>
+
+</div>
+</div>
+<a id="ac6d66995da051b000b194d6a93608570" name="ac6d66995da051b000b194d6a93608570"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6d66995da051b000b194d6a93608570">&#9670;&#160;</a></span>get_i()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int lucid::Parametrizable::get_i </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel protected">protected</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>int</code>. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classlucid_1_1KernelRidgeRegressor.html#a071b8148ba7f3aa93a18bf8d8fe52efb">lucid::KernelRidgeRegressor</a>.</p>
+
+</div>
+</div>
+<a id="ad26e3d2c135649f0ec55afda0ce873c1" name="ad26e3d2c135649f0ec55afda0ce873c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad26e3d2c135649f0ec55afda0ce873c1">&#9670;&#160;</a></span>get_v()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const Vector &amp; lucid::Parametrizable::get_v </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel protected">protected</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>Vector</code>. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classlucid_1_1GaussianKernel.html#ac03924f0f449e2a7525055e490f0070a">lucid::GaussianKernel</a>, and <a class="el" href="classlucid_1_1KernelRidgeRegressor.html#aab48538a7c83d8db2cc58c9187130ee2">lucid::KernelRidgeRegressor</a>.</p>
+
+</div>
+</div>
+<a id="aa9aeaa85d55e01638aa10f9ce1b091e7" name="aa9aeaa85d55e01638aa10f9ce1b091e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9aeaa85d55e01638aa10f9ce1b091e7">&#9670;&#160;</a></span>has()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool lucid::Parametrizable::has </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check whether the <code>parameter</code> is present in this object. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to check </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the parameter is present </dd>
+<dd>
+false if the parameter is not present </dd></dl>
+
+</div>
+</div>
+<a id="a7621ca2528b5d925e3fbf33ad6317124" name="a7621ca2528b5d925e3fbf33ad6317124"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7621ca2528b5d925e3fbf33ad6317124">&#9670;&#160;</a></span>parameters()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a> lucid::Parametrizable::parameters </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the parameters of the parametrizable object. </p>
+<p>The parameters are stored in compressed form, needing bitwise operation to be accessed. </p><dl class="section return"><dt>Returns</dt><dd>parameters of the parametrizable object </dd></dl>
+
+</div>
+</div>
+<a id="a2a9e19c5fe95618bb58baa9e0d83398e" name="a2a9e19c5fe95618bb58baa9e0d83398e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a9e19c5fe95618bb58baa9e0d83398e">&#9670;&#160;</a></span>parameters_list()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> &gt; lucid::Parametrizable::parameters_list </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the list of parameters of the parametrizable object. </p>
+<dl class="section return"><dt>Returns</dt><dd>list of parameters of the parametrizable object </dd></dl>
+
+</div>
+</div>
+<a id="a567f65ca91c3f5fe55ed3aebc88a2c37" name="a567f65ca91c3f5fe55ed3aebc88a2c37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a567f65ca91c3f5fe55ed3aebc88a2c37">&#9670;&#160;</a></span>set() <span class="overload">[1/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype">const std::variant&lt; int, double, Vector &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">P</td><td>parameter to set </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value matching the variant. </dd></dl>
+
+</div>
+</div>
+<a id="a53c999f2ed58c1f153bbcd358628e93c" name="a53c999f2ed58c1f153bbcd358628e93c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53c999f2ed58c1f153bbcd358628e93c">&#9670;&#160;</a></span>set() <span class="overload">[2/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::variant&lt; int, double, Vector &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value matching the variant. </dd></dl>
+
+</div>
+</div>
+<a id="a36ced514a005266abd4c35d2b75bd350" name="a36ced514a005266abd4c35d2b75bd350"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36ced514a005266abd4c35d2b75bd350">&#9670;&#160;</a></span>set() <span class="overload">[3/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>Vector</code>. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classlucid_1_1GaussianKernel.html#abf20bf69b7ba517ef2a91a364982247e">lucid::GaussianKernel</a>, and <a class="el" href="classlucid_1_1KernelRidgeRegressor.html#aa19cc55a218d78204fd3a44a997550b9">lucid::KernelRidgeRegressor</a>.</p>
+
+</div>
+</div>
+<a id="a4771298ff348ce94ca5f521facb642a9" name="a4771298ff348ce94ca5f521facb642a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4771298ff348ce94ca5f521facb642a9">&#9670;&#160;</a></span>set() <span class="overload">[4/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>double</code>. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classlucid_1_1GaussianKernel.html#a0b7ae250ed46dc4a4b9e0b1460b255f3">lucid::GaussianKernel</a>, and <a class="el" href="classlucid_1_1KernelRidgeRegressor.html#a6aef34bbac137b701789d35556f50fc2">lucid::KernelRidgeRegressor</a>.</p>
+
+</div>
+</div>
+<a id="a0c1f1948d0225cdbe7dbd45e14f5902e" name="a0c1f1948d0225cdbe7dbd45e14f5902e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c1f1948d0225cdbe7dbd45e14f5902e">&#9670;&#160;</a></span>set() <span class="overload">[5/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>int</code>. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classlucid_1_1KernelRidgeRegressor.html#aa30fbf0d8417b0cdde8b33faede4386a">lucid::KernelRidgeRegressor</a>.</p>
+
+</div>
+</div>
+<a id="a96cf4345e06513bbf3fbd581ef8f41a3" name="a96cf4345e06513bbf3fbd581ef8f41a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a96cf4345e06513bbf3fbd581ef8f41a3">&#9670;&#160;</a></span>set() <span class="overload">[6/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t</td>          <td class="paramname"><span class="paramname"><em>idx</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::variant&lt; std::vector&lt; int &gt;, std::vector&lt; double &gt;, std::vector&lt; Vector &gt; &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>values</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the <code>index</code>-th value among the indicated <code>values</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">idx</td><td>index of the value to assign </td></tr>
+    <tr><td class="paramname">values</td><td>values to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value matching the variant. </dd></dl>
+
+</div>
+</div>
+<a id="a2fc70f2cf975cd9eb7525a65ac5b3a24" name="a2fc70f2cf975cd9eb7525a65ac5b3a24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fc70f2cf975cd9eb7525a65ac5b3a24">&#9670;&#160;</a></span>set() <span class="overload">[7/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t</td>          <td class="paramname"><span class="paramname"><em>idx</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::variant&lt; std::vector&lt; int &gt;, std::vector&lt; double &gt;, std::vector&lt; Vector &gt; &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>values</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the <code>index</code>-th value among the indicated <code>values</code>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">P</td><td>parameter to set </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">idx</td><td>index of the value to assign </td></tr>
+    <tr><td class="paramname">values</td><td>values to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value matching the variant. </dd></dl>
+
+</div>
+</div>
+<a id="a523ce483283fc5fb881ab9c1b78e4d8e" name="a523ce483283fc5fb881ab9c1b78e4d8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a523ce483283fc5fb881ab9c1b78e4d8e">&#9670;&#160;</a></span>set() <span class="overload">[8/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::Parametrizable::set </td>
+          <td>(</td>
+          <td class="paramtype">typename <a class="el" href="structlucid_1_1internal_1_1ParameterType.html">internal::ParameterType</a>&lt; P &gt;::ref_type</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">P</td><td>parameter to set </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>Vector</code>. </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>lucid/model/<a class="el" href="Parametrizable_8h.html">Parametrizable.h</a></li>
+<li>lucid/model/<a class="el" href="Parametrizable_8cpp.html">Parametrizable.cpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="navelem"><a class="el" href="namespacelucid.html">lucid</a></li><li class="navelem"><a class="el" href="classlucid_1_1Parametrizable.html">Parametrizable</a></li>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: Class Hierarchy</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('hierarchy.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Class Hierarchy</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock">This inheritance list is sorted roughly, but not completely, alphabetically:</div><div class="directory">
+<div class="levels">[detail level <span onclick="javascript:dynsection.toggleLevel(1);">1</span><span onclick="javascript:dynsection.toggleLevel(2);">2</span><span onclick="javascript:dynsection.toggleLevel(3);">3</span><span onclick="javascript:dynsection.toggleLevel(4);">4</span>]</div><table class="directory">
+<tr id="row_0_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1internal_1_1circulant__functor.html" target="_self">lucid::internal::circulant_functor&lt; ArgType &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_1_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1circulant__helper.html" target="_self">lucid::internal::circulant_helper&lt; ArgType &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_2_" class="even"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_2_" class="arrow" onclick="dynsection.toggleFolder('2_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><b>std::exception</b></td><td class="desc">STL class </td></tr>
+<tr id="row_2_0_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span id="arr_2_0_" class="arrow" onclick="dynsection.toggleFolder('2_0_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><b>std::logic_error</b></td><td class="desc">STL class </td></tr>
+<tr id="row_2_0_0_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span id="arr_2_0_0_" class="arrow" onclick="dynsection.toggleFolder('2_0_0_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><b>std::invalid_argument</b></td><td class="desc">STL class </td></tr>
+<tr id="row_2_0_0_0_" class="odd"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidInvalidArgumentException.html" target="_self">lucid::exception::LucidInvalidArgumentException</a></td><td class="desc">Exception for invalid arguments </td></tr>
+<tr id="row_2_0_1_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span id="arr_2_0_1_" class="arrow" onclick="dynsection.toggleFolder('2_0_1_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><b>std::out_of_range</b></td><td class="desc">STL class </td></tr>
+<tr id="row_2_0_1_0_" class="odd"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidOutOfRangeException.html" target="_self">lucid::exception::LucidOutOfRangeException</a></td><td class="desc">Exception for out of range errors </td></tr>
+<tr id="row_2_1_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span id="arr_2_1_" class="arrow" onclick="dynsection.toggleFolder('2_1_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><b>std::runtime_error</b></td><td class="desc">STL class </td></tr>
+<tr id="row_2_1_0_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span id="arr_2_1_0_" class="arrow" onclick="dynsection.toggleFolder('2_1_0_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidException.html" target="_self">lucid::exception::LucidException</a></td><td class="desc">Base class for all exceptions in lucid </td></tr>
+<tr id="row_2_1_0_0_" class="even"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidAssertionException.html" target="_self">lucid::exception::LucidAssertionException</a></td><td class="desc">Exception for assertion failures </td></tr>
+<tr id="row_2_1_0_1_" class="odd"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidInvalidArgumentException.html" target="_self">lucid::exception::LucidInvalidArgumentException</a></td><td class="desc">Exception for invalid arguments </td></tr>
+<tr id="row_2_1_0_2_" class="even"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidLpSolverException.html" target="_self">lucid::exception::LucidLpSolverException</a></td><td class="desc">Exception in the LP solver </td></tr>
+<tr id="row_2_1_0_3_" class="odd"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidNotImplementedException.html" target="_self">lucid::exception::LucidNotImplementedException</a></td><td class="desc">Exception for not yet implemented features </td></tr>
+<tr id="row_2_1_0_4_" class="even"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidNotSupportedException.html" target="_self">lucid::exception::LucidNotSupportedException</a></td><td class="desc">Exception for not supported features </td></tr>
+<tr id="row_2_1_0_5_" class="odd"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidOutOfRangeException.html" target="_self">lucid::exception::LucidOutOfRangeException</a></td><td class="desc">Exception for out of range errors </td></tr>
+<tr id="row_2_1_0_6_" class="even"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidParserException.html" target="_self">lucid::exception::LucidParserException</a></td><td class="desc">Exception for parser errors </td></tr>
+<tr id="row_2_1_0_7_" class="odd"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidPyException.html" target="_self">lucid::exception::LucidPyException</a></td><td class="desc">Exception occurred in Python code </td></tr>
+<tr id="row_2_1_0_8_" class="even"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1exception_1_1LucidUnreachableException.html" target="_self">lucid::exception::LucidUnreachableException</a></td><td class="desc">Exception for unreachable code </td></tr>
+<tr id="row_3_" class="odd"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_3_" class="arrow" onclick="dynsection.toggleFolder('3_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1FeatureMap.html" target="_self">lucid::FeatureMap</a></td><td class="desc">Map input vectors to a feature space </td></tr>
+<tr id="row_3_0_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span id="arr_3_0_" class="arrow" onclick="dynsection.toggleFolder('3_0_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1TruncatedFourierFeatureMap.html" target="_self">lucid::TruncatedFourierFeatureMap</a></td><td class="desc">Truncated Fourier feature map </td></tr>
+<tr id="row_3_0_0_" class="odd"><td class="entry"><span style="width:48px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1ConstantTruncatedFourierFeatureMap.html" target="_self">lucid::ConstantTruncatedFourierFeatureMap</a></td><td class="desc">Truncated Fourier feature map using fixed intervals between each interval of the normal distribution </td></tr>
+<tr id="row_3_0_1_" class="even"><td class="entry"><span style="width:48px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1LinearTruncatedFourierFeatureMap.html" target="_self">lucid::LinearTruncatedFourierFeatureMap</a></td><td class="desc">Truncated Fourier feature map using same-sized intervals between each interval of the normal distribution, from the origin to 3 standard deviations on each side </td></tr>
+<tr id="row_3_0_2_" class="odd"><td class="entry"><span style="width:48px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1LogTruncatedFourierFeatureMap.html" target="_self">lucid::LogTruncatedFourierFeatureMap</a></td><td class="desc">Truncated Fourier feature map using log-sized intervals between each interval of the normal distribution, from the origin to 3 standard deviations on each side </td></tr>
+<tr id="row_4_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1plt_1_1FillBetweenKwargs.html" target="_self">lucid::plt::FillBetweenKwargs</a></td><td class="desc">Keyword arguments for <a class="el" href="namespacelucid_1_1plt.html#a34cb7d85f4f33b1021e548f2530f6608">fill_between</a> </td></tr>
+<tr id="row_5_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1GramMatrix.html" target="_self">lucid::GramMatrix</a></td><td class="desc">Gram Matrix obtained from a kernel function </td></tr>
+<tr id="row_6_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1IndexIterator.html" target="_self">lucid::IndexIterator&lt; T &gt;</a></td><td class="desc">Iterator over all possible indexes in a given range </td></tr>
+<tr id="row_7_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1plt_1_1internal_1_1Interpreter.html" target="_self">lucid::plt::internal::Interpreter</a></td><td class="desc">Singleton representing the Python interpreter </td></tr>
+<tr id="row_8_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1InverseGramMatrix.html" target="_self">lucid::InverseGramMatrix</a></td><td class="desc">The inverse of a Gram matrix, \( K^{-1} \), allowing transparent multiplication with vectors and matrices </td></tr>
+<tr id="row_9_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1LbgsParameters.html" target="_self">lucid::LbgsParameters</a></td><td class="desc">Structure copied from <a href="http://github.com/yixuan/LBFGSpp">lbfgscpp</a>, to avoid a transitive dependency on the external library in the header </td></tr>
+<tr id="row_10_" class="even"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_10_" class="arrow" onclick="dynsection.toggleFolder('10_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1Optimiser.html" target="_self">lucid::Optimiser</a></td><td class="desc"></td></tr>
+<tr id="row_10_0_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1AlglibOptimiser.html" target="_self">lucid::AlglibOptimiser</a></td><td class="desc">Linear optimiser using the <a href="https://www.alglib.net/">Alglib</a> mathematical library </td></tr>
+<tr id="row_10_1_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1GurobiOptimiser.html" target="_self">lucid::GurobiOptimiser</a></td><td class="desc">Linear optimiser using the Gurobi solver </td></tr>
+<tr id="row_10_2_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1HighsOptimiser.html" target="_self">lucid::HighsOptimiser</a></td><td class="desc">Linear optimiser using the <a href="https://ergo-code.github.io/HiGHS/dev/">HiGHS</a> mathematical library </td></tr>
+<tr id="row_11_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1internal_1_1pad__functor.html" target="_self">lucid::internal::pad_functor&lt; ArgType &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_12_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1pad__helper.html" target="_self">lucid::internal::pad_helper&lt; ArgType &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_13_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterType.html" target="_self">lucid::internal::ParameterType&lt; Parameter &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_14_" class="odd"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_14_" class="arrow" onclick="dynsection.toggleFolder('14_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterTypeDouble.html" target="_self">lucid::internal::ParameterTypeDouble</a></td><td class="desc">Type helper for double typed parameters </td></tr>
+<tr id="row_14_0_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1REGULARIZATION__CONSTANT_01_4.html" target="_self">lucid::internal::ParameterType&lt; Parameter::REGULARIZATION_CONSTANT &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_14_1_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1SIGMA__F_01_4.html" target="_self">lucid::internal::ParameterType&lt; Parameter::SIGMA_F &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_15_" class="even"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_15_" class="arrow" onclick="dynsection.toggleFolder('15_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterTypeInt.html" target="_self">lucid::internal::ParameterTypeInt</a></td><td class="desc">Type helper for integer typed parameters </td></tr>
+<tr id="row_15_0_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1DEGREE_01_4.html" target="_self">lucid::internal::ParameterType&lt; Parameter::DEGREE &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_16_" class="even"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_16_" class="arrow" onclick="dynsection.toggleFolder('16_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterTypeVector.html" target="_self">lucid::internal::ParameterTypeVector</a></td><td class="desc">Type helper for vector typed parameters </td></tr>
+<tr id="row_16_0_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1GRADIENT__OPTIMIZABLE_01_4.html" target="_self">lucid::internal::ParameterType&lt; Parameter::GRADIENT_OPTIMIZABLE &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_16_1_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1SIGMA__L_01_4.html" target="_self">lucid::internal::ParameterType&lt; Parameter::SIGMA_L &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_17_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1ParameterValue.html" target="_self">lucid::ParameterValue</a></td><td class="desc"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84" title="List of available parameters used parametrizable objects (e.g., Estimator and Kernel).">Parameter</a> value used in a configurable system or application </td></tr>
+<tr id="row_18_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1ParameterValues.html" target="_self">lucid::ParameterValues</a></td><td class="desc">Collection of parameter values used in a configurable system or application </td></tr>
+<tr id="row_19_" class="odd"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_19_" class="arrow" onclick="dynsection.toggleFolder('19_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1Parametrizable.html" target="_self">lucid::Parametrizable</a></td><td class="desc">Interface for objects that allow setting and getting parameters dynamically </td></tr>
+<tr id="row_19_0_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span id="arr_19_0_" class="arrow" onclick="dynsection.toggleFolder('19_0_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1Estimator.html" target="_self">lucid::Estimator</a></td><td class="desc">Given two vector spaces \( \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} \) and a map \( f: \mathcal{X} \to \mathcal{Y} \), the goal is to produce a model \( f^*:\mathcal{X} \to \mathcal{Y} \) that best approximates \( f \) </td></tr>
+<tr id="row_19_0_0_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span id="arr_19_0_0_" class="arrow" onclick="dynsection.toggleFolder('19_0_0_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1GradientOptimizable.html" target="_self">lucid::GradientOptimizable</a></td><td class="desc">Interface for objects that can be optimised using gradient-based methods (e.g., <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a>) </td></tr>
+<tr id="row_19_0_0_0_" class="even"><td class="entry"><span style="width:64px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1KernelRidgeRegressor.html" target="_self">lucid::KernelRidgeRegressor</a></td><td class="desc">Ridge regressor with a kernel function </td></tr>
+<tr id="row_19_1_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span id="arr_19_1_" class="arrow" onclick="dynsection.toggleFolder('19_1_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1Kernel.html" target="_self">lucid::Kernel</a></td><td class="desc">Represents a kernel function </td></tr>
+<tr id="row_19_1_0_" class="even"><td class="entry"><span style="width:48px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1GaussianKernel.html" target="_self">lucid::GaussianKernel</a></td><td class="desc">RKHS Gaussian kernel </td></tr>
+<tr id="row_20_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1plt_1_1PlotKwargs.html" target="_self">lucid::plt::PlotKwargs</a></td><td class="desc">Keyword arguments for the plot function </td></tr>
+<tr id="row_21_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1plt_1_1PlotSurfaceKwargs.html" target="_self">lucid::plt::PlotSurfaceKwargs</a></td><td class="desc">Keyword arguments for <a class="el" href="namespacelucid_1_1plt.html#a8f7e3c9a90fa40e8b2aab3756a31c1c9">plot_surface</a> </td></tr>
+<tr id="row_22_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1plt_1_1PlotWireframeKwargs.html" target="_self">lucid::plt::PlotWireframeKwargs</a></td><td class="desc">Keyword arguments for <a class="el" href="namespacelucid_1_1plt.html#abbfccdc1473616645d7157a4be8f2cff">plot_wireframe</a> </td></tr>
+<tr id="row_23_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1plt_1_1SaveKwargs.html" target="_self">lucid::plt::SaveKwargs</a></td><td class="desc">Keyword arguments for <a class="el" href="namespacelucid_1_1plt.html#a973a49cc0aa9052e3285404d7c60fc55">savefig</a> </td></tr>
+<tr id="row_24_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1plt_1_1ScatterKwargs.html" target="_self">lucid::plt::ScatterKwargs</a></td><td class="desc">Keyword arguments for <a class="el" href="namespacelucid_1_1plt.html#a3e8cbc71341a4771a46d9c9c3e86a95a">scatter</a> </td></tr>
+<tr id="row_25_" class="even"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_25_" class="arrow" onclick="dynsection.toggleFolder('25_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1Set.html" target="_self">lucid::Set</a></td><td class="desc">Generic set over a \( \texttip{d}{Dimension of the vector space} \) dimensional vector space \( \texttip{\mathcal{X}}{Polish sample vector space} \subseteq \mathbb{R}^d \) </td></tr>
+<tr id="row_25_0_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1MultiSet.html" target="_self">lucid::MultiSet</a></td><td class="desc"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> composed of the union of multiple sets </td></tr>
+<tr id="row_25_1_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1PolytopeSet.html" target="_self">lucid::PolytopeSet</a></td><td class="desc">A convex polytope set in half-space representation </td></tr>
+<tr id="row_25_2_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1RectSet.html" target="_self">lucid::RectSet</a></td><td class="desc">Rectangular set over an arbitrary number of dimensions </td></tr>
+<tr id="row_25_3_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1SphereSet.html" target="_self">lucid::SphereSet</a></td><td class="desc"></td></tr>
+<tr id="row_26_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1internal_1_1shift__functor.html" target="_self">lucid::internal::shift_functor&lt; ArgType &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_27_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structlucid_1_1internal_1_1shift__helper.html" target="_self">lucid::internal::shift_helper&lt; ArgType &gt;</a></td><td class="desc"></td></tr>
+<tr id="row_28_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1Tensor.html" target="_self">lucid::Tensor&lt; T &gt;</a></td><td class="desc">Lightweight tensor class </td></tr>
+<tr id="row_29_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1TensorIterator.html" target="_self">lucid::TensorIterator&lt; T &gt;</a></td><td class="desc">Utility class to iterate over all elements of a tensor </td></tr>
+<tr id="row_30_" class="odd"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1TensorView.html" target="_self">lucid::TensorView&lt; T &gt;</a></td><td class="desc">Lightweight wrapper that provides a view of a tensor </td></tr>
+<tr id="row_31_" class="even"><td class="entry"><span style="width:0px;display:inline-block;">&#160;</span><span id="arr_31_" class="arrow" onclick="dynsection.toggleFolder('31_')">&#9660;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1Tuner.html" target="_self">lucid::Tuner</a></td><td class="desc">Optimise the kernel hyperparameters </td></tr>
+<tr id="row_31_0_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1GridSearchTuner.html" target="_self">lucid::GridSearchTuner</a></td><td class="desc">Grid search tuning strategy for model hyperparameter optimisation </td></tr>
+<tr id="row_31_1_" class="even"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1LbfgsTuner.html" target="_self">lucid::LbfgsTuner</a></td><td class="desc"><a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a> that uses the L-BFGS algorithm </td></tr>
+<tr id="row_31_2_" class="odd"><td class="entry"><span style="width:32px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="classlucid_1_1MedianHeuristicTuner.html" target="_self">lucid::MedianHeuristicTuner</a></td><td class="desc"><a class="el" href="classlucid_1_1Tuner.html" title="Optimise the kernel hyperparameters.">Tuner</a> that adjusts the kernel parameters using the median heuristic method </td></tr>
+</table>
+</div><!-- directory -->
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

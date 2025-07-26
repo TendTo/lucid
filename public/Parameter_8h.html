@@ -1,0 +1,301 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: lucid/model/Parameter.h File Reference</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('Parameter_8h.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
+  <div class="headertitle"><div class="title">Parameter.h File Reference</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;functional&gt;</code><br />
+<code>#include &lt;iosfwd&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
+<code>#include &quot;<a class="el" href="eigen_8h.html">lucid/lib/eigen.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="concept_8h.html">lucid/util/concept.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="definitions_8h.html">lucid/util/definitions.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="exception_8h.html">lucid/util/exception.h</a>&quot;</code><br />
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterTypeInt.html">lucid::internal::ParameterTypeInt</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type helper for integer typed parameters.  <a href="structlucid_1_1internal_1_1ParameterTypeInt.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterTypeDouble.html">lucid::internal::ParameterTypeDouble</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type helper for double typed parameters.  <a href="structlucid_1_1internal_1_1ParameterTypeDouble.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterTypeVector.html">lucid::internal::ParameterTypeVector</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type helper for vector typed parameters.  <a href="structlucid_1_1internal_1_1ParameterTypeVector.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterType.html">lucid::internal::ParameterType&lt; Parameter &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1SIGMA__F_01_4.html">lucid::internal::ParameterType&lt; Parameter::SIGMA_F &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1SIGMA__L_01_4.html">lucid::internal::ParameterType&lt; Parameter::SIGMA_L &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1REGULARIZATION__CONSTANT_01_4.html">lucid::internal::ParameterType&lt; Parameter::REGULARIZATION_CONSTANT &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1DEGREE_01_4.html">lucid::internal::ParameterType&lt; Parameter::DEGREE &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1GRADIENT__OPTIMIZABLE_01_4.html">lucid::internal::ParameterType&lt; Parameter::GRADIENT_OPTIMIZABLE &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid.html">lucid</a></td></tr>
+<tr class="memdesc:namespacelucid"><td class="mdescLeft">&#160;</td><td class="mdescRight">Root namespace for the lucid library. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a8d857928936d67d842c25f817f7f1a18" id="r_a8d857928936d67d842c25f817f7f1a18"><td class="memItemLeft" align="right" valign="top"><a id="a8d857928936d67d842c25f817f7f1a18" name="a8d857928936d67d842c25f817f7f1a18"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>lucid::HP</b> = <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td></tr>
+<tr class="memdesc:a8d857928936d67d842c25f817f7f1a18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for HyperParameter. <br /></td></tr>
+<tr class="separator:a8d857928936d67d842c25f817f7f1a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8d08ad5df62fd19799d7d5dc3b8f232" id="r_ac8d08ad5df62fd19799d7d5dc3b8f232"><td class="memItemLeft" align="right" valign="top"><a id="ac8d08ad5df62fd19799d7d5dc3b8f232" name="ac8d08ad5df62fd19799d7d5dc3b8f232"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>lucid::Parameters</b> = std::underlying_type_t&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a>&gt;</td></tr>
+<tr class="memdesc:ac8d08ad5df62fd19799d7d5dc3b8f232"><td class="mdescLeft">&#160;</td><td class="mdescRight">Efficient set of parameters as bitset. <br /></td></tr>
+<tr class="separator:ac8d08ad5df62fd19799d7d5dc3b8f232"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:af391319051f1a656ecaf252ddfd84d84" id="r_af391319051f1a656ecaf252ddfd84d84"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">lucid::Parameter</a> : std::uint16_t { <br />
+&#160;&#160;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032">lucid::_</a> = 0
+, <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17">lucid::SIGMA_F</a> = 1 &lt;&lt; 0
+, <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">lucid::SIGMA_L</a> = 1 &lt;&lt; 1
+, <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84a563dc7650b3dee61cf6cb2711af2bcc6">lucid::REGULARIZATION_CONSTANT</a> = 1 &lt;&lt; 2
+, <br />
+&#160;&#160;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1">lucid::DEGREE</a> = 1 &lt;&lt; 3
+, <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84a46c8b10c5640174da48241e0fb6f8a83">lucid::GRADIENT_OPTIMIZABLE</a> = 1 &lt;&lt; 4
+<br />
+ }</td></tr>
+<tr class="memdesc:af391319051f1a656ecaf252ddfd84d84"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of available parameters used parametrizable objects (e.g., Estimator and Kernel).  <a href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">More...</a><br /></td></tr>
+<tr class="separator:af391319051f1a656ecaf252ddfd84d84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:acece491ee19cf6e828410680c6aab027" id="r_acece491ee19cf6e828410680c6aab027"><td class="memTemplParams" colspan="2">template&lt;class R, <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:acece491ee19cf6e828410680c6aab027"><td class="memTemplItemLeft" align="right" valign="top">R&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacelucid.html#acece491ee19cf6e828410680c6aab027">lucid::dispatch</a> (const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)</td></tr>
+<tr class="memdesc:acece491ee19cf6e828410680c6aab027"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatch the correct function call depending on type associated with the <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:acece491ee19cf6e828410680c6aab027"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a975e65469736180eaefe7780462fd550" id="r_a975e65469736180eaefe7780462fd550"><td class="memTemplParams" colspan="2">template&lt;class R&gt; </td></tr>
+<tr class="memitem:a975e65469736180eaefe7780462fd550"><td class="memTemplItemLeft" align="right" valign="top">R&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacelucid.html#a975e65469736180eaefe7780462fd550">lucid::dispatch</a> (const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)</td></tr>
+<tr class="memdesc:a975e65469736180eaefe7780462fd550"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatch the correct function call depending on type associated with the <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a975e65469736180eaefe7780462fd550"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:acb07caec20c7895bf6d7fc9691a99922" id="r_acb07caec20c7895bf6d7fc9691a99922"><td class="memItemLeft" align="right" valign="top"><a id="acb07caec20c7895bf6d7fc9691a99922" name="acb07caec20c7895bf6d7fc9691a99922"></a>
+constexpr <a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&#160;</td><td class="memItemRight" valign="bottom"><b>lucid::NoParameters</b> = static_cast&lt;<a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&gt;(<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032">Parameter::_</a>)</td></tr>
+<tr class="memdesc:acb07caec20c7895bf6d7fc9691a99922"><td class="mdescLeft">&#160;</td><td class="mdescRight">No parameter value placeholder. <br /></td></tr>
+<tr class="separator:acb07caec20c7895bf6d7fc9691a99922"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><dl class="section author"><dt>Author</dt><dd>Room 6.030 </dd></dl>
+<dl class="section copyright"><dt>Copyright</dt><dd>2025 lucid </dd></dl>
+<dl class="section user"><dt>Licence:</dt><dd>BSD 3-Clause License</dd></dl>
+<p>Parameter enum. </p>
+</div></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="navelem"><a class="el" href="dir_7dd98ebc1faa69ba9fd53f2d897504fc.html">lucid</a></li><li class="navelem"><a class="el" href="dir_f8f6f484bd24d5ca802ee685e309b5f2.html">model</a></li><li class="navelem"><a class="el" href="Parameter_8h.html">Parameter.h</a></li>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

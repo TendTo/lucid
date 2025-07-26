@@ -1,0 +1,78 @@
+var annotated_dup =
+[
+    [ "lucid", "namespacelucid.html", [
+      [ "exception", "namespacelucid_1_1exception.html", [
+        [ "LucidAssertionException", "classlucid_1_1exception_1_1LucidAssertionException.html", null ],
+        [ "LucidException", "classlucid_1_1exception_1_1LucidException.html", null ],
+        [ "LucidInvalidArgumentException", "classlucid_1_1exception_1_1LucidInvalidArgumentException.html", null ],
+        [ "LucidLpSolverException", "classlucid_1_1exception_1_1LucidLpSolverException.html", null ],
+        [ "LucidNotImplementedException", "classlucid_1_1exception_1_1LucidNotImplementedException.html", null ],
+        [ "LucidNotSupportedException", "classlucid_1_1exception_1_1LucidNotSupportedException.html", null ],
+        [ "LucidOutOfRangeException", "classlucid_1_1exception_1_1LucidOutOfRangeException.html", null ],
+        [ "LucidParserException", "classlucid_1_1exception_1_1LucidParserException.html", null ],
+        [ "LucidPyException", "classlucid_1_1exception_1_1LucidPyException.html", null ],
+        [ "LucidUnreachableException", "classlucid_1_1exception_1_1LucidUnreachableException.html", null ]
+      ] ],
+      [ "internal", null, [
+        [ "circulant_functor", "classlucid_1_1internal_1_1circulant__functor.html", null ],
+        [ "circulant_helper", "structlucid_1_1internal_1_1circulant__helper.html", null ],
+        [ "pad_functor", "classlucid_1_1internal_1_1pad__functor.html", null ],
+        [ "pad_helper", "structlucid_1_1internal_1_1pad__helper.html", null ],
+        [ "ParameterType", "structlucid_1_1internal_1_1ParameterType.html", null ],
+        [ "ParameterType< Parameter::DEGREE >", "structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1DEGREE_01_4.html", null ],
+        [ "ParameterType< Parameter::GRADIENT_OPTIMIZABLE >", "structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1GRADIENT__OPTIMIZABLE_01_4.html", null ],
+        [ "ParameterType< Parameter::REGULARIZATION_CONSTANT >", "structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1REGULARIZATION__CONSTANT_01_4.html", null ],
+        [ "ParameterType< Parameter::SIGMA_F >", "structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1SIGMA__F_01_4.html", null ],
+        [ "ParameterType< Parameter::SIGMA_L >", "structlucid_1_1internal_1_1ParameterType_3_01Parameter_1_1SIGMA__L_01_4.html", null ],
+        [ "ParameterTypeDouble", "structlucid_1_1internal_1_1ParameterTypeDouble.html", null ],
+        [ "ParameterTypeInt", "structlucid_1_1internal_1_1ParameterTypeInt.html", null ],
+        [ "ParameterTypeVector", "structlucid_1_1internal_1_1ParameterTypeVector.html", null ],
+        [ "shift_functor", "classlucid_1_1internal_1_1shift__functor.html", null ],
+        [ "shift_helper", "structlucid_1_1internal_1_1shift__helper.html", null ]
+      ] ],
+      [ "plt", "namespacelucid_1_1plt.html", [
+        [ "internal", null, [
+          [ "Interpreter", "classlucid_1_1plt_1_1internal_1_1Interpreter.html", null ]
+        ] ],
+        [ "FillBetweenKwargs", "structlucid_1_1plt_1_1FillBetweenKwargs.html", "structlucid_1_1plt_1_1FillBetweenKwargs" ],
+        [ "PlotKwargs", "structlucid_1_1plt_1_1PlotKwargs.html", "structlucid_1_1plt_1_1PlotKwargs" ],
+        [ "PlotSurfaceKwargs", "structlucid_1_1plt_1_1PlotSurfaceKwargs.html", "structlucid_1_1plt_1_1PlotSurfaceKwargs" ],
+        [ "PlotWireframeKwargs", "structlucid_1_1plt_1_1PlotWireframeKwargs.html", "structlucid_1_1plt_1_1PlotWireframeKwargs" ],
+        [ "SaveKwargs", "structlucid_1_1plt_1_1SaveKwargs.html", "structlucid_1_1plt_1_1SaveKwargs" ],
+        [ "ScatterKwargs", "structlucid_1_1plt_1_1ScatterKwargs.html", "structlucid_1_1plt_1_1ScatterKwargs" ]
+      ] ],
+      [ "AlglibOptimiser", "classlucid_1_1AlglibOptimiser.html", "classlucid_1_1AlglibOptimiser" ],
+      [ "ConstantTruncatedFourierFeatureMap", "classlucid_1_1ConstantTruncatedFourierFeatureMap.html", "classlucid_1_1ConstantTruncatedFourierFeatureMap" ],
+      [ "Estimator", "classlucid_1_1Estimator.html", "classlucid_1_1Estimator" ],
+      [ "FeatureMap", "classlucid_1_1FeatureMap.html", "classlucid_1_1FeatureMap" ],
+      [ "GaussianKernel", "classlucid_1_1GaussianKernel.html", "classlucid_1_1GaussianKernel" ],
+      [ "GradientOptimizable", "classlucid_1_1GradientOptimizable.html", "classlucid_1_1GradientOptimizable" ],
+      [ "GramMatrix", "classlucid_1_1GramMatrix.html", "classlucid_1_1GramMatrix" ],
+      [ "GridSearchTuner", "classlucid_1_1GridSearchTuner.html", "classlucid_1_1GridSearchTuner" ],
+      [ "GurobiOptimiser", "classlucid_1_1GurobiOptimiser.html", "classlucid_1_1GurobiOptimiser" ],
+      [ "HighsOptimiser", "classlucid_1_1HighsOptimiser.html", "classlucid_1_1HighsOptimiser" ],
+      [ "IndexIterator", "classlucid_1_1IndexIterator.html", "classlucid_1_1IndexIterator" ],
+      [ "InverseGramMatrix", "classlucid_1_1InverseGramMatrix.html", "classlucid_1_1InverseGramMatrix" ],
+      [ "Kernel", "classlucid_1_1Kernel.html", "classlucid_1_1Kernel" ],
+      [ "KernelRidgeRegressor", "classlucid_1_1KernelRidgeRegressor.html", "classlucid_1_1KernelRidgeRegressor" ],
+      [ "LbfgsTuner", "classlucid_1_1LbfgsTuner.html", "classlucid_1_1LbfgsTuner" ],
+      [ "LbgsParameters", "structlucid_1_1LbgsParameters.html", "structlucid_1_1LbgsParameters" ],
+      [ "LinearTruncatedFourierFeatureMap", "classlucid_1_1LinearTruncatedFourierFeatureMap.html", "classlucid_1_1LinearTruncatedFourierFeatureMap" ],
+      [ "LogTruncatedFourierFeatureMap", "classlucid_1_1LogTruncatedFourierFeatureMap.html", "classlucid_1_1LogTruncatedFourierFeatureMap" ],
+      [ "MedianHeuristicTuner", "classlucid_1_1MedianHeuristicTuner.html", "classlucid_1_1MedianHeuristicTuner" ],
+      [ "MultiSet", "classlucid_1_1MultiSet.html", "classlucid_1_1MultiSet" ],
+      [ "Optimiser", "classlucid_1_1Optimiser.html", "classlucid_1_1Optimiser" ],
+      [ "ParameterValue", "classlucid_1_1ParameterValue.html", "classlucid_1_1ParameterValue" ],
+      [ "ParameterValues", "classlucid_1_1ParameterValues.html", "classlucid_1_1ParameterValues" ],
+      [ "Parametrizable", "classlucid_1_1Parametrizable.html", "classlucid_1_1Parametrizable" ],
+      [ "PolytopeSet", "classlucid_1_1PolytopeSet.html", "classlucid_1_1PolytopeSet" ],
+      [ "RectSet", "classlucid_1_1RectSet.html", "classlucid_1_1RectSet" ],
+      [ "Set", "classlucid_1_1Set.html", "classlucid_1_1Set" ],
+      [ "SphereSet", "classlucid_1_1SphereSet.html", "classlucid_1_1SphereSet" ],
+      [ "Tensor", "classlucid_1_1Tensor.html", "classlucid_1_1Tensor" ],
+      [ "TensorIterator", "classlucid_1_1TensorIterator.html", "classlucid_1_1TensorIterator" ],
+      [ "TensorView", "classlucid_1_1TensorView.html", "classlucid_1_1TensorView" ],
+      [ "TruncatedFourierFeatureMap", "classlucid_1_1TruncatedFourierFeatureMap.html", "classlucid_1_1TruncatedFourierFeatureMap" ],
+      [ "Tuner", "classlucid_1_1Tuner.html", "classlucid_1_1Tuner" ]
+    ] ]
+];

@@ -1,0 +1,8 @@
+var searchData=
+[
+  ['data_0',['data',['../classlucid_1_1Tensor.html#a543070d59b0a80d1111cd3f5ba325f97',1,'lucid::Tensor::data()'],['../classlucid_1_1TensorView.html#a9284abab3a00a9e35f22e3b25870d5db',1,'lucid::TensorView::data()']]],
+  ['diff_1',['diff',['../namespacelucid.html#a198083aea073147056f95f540d304f3d',1,'lucid']]],
+  ['dimension_2',['dimension',['../classlucid_1_1MultiSet.html#a1193000294a24a445fb4c449791706cb',1,'lucid::MultiSet::dimension()'],['../classlucid_1_1PolytopeSet.html#aba504705a2b2e4f53bf9e86a52c6bd1c',1,'lucid::PolytopeSet::dimension()'],['../classlucid_1_1RectSet.html#a9839412e7b5fb7869545b200e5a44363',1,'lucid::RectSet::dimension()'],['../classlucid_1_1Set.html#ac28cbe5c4af8457d4cd441bbc3336fd4',1,'lucid::Set::dimension()'],['../classlucid_1_1SphereSet.html#a77661616acdf39108d7bebf9d0cf9242',1,'lucid::SphereSet::dimension()'],['../classlucid_1_1TruncatedFourierFeatureMap.html#a59ef650343f00e86c961895f0da62474',1,'lucid::TruncatedFourierFeatureMap::dimension()']]],
+  ['dimensions_3',['dimensions',['../classlucid_1_1Tensor.html#a53910797c781f0d3709c4d1b56d1895e',1,'lucid::Tensor::dimensions()'],['../classlucid_1_1TensorView.html#adccc2a7dfa260924c0393fc25a68355f',1,'lucid::TensorView::dimensions()']]],
+  ['dispatch_4',['dispatch',['../namespacelucid.html#acece491ee19cf6e828410680c6aab027',1,'lucid::dispatch(const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)'],['../namespacelucid.html#a975e65469736180eaefe7780462fd550',1,'lucid::dispatch(const Parameter parameter, const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)']]]
+];

@@ -1,0 +1,328 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: Namespace Members</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('namespacemembers.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="contents">
+<div class="textblock">Here is a list of all documented namespace members with links to the namespaces they belong to:</div>
+
+<h3><a id="index_a" name="index_a"></a>- a -</h3><ul>
+<li>ALGLIB_BUILD&#160;:&#160;<a class="el" href="namespacelucid_1_1constants.html#a5da85005384a9942a390c2cf828c9e82">lucid::constants</a></li>
+<li>annotate()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a310aacc8f2a0467ebb0073f3c6df978b">lucid::plt</a></li>
+<li>arange()&#160;:&#160;<a class="el" href="namespacelucid.html#ab3f82f6bbc3dc269665a62c527540252">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_b" name="index_b"></a>- b -</h3><ul>
+<li>backend()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a9113571e836d3efee601d12ff7c19635">lucid::plt</a></li>
+</ul>
+
+
+<h3><a id="index_c" name="index_c"></a>- c -</h3><ul>
+<li>circulant()&#160;:&#160;<a class="el" href="namespacelucid.html#a52b53ed151f0f7cc8a92f1090e336f33">lucid</a></li>
+<li>clear_logger()&#160;:&#160;<a class="el" href="namespacelucid_1_1log.html#acf2e18d25d2489f0581382bcaa83bbf1">lucid::log</a></li>
+<li>combvec()&#160;:&#160;<a class="el" href="namespacelucid.html#aca7dcc3d2d887d9fd26e44bd596f17ee">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_d" name="index_d"></a>- d -</h3><ul>
+<li>diff()&#160;:&#160;<a class="el" href="namespacelucid.html#a198083aea073147056f95f540d304f3d">lucid</a></li>
+<li>dispatch()&#160;:&#160;<a class="el" href="namespacelucid.html#acece491ee19cf6e828410680c6aab027">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_f" name="index_f"></a>- f -</h3><ul>
+<li>fft2()&#160;:&#160;<a class="el" href="namespacelucid.html#a69ac3a9147e3eda683ff29b7292dc98f">lucid</a></li>
+<li>fftshift()&#160;:&#160;<a class="el" href="namespacelucid.html#a12b798dded1a78e3ec0f12d151828205">lucid</a></li>
+<li>figure()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#abe0d61ac089375646659647175e99223">lucid::plt</a></li>
+<li>fill_between()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a34cb7d85f4f33b1021e548f2530f6608">lucid::plt</a></li>
+</ul>
+
+
+<h3><a id="index_g" name="index_g"></a>- g -</h3><ul>
+<li>get_logger()&#160;:&#160;<a class="el" href="namespacelucid_1_1log.html#a044611b1657d8edb99a3e7c943e39341">lucid::log</a></li>
+<li>GUROBI_BUILD&#160;:&#160;<a class="el" href="namespacelucid_1_1constants.html#a33b6d877134eab031bbc8922b00654c4">lucid::constants</a></li>
+</ul>
+
+
+<h3><a id="index_h" name="index_h"></a>- h -</h3><ul>
+<li>HIGHS_BUILD&#160;:&#160;<a class="el" href="namespacelucid_1_1constants.html#ab5b3471783755840206d4f860577cbe5">lucid::constants</a></li>
+<li>HP&#160;:&#160;<a class="el" href="namespacelucid.html#a8d857928936d67d842c25f817f7f1a18">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_i" name="index_i"></a>- i -</h3><ul>
+<li>ifft2()&#160;:&#160;<a class="el" href="namespacelucid.html#ab3c0ced02da21d69ead427f96834aa2f">lucid</a></li>
+<li>ifftshift()&#160;:&#160;<a class="el" href="namespacelucid.html#a2091ebdcb0a21b064e7532daa7f3e2dd">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_l" name="index_l"></a>- l -</h3><ul>
+<li>LoggerType&#160;:&#160;<a class="el" href="namespacelucid_1_1log.html#abdb89e7c48b6f30be5e3e5f8eb57ab80">lucid::log</a></li>
+</ul>
+
+
+<h3><a id="index_m" name="index_m"></a>- m -</h3><ul>
+<li>MATPLOTLIB_BUILD&#160;:&#160;<a class="el" href="namespacelucid_1_1constants.html#aeb1f3f999932d9601671370bb0d961e1">lucid::constants</a></li>
+<li>median()&#160;:&#160;<a class="el" href="namespacelucid.html#a471a033719164b8a31dc1f3e984e9d29">lucid</a></li>
+<li>meshgrid()&#160;:&#160;<a class="el" href="namespacelucid.html#a854705a306f275a8d85aa55dd8604463">lucid</a></li>
+<li>mse_score()&#160;:&#160;<a class="el" href="namespacelucid_1_1scorer.html#a369896d588e7c5b8e18af196f2eb8859">lucid::scorer</a></li>
+<li>mvnrnd()&#160;:&#160;<a class="el" href="namespacelucid.html#ae0f9a8c236a28f62d2d26e355f42e9e8">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_n" name="index_n"></a>- n -</h3><ul>
+<li>NoParameters&#160;:&#160;<a class="el" href="namespacelucid.html#acb07caec20c7895bf6d7fc9691a99922">lucid</a></li>
+<li>NoRequests&#160;:&#160;<a class="el" href="namespacelucid.html#a80dc0250e3ce95ca6d1a16be6bef0061">lucid</a></li>
+<li>normal_cdf()&#160;:&#160;<a class="el" href="namespacelucid.html#acfe26bbb9398ccbbca83d8ba6b7dd643">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_o" name="index_o"></a>- o -</h3><ul>
+<li>operator*()&#160;:&#160;<a class="el" href="namespacelucid.html#abd8eeb3b82ddea0a59399d45574306bc">lucid</a></li>
+<li>OutputComputer&#160;:&#160;<a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_p" name="index_p"></a>- p -</h3><ul>
+<li>pad()&#160;:&#160;<a class="el" href="namespacelucid.html#aacdb473185a04395bb6138343432345c">lucid</a></li>
+<li>Parameter&#160;:&#160;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">lucid</a></li>
+<li>Parameters&#160;:&#160;<a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">lucid</a></li>
+<li>pdist()&#160;:&#160;<a class="el" href="namespacelucid.html#ad2342b9f9ba5cfbc2dd514a0b39d1572">lucid</a></li>
+<li>peaks()&#160;:&#160;<a class="el" href="namespacelucid.html#ac942549a275a4f75d53488f9b602ec3d">lucid</a></li>
+<li>plot()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a007b142307d42cafc25e5889bc693f5f">lucid::plt</a></li>
+<li>plot_surface()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a8f7e3c9a90fa40e8b2aab3756a31c1c9">lucid::plt</a></li>
+<li>plot_wireframe()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#abbfccdc1473616645d7157a4be8f2cff">lucid::plt</a></li>
+<li>pow()&#160;:&#160;<a class="el" href="namespacelucid.html#a1a6b1635138810f0b86e80e439a00951">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_r" name="index_r"></a>- r -</h3><ul>
+<li>r2_score()&#160;:&#160;<a class="el" href="namespacelucid_1_1scorer.html#aa755c5ec68fccd063bf62f19ba01bcfd">lucid::scorer</a></li>
+<li>RadialBasisFunction&#160;:&#160;<a class="el" href="namespacelucid.html#a2e60d822bd4b5f792ad1184b7295a16c">lucid</a></li>
+<li>read_matrix()&#160;:&#160;<a class="el" href="namespacelucid.html#adf35b2fb98b85df1593a8b87ae1c1ec7">lucid</a></li>
+<li>Request&#160;:&#160;<a class="el" href="namespacelucid.html#a8379d79f3350427204a863db8dc88942">lucid</a></li>
+<li>Requests&#160;:&#160;<a class="el" href="namespacelucid.html#ae1d133efe8374d738e9e41afb782c408">lucid</a></li>
+<li>rms()&#160;:&#160;<a class="el" href="namespacelucid.html#ac5040395eaec2d99175fe6398507ed2b">lucid</a></li>
+<li>rmse_score()&#160;:&#160;<a class="el" href="namespacelucid_1_1scorer.html#a9bb50dd722b7b2cea003ccdd047d4b9f">lucid::scorer</a></li>
+</ul>
+
+
+<h3><a id="index_s" name="index_s"></a>- s -</h3><ul>
+<li>savefig()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a973a49cc0aa9052e3285404d7c60fc55">lucid::plt</a></li>
+<li>scatter()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a3e8cbc71341a4771a46d9c9c3e86a95a">lucid::plt</a></li>
+<li>Scorer&#160;:&#160;<a class="el" href="namespacelucid_1_1scorer.html#adae5569bbcaed2bb6e93bdb4305b5593">lucid::scorer</a></li>
+<li>set_logger_sink()&#160;:&#160;<a class="el" href="namespacelucid_1_1log.html#a04f4b6e2bfc609565ed38e6616f31486">lucid::log</a></li>
+<li>set_pattern()&#160;:&#160;<a class="el" href="namespacelucid_1_1log.html#aaedd50ee19bdb0fd447e6bbe4f076da7">lucid::log</a></li>
+<li>set_verbosity_level()&#160;:&#160;<a class="el" href="namespacelucid_1_1log.html#a2fbc0d562fb00ac14f8d5f0e82be8939">lucid::log</a></li>
+<li>shift()&#160;:&#160;<a class="el" href="namespacelucid.html#a27e0750e2a5a78b2cc62821e566449ce">lucid</a></li>
+<li>show()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a81fa033d600e2176448ea55d0e070a99">lucid::plt</a></li>
+<li>SquaredExponentialKernel&#160;:&#160;<a class="el" href="namespacelucid.html#a456f7cf6e73f8070b50de18d87164f12">lucid</a></li>
+</ul>
+
+
+<h3><a id="index_x" name="index_x"></a>- x -</h3><ul>
+<li>xlim()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#af799ab63aea33bb25970fdc151b39403">lucid::plt</a></li>
+</ul>
+
+
+<h3><a id="index_y" name="index_y"></a>- y -</h3><ul>
+<li>ylim()&#160;:&#160;<a class="el" href="namespacelucid_1_1plt.html#a8c37e08a592417ac587ad2f4f465970f">lucid::plt</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

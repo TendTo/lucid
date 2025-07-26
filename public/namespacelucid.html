@@ -1,0 +1,1905 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: lucid Namespace Reference</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('namespacelucid.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#concepts">Concepts</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
+  <div class="headertitle"><div class="title">lucid Namespace Reference</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Root namespace for the lucid library.  
+<a href="#details">More...</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid_1_1constants.html">constants</a></td></tr>
+<tr class="memdesc:namespacelucid_1_1constants"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constants values used in the lucid library. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid_1_1exception.html">exception</a></td></tr>
+<tr class="memdesc:namespacelucid_1_1exception"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of exceptions that can be thrown by lucid. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid_1_1log.html">log</a></td></tr>
+<tr class="memdesc:namespacelucid_1_1log"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of logging utilities. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid_1_1plt.html">plt</a></td></tr>
+<tr class="memdesc:namespacelucid_1_1plt"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lucid's matplotlib wrapper. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid_1_1scorer.html">scorer</a></td></tr>
+<tr class="memdesc:namespacelucid_1_1scorer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of utilities used to score the accuracy of estimators. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelucid_1_1verification.html">verification</a></td></tr>
+<tr class="memdesc:namespacelucid_1_1verification"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of utilities used to verify whether the system abides by the given specifications. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1AlglibOptimiser.html">AlglibOptimiser</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Linear optimiser using the <a href="https://www.alglib.net/">Alglib</a> mathematical library.  <a href="classlucid_1_1AlglibOptimiser.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1ConstantTruncatedFourierFeatureMap.html">ConstantTruncatedFourierFeatureMap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Truncated Fourier feature map using fixed intervals between each interval of the normal distribution.  <a href="classlucid_1_1ConstantTruncatedFourierFeatureMap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given two vector spaces \( \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} \) and a map \( f: \mathcal{X} \to \mathcal{Y} \), the goal is to produce a model \( f^*:\mathcal{X} \to \mathcal{Y} \) that best approximates \( f \).  <a href="classlucid_1_1Estimator.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1FeatureMap.html">FeatureMap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map input vectors to a feature space.  <a href="classlucid_1_1FeatureMap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1GaussianKernel.html">GaussianKernel</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">RKHS Gaussian kernel.  <a href="classlucid_1_1GaussianKernel.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1GradientOptimizable.html">GradientOptimizable</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface for objects that can be optimised using gradient-based methods (e.g., <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a>).  <a href="classlucid_1_1GradientOptimizable.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1GramMatrix.html">GramMatrix</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gram Matrix obtained from a kernel function.  <a href="classlucid_1_1GramMatrix.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1GridSearchTuner.html">GridSearchTuner</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Grid search tuning strategy for model hyperparameter optimisation.  <a href="classlucid_1_1GridSearchTuner.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1GurobiOptimiser.html">GurobiOptimiser</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Linear optimiser using the Gurobi solver.  <a href="classlucid_1_1GurobiOptimiser.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1HighsOptimiser.html">HighsOptimiser</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Linear optimiser using the <a href="https://ergo-code.github.io/HiGHS/dev/">HiGHS</a> mathematical library.  <a href="classlucid_1_1HighsOptimiser.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1IndexIterator.html">IndexIterator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterator over all possible indexes in a given range.  <a href="classlucid_1_1IndexIterator.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1InverseGramMatrix.html">InverseGramMatrix</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The inverse of a Gram matrix, \( K^{-1} \), allowing transparent multiplication with vectors and matrices.  <a href="classlucid_1_1InverseGramMatrix.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Kernel.html">Kernel</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a kernel function.  <a href="classlucid_1_1Kernel.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1KernelRidgeRegressor.html">KernelRidgeRegressor</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ridge regressor with a kernel function.  <a href="classlucid_1_1KernelRidgeRegressor.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1LbfgsTuner.html">LbfgsTuner</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a> that uses the L-BFGS algorithm.  <a href="classlucid_1_1LbfgsTuner.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure copied from <a href="http://github.com/yixuan/LBFGSpp">lbfgscpp</a>, to avoid a transitive dependency on the external library in the header.  <a href="structlucid_1_1LbgsParameters.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1LinearTruncatedFourierFeatureMap.html">LinearTruncatedFourierFeatureMap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Truncated Fourier feature map using same-sized intervals between each interval of the normal distribution, from the origin to 3 standard deviations on each side.  <a href="classlucid_1_1LinearTruncatedFourierFeatureMap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1LogTruncatedFourierFeatureMap.html">LogTruncatedFourierFeatureMap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Truncated Fourier feature map using log-sized intervals between each interval of the normal distribution, from the origin to 3 standard deviations on each side.  <a href="classlucid_1_1LogTruncatedFourierFeatureMap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1MedianHeuristicTuner.html">MedianHeuristicTuner</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Tuner.html" title="Optimise the kernel hyperparameters.">Tuner</a> that adjusts the kernel parameters using the median heuristic method.  <a href="classlucid_1_1MedianHeuristicTuner.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1MultiSet.html">MultiSet</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> composed of the union of multiple sets.  <a href="classlucid_1_1MultiSet.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1ParameterValue.html">ParameterValue</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="#af391319051f1a656ecaf252ddfd84d84" title="List of available parameters used parametrizable objects (e.g., Estimator and Kernel).">Parameter</a> value used in a configurable system or application.  <a href="classlucid_1_1ParameterValue.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1ParameterValues.html">ParameterValues</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of parameter values used in a configurable system or application.  <a href="classlucid_1_1ParameterValues.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html">Parametrizable</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface for objects that allow setting and getting parameters dynamically.  <a href="classlucid_1_1Parametrizable.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1PolytopeSet.html">PolytopeSet</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A convex polytope set in half-space representation.  <a href="classlucid_1_1PolytopeSet.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1RectSet.html">RectSet</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rectangular set over an arbitrary number of dimensions.  <a href="classlucid_1_1RectSet.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Set.html">Set</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic set over a \( \texttip{d}{Dimension of the vector space} \) dimensional vector space \( \texttip{\mathcal{X}}{Polish sample vector space} \subseteq \mathbb{R}^d \).  <a href="classlucid_1_1Set.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1SphereSet.html">SphereSet</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Tensor.html">Tensor</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lightweight tensor class.  <a href="classlucid_1_1Tensor.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1TensorIterator.html">TensorIterator</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility class to iterate over all elements of a tensor.  <a href="classlucid_1_1TensorIterator.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1TensorView.html">TensorView</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lightweight wrapper that provides a view of a tensor.  <a href="classlucid_1_1TensorView.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1TruncatedFourierFeatureMap.html">TruncatedFourierFeatureMap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Truncated Fourier feature map.  <a href="classlucid_1_1TruncatedFourierFeatureMap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Tuner.html">Tuner</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimise the kernel hyperparameters.  <a href="classlucid_1_1Tuner.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="concepts" name="concepts"></a>
+Concepts</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1SizedDataContainer.html">SizedDataContainer</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is a data container of type <code>U</code> having a <code>data()</code> method which returns a raw pointer and a <code>size()</code> method which returns the size of the container. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1MapFromTo.html">MapFromTo</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> constitutes a map from type <code>From</code> to type <code>To</code>. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1SelfReferenceCounter.html">SelfReferenceCounter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is a self-reference counter type. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1Iterable.html">Iterable</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is an iterable type. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1SizedIterable.html">SizedIterable</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is an iterable type with a <code>size()</code> method. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1TypedIterable.html">TypedIterable</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is an iterable type with elements of type <code>U</code>. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1SizedTypedIterable.html">SizedTypedIterable</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is an iterable type with elements of type <code>U</code> and a <code>size()</code> method. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1IsAnyOf.html">IsAnyOf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is any of the types <code>U</code>. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1IsNotAnyOf.html">IsNotAnyOf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> is not any of the types <code>U</code>. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1Arithmetic.html">Arithmetic</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> supports the arithmetic operations <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptlucid_1_1Numeric.html">Numeric</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the type <code>T</code> supports the arithmetic operations <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> and the comparison operators <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a1b6bfed2b6cd5485a5e480727fb09dd4" id="r_a1b6bfed2b6cd5485a5e480727fb09dd4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b6bfed2b6cd5485a5e480727fb09dd4">OutputComputer</a> = std::function&lt;ConstMatrixRefCopy(const <a class="el" href="classlucid_1_1Estimator.html">Estimator</a>&amp;, ConstMatrixRef)&gt;</td></tr>
+<tr class="memdesc:a1b6bfed2b6cd5485a5e480727fb09dd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instead of providing the outputs directly to the estimator, this function can be used to compute them on the fly.  <br /></td></tr>
+<tr class="separator:a1b6bfed2b6cd5485a5e480727fb09dd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e60d822bd4b5f792ad1184b7295a16c" id="r_a2e60d822bd4b5f792ad1184b7295a16c"><td class="memItemLeft" align="right" valign="top"><a id="a2e60d822bd4b5f792ad1184b7295a16c" name="a2e60d822bd4b5f792ad1184b7295a16c"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>RadialBasisFunction</b> = <a class="el" href="classlucid_1_1GaussianKernel.html">GaussianKernel</a></td></tr>
+<tr class="memdesc:a2e60d822bd4b5f792ad1184b7295a16c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for Gaussian kernel. <br /></td></tr>
+<tr class="separator:a2e60d822bd4b5f792ad1184b7295a16c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a456f7cf6e73f8070b50de18d87164f12" id="r_a456f7cf6e73f8070b50de18d87164f12"><td class="memItemLeft" align="right" valign="top"><a id="a456f7cf6e73f8070b50de18d87164f12" name="a456f7cf6e73f8070b50de18d87164f12"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>SquaredExponentialKernel</b> = <a class="el" href="classlucid_1_1GaussianKernel.html">GaussianKernel</a></td></tr>
+<tr class="memdesc:a456f7cf6e73f8070b50de18d87164f12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for Gaussian kernel. <br /></td></tr>
+<tr class="separator:a456f7cf6e73f8070b50de18d87164f12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d857928936d67d842c25f817f7f1a18" id="r_a8d857928936d67d842c25f817f7f1a18"><td class="memItemLeft" align="right" valign="top"><a id="a8d857928936d67d842c25f817f7f1a18" name="a8d857928936d67d842c25f817f7f1a18"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>HP</b> = <a class="el" href="#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td></tr>
+<tr class="memdesc:a8d857928936d67d842c25f817f7f1a18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for HyperParameter. <br /></td></tr>
+<tr class="separator:a8d857928936d67d842c25f817f7f1a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8d08ad5df62fd19799d7d5dc3b8f232" id="r_ac8d08ad5df62fd19799d7d5dc3b8f232"><td class="memItemLeft" align="right" valign="top"><a id="ac8d08ad5df62fd19799d7d5dc3b8f232" name="ac8d08ad5df62fd19799d7d5dc3b8f232"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Parameters</b> = std::underlying_type_t&lt;<a class="el" href="#af391319051f1a656ecaf252ddfd84d84">Parameter</a>&gt;</td></tr>
+<tr class="memdesc:ac8d08ad5df62fd19799d7d5dc3b8f232"><td class="mdescLeft">&#160;</td><td class="mdescRight">Efficient set of parameters as bitset. <br /></td></tr>
+<tr class="separator:ac8d08ad5df62fd19799d7d5dc3b8f232"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1d133efe8374d738e9e41afb782c408" id="r_ae1d133efe8374d738e9e41afb782c408"><td class="memItemLeft" align="right" valign="top"><a id="ae1d133efe8374d738e9e41afb782c408" name="ae1d133efe8374d738e9e41afb782c408"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Requests</b> = std::underlying_type_t&lt;<a class="el" href="#a8379d79f3350427204a863db8dc88942">Request</a>&gt;</td></tr>
+<tr class="memdesc:ae1d133efe8374d738e9e41afb782c408"><td class="mdescLeft">&#160;</td><td class="mdescRight">Efficient set of requests. <br /></td></tr>
+<tr class="separator:ae1d133efe8374d738e9e41afb782c408"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:af391319051f1a656ecaf252ddfd84d84" id="r_af391319051f1a656ecaf252ddfd84d84"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af391319051f1a656ecaf252ddfd84d84">Parameter</a> : std::uint16_t { <br />
+&#160;&#160;<a class="el" href="#af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032">_</a> = 0
+, <a class="el" href="#af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17">SIGMA_F</a> = 1 &lt;&lt; 0
+, <a class="el" href="#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">SIGMA_L</a> = 1 &lt;&lt; 1
+, <a class="el" href="#af391319051f1a656ecaf252ddfd84d84a563dc7650b3dee61cf6cb2711af2bcc6">REGULARIZATION_CONSTANT</a> = 1 &lt;&lt; 2
+, <br />
+&#160;&#160;<a class="el" href="#af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1">DEGREE</a> = 1 &lt;&lt; 3
+, <a class="el" href="#af391319051f1a656ecaf252ddfd84d84a46c8b10c5640174da48241e0fb6f8a83">GRADIENT_OPTIMIZABLE</a> = 1 &lt;&lt; 4
+<br />
+ }</td></tr>
+<tr class="memdesc:af391319051f1a656ecaf252ddfd84d84"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of available parameters used parametrizable objects (e.g., Estimator and Kernel).  <a href="#af391319051f1a656ecaf252ddfd84d84">More...</a><br /></td></tr>
+<tr class="separator:af391319051f1a656ecaf252ddfd84d84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8379d79f3350427204a863db8dc88942" id="r_a8379d79f3350427204a863db8dc88942"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8379d79f3350427204a863db8dc88942">Request</a> : std::uint16_t { <a class="el" href="#a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032">_</a> = 0
+, <a class="el" href="#a8379d79f3350427204a863db8dc88942ad9f57ae2ad8b48b7022428d25e5764c0">OBJECTIVE_VALUE</a> = 1 &lt;&lt; 0
+, <a class="el" href="#a8379d79f3350427204a863db8dc88942a90f70ea2675c36bd9b0b44a79f37a41f">GRADIENT</a> = 1 &lt;&lt; 1
+ }</td></tr>
+<tr class="memdesc:a8379d79f3350427204a863db8dc88942"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of available requests a tuner can make to an Estimator and, by extension, to a Kernel.  <a href="#a8379d79f3350427204a863db8dc88942">More...</a><br /></td></tr>
+<tr class="separator:a8379d79f3350427204a863db8dc88942"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ac942549a275a4f75d53488f9b602ec3d" id="r_ac942549a275a4f75d53488f9b602ec3d"><td class="memItemLeft" align="right" valign="top">Vector&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac942549a275a4f75d53488f9b602ec3d">peaks</a> (const Vector &amp;x, const Vector &amp;y)</td></tr>
+<tr class="memdesc:ac942549a275a4f75d53488f9b602ec3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Peaks function defined over a pair of vectors.  <br /></td></tr>
+<tr class="separator:ac942549a275a4f75d53488f9b602ec3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b220b3612abc3a451cbb6bcccef0b51" id="r_a8b220b3612abc3a451cbb6bcccef0b51"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8b220b3612abc3a451cbb6bcccef0b51">peaks</a> (const Matrix &amp;x, const Matrix &amp;y)</td></tr>
+<tr class="memdesc:a8b220b3612abc3a451cbb6bcccef0b51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Peaks function defined over a pair of meshgrids.  <br /></td></tr>
+<tr class="separator:a8b220b3612abc3a451cbb6bcccef0b51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0f9a8c236a28f62d2d26e355f42e9e8" id="r_ae0f9a8c236a28f62d2d26e355f42e9e8"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae0f9a8c236a28f62d2d26e355f42e9e8">mvnrnd</a> (const Vector &amp;mu, const Matrix &amp;sigma)</td></tr>
+<tr class="memdesc:ae0f9a8c236a28f62d2d26e355f42e9e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">The multivariate normal distribution is a generalization of the univariate normal distribution to two or more variables.  <br /></td></tr>
+<tr class="separator:ae0f9a8c236a28f62d2d26e355f42e9e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca7dcc3d2d887d9fd26e44bd596f17ee" id="r_aca7dcc3d2d887d9fd26e44bd596f17ee"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aca7dcc3d2d887d9fd26e44bd596f17ee">combvec</a> (ConstMatrixRef m)</td></tr>
+<tr class="memdesc:aca7dcc3d2d887d9fd26e44bd596f17ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given a matrix <code>m</code> treat each row vector as a separate matrix and return their combination using <a class="el" href="#aca7dcc3d2d887d9fd26e44bd596f17ee">combvec</a>.  <br /></td></tr>
+<tr class="separator:aca7dcc3d2d887d9fd26e44bd596f17ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5040395eaec2d99175fe6398507ed2b" id="r_ac5040395eaec2d99175fe6398507ed2b"><td class="memItemLeft" align="right" valign="top">Scalar&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac5040395eaec2d99175fe6398507ed2b">rms</a> (ConstMatrixRef x)</td></tr>
+<tr class="memdesc:ac5040395eaec2d99175fe6398507ed2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the root mean square of the elements of a vector.  <br /></td></tr>
+<tr class="separator:ac5040395eaec2d99175fe6398507ed2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfe26bbb9398ccbbca83d8ba6b7dd643" id="r_acfe26bbb9398ccbbca83d8ba6b7dd643"><td class="memItemLeft" align="right" valign="top">Vector&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acfe26bbb9398ccbbca83d8ba6b7dd643">normal_cdf</a> (ConstVectorRef x, Scalar sigma_f, Scalar sigma_l)</td></tr>
+<tr class="memdesc:acfe26bbb9398ccbbca83d8ba6b7dd643"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the Cumulative distribution function (CDF) of the normal distribution at oll point listed in \( \texttip{x}{Element of the vector space} \).  <br /></td></tr>
+<tr class="separator:acfe26bbb9398ccbbca83d8ba6b7dd643"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a854705a306f275a8d85aa55dd8604463" id="r_a854705a306f275a8d85aa55dd8604463"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a854705a306f275a8d85aa55dd8604463">meshgrid</a> (const Vector &amp;x, const Vector &amp;y, Matrix &amp;X, Matrix &amp;Y)</td></tr>
+<tr class="memdesc:a854705a306f275a8d85aa55dd8604463"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a 2D grid coordinates based on the coordinates contained in vectors <code>x</code> and <code>y</code>.  <br /></td></tr>
+<tr class="separator:a854705a306f275a8d85aa55dd8604463"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9910babf1bb5140970d94cbae1d95516" id="r_a9910babf1bb5140970d94cbae1d95516"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9910babf1bb5140970d94cbae1d95516">meshgrid</a> (const Vector &amp;x, Matrix &amp;X, Matrix &amp;Y)</td></tr>
+<tr class="memdesc:a9910babf1bb5140970d94cbae1d95516"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a 2D grid coordinates based on the coordinates contained in vector <code>x</code>.  <br /></td></tr>
+<tr class="separator:a9910babf1bb5140970d94cbae1d95516"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3f82f6bbc3dc269665a62c527540252" id="r_ab3f82f6bbc3dc269665a62c527540252"><td class="memItemLeft" align="right" valign="top">Vector&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab3f82f6bbc3dc269665a62c527540252">arange</a> (const Scalar low, Scalar high, const Scalar step=1, const bool with_last=false)</td></tr>
+<tr class="memdesc:ab3f82f6bbc3dc269665a62c527540252"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create an evenly spaced values within a given interval.  <br /></td></tr>
+<tr class="separator:ab3f82f6bbc3dc269665a62c527540252"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a198083aea073147056f95f540d304f3d" id="r_a198083aea073147056f95f540d304f3d"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a198083aea073147056f95f540d304f3d">diff</a> (ConstMatrixRef m, const int n=1, const bool rowwise=true)</td></tr>
+<tr class="memdesc:a198083aea073147056f95f540d304f3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates differences between adjacent elements of <code>X</code> <code>n</code> times.  <br /></td></tr>
+<tr class="separator:a198083aea073147056f95f540d304f3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a230a7447b6ed03f3d7533c6e5e3f99cb" id="r_a230a7447b6ed03f3d7533c6e5e3f99cb"><td class="memTemplParams" colspan="2">template&lt;class... Ms&gt; </td></tr>
+<tr class="memitem:a230a7447b6ed03f3d7533c6e5e3f99cb"><td class="memTemplItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a230a7447b6ed03f3d7533c6e5e3f99cb">combvec</a> (ConstMatrixRef m1, ConstMatrixRef m2, const Ms &amp;... matrices)</td></tr>
+<tr class="memdesc:a230a7447b6ed03f3d7533c6e5e3f99cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given \( m \) inputs <code>matrices</code>, where matrix \( M_i \) has \( n_i \) columns, return a matrix with \( \Pi_{i = 0}^m n_i \) column vectors, where the columns consist of all combinations found by combining one column vector from each input matrix.  <br /></td></tr>
+<tr class="separator:a230a7447b6ed03f3d7533c6e5e3f99cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a471a033719164b8a31dc1f3e984e9d29" id="r_a471a033719164b8a31dc1f3e984e9d29"><td class="memItemLeft" align="right" valign="top">Scalar&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a471a033719164b8a31dc1f3e984e9d29">median</a> (Matrix x)</td></tr>
+<tr class="memdesc:a471a033719164b8a31dc1f3e984e9d29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the median of a vector or matrix.  <br /></td></tr>
+<tr class="separator:a471a033719164b8a31dc1f3e984e9d29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2342b9f9ba5cfbc2dd514a0b39d1572" id="r_ad2342b9f9ba5cfbc2dd514a0b39d1572"><td class="memTemplParams" colspan="2">template&lt;Dimension P = 2, bool Squared = false, bool TriangularMatrix = false, class Derived&gt; <br />
+requires (P &gt; 0) &amp;&amp; (!Squared || P == 2)</td></tr>
+<tr class="memitem:ad2342b9f9ba5cfbc2dd514a0b39d1572"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#ad2342b9f9ba5cfbc2dd514a0b39d1572">pdist</a> (const Eigen::MatrixBase&lt; Derived &gt; &amp;x)</td></tr>
+<tr class="memdesc:ad2342b9f9ba5cfbc2dd514a0b39d1572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the <code>p</code>-norm distance between every pair of row vectors in the input.  <br /></td></tr>
+<tr class="separator:ad2342b9f9ba5cfbc2dd514a0b39d1572"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a445fad6d18036630b44c53c0f87bc5f6" id="r_a445fad6d18036630b44c53c0f87bc5f6"><td class="memTemplParams" colspan="2">template&lt;Dimension P = 2, bool Squared = false, class DerivedX, class DerivedY&gt; <br />
+requires (P &gt; 0) &amp;&amp; (!Squared || P == 2)</td></tr>
+<tr class="memitem:a445fad6d18036630b44c53c0f87bc5f6"><td class="memTemplItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a445fad6d18036630b44c53c0f87bc5f6">pdist</a> (const Eigen::MatrixBase&lt; DerivedX &gt; &amp;x, const Eigen::MatrixBase&lt; DerivedY &gt; &amp;y)</td></tr>
+<tr class="memdesc:a445fad6d18036630b44c53c0f87bc5f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the <code>p</code>-norm distance between every pair of row vectors in the input matrices.  <br /></td></tr>
+<tr class="separator:a445fad6d18036630b44c53c0f87bc5f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69ac3a9147e3eda683ff29b7292dc98f" id="r_a69ac3a9147e3eda683ff29b7292dc98f"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXcd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a69ac3a9147e3eda683ff29b7292dc98f">fft2</a> (const Matrix &amp;x)</td></tr>
+<tr class="memdesc:a69ac3a9147e3eda683ff29b7292dc98f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a 2D Fast Fourier Transform (FFT) on the input matrix.  <br /></td></tr>
+<tr class="separator:a69ac3a9147e3eda683ff29b7292dc98f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3c0ced02da21d69ead427f96834aa2f" id="r_ab3c0ced02da21d69ead427f96834aa2f"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab3c0ced02da21d69ead427f96834aa2f">ifft2</a> (const Eigen::MatrixXcd &amp;x)</td></tr>
+<tr class="memdesc:ab3c0ced02da21d69ead427f96834aa2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a 2D inverse Fast Fourier Transform (FFT) on the input matrix.  <br /></td></tr>
+<tr class="separator:ab3c0ced02da21d69ead427f96834aa2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf35b2fb98b85df1593a8b87ae1c1ec7" id="r_adf35b2fb98b85df1593a8b87ae1c1ec7"><td class="memTemplParams" colspan="2">template&lt;class Scalar&gt; </td></tr>
+<tr class="memitem:adf35b2fb98b85df1593a8b87ae1c1ec7"><td class="memTemplItemLeft" align="right" valign="top">Eigen::MatrixX&lt; Scalar &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#adf35b2fb98b85df1593a8b87ae1c1ec7">read_matrix</a> (const std::string_view file_name)</td></tr>
+<tr class="memdesc:adf35b2fb98b85df1593a8b87ae1c1ec7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a matrix from a file.  <br /></td></tr>
+<tr class="separator:adf35b2fb98b85df1593a8b87ae1c1ec7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52b53ed151f0f7cc8a92f1090e336f33" id="r_a52b53ed151f0f7cc8a92f1090e336f33"><td class="memTemplParams" colspan="2">template&lt;class ArgType&gt; </td></tr>
+<tr class="memitem:a52b53ed151f0f7cc8a92f1090e336f33"><td class="memTemplItemLeft" align="right" valign="top">internal::CirculantOp&lt; ArgType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a52b53ed151f0f7cc8a92f1090e336f33">circulant</a> (const Eigen::MatrixBase&lt; ArgType &gt; &amp;arg)</td></tr>
+<tr class="memdesc:a52b53ed151f0f7cc8a92f1090e336f33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a circulant matrix from a vector <code>arg</code>.  <br /></td></tr>
+<tr class="separator:a52b53ed151f0f7cc8a92f1090e336f33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27e0750e2a5a78b2cc62821e566449ce" id="r_a27e0750e2a5a78b2cc62821e566449ce"><td class="memTemplParams" colspan="2">template&lt;class ArgType&gt; </td></tr>
+<tr class="memitem:a27e0750e2a5a78b2cc62821e566449ce"><td class="memTemplItemLeft" align="right" valign="top">internal::ShiftOp&lt; ArgType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a27e0750e2a5a78b2cc62821e566449ce">shift</a> (const Eigen::MatrixBase&lt; ArgType &gt; &amp;x, const Eigen::Index shift_rows, const Eigen::Index shift_cols)</td></tr>
+<tr class="memdesc:a27e0750e2a5a78b2cc62821e566449ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shift the rows and columns of a matrix or vector <code>x</code> by <code>shift_rows</code> and <code>shift_cols</code> respectively.  <br /></td></tr>
+<tr class="separator:a27e0750e2a5a78b2cc62821e566449ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12b798dded1a78e3ec0f12d151828205" id="r_a12b798dded1a78e3ec0f12d151828205"><td class="memTemplParams" colspan="2">template&lt;class ArgType&gt; </td></tr>
+<tr class="memitem:a12b798dded1a78e3ec0f12d151828205"><td class="memTemplItemLeft" align="right" valign="top">internal::ShiftOp&lt; ArgType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a12b798dded1a78e3ec0f12d151828205">fftshift</a> (const Eigen::MatrixBase&lt; ArgType &gt; &amp;x)</td></tr>
+<tr class="memdesc:a12b798dded1a78e3ec0f12d151828205"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rearrange a Fourier transform <code>x</code> by shifting the zero-frequency component to the center of the array.  <br /></td></tr>
+<tr class="separator:a12b798dded1a78e3ec0f12d151828205"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2091ebdcb0a21b064e7532daa7f3e2dd" id="r_a2091ebdcb0a21b064e7532daa7f3e2dd"><td class="memTemplParams" colspan="2">template&lt;class ArgType&gt; </td></tr>
+<tr class="memitem:a2091ebdcb0a21b064e7532daa7f3e2dd"><td class="memTemplItemLeft" align="right" valign="top">internal::ShiftOp&lt; ArgType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a2091ebdcb0a21b064e7532daa7f3e2dd">ifftshift</a> (const Eigen::MatrixBase&lt; ArgType &gt; &amp;x)</td></tr>
+<tr class="memdesc:a2091ebdcb0a21b064e7532daa7f3e2dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rearranges a zero-frequency-shifted Fourier transform <code>x</code> back to the original transform output.  <br /></td></tr>
+<tr class="separator:a2091ebdcb0a21b064e7532daa7f3e2dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacdb473185a04395bb6138343432345c" id="r_aacdb473185a04395bb6138343432345c"><td class="memTemplParams" colspan="2">template&lt;class ArgType&gt; </td></tr>
+<tr class="memitem:aacdb473185a04395bb6138343432345c"><td class="memTemplItemLeft" align="right" valign="top">internal::PadtOp&lt; ArgType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#aacdb473185a04395bb6138343432345c">pad</a> (const Eigen::MatrixBase&lt; ArgType &gt; &amp;x, const Eigen::Index pad_top, const Eigen::Index pad_bottom, const Eigen::Index pad_left, const Eigen::Index pad_right, const typename ArgType::Scalar &amp;value)</td></tr>
+<tr class="memdesc:aacdb473185a04395bb6138343432345c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pad a matrix or vector <code>x</code> with <code>pad_top</code>, <code>pad_bottom</code>, <code>pad_left</code>, and <code>pad_right</code> rows and columns respectively.  <br /></td></tr>
+<tr class="separator:aacdb473185a04395bb6138343432345c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5154692ebc1215da3b9943eb9a390ee" id="r_ab5154692ebc1215da3b9943eb9a390ee"><td class="memTemplParams" colspan="2">template&lt;class ArgType&gt; </td></tr>
+<tr class="memitem:ab5154692ebc1215da3b9943eb9a390ee"><td class="memTemplItemLeft" align="right" valign="top">internal::PadtOp&lt; ArgType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#ab5154692ebc1215da3b9943eb9a390ee">pad</a> (const Eigen::MatrixBase&lt; ArgType &gt; &amp;x, const Eigen::Index pad_size, const typename ArgType::Scalar &amp;value)</td></tr>
+<tr class="memdesc:ab5154692ebc1215da3b9943eb9a390ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pad a matrix or vector <code>x</code> with <code>pad_size</code> rows and columns in all directions, effectively adding <code>2 * pad_size</code> rows and columns to the input.  <br /></td></tr>
+<tr class="separator:ab5154692ebc1215da3b9943eb9a390ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78b8e3fa26d6c18ced9dc718140e5d9d" id="r_a78b8e3fa26d6c18ced9dc718140e5d9d"><td class="memTemplParams" colspan="2">template&lt;class ArgType&gt; </td></tr>
+<tr class="memitem:a78b8e3fa26d6c18ced9dc718140e5d9d"><td class="memTemplItemLeft" align="right" valign="top">internal::PadtOp&lt; ArgType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a78b8e3fa26d6c18ced9dc718140e5d9d">pad</a> (const Eigen::MatrixBase&lt; ArgType &gt; &amp;x, const Eigen::Index pad_rows, const Eigen::Index pad_cols, const typename ArgType::Scalar &amp;value)</td></tr>
+<tr class="memdesc:a78b8e3fa26d6c18ced9dc718140e5d9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pad a matrix or vector <code>x</code> with <code>pad_rows</code> rows and <code>pad_cols</code> columns in both directions, effectively adding <code>2 * pad_rows</code> rows and <code>2 * pad_cols</code> columns to the input.  <br /></td></tr>
+<tr class="separator:a78b8e3fa26d6c18ced9dc718140e5d9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd8eeb3b82ddea0a59399d45574306bc" id="r_abd8eeb3b82ddea0a59399d45574306bc"><td class="memTemplParams" colspan="2">template&lt;class Derived&gt; </td></tr>
+<tr class="memitem:abd8eeb3b82ddea0a59399d45574306bc"><td class="memTemplItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#abd8eeb3b82ddea0a59399d45574306bc">operator*</a> (const MatrixBase&lt; Derived &gt; &amp;A, const <a class="el" href="classlucid_1_1GramMatrix.html">GramMatrix</a> &amp;gram_matrix)</td></tr>
+<tr class="memdesc:abd8eeb3b82ddea0a59399d45574306bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Left multiply the Gram matrix with another matrix, \( AK \).  <br /></td></tr>
+<tr class="separator:abd8eeb3b82ddea0a59399d45574306bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acece491ee19cf6e828410680c6aab027" id="r_acece491ee19cf6e828410680c6aab027"><td class="memTemplParams" colspan="2">template&lt;class R, <a class="el" href="#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:acece491ee19cf6e828410680c6aab027"><td class="memTemplItemLeft" align="right" valign="top">R&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#acece491ee19cf6e828410680c6aab027">dispatch</a> (const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)</td></tr>
+<tr class="memdesc:acece491ee19cf6e828410680c6aab027"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatch the correct function call depending on type associated with the <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:acece491ee19cf6e828410680c6aab027"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a975e65469736180eaefe7780462fd550" id="r_a975e65469736180eaefe7780462fd550"><td class="memTemplParams" colspan="2">template&lt;class R&gt; </td></tr>
+<tr class="memitem:a975e65469736180eaefe7780462fd550"><td class="memTemplItemLeft" align="right" valign="top">R&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#a975e65469736180eaefe7780462fd550">dispatch</a> (const <a class="el" href="#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)</td></tr>
+<tr class="memdesc:a975e65469736180eaefe7780462fd550"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatch the correct function call depending on type associated with the <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a975e65469736180eaefe7780462fd550"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bd8eb74b57114f939a80801798bb47e" id="r_a2bd8eb74b57114f939a80801798bb47e"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2bd8eb74b57114f939a80801798bb47e">peaks</a> (const double x, const double y)</td></tr>
+<tr class="memdesc:a2bd8eb74b57114f939a80801798bb47e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Peaks function defined over a pair of values.  <br /></td></tr>
+<tr class="separator:a2bd8eb74b57114f939a80801798bb47e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0de22d45543e9168f0aec6c9aa68da28" id="r_a0de22d45543e9168f0aec6c9aa68da28"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0de22d45543e9168f0aec6c9aa68da28">normal_cdf</a> (const double x, const double sigma_f, const double sigma_l)</td></tr>
+<tr class="memdesc:a0de22d45543e9168f0aec6c9aa68da28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the Cumulative distribution function (CDF) of the normal distribution at the point <code>x</code>.  <br /></td></tr>
+<tr class="separator:a0de22d45543e9168f0aec6c9aa68da28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a6b1635138810f0b86e80e439a00951" id="r_a1a6b1635138810f0b86e80e439a00951"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a6b1635138810f0b86e80e439a00951">pow</a> (std::size_t base, std::size_t exp)</td></tr>
+<tr class="memdesc:a1a6b1635138810f0b86e80e439a00951"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raise a base to the power of an exponent: \( b^e \).  <br /></td></tr>
+<tr class="separator:a1a6b1635138810f0b86e80e439a00951"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:acb07caec20c7895bf6d7fc9691a99922" id="r_acb07caec20c7895bf6d7fc9691a99922"><td class="memItemLeft" align="right" valign="top"><a id="acb07caec20c7895bf6d7fc9691a99922" name="acb07caec20c7895bf6d7fc9691a99922"></a>
+constexpr <a class="el" href="#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&#160;</td><td class="memItemRight" valign="bottom"><b>NoParameters</b> = static_cast&lt;<a class="el" href="#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&gt;(<a class="el" href="#af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032">Parameter::_</a>)</td></tr>
+<tr class="memdesc:acb07caec20c7895bf6d7fc9691a99922"><td class="mdescLeft">&#160;</td><td class="mdescRight">No parameter value placeholder. <br /></td></tr>
+<tr class="separator:acb07caec20c7895bf6d7fc9691a99922"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80dc0250e3ce95ca6d1a16be6bef0061" id="r_a80dc0250e3ce95ca6d1a16be6bef0061"><td class="memItemLeft" align="right" valign="top"><a id="a80dc0250e3ce95ca6d1a16be6bef0061" name="a80dc0250e3ce95ca6d1a16be6bef0061"></a>
+constexpr <a class="el" href="#ae1d133efe8374d738e9e41afb782c408">Requests</a>&#160;</td><td class="memItemRight" valign="bottom"><b>NoRequests</b> = static_cast&lt;<a class="el" href="#ae1d133efe8374d738e9e41afb782c408">Requests</a>&gt;(<a class="el" href="#a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032">Request::_</a>)</td></tr>
+<tr class="memdesc:a80dc0250e3ce95ca6d1a16be6bef0061"><td class="mdescLeft">&#160;</td><td class="mdescRight">No request value. <br /></td></tr>
+<tr class="separator:a80dc0250e3ce95ca6d1a16be6bef0061"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Root namespace for the lucid library. </p>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a1b6bfed2b6cd5485a5e480727fb09dd4" name="a1b6bfed2b6cd5485a5e480727fb09dd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b6bfed2b6cd5485a5e480727fb09dd4">&#9670;&#160;</a></span>OutputComputer</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="#a1b6bfed2b6cd5485a5e480727fb09dd4">lucid::OutputComputer</a> = std::function&lt;ConstMatrixRefCopy(const <a class="el" href="classlucid_1_1Estimator.html">Estimator</a>&amp;, ConstMatrixRef)&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Instead of providing the outputs directly to the estimator, this function can be used to compute them on the fly. </p>
+<p>Useful when the outputs are not available at the time of fitting/scoring, or depend on changing parameters. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">estimator</td><td><a class="el" href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates .">Estimator</a> object involved in the computation </td></tr>
+    <tr><td class="paramname">inputs</td><td>\( n \times d_x \) matrix of row vectors in the input space \( \mathcal{X} \) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>\( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \) </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="af391319051f1a656ecaf252ddfd84d84" name="af391319051f1a656ecaf252ddfd84d84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af391319051f1a656ecaf252ddfd84d84">&#9670;&#160;</a></span>Parameter</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#af391319051f1a656ecaf252ddfd84d84">lucid::Parameter</a> : std::uint16_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel strong">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>List of available parameters used parametrizable objects (e.g., <a class="el" href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates .">Estimator</a> and <a class="el" href="classlucid_1_1Kernel.html" title="Represents a kernel function.">Kernel</a>). </p>
+<p>To check whether an object supports a specific parameter, use the <code>has(Parameter)</code> method. This enum behaves as a bitset. It is possible to combine multiple parameters using bitwise OR operations or to check if a parameter is set using the AND operations. </p><div class="fragment"><div class="line"><a class="code hl_enumvalue" href="#af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032">Parameter::_</a> <span class="comment">// Empty set {}</span></div>
+<div class="line"><a class="code hl_typedef" href="#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a> u = <a class="code hl_enumvalue" href="#af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17">Parameter::SIGMA_F</a> | <a class="code hl_enumvalue" href="#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">Parameter::SIGMA_L</a>  <span class="comment">// {SIGMA_F} U {SIGMA_L} = {SIGMA_F, SIGMA_L}</span></div>
+<div class="line">u | <a class="code hl_enumvalue" href="#af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1">Parameter::DEGREE</a>  <span class="comment">// {SIGMA_F, SIGMA_L} U {DEGREE} = {SIGMA_F, SIGMA_L, DEGREE}</span></div>
+<div class="line">u &amp; <a class="code hl_enumvalue" href="#af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17">Parameter::SIGMA_F</a>  <span class="comment">// Set intersection {SIGMA_F, SIGMA_L} ∩ {SIGMA_F} = {SIGMA_F}</span></div>
+<div class="line">u &amp;&amp; <a class="code hl_enumvalue" href="#af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17">Parameter::SIGMA_F</a>  <span class="comment">// Check if {SIGMA_F, SIGMA_L} ∩ {SIGMA_F} = {SIGMA_F} is non-empty</span></div>
+<div class="line">u || <a class="code hl_enumvalue" href="#af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17">Parameter::SIGMA_F</a>  <span class="comment">// Check if {SIGMA_F, SIGMA_L} ∪ {SIGMA_F} = {SIGMA_F, SIGMA_L} is non-empty</span></div>
+<div class="ttc" id="anamespacelucid_html_ac8d08ad5df62fd19799d7d5dc3b8f232"><div class="ttname"><a href="#ac8d08ad5df62fd19799d7d5dc3b8f232">lucid::Parameters</a></div><div class="ttdeci">std::underlying_type_t&lt; Parameter &gt; Parameters</div><div class="ttdoc">Efficient set of parameters as bitset.</div><div class="ttdef"><b>Definition</b> Parameter.h:47</div></div>
+<div class="ttc" id="anamespacelucid_html_af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1"><div class="ttname"><a href="#af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1">lucid::Parameter::DEGREE</a></div><div class="ttdeci">@ DEGREE</div><div class="ttdoc">Degree of the polynomial.</div><div class="ttdef"><b>Definition</b> Parameter.h:42</div></div>
+<div class="ttc" id="anamespacelucid_html_af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032"><div class="ttname"><a href="#af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032">lucid::Parameter::_</a></div><div class="ttdeci">@ _</div><div class="ttdoc">No parameters. Used as the empty set placeholder.</div><div class="ttdef"><b>Definition</b> Parameter.h:38</div></div>
+<div class="ttc" id="anamespacelucid_html_af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9"><div class="ttname"><a href="#af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9">lucid::Parameter::SIGMA_L</a></div><div class="ttdeci">@ SIGMA_L</div><div class="ttdoc">Sigma_l parameter.</div><div class="ttdef"><b>Definition</b> Parameter.h:40</div></div>
+<div class="ttc" id="anamespacelucid_html_af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17"><div class="ttname"><a href="#af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17">lucid::Parameter::SIGMA_F</a></div><div class="ttdeci">@ SIGMA_F</div><div class="ttdoc">Sigma_f parameter.</div><div class="ttdef"><b>Definition</b> Parameter.h:39</div></div>
+</div><!-- fragment --> <dl class="section note"><dt>Note</dt><dd>The numerical values are offset in such a way that operating over them is very efficient. </dd></dl>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032" name="af391319051f1a656ecaf252ddfd84d84ab14a7b8059d9c055954c92674ce60032"></a>_&#160;</td><td class="fielddoc"><p>No parameters. Used as the empty set placeholder. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17" name="af391319051f1a656ecaf252ddfd84d84ad0087c9a2f7edd018bfb8571784f8e17"></a>SIGMA_F&#160;</td><td class="fielddoc"><p>Sigma_f parameter. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9" name="af391319051f1a656ecaf252ddfd84d84acad65cf96f3b7d7280e01c50583c55d9"></a>SIGMA_L&#160;</td><td class="fielddoc"><p>Sigma_l parameter. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af391319051f1a656ecaf252ddfd84d84a563dc7650b3dee61cf6cb2711af2bcc6" name="af391319051f1a656ecaf252ddfd84d84a563dc7650b3dee61cf6cb2711af2bcc6"></a>REGULARIZATION_CONSTANT&#160;</td><td class="fielddoc"><p>Regularization constant parameter. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1" name="af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1"></a>DEGREE&#160;</td><td class="fielddoc"><p>Degree of the polynomial. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af391319051f1a656ecaf252ddfd84d84a46c8b10c5640174da48241e0fb6f8a83" name="af391319051f1a656ecaf252ddfd84d84a46c8b10c5640174da48241e0fb6f8a83"></a>GRADIENT_OPTIMIZABLE&#160;</td><td class="fielddoc"><p>Gradient optimizable parameter. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a8379d79f3350427204a863db8dc88942" name="a8379d79f3350427204a863db8dc88942"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8379d79f3350427204a863db8dc88942">&#9670;&#160;</a></span>Request</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="#a8379d79f3350427204a863db8dc88942">lucid::Request</a> : std::uint16_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel strong">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>List of available requests a tuner can make to an <a class="el" href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates .">Estimator</a> and, by extension, to a <a class="el" href="classlucid_1_1Kernel.html" title="Represents a kernel function.">Kernel</a>. </p>
+<p>If the request is not supported by the <a class="el" href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates .">Estimator</a>, nothing will happen. This enum behaves as a bitset. It is possible to combine multiple requests using bitwise OR operations or to check if a request is set using the AND operations. </p><div class="fragment"><div class="line"><a class="code hl_enumvalue" href="#a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032">Request::_</a> <span class="comment">// Empty set {}</span></div>
+<div class="line"><a class="code hl_typedef" href="#ae1d133efe8374d738e9e41afb782c408">Requests</a> u = <a class="code hl_enumvalue" href="#a8379d79f3350427204a863db8dc88942a90f70ea2675c36bd9b0b44a79f37a41f">Request::GRADIENT</a> | Request::STATS  <span class="comment">// {GRADIENT} U {STATS} = {STATS, GRADIENT}</span></div>
+<div class="line">u | Request::STATS  <span class="comment">// {STATS, GRADIENT} U {DEGREE} = {STATS, GRADIENT}</span></div>
+<div class="line">u &amp; Request::STATS  <span class="comment">// Set intersection {STATS, GRADIENT} ∩ {STATS} = {STATS}</span></div>
+<div class="line">u &amp;&amp; Request::STATS  <span class="comment">// Check if {STATS, GRADIENT} ∩ {STATS} = {STATS} is non-empty</span></div>
+<div class="line">u || Request::STATS  <span class="comment">// Check if {STATS, GRADIENT} ∪ {STATS} = {STATS, GRADIENT} is non-empty</span></div>
+<div class="ttc" id="anamespacelucid_html_a8379d79f3350427204a863db8dc88942a90f70ea2675c36bd9b0b44a79f37a41f"><div class="ttname"><a href="#a8379d79f3350427204a863db8dc88942a90f70ea2675c36bd9b0b44a79f37a41f">lucid::Request::GRADIENT</a></div><div class="ttdeci">@ GRADIENT</div><div class="ttdoc">Compute the gradient of the objective value with respect to the Requests.</div><div class="ttdef"><b>Definition</b> Request.h:38</div></div>
+<div class="ttc" id="anamespacelucid_html_a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032"><div class="ttname"><a href="#a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032">lucid::Request::_</a></div><div class="ttdeci">@ _</div><div class="ttdoc">No requests. Used as the empty set placeholder.</div><div class="ttdef"><b>Definition</b> Request.h:36</div></div>
+<div class="ttc" id="anamespacelucid_html_ae1d133efe8374d738e9e41afb782c408"><div class="ttname"><a href="#ae1d133efe8374d738e9e41afb782c408">lucid::Requests</a></div><div class="ttdeci">std::underlying_type_t&lt; Request &gt; Requests</div><div class="ttdoc">Efficient set of requests.</div><div class="ttdef"><b>Definition</b> Request.h:41</div></div>
+</div><!-- fragment --> <dl class="section note"><dt>Note</dt><dd>The values are offset in such a way that operating over them is very efficient. </dd></dl>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032" name="a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032"></a>_&#160;</td><td class="fielddoc"><p>No requests. Used as the empty set placeholder. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a8379d79f3350427204a863db8dc88942ad9f57ae2ad8b48b7022428d25e5764c0" name="a8379d79f3350427204a863db8dc88942ad9f57ae2ad8b48b7022428d25e5764c0"></a>OBJECTIVE_VALUE&#160;</td><td class="fielddoc"><p>Compute the objective value of the <a class="el" href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates .">Estimator</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a8379d79f3350427204a863db8dc88942a90f70ea2675c36bd9b0b44a79f37a41f" name="a8379d79f3350427204a863db8dc88942a90f70ea2675c36bd9b0b44a79f37a41f"></a>GRADIENT&#160;</td><td class="fielddoc"><p>Compute the gradient of the objective value with respect to the <a class="el" href="#ae1d133efe8374d738e9e41afb782c408" title="Efficient set of requests.">Requests</a>. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ab3f82f6bbc3dc269665a62c527540252" name="ab3f82f6bbc3dc269665a62c527540252"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3f82f6bbc3dc269665a62c527540252">&#9670;&#160;</a></span>arange()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vector lucid::arange </td>
+          <td>(</td>
+          <td class="paramtype">const Scalar</td>          <td class="paramname"><span class="paramname"><em>low</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Scalar</td>          <td class="paramname"><span class="paramname"><em>high</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Scalar</td>          <td class="paramname"><span class="paramname"><em>step</em></span><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bool</td>          <td class="paramname"><span class="paramname"><em>with_last</em></span><span class="paramdefsep"> = </span><span class="paramdefval">false</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create an evenly spaced values within a given interval. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">low</td><td>start of interval. The interval includes this value </td></tr>
+    <tr><td class="paramname">high</td><td>end of interval. The interval does not include this value, unless <code>with_last</code> is true </td></tr>
+    <tr><td class="paramname">step</td><td>spacing between values </td></tr>
+    <tr><td class="paramname">with_last</td><td>whether to include the last value in the interval </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>vector of evenly spaced values </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html">https://numpy.org/doc/stable/reference/generated/numpy.arange.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a52b53ed151f0f7cc8a92f1090e336f33" name="a52b53ed151f0f7cc8a92f1090e336f33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52b53ed151f0f7cc8a92f1090e336f33">&#9670;&#160;</a></span>circulant()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArgType&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">internal::CirculantOp&lt; ArgType &gt; lucid::circulant </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; ArgType &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>arg</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a circulant matrix from a vector <code>arg</code>. </p>
+<p>A circulant matrix is a square matrix where each row is a right cyclic shift of the previous row. </p><dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArgType</td><td>type of the vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arg</td><td>vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>circulant matrix </dd></dl>
+
+</div>
+</div>
+<a id="aca7dcc3d2d887d9fd26e44bd596f17ee" name="aca7dcc3d2d887d9fd26e44bd596f17ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca7dcc3d2d887d9fd26e44bd596f17ee">&#9670;&#160;</a></span>combvec() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::combvec </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>m</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Given a matrix <code>m</code> treat each row vector as a separate matrix and return their combination using <a class="el" href="#aca7dcc3d2d887d9fd26e44bd596f17ee">combvec</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">m</td><td>matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>matrix with all combinations of column vectors </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/deeplearning/ref/combvec.html">https://www.mathworks.com/help/deeplearning/ref/combvec.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a230a7447b6ed03f3d7533c6e5e3f99cb" name="a230a7447b6ed03f3d7533c6e5e3f99cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a230a7447b6ed03f3d7533c6e5e3f99cb">&#9670;&#160;</a></span>combvec() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... Ms&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::combvec </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>m1</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>m2</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Ms &amp;...</td>          <td class="paramname"><span class="paramname"><em>matrices</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Given \( m \) inputs <code>matrices</code>, where matrix \( M_i \) has \( n_i \) columns, return a matrix with \( \Pi_{i = 0}^m n_i \) column vectors, where the columns consist of all combinations found by combining one column vector from each input matrix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">m1</td><td>first matrix </td></tr>
+    <tr><td class="paramname">m2</td><td>second matrix </td></tr>
+    <tr><td class="paramname">matrices</td><td>remaining matrices </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>matrix with all combinations of column vectors </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/deeplearning/ref/combvec.html">https://www.mathworks.com/help/deeplearning/ref/combvec.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a198083aea073147056f95f540d304f3d" name="a198083aea073147056f95f540d304f3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a198083aea073147056f95f540d304f3d">&#9670;&#160;</a></span>diff()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::diff </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>m</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int</td>          <td class="paramname"><span class="paramname"><em>n</em></span><span class="paramdefsep"> = </span><span class="paramdefval">1</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bool</td>          <td class="paramname"><span class="paramname"><em>rowwise</em></span><span class="paramdefsep"> = </span><span class="paramdefval">true</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calculates differences between adjacent elements of <code>X</code> <code>n</code> times. </p>
+<p>By default, diff operates along the rows of <code>X</code>. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">m</td><td>matrix </td></tr>
+    <tr><td class="paramname">n</td><td>number of differences </td></tr>
+    <tr><td class="paramname">rowwise</td><td>whether to calculate differences along the rows or columns </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>matrix of differences </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/matlab/ref/double.diff.html">https://www.mathworks.com/help/matlab/ref/double.diff.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a975e65469736180eaefe7780462fd550" name="a975e65469736180eaefe7780462fd550"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a975e65469736180eaefe7780462fd550">&#9670;&#160;</a></span>dispatch() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class R&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">R lucid::dispatch </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::function&lt; R()&gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>fun_int</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::function&lt; R()&gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>fun_double</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::function&lt; R()&gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>fun_vector</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dispatch the correct function call depending on type associated with the <code>parameter</code>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">R</td><td>return type, the same for all the functions </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>the parameter determining which function to dispatch </td></tr>
+    <tr><td class="paramname">fun_int</td><td>function called if the parameter is integer valued </td></tr>
+    <tr><td class="paramname">fun_double</td><td>function called if the parameter is double valued </td></tr>
+    <tr><td class="paramname">fun_vector</td><td>function called if the parameter is vector valued </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value returned by the function that ended up being called </dd></dl>
+
+</div>
+</div>
+<a id="acece491ee19cf6e828410680c6aab027" name="acece491ee19cf6e828410680c6aab027"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acece491ee19cf6e828410680c6aab027">&#9670;&#160;</a></span>dispatch() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class R, <a class="el" href="#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">R lucid::dispatch </td>
+          <td>(</td>
+          <td class="paramtype">const std::function&lt; R()&gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>fun_int</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::function&lt; R()&gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>fun_double</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::function&lt; R()&gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>fun_vector</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dispatch the correct function call depending on type associated with the <code>parameter</code>. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">R</td><td>return type, the same for all the functions </td></tr>
+    <tr><td class="paramname">P</td><td>parameter determining which function to dispatch </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fun_int</td><td>function called if the parameter is integer valued </td></tr>
+    <tr><td class="paramname">fun_double</td><td>function called if the parameter is double valued </td></tr>
+    <tr><td class="paramname">fun_vector</td><td>function called if the parameter is vector valued </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value returned by the function that ended up being called </dd></dl>
+
+</div>
+</div>
+<a id="a69ac3a9147e3eda683ff29b7292dc98f" name="a69ac3a9147e3eda683ff29b7292dc98f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69ac3a9147e3eda683ff29b7292dc98f">&#9670;&#160;</a></span>fft2()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::MatrixXcd lucid::fft2 </td>
+          <td>(</td>
+          <td class="paramtype">const Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Perform a 2D Fast Fourier Transform (FFT) on the input matrix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>input matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>FFT of the input matrix </dd></dl>
+
+</div>
+</div>
+<a id="a12b798dded1a78e3ec0f12d151828205" name="a12b798dded1a78e3ec0f12d151828205"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12b798dded1a78e3ec0f12d151828205">&#9670;&#160;</a></span>fftshift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArgType&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">internal::ShiftOp&lt; ArgType &gt; lucid::fftshift </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; ArgType &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Rearrange a Fourier transform <code>x</code> by shifting the zero-frequency component to the center of the array. </p>
+<p>It is useful for visualizing the Fourier transform with the zero-frequency component in the center. Undoes the result of <a class="el" href="#a2091ebdcb0a21b064e7532daa7f3e2dd">ifftshift</a>.</p><ul>
+<li>If <code>x</code> is a vector, then <code>fftshift</code> swaps the left and right halves of <code>x</code>.</li>
+<li>If <code>x</code> is a matrix, then <code>fftshift</code> swaps the first quadrant of <code>x</code> with the third, and the second quadrant with the fourth.</li>
+</ul>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArgType</td><td>type of the matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>shifted matrix or vector </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/matlab/ref/fftshift.html">https://www.mathworks.com/help/matlab/ref/fftshift.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="ab3c0ced02da21d69ead427f96834aa2f" name="ab3c0ced02da21d69ead427f96834aa2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3c0ced02da21d69ead427f96834aa2f">&#9670;&#160;</a></span>ifft2()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::ifft2 </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixXcd &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Perform a 2D inverse Fast Fourier Transform (FFT) on the input matrix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>input matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>inverse FFT of the input matrix </dd></dl>
+
+</div>
+</div>
+<a id="a2091ebdcb0a21b064e7532daa7f3e2dd" name="a2091ebdcb0a21b064e7532daa7f3e2dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2091ebdcb0a21b064e7532daa7f3e2dd">&#9670;&#160;</a></span>ifftshift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArgType&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">internal::ShiftOp&lt; ArgType &gt; lucid::ifftshift </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; ArgType &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Rearranges a zero-frequency-shifted Fourier transform <code>x</code> back to the original transform output. </p>
+<p>Undoes the result of <a class="el" href="#a12b798dded1a78e3ec0f12d151828205">fftshift</a>.</p><ul>
+<li>If <code>x</code> is a vector, then <code>ifftshift</code> swaps the left and right halves of <code>x</code>.</li>
+<li>If <code>x</code> is a matrix, then <code>ifftshift</code> swaps the first quadrant of <code>x</code> with the third, and the second quadrant with the fourth.</li>
+</ul>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArgType</td><td>type of the matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>shifted matrix or vector </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/matlab/ref/ifftshift.html">https://www.mathworks.com/help/matlab/ref/ifftshift.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a471a033719164b8a31dc1f3e984e9d29" name="a471a033719164b8a31dc1f3e984e9d29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a471a033719164b8a31dc1f3e984e9d29">&#9670;&#160;</a></span>median()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Scalar lucid::median </td>
+          <td>(</td>
+          <td class="paramtype">Matrix</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute the median of a vector or matrix. </p>
+<p>If the vector has an even number of elements, the median is the mean of the two middle elements. </p><dl class="section warning"><dt>Warning</dt><dd>The storage order of the matrix matters, while it changes nothing for vectors. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>vector or matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>median of the vector or matrix </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://stackoverflow.com/a/62698308/15153171">https://stackoverflow.com/a/62698308/15153171</a> </dd></dl>
+
+</div>
+</div>
+<a id="a854705a306f275a8d85aa55dd8604463" name="a854705a306f275a8d85aa55dd8604463"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a854705a306f275a8d85aa55dd8604463">&#9670;&#160;</a></span>meshgrid() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::meshgrid </td>
+          <td>(</td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>y</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>X</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>Y</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a 2D grid coordinates based on the coordinates contained in vectors <code>x</code> and <code>y</code>. </p>
+<p><code>X</code> is a matrix where each row is a copy of <code>x</code> and <code>Y</code> is a matrix where each column is a copy of <code>y</code>. The grid represented by the coordinates <code>X</code> and <code>Y</code> has <code>y.size()</code> rows and <code>x.size()</code> columns. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">x</td><td>x coordinates </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">y</td><td>y coordinates </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">X</td><td>x coordinates grid </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">Y</td><td>y coordinates grid </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/matlab/ref/meshgrid.html">https://www.mathworks.com/help/matlab/ref/meshgrid.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a9910babf1bb5140970d94cbae1d95516" name="a9910babf1bb5140970d94cbae1d95516"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9910babf1bb5140970d94cbae1d95516">&#9670;&#160;</a></span>meshgrid() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::meshgrid </td>
+          <td>(</td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>X</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>Y</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a 2D grid coordinates based on the coordinates contained in vector <code>x</code>. </p>
+<p>Equivalent to calling <a class="el" href="#a854705a306f275a8d85aa55dd8604463">meshgrid</a> with as <code>meshgrid(x, x, X, Y)</code>. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">x</td><td>x coordinates </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">X</td><td>x coordinates grid </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">Y</td><td>y coordinates grid </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/matlab/ref/meshgrid.html">https://www.mathworks.com/help/matlab/ref/meshgrid.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="ae0f9a8c236a28f62d2d26e355f42e9e8" name="ae0f9a8c236a28f62d2d26e355f42e9e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0f9a8c236a28f62d2d26e355f42e9e8">&#9670;&#160;</a></span>mvnrnd()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::mvnrnd </td>
+          <td>(</td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>mu</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>sigma</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The multivariate normal distribution is a generalization of the univariate normal distribution to two or more variables. </p>
+<p>It has two parameters, a mean vector \( \mu \) and a covariance matrix \( \Sigma \), that are analogous to the mean and variance parameters of a univariate normal distribution. The diagonal elements of \( \Sigma \) contain the variances for each variable, and the off-diagonal elements of \( \Sigma \) contain the covariances between variables. The probability density function (pdf) of the d-dimensional multivariate normal distribution is    </p><p class="formulaDsp">
+\[ f(x | \mu, \Sigma) = \frac{1}{(2\pi)^{d/2}|\Sigma|^{1/2}} \exp\left(-\frac{1}{2}(x - \mu)^T\Sigma^{-1}(x -
+\mu)\right)
+\]
+</p>
+<p> Although the multivariate normal cdf does not have a closed form, mvncdf can compute cdf values numerically. </p><dl class="section note"><dt>Note</dt><dd>The seed for the random number generator can be set using <a class="el" href="random_8cpp.html#a447b9af4adb1fd1e9ae39ac78de7d28d">random::seed</a>. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mu</td><td>mean vector </td></tr>
+    <tr><td class="paramname">sigma</td><td>covariance matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>random samples from the multivariate normal distribution </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/stats/mvnrnd.html">https://www.mathworks.com/help/stats/mvnrnd.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a0de22d45543e9168f0aec6c9aa68da28" name="a0de22d45543e9168f0aec6c9aa68da28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0de22d45543e9168f0aec6c9aa68da28">&#9670;&#160;</a></span>normal_cdf() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double lucid::normal_cdf </td>
+          <td>(</td>
+          <td class="paramtype">const double</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const double</td>          <td class="paramname"><span class="paramname"><em>sigma_f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const double</td>          <td class="paramname"><span class="paramname"><em>sigma_l</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute the Cumulative distribution function (CDF) of the normal distribution at the point <code>x</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>point at which to compute the CDF </td></tr>
+    <tr><td class="paramname">sigma_f</td><td>\( \sigma_f \) value used in the normal distribution (mean) </td></tr>
+    <tr><td class="paramname">sigma_l</td><td>\( \sigma_l \) value used in the normal distribution (standard deviation) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the CDF at the given point </dd></dl>
+
+</div>
+</div>
+<a id="acfe26bbb9398ccbbca83d8ba6b7dd643" name="acfe26bbb9398ccbbca83d8ba6b7dd643"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfe26bbb9398ccbbca83d8ba6b7dd643">&#9670;&#160;</a></span>normal_cdf() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vector lucid::normal_cdf </td>
+          <td>(</td>
+          <td class="paramtype">ConstVectorRef</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Scalar</td>          <td class="paramname"><span class="paramname"><em>sigma_f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Scalar</td>          <td class="paramname"><span class="paramname"><em>sigma_l</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compute the Cumulative distribution function (CDF) of the normal distribution at oll point listed in \( \texttip{x}{Element of the vector space} \). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>points at which to evaluate the CDF </td></tr>
+    <tr><td class="paramname">sigma_f</td><td>\( \sigma_f \) value used in the normal distribution (mean) </td></tr>
+    <tr><td class="paramname">sigma_l</td><td>\( \sigma_l \) value used in the normal distribution (standard deviation) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>vector of CDF values at each point in \( \texttip{x}{Element of the vector space} \) </dd></dl>
+
+</div>
+</div>
+<a id="abd8eeb3b82ddea0a59399d45574306bc" name="abd8eeb3b82ddea0a59399d45574306bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd8eeb3b82ddea0a59399d45574306bc">&#9670;&#160;</a></span>operator*()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Derived&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::operator* </td>
+          <td>(</td>
+          <td class="paramtype">const MatrixBase&lt; Derived &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>A</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classlucid_1_1GramMatrix.html">GramMatrix</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>gram_matrix</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Left multiply the Gram matrix with another matrix, \( AK \). </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Derived</td><td>type of the other matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">A</td><td>matrix to multiply with the Gram matrix </td></tr>
+    <tr><td class="paramname">gram_matrix</td><td>Gram matrix to multiply with </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>result of the multiplication </dd></dl>
+
+</div>
+</div>
+<a id="a78b8e3fa26d6c18ced9dc718140e5d9d" name="a78b8e3fa26d6c18ced9dc718140e5d9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78b8e3fa26d6c18ced9dc718140e5d9d">&#9670;&#160;</a></span>pad() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArgType&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">internal::PadtOp&lt; ArgType &gt; lucid::pad </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; ArgType &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>pad_rows</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>pad_cols</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const typename ArgType::Scalar &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pad a matrix or vector <code>x</code> with <code>pad_rows</code> rows and <code>pad_cols</code> columns in both directions, effectively adding <code>2 * pad_rows</code> rows and <code>2 * pad_cols</code> columns to the input. </p>
+<p>The padding value is set to <code>value</code>. </p><dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArgType</td><td>type of the matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>matrix or vector </td></tr>
+    <tr><td class="paramname">pad_rows</td><td>padding rows to be added in both directions </td></tr>
+    <tr><td class="paramname">pad_cols</td><td>padding columns to be added in both directions </td></tr>
+    <tr><td class="paramname">value</td><td>padding value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>padded matrix or vector </dd></dl>
+
+</div>
+</div>
+<a id="ab5154692ebc1215da3b9943eb9a390ee" name="ab5154692ebc1215da3b9943eb9a390ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5154692ebc1215da3b9943eb9a390ee">&#9670;&#160;</a></span>pad() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArgType&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">internal::PadtOp&lt; ArgType &gt; lucid::pad </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; ArgType &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>pad_size</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const typename ArgType::Scalar &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pad a matrix or vector <code>x</code> with <code>pad_size</code> rows and columns in all directions, effectively adding <code>2 * pad_size</code> rows and columns to the input. </p>
+<p>The padding value is set to <code>value</code>. </p><dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArgType</td><td>type of the matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>matrix or vector </td></tr>
+    <tr><td class="paramname">pad_size</td><td>padding rows and columns to be added in all directions, </td></tr>
+    <tr><td class="paramname">value</td><td>padding value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>padded matrix or vector </dd></dl>
+
+</div>
+</div>
+<a id="aacdb473185a04395bb6138343432345c" name="aacdb473185a04395bb6138343432345c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aacdb473185a04395bb6138343432345c">&#9670;&#160;</a></span>pad() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArgType&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">internal::PadtOp&lt; ArgType &gt; lucid::pad </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; ArgType &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>pad_top</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>pad_bottom</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>pad_left</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>pad_right</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const typename ArgType::Scalar &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pad a matrix or vector <code>x</code> with <code>pad_top</code>, <code>pad_bottom</code>, <code>pad_left</code>, and <code>pad_right</code> rows and columns respectively. </p>
+<p>The padding value is set to <code>value</code>. </p><dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArgType</td><td>type of the matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>matrix or vector </td></tr>
+    <tr><td class="paramname">pad_top</td><td>padding rows at the top </td></tr>
+    <tr><td class="paramname">pad_bottom</td><td>padding rows at the bottom </td></tr>
+    <tr><td class="paramname">pad_left</td><td>padding columns at the left </td></tr>
+    <tr><td class="paramname">pad_right</td><td>padding columns at the right </td></tr>
+    <tr><td class="paramname">value</td><td>padding value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>padded matrix or vector </dd></dl>
+
+</div>
+</div>
+<a id="ad2342b9f9ba5cfbc2dd514a0b39d1572" name="ad2342b9f9ba5cfbc2dd514a0b39d1572"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2342b9f9ba5cfbc2dd514a0b39d1572">&#9670;&#160;</a></span>pdist() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Dimension P = 2, bool Squared = false, bool TriangularMatrix = false, class Derived&gt; <br />
+requires (P &gt; 0) &amp;&amp; (!Squared || P == 2)</div>
+      <table class="memname">
+        <tr>
+          <td class="memname">auto lucid::pdist </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; Derived &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compute the <code>p</code>-norm distance between every pair of row vectors in the input. </p>
+<p>If the input has shape \( N \times M \) the output vector will contain \( \frac{1}{2}N(N-1) \) elements or be a lower triangular matrix, depending on <code>TriangularMatrix</code>.   </p><p class="formulaDsp">
+\[\text{{input}} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_N \end{bmatrix}
+\]
+</p>
+ <dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Todo</a></b></dt><dd>Remove TriangularMatrix tparam in favor of <code>squareform</code> function </dd></dl>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">P</td><td>norm order </td></tr>
+    <tr><td class="paramname">Squared</td><td>whether to compute the squared distance. Only available for <code>p</code> == 2 </td></tr>
+    <tr><td class="paramname">TriangularMatrix</td><td>whetehr to return a lower triangular matrix with all the distances or a vector view of the strictly lower section of the full matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>input matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>vector of distances or lower triangular matrix. </dd></dl>
+
+</div>
+</div>
+<a id="a445fad6d18036630b44c53c0f87bc5f6" name="a445fad6d18036630b44c53c0f87bc5f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a445fad6d18036630b44c53c0f87bc5f6">&#9670;&#160;</a></span>pdist() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Dimension P = 2, bool Squared = false, class DerivedX, class DerivedY&gt; <br />
+requires (P &gt; 0) &amp;&amp; (!Squared || P == 2)</div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::pdist </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; DerivedX &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; DerivedY &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compute the <code>p</code>-norm distance between every pair of row vectors in the input matrices. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">DerivedX</td><td>type of the first input matrix </td></tr>
+    <tr><td class="paramname">DerivedY</td><td>type of the second input matrix </td></tr>
+    <tr><td class="paramname">P</td><td>norm order </td></tr>
+    <tr><td class="paramname">Squared</td><td>whether to compute the squared distance. Only available for <code>p</code> == 2 </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>input matrix </td></tr>
+    <tr><td class="paramname">y</td><td>input matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>matrix of distances </dd></dl>
+
+</div>
+</div>
+<a id="a2bd8eb74b57114f939a80801798bb47e" name="a2bd8eb74b57114f939a80801798bb47e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bd8eb74b57114f939a80801798bb47e">&#9670;&#160;</a></span>peaks() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double lucid::peaks </td>
+          <td>(</td>
+          <td class="paramtype">const double</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const double</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Peaks function defined over a pair of values. </p>
+<p>Useful for demonstrating graphics functions, such as contour, mesh, pcolor, and surf. It is obtained by translating and scaling Gaussian distributions and is defined as    </p><p class="formulaDsp">
+\[f(x, y) = 3(1 - x)^2 \exp(-x^2 - (y + 1)^2) - 10\left(\frac{x}{5} - x^3 - y^5\right) \exp(-x^2 - y^2) - \frac{1}{3}
+\exp(-(x + 1)^2 - y^2)
+\]
+</p>
+ <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>x value </td></tr>
+    <tr><td class="paramname">y</td><td>y value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the peaks function at the given point </dd></dl>
+
+</div>
+</div>
+<a id="a8b220b3612abc3a451cbb6bcccef0b51" name="a8b220b3612abc3a451cbb6bcccef0b51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b220b3612abc3a451cbb6bcccef0b51">&#9670;&#160;</a></span>peaks() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::peaks </td>
+          <td>(</td>
+          <td class="paramtype">const Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Matrix &amp;</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Peaks function defined over a pair of meshgrids. </p>
+<p>Useful for demonstrating graphics functions, such as contour, mesh, pcolor, and surf. It is obtained by translating and scaling Gaussian distributions and is defined as    </p><p class="formulaDsp">
+\[f(x, y) = 3(1 - x)^2 \exp(-x^2 - (y + 1)^2) - 10\left(\frac{x}{5} - x^3 - y^5\right) \exp(-x^2 - y^2) - \frac{1}{3}
+\exp(-(x + 1)^2 - y^2)
+\]
+</p>
+<p> The function will be computed element-wise, producing a grid of the same size as the input grids. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>2D grid of x values </td></tr>
+    <tr><td class="paramname">y</td><td>2D grid of y values </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>2D grid obtained by the application of the peaks function component-wise over the two input grids </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/matlab/ref/peaks.html">https://www.mathworks.com/help/matlab/ref/peaks.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="ac942549a275a4f75d53488f9b602ec3d" name="ac942549a275a4f75d53488f9b602ec3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac942549a275a4f75d53488f9b602ec3d">&#9670;&#160;</a></span>peaks() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vector lucid::peaks </td>
+          <td>(</td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Peaks function defined over a pair of vectors. </p>
+<p>Useful for demonstrating graphics functions, such as contour, mesh, pcolor, and surf. It is obtained by translating and scaling Gaussian distributions and is defined as    </p><p class="formulaDsp">
+\[f(x, y) = 3(1 - x)^2 \exp(-x^2 - (y + 1)^2) - 10\left(\frac{x}{5} - x^3 - y^5\right) \exp(-x^2 - y^2) - \frac{1}{3}
+\exp(-(x + 1)^2 - y^2)
+\]
+</p>
+<p> The function will be computed element-wise, producing a vector of the same size as the input vectors. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>vector of x values </td></tr>
+    <tr><td class="paramname">y</td><td>vector of y values </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>vector obtained by the application of the peaks function component-wise over the two input vectors </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.mathworks.com/help/matlab/ref/peaks.html">https://www.mathworks.com/help/matlab/ref/peaks.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="a1a6b1635138810f0b86e80e439a00951" name="a1a6b1635138810f0b86e80e439a00951"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a6b1635138810f0b86e80e439a00951">&#9670;&#160;</a></span>pow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t lucid::pow </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t</td>          <td class="paramname"><span class="paramname"><em>base</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t</td>          <td class="paramname"><span class="paramname"><em>exp</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Raise a base to the power of an exponent: \( b^e \). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>\( b \) base </td></tr>
+    <tr><td class="paramname">exp</td><td>\( e \) exponent </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>base raised to the power of exp </dd></dl>
+
+</div>
+</div>
+<a id="adf35b2fb98b85df1593a8b87ae1c1ec7" name="adf35b2fb98b85df1593a8b87ae1c1ec7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf35b2fb98b85df1593a8b87ae1c1ec7">&#9670;&#160;</a></span>read_matrix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class Scalar&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::MatrixX&lt; Scalar &gt; lucid::read_matrix </td>
+          <td>(</td>
+          <td class="paramtype">const std::string_view</td>          <td class="paramname"><span class="paramname"><em>file_name</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read a matrix from a file. </p>
+<p>The file must have the following format: </p><div class="fragment"><div class="line">rowsXcols</div>
+<div class="line">element_1,element_2,...,element_n</div>
+</div><!-- fragment --> <dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">Scalar</td><td>type of the matrix </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">file_name</td><td>name of the file to read </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>matrix read from the file </dd></dl>
+
+</div>
+</div>
+<a id="ac5040395eaec2d99175fe6398507ed2b" name="ac5040395eaec2d99175fe6398507ed2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5040395eaec2d99175fe6398507ed2b">&#9670;&#160;</a></span>rms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Scalar lucid::rms </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calculate the root mean square of the elements of a vector. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>root mean square </dd></dl>
+
+</div>
+</div>
+<a id="a27e0750e2a5a78b2cc62821e566449ce" name="a27e0750e2a5a78b2cc62821e566449ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27e0750e2a5a78b2cc62821e566449ce">&#9670;&#160;</a></span>shift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ArgType&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">internal::ShiftOp&lt; ArgType &gt; lucid::shift </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixBase&lt; ArgType &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>shift_rows</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Index</td>          <td class="paramname"><span class="paramname"><em>shift_cols</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Shift the rows and columns of a matrix or vector <code>x</code> by <code>shift_rows</code> and <code>shift_cols</code> respectively. </p>
+<p>The sign of the shift determines the direction of the shift. Overflows are wrapped around. </p><dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">ArgType</td><td>type of the matrix or vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>matrix or vector </td></tr>
+    <tr><td class="paramname">shift_rows</td><td>shift rows. If negative, the rows are shifted up. </td></tr>
+    <tr><td class="paramname">shift_cols</td><td>shift columns. If negative, the columns are shifted left. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>shifted matrix or vector </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="navelem"><a class="el" href="namespacelucid.html">lucid</a></li>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

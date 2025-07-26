@@ -1,0 +1,355 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: Pylucid</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('md_docs_2Pylucid.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">Pylucid</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p><a class="anchor" id="pylucid"></a></p>
+<p>Lucid provides a thin wrapper around the C++ library, called <b>pylucid</b>, allowing you to use the main features of Lucid from Python. There are multiple ways to use it. You can either run it withing the Bazel environment, or you can install it in your Python environment.</p>
+<dl class="section note"><dt>Note</dt><dd>All bindings use the C++ Lucid library under the hood, which means that you need to ensure all the requirements listed in the <a class="el" href="md_docs_2Installation.html">Installation</a> section are met.</dd></dl>
+<dl class="section important"><dt>Important</dt><dd>Building the bindings on Windows with GUI support requires an additional step. See the <a class="el" href="#building-on-windows">Building on Windows</a> section for more details.</dd></dl>
+<h1><a class="anchor" id="installing-pylucid"></a>
+Installing Pylucid</h1>
+<div class="tabbed"><ul>
+<li>
+<p class="startli"><b id="Local installation (recommended)" class="tab-title">Local installation (recommended)</b></p>
+<p class="interli">You can install the bindings in your Python environment using the following command:</p>
+<pre><code class="fragment language-bash"># Make sure you are in the lucid root directory
+pip install .</code></pre><p class="interli">It is possible to customise the installation, including optional dependencies, to enable additional features.</p>
+<pre><code class="fragment language-bash"># Install the bindings with optional dependencies
+# GUI =&gt; Graphical User Interface, pylucid-gui
+# Verification =&gt; Verify the barrier via the dReal SMT solver
+# Plot =&gt; Plot the results using plotly
+pip install .[gui,verification,plot]</code></pre><dl class="section remark"><dt>Remarks</dt><dd>It is recommended to use a virtual environment or a conda environment to avoid conflicts with other packages.</dd></dl>
+<p>This will install the bindings in your Python environment, allowing you to use them directly from Python. After installing, you can run the following command to check if everything is working correctly:</p>
+<pre><code class="fragment language-bash">pylucid --version</code></pre><p class="endli"></p>
+</li>
+<li>
+<p class="startli"><b id="Bazel installation" class="tab-title">Bazel installation</b></p>
+<p class="interli">Instead of installing the bindings in your Python environment, you can also run your scripts within the environment managed by Bazel. This can be useful if you want to keep the hermetic setup provided by the build system. <br  />
+ Write your script somewhere in the <code>lucid</code> directory. In the same directory, create or update the file called <code>BUILD.bazel</code> with the following content:</p>
+<pre><code class="fragment language-bzl"># BUILD.bazel
+py_binary(
+    name = "my_script",
+    srcs = ["main.py"],
+    main = "main.py",
+    python_version = "PY3",
+    deps = [
+        "@lucid//bindings/pylucid:pylucid_lib",
+    ],
+)</code></pre><p class="interli">Then, run your script using the following command:</p>
+<pre><code class="fragment language-bash">bazel run //path/to/your/script:your_script</code></pre><p class="endli"></p>
+</li>
+</ul>
+</div><h2><a class="anchor" id="building-on-windows"></a>
+Building on Windows</h2>
+<p>The Javascript Bazel rules, needed to build the GUI, have limited support for Windows, so you need to run the build script manually. First, ensure you have the required dependencies installed:</p>
+<ul>
+<li><a href="https://nodejs.org/">Node.js</a></li>
+<li><a href="https://pnpm.io/">pnpm</a></li>
+</ul>
+<p>Then, run the following command from the <code>lucid</code> root directory:</p>
+<pre><code class="fragment language-bash">scripts\build_frontend.bat</code></pre><p>You can then follow the standard <a class="el" href="#installing-pylucid">installation procedure</a>.</p>
+<h1><a class="anchor" id="use"></a>
+Use</h1>
+<p>There are two main ways to use the bindings.</p>
+<div class="tabbed"><ul>
+<li>
+<p class="startli"><b id="Providing a configuration (recommended)" class="tab-title">Providing a configuration (recommended)</b></p>
+<p class="interli">Lucid tries to be as flexible and user-friendly as possible, providing multiple ways to configure your scenarios. You can provide a configuration as a <b>JSON file</b>, a <b>Yaml file</b> a <b>Python script</b> or just using the <b>command line arguments</b>. For more details, see the <a class="el" href="md_docs_2Configuration.html">Configuration</a> section.</p>
+<p class="interli">For instance, a scenario could be run as follows:</p>
+<pre><code class="fragment language-bash">pylucid --system_dynamics 'x1 / 2' \
+        --X_bounds 'RectSet([-1], [1])' \
+        --X_init 'RectSet([-0.5], [0.5])' \
+        --X_unsafe 'MultiSet([RectSet([-1], [-0.9]), RectSet([0.9], [1])])' \
+        --seed 42 \
+        --gamma 1.0 \
+        --time_horizon 5 \
+        --num_samples 1000 \
+        --lambda 1e-3 \
+        --sigma_f 15.0 \
+        --sigma_l 1.75555556 \
+        --num_frequencies 4 \
+        --plot \
+        --verify \
+        --oversample_factor 32.0 \
+        -v 4 \
+        --problem_log_file problem.lp</code></pre><p class="interli">See <code>pylucid --help</code> for more details on the available options.</p>
+<p class="endli"></p>
+</li>
+<li>
+<p class="startli"><b id="Main script" class="tab-title">Main script</b></p>
+<p class="interli">Create a Python script, for example <code>my_main.py</code>, with the following content:</p>
+<pre><code class="fragment language-python"># my_main.py
+from pylucid import *
+from pylucid.pipeline import pipeline
+
+
+# Model
+system_dynamics = lambda x: 0.5 * x
+noisy_system_dynamics = lambda x: system_dynamics(x) + np.random.normal(scale=0.01)
+
+# Sets
+X_bounds = RectSet([(-1, 1)]) # State space
+X_init = RectSet([(-0.5, 0.5)]) # Initial set
+X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)])) # Unsafe set
+
+# Sampling
+x_samples = X_bounds.sample(1000)
+xp_samples = noisy_system_dynamics(x_samples)
+
+# Estimator
+estimator = KernelRidgeRegressor(
+    kernel=GaussianKernel(sigma_f=1.0, sigma_l=1.7775),
+    regularization_constant=1e-3,
+)
+
+pipeline(
+    args=Configuration(
+        system_dynamics=system_dynamics,
+        X_bounds=X_bounds,
+        X_init=X_init,
+        X_unsafe=X_unsafe,
+        x_samples=x_samples,
+        xp_samples=xp_samples,
+        estimator=estimator,
+        oversample_factor=16.0,
+        plot=True,
+        verify=True,
+    ),
+)</code></pre><p class="interli">Then, run it with</p>
+<pre><code class="fragment language-bash">python3 my_main.py</code></pre><p class="endli"></p>
+</li>
+<li>
+<p class="startli"><b id="Graphical User Interface (GUI)" class="tab-title">Graphical User Interface (GUI)</b></p>
+<p class="interli">Lucid provides a graphical user interface (GUI) to interactively configure and run scenarios.</p>
+<dl class="section note"><dt>Note</dt><dd>The GUI is not installed by default. To use the GUI, you need to have installed pylucid with <code>pip install .[gui]</code> or <code>pip install .[all]</code>.</dd></dl>
+<p>To launch the GUI, use the command</p>
+<pre><code class="fragment language-bash">pylucid-gui</code></pre><p class="interli">The program will spin up a web server and open the GUI in your default web browser. By default, the web page will be available at <a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a>, but you can change the port by using the <code>--port</code> option.</p>
+<p class="interli">The GUI makes it more user-friendly to configure scenarios, run them, and visualize the results.</p>
+<p class="interli">To see all available options, run</p>
+<pre><code class="fragment language-bash">pylucid-gui --help</code></pre><p class="endli"></p>
+</li>
+</ul>
+</div><h1><a class="anchor" id="troubleshooting-1"></a>
+Troubleshooting</h1>
+<h3><a class="anchor" id="importerror-libpython312so10-cannot-open-shared-object-file-no-such-file-or-directory"></a>
+ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory</h3>
+<p>This error occurs when the expected Python shared library is not found in the expected location on the system To fix this, you need to set the <code>LD_LIBRARY_PATH</code> environment variable to include the path to the Python library. You can do this by running the following command:</p>
+<pre><code class="fragment language-bash">export LD_LIBRARY_PATH="\f$LD_LIBRARY_PATH:/path/to/python/lib"</code></pre><p>For example, if you are using Python 3.12 via <code>conda</code></p>
+<pre><code class="fragment language-bash">export LD_LIBRARY_PATH="\f$LD_LIBRARY_PATH:\f$(conda info --base)/envs/your_env/lib"</code></pre><p>This change will only last for the current session.</p>
+<h3><a class="anchor" id="lucidnotsupportedexception-the-following-dependency-was-not-included-during-compilation-x"></a>
+LucidNotSupportedException: ...the following dependency was not included during compilation: 'X'</h3>
+<p>This error indicates that some optional dependencies were not included during the compilation of the bindings. As a result, some features may not be available. To resolve this, you must recompile the bindings from source, ensuring that the correct <a class="el" href="md_docs_2Installation.html#build-options">flags are set</a> and the requirements are met.</p>
+<p>For Gurobi support, see <a class="el" href="md_docs_2Installation.html#gurobi-requirements">Building with Gurobi</a>.</p>
+<h3><a class="anchor" id="the-process-does-not-stop-after-pressing-ctrlc"></a>
+The process does not stop after pressing <code>Ctrl+C</code></h3>
+<p>Pylucid is a thin wrapper around the C++ Lucid library, which means that when you press <code>Ctrl+C</code>, the Python interpreter sends a signal to the C++ executable, which may not handle it immediately. <br  />
+ Long running operations may not notice the signal until they complete, which can cause the process to appear unresponsive. In most cases the process will stop soon, (e.g., after an iteration of the optimiser has completed), but if a immediate termination is required, the safest way to stop the process is to close the terminal.</p>
+<h3><a class="anchor" id="address-already-in-use-port-x-is-in-use-by-another-program"></a>
+Address already in use. Port X is in use by another program</h3>
+<p>When running the GUI, you may encounter this error if the default port (5000) is already in use by another program. To resolve this, you can either stop the program using that port or specify a different port when launching the GUI:</p>
+<pre><code class="fragment language-bash">pylucid-gui --port 5001</code></pre><h3><a class="anchor" id="gui-is-stuck"></a>
+GUI is stuck</h3>
+<p>This can happen for a variety of reasons, usually related to the web server being unable to conclude a long operation in a timely manner. The simplest solution is to restart the process. To stop the server, you can press <code>Ctrl+C</code> in the terminal where the GUI was launched or simply kill the terminal session. </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

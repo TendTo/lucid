@@ -1,0 +1,339 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: Installation</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('md_docs_2Installation.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">Installation</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p><a class="anchor" id="installation"></a></p>
+<h1><a class="anchor" id="from-docker"></a>
+From Docker</h1>
+<h2><a class="anchor" id="requirements"></a>
+Requirements</h2>
+<ul>
+<li><a href="https://www.docker.com/">Docker</a></li>
+<li><a href="https://www.gurobi.com/features/web-license-service/">Gurobi Web License Service (WLS) license</a></li>
+</ul>
+<h2><a class="anchor" id="using-lucid-with-docker"></a>
+Using Lucid with Docker</h2>
+<p>A pre-build Docker image is available on the <a href="https://github.com/TendTo/lucid/pkgs/container/lucid">GitHub repository</a>. First, pull the image from the repository's container registry:</p>
+<pre><code class="fragment language-bash"># Pull the image
+docker pull ghcr.io/tendto/lucid:main</code></pre><p>Then, simply run the image with the following command:</p>
+<pre><code class="fragment language-bash"># Run the image
+# Mount the script you want to run (e.g. /path/to/script.py) somewhere in the container (e.g. /scripts)
+# Keep in mind that you need to mount a Gurobi WS License (gurobi.lic) in the container
+docker run --name lucid -it --rm \
+  -v/path/to/script.py:/scripts \
+  -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
+  ghcr.io/tendto/lucid:main /scripts/script.py</code></pre><h1><a class="anchor" id="from-source"></a>
+From source</h1>
+<h2><a class="anchor" id="requirements-1"></a>
+Requirements</h2>
+<p>These are the tools and libraries required to build Lucid from source, along with the version used during development for each of them. Other versions may work as well, but they have not been tested.</p>
+<ul>
+<li><a href="https://bazel.build/">Bazel</a> 8.1.1<ul>
+<li>We suggest using <a href="https://github.com/bazelbuild/bazelisk">bazelisk</a> to manage Bazel's version.</li>
+</ul>
+</li>
+<li>C++ compiler with C++20 support<ul>
+<li><b>On Linux</b>: <a href="https://gcc.gnu.org/">gcc</a> 11.4.0</li>
+<li><b>On Windows</b>: <a href="https://visualstudio.microsoft.com/">msvc</a> 19.32.31332</li>
+<li><b>On macOS</b>: <a href="https://clang.llvm.org/">Clang/LLVM</a> 15.0.0</li>
+</ul>
+</li>
+<li><a href="https://www.gurobi.com/">Gurobi</a> 12.0.1</li>
+</ul>
+<h2><a class="anchor" id="gurobi-requirements"></a>
+Gurobi requirements</h2>
+<p>While there are other solvers supported by Lucid, <a href="https://www.gurobi.com/">Gurobi</a> is the recommended one. Being a commercial solver, it must be installed separately and requires a valid license to run.</p>
+<p>Before the installation, ensure that the <code>GUROBI_HOME</code> environment variable is set correctly.</p>
+<div class="tabbed"><ul>
+<li>
+<p class="startli"><b id="Linux" class="tab-title">Linux</b></p>
+<p class="interli">Ensure that the <code>GUROBI_HOME</code> environment variable is set correctly with <code>printenv | grep GUROBI_HOME</code>. You can set it for the duration of the current shell with <code>export GUROBI_HOME=/path/to/gurobi</code> (e.g., <code>export GUROBI_HOME=/opt/gurobi1201/linux64</code>).</p>
+<p class="endli"></p>
+</li>
+<li>
+<p class="startli"><b id="Windows" class="tab-title">Windows</b></p>
+<p class="interli">Using <a href="https://learn.microsoft.com/powershell/scripting/overview?view=powershell-7.5">powershell</a>, ensure that the <code>GUROBI_HOME</code> environment variable is set correctly with <code>[Environment]::GetEnvironmentVariable("GUROBI_HOME")</code>. You can set it for the duration of the current shell with <code>[Environment]::SetEnvironmentVariable("GUROBI_HOME","\path\to\gurobi")</code> (e.g., <code>[Environment]::SetEnvironmentVariable("GUROBI_HOME","C:\gurobi1201\win64")</code>.</p>
+<p class="endli"></p>
+</li>
+<li>
+<p class="startli"><b id="macOS" class="tab-title">macOS</b></p>
+<p class="interli">Ensure that the <code>GUROBI_HOME</code> environment variable is set correctly with <code>printenv | grep GUROBI_HOME</code>. You can set it for the duration of the current shell with <code>export GUROBI_HOME=/path/to/gurobi</code> (e.g., <code>export GUROBI_HOME=/Library/gurobi1201/macos_universal2</code>).</p>
+<p class="endli"></p>
+</li>
+</ul>
+</div><p>Instead of setting the <code>GUROBI_HOME</code> environment variable, you can add the flag <code>--repo_env=GUROBI_HOME=/path/to/gurobi</code> when running Bazel or set the <code>default_gurobi_home</code> parameter in the <code>MODULE.bazel</code> file. The <code>--action_env=GUROBI_HOME=/path/to/gurobi</code> flag will make it so that the gurobi installation is added to the <code>rpath</code> of the binary.</p>
+<p>When running the software, ensure that the Gurobi license file can be found via the <code>GRB_LICENSE_FILE</code> environment variable. For more information, refer to the <a href="https://support.gurobi.com/hc/en-us/articles/13443862111761-How-do-I-set-system-environment-variables-for-Gurobi">Gurobi documentation</a>.</p>
+<h2><a class="anchor" id="building-lucid"></a>
+Building Lucid</h2>
+<p>Assuming all requirements have been met, the first step is to obtain the source code by cloning the repository.</p>
+<pre><code class="fragment language-bash"># Clone the repository
+git clone <a href="https://github.com/TendTo/lucid.git">https://github.com/TendTo/lucid.git</a>
+
+# Move to the root of the repository
+cd lucid</code></pre><p>Then, run the following command to build the software:</p>
+<pre><code class="fragment language-bash"># Build lucid
+bazel build //lucid</code></pre><p>The binary will be located in the <code>bazel-bin/lucid</code> directory. If you also want to run it immediately, taking advantage of the environment provided by Bazel, use the following command:</p>
+<pre><code class="fragment language-bash"># Build and run lucid
+bazel run //lucid -- [args]</code></pre><h2><a class="anchor" id="build-options"></a>
+Build options</h2>
+<p>Lucid comes with a few predefined build configuration for the most common use cases. Just add the <code>--config</code> flag followed by the desired configuration when running Bazel.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Configuration   </th><th class="markdownTableHeadNone">Optimisations   </th><th class="markdownTableHeadNone">Debug symbols   </th><th class="markdownTableHeadNone">Assertions   </th><th class="markdownTableHeadNone">Input checks   </th><th class="markdownTableHeadNone">Logging   </th><th class="markdownTableHeadNone">Verbose Eigen Logs   </th><th class="markdownTableHeadNone">Used for    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>default</b>   </td><td class="markdownTableBodyNone">?   </td><td class="markdownTableBodyNone">?   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Default build    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>dbg</code>   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Testing and debugging    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>snt</code>   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Memory sanitization    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>opt</code>   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Production    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>py</code>   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Python bindings    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>bench</code>   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Benchmarking   </td></tr>
+</table>
+<p>For example, to build Lucid with the <code>opt</code> configuration, you can run:</p>
+<pre><code class="fragment language-bash"># Build with the opt configuration
+bazel build --config=opt //lucid</code></pre><p>If you want even more fine-grained control over the build, you can also use the following flags or even add more custom compiler flags.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Flag   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>enable_static_build</code>   </td><td class="markdownTableBodyNone">Build Lucid as a static library. Defaults to <code>False</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>enable_dynamic_build</code>   </td><td class="markdownTableBodyNone">Build Lucid as a dynamic library. Defaults to <code>False</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>enable_python_build</code>   </td><td class="markdownTableBodyNone">Build Lucid with Python bindings. Defaults to <code>False</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>enable_benchmark_build</code>   </td><td class="markdownTableBodyNone">Build Lucid with benchmarking support. Defaults to <code>False</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>enable_matplotlib_build</code>   </td><td class="markdownTableBodyNone">Build Lucid with Matplotlib support. Defaults to <code>True</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>enable_gurobi_build</code>   </td><td class="markdownTableBodyNone">Build Lucid with Gurobi support. Defaults to <code>True</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>enable_alglib_build</code>   </td><td class="markdownTableBodyNone">Build Lucid with ALGLIB support. Defaults to <code>True</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>enable_highs_build</code>   </td><td class="markdownTableBodyNone">Build Lucid with HiGHS support. Defaults to <code>True</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>enable_verbose_eigen_build</code>   </td><td class="markdownTableBodyNone">Enable verbose logging for Eigen. Defaults to <code>False</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>python_version</code>   </td><td class="markdownTableBodyNone">Specify the Python version to use for the Python bindings.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>compilation_mode=[fastbuild,dbg,opt]</code>   </td><td class="markdownTableBodyNone">Use Bazel's compilation modes. Default to <code>fastbuild</code>.   </td></tr>
+</table>
+<p>Example of a build command with custom flags. Some combination of these flags may not be compatible with each other.</p>
+<pre><code class="fragment language-bash"># Build with custom flags
+bazel build \
+  --compilation_mode=opt \
+  --enable_dynamic_build=True \
+  --enable_matplotlib_build=False \
+  --enable_gurobi_build=True \
+  --enable_verbose_eigen_build=False \
+  --action_env=GUROBI_HOME=/path/to/gurobi \
+  --cxxopt=-gdwarf-4 \
+  --cxxopt=-O3 \
+  --cxxopt=-DNDEBUG \
+  //lucid</code></pre> </div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

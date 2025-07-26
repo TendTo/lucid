@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['data_0',['data',['../classlucid_1_1Tensor.html#a543070d59b0a80d1111cd3f5ba325f97',1,'lucid::Tensor::data()'],['../classlucid_1_1TensorView.html#a9284abab3a00a9e35f22e3b25870d5db',1,'lucid::TensorView::data()']]],
+  ['data_5f_1',['data_',['../classlucid_1_1Tensor.html#ad213af6b789dc282717039ff34cfc047',1,'lucid::Tensor::data_'],['../classlucid_1_1TensorView.html#af018e0ea5fe27e8c674d1919400cb970',1,'lucid::TensorView::data_']]],
+  ['decomposition_5f_2',['decomposition_',['../classlucid_1_1GramMatrix.html#aa458f7a8cfba93f0f24e26973fc8ef68',1,'lucid::GramMatrix']]],
+  ['definitions_3',['Definitions',['../md_docs_2Features.html#definitions',1,'']]],
+  ['definitions_2eh_4',['definitions.h',['../definitions_8h.html',1,'']]],
+  ['degree_5',['DEGREE',['../namespacelucid.html#af391319051f1a656ecaf252ddfd84d84a536890ac9b7738283f05d5c2cf979fe1',1,'lucid']]],
+  ['delta_6',['delta',['../structlucid_1_1LbgsParameters.html#a965aba9a4278a566af1271e228bf0264',1,'lucid::LbgsParameters']]],
+  ['dependency_20was_20not_20included_20during_20compilation_3a_20x_7',['LucidNotSupportedException: ...the following dependency was not included during compilation: &apos;X&apos;',['../md_docs_2Pylucid.html#lucidnotsupportedexception-the-following-dependency-was-not-included-during-compilation-x',1,'']]],
+  ['design_8',['Design',['../md_docs_2Design.html',1,'']]],
+  ['diagram_9',['Sequence Diagram',['../md_docs_2Design.html#sequence-diagram',1,'']]],
+  ['diff_10',['diff',['../namespacelucid.html#a198083aea073147056f95f540d304f3d',1,'lucid']]],
+  ['dimension_11',['dimension',['../classlucid_1_1MultiSet.html#a1193000294a24a445fb4c449791706cb',1,'lucid::MultiSet::dimension()'],['../classlucid_1_1PolytopeSet.html#aba504705a2b2e4f53bf9e86a52c6bd1c',1,'lucid::PolytopeSet::dimension()'],['../classlucid_1_1RectSet.html#a9839412e7b5fb7869545b200e5a44363',1,'lucid::RectSet::dimension()'],['../classlucid_1_1Set.html#ac28cbe5c4af8457d4cd441bbc3336fd4',1,'lucid::Set::dimension()'],['../classlucid_1_1SphereSet.html#a77661616acdf39108d7bebf9d0cf9242',1,'lucid::SphereSet::dimension()'],['../classlucid_1_1TruncatedFourierFeatureMap.html#a59ef650343f00e86c961895f0da62474',1,'lucid::TruncatedFourierFeatureMap::dimension()']]],
+  ['dimensions_12',['dimensions',['../classlucid_1_1Tensor.html#a53910797c781f0d3709c4d1b56d1895e',1,'lucid::Tensor::dimensions()'],['../classlucid_1_1TensorView.html#adccc2a7dfa260924c0393fc25a68355f',1,'lucid::TensorView::dimensions() const']]],
+  ['dims_5f_13',['dims_',['../classlucid_1_1TensorView.html#a3828933f25039e4e7a7d318e31b06611',1,'lucid::TensorView']]],
+  ['directory_14',['ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory',['../md_docs_2Pylucid.html#importerror-libpython312so10-cannot-open-shared-object-file-no-such-file-or-directory',1,'']]],
+  ['dispatch_15',['dispatch',['../namespacelucid.html#acece491ee19cf6e828410680c6aab027',1,'lucid::dispatch(const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)'],['../namespacelucid.html#a975e65469736180eaefe7780462fd550',1,'lucid::dispatch(const Parameter parameter, const std::function&lt; R()&gt; &amp;fun_int, const std::function&lt; R()&gt; &amp;fun_double, const std::function&lt; R()&gt; &amp;fun_vector)']]],
+  ['distribution_16',['Distribution',['../md_docs_2Todo.html#distribution',1,'']]],
+  ['do_17',['To do',['../md_docs_2Todo.html',1,'']]],
+  ['docker_18',['Docker',['../md_docs_2Installation.html#from-docker',1,'From Docker'],['../md_docs_2Installation.html#using-lucid-with-docker',1,'Using Lucid with Docker']]],
+  ['documentation_19',['Documentation',['../md_docs_2Todo.html#documentation',1,'']]],
+  ['does_20not_20stop_20after_20pressing_20tt_20ctrl_20c_20tt_20',['The process does not stop after pressing &lt;tt&gt;Ctrl+C&lt;/tt&gt;',['../md_docs_2Pylucid.html#the-process-does-not-stop-after-pressing-ctrlc',1,'']]],
+  ['dpi_21',['dpi',['../structlucid_1_1plt_1_1SaveKwargs.html#a303a0cdbc2eb2f4c6c9dddcb28f364b6',1,'lucid::plt::SaveKwargs']]],
+  ['during_20compilation_3a_20x_22',['LucidNotSupportedException: ...the following dependency was not included during compilation: &apos;X&apos;',['../md_docs_2Pylucid.html#lucidnotsupportedexception-the-following-dependency-was-not-included-during-compilation-x',1,'']]],
+  ['dynamics_23',['LUCID — Lifting-based Uncertain Control Invariant Dynamics',['../index.html',1,'']]]
+];

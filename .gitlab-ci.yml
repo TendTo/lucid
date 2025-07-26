@@ -11,13 +11,9 @@ variables:
 default:
   image: ubuntu:jammy
 
-include:
-  - local: /.gitlab/docs.yml
-    rules:
-      - if: $CI_COMMIT_BRANCH == "docs"
-
-no_job:
+create-pages:
   rules:
-    - when: never
+    - if: $CI_COMMIT_BRANCH == "docs/docs"
   script:
-    - echo 'This job should not run'
+    - touch public/.nojekyll
+  pages: true # specifies that

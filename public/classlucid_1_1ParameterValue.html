@@ -1,0 +1,504 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: lucid::ParameterValue Class Reference</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classlucid_1_1ParameterValue.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
+<a href="classlucid_1_1ParameterValue-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">lucid::ParameterValue Class Reference</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84" title="List of available parameters used parametrizable objects (e.g., Estimator and Kernel).">Parameter</a> value used in a configurable system or application.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;ParameterValue.h&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ab037378bee870e3fbfd1e7ab5f4d91f8" id="r_ab037378bee870e3fbfd1e7ab5f4d91f8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab037378bee870e3fbfd1e7ab5f4d91f8">ParameterValue</a> (const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> <a class="el" href="#a66b5d1b1129928d79a7ef845b7cf5e6b">parameter</a>, double <a class="el" href="#a7e09c31e40bf9fae52b04928a1352439">value</a>)</td></tr>
+<tr class="memdesc:ab037378bee870e3fbfd1e7ab5f4d91f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1ParameterValue.html" title="Parameter value used in a configurable system or application.">ParameterValue</a> object for the given <code>parameter</code> associated with the given <code>value</code>.  <br /></td></tr>
+<tr class="separator:ab037378bee870e3fbfd1e7ab5f4d91f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a237f4bc28fe171e3f19d1b22c8376750" id="r_a237f4bc28fe171e3f19d1b22c8376750"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a237f4bc28fe171e3f19d1b22c8376750">ParameterValue</a> (const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> <a class="el" href="#a66b5d1b1129928d79a7ef845b7cf5e6b">parameter</a>, int <a class="el" href="#a7e09c31e40bf9fae52b04928a1352439">value</a>)</td></tr>
+<tr class="memdesc:a237f4bc28fe171e3f19d1b22c8376750"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1ParameterValue.html" title="Parameter value used in a configurable system or application.">ParameterValue</a> object for the given <code>parameter</code> associated with the given <code>value</code>.  <br /></td></tr>
+<tr class="separator:a237f4bc28fe171e3f19d1b22c8376750"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa521c043133b4dcc5ce6d387235b57cc" id="r_aa521c043133b4dcc5ce6d387235b57cc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa521c043133b4dcc5ce6d387235b57cc">ParameterValue</a> (const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> <a class="el" href="#a66b5d1b1129928d79a7ef845b7cf5e6b">parameter</a>, Vector <a class="el" href="#a7e09c31e40bf9fae52b04928a1352439">value</a>)</td></tr>
+<tr class="memdesc:aa521c043133b4dcc5ce6d387235b57cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1ParameterValue.html" title="Parameter value used in a configurable system or application.">ParameterValue</a> object for the given <code>parameter</code> associated with the given <code>value</code>.  <br /></td></tr>
+<tr class="separator:aa521c043133b4dcc5ce6d387235b57cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66b5d1b1129928d79a7ef845b7cf5e6b" id="r_a66b5d1b1129928d79a7ef845b7cf5e6b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a66b5d1b1129928d79a7ef845b7cf5e6b">parameter</a> () const</td></tr>
+<tr class="memdesc:a66b5d1b1129928d79a7ef845b7cf5e6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the parameter of the parameter value.  <br /></td></tr>
+<tr class="separator:a66b5d1b1129928d79a7ef845b7cf5e6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e09c31e40bf9fae52b04928a1352439" id="r_a7e09c31e40bf9fae52b04928a1352439"><td class="memItemLeft" align="right" valign="top">const ParameterValueType &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7e09c31e40bf9fae52b04928a1352439">value</a> () const</td></tr>
+<tr class="memdesc:a7e09c31e40bf9fae52b04928a1352439"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the value of the parameter value.  <br /></td></tr>
+<tr class="separator:a7e09c31e40bf9fae52b04928a1352439"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa45f62eefe0ac57c381f530cb276cb33" id="r_aa45f62eefe0ac57c381f530cb276cb33"><td class="memTemplParams" colspan="2">template&lt;IsAnyOf&lt; int, double, Vector &gt; T&gt; </td></tr>
+<tr class="memitem:aa45f62eefe0ac57c381f530cb276cb33"><td class="memTemplItemLeft" align="right" valign="top">const T &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="#aa45f62eefe0ac57c381f530cb276cb33">get</a> () const</td></tr>
+<tr class="memdesc:aa45f62eefe0ac57c381f530cb276cb33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of this parameter.  <br /></td></tr>
+<tr class="separator:aa45f62eefe0ac57c381f530cb276cb33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aded6c57d4dc4acfb8df4a31891d3475c" id="r_aded6c57d4dc4acfb8df4a31891d3475c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aded6c57d4dc4acfb8df4a31891d3475c">operator==</a> (const <a class="el" href="classlucid_1_1ParameterValue.html">ParameterValue</a> &amp;o) const</td></tr>
+<tr class="memdesc:aded6c57d4dc4acfb8df4a31891d3475c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare two parameter value objects to determine if they are equal.  <br /></td></tr>
+<tr class="separator:aded6c57d4dc4acfb8df4a31891d3475c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:aa545b17d6d5fc4fad809e788a115fd04" id="r_aa545b17d6d5fc4fad809e788a115fd04"><td class="memItemLeft" align="right" valign="top"><a id="aa545b17d6d5fc4fad809e788a115fd04" name="aa545b17d6d5fc4fad809e788a115fd04"></a>
+<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>parameter_</b></td></tr>
+<tr class="memdesc:aa545b17d6d5fc4fad809e788a115fd04"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84" title="List of available parameters used parametrizable objects (e.g., Estimator and Kernel).">Parameter</a> associated with the value. <br /></td></tr>
+<tr class="separator:aa545b17d6d5fc4fad809e788a115fd04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa309c5f9fbbb8a8ce98adbefc902b302" id="r_aa309c5f9fbbb8a8ce98adbefc902b302"><td class="memItemLeft" align="right" valign="top"><a id="aa309c5f9fbbb8a8ce98adbefc902b302" name="aa309c5f9fbbb8a8ce98adbefc902b302"></a>
+ParameterValueType&#160;</td><td class="memItemRight" valign="bottom"><b>value_</b></td></tr>
+<tr class="memdesc:aa309c5f9fbbb8a8ce98adbefc902b302"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value assigned to the parameter. <br /></td></tr>
+<tr class="separator:aa309c5f9fbbb8a8ce98adbefc902b302"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84" title="List of available parameters used parametrizable objects (e.g., Estimator and Kernel).">Parameter</a> value used in a configurable system or application. </p>
+<p>It associates to the same parameter a single value. The value can be of different types, i.e., int, double, and eigen Vectors. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ab037378bee870e3fbfd1e7ab5f4d91f8" name="ab037378bee870e3fbfd1e7ab5f4d91f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab037378bee870e3fbfd1e7ab5f4d91f8">&#9670;&#160;</a></span>ParameterValue() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::ParameterValue::ParameterValue </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1ParameterValue.html" title="Parameter value used in a configurable system or application.">ParameterValue</a> object for the given <code>parameter</code> associated with the given <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value assigned to the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a237f4bc28fe171e3f19d1b22c8376750" name="a237f4bc28fe171e3f19d1b22c8376750"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a237f4bc28fe171e3f19d1b22c8376750">&#9670;&#160;</a></span>ParameterValue() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::ParameterValue::ParameterValue </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1ParameterValue.html" title="Parameter value used in a configurable system or application.">ParameterValue</a> object for the given <code>parameter</code> associated with the given <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value assigned to the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa521c043133b4dcc5ce6d387235b57cc" name="aa521c043133b4dcc5ce6d387235b57cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa521c043133b4dcc5ce6d387235b57cc">&#9670;&#160;</a></span>ParameterValue() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::ParameterValue::ParameterValue </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Vector</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1ParameterValue.html" title="Parameter value used in a configurable system or application.">ParameterValue</a> object for the given <code>parameter</code> associated with the given <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value assigned to the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="aa45f62eefe0ac57c381f530cb276cb33" name="aa45f62eefe0ac57c381f530cb276cb33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa45f62eefe0ac57c381f530cb276cb33">&#9670;&#160;</a></span>get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;IsAnyOf&lt; int, double, Vector &gt; T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const T &amp; lucid::ParameterValue::get </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of this parameter. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>type of the value to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+
+</div>
+</div>
+<a id="aded6c57d4dc4acfb8df4a31891d3475c" name="aded6c57d4dc4acfb8df4a31891d3475c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aded6c57d4dc4acfb8df4a31891d3475c">&#9670;&#160;</a></span>operator==()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool lucid::ParameterValue::operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classlucid_1_1ParameterValue.html">ParameterValue</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>o</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compare two parameter value objects to determine if they are equal. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">o</td><td>other object to compare against </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true the two object are equal </dd>
+<dd>
+false if the two objects are different </dd></dl>
+
+</div>
+</div>
+<a id="a66b5d1b1129928d79a7ef845b7cf5e6b" name="a66b5d1b1129928d79a7ef845b7cf5e6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66b5d1b1129928d79a7ef845b7cf5e6b">&#9670;&#160;</a></span>parameter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> lucid::ParameterValue::parameter </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the parameter of the parameter value. </p>
+<dl class="section return"><dt>Returns</dt><dd>parameter of the parameter value </dd></dl>
+
+</div>
+</div>
+<a id="a7e09c31e40bf9fae52b04928a1352439" name="a7e09c31e40bf9fae52b04928a1352439"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e09c31e40bf9fae52b04928a1352439">&#9670;&#160;</a></span>value()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const ParameterValueType &amp; lucid::ParameterValue::value </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the value of the parameter value. </p>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter value </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>lucid/model/<a class="el" href="ParameterValue_8h.html">ParameterValue.h</a></li>
+<li>lucid/model/<a class="el" href="ParameterValue_8cpp.html">ParameterValue.cpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="navelem"><a class="el" href="namespacelucid.html">lucid</a></li><li class="navelem"><a class="el" href="classlucid_1_1ParameterValue.html">ParameterValue</a></li>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

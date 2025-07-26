@@ -1,0 +1,1312 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: lucid::KernelRidgeRegressor Class Reference</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classlucid_1_1KernelRidgeRegressor.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
+<a href="classlucid_1_1KernelRidgeRegressor-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">lucid::KernelRidgeRegressor Class Reference<span class="mlabels"><span class="mlabel final">final</span></span></div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Ridge regressor with a kernel function.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;KernelRidgeRegressor.h&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for lucid::KernelRidgeRegressor:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classlucid_1_1KernelRidgeRegressor.png" usemap="#lucid::KernelRidgeRegressor_map" alt=""/>
+  <map id="lucid::KernelRidgeRegressor_map" name="lucid::KernelRidgeRegressor_map">
+<area href="classlucid_1_1GradientOptimizable.html" title="Interface for objects that can be optimised using gradient-based methods (e.g., LbfgsTuner)." alt="lucid::GradientOptimizable" shape="rect" coords="0,112,172,136"/>
+<area href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates ." alt="lucid::Estimator" shape="rect" coords="0,56,172,80"/>
+<area href="classlucid_1_1Parametrizable.html" title="Interface for objects that allow setting and getting parameters dynamically." alt="lucid::Parametrizable" shape="rect" coords="0,0,172,24"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a8eac18aa752c1759a6e181921de206e1" id="r_a8eac18aa752c1759a6e181921de206e1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8eac18aa752c1759a6e181921de206e1">KernelRidgeRegressor</a> (const <a class="el" href="classlucid_1_1Kernel.html">Kernel</a> &amp;<a class="el" href="#abb615538f66eeec522c7b654dacec666">kernel</a>, Scalar <a class="el" href="#a12db39f9e621fd8ccdd780e48ed73065">regularization_constant</a>=0, const std::shared_ptr&lt; const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &gt; &amp;<a class="el" href="classlucid_1_1Estimator.html#ac46609d5bb83a127904d0fbd8f11c4dc">tuner</a>=nullptr)</td></tr>
+<tr class="memdesc:a8eac18aa752c1759a6e181921de206e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1Kernel.html" title="Represents a kernel function.">Kernel</a> Ridge Regressor object with the given parameters.  <br /></td></tr>
+<tr class="separator:a8eac18aa752c1759a6e181921de206e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3bb4aacd070bc90896f9b1ff15b56ade" id="r_a3bb4aacd070bc90896f9b1ff15b56ade"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3bb4aacd070bc90896f9b1ff15b56ade">KernelRidgeRegressor</a> (std::unique_ptr&lt; <a class="el" href="classlucid_1_1Kernel.html">Kernel</a> &gt; &amp;&amp;<a class="el" href="#abb615538f66eeec522c7b654dacec666">kernel</a>, Scalar <a class="el" href="#a12db39f9e621fd8ccdd780e48ed73065">regularization_constant</a>=0, const std::shared_ptr&lt; const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &gt; &amp;<a class="el" href="classlucid_1_1Estimator.html#ac46609d5bb83a127904d0fbd8f11c4dc">tuner</a>=nullptr)</td></tr>
+<tr class="memdesc:a3bb4aacd070bc90896f9b1ff15b56ade"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1Kernel.html" title="Represents a kernel function.">Kernel</a> Ridge Regressor object with the given parameters.  <br /></td></tr>
+<tr class="separator:a3bb4aacd070bc90896f9b1ff15b56ade"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85336a8957b54bbf1cf4cf1256e26ee2" id="r_a85336a8957b54bbf1cf4cf1256e26ee2"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a85336a8957b54bbf1cf4cf1256e26ee2">predict</a> (ConstMatrixRef x) const override</td></tr>
+<tr class="memdesc:a85336a8957b54bbf1cf4cf1256e26ee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \).  <br /></td></tr>
+<tr class="separator:a85336a8957b54bbf1cf4cf1256e26ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcb7f1208b87081a11a912bb7ea82278" id="r_adcb7f1208b87081a11a912bb7ea82278"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adcb7f1208b87081a11a912bb7ea82278">operator()</a> (ConstMatrixRef x, const <a class="el" href="classlucid_1_1FeatureMap.html">FeatureMap</a> &amp;feature_map) const</td></tr>
+<tr class="memdesc:adcb7f1208b87081a11a912bb7ea82278"><td class="mdescLeft">&#160;</td><td class="mdescRight">A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \).  <br /></td></tr>
+<tr class="separator:adcb7f1208b87081a11a912bb7ea82278"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9b42e345344911e0fededb2e36f537c" id="r_aa9b42e345344911e0fededb2e36f537c"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9b42e345344911e0fededb2e36f537c">predict</a> (ConstMatrixRef x, const <a class="el" href="classlucid_1_1FeatureMap.html">FeatureMap</a> &amp;feature_map) const</td></tr>
+<tr class="memdesc:aa9b42e345344911e0fededb2e36f537c"><td class="mdescLeft">&#160;</td><td class="mdescRight">A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \).  <br /></td></tr>
+<tr class="separator:aa9b42e345344911e0fededb2e36f537c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb615538f66eeec522c7b654dacec666" id="r_abb615538f66eeec522c7b654dacec666"><td class="memItemLeft" align="right" valign="top">const std::unique_ptr&lt; <a class="el" href="classlucid_1_1Kernel.html">Kernel</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abb615538f66eeec522c7b654dacec666">kernel</a> () const</td></tr>
+<tr class="memdesc:abb615538f66eeec522c7b654dacec666"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the kernel of the regressor.  <br /></td></tr>
+<tr class="separator:abb615538f66eeec522c7b654dacec666"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af48b3a193c38970c1431601a23a64a89" id="r_af48b3a193c38970c1431601a23a64a89"><td class="memItemLeft" align="right" valign="top">const Matrix &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af48b3a193c38970c1431601a23a64a89">training_inputs</a> () const</td></tr>
+<tr class="memdesc:af48b3a193c38970c1431601a23a64a89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the training inputs of the regressor.  <br /></td></tr>
+<tr class="separator:af48b3a193c38970c1431601a23a64a89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a170c513df9b60b9302837ed3cc543388" id="r_a170c513df9b60b9302837ed3cc543388"><td class="memItemLeft" align="right" valign="top">const Matrix &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a170c513df9b60b9302837ed3cc543388">coefficients</a> () const</td></tr>
+<tr class="memdesc:a170c513df9b60b9302837ed3cc543388"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the coefficients of the regressor.  <br /></td></tr>
+<tr class="separator:a170c513df9b60b9302837ed3cc543388"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12db39f9e621fd8ccdd780e48ed73065" id="r_a12db39f9e621fd8ccdd780e48ed73065"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a12db39f9e621fd8ccdd780e48ed73065">regularization_constant</a> () const</td></tr>
+<tr class="memdesc:a12db39f9e621fd8ccdd780e48ed73065"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the regularization constant of the regressor.  <br /></td></tr>
+<tr class="separator:a12db39f9e621fd8ccdd780e48ed73065"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac19a11d95e1ba6932a7cf9ad23ba0767" id="r_ac19a11d95e1ba6932a7cf9ad23ba0767"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac19a11d95e1ba6932a7cf9ad23ba0767">log_marginal_likelihood</a> () const</td></tr>
+<tr class="memdesc:ac19a11d95e1ba6932a7cf9ad23ba0767"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the log marginal likelihood of the regressor.  <br /></td></tr>
+<tr class="separator:ac19a11d95e1ba6932a7cf9ad23ba0767"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa30fbf0d8417b0cdde8b33faede4386a" id="r_aa30fbf0d8417b0cdde8b33faede4386a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa30fbf0d8417b0cdde8b33faede4386a">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, int value) override</td></tr>
+<tr class="memdesc:aa30fbf0d8417b0cdde8b33faede4386a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:aa30fbf0d8417b0cdde8b33faede4386a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6aef34bbac137b701789d35556f50fc2" id="r_a6aef34bbac137b701789d35556f50fc2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6aef34bbac137b701789d35556f50fc2">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, double value) override</td></tr>
+<tr class="memdesc:a6aef34bbac137b701789d35556f50fc2"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a6aef34bbac137b701789d35556f50fc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa19cc55a218d78204fd3a44a997550b9" id="r_aa19cc55a218d78204fd3a44a997550b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa19cc55a218d78204fd3a44a997550b9">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, const Vector &amp;value) override</td></tr>
+<tr class="memdesc:aa19cc55a218d78204fd3a44a997550b9"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:aa19cc55a218d78204fd3a44a997550b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a062e4a5f5eef899cd217a7ad2a0de236" id="r_a062e4a5f5eef899cd217a7ad2a0de236"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a062e4a5f5eef899cd217a7ad2a0de236">consolidate</a> (ConstMatrixRef <a class="el" href="#af48b3a193c38970c1431601a23a64a89">training_inputs</a>, ConstMatrixRef training_outputs, <a class="el" href="namespacelucid.html#ae1d133efe8374d738e9e41afb782c408">Requests</a> requests) override</td></tr>
+<tr class="memdesc:a062e4a5f5eef899cd217a7ad2a0de236"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consolidate the model, making sure it is ready for use.  <br /></td></tr>
+<tr class="separator:a062e4a5f5eef899cd217a7ad2a0de236"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05ceac855436ef0f60d393c78479c007" id="r_a05ceac855436ef0f60d393c78479c007"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a05ceac855436ef0f60d393c78479c007">score</a> (ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override</td></tr>
+<tr class="memdesc:a05ceac855436ef0f60d393c78479c007"><td class="mdescLeft">&#160;</td><td class="mdescRight">Score the estimator assigning a numerical value to its accuracy in predicting the <code>evaluation_outputs</code> given the <code>evaluation_inputs</code>.  <br /></td></tr>
+<tr class="separator:a05ceac855436ef0f60d393c78479c007"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af64f75a5ab05e0c54487625d12322f83" id="r_af64f75a5ab05e0c54487625d12322f83"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af64f75a5ab05e0c54487625d12322f83">clone</a> () const override</td></tr>
+<tr class="memdesc:af64f75a5ab05e0c54487625d12322f83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clone the estimator by creating a new instance with the same parameters.  <br /></td></tr>
+<tr class="separator:af64f75a5ab05e0c54487625d12322f83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76eaf69904907498c5dd23d89a357cbd" id="r_a76eaf69904907498c5dd23d89a357cbd"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a76eaf69904907498c5dd23d89a357cbd">operator()</a> (ConstMatrixRef x) const</td></tr>
+<tr class="memdesc:a76eaf69904907498c5dd23d89a357cbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \).  <br /></td></tr>
+<tr class="separator:a76eaf69904907498c5dd23d89a357cbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc767189f04f1f14fcb46977095d2b70" id="r_acc767189f04f1f14fcb46977095d2b70"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acc767189f04f1f14fcb46977095d2b70">consolidate</a> (ConstMatrixRef <a class="el" href="#af48b3a193c38970c1431601a23a64a89">training_inputs</a>, ConstMatrixRef training_outputs, const <a class="el" href="namespacelucid.html#a8379d79f3350427204a863db8dc88942">Request</a> request=<a class="el" href="namespacelucid.html#a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032">Request::_</a>)</td></tr>
+<tr class="memdesc:acc767189f04f1f14fcb46977095d2b70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consolidate the model, making sure it is ready for use.  <br /></td></tr>
+<tr class="separator:acc767189f04f1f14fcb46977095d2b70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afab87a2a123393dca6a7f73104ac0fda" id="r_afab87a2a123393dca6a7f73104ac0fda"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afab87a2a123393dca6a7f73104ac0fda">fit</a> (ConstMatrixRef <a class="el" href="#af48b3a193c38970c1431601a23a64a89">training_inputs</a>, ConstMatrixRef training_outputs, const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &amp;<a class="el" href="classlucid_1_1Estimator.html#ac46609d5bb83a127904d0fbd8f11c4dc">tuner</a>)</td></tr>
+<tr class="memdesc:afab87a2a123393dca6a7f73104ac0fda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the model to the given data.  <br /></td></tr>
+<tr class="separator:afab87a2a123393dca6a7f73104ac0fda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa40751402dc4c7c331d0a9894261fb23" id="r_aa40751402dc4c7c331d0a9894261fb23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa40751402dc4c7c331d0a9894261fb23">fit</a> (ConstMatrixRef <a class="el" href="#af48b3a193c38970c1431601a23a64a89">training_inputs</a>, ConstMatrixRef training_outputs)</td></tr>
+<tr class="memdesc:aa40751402dc4c7c331d0a9894261fb23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the model to the given data.  <br /></td></tr>
+<tr class="separator:aa40751402dc4c7c331d0a9894261fb23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classlucid_1_1GradientOptimizable"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classlucid_1_1GradientOptimizable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classlucid_1_1GradientOptimizable.html">lucid::GradientOptimizable</a></td></tr>
+<tr class="memitem:a9c12e5a7a292e82ddf7af83108460405 inherit pub_methods_classlucid_1_1GradientOptimizable" id="r_a9c12e5a7a292e82ddf7af83108460405"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1GradientOptimizable.html#a9c12e5a7a292e82ddf7af83108460405">objective_value</a> () const</td></tr>
+<tr class="memdesc:a9c12e5a7a292e82ddf7af83108460405 inherit pub_methods_classlucid_1_1GradientOptimizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the objective value of the this object.  <br /></td></tr>
+<tr class="separator:a9c12e5a7a292e82ddf7af83108460405 inherit pub_methods_classlucid_1_1GradientOptimizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adeb9060ca1a55364f1b042c5f99afc6d inherit pub_methods_classlucid_1_1GradientOptimizable" id="r_adeb9060ca1a55364f1b042c5f99afc6d"><td class="memItemLeft" align="right" valign="top">const Vector &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1GradientOptimizable.html#adeb9060ca1a55364f1b042c5f99afc6d">gradient</a> () const</td></tr>
+<tr class="memdesc:adeb9060ca1a55364f1b042c5f99afc6d inherit pub_methods_classlucid_1_1GradientOptimizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the gradient of the this object.  <br /></td></tr>
+<tr class="separator:adeb9060ca1a55364f1b042c5f99afc6d inherit pub_methods_classlucid_1_1GradientOptimizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classlucid_1_1Estimator"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classlucid_1_1Estimator')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classlucid_1_1Estimator.html">lucid::Estimator</a></td></tr>
+<tr class="memitem:a4887d7acd579a7647732b48b33c1e806 inherit pub_methods_classlucid_1_1Estimator" id="r_a4887d7acd579a7647732b48b33c1e806"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#a4887d7acd579a7647732b48b33c1e806">Estimator</a> (<a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a> <a class="el" href="classlucid_1_1Parametrizable.html#a7621ca2528b5d925e3fbf33ad6317124">parameters</a>=<a class="el" href="namespacelucid.html#acb07caec20c7895bf6d7fc9691a99922">NoParameters</a>, const std::shared_ptr&lt; const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &gt; &amp;<a class="el" href="classlucid_1_1Estimator.html#ac46609d5bb83a127904d0fbd8f11c4dc">tuner</a>=nullptr)</td></tr>
+<tr class="memdesc:a4887d7acd579a7647732b48b33c1e806 inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1Estimator.html" title="Given two vector spaces  and a map , the goal is to produce a model  that best approximates .">Estimator</a> object.  <br /></td></tr>
+<tr class="separator:a4887d7acd579a7647732b48b33c1e806 inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76eaf69904907498c5dd23d89a357cbd inherit pub_methods_classlucid_1_1Estimator" id="r_a76eaf69904907498c5dd23d89a357cbd"><td class="memItemLeft" align="right" valign="top">Matrix&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#a76eaf69904907498c5dd23d89a357cbd">operator()</a> (ConstMatrixRef x) const</td></tr>
+<tr class="memdesc:a76eaf69904907498c5dd23d89a357cbd inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \).  <br /></td></tr>
+<tr class="separator:a76eaf69904907498c5dd23d89a357cbd inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afab87a2a123393dca6a7f73104ac0fda inherit pub_methods_classlucid_1_1Estimator" id="r_afab87a2a123393dca6a7f73104ac0fda"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#afab87a2a123393dca6a7f73104ac0fda">fit</a> (ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &amp;<a class="el" href="classlucid_1_1Estimator.html#ac46609d5bb83a127904d0fbd8f11c4dc">tuner</a>)</td></tr>
+<tr class="memdesc:afab87a2a123393dca6a7f73104ac0fda inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the model to the given data.  <br /></td></tr>
+<tr class="separator:afab87a2a123393dca6a7f73104ac0fda inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa40751402dc4c7c331d0a9894261fb23 inherit pub_methods_classlucid_1_1Estimator" id="r_aa40751402dc4c7c331d0a9894261fb23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#aa40751402dc4c7c331d0a9894261fb23">fit</a> (ConstMatrixRef training_inputs, ConstMatrixRef training_outputs)</td></tr>
+<tr class="memdesc:aa40751402dc4c7c331d0a9894261fb23 inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the model to the given data.  <br /></td></tr>
+<tr class="separator:aa40751402dc4c7c331d0a9894261fb23 inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a480a1208335c4f165fda15e9f4806a6c inherit pub_methods_classlucid_1_1Estimator" id="r_a480a1208335c4f165fda15e9f4806a6c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#a480a1208335c4f165fda15e9f4806a6c">fit_online</a> (ConstMatrixRef training_inputs, const <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4">OutputComputer</a> &amp;training_outputs, const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &amp;<a class="el" href="classlucid_1_1Estimator.html#ac46609d5bb83a127904d0fbd8f11c4dc">tuner</a>)</td></tr>
+<tr class="memdesc:a480a1208335c4f165fda15e9f4806a6c inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the model to the data produced by the <code>training_outputs</code> <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4" title="Instead of providing the outputs directly to the estimator, this function can be used to compute them...">OutputComputer</a>.  <br /></td></tr>
+<tr class="separator:a480a1208335c4f165fda15e9f4806a6c inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2109550b72489efe40bcf946a560befa inherit pub_methods_classlucid_1_1Estimator" id="r_a2109550b72489efe40bcf946a560befa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#a2109550b72489efe40bcf946a560befa">fit_online</a> (ConstMatrixRef training_inputs, const <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4">OutputComputer</a> &amp;training_outputs)</td></tr>
+<tr class="memdesc:a2109550b72489efe40bcf946a560befa inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the model to the data produced by the <code>training_outputs</code> <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4" title="Instead of providing the outputs directly to the estimator, this function can be used to compute them...">OutputComputer</a>.  <br /></td></tr>
+<tr class="separator:a2109550b72489efe40bcf946a560befa inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc767189f04f1f14fcb46977095d2b70 inherit pub_methods_classlucid_1_1Estimator" id="r_acc767189f04f1f14fcb46977095d2b70"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#acc767189f04f1f14fcb46977095d2b70">consolidate</a> (ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, const <a class="el" href="namespacelucid.html#a8379d79f3350427204a863db8dc88942">Request</a> request=<a class="el" href="namespacelucid.html#a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032">Request::_</a>)</td></tr>
+<tr class="memdesc:acc767189f04f1f14fcb46977095d2b70 inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consolidate the model, making sure it is ready for use.  <br /></td></tr>
+<tr class="separator:acc767189f04f1f14fcb46977095d2b70 inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac46609d5bb83a127904d0fbd8f11c4dc inherit pub_methods_classlucid_1_1Estimator" id="r_ac46609d5bb83a127904d0fbd8f11c4dc"><td class="memItemLeft" align="right" valign="top">const std::shared_ptr&lt; const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#ac46609d5bb83a127904d0fbd8f11c4dc">tuner</a> () const</td></tr>
+<tr class="memdesc:ac46609d5bb83a127904d0fbd8f11c4dc inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the tuner of the estimator.  <br /></td></tr>
+<tr class="separator:ac46609d5bb83a127904d0fbd8f11c4dc inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad324ab3e3c4d0c7f7bd895633f5b894c inherit pub_methods_classlucid_1_1Estimator" id="r_ad324ab3e3c4d0c7f7bd895633f5b894c"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Estimator.html#ad324ab3e3c4d0c7f7bd895633f5b894c">m_tuner</a> ()</td></tr>
+<tr class="memdesc:ad324ab3e3c4d0c7f7bd895633f5b894c inherit pub_methods_classlucid_1_1Estimator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-write access to the tuner of the estimator.  <br /></td></tr>
+<tr class="separator:ad324ab3e3c4d0c7f7bd895633f5b894c inherit pub_methods_classlucid_1_1Estimator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classlucid_1_1Parametrizable"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classlucid_1_1Parametrizable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classlucid_1_1Parametrizable.html">lucid::Parametrizable</a></td></tr>
+<tr class="memitem:a2f7fe13875f27ee8933f37d97a225d97 inherit pub_methods_classlucid_1_1Parametrizable" id="r_a2f7fe13875f27ee8933f37d97a225d97"><td class="memTemplParams" colspan="2">template&lt;IsAnyOf&lt; int, double, const Vector &amp; &gt; T&gt; </td></tr>
+<tr class="memitem:a2f7fe13875f27ee8933f37d97a225d97 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a2f7fe13875f27ee8933f37d97a225d97">get</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const</td></tr>
+<tr class="memdesc:a2f7fe13875f27ee8933f37d97a225d97 inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a2f7fe13875f27ee8933f37d97a225d97 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83ccd4dad5641b09438adc7e0bf0f394 inherit pub_methods_classlucid_1_1Parametrizable" id="r_a83ccd4dad5641b09438adc7e0bf0f394"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a83ccd4dad5641b09438adc7e0bf0f394 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structlucid_1_1internal_1_1ParameterType.html">internal::ParameterType</a>&lt; P &gt;::ref_type&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a83ccd4dad5641b09438adc7e0bf0f394">get</a> () const</td></tr>
+<tr class="memdesc:a83ccd4dad5641b09438adc7e0bf0f394 inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a83ccd4dad5641b09438adc7e0bf0f394 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53c999f2ed58c1f153bbcd358628e93c inherit pub_methods_classlucid_1_1Parametrizable" id="r_a53c999f2ed58c1f153bbcd358628e93c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a53c999f2ed58c1f153bbcd358628e93c">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, const std::variant&lt; int, double, Vector &gt; &amp;value)</td></tr>
+<tr class="memdesc:a53c999f2ed58c1f153bbcd358628e93c inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a53c999f2ed58c1f153bbcd358628e93c inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a567f65ca91c3f5fe55ed3aebc88a2c37 inherit pub_methods_classlucid_1_1Parametrizable" id="r_a567f65ca91c3f5fe55ed3aebc88a2c37"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a567f65ca91c3f5fe55ed3aebc88a2c37 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a567f65ca91c3f5fe55ed3aebc88a2c37">set</a> (const std::variant&lt; int, double, Vector &gt; &amp;value)</td></tr>
+<tr class="memdesc:a567f65ca91c3f5fe55ed3aebc88a2c37 inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a567f65ca91c3f5fe55ed3aebc88a2c37 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96cf4345e06513bbf3fbd581ef8f41a3 inherit pub_methods_classlucid_1_1Parametrizable" id="r_a96cf4345e06513bbf3fbd581ef8f41a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a96cf4345e06513bbf3fbd581ef8f41a3">set</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter, std::size_t idx, const std::variant&lt; std::vector&lt; int &gt;, std::vector&lt; double &gt;, std::vector&lt; Vector &gt; &gt; &amp;values)</td></tr>
+<tr class="memdesc:a96cf4345e06513bbf3fbd581ef8f41a3 inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the <code>index</code>-th value among the indicated <code>values</code>.  <br /></td></tr>
+<tr class="separator:a96cf4345e06513bbf3fbd581ef8f41a3 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fc70f2cf975cd9eb7525a65ac5b3a24 inherit pub_methods_classlucid_1_1Parametrizable" id="r_a2fc70f2cf975cd9eb7525a65ac5b3a24"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a2fc70f2cf975cd9eb7525a65ac5b3a24 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a2fc70f2cf975cd9eb7525a65ac5b3a24">set</a> (std::size_t idx, const std::variant&lt; std::vector&lt; int &gt;, std::vector&lt; double &gt;, std::vector&lt; Vector &gt; &gt; &amp;values)</td></tr>
+<tr class="memdesc:a2fc70f2cf975cd9eb7525a65ac5b3a24 inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the <code>index</code>-th value among the indicated <code>values</code>.  <br /></td></tr>
+<tr class="separator:a2fc70f2cf975cd9eb7525a65ac5b3a24 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a523ce483283fc5fb881ab9c1b78e4d8e inherit pub_methods_classlucid_1_1Parametrizable" id="r_a523ce483283fc5fb881ab9c1b78e4d8e"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> P&gt; </td></tr>
+<tr class="memitem:a523ce483283fc5fb881ab9c1b78e4d8e inherit pub_methods_classlucid_1_1Parametrizable"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a523ce483283fc5fb881ab9c1b78e4d8e">set</a> (typename <a class="el" href="structlucid_1_1internal_1_1ParameterType.html">internal::ParameterType</a>&lt; P &gt;::ref_type value)</td></tr>
+<tr class="memdesc:a523ce483283fc5fb881ab9c1b78e4d8e inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>.  <br /></td></tr>
+<tr class="separator:a523ce483283fc5fb881ab9c1b78e4d8e inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9aeaa85d55e01638aa10f9ce1b091e7 inherit pub_methods_classlucid_1_1Parametrizable" id="r_aa9aeaa85d55e01638aa10f9ce1b091e7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#aa9aeaa85d55e01638aa10f9ce1b091e7">has</a> (const <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const</td></tr>
+<tr class="memdesc:aa9aeaa85d55e01638aa10f9ce1b091e7 inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the <code>parameter</code> is present in this object.  <br /></td></tr>
+<tr class="separator:aa9aeaa85d55e01638aa10f9ce1b091e7 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7621ca2528b5d925e3fbf33ad6317124 inherit pub_methods_classlucid_1_1Parametrizable" id="r_a7621ca2528b5d925e3fbf33ad6317124"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a7621ca2528b5d925e3fbf33ad6317124">parameters</a> () const</td></tr>
+<tr class="memdesc:a7621ca2528b5d925e3fbf33ad6317124 inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the parameters of the parametrizable object.  <br /></td></tr>
+<tr class="separator:a7621ca2528b5d925e3fbf33ad6317124 inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a9e19c5fe95618bb58baa9e0d83398e inherit pub_methods_classlucid_1_1Parametrizable" id="r_a2a9e19c5fe95618bb58baa9e0d83398e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Parametrizable.html#a2a9e19c5fe95618bb58baa9e0d83398e">parameters_list</a> () const</td></tr>
+<tr class="memdesc:a2a9e19c5fe95618bb58baa9e0d83398e inherit pub_methods_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the list of parameters of the parametrizable object.  <br /></td></tr>
+<tr class="separator:a2a9e19c5fe95618bb58baa9e0d83398e inherit pub_methods_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a071b8148ba7f3aa93a18bf8d8fe52efb" id="r_a071b8148ba7f3aa93a18bf8d8fe52efb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a071b8148ba7f3aa93a18bf8d8fe52efb">get_i</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const override</td></tr>
+<tr class="memdesc:a071b8148ba7f3aa93a18bf8d8fe52efb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a071b8148ba7f3aa93a18bf8d8fe52efb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a182ce676d4d8b8d81ada36c232d19fea" id="r_a182ce676d4d8b8d81ada36c232d19fea"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a182ce676d4d8b8d81ada36c232d19fea">get_d</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const override</td></tr>
+<tr class="memdesc:a182ce676d4d8b8d81ada36c232d19fea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:a182ce676d4d8b8d81ada36c232d19fea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab48538a7c83d8db2cc58c9187130ee2" id="r_aab48538a7c83d8db2cc58c9187130ee2"><td class="memItemLeft" align="right" valign="top">const Vector &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aab48538a7c83d8db2cc58c9187130ee2">get_v</a> (<a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a> parameter) const override</td></tr>
+<tr class="memdesc:aab48538a7c83d8db2cc58c9187130ee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of the specified <code>parameter</code>.  <br /></td></tr>
+<tr class="separator:aab48538a7c83d8db2cc58c9187130ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a475c180e8674b8326b0059e47c2afbb6" id="r_a475c180e8674b8326b0059e47c2afbb6"><td class="memItemLeft" align="right" valign="top"><a id="a475c180e8674b8326b0059e47c2afbb6" name="a475c180e8674b8326b0059e47c2afbb6"></a>
+std::unique_ptr&lt; <a class="el" href="classlucid_1_1Kernel.html">Kernel</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>kernel_</b></td></tr>
+<tr class="memdesc:a475c180e8674b8326b0059e47c2afbb6"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classlucid_1_1Kernel.html" title="Represents a kernel function.">Kernel</a> function. <br /></td></tr>
+<tr class="separator:a475c180e8674b8326b0059e47c2afbb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae95cc0f5dcfb51b98e2f304bf43e3d0c" id="r_ae95cc0f5dcfb51b98e2f304bf43e3d0c"><td class="memItemLeft" align="right" valign="top"><a id="ae95cc0f5dcfb51b98e2f304bf43e3d0c" name="ae95cc0f5dcfb51b98e2f304bf43e3d0c"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>regularization_constant_</b></td></tr>
+<tr class="memdesc:ae95cc0f5dcfb51b98e2f304bf43e3d0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Regularization constant. <br /></td></tr>
+<tr class="separator:ae95cc0f5dcfb51b98e2f304bf43e3d0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ebb28af8582a60ef6748f36be3989a8" id="r_a6ebb28af8582a60ef6748f36be3989a8"><td class="memItemLeft" align="right" valign="top"><a id="a6ebb28af8582a60ef6748f36be3989a8" name="a6ebb28af8582a60ef6748f36be3989a8"></a>
+Matrix&#160;</td><td class="memItemRight" valign="bottom"><b>training_inputs_</b></td></tr>
+<tr class="memdesc:a6ebb28af8582a60ef6748f36be3989a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Training inputs. <br /></td></tr>
+<tr class="separator:a6ebb28af8582a60ef6748f36be3989a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66e2913826fd7d799f938b4eed93ad80" id="r_a66e2913826fd7d799f938b4eed93ad80"><td class="memItemLeft" align="right" valign="top"><a id="a66e2913826fd7d799f938b4eed93ad80" name="a66e2913826fd7d799f938b4eed93ad80"></a>
+Matrix&#160;</td><td class="memItemRight" valign="bottom"><b>coefficients_</b></td></tr>
+<tr class="memdesc:a66e2913826fd7d799f938b4eed93ad80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coefficients of the linear combination describing the regression model. <br /></td></tr>
+<tr class="separator:a66e2913826fd7d799f938b4eed93ad80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pro_attribs_classlucid_1_1GradientOptimizable"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classlucid_1_1GradientOptimizable')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classlucid_1_1GradientOptimizable.html">lucid::GradientOptimizable</a></td></tr>
+<tr class="memitem:a8cdaca52c06e54406b3251b987826808 inherit pro_attribs_classlucid_1_1GradientOptimizable" id="r_a8cdaca52c06e54406b3251b987826808"><td class="memItemLeft" align="right" valign="top">
+double&#160;</td><td class="memItemRight" valign="bottom"><b>objective_value_</b></td></tr>
+<tr class="memdesc:a8cdaca52c06e54406b3251b987826808 inherit pro_attribs_classlucid_1_1GradientOptimizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Objective value of the optimisation problem. <br /></td></tr>
+<tr class="separator:a8cdaca52c06e54406b3251b987826808 inherit pro_attribs_classlucid_1_1GradientOptimizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbc3dd81319133b81f31650510171a1d inherit pro_attribs_classlucid_1_1GradientOptimizable" id="r_abbc3dd81319133b81f31650510171a1d"><td class="memItemLeft" align="right" valign="top">
+Vector&#160;</td><td class="memItemRight" valign="bottom"><b>gradient_</b></td></tr>
+<tr class="memdesc:abbc3dd81319133b81f31650510171a1d inherit pro_attribs_classlucid_1_1GradientOptimizable"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gradient of the objective function. <br /></td></tr>
+<tr class="separator:abbc3dd81319133b81f31650510171a1d inherit pro_attribs_classlucid_1_1GradientOptimizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classlucid_1_1Parametrizable"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classlucid_1_1Parametrizable')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classlucid_1_1Parametrizable.html">lucid::Parametrizable</a></td></tr>
+<tr class="memitem:a48d4f35c0ca25348dd4736db3776b366 inherit pro_attribs_classlucid_1_1Parametrizable" id="r_a48d4f35c0ca25348dd4736db3776b366"><td class="memItemLeft" align="right" valign="top">
+<a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232">Parameters</a>&#160;</td><td class="memItemRight" valign="bottom"><b>parameters_</b></td></tr>
+<tr class="memdesc:a48d4f35c0ca25348dd4736db3776b366 inherit pro_attribs_classlucid_1_1Parametrizable"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespacelucid.html#ac8d08ad5df62fd19799d7d5dc3b8f232" title="Efficient set of parameters as bitset.">Parameters</a> supported by this object. <br /></td></tr>
+<tr class="separator:a48d4f35c0ca25348dd4736db3776b366 inherit pro_attribs_classlucid_1_1Parametrizable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Ridge regressor with a kernel function. </p>
+<p>This is a linear regressor with \( L_2 \) regularization. Given two vector spaces \( \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} \) and the training datasets \( \{ (x_i, y_i) \}_{i=1}^n \), where \( x_i \in \mathcal{X} \) and \( y_i \in \mathcal{Y} \), the goal is to find the function \( f^*: \mathcal{X} \to \mathcal{Y} \) such that the sum of the squared errors is minimized, i.e.    </p><p class="formulaDsp">
+\[  f^* = \arg\min_{f \in \mathcal{H}} \left\{ \frac{1}{n} \sum_{i=1}^n (y_i - f(x_i))^2 + \lambda
+\|f\|_{\mathcal{H}}^2 \right\}
+\]
+</p>
+<p> where \( \mathcal{H} \) is a reproducing kernel Hilbert space (RKHS) with kernel  \( k: \mathcal{X} \times
+\mathcal{X} \to \mathbb{R} \). Due to the reproducing property of the RKHS, \( f^* \) can be expressed as the linear combination   </p><p class="formulaDsp">
+\[ f^*(x) = \sum_{i=1}^n w_i k(x_i, x)
+\]
+</p>
+<p> where \( w \in \mathbb{R}^n \) are some coefficients we want to find. We can rewrite the loss function in vector form as   </p><p class="formulaDsp">
+\[\frac{1}{n} \|y - Kw\|^2 + \lambda w^T K w
+\]
+</p>
+<p> where \( K \) is the Gram matrix with elements \( K_{ij} = k(x_i, x_j) \). Looking for the minimum, the partial gradient of the loss function with respect to \( w \) is set to zero   </p><p class="formulaDsp">
+\[\frac{\partial}{\partial w} \left\{ \frac{1}{n} \|y - Kw\|^2 + \lambda w^T K w \right\} = 0
+\]
+</p>
+<p> leads us to the closed-form solution:   </p><p class="formulaDsp">
+\[w = (K + \lambda n I)^{-1} y .
+\]
+</p>
+<p> Finally, when we want to predict the output for a new input \( x \), we can just compute   </p><p class="formulaDsp">
+\[f^*(x) = k(x, x_1) w_1 + k(x, x_2) w_2 + \cdots + k(x, x_n) w_n
+\]
+</p>
+<p> of, in matrix form   </p><p class="formulaDsp">
+\[f^*(x) = K(x, x_\text{traning}) w
+\]
+</p>
+<p> where \( K(x,  x_\text{traning}) \) is the vector of kernel evaluations between \( x \) and the training inputs \( x_\text{traning} \). </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a8eac18aa752c1759a6e181921de206e1" name="a8eac18aa752c1759a6e181921de206e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8eac18aa752c1759a6e181921de206e1">&#9670;&#160;</a></span>KernelRidgeRegressor() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::KernelRidgeRegressor::KernelRidgeRegressor </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classlucid_1_1Kernel.html">Kernel</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>kernel</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Scalar</td>          <td class="paramname"><span class="paramname"><em>regularization_constant</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::shared_ptr&lt; const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tuner</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel explicit">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1Kernel.html" title="Represents a kernel function.">Kernel</a> Ridge Regressor object with the given parameters. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">kernel</td><td>kernel function used to compute the Gram matrix </td></tr>
+    <tr><td class="paramname">regularization_constant</td><td>regularization constant. Avoids overfitting by penalizing large coefficients </td></tr>
+    <tr><td class="paramname">tuner</td><td>tuner used to fit the model </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a3bb4aacd070bc90896f9b1ff15b56ade" name="a3bb4aacd070bc90896f9b1ff15b56ade"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3bb4aacd070bc90896f9b1ff15b56ade">&#9670;&#160;</a></span>KernelRidgeRegressor() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::KernelRidgeRegressor::KernelRidgeRegressor </td>
+          <td>(</td>
+          <td class="paramtype">std::unique_ptr&lt; <a class="el" href="classlucid_1_1Kernel.html">Kernel</a> &gt; &amp;&amp;</td>          <td class="paramname"><span class="paramname"><em>kernel</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Scalar</td>          <td class="paramname"><span class="paramname"><em>regularization_constant</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::shared_ptr&lt; const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tuner</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel explicit">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1Kernel.html" title="Represents a kernel function.">Kernel</a> Ridge Regressor object with the given parameters. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">kernel</td><td>kernel function used to compute the Gram matrix </td></tr>
+    <tr><td class="paramname">regularization_constant</td><td>regularization constant. Avoids overfitting by penalizing large coefficients </td></tr>
+    <tr><td class="paramname">tuner</td><td>tuner used to fit the model </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="af64f75a5ab05e0c54487625d12322f83" name="af64f75a5ab05e0c54487625d12322f83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af64f75a5ab05e0c54487625d12322f83">&#9670;&#160;</a></span>clone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &gt; lucid::KernelRidgeRegressor::clone </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Clone the estimator by creating a new instance with the same parameters. </p>
+<dl class="section return"><dt>Returns</dt><dd>new instance of the estimator </dd></dl>
+
+<p>Implements <a class="el" href="classlucid_1_1Estimator.html#ac54dc0c4a17c142f3911851611f4c3f2">lucid::Estimator</a>.</p>
+
+</div>
+</div>
+<a id="a170c513df9b60b9302837ed3cc543388" name="a170c513df9b60b9302837ed3cc543388"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a170c513df9b60b9302837ed3cc543388">&#9670;&#160;</a></span>coefficients()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const Matrix &amp; lucid::KernelRidgeRegressor::coefficients </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the coefficients of the regressor. </p>
+<dl class="section return"><dt>Returns</dt><dd>coefficients of the regressor </dd></dl>
+
+</div>
+</div>
+<a id="acc767189f04f1f14fcb46977095d2b70" name="acc767189f04f1f14fcb46977095d2b70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc767189f04f1f14fcb46977095d2b70">&#9670;&#160;</a></span>consolidate() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp; lucid::Estimator::consolidate </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_inputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_outputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacelucid.html#a8379d79f3350427204a863db8dc88942">Request</a></td>          <td class="paramname"><span class="paramname"><em>request</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="namespacelucid.html#a8379d79f3350427204a863db8dc88942ab14a7b8059d9c055954c92674ce60032">Request::_</a></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Consolidate the model, making sure it is ready for use. </p>
+<p>No fitting process is performed, and the hyperparameters are not updated, but the estimator may change its internal state so it can be used for predictions. After the process is completed, the estimator can be used to make predictions on new data. The <code>request</code> parameter is used to specify an additional option for the consolidation process, like whether to compute some additional values used by some tuners. </p><dl class="section note"><dt>Note</dt><dd>This is a low-level method that allows the user great control over the behaviour of the estimator. It is usually recommended to use <a class="el" href="#afab87a2a123393dca6a7f73104ac0fda">fit</a> with the desired tuner instead. </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The number of rows in the training inputs should be equal to the number of rows in the training outputs. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">training_inputs</td><td>training input data. The number of rows should be equal to the number of training outputs </td></tr>
+    <tr><td class="paramname">training_outputs</td><td>training output data. The number of rows should be equal to the number of training inputs </td></tr>
+    <tr><td class="paramname">request</td><td>request for the consolidation process. Defaults to no specific request being made </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>reference to the estimator </dd></dl>
+
+</div>
+</div>
+<a id="a062e4a5f5eef899cd217a7ad2a0de236" name="a062e4a5f5eef899cd217a7ad2a0de236"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a062e4a5f5eef899cd217a7ad2a0de236">&#9670;&#160;</a></span>consolidate() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp; lucid::KernelRidgeRegressor::consolidate </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_inputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_outputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#ae1d133efe8374d738e9e41afb782c408">Requests</a></td>          <td class="paramname"><span class="paramname"><em>requests</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Consolidate the model, making sure it is ready for use. </p>
+<p>No fitting process is performed, and the hyperparameters are not updated, but the estimator may change its internal state so it can be used for predictions. After the process is completed, the estimator can be used to make predictions on new data. The <code>requests</code> parameter can be used to specify additional options for the consolidation process, like whether to compute some additional values used by some tuners. </p><dl class="section note"><dt>Note</dt><dd>This is a low-level method that allows the user great control over the behaviour of the estimator. It is usually recommended to use <a class="el" href="#afab87a2a123393dca6a7f73104ac0fda">fit</a> with the desired tuner instead. </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The number of rows in the training inputs should be equal to the number of rows in the training outputs. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">training_inputs</td><td>training input data </td></tr>
+    <tr><td class="paramname">training_outputs</td><td>training output data </td></tr>
+    <tr><td class="paramname">requests</td><td>requests for the consolidation process </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>reference to the estimator </dd></dl>
+
+<p>Implements <a class="el" href="classlucid_1_1Estimator.html#ae1dd168f83bfb1e6639ba2c952529b5f">lucid::Estimator</a>.</p>
+
+</div>
+</div>
+<a id="aa40751402dc4c7c331d0a9894261fb23" name="aa40751402dc4c7c331d0a9894261fb23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa40751402dc4c7c331d0a9894261fb23">&#9670;&#160;</a></span>fit() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp; lucid::Estimator::fit </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_inputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_outputs</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fit the model to the given data. </p>
+<p>This method will use the object's tuner to find the best hyperparameters for the model. After the process is completed, the estimator can be used to make predictions on new data. If no tuner has been provided during construction, the method is equivalent to <a class="el" href="#a062e4a5f5eef899cd217a7ad2a0de236">consolidate</a> with no specific request. </p><dl class="section pre"><dt>Precondition</dt><dd>The number of rows in the training inputs should be equal to the number of rows in the training outputs. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">training_inputs</td><td>training input data </td></tr>
+    <tr><td class="paramname">training_outputs</td><td>training output data </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>reference to this estimator after it has been fitted </dd></dl>
+
+</div>
+</div>
+<a id="afab87a2a123393dca6a7f73104ac0fda" name="afab87a2a123393dca6a7f73104ac0fda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afab87a2a123393dca6a7f73104ac0fda">&#9670;&#160;</a></span>fit() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp; lucid::Estimator::fit </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_inputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_outputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classlucid_1_1Tuner.html">Tuner</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>tuner</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fit the model to the given data. </p>
+<p>This method will use the provided <code>tuner</code> to find the best hyperparameters for the model. After the process is completed, the estimator can be used to make predictions on new data. </p><dl class="section pre"><dt>Precondition</dt><dd>The number of rows in the training inputs should be equal to the number of rows in the training outputs. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">training_inputs</td><td>training input data </td></tr>
+    <tr><td class="paramname">training_outputs</td><td>training output data </td></tr>
+    <tr><td class="paramname">tuner</td><td><a class="el" href="classlucid_1_1Tuner.html" title="Optimise the kernel hyperparameters.">Tuner</a> object used to find the best hyperparameters for the model </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>reference to this estimator after it has been fitted </dd></dl>
+
+</div>
+</div>
+<a id="a182ce676d4d8b8d81ada36c232d19fea" name="a182ce676d4d8b8d81ada36c232d19fea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a182ce676d4d8b8d81ada36c232d19fea">&#9670;&#160;</a></span>get_d()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double lucid::KernelRidgeRegressor::get_d </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel override">override</span><span class="mlabel private">private</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>double</code>. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classlucid_1_1Parametrizable.html#a0ad9c2fa5aad85bf31a3bd1cf56d3751">lucid::Parametrizable</a>.</p>
+
+</div>
+</div>
+<a id="a071b8148ba7f3aa93a18bf8d8fe52efb" name="a071b8148ba7f3aa93a18bf8d8fe52efb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a071b8148ba7f3aa93a18bf8d8fe52efb">&#9670;&#160;</a></span>get_i()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int lucid::KernelRidgeRegressor::get_i </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel override">override</span><span class="mlabel private">private</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>int</code>. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classlucid_1_1Parametrizable.html#ac6d66995da051b000b194d6a93608570">lucid::Parametrizable</a>.</p>
+
+</div>
+</div>
+<a id="aab48538a7c83d8db2cc58c9187130ee2" name="aab48538a7c83d8db2cc58c9187130ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab48538a7c83d8db2cc58c9187130ee2">&#9670;&#160;</a></span>get_v()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const Vector &amp; lucid::KernelRidgeRegressor::get_v </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel override">override</span><span class="mlabel private">private</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the value of the specified <code>parameter</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to retrieve </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>value of the parameter </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>Vector</code>. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classlucid_1_1Parametrizable.html#ad26e3d2c135649f0ec55afda0ce873c1">lucid::Parametrizable</a>.</p>
+
+</div>
+</div>
+<a id="abb615538f66eeec522c7b654dacec666" name="abb615538f66eeec522c7b654dacec666"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb615538f66eeec522c7b654dacec666">&#9670;&#160;</a></span>kernel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::unique_ptr&lt; <a class="el" href="classlucid_1_1Kernel.html">Kernel</a> &gt; &amp; lucid::KernelRidgeRegressor::kernel </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the kernel of the regressor. </p>
+<dl class="section return"><dt>Returns</dt><dd>kernel of the regressor </dd></dl>
+
+</div>
+</div>
+<a id="ac19a11d95e1ba6932a7cf9ad23ba0767" name="ac19a11d95e1ba6932a7cf9ad23ba0767"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac19a11d95e1ba6932a7cf9ad23ba0767">&#9670;&#160;</a></span>log_marginal_likelihood()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double lucid::KernelRidgeRegressor::log_marginal_likelihood </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the log marginal likelihood of the regressor. </p>
+<dl class="section return"><dt>Returns</dt><dd>log marginal likelihood of the regressor </dd></dl>
+
+</div>
+</div>
+<a id="a76eaf69904907498c5dd23d89a357cbd" name="a76eaf69904907498c5dd23d89a357cbd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76eaf69904907498c5dd23d89a357cbd">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::Estimator::operator() </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \). </p>
+<dl class="section pre"><dt>Precondition</dt><dd>The estimator should be fitted before calling this method. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>\( n \times d_x \) matrix of row vectors in \( \mathcal{X} \) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>\( n \times d_y \) matrix of row vectors in \( \mathcal{Y} \) </dd></dl>
+
+</div>
+</div>
+<a id="adcb7f1208b87081a11a912bb7ea82278" name="adcb7f1208b87081a11a912bb7ea82278"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcb7f1208b87081a11a912bb7ea82278">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::KernelRidgeRegressor::operator() </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classlucid_1_1FeatureMap.html">FeatureMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>feature_map</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \). </p>
+<p>The <code>feature_map</code> is used to approximate the kernel vector \( k(x, x_i) \). </p><dl class="section warning"><dt>Warning</dt><dd>Using this method introduces an approximation error. We suggest using the operator()(ConstMatrixRef) method instead. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>\( n \times d_x \) matrix of row vectors in \( \mathcal{X} \) </td></tr>
+    <tr><td class="paramname">feature_map</td><td>feature map used to approximate the kernel vector \( k(x, x_i) \) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>\( n \times d_y \) matrix of row vectors in \( \mathcal{Y} \) </dd></dl>
+
+</div>
+</div>
+<a id="a85336a8957b54bbf1cf4cf1256e26ee2" name="a85336a8957b54bbf1cf4cf1256e26ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85336a8957b54bbf1cf4cf1256e26ee2">&#9670;&#160;</a></span>predict() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::KernelRidgeRegressor::predict </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>x</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \). </p>
+<dl class="section pre"><dt>Precondition</dt><dd>The estimator should be fitted before calling this method. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>\( n \times d_x \) matrix of row vectors in \( \mathcal{X} \) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>\( n \times d_y \) matrix of row vectors in \( \mathcal{Y} \) </dd></dl>
+
+<p>Implements <a class="el" href="classlucid_1_1Estimator.html#aab5a20609db3e3b4170d25200b7ce6ce">lucid::Estimator</a>.</p>
+
+</div>
+</div>
+<a id="aa9b42e345344911e0fededb2e36f537c" name="aa9b42e345344911e0fededb2e36f537c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9b42e345344911e0fededb2e36f537c">&#9670;&#160;</a></span>predict() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Matrix lucid::KernelRidgeRegressor::predict </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classlucid_1_1FeatureMap.html">FeatureMap</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>feature_map</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A model is a function that takes a \( n \times d_x \) matrix of row vectors in the input space  \( \mathcal{X}
+\) and returns a \( n \times d_y \) matrix of row vectors in the output space \( \mathcal{Y} \). </p>
+<p>The <code>feature_map</code> is used to approximate the kernel vector \( k(x, x_i) \). </p><dl class="section warning"><dt>Warning</dt><dd>Using this method introduces an approximation error. We suggest using the operator()(ConstMatrixRef) method instead. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>\( n \times d_x \) matrix of row vectors in \( \mathcal{X} \) </td></tr>
+    <tr><td class="paramname">feature_map</td><td>feature map used to approximate the kernel vector \( k(x, x_i) \) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>\( n \times d_y \) matrix of row vectors in \( \mathcal{Y} \) </dd></dl>
+
+</div>
+</div>
+<a id="a12db39f9e621fd8ccdd780e48ed73065" name="a12db39f9e621fd8ccdd780e48ed73065"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12db39f9e621fd8ccdd780e48ed73065">&#9670;&#160;</a></span>regularization_constant()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double lucid::KernelRidgeRegressor::regularization_constant </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the regularization constant of the regressor. </p>
+<dl class="section return"><dt>Returns</dt><dd>regularization constant of the regressor </dd></dl>
+
+</div>
+</div>
+<a id="a05ceac855436ef0f60d393c78479c007" name="a05ceac855436ef0f60d393c78479c007"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05ceac855436ef0f60d393c78479c007">&#9670;&#160;</a></span>score()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double lucid::KernelRidgeRegressor::score </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>evaluation_inputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>evaluation_outputs</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Score the estimator assigning a numerical value to its accuracy in predicting the <code>evaluation_outputs</code> given the <code>evaluation_inputs</code>. </p>
+<p>Given the evaluation inputs \( x = \{ x_1, \dots, x_n \} \), where \( x_i \in \mathcal{X} \subseteq \mathbb{R}^{d_x}, 0 \le i \le n \), we want to give a numerical score to the model's predictions \( \hat{y} = \{ \hat{y}_1, \dots, \hat{y}_n \} \) with respect to the true outputs  \( y = \{ y_1, \dots, y_n \},
+where y_i \in \mathcal{Y} \subseteq \mathbb{R}^{d_y}, 0 \le i \le n \). </p><dl class="section pre"><dt>Precondition</dt><dd>The methods <a class="el" href="#afab87a2a123393dca6a7f73104ac0fda">fit</a> or <a class="el" href="#a062e4a5f5eef899cd217a7ad2a0de236">consolidate</a> should have been called at least once before calling this method. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">evaluation_inputs</td><td>\( \texttip{n}{Number of samples} \times \texttip{d_x}{Dimension of the input vector space} \) evaluation input data </td></tr>
+    <tr><td class="paramname">evaluation_outputs</td><td>\( \texttip{n}{Number of samples} \times \texttip{d_y}{Dimension of the output vector space} \) evaluation output data </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>score of the model </dd></dl>
+
+<p>Implements <a class="el" href="classlucid_1_1Estimator.html#a0c8052364f0d7ad8650e0e7ccbe902a6">lucid::Estimator</a>.</p>
+
+</div>
+</div>
+<a id="aa19cc55a218d78204fd3a44a997550b9" name="aa19cc55a218d78204fd3a44a997550b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa19cc55a218d78204fd3a44a997550b9">&#9670;&#160;</a></span>set() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::KernelRidgeRegressor::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vector &amp;</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>Vector</code>. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classlucid_1_1Parametrizable.html#a36ced514a005266abd4c35d2b75bd350">lucid::Parametrizable</a>.</p>
+
+</div>
+</div>
+<a id="a6aef34bbac137b701789d35556f50fc2" name="a6aef34bbac137b701789d35556f50fc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6aef34bbac137b701789d35556f50fc2">&#9670;&#160;</a></span>set() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::KernelRidgeRegressor::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>double</code>. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classlucid_1_1Parametrizable.html#a4771298ff348ce94ca5f521facb642a9">lucid::Parametrizable</a>.</p>
+
+</div>
+</div>
+<a id="aa30fbf0d8417b0cdde8b33faede4386a" name="aa30fbf0d8417b0cdde8b33faede4386a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa30fbf0d8417b0cdde8b33faede4386a">&#9670;&#160;</a></span>set() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::KernelRidgeRegressor::set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacelucid.html#af391319051f1a656ecaf252ddfd84d84">Parameter</a></td>          <td class="paramname"><span class="paramname"><em>parameter</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classlucid_1_1Set.html" title="Generic set over a  dimensional vector space .">Set</a> the <code>parameter</code> to the indicated <code>value</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameter</td><td>parameter to set </td></tr>
+    <tr><td class="paramname">value</td><td>value to assign to the specified parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The <code>parameter</code> must be present and be associated with a value of type <code>int</code>. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classlucid_1_1Parametrizable.html#a0c1f1948d0225cdbe7dbd45e14f5902e">lucid::Parametrizable</a>.</p>
+
+</div>
+</div>
+<a id="af48b3a193c38970c1431601a23a64a89" name="af48b3a193c38970c1431601a23a64a89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af48b3a193c38970c1431601a23a64a89">&#9670;&#160;</a></span>training_inputs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const Matrix &amp; lucid::KernelRidgeRegressor::training_inputs </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the training inputs of the regressor. </p>
+<dl class="section return"><dt>Returns</dt><dd>training inputs of the regressor </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>lucid/model/<a class="el" href="KernelRidgeRegressor_8h.html">KernelRidgeRegressor.h</a></li>
+<li>lucid/model/<a class="el" href="KernelRidgeRegressor_8cpp.html">KernelRidgeRegressor.cpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="navelem"><a class="el" href="namespacelucid.html">lucid</a></li><li class="navelem"><a class="el" href="classlucid_1_1KernelRidgeRegressor.html">KernelRidgeRegressor</a></li>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

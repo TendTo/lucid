@@ -1,0 +1,25 @@
+var matplotlib_8h =
+[
+    [ "lucid::plt::internal::Interpreter", "classlucid_1_1plt_1_1internal_1_1Interpreter.html", null ],
+    [ "lucid::plt::PlotKwargs", "structlucid_1_1plt_1_1PlotKwargs.html", "structlucid_1_1plt_1_1PlotKwargs" ],
+    [ "lucid::plt::PlotSurfaceKwargs", "structlucid_1_1plt_1_1PlotSurfaceKwargs.html", "structlucid_1_1plt_1_1PlotSurfaceKwargs" ],
+    [ "lucid::plt::PlotWireframeKwargs", "structlucid_1_1plt_1_1PlotWireframeKwargs.html", "structlucid_1_1plt_1_1PlotWireframeKwargs" ],
+    [ "lucid::plt::FillBetweenKwargs", "structlucid_1_1plt_1_1FillBetweenKwargs.html", "structlucid_1_1plt_1_1FillBetweenKwargs" ],
+    [ "lucid::plt::SaveKwargs", "structlucid_1_1plt_1_1SaveKwargs.html", "structlucid_1_1plt_1_1SaveKwargs" ],
+    [ "lucid::plt::ScatterKwargs", "structlucid_1_1plt_1_1ScatterKwargs.html", "structlucid_1_1plt_1_1ScatterKwargs" ],
+    [ "lucid::plt::annotate", "namespacelucid_1_1plt.html#a310aacc8f2a0467ebb0073f3c6df978b", null ],
+    [ "lucid::plt::backend", "namespacelucid_1_1plt.html#a9113571e836d3efee601d12ff7c19635", null ],
+    [ "lucid::plt::figure", "namespacelucid_1_1plt.html#abe0d61ac089375646659647175e99223", null ],
+    [ "lucid::plt::fill_between", "namespacelucid_1_1plt.html#a34cb7d85f4f33b1021e548f2530f6608", null ],
+    [ "lucid::plt::plot", "namespacelucid_1_1plt.html#a007b142307d42cafc25e5889bc693f5f", null ],
+    [ "lucid::plt::plot_surface", "namespacelucid_1_1plt.html#a8f7e3c9a90fa40e8b2aab3756a31c1c9", null ],
+    [ "lucid::plt::plot_wireframe", "namespacelucid_1_1plt.html#abbfccdc1473616645d7157a4be8f2cff", null ],
+    [ "lucid::plt::savefig", "namespacelucid_1_1plt.html#a973a49cc0aa9052e3285404d7c60fc55", null ],
+    [ "lucid::plt::scatter", "namespacelucid_1_1plt.html#acf342f52c4bf38c488928864bc9d85d8", null ],
+    [ "lucid::plt::scatter", "namespacelucid_1_1plt.html#a3e8cbc71341a4771a46d9c9c3e86a95a", null ],
+    [ "lucid::plt::show", "namespacelucid_1_1plt.html#a81fa033d600e2176448ea55d0e070a99", null ],
+    [ "lucid::plt::xlim", "namespacelucid_1_1plt.html#ad43fe8180bf6c5f58e9791158aa11d09", null ],
+    [ "lucid::plt::xlim", "namespacelucid_1_1plt.html#af799ab63aea33bb25970fdc151b39403", null ],
+    [ "lucid::plt::ylim", "namespacelucid_1_1plt.html#a21d4d89ea7b8774db1cb65ab42f60c92", null ],
+    [ "lucid::plt::ylim", "namespacelucid_1_1plt.html#a8c37e08a592417ac587ad2f4f465970f", null ]
+];

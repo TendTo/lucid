@@ -1,0 +1,491 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: lucid::AlglibOptimiser Class Reference</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classlucid_1_1AlglibOptimiser.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="classlucid_1_1AlglibOptimiser-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">lucid::AlglibOptimiser Class Reference<span class="mlabels"><span class="mlabel final">final</span></span></div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Linear optimiser using the <a href="https://www.alglib.net/">Alglib</a> mathematical library.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;AlglibOptimiser.h&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for lucid::AlglibOptimiser:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classlucid_1_1AlglibOptimiser.png" usemap="#lucid::AlglibOptimiser_map" alt=""/>
+  <map id="lucid::AlglibOptimiser_map" name="lucid::AlglibOptimiser_map">
+<area href="classlucid_1_1Optimiser.html" alt="lucid::Optimiser" shape="rect" coords="0,0,130,24"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a3be250b481dd6c6ac987c62251432d5c" id="r_a3be250b481dd6c6ac987c62251432d5c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3be250b481dd6c6ac987c62251432d5c">solve</a> (ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat, ConstMatrixRef w_mat, Dimension rkhs_dim, Dimension num_frequencies_per_dim, Dimension num_frequency_samples_per_dim, Dimension original_dim, const <a class="el" href="classlucid_1_1Optimiser.html#ada2d8afe9259d18ee0646d6f2713b8a8">SolutionCallback</a> &amp;cb) const</td></tr>
+<tr class="memdesc:a3be250b481dd6c6ac987c62251432d5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve the linear optimisation.  <br /></td></tr>
+<tr class="separator:a3be250b481dd6c6ac987c62251432d5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a18871bbf42df7a06f605b1468840c6" id="r_a0a18871bbf42df7a06f605b1468840c6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a18871bbf42df7a06f605b1468840c6">Optimiser</a> (int <a class="el" href="classlucid_1_1Optimiser.html#abb4570c1f72bc68f1d2ca9904b5c58a6">T</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a21058cc382483c641c3fa399fc47dfd6">gamma</a>, double <a class="el" href="classlucid_1_1Optimiser.html#af5bf9946377181e558dc643b07b8ba09">epsilon</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a3628bb21fbeb5d7eb40cffc4600f107c">b_norm</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a36bac4f00257eff274ad3c9914033f05">b_kappa</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a70d4659e6aa7e317dda896d62ddbd425">sigma_f</a>, double <a class="el" href="classlucid_1_1Optimiser.html#adcac736a34f2e502763f13892261bd18">C_coeff</a>=1.0, std::string <a class="el" href="classlucid_1_1Optimiser.html#a04c9ccc7ed13b58b91ab55a9f47df15d">problem_log_file</a>=&quot;&quot;, std::string <a class="el" href="classlucid_1_1Optimiser.html#af51f38e2371a3e71196ee8c0176bcb00">iis_log_file</a>=&quot;&quot;)</td></tr>
+<tr class="memdesc:a0a18871bbf42df7a06f605b1468840c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a> object.  <br /></td></tr>
+<tr class="separator:a0a18871bbf42df7a06f605b1468840c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classlucid_1_1Optimiser"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classlucid_1_1Optimiser')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classlucid_1_1Optimiser.html">lucid::Optimiser</a></td></tr>
+<tr class="memitem:a0a18871bbf42df7a06f605b1468840c6 inherit pub_methods_classlucid_1_1Optimiser" id="r_a0a18871bbf42df7a06f605b1468840c6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#a0a18871bbf42df7a06f605b1468840c6">Optimiser</a> (int <a class="el" href="classlucid_1_1Optimiser.html#abb4570c1f72bc68f1d2ca9904b5c58a6">T</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a21058cc382483c641c3fa399fc47dfd6">gamma</a>, double <a class="el" href="classlucid_1_1Optimiser.html#af5bf9946377181e558dc643b07b8ba09">epsilon</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a3628bb21fbeb5d7eb40cffc4600f107c">b_norm</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a36bac4f00257eff274ad3c9914033f05">b_kappa</a>, double <a class="el" href="classlucid_1_1Optimiser.html#a70d4659e6aa7e317dda896d62ddbd425">sigma_f</a>, double <a class="el" href="classlucid_1_1Optimiser.html#adcac736a34f2e502763f13892261bd18">C_coeff</a>=1.0, std::string <a class="el" href="classlucid_1_1Optimiser.html#a04c9ccc7ed13b58b91ab55a9f47df15d">problem_log_file</a>=&quot;&quot;, std::string <a class="el" href="classlucid_1_1Optimiser.html#af51f38e2371a3e71196ee8c0176bcb00">iis_log_file</a>=&quot;&quot;)</td></tr>
+<tr class="memdesc:a0a18871bbf42df7a06f605b1468840c6 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a> object.  <br /></td></tr>
+<tr class="separator:a0a18871bbf42df7a06f605b1468840c6 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04c9ccc7ed13b58b91ab55a9f47df15d inherit pub_methods_classlucid_1_1Optimiser" id="r_a04c9ccc7ed13b58b91ab55a9f47df15d"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#a04c9ccc7ed13b58b91ab55a9f47df15d">problem_log_file</a> () const</td></tr>
+<tr class="memdesc:a04c9ccc7ed13b58b91ab55a9f47df15d inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the problem log file of the solver.  <br /></td></tr>
+<tr class="separator:a04c9ccc7ed13b58b91ab55a9f47df15d inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af51f38e2371a3e71196ee8c0176bcb00 inherit pub_methods_classlucid_1_1Optimiser" id="r_af51f38e2371a3e71196ee8c0176bcb00"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#af51f38e2371a3e71196ee8c0176bcb00">iis_log_file</a> () const</td></tr>
+<tr class="memdesc:af51f38e2371a3e71196ee8c0176bcb00 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the irreducible infeasible set log file of the solver.  <br /></td></tr>
+<tr class="separator:af51f38e2371a3e71196ee8c0176bcb00 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad32725ac2c215d43b5cce6616aaaa183 inherit pub_methods_classlucid_1_1Optimiser" id="r_ad32725ac2c215d43b5cce6616aaaa183"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#ad32725ac2c215d43b5cce6616aaaa183">has_problem_log_file</a> () const</td></tr>
+<tr class="memdesc:ad32725ac2c215d43b5cce6616aaaa183 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the problem log file of the solver.  <br /></td></tr>
+<tr class="separator:ad32725ac2c215d43b5cce6616aaaa183 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6af72ba8b0581902ce716f1a5c1c89f5 inherit pub_methods_classlucid_1_1Optimiser" id="r_a6af72ba8b0581902ce716f1a5c1c89f5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#a6af72ba8b0581902ce716f1a5c1c89f5">has_iis_log_file</a> () const</td></tr>
+<tr class="memdesc:a6af72ba8b0581902ce716f1a5c1c89f5 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the irreducible infeasible set log file of the solver.  <br /></td></tr>
+<tr class="separator:a6af72ba8b0581902ce716f1a5c1c89f5 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accae8c1b9e309ac7ccfec06b9b01711b inherit pub_methods_classlucid_1_1Optimiser" id="r_accae8c1b9e309ac7ccfec06b9b01711b"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#accae8c1b9e309ac7ccfec06b9b01711b">m_problem_log_file</a> ()</td></tr>
+<tr class="memdesc:accae8c1b9e309ac7ccfec06b9b01711b inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-write access to the problem log file of the solver.  <br /></td></tr>
+<tr class="separator:accae8c1b9e309ac7ccfec06b9b01711b inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2078f397f7a3752e5a4858128ba5fe7 inherit pub_methods_classlucid_1_1Optimiser" id="r_aa2078f397f7a3752e5a4858128ba5fe7"><td class="memItemLeft" align="right" valign="top">std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#aa2078f397f7a3752e5a4858128ba5fe7">m_iis_log_file</a> ()</td></tr>
+<tr class="memdesc:aa2078f397f7a3752e5a4858128ba5fe7 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-write access to the irreducible infeasible set log file of the solver.  <br /></td></tr>
+<tr class="separator:aa2078f397f7a3752e5a4858128ba5fe7 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb4570c1f72bc68f1d2ca9904b5c58a6 inherit pub_methods_classlucid_1_1Optimiser" id="r_abb4570c1f72bc68f1d2ca9904b5c58a6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#abb4570c1f72bc68f1d2ca9904b5c58a6">T</a> () const</td></tr>
+<tr class="memdesc:abb4570c1f72bc68f1d2ca9904b5c58a6 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the time horizon of the solver.  <br /></td></tr>
+<tr class="separator:abb4570c1f72bc68f1d2ca9904b5c58a6 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21058cc382483c641c3fa399fc47dfd6 inherit pub_methods_classlucid_1_1Optimiser" id="r_a21058cc382483c641c3fa399fc47dfd6"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#a21058cc382483c641c3fa399fc47dfd6">gamma</a> () const</td></tr>
+<tr class="memdesc:a21058cc382483c641c3fa399fc47dfd6 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the gamma of the solver.  <br /></td></tr>
+<tr class="separator:a21058cc382483c641c3fa399fc47dfd6 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5bf9946377181e558dc643b07b8ba09 inherit pub_methods_classlucid_1_1Optimiser" id="r_af5bf9946377181e558dc643b07b8ba09"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#af5bf9946377181e558dc643b07b8ba09">epsilon</a> () const</td></tr>
+<tr class="memdesc:af5bf9946377181e558dc643b07b8ba09 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the epsilon of the solver.  <br /></td></tr>
+<tr class="separator:af5bf9946377181e558dc643b07b8ba09 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3628bb21fbeb5d7eb40cffc4600f107c inherit pub_methods_classlucid_1_1Optimiser" id="r_a3628bb21fbeb5d7eb40cffc4600f107c"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#a3628bb21fbeb5d7eb40cffc4600f107c">b_norm</a> () const</td></tr>
+<tr class="memdesc:a3628bb21fbeb5d7eb40cffc4600f107c inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the b_norm of the solver.  <br /></td></tr>
+<tr class="separator:a3628bb21fbeb5d7eb40cffc4600f107c inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36bac4f00257eff274ad3c9914033f05 inherit pub_methods_classlucid_1_1Optimiser" id="r_a36bac4f00257eff274ad3c9914033f05"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#a36bac4f00257eff274ad3c9914033f05">b_kappa</a> () const</td></tr>
+<tr class="memdesc:a36bac4f00257eff274ad3c9914033f05 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the kappa of the solver.  <br /></td></tr>
+<tr class="separator:a36bac4f00257eff274ad3c9914033f05 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70d4659e6aa7e317dda896d62ddbd425 inherit pub_methods_classlucid_1_1Optimiser" id="r_a70d4659e6aa7e317dda896d62ddbd425"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#a70d4659e6aa7e317dda896d62ddbd425">sigma_f</a> () const</td></tr>
+<tr class="memdesc:a70d4659e6aa7e317dda896d62ddbd425 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the sigma_f of the solver.  <br /></td></tr>
+<tr class="separator:a70d4659e6aa7e317dda896d62ddbd425 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcac736a34f2e502763f13892261bd18 inherit pub_methods_classlucid_1_1Optimiser" id="r_adcac736a34f2e502763f13892261bd18"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#adcac736a34f2e502763f13892261bd18">C_coeff</a> () const</td></tr>
+<tr class="memdesc:adcac736a34f2e502763f13892261bd18 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the C coefficient of the solver.  <br /></td></tr>
+<tr class="separator:adcac736a34f2e502763f13892261bd18 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac39977155d4827a44393dfd8f11a8f6 inherit pub_methods_classlucid_1_1Optimiser" id="r_aac39977155d4827a44393dfd8f11a8f6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#aac39977155d4827a44393dfd8f11a8f6">should_log_problem</a> () const</td></tr>
+<tr class="memdesc:aac39977155d4827a44393dfd8f11a8f6 inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the solver is configured to log the lp problem.  <br /></td></tr>
+<tr class="separator:aac39977155d4827a44393dfd8f11a8f6 inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab25372fe4fc650e83e0fd7611e6fed9a inherit pub_methods_classlucid_1_1Optimiser" id="r_ab25372fe4fc650e83e0fd7611e6fed9a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#ab25372fe4fc650e83e0fd7611e6fed9a">should_log_iis</a> () const</td></tr>
+<tr class="memdesc:ab25372fe4fc650e83e0fd7611e6fed9a inherit pub_methods_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the solver is configured to log the iis.  <br /></td></tr>
+<tr class="separator:ab25372fe4fc650e83e0fd7611e6fed9a inherit pub_methods_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_types_classlucid_1_1Optimiser"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classlucid_1_1Optimiser')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classlucid_1_1Optimiser.html">lucid::Optimiser</a></td></tr>
+<tr class="memitem:ada2d8afe9259d18ee0646d6f2713b8a8 inherit pub_types_classlucid_1_1Optimiser" id="r_ada2d8afe9259d18ee0646d6f2713b8a8"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Optimiser.html#ada2d8afe9259d18ee0646d6f2713b8a8">SolutionCallback</a> = std::function&lt;void(bool, double, const Vector&amp;, double, double, double)&gt;</td></tr>
+<tr class="memdesc:ada2d8afe9259d18ee0646d6f2713b8a8 inherit pub_types_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function called when the optimisation is done.  <br /></td></tr>
+<tr class="separator:ada2d8afe9259d18ee0646d6f2713b8a8 inherit pub_types_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classlucid_1_1Optimiser"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classlucid_1_1Optimiser')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classlucid_1_1Optimiser.html">lucid::Optimiser</a></td></tr>
+<tr class="memitem:a3b885d7a44b3c733efb1923fec4a62b1 inherit pro_attribs_classlucid_1_1Optimiser" id="r_a3b885d7a44b3c733efb1923fec4a62b1"><td class="memItemLeft" align="right" valign="top">
+const int&#160;</td><td class="memItemRight" valign="bottom"><b>T_</b></td></tr>
+<tr class="memdesc:a3b885d7a44b3c733efb1923fec4a62b1 inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time horizon. <br /></td></tr>
+<tr class="separator:a3b885d7a44b3c733efb1923fec4a62b1 inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac72f9dbdb851f9d770f7ab48af08b898 inherit pro_attribs_classlucid_1_1Optimiser" id="r_ac72f9dbdb851f9d770f7ab48af08b898"><td class="memItemLeft" align="right" valign="top">
+const double&#160;</td><td class="memItemRight" valign="bottom"><b>gamma_</b></td></tr>
+<tr class="memdesc:ac72f9dbdb851f9d770f7ab48af08b898 inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gamma value. <br /></td></tr>
+<tr class="separator:ac72f9dbdb851f9d770f7ab48af08b898 inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82ed3a49607f8d5d2a630196ee5abbe1 inherit pro_attribs_classlucid_1_1Optimiser" id="r_a82ed3a49607f8d5d2a630196ee5abbe1"><td class="memItemLeft" align="right" valign="top">
+const double&#160;</td><td class="memItemRight" valign="bottom"><b>epsilon_</b></td></tr>
+<tr class="memdesc:a82ed3a49607f8d5d2a630196ee5abbe1 inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Epsilon value. <br /></td></tr>
+<tr class="separator:a82ed3a49607f8d5d2a630196ee5abbe1 inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f9da6533b5626b53c8d9a54e4e8128c inherit pro_attribs_classlucid_1_1Optimiser" id="r_a2f9da6533b5626b53c8d9a54e4e8128c"><td class="memItemLeft" align="right" valign="top">
+const double&#160;</td><td class="memItemRight" valign="bottom"><b>b_norm_</b></td></tr>
+<tr class="memdesc:a2f9da6533b5626b53c8d9a54e4e8128c inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Norm of the barrier function. <br /></td></tr>
+<tr class="separator:a2f9da6533b5626b53c8d9a54e4e8128c inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f9320ce150e351ae7d7282e5917acc9 inherit pro_attribs_classlucid_1_1Optimiser" id="r_a5f9320ce150e351ae7d7282e5917acc9"><td class="memItemLeft" align="right" valign="top">
+const double&#160;</td><td class="memItemRight" valign="bottom"><b>b_kappa_</b></td></tr>
+<tr class="memdesc:a5f9320ce150e351ae7d7282e5917acc9 inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kappa value. <br /></td></tr>
+<tr class="separator:a5f9320ce150e351ae7d7282e5917acc9 inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1006e36937a2d3e3fcdc0036546f1abc inherit pro_attribs_classlucid_1_1Optimiser" id="r_a1006e36937a2d3e3fcdc0036546f1abc"><td class="memItemLeft" align="right" valign="top">
+const double&#160;</td><td class="memItemRight" valign="bottom"><b>sigma_f_</b></td></tr>
+<tr class="memdesc:a1006e36937a2d3e3fcdc0036546f1abc inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sigma_f value. <br /></td></tr>
+<tr class="separator:a1006e36937a2d3e3fcdc0036546f1abc inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacc97e753a584d30817a176a0a2137c3 inherit pro_attribs_classlucid_1_1Optimiser" id="r_aacc97e753a584d30817a176a0a2137c3"><td class="memItemLeft" align="right" valign="top">
+const double&#160;</td><td class="memItemRight" valign="bottom"><b>C_coeff_</b></td></tr>
+<tr class="memdesc:aacc97e753a584d30817a176a0a2137c3 inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coefficient to apply to <code>C</code> for the barrier function. <br /></td></tr>
+<tr class="separator:aacc97e753a584d30817a176a0a2137c3 inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0db240200c7085667e138f1c62cb0f87 inherit pro_attribs_classlucid_1_1Optimiser" id="r_a0db240200c7085667e138f1c62cb0f87"><td class="memItemLeft" align="right" valign="top">
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>problem_log_file_</b></td></tr>
+<tr class="memdesc:a0db240200c7085667e138f1c62cb0f87 inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">File to log the problem to, if provided. <br /></td></tr>
+<tr class="separator:a0db240200c7085667e138f1c62cb0f87 inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa64fec14f50642706b99f9f43c6a2c6a inherit pro_attribs_classlucid_1_1Optimiser" id="r_aa64fec14f50642706b99f9f43c6a2c6a"><td class="memItemLeft" align="right" valign="top">
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>iis_log_file_</b></td></tr>
+<tr class="memdesc:aa64fec14f50642706b99f9f43c6a2c6a inherit pro_attribs_classlucid_1_1Optimiser"><td class="mdescLeft">&#160;</td><td class="mdescRight">File to log the IIS (Irreducible Inconsistent Subsystem) to, if found. <br /></td></tr>
+<tr class="separator:aa64fec14f50642706b99f9f43c6a2c6a inherit pro_attribs_classlucid_1_1Optimiser"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Linear optimiser using the <a href="https://www.alglib.net/">Alglib</a> mathematical library. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a0a18871bbf42df7a06f605b1468840c6" name="a0a18871bbf42df7a06f605b1468840c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a18871bbf42df7a06f605b1468840c6">&#9670;&#160;</a></span>Optimiser()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::Optimiser::Optimiser </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>T</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>gamma</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>epsilon</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>b_norm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>b_kappa</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>sigma_f</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double</td>          <td class="paramname"><span class="paramname"><em>C_coeff</em></span><span class="paramdefsep"> = </span><span class="paramdefval">1.0</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>problem_log_file</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>iis_log_file</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;&quot;</span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a> object. </p>
+<dl class="section pre"><dt>Precondition</dt><dd><code>T</code> must be greater than 0 </dd>
+<dd>
+If provided, <code>problem_log_file</code> and <code>iis_log_file</code> must be valid file paths. The former must have the extension <code>.lp</code> or <code>.mps</code>, and the latter must have the extension <code>.ilp</code>. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">T</td><td>time horizon </td></tr>
+    <tr><td class="paramname">gamma</td><td>gamma value </td></tr>
+    <tr><td class="paramname">epsilon</td><td>epsilon value </td></tr>
+    <tr><td class="paramname">b_norm</td><td>norm of the barrier function </td></tr>
+    <tr><td class="paramname">b_kappa</td><td>kappa value </td></tr>
+    <tr><td class="paramname">sigma_f</td><td>sigma_f value </td></tr>
+    <tr><td class="paramname">problem_log_file</td><td>file to log the problem to. If empty, no logging is done </td></tr>
+    <tr><td class="paramname">iis_log_file</td><td>file to log the irreducible infeasible set (IIS) to, if found. If empty, no logging is done </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a3be250b481dd6c6ac987c62251432d5c" name="a3be250b481dd6c6ac987c62251432d5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3be250b481dd6c6ac987c62251432d5c">&#9670;&#160;</a></span>solve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool lucid::AlglibOptimiser::solve </td>
+          <td>(</td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>f0_lattice</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>fu_lattice</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>phi_mat</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>w_mat</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Dimension</td>          <td class="paramname"><span class="paramname"><em>rkhs_dim</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Dimension</td>          <td class="paramname"><span class="paramname"><em>num_frequencies_per_dim</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Dimension</td>          <td class="paramname"><span class="paramname"><em>num_frequency_samples_per_dim</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Dimension</td>          <td class="paramname"><span class="paramname"><em>original_dim</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classlucid_1_1Optimiser.html#ada2d8afe9259d18ee0646d6f2713b8a8">SolutionCallback</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>cb</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Solve the linear optimisation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">f0_lattice</td><td>lattice obtained from the initial set after applying the feature map </td></tr>
+    <tr><td class="paramname">fu_lattice</td><td>lattice obtained from the unsafe set after applying the feature map </td></tr>
+    <tr><td class="paramname">phi_mat</td><td>phi matrix </td></tr>
+    <tr><td class="paramname">w_mat</td><td>weight matrix </td></tr>
+    <tr><td class="paramname">rkhs_dim</td><td>dimension of the RKHS </td></tr>
+    <tr><td class="paramname">num_frequencies_per_dim</td><td>number of frequencies per dimension </td></tr>
+    <tr><td class="paramname">num_frequency_samples_per_dim</td><td>number of frequency samples per dimension </td></tr>
+    <tr><td class="paramname">original_dim</td><td>original dimension </td></tr>
+    <tr><td class="paramname">cb</td><td>callback function </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the optimisation was successful </dd>
+<dd>
+false if no solution was found </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>lucid/verification/<a class="el" href="AlglibOptimiser_8h.html">AlglibOptimiser.h</a></li>
+<li>lucid/verification/<a class="el" href="AlglibOptimiser_8cpp.html">AlglibOptimiser.cpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="navelem"><a class="el" href="namespacelucid.html">lucid</a></li><li class="navelem"><a class="el" href="classlucid_1_1AlglibOptimiser.html">AlglibOptimiser</a></li>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>

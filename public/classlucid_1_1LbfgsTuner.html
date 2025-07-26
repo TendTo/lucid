@@ -1,0 +1,505 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <meta name="generator" content="Doxygen 1.13.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lucid: lucid::LbfgsTuner Class Reference</title>
+  <link href="tabs.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="dynsections.js"></script>
+  <script type="text/javascript" src="plotly.min.js"></script>
+  <script type="text/javascript" src="plotly.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+  <script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+  <script type="text/javascript" src="highlight.min.js"></script>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code.fragment").forEach((block) => {
+        if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
+      });
+      hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.highlightAll();
+    });
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+    DoxygenAwesomeTabs.init();
+  </script>
+  <link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+ <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+ <script type="text/javascript">
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link href="doxygen.css" rel="stylesheet" type="text/css" />
+  <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="mermaid.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<link href="highlight.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <a href="https://github.com/TendTo/lucid" class="github-corner" title="View source on GitHub" target="_blank"
+    rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40"
+      style="position: absolute; top: 0; border: 0; right: 0; z-index: 99" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path
+        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+        fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path>
+      <path
+        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+        fill="currentColor" class="octo-body"></path>
+    </svg></a>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+    @keyframes octocat-wave {
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+      20%,
+      60% {
+        transform: rotate(-25deg);
+      }
+      40%,
+      80% {
+        transform: rotate(10deg);
+      }
+    }
+    @media (max-width: 500px) {
+      .github-corner:hover .octo-arm {
+        animation: none;
+      }
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+      }
+    }
+  </style>
+  <div id="top">
+    <!-- do not remove this div, it is closed by doxygen! -->
+    <div id="titlearea">
+      <table cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr style="height: 56px">
+            <td id="projectlogo">
+              <img alt="Logo" src="logo.svg" />
+            </td>
+            <td id="projectalign" style="padding-left: 0.5em">
+              <div id="projectname">
+                lucid
+                &#160;<span id="projectnumber">0.0.1</span>
+              </div>
+              <div id="projectbrief">Lifting-based Uncertain Control Invariant Dynamics</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end header part -->
+<!-- Generated by Doxygen 1.13.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search',true);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classlucid_1_1LbfgsTuner.html',''); initResizable(true); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
+<a href="classlucid_1_1LbfgsTuner-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">lucid::LbfgsTuner Class Reference<span class="mlabels"><span class="mlabel final">final</span></span></div></div>
+</div><!--header-->
+<div class="contents">
+
+<p><a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a> that uses the L-BFGS algorithm.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;LbfgsTuner.h&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for lucid::LbfgsTuner:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classlucid_1_1LbfgsTuner.png" usemap="#lucid::LbfgsTuner_map" alt=""/>
+  <map id="lucid::LbfgsTuner_map" name="lucid::LbfgsTuner_map">
+<area href="classlucid_1_1Tuner.html" title="Optimise the kernel hyperparameters." alt="lucid::Tuner" shape="rect" coords="0,0,109,24"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:aef87a07cbab69535268c6cb8c44dc91f" id="r_aef87a07cbab69535268c6cb8c44dc91f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aef87a07cbab69535268c6cb8c44dc91f">LbfgsTuner</a> (const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp;<a class="el" href="#ad0c32b77d341e0b67c237d267c6f9cc3">parameters</a>={})</td></tr>
+<tr class="memdesc:aef87a07cbab69535268c6cb8c44dc91f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a> with the provided <code>parameters</code>.  <br /></td></tr>
+<tr class="separator:aef87a07cbab69535268c6cb8c44dc91f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a014656f7d29e140a66ec283243997885" id="r_a014656f7d29e140a66ec283243997885"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a014656f7d29e140a66ec283243997885">LbfgsTuner</a> (const Eigen::VectorXd &amp;lb, const Eigen::VectorXd &amp;ub, const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp;<a class="el" href="#ad0c32b77d341e0b67c237d267c6f9cc3">parameters</a>={})</td></tr>
+<tr class="memdesc:a014656f7d29e140a66ec283243997885"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a> with the provided bounds and <code>parameters</code>.  <br /></td></tr>
+<tr class="separator:a014656f7d29e140a66ec283243997885"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaca5844a4b6fe8f208c74efaadc02d1d" id="r_aaca5844a4b6fe8f208c74efaadc02d1d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaca5844a4b6fe8f208c74efaadc02d1d">LbfgsTuner</a> (const std::vector&lt; std::pair&lt; Scalar, Scalar &gt; &gt; &amp;bounds, const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp;<a class="el" href="#ad0c32b77d341e0b67c237d267c6f9cc3">parameters</a>={})</td></tr>
+<tr class="memdesc:aaca5844a4b6fe8f208c74efaadc02d1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a> with the provided bounds and <code>parameters</code>.  <br /></td></tr>
+<tr class="separator:aaca5844a4b6fe8f208c74efaadc02d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a333adf8a74a26a3ed2f1c400d346e7" id="r_a7a333adf8a74a26a3ed2f1c400d346e7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7a333adf8a74a26a3ed2f1c400d346e7">is_bounded</a> () const</td></tr>
+<tr class="memdesc:a7a333adf8a74a26a3ed2f1c400d346e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether the optimisation is bounded.  <br /></td></tr>
+<tr class="separator:a7a333adf8a74a26a3ed2f1c400d346e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0c32b77d341e0b67c237d267c6f9cc3" id="r_ad0c32b77d341e0b67c237d267c6f9cc3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad0c32b77d341e0b67c237d267c6f9cc3">parameters</a> () const</td></tr>
+<tr class="memdesc:ad0c32b77d341e0b67c237d267c6f9cc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get read-only access to the parameters of the L-BGS optimisation.  <br /></td></tr>
+<tr class="separator:ad0c32b77d341e0b67c237d267c6f9cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classlucid_1_1Tuner"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classlucid_1_1Tuner')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classlucid_1_1Tuner.html">lucid::Tuner</a></td></tr>
+<tr class="memitem:af817b21bc6717637351c3da5e86f9725 inherit pub_methods_classlucid_1_1Tuner" id="r_af817b21bc6717637351c3da5e86f9725"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Tuner.html#af817b21bc6717637351c3da5e86f9725">tune</a> (<a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const</td></tr>
+<tr class="memdesc:af817b21bc6717637351c3da5e86f9725 inherit pub_methods_classlucid_1_1Tuner"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimise the kernel hyperparameters.  <br /></td></tr>
+<tr class="separator:af817b21bc6717637351c3da5e86f9725 inherit pub_methods_classlucid_1_1Tuner"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcee69bb0bfd101feee39cd3e9b390a7 inherit pub_methods_classlucid_1_1Tuner" id="r_abcee69bb0bfd101feee39cd3e9b390a7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlucid_1_1Tuner.html#abcee69bb0bfd101feee39cd3e9b390a7">tune_online</a> (<a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;estimator, ConstMatrixRef training_inputs, const <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4">OutputComputer</a> &amp;training_outputs) const</td></tr>
+<tr class="memdesc:abcee69bb0bfd101feee39cd3e9b390a7 inherit pub_methods_classlucid_1_1Tuner"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimise the kernel hyperparameters.  <br /></td></tr>
+<tr class="separator:abcee69bb0bfd101feee39cd3e9b390a7 inherit pub_methods_classlucid_1_1Tuner"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:ae0ae08de6926c4fb1a08977b911d916d" id="r_ae0ae08de6926c4fb1a08977b911d916d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae0ae08de6926c4fb1a08977b911d916d">tune_impl</a> (<a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;estimator, ConstMatrixRef training_inputs, const <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4">OutputComputer</a> &amp;training_outputs) const override</td></tr>
+<tr class="memdesc:ae0ae08de6926c4fb1a08977b911d916d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimise the kernel hyperparameters.  <br /></td></tr>
+<tr class="separator:ae0ae08de6926c4fb1a08977b911d916d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a3af4715d52ba0e3df1ea583bad93ddc2" id="r_a3af4715d52ba0e3df1ea583bad93ddc2"><td class="memItemLeft" align="right" valign="top"><a id="a3af4715d52ba0e3df1ea583bad93ddc2" name="a3af4715d52ba0e3df1ea583bad93ddc2"></a>
+Eigen::VectorXd&#160;</td><td class="memItemRight" valign="bottom"><b>lb_</b></td></tr>
+<tr class="memdesc:a3af4715d52ba0e3df1ea583bad93ddc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lower bounds for the parameters. If empty, no bounds are applied. <br /></td></tr>
+<tr class="separator:a3af4715d52ba0e3df1ea583bad93ddc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16f745ecfd8afd01f10bec9391898042" id="r_a16f745ecfd8afd01f10bec9391898042"><td class="memItemLeft" align="right" valign="top"><a id="a16f745ecfd8afd01f10bec9391898042" name="a16f745ecfd8afd01f10bec9391898042"></a>
+Eigen::VectorXd&#160;</td><td class="memItemRight" valign="bottom"><b>ub_</b></td></tr>
+<tr class="memdesc:a16f745ecfd8afd01f10bec9391898042"><td class="mdescLeft">&#160;</td><td class="mdescRight">Upper bounds for the parameters. If empty, no bounds are applied. <br /></td></tr>
+<tr class="separator:a16f745ecfd8afd01f10bec9391898042"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adea84c1201602335100619c450b4ba07" id="r_adea84c1201602335100619c450b4ba07"><td class="memItemLeft" align="right" valign="top"><a id="adea84c1201602335100619c450b4ba07" name="adea84c1201602335100619c450b4ba07"></a>
+<a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a>&#160;</td><td class="memItemRight" valign="bottom"><b>parameters_</b></td></tr>
+<tr class="memdesc:adea84c1201602335100619c450b4ba07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimization parameters for the L-BFGS algorithm. <br /></td></tr>
+<tr class="separator:adea84c1201602335100619c450b4ba07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p><a class="el" href="classlucid_1_1Optimiser.html">Optimiser</a> that uses the L-BFGS algorithm. </p>
+<p>It optimizes the parameters of an estimator by minimizing the loss function. It can operate with or without bounds on the parameters. If bounds are provided, they must match the dimension of the solution space. Note that the solution space for isotropic estimators (i.e., those where the parameters are the same for all dimensions) will always have a dimension of 1. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aef87a07cbab69535268c6cb8c44dc91f" name="aef87a07cbab69535268c6cb8c44dc91f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef87a07cbab69535268c6cb8c44dc91f">&#9670;&#160;</a></span>LbfgsTuner() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::LbfgsTuner::LbfgsTuner </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>parameters</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{}</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel explicit">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a> with the provided <code>parameters</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parameters</td><td>optimization parameters for the L-BFGS algorithm </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a014656f7d29e140a66ec283243997885" name="a014656f7d29e140a66ec283243997885"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a014656f7d29e140a66ec283243997885">&#9670;&#160;</a></span>LbfgsTuner() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::LbfgsTuner::LbfgsTuner </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::VectorXd &amp;</td>          <td class="paramname"><span class="paramname"><em>lb</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXd &amp;</td>          <td class="paramname"><span class="paramname"><em>ub</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>parameters</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{}</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel explicit">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a> with the provided bounds and <code>parameters</code>. </p>
+<p>The solution will be constrained to the provided bounds. The size of the bounds must match the dimension of the solution space. </p><dl class="section pre"><dt>Precondition</dt><dd><code>lb</code> and <code>ub</code> must have the same size </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lb</td><td>Lower bounds for the parameters </td></tr>
+    <tr><td class="paramname">ub</td><td>Upper bounds for the parameters </td></tr>
+    <tr><td class="paramname">parameters</td><td>optimization parameters for the L-BFGS algorithm </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aaca5844a4b6fe8f208c74efaadc02d1d" name="aaca5844a4b6fe8f208c74efaadc02d1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaca5844a4b6fe8f208c74efaadc02d1d">&#9670;&#160;</a></span>LbfgsTuner() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">lucid::LbfgsTuner::LbfgsTuner </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::pair&lt; Scalar, Scalar &gt; &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>bounds</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>parameters</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{}</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel explicit">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a new <a class="el" href="classlucid_1_1LbfgsTuner.html" title="Optimiser that uses the L-BFGS algorithm.">LbfgsTuner</a> with the provided bounds and <code>parameters</code>. </p>
+<p>The solution will be constrained to the provided bounds. The size of the bounds must match the dimension of the solution space. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bounds</td><td>vector of pairs of lower and upper bounds </td></tr>
+    <tr><td class="paramname">parameters</td><td>optimization parameters for the L-BFGS algorithm </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7a333adf8a74a26a3ed2f1c400d346e7" name="a7a333adf8a74a26a3ed2f1c400d346e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a333adf8a74a26a3ed2f1c400d346e7">&#9670;&#160;</a></span>is_bounded()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool lucid::LbfgsTuner::is_bounded </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check whether the optimisation is bounded. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if the optimisation is bounded </dd>
+<dd>
+false if the optimisation is not bounded </dd></dl>
+
+</div>
+</div>
+<a id="ad0c32b77d341e0b67c237d267c6f9cc3" name="ad0c32b77d341e0b67c237d267c6f9cc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0c32b77d341e0b67c237d267c6f9cc3">&#9670;&#160;</a></span>parameters()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structlucid_1_1LbgsParameters.html">LbgsParameters</a> &amp; lucid::LbfgsTuner::parameters </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel nodiscard">nodiscard</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get read-only access to the parameters of the L-BGS optimisation. </p>
+<dl class="section return"><dt>Returns</dt><dd>parameters of the L-BGS optimisation </dd></dl>
+
+</div>
+</div>
+<a id="ae0ae08de6926c4fb1a08977b911d916d" name="ae0ae08de6926c4fb1a08977b911d916d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0ae08de6926c4fb1a08977b911d916d">&#9670;&#160;</a></span>tune_impl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void lucid::LbfgsTuner::tune_impl </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classlucid_1_1Estimator.html">Estimator</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>estimator</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConstMatrixRef</td>          <td class="paramname"><span class="paramname"><em>training_inputs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4">OutputComputer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>training_outputs</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel private">private</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Optimise the kernel hyperparameters. </p>
+<p>Starting from the initial guess, the optimiser finds the best hyperparameters for the kernel. It is up to the subclass to determine the optimisation algorithm used. </p><dl class="section note"><dt>Note</dt><dd>The method must call the consolidate method of the estimator to ensure that the kernel is ready to be used. </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The number of rows in the training inputs should be equal to the number of rows in the training outputs. </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000006">Todo</a></b></dt><dd>If the <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4" title="Instead of providing the outputs directly to the estimator, this function can be used to compute them...">OutputComputer</a> becomes a bottleneck, consider having a separate method for when the outputs are available from the get-go. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">estimator</td><td>estimator to optimise </td></tr>
+    <tr><td class="paramname">training_inputs</td><td>training input data </td></tr>
+    <tr><td class="paramname">training_outputs</td><td>training output data. It uses an <a class="el" href="namespacelucid.html#a1b6bfed2b6cd5485a5e480727fb09dd4" title="Instead of providing the outputs directly to the estimator, this function can be used to compute them...">OutputComputer</a> to compute the outputs when needed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implements <a class="el" href="classlucid_1_1Tuner.html#a13f692cdbdb46ed50df8b5cc080505de">lucid::Tuner</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>lucid/model/<a class="el" href="LbfgsTuner_8h.html">LbfgsTuner.h</a></li>
+<li>lucid/model/<a class="el" href="LbfgsTuner_8cpp.html">LbfgsTuner.cpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.10.0-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+    <ul>
+        <li class="navelem"><a class="el" href="namespacelucid.html">lucid</a></li><li class="navelem"><a class="el" href="classlucid_1_1LbfgsTuner.html">LbfgsTuner</a></li>
+        <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer"
+                                                                                          src="doxygen.svg"
+                                                                                          width="104" height="31"
+                                                                                          alt="doxygen"/></a>
+            1.13.2
+        </li>
+    </ul>
+</div>
+<script type="text/javascript" src="mermaid.dist.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+    });
+</script>
+</body>
+</html>
