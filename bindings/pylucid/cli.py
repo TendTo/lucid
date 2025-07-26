@@ -110,12 +110,14 @@ class Configuration(Namespace):
         for k, v in config_dict.items():
             if isinstance(v, np.ndarray):
                 config_dict[k] = v.tolist()
-            if isinstance(v, type):
+            elif isinstance(v, type):
                 config_dict[k] = v.__name__
-            if isinstance(v, Path):
+            elif isinstance(v, Path):
                 config_dict[k] = str(v)
-            if isinstance(v, Set):
+            elif isinstance(v, Set):
                 config_dict[k] = str(v)
+            elif isinstance(v, (Estimator, Kernel, FeatureMap, Optimiser)):
+                config_dict[k] = v.__class__.__name__
         return config_dict
 
     def to_yaml(self, path: "str | Path | None" = None) -> str:
