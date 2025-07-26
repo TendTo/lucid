@@ -74,6 +74,10 @@ coverage.xml
 /pylucid*/
 /examples/
 
+# Sensitive files
+/.pypirc
+.env
+
 # Docs
 docs/out/
 
