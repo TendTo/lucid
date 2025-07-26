@@ -45,11 +45,11 @@
 
     \lucid employs a data-driven methodology rooted in control barrier certificates, which are learned directly from system transition data, to ensure formal safety guarantees.
     We use conditional mean embeddings to embed data into a reproducing kernel Hilbert space (RKHS), where an RKHS ambiguity set is constructed that can be inflated to robustify the result to out-of-distribution behavior.
-    
+
     A key innovation within \lucid is its use of a finite Fourier kernel expansion to reformulate a semi-infinite non-convex optimization problem into a tractable linear program.
     The resulting spectral barrier allows us to leverage the fast Fourier transform to generate the relaxed problem efficiently, offering a scalable yet distributionally robust framework for verifying safety.
     \lucid thus offers a robust and efficient verification framework, able to handle the complexities of modern black-box systems while providing formal guarantees of safety.
-    These unique capabilities are demonstrated on challenging benchmarks. 
+    These unique capabilities are demonstrated on challenging benchmarks.
 \end{abstract}
 
 % Uncomment the following to link to your code, datasets, an extended version or similar.
@@ -78,17 +78,17 @@ Whilst verification tools for e.g. neural networks rely on the availability of t
     \centering
     \begin{tabular}{ccccccc}
         \toprule
-        \textbf{Tool}                                    & \multicolumn{6}{c}{\textbf{Supported Features}}                                                                                                                               \\[.4em]
-                                                         & \rotatebox{90}{Guarantees} & \rotatebox{90}{Data Driven}                     & \rotatebox{90}{Stochastic D.} & \rotatebox{90}{Non-Poly. D.} & \rotatebox{90}{Stat. Correct.} & \rotatebox{90}{Closed Loop} \\
+        \textbf{Tool}                                    & \multicolumn{6}{c}{\textbf{Supported Features}}                                                                                                                                                             \\[.4em]
+                                                         & \rotatebox{90}{Guarantees}                      & \rotatebox{90}{Data Driven} & \rotatebox{90}{Stochastic D.} & \rotatebox{90}{Non-Poly. D.} & \rotatebox{90}{Stat. Correct.} & \rotatebox{90}{Closed Loop} \\
         \midrule
-        \textbf{\lucid}& \cmark                                  & \cmark                                          & \cmark                        & \cmark                       & \cmark                              & \cmark                      \\
-        \trust~\shortcite{gardner2025trust}& \cmark              & \cmark                                          & \xmarkred                     & \xmarkred                    & \cmark\footnotemark            & \cmark                      \\
-        \fossil~\shortcite{edwards2024fossil}& \cmark            & \xmarkred                                       & \xmarkred                     & \cmark                       & NA                             & \cmark                      \\
-        \omnisafe~\shortcite{ji2024omnisafe} & \xmarkred                                            &        \cmark                                         &        \cmark                       &                 \cmark             &          \xmarkred                            &   \cmark                     \\
-        \npinterval~\shortcite{harapanahalli2023forward}& \cmark & \xmarkred                                       & \cmark/\xmarkred\footnotemark & ?                            & NA                             & \cmark                      \\
+        \textbf{\lucid}                                  & \cmark                                          & \cmark                      & \cmark                        & \cmark                       & \cmark                         & \cmark                      \\
+        \trust~\shortcite{gardner2025trust}              & \cmark                                          & \cmark                      & \xmarkred                     & \xmarkred                    & \cmark\footnotemark            & \cmark                      \\
+        \fossil~\shortcite{edwards2024fossil}            & \cmark                                          & \xmarkred                   & \xmarkred                     & \cmark                       & NA                             & \cmark                      \\
+        \omnisafe~\shortcite{ji2024omnisafe}             & \xmarkred                                       & \cmark                      & \cmark                        & \cmark                       & \xmarkred                      & \cmark                      \\
+        \npinterval~\shortcite{harapanahalli2023forward} & \cmark                                          & \xmarkred                   & \cmark/\xmarkred\footnotemark & ?                            & NA                             & \cmark                      \\
         % \deepsplit~\shortcite{henriksen2021deepsplit} & \xmarkred & \xmarkred & \cmark & \xmarkred& \xmarkred \\
         % \reluplex~\shortcite{katz2017reluplex} & \xmarkred & \xmarkred & \cmark & \xmarkred & \xmarkred \\
-        tool6                                           &                                                 &                               &                              &                                                              \\
+        tool6                                            &                                                 &                             &                               &                                                                                             \\
         \bottomrule
     \end{tabular}
     \caption{Qualitative comparison with existing tools based on their supported features: quantified coverage guarantees, data driven, stochastic dynamics, non-polynomial dynamics, statistical correctness guarantees of the learned model (only applicable if data driven), and support for closed-loop systems.}
@@ -104,7 +104,7 @@ The main contributions of this work are:
 \begin{itemize}
     \item A novel verification engine that learns control barrier certificates from data using kernel methods and conditional mean embeddings.
     \item A tractable reformulation of the verification problem via finite Fourier expansion, enabling efficient linear programming-based synthesis of barrier certificates.
-    \item A robust and extensible software implementation, with both C++ and Python interfaces, supporting configuration via YAML, JSON, or Python scripts, and offering both CLI and GUI modes.
+    \item A robust and extensible software implementation, with both C++ and Python interfaces, supporting configuration via YAML, JSON, or Python scripts, and offering both a \gls{cli} and a \gls{gui}.
     \item Comprehensive evaluation on a suite of benchmarks, demonstrating \lucid{}’s scalability, robustness, and practical utility.
 \end{itemize}
 
@@ -123,7 +123,7 @@ Result: Few data-driven tools; No data-driven tools for stochastic systems.
 
 \Sadegh{When describing Table 1, it would be good if we could also highlight the underlying major assumptions raised in any of these papers. I guess we are the ones putting the least assumption.}
 
-What are the working principles used. 
+What are the working principles used.
 No other kernel-based tools? (foundations of distributionally robust barrier certificates in \cite{schoen2024distributionally,chen2025distributionally} (the latter only uncertain stochastic noise), both leading to SOS-based formulations) \OS{Or rather add \cite{chen2025ontheconstruction} instead?}
 Not tools: What works have achieved related things.
 Sampling-based reachability analysis~\cite{lew2021sampling}.
@@ -162,26 +162,26 @@ The resulting closed-loop system is denoted as $\S^\pi$.
 \begin{figure}
     \centering
     \begin{tikzpicture}
-	\foreach \i in {4, ..., 1}{
-		\node[name=xa\i] at (\i/4*9,0) {$x_\i$};
-	}
-	\foreach \i in {4, ..., 1}{
-		\node[name=aa\i] at (\i/4*9+.5,0) {$u_{\i}$};
-	}
-	\foreach \i in {4, ..., 1}{
-		\path[draw,->] (xa\i) -- +(0,.5)-| node[left,above,xshift = -0.3cm]{\footnotesize$\pi$} (aa\i);
-	}
-	\foreach \i in {3, ..., 1}{
-		\pgfmathtruncatemacro{\j}{\i + 1}
-		\path[draw,->] (aa\i)-- node[above]{\footnotesize$\S$} (xa\j);
-	}
-\end{tikzpicture}
+        \foreach \i in {4, ..., 1}{
+                \node[name=xa\i] at (\i/4*9,0) {$x_\i$};
+            }
+        \foreach \i in {4, ..., 1}{
+                \node[name=aa\i] at (\i/4*9+.5,0) {$u_{\i}$};
+            }
+        \foreach \i in {4, ..., 1}{
+                \path[draw,->] (xa\i) -- +(0,.5)-| node[left,above,xshift = -0.3cm]{\footnotesize$\pi$} (aa\i);
+            }
+        \foreach \i in {3, ..., 1}{
+                \pgfmathtruncatemacro{\j}{\i + 1}
+                \path[draw,->] (aa\i)-- node[above]{\footnotesize$\S$} (xa\j);
+            }
+    \end{tikzpicture}
     \caption{Evolution of the closed-loop system.}
     \label{fig:closed_loop_system}
 \end{figure}
 
 \paragraph{Dataset}
-Due to their complexity and opacity, such systems must often be treated as black boxes in their entirety, assuming only access to a finite amount of system observations of the form
+Due to their complexity and opacity, such systems must often be treated as black boxes in their entirety, assuming only access to a finite amount, $N$, of system observations of the form
 \begin{equation}
     \data_N\colon \quad \{x^i,a^i,x^i_+\}_{i=1}^N,\label{eq:data}
 \end{equation}
@@ -225,10 +225,10 @@ Intuitively, if one can find a CBC for a system $\S$, then, a lower bound on the
 where $T$ is the desired control horizon.
 Notably, the system dynamics only enter the barrier conditions through the conditional expectation in (c), and a CBC thus only depends on the \emph{expected} system behavior, with no need to consider its concrete stochastic law.
 
-Whilst \eqref{eq:safety_prob_lb} can provide a robust assessment of a systems safety, in practice, the bound can be overly conservative and thus several improved variants of the original barrier constraints exist~\cite{mahathi2022kinductive}. 
-As these conditions in essence all rely on the computation of chance constraint with respect to the expected behavior of the system, they are basically interchangeable. 
+Whilst \eqref{eq:safety_prob_lb} can provide a robust assessment of a systems safety, in practice, the bound can be overly conservative and thus several improved variants of the original barrier constraints exist~\cite{mahathi2022kinductive}.
+As these conditions in essence all rely on the computation of chance constraint with respect to the expected behavior of the system, they are basically interchangeable.
 
-Although there exist model-\emph{based} efficient solutions to this problem for linear and control affine systems, especially for complex systems this is generally a semi-infinite problem, demanding a data-driven solution. Furthermore, for the data-driven case, establishing constraint (c) rigorously without relying on impractical assumptions is extremely challenging. 
+Although there exist model-\emph{based} efficient solutions to this problem for linear and control affine systems, especially for complex systems this is generally a semi-infinite problem, demanding a data-driven solution. Furthermore, for the data-driven case, establishing constraint (c) rigorously without relying on impractical assumptions is extremely challenging.
 
 
 
@@ -244,7 +244,7 @@ Assuming access to a finite dataset $\data_N$ from the black-box system $\S$ in 
 \subsection{Data-Driven Dynamics Estimation via Conditional Mean Embeddings}
 To reason about the expected value of a random variable, embedding the variable into a (higher dimensional) space and forming a data-driven estimate is a well-established concept in machine learning \cite{scholkopf2002learning,Steinwart2008SVM}.
 Following the same reasoning, the \emph{kernel mean embedding} represents the projection of a probability measure into a \emph{reproducing kernel Hilbert space} (RKHS) via a feature map $\phi$ associated with a positive definite kernel $k$~\cite{Smola2007EmbedDistrb,muandet2017kernel}.
-For conditional probability distributions a similar concept exists: \emph{conditional mean embeddings} (CMEs) can be used to model the expected value of any RKHS function $f\colon\X\rightarrow\R$ under a stochastic process such as $\S$~\cite{park2020measuretheoretic,muandet2017kernel}. 
+For conditional probability distributions a similar concept exists: \emph{conditional mean embeddings} (CMEs) can be used to model the expected value of any RKHS function $f\colon\X\rightarrow\R$ under a stochastic process such as $\S$~\cite{park2020measuretheoretic,muandet2017kernel}.
 For the Gaussian kernel,
 \begin{equation}
     k(x,x') := \sigma_f^2 \exp\left( -\tfrac{1}{2} (x-x')\T \Sigma\, (x-x') \right),\label{eq:gaussian_kernel}
@@ -252,11 +252,11 @@ For the Gaussian kernel,
 where $\Sigma:=\diag(\sigma_l)^{-2}$, with hyperparameters $\sigma_f,\sigma_l\in\R$, this encompasses all smooth functions $f$.
 A data-driven estimate can then be obtained in closed form from a finite amount of data $\data_N$:
 \begin{align}
-\begin{split}
-    &\E[f(X_+)\mid X=x,\,A=a] \approx \\
-    % \innerH{f}{\hat{\Psi}^N_{X^+|X}(x)}{\Hilbert_{k}} = 
-    &\hspace{5em} k_{XA}^N(x,a)\T\left[ K_{XU}^N+N \lambda I_N\right]^{-1}\! f(X_+^N),
-\end{split}\label{eq:empiricalEstimate}
+    \begin{split}
+         & \E[f(X_+)\mid X=x,\,A=a] \approx                                                  \\
+        % \innerH{f}{\hat{\Psi}^N_{X^+|X}(x)}{\Hilbert_{k}} = 
+         & \hspace{5em} k_{XA}^N(x,a)\T\left[ K_{XU}^N+N \lambda I_N\right]^{-1}\! f(X_+^N),
+    \end{split}\label{eq:empiricalEstimate}
 \end{align}
 with column vector $k_{XA}^N(x,a):=[k((x^i,a^i),(x,a))]_{i=1}^N$, Gram matrix $K_{XA}^N:=[k((x^i,a^i),(x^j,a^j))]_{i,j=1}^N$, identity matrix $I_N$, and $f(X_+^N):=[f(x^i_+)]_{i=1}^N$.
 The empirical estimator in \eqref{eq:empiricalEstimate} converges in expectation to the true CME for $N\rightarrow\infty$.
@@ -286,102 +286,102 @@ the barrier problem simplifies to a semi-infinite linear problem, with barriers 
 Notably, the resulting barriers $\B(x) = b\T\phi_M(x)$ is linear in the coefficients (spectral amplitudes)
 \begin{align*}
     b=\begin{bmatrix}
-        \frac{\alpha_0}{\sigma_f^2} & \frac{\alpha_1}{2\sigma_f^2w_1^2} & \frac{\beta_1}{2\sigma_f^2w_1^2} & \ldots & \frac{\alpha_{M}}{2\sigma_f^2w_{M}^2} & \frac{\beta_{M}}{2\sigma_f^2w_{M}^2}
-    \end{bmatrix}\T\!\!\in\R^{2M+1},
+          \frac{\alpha_0}{\sigma_f^2} & \frac{\alpha_1}{2\sigma_f^2w_1^2} & \frac{\beta_1}{2\sigma_f^2w_1^2} & \ldots & \frac{\alpha_{M}}{2\sigma_f^2w_{M}^2} & \frac{\beta_{M}}{2\sigma_f^2w_{M}^2}
+      \end{bmatrix}\T\!\!\in\R^{2M+1},
 \end{align*}
 where the weights $w_0,\ldots,w_{M}\in\R_{\geq 0}$ associated with each frequency band are determined efficiently via the multivariate CDF (see Figure~\ref{fig:spectral_measure_abstraction}). \OS{Importantly, the closed-form estimator in \eqref{eq:empiricalEstimate} does not depend on the choice of features and only through the spectral abstraction is the feature map introduced directly.}
 \begin{figure}
     \centering
     % GAUSSIANs: 68-95-99 rule
     \begin{tikzpicture}
-      \def\N{50} % number of sample points
-      \def\B{0};
-      \def\Bs{3.0};
-      \def\var{1.3}
-      \def\xmax{\B+3.5*\Bs};
-      \def\ymin{{-0.1*gauss(\B,\B,\Bs)}};
-      \def\h{0.08*gauss(\B,\B,\Bs)};
-      
-      \begin{axis}[every axis plot post/.append style={
-                   mark=none,domain={-(\xmax)}:{1.0*\xmax},samples=\N,smooth},
-                   xmin={-(\xmax)}, xmax=\xmax,
-                   axis/.style={>=latex},
-                   ymin=\ymin, ymax={1.1*gauss(\B,\B,\Bs)},
-                   axis lines=middle,
-                   axis line style=thick,
-                   enlarge x limits, % extend the axes a bit
-                   ticks=none,
-                   xlabel=$\omega$,
-                   every axis x label/.style={at={(current axis.right of origin)},anchor=north},
-                   width=1.1\linewidth, height=0.55*\linewidth,
-                   y=700pt,
-                   clip=false,
-                   axis line style={-latex}
-                  ]
-        
-        % PLOTS
-        \addplot[accent,thick,name path=B] {gauss(x,\B,\var*\Bs)};
-        
-        % FILL
-        \path[name path=xaxis]
-          (\B-\pgfkeysvalueof{/pgfplots/xmax},0) -- (\B+\pgfkeysvalueof{/pgfplots/xmax},0); %\pgfkeysvalueof{/pgfplots/xmin}
-        \addplot[accent!3.75] fill between[of=xaxis and B, soft clip={domain={\B-3.5*\Bs}:{\B+3.5*\Bs}}];
-        \addplot[accent!7.5] fill between[of=xaxis and B, soft clip={domain={\B-2.5*\Bs}:{\B+2.5*\Bs}}];
-        \addplot[accent!15] fill between[of=xaxis and B, soft clip={domain={\B-1.5*\Bs}:{\B+1.5*\Bs}}];
-        \addplot[accent!30] fill between[of=xaxis and B, soft clip={domain={\B-.5*\Bs}:{\B+.5*\Bs}}];
-        
-        % LINES
-        \addplot[black,dashdotted,thin]
-          coordinates {({\B-3*\Bs},{20*gauss(\B-3*\Bs,\B,\Bs)}) ({\B-3*\Bs},{-\h})}
-          node[below=-3pt,scale=1.0] {\strut$\omega_3$};
-        \addplot[black,dashdotted,thin]
-          coordinates {({\B-2*\Bs},{4*gauss(\B-2*\Bs,\B,\Bs)}) ({\B-2*\Bs},{-\h})}
-          node[below=-3pt,scale=1.0] {\strut$\omega_2$};
-        \addplot[black,dashdotted,thin]
-          coordinates {({\B-1*\Bs},{1.3*gauss(\B-\Bs,\B,\Bs)}) ({\B-1*\Bs},{-\h})}
-          node[below=-3pt,scale=1.0] at ({\B-\Bs},{-\h}) {\strut$\omega_1$};
-        \addplot[black,dashdotted,thin]
-          coordinates {(\B,{1.05*gauss(\B,\B,\Bs)}) (\B,{-\h})}
-          node[below=-3pt,scale=1.0] {\strut$\omega_0$};
-        \node[scale=1.0] (w0)
-          at ({\B+.5*\Bs},{.125}) {$w_0^2$};
-        \node (b0) at ({\B+.25*\Bs},{.08}) {};
-        \draw[->] (w0) to (b0.center);
-        % \addplot[white,dashed,thin]
-          % coordinates {({\B+.5*\Bs},{gauss(\B+.5*\Bs,\B,\Bs)}) ({\B+.5*\Bs},0)};
-        \addplot[black,dashdotted,thin]
-          coordinates {({\B+1*\Bs},{1.3*gauss(\B+\Bs,\B,\Bs)}) ({\B+1*\Bs},{-\h})}
-          node[below=-3pt,scale=1.0] at ({\B+\Bs},{-\h}) {\strut$\omega_1$};
-        \node[scale=1.0] (w1)
-          at ({\B+1.5*\Bs},{.085}) {$\frac{w_1^2}{2}$};
-        \node (b1) at ({\B+1.25*\Bs},{.04}) {};
-        \draw[->] (w1) to (b1.center);
-        \addplot[black,dashdotted,thin]
-          coordinates {({\B+2*\Bs},{4*gauss(\B+2*\Bs,\B,\Bs)}) ({\B+2*\Bs},{-\h})}
-          node[below=-3pt,scale=1.0] at ({\B+2*\Bs},{-\h}) {\strut$\omega_2$};
-        \node[scale=1.0] (w2)
-          at ({\B+2.5*\Bs},{.055}) {$\frac{w_2^2}{2}$};
-        \node (b2) at ({\B+2.25*\Bs},{.01}) {};
-        \draw[->] (w2) to (b2.center);
-        \addplot[black,dashdotted,thin]
-          coordinates {({\B+3*\Bs},{20*gauss(\B+3*\Bs,\B,\Bs)}) ({\B+3*\Bs},{-\h})}
-          node[below=-3pt,scale=1.0] at ({\B+3*\Bs},{-\h}) {\strut$\omega_3$};
-        \node[scale=1.0] (w3)
-          at ({\B+3.5*\Bs},{.046}) {$\frac{w_3^2}{2}$};
-        \node (b3) at ({\B+3.25*\Bs},{.001}) {};
-        \draw[->] (w3) to (b3.center);
-        
-        % Hyperparameters
-        \addplot[<->,accent]
-          coordinates {({\B-2*\var*\Bs},{gauss(\B+2*\var*\Bs,\B,\var*\Bs)}) ({\B+2*\var*\Bs},{gauss(\B+2*\var*\Bs,\B,\var*\Bs)})};
-        \node[accent,fill=accent!30,inner xsep=3,inner ysep=2,scale=.8] at (\B,{gauss(\B+2*\var*\Bs,\B,\var*\Bs)}) {$\pm 2\sigma_l$};
-        \addplot[<->,accent]
-          coordinates {({\B-3*\var*\Bs},{gauss(0,0,\var*\Bs)}) ({\B-3*\var*\Bs},{0})};
-        \addplot[dashed,thin,accent]
-          coordinates {({\B-3*\var*\Bs},{gauss(0,0,\var*\Bs)}) ({0},{gauss(0,0,\var*\Bs)})};
-        \node[accent,fill=white,inner xsep=3,inner ysep=2,scale=.8] at (\B-3*\var*\Bs,{.5*gauss(0,0,\var*\Bs)}) {$\sigma_f^2$};
-        
-    \end{axis}
+        \def\N{50} % number of sample points
+        \def\B{0};
+        \def\Bs{3.0};
+        \def\var{1.3}
+        \def\xmax{\B+3.5*\Bs};
+        \def\ymin{{-0.1*gauss(\B,\B,\Bs)}};
+        \def\h{0.08*gauss(\B,\B,\Bs)};
+
+        \begin{axis}[every axis plot post/.append style={
+            mark=none,domain={-(\xmax)}:{1.0*\xmax},samples=\N,smooth},
+            xmin={-(\xmax)}, xmax=\xmax,
+            axis/.style={>=latex},
+            ymin=\ymin, ymax={1.1*gauss(\B,\B,\Bs)},
+            axis lines=middle,
+            axis line style=thick,
+            enlarge x limits, % extend the axes a bit
+            ticks=none,
+            xlabel=$\omega$,
+            every axis x label/.style={at={(current axis.right of origin)},anchor=north},
+            width=1.1\linewidth, height=0.55*\linewidth,
+            y=700pt,
+            clip=false,
+            axis line style={-latex}
+            ]
+
+            % PLOTS
+            \addplot[accent,thick,name path=B] {gauss(x,\B,\var*\Bs)};
+
+            % FILL
+            \path[name path=xaxis]
+            (\B-\pgfkeysvalueof{/pgfplots/xmax},0) -- (\B+\pgfkeysvalueof{/pgfplots/xmax},0); %\pgfkeysvalueof{/pgfplots/xmin}
+            \addplot[accent!3.75] fill between[of=xaxis and B, soft clip={domain={\B-3.5*\Bs}:{\B+3.5*\Bs}}];
+            \addplot[accent!7.5] fill between[of=xaxis and B, soft clip={domain={\B-2.5*\Bs}:{\B+2.5*\Bs}}];
+            \addplot[accent!15] fill between[of=xaxis and B, soft clip={domain={\B-1.5*\Bs}:{\B+1.5*\Bs}}];
+            \addplot[accent!30] fill between[of=xaxis and B, soft clip={domain={\B-.5*\Bs}:{\B+.5*\Bs}}];
+
+            % LINES
+            \addplot[black,dashdotted,thin]
+            coordinates {({\B-3*\Bs},{20*gauss(\B-3*\Bs,\B,\Bs)}) ({\B-3*\Bs},{-\h})}
+            node[below=-3pt,scale=1.0] {\strut$\omega_3$};
+            \addplot[black,dashdotted,thin]
+            coordinates {({\B-2*\Bs},{4*gauss(\B-2*\Bs,\B,\Bs)}) ({\B-2*\Bs},{-\h})}
+            node[below=-3pt,scale=1.0] {\strut$\omega_2$};
+            \addplot[black,dashdotted,thin]
+            coordinates {({\B-1*\Bs},{1.3*gauss(\B-\Bs,\B,\Bs)}) ({\B-1*\Bs},{-\h})}
+            node[below=-3pt,scale=1.0] at ({\B-\Bs},{-\h}) {\strut$\omega_1$};
+            \addplot[black,dashdotted,thin]
+            coordinates {(\B,{1.05*gauss(\B,\B,\Bs)}) (\B,{-\h})}
+            node[below=-3pt,scale=1.0] {\strut$\omega_0$};
+            \node[scale=1.0] (w0)
+            at ({\B+.5*\Bs},{.125}) {$w_0^2$};
+            \node (b0) at ({\B+.25*\Bs},{.08}) {};
+            \draw[->] (w0) to (b0.center);
+            % \addplot[white,dashed,thin]
+            % coordinates {({\B+.5*\Bs},{gauss(\B+.5*\Bs,\B,\Bs)}) ({\B+.5*\Bs},0)};
+            \addplot[black,dashdotted,thin]
+            coordinates {({\B+1*\Bs},{1.3*gauss(\B+\Bs,\B,\Bs)}) ({\B+1*\Bs},{-\h})}
+            node[below=-3pt,scale=1.0] at ({\B+\Bs},{-\h}) {\strut$\omega_1$};
+            \node[scale=1.0] (w1)
+            at ({\B+1.5*\Bs},{.085}) {$\frac{w_1^2}{2}$};
+            \node (b1) at ({\B+1.25*\Bs},{.04}) {};
+            \draw[->] (w1) to (b1.center);
+            \addplot[black,dashdotted,thin]
+            coordinates {({\B+2*\Bs},{4*gauss(\B+2*\Bs,\B,\Bs)}) ({\B+2*\Bs},{-\h})}
+            node[below=-3pt,scale=1.0] at ({\B+2*\Bs},{-\h}) {\strut$\omega_2$};
+            \node[scale=1.0] (w2)
+            at ({\B+2.5*\Bs},{.055}) {$\frac{w_2^2}{2}$};
+            \node (b2) at ({\B+2.25*\Bs},{.01}) {};
+            \draw[->] (w2) to (b2.center);
+            \addplot[black,dashdotted,thin]
+            coordinates {({\B+3*\Bs},{20*gauss(\B+3*\Bs,\B,\Bs)}) ({\B+3*\Bs},{-\h})}
+            node[below=-3pt,scale=1.0] at ({\B+3*\Bs},{-\h}) {\strut$\omega_3$};
+            \node[scale=1.0] (w3)
+            at ({\B+3.5*\Bs},{.046}) {$\frac{w_3^2}{2}$};
+            \node (b3) at ({\B+3.25*\Bs},{.001}) {};
+            \draw[->] (w3) to (b3.center);
+
+            % Hyperparameters
+            \addplot[<->,accent]
+            coordinates {({\B-2*\var*\Bs},{gauss(\B+2*\var*\Bs,\B,\var*\Bs)}) ({\B+2*\var*\Bs},{gauss(\B+2*\var*\Bs,\B,\var*\Bs)})};
+            \node[accent,fill=accent!30,inner xsep=3,inner ysep=2,scale=.8] at (\B,{gauss(\B+2*\var*\Bs,\B,\var*\Bs)}) {$\pm 2\sigma_l$};
+            \addplot[<->,accent]
+            coordinates {({\B-3*\var*\Bs},{gauss(0,0,\var*\Bs)}) ({\B-3*\var*\Bs},{0})};
+            \addplot[dashed,thin,accent]
+            coordinates {({\B-3*\var*\Bs},{gauss(0,0,\var*\Bs)}) ({0},{gauss(0,0,\var*\Bs)})};
+            \node[accent,fill=white,inner xsep=3,inner ysep=2,scale=.8] at (\B-3*\var*\Bs,{.5*gauss(0,0,\var*\Bs)}) {$\sigma_f^2$};
+
+        \end{axis}
     \end{tikzpicture}
     % \includegraphics[width=\linewidth]{figures/spectral_measure_abstraction.png}
     \caption{Abstraction of a 1-dim. Gaussian spectral measure of the Gaussian kernel, shown in \eqref{eq:sqexp_kernel_fourier}.}
@@ -403,7 +403,7 @@ where the weights $w_0,\ldots,w_{M}\in\R_{\geq 0}$ associated with each frequenc
 
 \lucid is implemented in C++ and it is meant to be used as a library or as a standalone executable.
 The choice of a low level language gives us plenty of freedom and fine-grained control over the execution of the software.
-We expose a set of interfaces allowing users to to highly customize the verification process.
+We expose a set of interfaces allowing users to highly customize the verification process.
 A high-level visualization of \lucid's architecture is illustrated in Figure~\ref{fig:architecture}, while a more technical description can be found in the online documentation at \url{https://tendto.github.io/lucid/}.
 
 We also provide a Python wrapper, called \pylucid, to facilitate the integration of the tool into existing workflows and effortlessly leverage well-established libraries such as NumPy~\cite{numpy} and SciPy~\cite{scipy}.
@@ -423,17 +423,17 @@ An overview of the core components and how they interact is shown in Figure~\ref
 \paragraph{Dataset}
 % \todo{Should this be considered a component? It is more about the data loader} \Sadegh{This is good to have as a separate component.}
 Due to its data-driven nature, all that \lucid needs to operate is a set of sampled transitions from the system, as shown in \eqref{eq:data}, and the safety specification itself.
-Data can be obtained by defining a function that takes as input the current state and control input and returns the next state, adding i.i.d. noise sampled from an appropriate distribution, or it may be collected from a simulator or real-world system.
-The sampled transitions are then fed into \lucid, either programmatically, via a script that generates them on the fly, or through a file.
+Data can be obtained by defining a function that takes as input the current state and control input and returns the next state, adding i.i.d. noise sampled from an appropriate distribution, or it may be collected from an external simulator or real-world system.
+The transitions are then fed into \lucid, either programmatically, via a script that generates them on the fly, or through a file.
 \pylucid natively supports \texttt{.csv}, \texttt{.mat}, \texttt{.npy} and \texttt{.npz} files. \todo{HDF5?}
 \OS{What do you mean by a script that generates them? Can we include this visually in Figure~\ref{fig:architecture}?}
 
 \input{figures/architecture}
 
 \paragraph{\Circled{1}~Safety Specification}
-\lucid understands \texttt{RectSet}s and \texttt{Multiset}s, i.e., collections of sets.
-These are used to indicate the bounds of the whole state space $\X$, the initial set $\X_0$ and the unsafe set $\X_U$ when defining the safety specification.
-They also provide some utility methods for sampling and creating a lattice of the subspaces they define.
+\lucid understands \texttt{RectSet}s, \texttt{SphereSet}s, and \texttt{Multiset}s, i.e., collections of sets.
+These are mainly used to indicate the bounds of the whole state space $\X$, the initial set $\X_0$ and the unsafe set $\X_U$ when defining the safety specification.
+% They also provide some utility methods for sampling and creating a lattice of the subspaces they define.
 
 \paragraph{\mbox{\Circled{2}\hspace{.4em}Estimator}}
 The core of \lucid is its \texttt{KernelRidgeRegressor}\OS{Since the name is exposed, can we call this sth less controversial like KernelRegressor (see also \url{https://en.wikipedia.org/wiki/Kernel_regression}) or simply Estimator. It is easier to use consistent names in Figure~\ref{fig:architecture}.}, which uses a \texttt{GaussianKernel} to learn the underlying system dynamics from the samples.
@@ -445,30 +445,30 @@ However, they still depend on a number of \hp, such as the kernel bandwidth $\si
 Changes in their values can have a significant impact on the \estimator's efficiency and accuracy.
 The process of finding good values for these \hp is known as \emph{hyperparameter tuning}, with the optimal parameters being problem dependent.
 \lucid provides a set of utilities, which specialize the \texttt{Tuner} interface, to aid in this task.
-{\color{blue}The following tuners are available:
-\begin{itemize}
-    \item \texttt{MedianHeuristicTuner}: ... (mention that this is restricted to $\sigma_f$ and $\sigma_l$)
-    \item \texttt{GridSearchTuner}: ...
-    \item \texttt{LBFGSTuner}: ...
-\end{itemize}}
+    {\color{blue}The following tuners are available:
+        \begin{itemize}
+            \item \texttt{MedianHeuristicTuner}: ... (mention that this is restricted to $\sigma_f$ and $\sigma_l$)
+            \item \texttt{GridSearchTuner}: ...
+            \item \texttt{LBFGSTuner}: ...
+        \end{itemize}}
 \OS{We can also present the 3 different choices as bullets.}
 A cheap starting point when working with a Gaussian kernel as in~\eqref{eq:gaussian_kernel} is to use the \emph{median heuristic} \cite{garreau2018largesampleanalysismedian}, implemented in the \texttt{MedianHeuristicTuner}.
 \OS{We can cut the following to save space. This is standard knowledge:}
 {\color{gray}
-We choose $\sigma_l^2$ to be the median of the squared distances between all pairs of points in the training set, i.e.,
-\begin{equation}
-    \sigma_l^2 = \mathrm{median}_{1 \leq i < j \leq N}\left(\|\hat{x}_i-\hat{x}_j\|^2\right),
-\end{equation}
-where $\hat{x}_1,\ldots,\hat{x}_N$ are the $N$ training samples.
-If $N(N-1)/2$ is even, the median is the average of the two middle values in the sorted list of distances.}
+    We choose $\sigma_l^2$ to be the median of the squared distances between all pairs of points in the training set, i.e.,
+    \begin{equation}
+        \sigma_l^2 = \mathrm{median}_{1 \leq i < j \leq N}\left(\|\hat{x}_i-\hat{x}_j\|^2\right),
+    \end{equation}
+    where $\hat{x}_1,\ldots,\hat{x}_N$ are the $N$ training samples.
+    If $N(N-1)/2$ is even, the median is the average of the two middle values in the sorted list of distances.}
 The \texttt{GridSearchTuner}, on the other hand, implements the grid search method, exploring the space of possible \hp values to find the one that yields the best \estimator $R^2$ score,
 defined as $R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}$.
 This approach is simple to implement and can be very effective for small problems, but it can become computationally expensive for larger ones.
 Borrowing a technique from Gaussian processes, we can also optimize the \hp to maximize the \emph{log marginal likelihood}, defined as
 \begin{equation}
     \begin{split}
-        &\log p(X^+_N | X_N,\theta) =  - \frac{1}{2}X^+_N{}\T (K_{X}^N + N\lambda I_N)^{-1} X^+_N \\
-        &\hspace{40pt} -\frac{1}{2}\log |K_{X}^N + N\lambda I_N| - \frac{N}{2}\log(2\pi),
+         & \log p(X^+_N | X_N,\theta) =  - \frac{1}{2}X^+_N{}\T (K_{X}^N + N\lambda I_N)^{-1} X^+_N \\
+         & \hspace{40pt} -\frac{1}{2}\log |K_{X}^N + N\lambda I_N| - \frac{N}{2}\log(2\pi),
     \end{split}
 \end{equation}
 where $\theta:=(\sigma_f,\sigma_l, M)$ \OS{Which are implemented?} contains all learnable hyperparameters (of the kernel).
@@ -490,10 +490,10 @@ Trying out different feature map implementations may yield different results.
 
 \paragraph{\Circled{5} Solver}
 \todo{Barriers should probably be an explicit class in \lucid that hides the opitmisation implementation}
-The finite-constraint relaxation of the SIP \eqref{eq:semiinf-prog} is what \lucid uses to synthesize the \gls{cbc} $\B$.
+The finite-constraint relaxation of the SIP \eqref{eq:semiinf-prog} is what \lucid uses to synthesize the \glspl{cbc}.
 When verifying the safety of a system, \lucid will search for a \gls{cbc} $\B$ that satisfies the conditions in Definition~\ref{def:cbc}.
 If it finds it, it will return the constants $\eta$, $\gamma$, and $c$, as well as the \gls{cbc} $\B$ itself, which becomes a certificate of safety for the system $\S$.
-More precisely, we follow the steps outlined in~\ref{fig:steps}.
+More precisely, we follow the steps outlined in Figure~\ref{fig:steps}.
 While the theory gives us precise indication on how to construct the \gls{lp} which would yield a correct-by-design solution,
 in practice the constraints may prove to be too conservative.
 To mitigate this, the user can either increase the number of lattice points $Q$, worsening the computational efficiency,
@@ -503,18 +503,14 @@ The resulting barrier can then be checked with the verifier, provided we have ac
 
 \OS{Plot barrier here and give sat. prob.}
 
-
-
 \paragraph{Validation (optional)}
 Albeit, if \lucid finds a barrier, this is already formally sound with respect to the data-driven estimator, we provide an option to check the validity using an SMT solver.
 The solution, if found, will determine the barrier certificate coefficients, as well as the satisfaction probability.
-\lucid provides the option to employ the \dreal SMT solver to verify the barrier formally if the system dynamics are known.
+\lucid provides the option to employ the \dreal SMT solver~\cite{dreal} to verify the barrier formally if the system dynamics are known.
 
 \OS{Here just say we know the expected behavior. Thus, via the SMT we get passed}
 
-
 \subsection{GUI}
-
 
 \OS{End then end the chapter}
 
@@ -546,7 +542,7 @@ Having parsed and validated the scenario configuration, \lucid will begin the ma
 If a set of sample transitions has not been provided by the user, \lucid will try to produce it itself by randomly sampling $\X$ to which apply the system dynamics function.
 The samples will be used to fit and optionally tune the \estimator so that, given an input state, it will accurately predict the value of the feature map applied to the next state.
 \lucid will then store a lattice of points from each of the set provided to which apply the feature map.
-These values will be used to define the constraint of the \gls{lp} that the chosen optimizer will solve.
+These values will be used to define the constraints of the \gls{lp} that the chosen optimizer will solve.
 
 
 \Sadegh{In the following figure, when you say collect samples, it should be the dataset mentioned earlier in the paper. You also need the next state.}
@@ -594,6 +590,7 @@ This gives us absolute control over how the \estimator is tuned before being use
 To run the test case, use the command \lstinline|pylucid example.yaml|.
 \lucid will parse the configuration, sample the state space and apply the transition function to produce the data used to fit the \estimator, synthesize a barrier certificate, plot and verify the result.
 In this case, we are able to obtain a barrier certificate for a time horizon of $T = 15$ which shows a $95.15\%$ satisfaction probability, with $\eta = 0.257, c = 0.031, \|B\| = 1.72$.
+The solution was verified with \dreal, ensuring its formal correctness.
 The barrier is shown in Figure~\ref{fig:example}.
 
 \begin{figure}
