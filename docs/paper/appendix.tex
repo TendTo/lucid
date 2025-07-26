@@ -1,14 +1,60 @@
-\begin{appendices}
-    \section{Proofs}
-    We have collected a series of proofs of the claims we made in the main text.
+% !TEX root =  main.tex
+\appendix
 
-    \section{Benchmarks}
-    \label{app:benchmarks}
-    Complete list of results for the benchmarks presented in \autoref{sec:benchmarks}.
-    The legend is as follows:
-    \textit{Output} indicates the result produced by the solver (i.e., optimal, unbounded, infeasible or unspecified),
-    \textit{Prec} indicates the number of bits used in the last floating-point number representation,
-    \textit{Ref} indicates the number of refinements,
-    and \textit{time} is the time in seconds.
+\section{Additional Theoretical Details}
+\paragraph{RKHS basics.}
+A symmetric function $k_\X:\X\times\X\rightarrow\R$ is called a (positive definite) \emph{kernel} (note the distinction from \emph{probability kernels}) if for all $N\in\N_{>0}$ we have $\sum_{i=1}^{N}\sum_{j=1}^{N}a_i a_j\allowbreak k_\X(x_i,x_j) \geq 0$ for $x_1,\ldots,x_N\in\X\subset{\R^n}$ and $a_1,\ldots,a_N\in\R$.
+A prominent example is the \emph{squared exponential} (SQExp) kernel \shortcite{Rasmussen2005GP,Kanagawa2018GPvsKernel}:
+\begin{equation}
+    k_\X(x,x') := \sigma_f^2 \exp\left( -\frac{1}{2} (x-x')\T \Sigma\, (x-x') \right),\quad \Sigma:=\mathrm{diag}(\sigma_l)^{-2},\label{eq:sqexp_kernel}
+\end{equation}
+with amplitude $\sigma_f^2\geq0$ and lengthscale coefficients $\sigma_l\in\R^n$.
+\new{For this work,} we assume that all kernels are bounded on their domain, i.e., $\E_{}[k_\X(x,x)]<\infty$, $x\in\X$.
+Given a kernel $k_\X$ on a non-empty set $\X$, there exists a unique corresponding
+\emph{reproducing kernel Hilbert space} (RKHS) $\Hilbert_{k_\X}$
+of functions $f:\X\rightarrow\R$ equipped with an inner product $\innerH{\cdotx}{\cdotx}{\Hilbert_{k_\X}}$
+with the celebrated \emph{reproducing property} such that for any function $f\in\Hilbert_{k_\X}$ and $x\in\X$ we have $f(x)=\innerH{f}{k_\X(\cdotx,x)}{\Hilbert_{k_\X}}$.
+Note that $k_\X(\cdotx,x):\X\rightarrow\Hilbert_{k_\X}$ is a real-valued function,
+which is also called an implicit \emph{canonical} \emph{embedding} or \emph{feature map} $\phi_\X$
+such that $k_\X(x,x')=\innerH{\phi_\X(x)}{\phi_\X(x')}{\Hilbert_{k_\X}}$ for all $x,x'\in\X$.
+For an RKHS $\Hilbert_{k_\X}$, we use the associated feature map $\phi_\X$ and kernel $k_\X$ interchangeably for ease of notation and comprehensibility.
+The inner product induces the norm $\norm{f}_{\Hilbert_{k_\X}}\!\!\!\!:=\!\!\sqrt{\smash[b]{\innerH{f}{f}{\Hilbert_{k_\X}}}}$ of the RKHS. 
+Throughout this paper, we assume that all RKHSs are \emph{separable}.
+Refer to the monograph by \citet{Berlinet2004RKHSProbStat} for a comprehensive study on RKHSs.
+Given $N$ i.i.d. samples $\hat X_N:=[\hat{x}_i]_{i=1}^N$ with $\hat{x}_i\in\X$, the
+\emph{Gram matrix} of $k_\X$ is given by
+$\new{K_{\hat{X}}^N}:=[k_\X(\hat{x}_i,\hat{x}_j)]_{i,j=1}^N.$
+Furthermore, we define the vector-valued function 
+$\new{k_{\hat{X}}^N}(x)  := [k_\X(x,\hat{x}_i)]_{i=1}^N.$
 
-\end{appendices}
+\begin{definition}[Conditional Mean Embedding (CME)]\label{def:condMeanEmbed}
+    Given two RKHSs $\Hilbert_{k_\X}$ and $\Hilbert_{k_\Y}$ with the associated kernels $k_\X\colon\X\times\X\to\R$ and $k_\Y\colon\X\times\X\to\R$, the \emph{CME} of a probability kernel $\Tr\colon\X\times\borel{\Y}\rightarrow[0,1]$ is an $X$-measurable random variable taking values in $\Hilbert_{k_\Y}$, given by
+    \begin{equation*}
+        \cme_{k_\Y|k_\X}(\Tr)(\cdotx) := \E_{\Tr}[\phi_\Y(Y)\mid X=\cdotx].
+    \end{equation*}
+\end{definition}
+
+
+
+
+
+
+
+
+
+
+    
+
+    % \section{Proofs}
+    % We have collected a series of proofs of the claims we made in the main text.
+
+
+
+    % \section{Benchmarks}
+    % \label{app:benchmarks}
+    % Complete list of results for the benchmarks presented in \autoref{sec:benchmarks}.
+    % The legend is as follows:
+    % \textit{Output} indicates the result produced by the solver (i.e., optimal, unbounded, infeasible or unspecified),
+    % \textit{Prec} indicates the number of bits used in the last floating-point number representation,
+    % \textit{Ref} indicates the number of refinements,
+    % and \textit{time} is the time in seconds.

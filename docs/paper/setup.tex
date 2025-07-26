@@ -17,16 +17,33 @@
 \usepackage{algorithmic}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{amsthm}
 \usepackage{mathrsfs}
 \usepackage{mathtools}
 \usepackage{booktabs}
-\usepackage{multicol}
 \usepackage{lipsum}
 \usepackage{listings}
 \usepackage[acronym]{glossaries}
 \usepackage{xspace}
+\usepackage{circledsteps}
 \usepackage{tikz}
+\usetikzlibrary{arrows.meta, calc, positioning}
+\tikzset{>=latex} % for LaTeX arrow head
+\usepackage{pgfplots} % for the axis environment
+\usepgfplotslibrary{fillbetween} % to fill an area under function
+% define gaussian pdf and cdf
+\pgfmathdeclarefunction{gauss}{3}{%
+  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+}
+\usepackage[outline]{contour} % halo around text
+\usetikzlibrary{patterns}
+\pgfplotsset{compat=1.12} % TikZ coordinates <-> axes coordinates
+% https://tex.stackexchange.com/questions/240642/add-vertical-line-of-equation-x-2-and-shade-a-region-in-graph-by-pgfplots
+
 \usepackage{environ}
+\usepackage{import}
+\usepackage{pgf}
+\usepackage{comment}
 \DeclareCaptionStyle{ruled}{labelfont=normalfont,labelsep=colon,strut=off}
 \lstset{%
     basicstyle={\footnotesize\ttfamily},% footnotesize acceptable for monospace
@@ -37,6 +54,7 @@
     tabsize=2,
     breaklines=true}
 \usepackage{xcolor}
+\newcommand{\Sadegh}{\textcolor{magenta}}
 
 % Resolve problems with .eps figures
 \usepackage{graphicx}
@@ -48,20 +66,10 @@
 \newcommand{\cmark}{\ding{51}} % Checkmark
 \newcommand{\xmark}{\ding{55}} % X-mark
 \newcommand{\xmarkred}{{\color{magenta}\xmark}} % Red colored X-mark
+\definecolor{accent}{RGB}{160,32,240}
+\definecolor{accent2}{RGB}{0,141,225}
 
 % TKpicture
-\makeatletter
-\newsavebox{\measure@tikzpicture}
-\NewEnviron{scaletikzpicturetowidth}[1]{%
-    \def\tikz@width{#1}%
-    \def\tikzscale{1}\begin{lrbox}{\measure@tikzpicture}%
-        \BODY
-    \end{lrbox}%
-    \pgfmathparse{#1/\wd\measure@tikzpicture}%
-    \edef\tikzscale{\pgfmathresult}%
-    \BODY
-}
-\makeatother
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit} % Tikz library for arrows
 
 % Common terms
@@ -73,13 +81,17 @@
 
 % Maths
 \newcommand{\cdotx}{\,\cdot\,} % Function argument
+\newcommand{\data}{\boldsymbol{\mathcal{D}}} % Data
 \renewcommand{\S}{\boldsymbol{\mathcal{S}}} % System
 \newcommand{\T}{^\top}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\X}{\mathbb{X}}
+\newcommand{\Y}{\mathbb{Y}}
+\newcommand{\borel}[1]{\mathcal{B}(#1)}
 \renewcommand{\P}{\mathbb{P}}
+\renewcommand{\mid}{\,|\,}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Q}{\mathbb{Q}}
 \newcommand{\1}{\mathbbm{1}}
@@ -87,12 +99,19 @@
 \newcommand{\x}{\boldsymbol{x}}
 \newcommand{\y}{\boldsymbol{y}}
 \newcommand{\z}{\boldsymbol{z}}
+\DeclareMathOperator{\diag}{diag}
 \newcommand{\U}{\boldsymbol{U}}
 \newcommand{\G}{\boldsymbol{G}}
-\newcommand{\A}{\boldsymbol{A}}
+\newcommand{\A}{\mathbb{A}}
 \newcommand{\B}{\boldsymbol{B}}
+\newcommand{\Hilbert}{\mathcal{H}} % Hilbert space
+\newcommand{\norm}[1]{\left|\left|#1\right|\right|}
 \newcommand{\I}{\boldsymbol{I}}
+\newcommand{\innerH}[3]{\langle #1, #2 \rangle_{#3}} % Inner product
 \newcommand{\M}{\mathbf{M}}
+\newcommand{\cme}{\Psi} % Conditional mean embedding
+\newcommand{\Tr}{\mathbf{t}}
+\newcommand{\W}{\mathbb{W}}
 
 % Tool names
 \newcommand{\deepsplit}{\textsc{DEEPSPLIT}\xspace}
@@ -106,6 +125,28 @@
 \newcommand{\alglib}{\textsc{Alglib}\xspace}
 \newcommand{\highs}{\textsc{HiGHS}\xspace}
 \newcommand{\dreal}{\textsc{dReal}\xspace}
+\newcommand{\omnisafe}{\textsc{OmniSafe}\xspace}
+\newcommand{\barr}{\texttt{Barr\textsubscript{3}}\xspace}
+
+% Components
+\newcommand{\estimator}{\texttt{Estimator}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Theorems and co.
+%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{assumption}{Assumption}[section]
+\newtheorem{problem}{Problem}[section]
+\newtheorem{claim}{Claim}[section]
 
 % Styling
 %% Python definition (c) 1998 Michael Weber
@@ -292,7 +333,7 @@ literate =  {---}{{\ProcessThreeDashes}}3
 % \vspace{- -- No negative value may be used in proximity of a caption, figure, table, section, subsection, subsubsection, or reference
 % \vskip{- -- No negative value may be used to alter spacing above or below a caption, figure, table, section, subsection, subsubsection, or reference
 
-\setcounter{secnumdepth}{0} %May be changed to 1 or 2 if section numbers are desired.
+\setcounter{secnumdepth}{2} %May be changed to 1 or 2 if section numbers are desired.
 
 % The file aaai25.sty is the style file for AAAI Press
 % proceedings, working notes, and technical reports.
@@ -305,3 +346,52 @@ literate =  {---}{{\ProcessThreeDashes}}3
 \input{glossary.tex}
 % \makeglossaries
 % \loadglsentries{glossary}
+
+
+%%%%%%% Include tikz document shape %%%%%%%
+% taken from manual
+\makeatletter
+\pgfdeclareshape{document}{
+\inheritsavedanchors[from=rectangle] % this is nearly a rectangle
+\inheritanchorborder[from=rectangle]
+\inheritanchor[from=rectangle]{center}
+\inheritanchor[from=rectangle]{north}
+\inheritanchor[from=rectangle]{south}
+\inheritanchor[from=rectangle]{west}
+\inheritanchor[from=rectangle]{east}
+% ... and possibly more
+\backgroundpath{% this is new
+% store lower right in xa/ya and upper right in xb/yb
+\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+% compute corner of ‘‘flipped page’’
+\pgf@xc=\pgf@xb \advance\pgf@xc by-10pt % this should be a parameter
+\pgf@yc=\pgf@yb \advance\pgf@yc by-10pt
+% construct main path
+\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yb}}
+\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
+\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+\pgfpathclose
+% add little corner
+\pgfpathmoveto{\pgfpoint{\pgf@xc}{\pgf@yb}}
+\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
+\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+}
+}
+\makeatother
+
+\tikzstyle{doc}=[%
+draw,
+thick,
+align=center,
+color=black,
+shape=document,
+minimum width=20mm-10mm,
+minimum height=28.2mm-8mm,
+shape=document,
+inner sep=2ex,
+]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
