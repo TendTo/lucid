@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from ._pylucid import Estimator
+from ._pylucid import Estimator, Parameter
 
 if TYPE_CHECKING:
     from typing import Callable
@@ -16,11 +16,14 @@ class ModelEstimator(Estimator):
 
     Args:
         f: A callable that takes a numpy array as input and returns a numpy array as output.
+        params: A dictionary of parameters that can be used to configure the model.
+            This is not used in this case, but may be required to match the interface of the expected Estimator class.
     """
 
-    def __init__(self, f: "Callable[[NMatrix], NMatrix]"):
+    def __init__(self, f: "Callable[[NMatrix], NMatrix]", params: "dict[str, int | float | NVector] | None" = None):
         super().__init__()
         self._f = f
+        self._params = params or {}
 
     def predict(self, x: "NMatrix") -> "NMatrix":
         """Predict the next state given the current state by applying the model function."""
@@ -44,6 +47,10 @@ class ModelEstimator(Estimator):
         Since we are using the model directly, we can return a fixed score.
         """
         return 1.0
+
+    def get(self, param: Parameter) -> "dict[str, int | float | NVector]":
+        """Get the parameters of the model."""
+        return self._params[param]
 
     def clone(self) -> "ModelEstimator":
         """Clone the estimator."""
