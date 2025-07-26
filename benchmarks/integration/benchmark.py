@@ -66,7 +66,6 @@ def single_benchmark(name: str, config: Configuration):
     log.set_sink(logs.append)
     log.set_verbosity(log.LOG_DEBUG)
 
-    config = config.shallow_copy()
     mlflow.set_experiment(experiment_name=name)
     with mlflow.start_run(run_name=f"{name}-{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"):
         mlflow.log_input(dataset=mlflow.data.from_numpy(config.x_samples, targets=config.xp_samples))

@@ -8,6 +8,7 @@ from benchmark import grid_to_config, single_benchmark
 
 from pylucid import *
 from pylucid import __version__
+from pylucid.plot import plot_function
 
 
 def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) -> Configuration:
@@ -36,18 +37,31 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
         # Initial set X_0
         X_init=MultiSet(
             RectSet((1, -0.5), (2, 0.5)),
-            RectSet((-1.8, -0.1), (-1.2, 0.1)),
+            RectSet((-1.8, -0.1), (-1.4, 0.1)),
             RectSet((-1.4, -0.5), (-1.2, 0.1)),
         ),
         # Unsafe set X_U
-        X_unsafe=MultiSet(RectSet((-2.9, 0.1), (-2.8, 0.5)), RectSet((-2.9, 0.1), (-2.7, 0.3))),
+        # X_unsafe=MultiSet(RectSet((0.4, 0.1), (0.6, 0.5)), RectSet((0.6, 0.1), (0.8, 0.3))),
+        # X_unsafe=MultiSet(RectSet((0.4, 0.05), (0.6, 0.45)), RectSet((0.6, 0.05), (0.7, 0.3))),
+        X_unsafe=MultiSet(RectSet((0.4, 0.2), (0.6, 0.6)), RectSet((0.6, 0.2), (0.7, 0.4))),
     )
+
+    for key, value in zip(param_name, param_combinations):
+        setattr(config, key, value)
+
+    # plot_function(
+    #     f=config.system_dynamics,
+    #     X_bounds=config.X_bounds,
+    #     X_init=config.X_init,
+    #     X_unsafe=config.X_unsafe,
+    # )
 
     # Add process noise
     if config.seed >= 0:
         np.random.seed(config.seed)  # For reproducibility
         random.seed(config.seed)
-    f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
+    f = lambda x: config.system_dynamics(x) # + (np.random.normal(scale=config.noise_scale))
+    config.estimator = ModelEstimator(f)
 
     # ################################## #
     # Data
@@ -64,8 +78,6 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
         config=config,
     )
 
-    return config
-
 
 if __name__ == "__main__":
     # ################################## #
@@ -75,9 +87,10 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        "c_coefficient": [0.2, 1.0],
-        "time_horizon": [5, 10],
-        "oversample_factor": [20.0, 40.0, 60.0],
+        "num_frequencies": [4, 5, 8, 9, 12, 13, 16, 17],
+        "c_coefficient": [0.2],
+        "time_horizon": [5],
+        "oversample_factor": [10.0, 20.0, 30.0],
     }
 
     param_combinations = list(itertools.product(*grid.values()))
