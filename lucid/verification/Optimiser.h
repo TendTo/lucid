@@ -14,6 +14,11 @@
 
 namespace lucid {
 
+/**
+ * Base class for optimisation solvers.
+ * This class provides a common interface for different optimisation backends
+ * (Gurobi, HiGHS, ALGLIB) used in the verification process.
+ */
 class Optimiser {
  public:
   /**

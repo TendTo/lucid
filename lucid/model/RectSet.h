@@ -61,6 +61,10 @@ class RectSet final : public Set {
 
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
 
+  /**
+   * Convert the rectangular set to a matrix representation.
+   * @return matrix where the first row contains lower bounds and the second row contains upper bounds
+   */
   operator Matrix() const;
 
  private:

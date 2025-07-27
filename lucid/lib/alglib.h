@@ -20,8 +20,28 @@
 
 namespace lucid {
 
+/**
+ * Output operator for ALGLIB sparse matrix.
+ * @param os output stream
+ * @param matrix ALGLIB sparse matrix to output
+ * @return reference to the output stream
+ */
 std::ostream& operator<<(std::ostream& os, const alglib::sparsematrix& matrix);
+
+/**
+ * Output operator for ALGLIB real array.
+ * @param os output stream
+ * @param array ALGLIB real array to output
+ * @return reference to the output stream
+ */
 std::ostream& operator<<(std::ostream& os, const alglib::real_1d_array& array);
+
+/**
+ * Print a linear programming problem in human-readable format.
+ * @param matrix constraint matrix
+ * @param lb lower bounds vector
+ * @param ub upper bounds vector
+ */
 void print_lp(const alglib::sparsematrix& matrix, const alglib::real_1d_array& lb, const alglib::real_1d_array& ub);
 
 }  // namespace lucid

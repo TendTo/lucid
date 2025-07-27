@@ -28,8 +28,10 @@ constexpr int LUCID_LOG_TRACE_LEVEL = 5;
   struct fmt::formatter<type> : ostream_formatter {};
 
 #ifdef LUCID_VERBOSE_EIGEN_BUILD
+#define LUCID_FORMAT_VECTOR(vector) fmt::format("[1x{}]\n{}", (vector).size(), vector)
 #define LUCID_FORMAT_MATRIX(matrix) fmt::format("[{}x{}]\n{}", (matrix).rows(), (matrix).cols(), matrix)
 #else
+#define LUCID_FORMAT_VECTOR(vector) fmt::format("[1x{}]", (vector).size())
 #define LUCID_FORMAT_MATRIX(matrix) fmt::format("[{}x{}]", (matrix).rows(), (matrix).cols())
 #endif
 
