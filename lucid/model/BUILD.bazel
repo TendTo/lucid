@@ -162,12 +162,14 @@ lucid_cc_library(
     name = "set",
     srcs = [
         "MultiSet.cpp",
+        "PolytopeSet.cpp",
         "RectSet.cpp",
         "Set.cpp",
         "SphereSet.cpp",
     ],
     hdrs = [
         "MultiSet.h",
+        "PolytopeSet.h",
         "RectSet.h",
         "Set.h",
         "SphereSet.h",
@@ -175,6 +177,7 @@ lucid_cc_library(
     implementation_deps = [
         "//lucid/util:error",
         "//lucid/util:random",
+        "//lucid/verification:optimiser",
     ],
     deps = [
         "//lucid/lib:eigen",

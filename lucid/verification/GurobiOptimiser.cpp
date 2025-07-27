@@ -68,7 +68,6 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   env.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
   env.start();
   GRBModel model{env};
-  model.set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
   model.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
   model.set(GRB_DoubleParam_TimeLimit, 10000);
 #ifdef LUCID_PYTHON_BUILD
@@ -203,7 +202,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   }
 
   // Objective function (η + cT)
-  model.setObjective(GRBLinExpr{(eta + c * T_) / gamma_});
+  model.setObjective(GRBLinExpr{(eta + c * T_) / gamma_}, GRB_MINIMIZE);
 
   LUCID_INFO("Optimizing");
   model.optimize();
@@ -230,10 +229,84 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   cb(true, model.get(GRB_DoubleAttr_ObjVal), solution, eta.get(GRB_DoubleAttr_X), c.get(GRB_DoubleAttr_X), actual_norm);
   return true;
 }
+
+std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {
+  std::pair<Vector, Vector> bounds{Vector::Constant(A.cols(), -std::numeric_limits<double>::infinity()),
+                                   Vector::Constant(A.cols(), std::numeric_limits<double>::infinity())};
+  static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
+
+  GRBEnv env{true};
+  env.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
+  env.start();
+  GRBModel model{env};
+  model.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
+  model.set(GRB_DoubleParam_TimeLimit, 10000);
+#ifdef LUCID_PYTHON_BUILD
+  PyInterruptCallback callback;
+  model.setCallback(&callback);
+#endif
+
+  const int nVars = static_cast<int>(A.cols());
+  constexpr bool should_log = true;
+  const std::unique_ptr<GRBVar[]> vars_{model.addVars(nVars)};
+  const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(nVars)};
+
+  for (Index i = 0; i < nVars; ++i) {
+    vars[i].set(GRB_DoubleAttr_LB, -std::numeric_limits<double>::infinity());
+    vars[i].set(GRB_DoubleAttr_UB, std::numeric_limits<double>::infinity());
+#ifndef NLOG
+    if (should_log) {
+      vars[i].set(GRB_StringAttr_VarName, fmt::format("x[{}]", i));
+    }
+#endif
+  }
+
+  for (Index row = 0; row < A.rows(); ++row) {
+    GRBLinExpr expr{};
+    expr.addTerms(A.row(row).data(), vars.data(), static_cast<int>(A.cols()));
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, b(row), fmt::format("b[{}", row), should_log);
+  }
+
+  for (Index col = 0; col < A.cols() * 2; ++col) {
+    const bool is_lower_bound = col < A.cols();
+    model.setObjective(vars[col] * (is_lower_bound ? -1.0 : 1.0), GRB_MINIMIZE);
+    model.optimize();
+    model.write(fmt::format("gurobi_bounding_box_{}.lp", col));
+    switch (model.get(GRB_IntAttr_Status)) {
+      case GRB_OPTIMAL: {
+        if (is_lower_bound) {
+          bounds.first(col) = vars[col].get(GRB_DoubleAttr_X);
+        } else {
+          bounds.second(col - A.cols()) = vars[col].get(GRB_DoubleAttr_X);
+        }
+        break;
+      }
+      case GRB_UNBOUNDED:
+        if (is_lower_bound) {
+          bounds.first(col) = -std::numeric_limits<double>::infinity();
+        } else {
+          bounds.second(col - A.cols()) = std::numeric_limits<double>::infinity();
+        }
+        break;
+      case GRB_INFEASIBLE:
+        LUCID_RUNTIME_ERROR_FMT("Empty model for dimension {}", col);
+      case GRB_INF_OR_UNBD:
+        LUCID_RUNTIME_ERROR("Could not handle infeasible/unbounded model");
+      default:
+        LUCID_UNREACHABLE();
+    }
+  }
+  return bounds;
+}
+
 #else
 bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                             Dimension, Dimension, const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
+  return false;
+}
+std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef, ConstVectorRef) {
+  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiOptimiser::bounding_box", "Gurobi");
   return false;
 }
 #endif  // LUCID_GUROBI_BUILD

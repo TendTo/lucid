@@ -23,6 +23,7 @@ using lucid::MultiSet;
 using lucid::Parameter;
 using lucid::ParameterValue;
 using lucid::ParameterValues;
+using lucid::PolytopeSet;
 using lucid::RectSet;
 using lucid::Request;
 using lucid::SphereSet;
@@ -72,6 +73,19 @@ TEST(TestPrint, RectSet) {
 
 TEST(TestPrint, SphereSet) {
   EXPECT_EQ(fmt::format("{}", SphereSet(Vector::Zero(3), 1.5)), "SphereSet( center( [0 0 0] ) radius( 1.5 ) )");
+}
+
+TEST(TestPrint, PolytopeSet) {
+  Matrix A(3, 2);
+  Vector b(3);
+  A << 1, 0,     // x <= 1
+      -1, 0,     // x >= -1 (i.e., -x <= 1)
+      0, 1;      // y <= 1
+  b << 1, 1, 1;  // b vector: [1, 1, 1]
+  EXPECT_EQ(fmt::format("{}", PolytopeSet(A, b)),
+            "PolytopeSet( A(  1  0\n"
+            "-1  0\n"
+            " 0  1 ) b( 1 1 1 ) )");
 }
 
 TEST(TestPrint, MultiSet) {

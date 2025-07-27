@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/verification/Optimiser.h"
@@ -37,6 +38,15 @@ class GurobiOptimiser final : public Optimiser {
   bool solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat, ConstMatrixRef w_mat,
              Dimension rkhs_dim, Dimension num_frequencies_per_dim, Dimension num_frequency_samples_per_dim,
              Dimension original_dim, const SolutionCallback& cb) const;
+
+  /**
+   * Compute the bounding box of a polytope defined by Ax <= b.
+   * Uses linear programming to find the minimum and maximum values for each dimension.
+   * @param A constraint matrix where each row represents a halfspace
+   * @param b constraint vector of right-hand side values
+   * @return pair of vectors (lower_bounds, upper_bounds) for each dimension
+   */
+  static std::pair<Vector, Vector> bounding_box(ConstMatrixRef A, ConstVectorRef b);
 };
 
 }  // namespace lucid

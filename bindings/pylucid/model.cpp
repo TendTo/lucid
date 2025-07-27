@@ -302,6 +302,12 @@ void init_model(py::module_ &m) {
       .def(py::init<Vector, double>(), py::arg("center"), py::arg("radius"))
       .def_property_readonly("center", &SphereSet::center)
       .def_property_readonly("radius", &SphereSet::radius);
+  py::class_<PolytopeSet, Set>(m, "PolytopeSet")
+      .def(py::init<Matrix, Vector>(), py::arg("A"), py::arg("b"))
+      .def("scale", &PolytopeSet::scale, py::arg("factor"))
+      .def_property_readonly("A", &PolytopeSet::A)
+      .def_property_readonly("b", &PolytopeSet::b)
+      .def_property_readonly("bounding_box", &PolytopeSet::bounding_box);
   py::class_<MultiSet, Set>(m, "MultiSet")
       .def(py::init([](const py::args &sets) {
         std::vector<std::unique_ptr<Set>> unique_sets;

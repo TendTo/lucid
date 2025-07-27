@@ -24,6 +24,7 @@
 #include "lucid/model/Parameter.h"
 #include "lucid/model/ParameterValue.h"
 #include "lucid/model/ParameterValues.h"
+#include "lucid/model/PolytopeSet.h"
 #include "lucid/model/RectSet.h"
 #include "lucid/model/Request.h"
 #include "lucid/model/Scorer.h"

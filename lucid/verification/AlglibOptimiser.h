@@ -36,6 +36,8 @@ class AlglibOptimiser final : public Optimiser {
                            ConstMatrixRef w_mat, Dimension rkhs_dim, Dimension num_frequencies_per_dim,
                            Dimension num_frequency_samples_per_dim, Dimension original_dim,
                            const SolutionCallback& cb) const;
+
+  static std::pair<Vector, Vector> bounding_box(ConstMatrixRef A, ConstVectorRef b);
 };
 
 }  // namespace lucid

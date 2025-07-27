@@ -19,9 +19,17 @@
 #include "lucid/util/logging.h"
 
 namespace lucid {
-
 #ifdef LUCID_ALGLIB_BUILD
 namespace {
+
+enum RetCode {
+  UNBOUNDED = -4,
+  INFEASIBLE = -3,
+  INFEASIBLE_OR_UNBOUNDED = -2,
+  OK = 1,  // 2, 3, 4 are also OK
+  MAX_ITERATIONS = 5,
+};
+
 class AlglibLpProblem {
  public:
   explicit AlglibLpProblem(const alglib::ae_int_t num_vars) : vars_{}, coeffs_{}, state_{}, rep_{} {
@@ -240,12 +248,84 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   cb(true, lp_problem.report().f, solution, lp_problem.solution()[eta], lp_problem.solution()[c], actual_norm);
   return true;
 }
+
+void compute_bounds(alglib::minlpstate& state, const alglib::ae_int_t i, const double coeff, alglib::real_1d_array& x,
+                    alglib::real_1d_array& c, Vector& bounds) {
+  alglib::minlpreport rep;
+  if (i > 0) c[i - 1] = 0.0;  // Reset the previous coefficient to 0
+  c[i] = coeff;
+  alglib::minlpsetcost(state, c);
+  alglib::minlpoptimize(state);
+  alglib::minlpresults(state, x, rep);
+
+  switch (rep.terminationtype) {
+    case OK:
+    case 2:
+    case 3:
+    case 4:
+    case MAX_ITERATIONS:
+      LUCID_DEBUG_FMT("Bounds for variable {}: x[{}] = {}", i, i, x[i]);
+      bounds[i] = x[i];  // Lower bound
+      break;
+    case UNBOUNDED:
+      LUCID_DEBUG_FMT("Variable {} is unbounded", i);
+      bounds[i] = (coeff > 0) ? alglib::fp_neginf : alglib::fp_posinf;
+      break;
+    case INFEASIBLE:
+    case INFEASIBLE_OR_UNBOUNDED:
+      LUCID_RUNTIME_ERROR("Optimisation is infeasible, no solution found");
+      break;
+    default:
+      LUCID_UNREACHABLE();
+  }
+}
+
+std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {
+  static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
+  static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
+
+  std::pair<Vector, Vector> bounds{Vector::Constant(A.cols(), -std::numeric_limits<double>::infinity()),
+                                   Vector::Constant(A.cols(), std::numeric_limits<double>::infinity())};
+
+  alglib::minlpstate state;
+  alglib::minlpcreate(A.cols(), state);
+
+  alglib::real_1d_array coeffs;
+  coeffs.setlength(A.cols());
+  for (alglib::ae_int_t i = 0; i < A.cols(); ++i) {
+    alglib::minlpsetbci(state, i, alglib::fp_neginf, alglib::fp_posinf);  // Set bounds for each variable
+  }
+  for (alglib::ae_int_t i = 0; i < A.rows(); ++i) {
+    for (alglib::ae_int_t j = 0; j < A.cols(); ++j) coeffs[j] = A(i, j);  // Copy coefficients from the matrix row
+    // coeffs.attach_to_ptr(static_cast<alglib::ae_int_t>(A.cols()), const_cast<double*>(A.row(i).data()));
+    alglib::minlpaddlc2dense(state, coeffs, alglib::fp_neginf, b[i]);
+  }
+
+  alglib::real_1d_array x;
+  alglib::real_1d_array c;
+  x.setlength(A.cols());
+  c.setlength(A.cols());
+  // Set the coefficients for the cost function to 0 initially
+  for (alglib::ae_int_t i = 0; i < A.cols(); ++i) c[i] = 0.0;
+  // Compute the bounds
+  for (alglib::ae_int_t i = 0; i < A.cols(); ++i) {
+    compute_bounds(state, i, 1.0, x, c, bounds.first);    // Compute lower bounds
+    compute_bounds(state, i, -1.0, x, c, bounds.second);  // Compute upper bounds
+  }
+
+  return bounds;
+}
+
 #else
 bool AlglibOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                             Dimension, Dimension, const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("AlglibOptimiser::solve", "alglib");
   return false;
 }
-#endif  // LUCID_GUROBI_BUILD
+std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {
+  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("AlglibOptimiser::bounding_box", "alglib");
+  return {};
+}
+#endif  // LUCID_ALGLIB_BUILD
 
 }  // namespace lucid

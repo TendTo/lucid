@@ -9,6 +9,7 @@
 #include <ostream>
 
 #include "lucid/model/MultiSet.h"
+#include "lucid/model/PolytopeSet.h"
 #include "lucid/model/RectSet.h"
 #include "lucid/model/SphereSet.h"
 #include "lucid/util/error.h"
@@ -24,6 +25,7 @@ std::ostream& operator<<(std::ostream& os, const Set& set) {
   if (const auto* casted_set = dynamic_cast<const RectSet*>(&set)) return os << *casted_set;
   if (const auto* casted_set = dynamic_cast<const MultiSet*>(&set)) return os << *casted_set;
   if (const auto* casted_set = dynamic_cast<const SphereSet*>(&set)) return os << *casted_set;
+  if (const auto* casted_set = dynamic_cast<const PolytopeSet*>(&set)) return os << *casted_set;
   return os << "Set( )";
 }
 
