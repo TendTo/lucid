@@ -39,7 +39,7 @@ class circulant_functor {
    * @param arg input vector from which to generate the circulant matrix
    */
   explicit circulant_functor(const ArgType& arg) : arg_(arg) {}
-  
+
   /**
    * Get the element at position (row, col) in the circulant matrix.
    * @param row row index
@@ -155,11 +155,11 @@ class pad_functor {
   }
 
  private:
-  const ArgType& arg_;               ///< Reference to the input matrix
-  const Eigen::Index pad_top_;       ///< Number of rows to pad at the top
-  const Eigen::Index pad_bottom_;    ///< Number of rows to pad at the bottom
-  const Eigen::Index pad_left_;      ///< Number of columns to pad at the left
-  const Eigen::Index pad_right_;     ///< Number of columns to pad at the right
+  const ArgType& arg_;                    ///< Reference to the input matrix
+  const Eigen::Index pad_top_;            ///< Number of rows to pad at the top
+  const Eigen::Index pad_bottom_;         ///< Number of rows to pad at the bottom
+  const Eigen::Index pad_left_;           ///< Number of columns to pad at the left
+  const Eigen::Index pad_right_;          ///< Number of columns to pad at the right
   const typename ArgType::Scalar value_;  ///< Value to use for padding
 };
 

@@ -15,6 +15,7 @@
  */
 namespace lucid::constants {
 
+// NOLINTNEXTLINE: false positive
 /** Whether Lucid is built with the [Gurobi](https://www.gurobi.com/) library. */
 constexpr bool GUROBI_BUILD =
 #ifdef LUCID_GUROBI_BUILD
@@ -23,6 +24,7 @@ constexpr bool GUROBI_BUILD =
     false;
 #endif
 
+// NOLINTNEXTLINE: false positive
 /** Whether Lucid is built with the [Alglib](https://www.alglib.net/) library. */
 constexpr bool ALGLIB_BUILD =
 #ifdef LUCID_ALGLIB_BUILD
@@ -31,6 +33,7 @@ constexpr bool ALGLIB_BUILD =
     false;
 #endif
 
+// NOLINTNEXTLINE: false positive
 /** Whether Lucid is built with the [Highs](https://highs.dev/) library. */
 constexpr bool HIGHS_BUILD =
 #ifdef LUCID_HIGHS_BUILD
@@ -39,6 +42,7 @@ constexpr bool HIGHS_BUILD =
     false;
 #endif
 
+// NOLINTNEXTLINE: false positive
 /** Whether Lucid is built with the [Matplotlib](https://matplotlib.org/) library. */
 constexpr bool MATPLOTLIB_BUILD =
 #ifdef LUCID_MATPLOTLIB_BUILD

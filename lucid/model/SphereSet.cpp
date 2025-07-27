@@ -8,6 +8,8 @@
 #include "lucid/model/SphereSet.h"
 
 #include <iostream>
+#include <limits>
+#include <vector>
 
 #include "RectSet.h"
 #include "lucid/util/error.h"
