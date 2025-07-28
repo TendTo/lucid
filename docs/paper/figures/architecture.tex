@@ -5,12 +5,13 @@
             output-block/.style={rectangle, draw, fill=green!20!white, text width=2.6cm, minimum height=0.8cm, align=center, rounded corners, drop shadow=gray!50},
             block/.style={rectangle, draw, fill=accent!20!white, text width=2.0cm, minimum height=0.8cm, align=center, rounded corners, drop shadow=gray!50},
             arrow/.style={thick,->,>=latex},
+            doc/.style={draw,thick,align=center,color=black,shape=document,minimum width=20mm-6mm,minimum height=24.2mm-10mm,shape=document,inner sep=1ex,fill=white,drop shadow=gray!50},
             % tool/.style={rectangle, draw, fill=magenta!10, text width=3cm, minimum height=0.8cm, align=center, rounded corners},
             inv/.style={}
         ]
 
         % Input block
-        \node[doc] (input) {Configuration\\[.2em]\textit{.yaml/.json}};
+        \node[doc] (input) {Configuration\\[.2em]\textit{.yaml/.json/.py}};
 
         % Lucid blocks
         \node[block, below=1cm of input] (estimator) {\Circled{2} Estimator};
