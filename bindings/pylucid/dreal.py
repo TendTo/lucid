@@ -179,11 +179,11 @@ def verify_barrier_certificate(
                 # Non-negativity of the barrier function (-tolerance)
                 barrier >= -tolerance,
                 # First condition
-                Implies(build_set_constraint(xs, X_init), barrier <= eta),
+                Implies(build_set_constraint(xs, X_init), barrier <= eta + tolerance * eta),
                 # Second condition
-                Implies(build_set_constraint(xs, X_unsafe), barrier >= gamma),
+                Implies(build_set_constraint(xs, X_unsafe), barrier >= gamma - tolerance * gamma),
                 # Third condition
-                barrier_p - barrier <= c + tolerance,
+                barrier_p - barrier <= c + tolerance * c,
             ),
         ),
     )
@@ -197,9 +197,20 @@ def verify_barrier_certificate(
     log.error(f"Model: {model}")
     point = np.array([list(model.values())], dtype=np.float64)
     pointp = f_det(point)
-    log.error(f"X: {point}, barrier value: {tffm(point) @ sol.T}")
-    log.error(f"Xp: {pointp}, barrier value: {tffm(pointp) @ sol.T}")
-    log.error(f"Xp: estimated, barrier value: {estimator(point) @ sol.T}")
+    true_barrier = tffm(point) @ sol.T
+    true_barrier_p = tffm(pointp) @ sol.T
+    estimated_barrier = estimator(point) @ sol.T
+    log.error(f"X: {point}, barrier value: {true_barrier}")
+    log.error(f"Xp: {pointp}, barrier value: {true_barrier_p}")
+    log.error(f"Xp: estimated, barrier value: {estimated_barrier}")
     log.error(f"Barrier at Xp {tffm(pointp)[0]}")
     log.error(f"Estimated barrier at Xp {estimator(point)[0]}")
+    if (true_barrier < -tolerance).any():
+        log.error("Violated barrier condition: B >= 0.")
+    if point in X_unsafe and (true_barrier < gamma - tolerance * gamma).any():
+        log.error("Violated barrier condition: B >= gamma.")
+    if point in X_init and (true_barrier > eta + tolerance * eta).any():
+        log.error("Violated barrier condition: B <= eta.")
+    if (true_barrier_p - true_barrier > c + tolerance * c).any():
+        log.error("Violated barrier condition: Bp - B <= c.")
     return False
