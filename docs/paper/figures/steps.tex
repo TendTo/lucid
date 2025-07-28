@@ -1,31 +1,36 @@
 \begin{figure}[ht]
     \centering
     \begin{tikzpicture}[node distance=0.6cm and 0.9cm,
-            input-block/.style={rectangle, draw, fill=red!10, text width=3.5cm, minimum height=1.0cm, align=center, rounded corners},
-            output-block/.style={rectangle, draw, fill=green!10, text width=3.5cm, minimum height=1.0cm, align=center, rounded corners},
-            block/.style={rectangle, draw, fill=blue!10, text width=3.5cm, minimum height=1.0cm, align=center, rounded corners},
+            input-block/.style={rectangle, draw, fill=white, text width=3.5cm, minimum height=1.0cm, align=center, rounded corners, drop shadow=gray!50},
+            output-block/.style={rectangle, draw, fill=green!20, text width=3.5cm, minimum height=1.0cm, align=center, rounded corners, drop shadow=gray!50},
+            block/.style={rectangle, draw, fill=accent!20, text width=3.7cm, minimum height=1.0cm, align=center, rounded corners, drop shadow=gray!50},
             arrow/.style={thick,->,>=Stealth},
-            tool/.style={rectangle, draw, fill=green!20, text width=2cm, minimum height=0.8cm, align=center, rounded corners},
-            inv/.style={}
+            tool/.style={rectangle, draw, fill=green!20, minimum height=0.8cm, align=center, rounded corners, drop shadow=gray!50},
+            inv/.style={}, 
+            arrow/.style={thick,->,>=latex}
         ]
 
         % Input block
         \node[input-block] (samples) {Collect samples $\{(x^i,a^i, x_+^i)\}_{i=1}^N$};
 
         % Lucid blocks
-        \node[block, right=of samples] (estimator) {Fit the estimator $\hat{f}\colon \X\times\A \to \X$};
-        \node[block, below=of estimator] (feature) {Construct the feature map $\phi_M\colon \X\times\A \to \mathbb{R}^M$};
+        \node[block, right=of samples] (estimator) {Fit the estimator 
+        $\E[f(X_+)\!\mid\! X=x,A=a]$
+        % $\hat{f}\colon \X\times\A \to \X$
+        };
+        \node[block, below=of estimator] (feature) {Construct the feature map $\phi_M\colon \X \to \mathbb{R}^{2M+1}$};
         \node[block, below=of feature] (lattice) {Construct lattices on $\X, \X_0, \X_u$};
         \node[block, below=of lattice] (apply-lattice) {Apply the feature map to the lattice points};
         \node[block, below=of apply-lattice] (optimizer) {Solve the LP};
         \node[draw, dashed, inner sep=0.3cm, rounded corners,
         fit=(estimator)(feature)(lattice)(apply-lattice)(optimizer), label=above:{\textbf{\lucid}}] {};
 
-        \node[input-block, left=of lattice] (specification) {Specification $\X$, $\X_0$, $\X_u$};
+        \node[input-block, left=of lattice] (specification) {Specify $\X, \X_0, \X_u$};
 
 
         % Output block
-        \node[output-block, left=of optimizer] (output) {Barrier certificate\\+\\Safety probability};
+        \node[output-block, left=of optimizer, yshift=.75cm] (output) {Barrier certificate};
+        \node[output-block, left=of optimizer, yshift=-.75cm] (output2) {Safety probability};
 
         % Arrows
         \draw[arrow] (samples) -- (estimator);
@@ -34,7 +39,8 @@
         \draw[arrow] (feature) -- (lattice);
         \draw[arrow] (lattice) -- (apply-lattice);
         \draw[arrow] (apply-lattice) -- (optimizer);
-        \draw[arrow] (optimizer) -- (output);
+        \draw[arrow] (optimizer.170) -- (output.east);
+        \draw[arrow] (optimizer.190) -- (output2.east);
 
     \end{tikzpicture}
     \caption{Sequence of steps \lucid goes through to generate a barrier certificate.}
