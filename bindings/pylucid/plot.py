@@ -249,7 +249,7 @@ def plot_solution_1d(
                 y=est_values.flatten(),
                 mode="lines",
                 line=dict(color="purple"),
-                name="B(xp) via regression",
+                name="B(xp) est.",
             )
 
         # Lattice points
@@ -280,8 +280,17 @@ def plot_solution_1d(
                 y=est_lattice_values.flatten(),
                 mode="markers",
                 marker=dict(color="purple"),
-                name="B(xp) via regression (lattice)",
+                name="B(xp) est. (lattice)",
             )
+
+    # Mainly for the presentation
+    # fig.update_layout(margin=dict(l=0, r=0, t=40, b=10))
+    # fig.update_layout(legend=dict(
+    #     yanchor="middle",
+    #     y=0.5,
+    #     xanchor="center",
+    #     x=0.5
+    # ))
 
     fig.update_layout(title="Barrier certificate", xaxis_title="State space", showlegend=True)
 
@@ -441,7 +450,7 @@ def plot_solution_2d(
                 z=Z_est,
                 colorscale=[[0, "purple"], [1, "purple"]],
                 opacity=0.3,
-                name="B(xp) via regression",
+                name="B(xp) est.",
                 showscale=False,
                 showlegend=True,
             )
