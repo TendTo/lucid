@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -32,7 +32,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
   IndexIterator<Index> it{static_cast<std::size_t>(x_limits_.dimension()), num_frequencies_per_dimension_};
   for (Index row = 0; it; ++it, ++row) {
     // For each combination, compute the product of the sines and cosines of the values in the vector
-    // TODO(tend): We can probably remove the reverse
+    // TODO: We can probably remove the reverse
     Index col = 0;
     for (const Index val : std::views::reverse(it.indexes()))
       omega_(row, col++) = 2 * std::numbers::pi * static_cast<double>(val);
@@ -47,7 +47,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
 
   const Vector single_weights{prod.cwiseSqrt()};
   LUCID_ASSERT((single_weights.array() >= 0).all(), "single_weights >= 0");
-  // TODO(tend): Repeat each column twice, except the first one, or repeat all?
+  // TODO: Repeat each column twice, except the first one, or repeat all?
   weights_(0) = single_weights(0);  // The 0th frequency does not need to be repeated
   for (Index i = 1; i < single_weights.size(); i++) {
     weights_(2 * i) = single_weights(i);
@@ -58,7 +58,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   auto z = (x - x_limits_.lower_bound()).cwiseQuotient(x_limits_.upper_bound() - x_limits_.lower_bound());
   LUCID_ASSERT(z.size() == omega_.cols(), "z.size() == omega_.cols()");
-  // TODO(tend): Does it become a problem if the input is outside the bounds?
+  // TODO: Does it become a problem if the input is outside the bounds?
   // LUCID_ASSERT((z.array() >= 0).all() && (z.array() <= 1).all(), "0 <= z <= 1");
 
   Vector z_proj = omega_ * z.transpose();  // It is also computing the 0th frequency, although it is not used later
@@ -74,7 +74,7 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
 #ifndef NLOG
   if (Scalar checksum = (basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f_).abs().maxCoeff();
       checksum > .06) {
-    // TODO(tend): this will probably need to be a warning. Maybe only put it for the matrix case?
+    // TODO: this will probably need to be a warning. Maybe only put it for the matrix case?
     LUCID_TRACE_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 0.06", checksum);
   }
 #endif

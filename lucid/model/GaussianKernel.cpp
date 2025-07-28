@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -42,7 +42,7 @@ Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
   LUCID_CHECK_ARGUMENT_EQ(x1.cols(), sigma_l_.size());
 
   const bool is_same_input = &x1 == &x2;
-  // TODO(tend): for efficiency, we should implement a method similar to `squareform` so that we only compute a vector
+  // TODO: for efficiency, we should implement a method similar to `squareform` so that we only compute a vector
   //  when we are working on a single input
   // Compute the gaussian kernel: σf^2 * exp(-0.5 * ||(x1 / σl) - (x2 / σl)||^2)
   Matrix dist{is_same_input ? pdist<2, true, true>((x1.array().rowwise() / sigma_l_.array()).matrix())

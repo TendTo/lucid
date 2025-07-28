@@ -53,7 +53,7 @@ Create a file named `config.yaml` and define your configuration options.
 You can use the following example as a template:
 
 ```yaml
-# yaml-language-server: \$schema=https://tendto.github.io/lucid/configuration_schema.json
+# yaml-language-server: \$schema=https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json
 # Basic configuration
 verbose: 3 # LOG_INFO
 seed: 42
@@ -128,7 +128,7 @@ You can use the following example as a template:
 
 ```json
 {
-  "$schema": "https://tendto.github.io/lucid/configuration_schema.json",
+  "$schema": "https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json",
   // Basic configuration
   "verbose": 3, // LOG_INFO
   "seed": 42,

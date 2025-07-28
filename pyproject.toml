@@ -6,11 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "pylucid"
 readme = "README.md"
 authors = [
-    { name = "Ernesto Casablanca", email = "casablancaernesto@gmail.com" },
-    { name = "Oliver Schon", email = "o.schoen2@newcastle.ac.uk" },
 ]
 maintainers = [
-    { name = "Ernesto Casablanca", email = "casablancaernesto@gmail.com" },
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -43,11 +40,11 @@ dependencies = [
 dynamic = ["version", "description"]
 
 [project.urls]
-Homepage = "https://tendto.github.io/lucid/"
-Documentation = "https://tendto.github.io/lucid/"
-Repository = "https://github.com/TendTo/lucid.git"
-Issues = "https://github.com/TendTo/lucid/issues"
-Changelog = "https://github.com/TendTo/lucid/blob/main/docs/Changelog.md"
+Homepage = "https://lucidtoolsource.gitlab.io/lucid/"
+Documentation = "https://lucidtoolsource.gitlab.io/lucid/"
+Repository = "https://gitlab.com/lucidtoolsource/lucid.git"
+Issues = "https://gitlab.com/lucidtoolsource/lucid/issues"
+Changelog = "https://gitlab.com/lucidtoolsource/lucid/blob/main/docs/Changelog.md"
 
 [project.optional-dependencies]
 verification = ["dreal"]

@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -111,7 +111,7 @@ class shift_functor {
  */
 template <class ArgType>
 struct pad_helper {
-  // TODO(tend): to optimise it further, we could introduce some compile time pad overloads and adjust the
+  // TODO: to optimise it further, we could introduce some compile time pad overloads and adjust the
   // new matrix size accordingly. Probably not really worth the effort for now.
   using MatrixType = Eigen::Matrix<typename ArgType::Scalar, Eigen::Dynamic, Eigen::Dynamic>;
 };

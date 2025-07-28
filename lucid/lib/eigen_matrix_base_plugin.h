@@ -1,6 +1,6 @@
 // NOLINT(build/header_guard): This is supposed to be included in the middle of the Matrix class
 /**
-* @author Room 6.030
+* @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file

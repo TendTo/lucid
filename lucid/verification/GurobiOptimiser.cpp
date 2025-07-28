@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -191,7 +191,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   for (Index row = 0; row < mult.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(mult.row(row).data(), vars_.get(), static_cast<int>(mult.cols()));
-    expr += -fctr1 * c - fctr2 * minDelta;  // TODO(tend): c − εB̄κ
+    expr += -fctr1 * c - fctr2 * minDelta;  // TODO: c − εB̄κ
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, kushner_rhs, fmt::format("B(xp)-B(x)<=hatDelta[{}]", row),
                                should_log);
     expr.remove(c);

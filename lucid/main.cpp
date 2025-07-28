@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence Apache-2.0 license
  * @file
@@ -143,7 +143,7 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, Scalar s
   }
 
   return [weights = std::move(weights), omega_T = omega_T.eval(), sigma_f](ConstVectorRef x, ConstMatrixRef x_limits) {
-    // TODO(tend): this only works for rectangles sets
+    // TODO: this only works for rectangles sets
     // Project the element onto the unit hypercube
     auto z = (x.transpose() - x_limits.row(0)).cwiseQuotient(x_limits.row(1) - x_limits.row(0));
 

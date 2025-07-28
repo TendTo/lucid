@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -105,7 +105,7 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                                                                 Eigen::VectorXd& grad) {
     gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x));
     gradient_estimator.consolidate(training_inputs, training_outputs_ref, Request::GRADIENT | Request::OBJECTIVE_VALUE);
-    // TODO(tend): copy elements instead of allocating a new vector
+    // TODO: copy elements instead of allocating a new vector
     grad = -gradient_estimator.gradient();
     return -gradient_estimator.objective_value();
   };

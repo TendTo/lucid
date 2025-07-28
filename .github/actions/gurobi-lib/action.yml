@@ -66,13 +66,15 @@ runs:
       shell: bash
       run: |
         sudo installer -pkg ${{ github.workspace }}/gurobi/gurobi.pkg -target /
+      env:
+        PATH: "/usr/bin:/usr/sbin:/bin:${{ env.PATH }}"
     - name: Download and extract Gurobi
       if: ${{ startsWith(inputs.os, 'windows') }}
       shell: powershell
       run: |
         choco install lessmsi
         lessmsi x gurobi\gurobi.msi gurobi
-        mv ${{ github.workspace }}\gurobi\SourceDir\${{ steps.remove-dots.outputs.gurobi_dir }}\win64\* ${{ github.workspace }}\gurobi
+        mv ${{ github.workspace }}/gurobi/SourceDir/${{ steps.remove-dots.outputs.gurobi_dir }}/win64/* ${{ github.workspace }}/gurobi
 
     - name: Set Gurobi home output
       id: set-gurobi-home

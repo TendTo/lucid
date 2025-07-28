@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -91,7 +91,7 @@ py::object get_parameter_values(const ParameterValues &self) {
       [&self]() { return py::tuple{py::cast(self.get<double>())}; },
       [&self]() {
         return py::tuple(py::cast(self.get<Vector>()));
-        // TODO(tend): this is not efficient, we should return a tuple of non-owning, non-writable numpy arrays
+        // TODO: this is not efficient, we should return a tuple of non-owning, non-writable numpy arrays
         // const std::vector<Vector> &vectors = self.get<Vector>();
         // py::list l{vectors.size()};
         // for (const Vector &v : vectors) {
@@ -510,7 +510,7 @@ void init_model(py::module_ &m) {
       .def_property_readonly("regularization_constant", &KernelRidgeRegressor::regularization_constant);
 
   /**************************** Misc ****************************/
-  // TODO(tend): it would be nice to encapsulate this in a class
+  // TODO: it would be nice to encapsulate this in a class
   m.def(
       "fft_upsample",
       [](ConstMatrixRef f, const Index from_num_samples, const Index to_num_samples, const Index dimension) {

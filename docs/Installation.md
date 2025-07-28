@@ -9,16 +9,12 @@
 
 ### Using Lucid with Docker
 
-A pre-build Docker image is available on the [GitHub repository](https://github.com/TendTo/lucid/pkgs/container/lucid).
+A pre-build Docker image is available on the [GitLab repository](https://gitlab.com/lucidtoolsource/lucid/container_registry/).
 First, pull the image from the repository's container registry:
 
 ```bash
 # Pull the image
-docker pull ghcr.io/tendto/lucid:main
-
-# If you want to use the source version, you can build it yourself
-# Build the image
-docker build -t lucid .
+docker pull registry.gitlab.com/lucidtoolsource/lucid:latest
 ```
 
 Then, simply run the image.
@@ -31,13 +27,14 @@ You have the option to run the main script, to which you have to pass the config
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
-  ghcr.io/tendto/lucid:main /scripts/script.py
+  registry.gitlab.com/lucidtoolsource/lucid:latest /scripts/script.py
 
 # Run the GUI.
 # Keep in mind that you need to mount a Gurobi WS License (gurobi.lic) in the container for the Gurobi solver to work.
 docker run --name lucid -it --rm -p 3661:3661 \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
-  --entrypoint pylucid-gui ghcr.io/tendto/lucid:main
+  --entrypoint pylucid-gui \
+  registry.gitlab.com/lucidtoolsource/lucid:latest
 ```
 
 ## Lucid (source)
@@ -101,7 +98,7 @@ Assuming all requirements have been met, the first step is to obtain the source 
 
 ```bash
 # Clone the repository
-git clone https://github.com/TendTo/lucid.git
+git clone https://gitlab.com/lucidtoolsource/lucid.git
 
 # Move to the root of the repository
 cd lucid

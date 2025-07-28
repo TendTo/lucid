@@ -1,6 +1,5 @@
 FROM ubuntu:22.04
 
-LABEL authors="Oliver Schon, Ernesto Casablanca"
 LABEL workspace="lucid"
 EXPOSE 3661
 
@@ -59,7 +58,6 @@ ENTRYPOINT [ "pylucid" ]
 
 # FROM alpine:3.21.3
 
-# LABEL authors="Oliver Schon, Ernesto Casablanca"
 # LABEL workspace="lucid"
 
 

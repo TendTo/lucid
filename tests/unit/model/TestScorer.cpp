@@ -1,5 +1,5 @@
 /**
- * @author TendTo
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  */

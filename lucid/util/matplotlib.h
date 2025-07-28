@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @author Benno Evers
  * @copyright 2014 (https://github.com/lava/matplotlib-cpp)
  * @copyright 2025 lucid
@@ -227,7 +227,7 @@ bool plot(const ContainerX& x, const ContainerY& y, const PlotKwargs& kwargs = {
 #ifndef WITHOUT_NUMPY
 
 #if 0
-// TODO(tend): make it work with vector of vectors
+// TODO: make it work with vector of vectors
 template <template <class NumericX> class ContainerX, class NumericX, template <class NumericY> class ContainerY,
           class NumericY, template <class NumericZ> class ContainerZ, class NumericZ>
   requires lucid::SizedDataContainer<ContainerX<NumericX>, NumericX> &&

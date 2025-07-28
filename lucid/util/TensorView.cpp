@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -210,7 +210,7 @@ void TensorView<T>::fft_upsample(TensorView<double>& out) const {
 
   Tensor<std::complex<double>> pad_out = fft_out.pad(padding, start_padding);
 
-  // TODO(tend): Do we need this or not?? It does not seem to change anything in the interpolation, at least for reals
+  // TODO: Do we need this or not?? It does not seem to change anything in the interpolation, at least for reals
   // for (const std::size_t dim : dims_) {
   //   if (dim & 1) continue;
   //   const_cast<std::complex<double>*>(pad_out.view().data_.data())[dim / 2] /= 2;

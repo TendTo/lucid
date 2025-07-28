@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -42,7 +42,7 @@ bool SphereSet::operator()(ConstVectorRef x) const {
   return (x - center_).squaredNorm() <= radius_ * radius_ + std::numeric_limits<Scalar>::epsilon();
 }
 Matrix SphereSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {
-  // TODO(tend): Implement a more efficient lattice generation. This is generic, but not optimal.
+  // TODO: Implement a more efficient lattice generation. This is generic, but not optimal.
   //  We could limit ourself to a 1/2**d square and then apply it symmetrically to the rest of the space.
   const RectSet rect_set{center_.array() - radius_, center_.array() + radius_};
   const Matrix lattice{rect_set.lattice(points_per_dim, include_endpoints)};

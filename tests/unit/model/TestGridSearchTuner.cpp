@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  */
@@ -116,7 +116,7 @@ class TestGridSearchTuner : public ::testing::TestWithParam<std::size_t> {
   const int dim_{3};
   const Matrix training_inputs_{Matrix::Random(num_samples_, dim_)};
   const Matrix training_outputs_{Matrix::Random(num_samples_, 2)};
-  // TODO(tend): This is needed when tuning with the feature map, because we need to match the sigma_l dimension (?)
+  // TODO: This is needed when tuning with the feature map, because we need to match the sigma_l dimension (?)
   const Matrix training_outputs_full_{Matrix::Random(num_samples_, dim_)};
   const std::vector<ParameterValues> parameters_{
       ParameterValues{Parameter::SIGMA_L, std::vector<Vector>{Vector::Constant(dim_, 0.1), Vector::Constant(dim_, 1.0),

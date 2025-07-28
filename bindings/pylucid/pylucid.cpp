@@ -1,6 +1,6 @@
 /**
  * @file pylucid.cpp
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  */

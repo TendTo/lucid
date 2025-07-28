@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
@@ -95,8 +95,8 @@ class AlglibLpProblem {
   }
 
   void solve() {
-    // minlpsetscale(state, s); // TODO(tend): do we want to specify a scaling vector?
-    // minlpsetalgoipm(state); // TODO(tend): do we want to specify an algorithm?
+    // minlpsetscale(state, s); // TODO: do we want to specify a scaling vector?
+    // minlpsetalgoipm(state); // TODO: do we want to specify an algorithm?
     alglib::minlpoptimize(state_);
     alglib::minlpresults(state_, x_, rep_);
   }
@@ -168,7 +168,7 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   LUCID_DEBUG("Restricting safety probabilities to be positive");
   lp_problem.add_constraint<'<'>(std::array{eta, c}, std::array{1.0, static_cast<double>(T_)}, gamma_);
 
-  // TODO(tend): since we are using row major order, there is no need to copy each row of the matrix.
+  // TODO: since we are using row major order, there is no need to copy each row of the matrix.
   //  Just add an assertion to make sure this is not changed at a later date, breaking the LP problem.
   LUCID_DEBUG_FMT(
       "Positive barrier - {} constraints\n"

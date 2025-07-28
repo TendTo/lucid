@@ -30,7 +30,7 @@ We provide a pre-built Pylucid package that can be installed directly with pip w
 
 ```bash
 # Install pylucid
-pip install "pylucid[gui,plot]" --index-url https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
+pip install "pylucid[gui,plot]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
 
 # Ensure pylucid is installed correctly
 python3 -c "import pylucid; print(pylucid.__version__)"
@@ -49,7 +49,7 @@ You can install the bindings in your Python environment using the following comm
 
 ```bash
 # Make sure you are in the lucid root directory
-pip install .
+pip install "."
 ```
 
 It is possible to customise the installation, including optional dependencies, to enable additional features.

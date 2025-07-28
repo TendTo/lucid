@@ -11,5 +11,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[0.0.1]: https://github.com/TendTo/lucid
-[NEXT.VERSION]: https://github.com/TendTo/lucid
+[0.0.1]: https://gitlab.com/lucidtoolsource/lucid
+[NEXT.VERSION]: https://gitlab.com/lucidtoolsource/lucid

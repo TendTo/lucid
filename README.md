@@ -2,17 +2,11 @@
 
 _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems_
 
-[![lucid CI](https://github.com/TendTo/lucid/actions/workflows/lucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/lucid.yml)
-[![pylucid CI](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml)
-[![Docker CI](https://github.com/TendTo/lucid/actions/workflows/docker.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docker.yml)
-[![Docs CI](https://github.com/TendTo/lucid/actions/workflows/docs.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docs.yml)
-
-> My integral is your table.  
-> -- _[Oliver Schön](https://oliverschon.com/)_
-
 ## Quick installation
 
-For more details, see the [installation instructions](docs/Installation.md).
+For more details, see the [installation](https://gitlab.com/lucidtoolsource/lucid/-/blob/main/docs/Installation.md) or the [Pylucid](https://gitlab.com/lucidtoolsource/lucid/-/blob/main/docs/Pylucid.md) chapters.
+
+If you encounter any errors, please refer to the [Troubleshooting](https://gitlab.com/lucidtoolsource/lucid/-/blob/main/docs/FAQ.md#troubleshooting) section or open an issue.
 
 [//]: # "@tabbed"
 [//]: # "@tab"
@@ -27,21 +21,22 @@ For more details, see the [installation instructions](docs/Installation.md).
 **Command**
 
 ```bash
-# Pull the image
-docker pull ghcr.io/tendto/lucid:main
+# Build the image
+docker pull registry.gitlab.com/lucidtoolsource/lucid:latest
 
 # Run the image on script/path/to/script.py.
 # Needs a Gurobi WS licence to use the Gurobi solver.
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
-  ghcr.io/tendto/lucid:main /scripts/script.py
+  registry.gitlab.com/lucidtoolsource/lucid:latest /scripts/script.py
 
 # Run the GUI.
 # Needs a Gurobi WS licence to use the Gurobi solver.
 docker run --name lucid -it --rm -p 3661:3661 \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
-  --entrypoint pylucid-gui ghcr.io/tendto/lucid:main
+  --entrypoint pylucid-gui \
+  registry.gitlab.com/lucidtoolsource/lucid:latest
 ```
 
 [//]: # "@end-tab"
@@ -93,15 +88,6 @@ docker run --name lucid -it --rm -p 3661:3661 \
 **Installation commands**
 
 ```bash
-# Create a virtual environment (optional)
-python3 -m venv .venv
-
-# Activate the virtual environment on Linux (optional)
-source .venv/bin/activate
-
-# Activate the virtual environment on Windows (optional)
-.venv\Scripts\activate
-
 # Install pylucid
 pip install "pylucid[gui,plot]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
 
@@ -112,7 +98,7 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 [//]: # "@end-tab"
 [//]: # "@tab"
 
-### Python (from source)
+### Python (source)
 
 **Requirements**
 
@@ -128,56 +114,16 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 
 ```bash
 # Clone the repository
-git clone https://github.com/TendTo/lucid.git
+git clone https://gitlab.com/lucidtoolsource/lucid.git
 
 # Move to the root of the repository
 cd lucid
-
-# Create a virtual environment (optional)
-python3 -m venv .venv
-
-# Activate the virtual environment on Linux (optional)
-source .venv/bin/activate
-
-# Activate the virtual environment on Windows (optional)
-.venv\Scripts\activate
 
 # Install the python wrapper (pylucid)
 pip install ".[gui,plot]"
 
 # Ensure pylucid is installed
 python3 -c "import pylucid; print(pylucid.__version__)"
-```
-
-[//]: # "@end-tab"
-[//]: # "@tab"
-
-### Source
-
-**Requirements**
-
-- [Bazel](https://bazel.build/) 8.1.1
-- C++ compiler with C++20 support
-  - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
-  - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
-  - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
-- [Gurobi](https://www.gurobi.com/) 12.0.1
-
-> [!IMPORTANT]  
-> While it is possible to run the Lucid binary following the instructions below,
-> right now it simply solves a default problem.
-
-**Installation commands**
-
-```bash
-# Clone the repository
-git clone https://github.com/TendTo/lucid.git
-
-# Move to the root of the repository
-cd lucid
-
-# Compile and run lucid
-bazel run //lucid -- [args]
 ```
 
 [//]: # "@end-tab"

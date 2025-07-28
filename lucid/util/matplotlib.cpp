@@ -1,5 +1,5 @@
 /**
- * @author Room 6.030
+ * @author lucid_authors
  * @author Benno Evers
  * @copyright 2014 Benno Evers
  * @copyright 2025 lucid
