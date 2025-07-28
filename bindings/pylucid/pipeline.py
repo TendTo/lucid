@@ -155,21 +155,30 @@ def pipeline(
     # We are fixing the zero frequency to the constant value we computed in the feature map
     # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
     u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * args.sigma_f
+    log.debug(f"x_lattice: {x_lattice.shape}, u_f_x_lattice: {u_f_x_lattice.shape}")
+
 
     if args.constant_lattice_points:
         x0_lattice = args.X_init.lattice(num_oversample, True)
         xu_lattice = args.X_unsafe.lattice(num_oversample, True)
     else:
         # TODO: implement this more efficiently in lucid (C++)
-        count = 0
-        x0_lattice = np.empty_like(x_lattice)
+        # Extreme points are always included in the lattice,
+        # to make sure gamma and eta conditions are satisfied on the boundaries
+        x0_extreme_points = args.X_init.lattice(2, True)
+        x0_lattice = np.concatenate([x0_extreme_points, np.empty_like(x_lattice)], axis=0)
+        count = x0_extreme_points.shape[0]
         for point in x_lattice:
             if point in args.X_init:
                 x0_lattice[count] = point
                 count += 1
         x0_lattice.resize((count, args.X_bounds.dimension))
-        count = 0
-        xu_lattice = np.empty_like(x_lattice)
+
+        # Extreme points are always included in the lattice,
+        # to make sure gamma and eta conditions are satisfied on the boundaries
+        xu_extreme_points = args.X_unsafe.lattice(2, True)
+        xu_lattice = np.concatenate([xu_extreme_points, np.empty_like(x_lattice)], axis=0)
+        count = xu_extreme_points.shape[0]
         for point in x_lattice:
             if point in args.X_unsafe:
                 xu_lattice[count] = point
@@ -190,7 +199,7 @@ def pipeline(
             log.info("Optimization succeeded")
             log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
             log.debug(f"{sol = }")
-        if args.plot:
+        if args.plot and args.X_bounds.dimension <= 2:
             result["fig"] = plot_solution(
                 X_bounds=args.X_bounds,
                 X_init=args.X_init,
