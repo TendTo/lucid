@@ -24,7 +24,7 @@ For more details, see the [installation instructions](docs/Installation.md).
 [//]: # "@tabbed"
 [//]: # "@tab"
 
-### Docker
+### Docker (pre-built)
 
 **Requirements**
 
@@ -48,11 +48,35 @@ docker run --name lucid -it --rm \
 [//]: # "@end-tab"
 [//]: # "@tab"
 
+### Docker (source)
+
+**Requirements**
+
+- [Docker](https://www.docker.com/)
+- [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+
+**Command**
+
+```bash
+# Build the image
+docker build -t lucid .
+
+# Run the image on script/path/to/script.py.
+# Needs the Gurobi WS licence /path/to/gurobi.lic
+docker run --name lucid -it --rm \
+  -v/path/to/script.py:/scripts \
+  -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
+  lucid /scripts/script.py
+```
+
+[//]: # "@end-tab"
+[//]: # "@tab"
+
 ### Python (pre-built)
 
 **Requirements**
 
-- [Python](https://www.python.org/) version (3.8, 3.9, 3.10, 3.11, 3.12, 3.13)
+- [Python](https://www.python.org/) 3.8 or higher
 - [Linux](https://www.linux.org/), [Windows](https://www.microsoft.com/en-us/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
 
 **Installation commands**

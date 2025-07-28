@@ -1,6 +1,6 @@
 # Installation
 
-## From Docker
+## Docker
 
 ### Requirements
 
@@ -15,6 +15,10 @@ First, pull the image from the repository's container registry:
 ```bash
 # Pull the image
 docker pull ghcr.io/tendto/lucid:main
+
+# If you want to use the source version, you can build it yourself
+# Build the image
+docker build -t lucid .
 ```
 
 Then, simply run the image with the following command:
@@ -29,7 +33,7 @@ docker run --name lucid -it --rm \
   ghcr.io/tendto/lucid:main /scripts/script.py
 ```
 
-## From source
+## Lucid (source)
 
 ### Requirements
 
