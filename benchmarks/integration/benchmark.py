@@ -133,8 +133,6 @@ class TimeLogger:
 
 
 def benchmark_pipeline(config: Configuration):
-    tick = datetime.now()
-
     with TimeLogger("setup"):
         config_dict = config.to_safe_dict()
         mlflow.log_dict(config_dict, "config.yaml")
@@ -216,13 +214,35 @@ def benchmark_pipeline(config: Configuration):
         # We are fixing the zero frequency to the constant value we computed in the feature map
         # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
         u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * config.sigma_f
+        mlflow.log_metric("x_lattice.shape.0", x_lattice.shape[0])
+        mlflow.log_metric("u_f_x_lattice.shape.1", u_f_x_lattice.shape[1])
 
-        x0_lattice = config.X_init.lattice(num_oversample, True)
+        if config.constant_lattice_points:
+            x0_lattice = config.X_init.lattice(num_oversample, True)
+            xu_lattice = config.X_unsafe.lattice(num_oversample, True)
+        else:
+            # TODO: implement this more efficiently in lucid (C++)
+            count = 0
+            x0_lattice = np.empty_like(x_lattice)
+            for point in x_lattice:
+                if point in config.X_init:
+                    x0_lattice[count] = point
+                    count += 1
+            x0_lattice.resize((count, config.X_bounds.dimension))
+            count = 0
+            xu_lattice = np.empty_like(x_lattice)
+            for point in x_lattice:
+                if point in config.X_unsafe:
+                    xu_lattice[count] = point
+                    count += 1
+            xu_lattice.resize((count, config.X_bounds.dimension))
+        mlflow.log_metric("x0_lattice.shape.0", x0_lattice.shape[0])
+        mlflow.log_metric("xu_lattice.shape.0", xu_lattice.shape[0])
+
         f_x0_lattice = feature_map(x0_lattice)
-
-        xu_lattice = config.X_unsafe.lattice(num_oversample, True)
         f_xu_lattice = feature_map(xu_lattice)
 
+    with TimeLogger("solve"):
         return config.optimiser(
             config.time_horizon,
             config.gamma,
@@ -262,7 +282,7 @@ def check_cb_factory(config: Configuration, num_oversample: int, feature_map: Fe
         )
         if success:
             mlflow.log_table({"solution": sol.tolist()}, "solution.json")
-        if config.plot:
+        if config.plot and config.X_bounds.dimension <= 2:
             fig = plot_solution(
                 X_bounds=config.X_bounds,
                 X_init=config.X_init,
