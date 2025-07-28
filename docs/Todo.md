@@ -124,3 +124,10 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 - [ ] Add report button
 - [ ] Make it run on a server
 - [x] Bug with assertion in main
+- [ ] Finalise styling
+- [ ] Use a [custom Plotly bundle](https://github.com/plotly/plotly.js/blob/master/CUSTOM_BUNDLE.md) to [reduce the final bundle size](https://github.com/plotly/react-plotly.js#customizing-the-plotlyjs-bundle)
+- [ ] Add timer
+
+- [ ] Add simple Polytopic Sets 
+- [ ] Add other sets
+- [ ] tool paper aaai vs this different one

@@ -94,20 +94,6 @@ classDiagram
 
 ```
 
-## Pseudo Code
-
-```py
-kernel = GaussianKernel()
-tuner = GridSearchTuner(
-    ParameterValues(Parameter.SIGMA_L, [[0.1, 0.2], [0.3, 0.3]]),
-    ParameterValues(Parameter.SIGMA_F, [1.0, 2.0]),
-    ParameterValues(Parameter.REGULARISATION, [1e-3, 1e-4, 1e-6]),
-)
-estimator = KernelRidgeRegressor(kernel, tuner)
-estimator.fit(training_inputs, training_outputs)
-prediction = estimator.predict(new_inputs)
-```
-
 ## Sequence Diagram
 
 ```mermaid

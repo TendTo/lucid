@@ -48,7 +48,36 @@ docker run --name lucid -it --rm \
 [//]: # "@end-tab"
 [//]: # "@tab"
 
-### Python from source
+### Python (pre-built)
+
+**Requirements**
+
+- [Python](https://www.python.org/) version (3.8, 3.9, 3.10, 3.11, 3.12, 3.13)
+- [Linux](https://www.linux.org/), [Windows](https://www.microsoft.com/en-us/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
+
+**Installation commands**
+
+```bash
+# Create a virtual environment (optional)
+python3 -m venv .venv
+
+# Activate the virtual environment on Linux (optional)
+source .venv/bin/activate
+
+# Activate the virtual environment on Windows (optional)
+.venv\Scripts\activate
+
+# Install the python wrapper (pylucid)
+pip install pylucid --index-url https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
+
+# Ensure pylucid is installed
+python3 -c "import pylucid; print(pylucid.__version__)"
+```
+
+[//]: # "@end-tab"
+[//]: # "@tab"
+
+### Python (from source)
 
 **Requirements**
 
@@ -101,7 +130,7 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 
 > [!IMPORTANT]  
 > While it is possible to run the Lucid binary following the instructions below,
-> right now it does nothing but print some random numbers.
+> right now it simply solves a default problem.
 
 **Installation commands**
 

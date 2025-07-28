@@ -7,19 +7,31 @@ doxygen(
         "//:README.md",
         "//bindings/pylucid:configuration_schema.json",
         "//lucid:all_srcs",
-    ] + glob([
-        "_static/*",
-        "filters/*",
-        "*.md",
-    ]),
+    ] + glob(
+        [
+            "_static/*",
+            "filters/*",
+            "*.md",
+        ],
+        exclude = [
+            "Todo.md",
+        ],
+    ),
+    outs = [
+        "html",
+        "latex",
+    ],
     aliases = [
         # Header
         "licence=@par Licence:^^",
         # Math
         "X=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} @f$",
         "XsubRd=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^d @f$",
+        "XsubRdx=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^{d_x} @f$",
+        "YsubRdy=@f$ \\texttip{\\mathcal{Y}}{Polish sample vector space} \\subseteq \\mathbb{R}^{d_y} @f$",
         "H=@f$ \\mathcal{H} @f$",
         "x=@f$ \\texttip{x}{Element of the vector space} @f$",
+        "y=@f$ \\texttip{y}{Element of the vector space} @f$",
         "x1=@f$ x_1 @f$",
         "x2=@f$ x_2 @f$",
         "xi=@f$ x_i @f$",
@@ -79,7 +91,7 @@ doxygen(
     extract_private = True,
     filter_patterns = ["*.md=bash docs/filters/markdown.sh"],
     full_sidebar = False,
-    generate_latex = False,
+    generate_latex = True,
     generate_treeview = True,
     have_dot = False,
     # have_dot = True,

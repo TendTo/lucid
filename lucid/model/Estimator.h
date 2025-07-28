@@ -38,9 +38,8 @@ using Scorer = std::function<double(const Estimator&, ConstMatrixRef, ConstMatri
 }  // namespace scorer
 
 /**
- * Given two vector spaces @f$ \mathcal{X} \subseteq \mathbb{R}^{d_x}, \mathcal{Y} \subseteq \mathbb{R}^{d_y} @f$
- * and a map @f$ f: \mathcal{X} \to \mathcal{Y} @f$,
- * the goal is to produce a model @f$ f^*:\mathcal{X} \to \mathcal{Y} @f$ that best approximates @f$ f @f$.
+ * Given two vector spaces, @XsubRdx and @YsubRdy, and a map @f$ f: \mathcal{X} \to \mathcal{Y} @f$,
+ * the Estimator's goal is to produce a model @f$ f^*:\mathcal{X} \to \mathcal{Y} @f$ that best approximates @f$ f @f$.
  */
 class Estimator : public Parametrizable {
  public:
@@ -158,8 +157,9 @@ class Estimator : public Parametrizable {
    * Given the evaluation inputs @f$ x = \{ x_1, \dots, x_n \} @f$,
    * where @f$ x_i \in \mathcal{X} \subseteq \mathbb{R}^{d_x}, 0 \le i \le n @f$,
    * we want to give a numerical score to the model's predictions @f$ \hat{y} = \{ \hat{y}_1, \dots, \hat{y}_n \} @f$
-   * with respect to the true outputs @f$ y = \{ y_1, \dots, y_n \},
-   * where y_i \in \mathcal{Y} \subseteq \mathbb{R}^{d_y}, 0 \le i \le n @f$.
+   * with respect to the true outputs @f$ y = \{ y_1, \dots, y_n \} @f$,
+   * where @f$ y_i \in \mathcal{Y} \subseteq \mathbb{R}^{d_y}, 0 \le i \le n @f$.
+   * @note By default, the score is computed using the @ref scorer::r2_score.
    * @pre The methods @ref fit or @ref consolidate should have been called at least once before calling this method.
    * @param evaluation_inputs @nxdx evaluation input data
    * @param evaluation_outputs @nxdy evaluation output data

@@ -58,10 +58,10 @@ double r2_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, Co
  * @f[
  * R^2 = 1 - \frac{\sum_{i=1}^n (y_i - x_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}
  * @f]
- * where @f$ \bar{y} @f$ is the mean of @y and the variance of @y
+ * where @f$ \bar{y} @f$ is the mean of @f$ y @f$ and the variance of @f$ y @f$,
  * @f$ \sum_{i=1}^n (y_i - \bar{y})^2 @f$, is greater than 0.
- * The score belongs in the range @f$ [-\infty, 1 ] @f$, where @f$ 1 @f$ indicates no distance,
- * and @f$ 0 @f$ indicates that @x matches the expected value of @y.
+ * The score belongs in the range @f$ [-\infty, 1 ] @f$, where @f$ 1 @f$ indicates no distance
+ * (i.e., perfect predictions) and @f$ 0 @f$ indicates that @f$ x @f$ matches the expected value of @f$ y @f$.
  * @pre The variance of `y` must be greater than 0.
  * This is trivially false if all outputs are equal or only one row is present.
  * If this precondition is not met, the result may be `NaN`.
@@ -83,7 +83,7 @@ double r2_score(ConstMatrixRef x, ConstMatrixRef y);
  * @f$ y = \{ y_1, \dots, y_n \} @f$
  * where @f$ y_i \in \mathcal{Y} , 0 \le i \le n @f$.
  * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates a perfect fit,
- * and more negative values indicates a worse fit.
+ * and more negative values indicate a worse fit.
  * @f[
  * \text{MSE} = -\frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2
  * @f]
@@ -107,8 +107,8 @@ double mse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, C
  * where @f$ x_i \in \mathcal{X} \subseteq \mathbb{R}^{d}, 0 \le i \le n @f$,
  * and the set of row vectors @f$ y = \{ y_1, \dots, y_n \} @f$,
  * where @f$ y_i \in \mathcal{X} \subseteq \mathbb{R}^{d}, 0 \le i \le n @f$.
- * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates no distance,
- * and more negative values indicates more distance.
+ * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates no distance
+ * (i.e., perfect predictions) and more negative values indicate more distance.
  * @f[
  * \text{MSE} = -\frac{1}{n} \sum_{i=1}^n (y_i - x_i)^2
  * @f]
@@ -133,7 +133,7 @@ double mse_score(ConstMatrixRef x, ConstMatrixRef y);
  * @f$ y = \{ y_1, \dots, y_n \} @f$
  * where @f$ y_i \in \mathcal{Y} , 0 \le i \le n @f$.
  * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates a perfect fit,
- * and more negative values indicates a worse fit.
+ * and more negative values indicate a worse fit.
  * @f[
  * \text{RMSE} = -\sqrt{\frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2}
  * @f]
@@ -157,8 +157,8 @@ double rmse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, 
  * where @f$ x_i \in \mathcal{X} \subseteq \mathbb{R}^{d}, 0 \le i \le n @f$,
  * and the set of row vectors @f$ y = \{ y_1, \dots, y_n \} @f$,
  * where @f$ y_i \in \mathcal{X} \subseteq \mathbb{R}^{d}, 0 \le i \le n @f$.
- * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates no distance,
- * and more negative values indicates more distance.
+ * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates no distance
+ * (i.e., perfect predictions) and more negative values indicate more distance.
  * @f[
  * \text{RMSE} = -\sqrt{\frac{1}{n} \sum_{i=1}^n (y_i - x_i)^2}
  * @f]

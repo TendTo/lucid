@@ -24,7 +24,11 @@ namespace lucid {
  * Grid search tuning strategy for model hyperparameter optimisation.
  * The GridSearchTuner is responsible for iterating over a predefined grid of hyperparameter combinations
  * to optimise the performance of a given estimator.
+ * More precisely, the @ref Estimator::score method is called for each combination of hyperparameters,
+ * keeping track of the best combination (i.e., the one producing the highest value) found during the search.
+ * When all combinations have been evaluated, the best hyperparameters are set on the estimator.
  * This tuner is suitable for scenarios where exhaustive search over a finite hyperparameter space is required.
+ * @see scorer::r2_score
  */
 class GridSearchTuner final : public Tuner {
  public:
@@ -42,8 +46,8 @@ class GridSearchTuner final : public Tuner {
 
   template <
       IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
-  void tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
-            int num_frequencies, const RectSet& x_limits) const;
+  void tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, int num_frequencies,
+            const RectSet& x_limits) const;
   template <
       IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
   void tune_online(Estimator& estimator, ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
