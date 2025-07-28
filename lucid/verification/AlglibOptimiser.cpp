@@ -28,6 +28,7 @@ enum RetCode {
   INFEASIBLE_OR_UNBOUNDED = -2,
   OK = 1,  // 2, 3, 4 are also OK
   MAX_ITERATIONS = 5,
+  STOPPING_CONDITIONS_TOO_STRINGENT = 7
 };
 
 class AlglibLpProblem {
@@ -273,8 +274,8 @@ void compute_bounds(alglib::minlpstate& state, const alglib::ae_int_t i, const d
       break;
     case INFEASIBLE:
     case INFEASIBLE_OR_UNBOUNDED:
-      LUCID_RUNTIME_ERROR("Optimisation is infeasible, no solution found");
-      break;
+    case STOPPING_CONDITIONS_TOO_STRINGENT:
+      LUCID_RUNTIME_ERROR("No valid solution found");
     default:
       LUCID_UNREACHABLE();
   }

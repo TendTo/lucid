@@ -491,6 +491,30 @@ TEST(TestPolytopeSet, EmptyPolytope) {
   EXPECT_FALSE(empty(Vector::Constant(1, -1.0)));
 }
 
+TEST(TestPolytopeSet, EmptyPolytopeSampling) {
+  // Contradictory constraints: x <= -1 and x >= 1
+  Matrix A(2, 1);
+  A << 1,  // x <= -1
+      -1;  // x >= 1 (i.e., -x <= -1)
+  Vector b(2);
+  b << -1, -1;
+
+  const PolytopeSet empty{A, b};
+  EXPECT_ANY_THROW(static_cast<void>(empty.lattice(1, true)));
+}
+
+TEST(TestPolytopeSet, UnboundedPolytopeSampling) {
+  // Contradictory constraints: x <= -1 and x >= 1
+  Matrix A(2, 2);
+  A << 2, 3,  // 2x + 2y <= 2
+      1, -4;  // x - 4y <= 3
+  Vector b(2);
+  b << 2, 3;
+
+  const PolytopeSet unbounded{A, b};
+  EXPECT_ANY_THROW(static_cast<void>(unbounded.lattice(1, true)));
+}
+
 // Test single point polytope
 TEST(TestPolytopeSet, SinglePoint) {
   // Point (1, 2): x = 1, y = 2

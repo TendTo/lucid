@@ -10,6 +10,7 @@ from ._pylucid import (
     SphereSet,
     TruncatedFourierFeatureMap,
     log,
+    PolytopeSet,
 )
 
 if TYPE_CHECKING:
@@ -58,6 +59,11 @@ def build_set_constraint(xs: "list", X_set: "Set"):
         return And(*(b for i, x in enumerate(xs) for b in (x >= X_set.lower_bound[i], x <= X_set.upper_bound[i])))
     if isinstance(X_set, SphereSet):
         return And((sum((x - c) ** 2 for x, c in zip(xs, X_set.center)) <= X_set.radius**2))
+    if isinstance(X_set, PolytopeSet):
+        A, b = X_set.A, X_set.b
+        assert len(A.shape) == 2
+        # TODO: double check it is correct
+        return And(*(sum(x * A[row][col] for col, x in enumerate(xs)) <= b[row] for row in range(A.shape[0])))
     if isinstance(X_set, MultiSet):
         expr = None
         for rect in X_set:
