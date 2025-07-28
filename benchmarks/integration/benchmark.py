@@ -222,15 +222,22 @@ def benchmark_pipeline(config: Configuration):
             xu_lattice = config.X_unsafe.lattice(num_oversample, True)
         else:
             # TODO: implement this more efficiently in lucid (C++)
-            count = 0
-            x0_lattice = np.empty_like(x_lattice)
+            # Extreme points are always included in the lattice,
+            # to make sure gamma and eta conditions are satisfied on the boundaries
+            x0_extreme_points = config.X_init.lattice(2, True)
+            x0_lattice = np.concatenate([x0_extreme_points, np.empty_like(x_lattice)], axis=0)
+            count = x0_extreme_points.shape[0]
             for point in x_lattice:
                 if point in config.X_init:
                     x0_lattice[count] = point
                     count += 1
             x0_lattice.resize((count, config.X_bounds.dimension))
-            count = 0
-            xu_lattice = np.empty_like(x_lattice)
+
+            # Extreme points are always included in the lattice,
+            # to make sure gamma and eta conditions are satisfied on the boundaries
+            xu_extreme_points = config.X_unsafe.lattice(2, True)
+            xu_lattice = np.concatenate([xu_extreme_points, np.empty_like(x_lattice)], axis=0)
+            count = xu_extreme_points.shape[0]
             for point in x_lattice:
                 if point in config.X_unsafe:
                     xu_lattice[count] = point
