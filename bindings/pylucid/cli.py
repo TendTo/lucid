@@ -104,6 +104,8 @@ class Configuration(Namespace):
     optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser
     tuner: "Tuner | None" = None  # Tuner for the estimator, if any
 
+    constant_lattice_points: bool = False  # Flag to indicate whether to a constant number of lattice points
+
     def to_safe_dict(self) -> dict:
         config_dict = self.__dict__.copy()
         config_dict["system_dynamics"] = []
@@ -582,6 +584,12 @@ def arg_parser() -> "ArgumentParser":
         "--plot",
         action="store_true",
         help="plot the barrier certificate, if available. Requires matplotlib",
+    )
+    # TODO: remove
+    parser.add_argument(
+        "--constant-lattice-points",
+        action="store_true",
+        help="use a constant number of lattice points when computing the feature map. Can be extremely slow for high dimensions",
     )
     parser.add_argument(
         "--verify",

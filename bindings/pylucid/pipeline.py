@@ -6,7 +6,6 @@ from ._pylucid import (
     Estimator,
     FeatureMap,
     GaussianKernel,
-    GurobiOptimiser,
     KernelRidgeRegressor,
     MedianHeuristicTuner,
     Parameter,
@@ -157,10 +156,28 @@ def pipeline(
     # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
     u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * args.sigma_f
 
-    x0_lattice = args.X_init.lattice(num_oversample, True)
-    f_x0_lattice = feature_map(x0_lattice)
+    if args.constant_lattice_points:
+        x0_lattice = args.X_init.lattice(num_oversample, True)
+        xu_lattice = args.X_unsafe.lattice(num_oversample, True)
+    else:
+        # TODO: implement this more efficiently in lucid (C++)
+        count = 0
+        x0_lattice = np.empty_like(x_lattice)
+        for point in x_lattice:
+            if point in args.X_init:
+                x0_lattice[count] = point
+                count += 1
+        x0_lattice.resize((count, args.X_bounds.dimension))
+        count = 0
+        xu_lattice = np.empty_like(x_lattice)
+        for point in x_lattice:
+            if point in args.X_unsafe:
+                xu_lattice[count] = point
+                count += 1
+        xu_lattice.resize((count, args.X_bounds.dimension))
+    log.debug(f"x0_lattice: {x0_lattice.shape}, xu_lattice: {xu_lattice.shape}")
 
-    xu_lattice = args.X_unsafe.lattice(num_oversample, True)
+    f_x0_lattice = feature_map(x0_lattice)
     f_xu_lattice = feature_map(xu_lattice)
 
     def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
