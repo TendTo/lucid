@@ -238,7 +238,9 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
     const auto& parameter = parameters_[i];
     estimator.set(parameter.parameter(), best_parameters_indices[i], parameter.values());
   }
-  estimator.consolidate(training_inputs, training_outputs(estimator, training_inputs));
+  T feature_map{num_frequencies, estimator.get<Parameter::SIGMA_L>(), estimator.get<Parameter::SIGMA_F>(), x_limits};
+  Matrix training_outputs_{feature_map(training_outputs(estimator, training_inputs))};
+  estimator.consolidate(training_inputs, training_outputs_);
 }
 
 std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner) {
