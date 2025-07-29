@@ -1,0 +1,21 @@
+seed: 42 
+gamma: 2.0 
+time_horizon: 5
+num_samples: 4000 
+lambda: 1.e-11
+sigma_f: 1.0 
+sigma_l: [ 0.00359381,  0.0464159] 
+num_frequencies: 4
+plot: True
+verify: True 
+oversample_factor: 1.0
+c_coefficient: 1.0 
+system_dynamics: ["x2", "-x1 - x2 + 1 / 3 * x1 ** 3"]
+X_bounds: RectSet([-3, -2], [2.5,  1])
+X_init:
+    - RectSet([1, -0.7], [2,  0.3]) 
+    - RectSet([-1.8, -0.1], [-1.4,  0.1]) 
+    - RectSet([-1.4, -0.5], [-1.2,  0.1]) 
+X_unsafe: 
+  - RectSet([0.4, 0.2], [0.6, 0.6])
+  - RectSet([0.6, 0.2], [0.7, 0.4])

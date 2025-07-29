@@ -41,6 +41,8 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
         noise_scale=0.01,
         optimiser=GurobiOptimiser,
     )
+    for key, value in zip(param_name, param_combinations):
+        setattr(config, key, value)
 
     # Add process noise
     if config.seed >= 0:
@@ -58,8 +60,6 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # Running the pipeline
     # ################################## #
 
-    for key, value in zip(param_name, param_combinations):
-        setattr(config, key, value)
     single_benchmark(
         name="Linear",
         config=config,
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        "c_coefficient": [0.2, 1.0],
+        "c_coefficient": [1.0],
         "time_horizon": [5, 10],
         "oversample_factor": [20.0, 40.0, 60.0],
     }

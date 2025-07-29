@@ -1,0 +1,15 @@
+
+seed: 42
+
+X_bounds:
+  RectSet:
+    - [-1, 1]
+    - [-1, 1]
+X_init:
+  RectSet:
+    - [0.1, 0.4]
+    - [0.1, 0.55]
+X_unsafe:
+  RectSet:
+    - [0.45, 1]
+    - [0.6, 1]
