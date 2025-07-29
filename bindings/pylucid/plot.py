@@ -566,6 +566,57 @@ def plot_estimator_2d(
         fig.show()
     return fig
 
+def plot_estimator_22d(
+    estimator: "Estimator",
+    x_samples: "NMatrix",
+    xp_samples: "NMatrix",
+    X_bounds: "RectSet | None" = None,
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    show: bool = True,
+) -> go.Figure:
+    """Plot a function f over the given samples in 2D."""
+    assert x_samples.ndim == 2 and x_samples.shape[1] == 2, "x_samples must be a 2D array with shape (n_samples, 2)."
+    assert xp_samples.ndim == 2 and xp_samples.shape[1] == 2, "xp_samples must be a 2D array with shape (n_samples, 2)."
+
+    fig = go.Figure()
+
+    if X_init is not None:
+        fig = plot_set_2d_plane(X_init, "blue", label="Initial Set", fig=fig)
+    if X_unsafe is not None:
+        fig = plot_set_2d_plane(X_unsafe, "red", label="Unsafe Set", fig=fig)
+
+    xp_pred = estimator.predict(x_samples)
+    print(f"xp_pred shape: {xp_pred.shape}, xp_samples shape: {xp_samples.shape}")
+    separator = np.full_like(xp_pred[:, 0], np.nan)  # Separator for lines
+    x = np.column_stack((xp_pred[:, 0], xp_samples[:, 0], separator)).flatten()
+    y = np.column_stack((xp_pred[:, 1], xp_samples[:, 1], separator)).flatten()
+
+    # Create vector field using scatter with arrows
+    fig.add_scatter(
+        x=x,
+        y=y,
+        line=dict(color="blue", width=0.5),
+        mode="lines+markers",
+        marker=dict(
+            symbol="arrow",
+            color="blue",
+            size=10,
+            angleref="previous",
+        ),
+        name="Samples",
+        showlegend=False,
+    )
+
+    if X_bounds is not None:
+        fig.update_xaxes(range=[X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+        fig.update_yaxes(range=[X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
+
+    fig.update_layout(title="Data Plot", xaxis_title="Input Dimension 1", yaxis_title="Input Dimension 2")
+
+    if show:
+        fig.show()
+    return fig
 
 def plot_feature_map(
     feature_map: "FeatureMap",
@@ -640,6 +691,10 @@ def plot_estimator(
     plot_estimator_fun = (plot_estimator_1d, plot_estimator_2d)
     if x_samples.shape[1] <= len(plot_estimator_fun) and xp_samples.shape[1] == 1:
         return plot_estimator_fun[x_samples.shape[1] - 1](
+            estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe, show
+        )
+    elif x_samples.shape[1] == 2 and xp_samples.shape[1] == 2:
+        return plot_estimator_22d(
             estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe, show
         )
     raise exception.LucidNotSupportedException(
