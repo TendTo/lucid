@@ -125,7 +125,7 @@ def pipeline(
     )
     num_oversample = int(num_oversample)
     log.debug(f"Number of samples per dimension: {num_oversample}")
-    assert num_oversample > 2 * num_frequencies, "n_per_dim must be greater than nyquist (2 * num_frequencies + 1)"
+    assert num_oversample > 2 * num_frequencies, f"n_per_dim must be greater than nyquist ({2 * num_frequencies + 1})"
 
     if args.f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
         assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"

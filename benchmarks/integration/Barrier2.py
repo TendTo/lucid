@@ -4,24 +4,45 @@ import multiprocessing
 import time
 
 import numpy as np
-from benchmark import grid_to_config, single_benchmark
+from benchmark import single_benchmark
 
 from pylucid import *
 from pylucid import __version__
 from pylucid.plot import plot_function, plot_data
-from pylucid.cli import ConfigAction
 
 
 def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) -> Configuration:
+    """Benchmark scenario taken from
+    https://github.com/oxford-oxcav/fossil/blob/10f1f071784d16b2a5ee5da2f51ff2a81d753e2e/experiments/benchmarks/models.py#L350C1-L360C1
+    """
     # ################################## #
     # System dynamics
     # ################################## #
     action = ConfigAction(option_strings=None, dest="input")
     config = Configuration()
-    action(None, config, Path("benchmarks/integration/dc_motor.yaml"), None)
+    action(None, config, Path("benchmarks/integration/barrier2.yaml"), None)
 
     for key, value in zip(param_name, param_combinations):
         setattr(config, key, value)
+
+    # Add process noise
+    if config.seed >= 0:
+        np.random.seed(config.seed)  # For reproducibility
+        random.seed(config.seed)
+
+    # ################################## #
+    # Data
+    # ################################## #
+    f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
+    config.x_samples = config.X_bounds.sample(config.num_samples)
+    config.xp_samples = f(config.x_samples)
+
+    plot_function(
+        f=config.system_dynamics,
+        X_bounds=config.X_bounds,
+        X_init=config.X_init,
+        X_unsafe=config.X_unsafe,
+    )
 
     plot_data(
         config.x_samples,
@@ -30,13 +51,33 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
         X_init=config.X_init,
         X_unsafe=config.X_unsafe,
     )
+    return
+
+    # feature_map = config.feature_map(
+    #     num_frequencies=config.num_frequencies,
+    #     sigma_l=config.sigma_l,
+    #     sigma_f=config.sigma_f,
+    #     x_limits=config.X_bounds,
+    # )
+    # config.estimator = ModelEstimator(
+    #     lambda x: feature_map(f(x)),
+    #     {
+    #         Parameter.SIGMA_F: config.sigma_f,
+    #         Parameter.SIGMA_L: config.sigma_l,
+    #         Parameter.REGULARIZATION_CONSTANT: config.lambda_,
+    #     },
+    # )
 
     # ################################## #
     # Running the pipeline
     # ################################## #
-    return
+
+    if config.num_frequencies >= 12 and config.oversample_factor > 20.0:
+        log.warn("The number of frequencies and oversampling factor too high.")
+        return
+
     single_benchmark(
-        name="DcMotor",
+        name="Barrier3",
         config=config,
     )
 
@@ -50,11 +91,12 @@ if __name__ == "__main__":
 
     grid = {
         # "num_frequencies": [9, 12, 13, 16, 17],
-        "num_frequencies": [5], # [6, 7], 
+        # "num_frequencies": [9, 12, 13],
         # "num_frequencies": [4],
         "c_coefficient": [1.0],
-        # "time_horizon": [5, 15],
-        "oversample_factor": [8.0],  #  , 20.0 , 30.0
+        "time_horizon": [5],
+        # "oversample_factor": [10.0, 20.0, 30.0],
+        "num_oversample": [250.0],
         # "oversample_factor": [10.0],
     }
 

@@ -26,6 +26,10 @@ def scenario_tuner(file_path: str, grid: "dict[Parameter, ParameterValuesType]")
         f"Using estimator: {estimator} with score {estimator.score(config.x_samples, feature_map(config.xp_samples))}"
     )
 
+    if config.system_dynamics:
+        new_x_samples = config.X_bounds.sample(1000)
+        new_xp_samples = config.system_dynamics(new_x_samples) + np.random.normal(scale=config.noise_scale)
+
     log.set_verbosity(log.LOG_WARN)
     tuner.tune(
         estimator,
@@ -45,7 +49,5 @@ def scenario_tuner(file_path: str, grid: "dict[Parameter, ParameterValuesType]")
     s = estimator.score(config.x_samples, feature_map(config.xp_samples))
     log.info(f"Estimator {estimator} score: {s}")
     if config.system_dynamics:
-        new_x_samples = config.X_bounds.sample(1000)
-        new_xp_samples = config.system_dynamics(new_x_samples) + np.random.normal(scale=config.noise_scale)
-        s2 = estimator.score(config.X_bounds.sample(1000), feature_map(new_xp_samples))
+        s2 = estimator.score(new_x_samples, feature_map(new_xp_samples))
         log.info(f"Estimator {estimator} score: {s} and {s2}")
