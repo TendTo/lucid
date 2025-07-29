@@ -57,7 +57,7 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # ################################## #
 
     if config.num_frequencies >= 12 and config.oversample_factor > 20.0:
-        log.warning("The number of frequencies and oversampling factor too high.")
+        log.warn("The number of frequencies and oversampling factor too high.")
         return
 
     single_benchmark(
@@ -78,7 +78,8 @@ if __name__ == "__main__":
         # "num_frequencies": [4],
         "c_coefficient": [1.0],
         "time_horizon": [5],
-        "oversample_factor": [10.0, 20.0, 30.0],
+        # "oversample_factor": [10.0, 20.0, 30.0],
+        "num_oversample": [250.0],
         # "oversample_factor": [10.0],
     }
 

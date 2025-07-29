@@ -3,10 +3,12 @@ import itertools
 import multiprocessing
 import time
 
-from benchmark import single_benchmark
+import numpy as np
+from benchmark import grid_to_config, single_benchmark
 
 from pylucid import *
 from pylucid import __version__
+from pylucid.plot import plot_function, plot_data
 from pylucid.cli import ConfigAction
 
 
@@ -16,25 +18,25 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # ################################## #
     action = ConfigAction(option_strings=None, dest="input")
     config = Configuration()
-    action(None, config, Path("benchmarks/integration/overtaking.yaml"), None)
+    action(None, config, Path("benchmarks/integration/dc_motor.yaml"), None)
 
     for key, value in zip(param_name, param_combinations):
         setattr(config, key, value)
 
-    # plot_data(
-    #     config.x_samples,
-    #     config.xp_samples,
-    #     X_bounds=config.X_bounds,
-    #     X_init=config.X_init,
-    #     X_unsafe=config.X_unsafe,
-    # )
+    plot_data(
+        config.x_samples,
+        config.xp_samples,
+        X_bounds=config.X_bounds,
+        X_init=config.X_init,
+        X_unsafe=config.X_unsafe,
+    )
 
     # ################################## #
     # Running the pipeline
     # ################################## #
-
+    return
     single_benchmark(
-        name="Overtaking",
+        name="DcMotor",
         config=config,
     )
 
