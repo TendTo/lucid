@@ -18,31 +18,9 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # System dynamics
     # ################################## #
     # Algorithm parameters
-    config = Configuration(
-        seed=42,
-        gamma=15.0,
-        time_horizon=15,
-        num_samples=1000,
-        lambda_=1e-6,
-        sigma_f=1.0,
-        sigma_l=np.array([1.75555556]),
-        num_frequencies=5,
-        plot=True,
-        verify=True,
-        iis_log_file="iis.ilp",
-        oversample_factor=64.0,
-        c_coefficient=1.0,
-        system_dynamics=lambda x: x / 2.0,  # Example system dynamics
-        X_bounds=RectSet([[-1, 1]]),  # State space X
-        # Initial set X_0
-        X_init=RectSet([[-0.5, 0.5]]),
-        # Unsafe set X_U
-        X_unsafe=MultiSet(RectSet([[-1, -0.9]]), RectSet([[0.9, 1]])),
-        noise_scale=0.01,
-        optimiser=GurobiOptimiser,
-    )
-    for key, value in zip(param_name, param_combinations):
-        setattr(config, key, value)
+    config = Configuration()
+    action = ConfigAction(option_strings=None, dest="input")
+    action(None, config, Path("examples/linear.yaml"), None)
 
     # Add process noise
     if config.seed >= 0:

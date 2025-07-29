@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../bindings/pylucid/configuration_schema.json
+# Basic configuration
+verbose: 3 # LOG_INFO
+seed: 42
+
+# System parameters
+system_dynamics:
+  - x1 / 2
+
+# Sets definition
+X_bounds:
+  - RectSet:
+      - [-1, 1]
+X_init:
+  - RectSet:
+      - [-0.5, 0.5]
+X_unsafe:
+  - RectSet:
+      - [-1, -0.9]
+  - RectSet:
+      - [0.9, 1]
+
+# Algorithm parameters
+gamma: 1.0
+c_coefficient: 1.0
+lambda: 1.0e-5
+num_samples: 1000
+time_horizon: 15
+# Feature map parameters
+sigma_f: 18.0
+sigma_l: 0.034
+num_frequencies: 5
+oversample_factor: 64.0
+num_oversample: -1
+
+# Execution options
+noise_scale: 0.01
+plot: true
+verify: true
+
+# Output options
+estimator: KernelRidgeRegressor
+feature_map: LinearTruncatedFourierFeatureMap
+optimiser: GurobiOptimiser

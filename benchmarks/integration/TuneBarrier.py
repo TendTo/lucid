@@ -28,9 +28,10 @@ def scenario_config(config: Configuration):
         np.random.seed(config.seed)  # For reproducibility
         random.seed(config.seed)
 
-    f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
-    config.x_samples = config.X_bounds.sample(config.num_samples)
-    config.xp_samples = f(config.x_samples)
+    if config.system_dynamics:
+        f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
+        config.x_samples = config.X_bounds.sample(config.num_samples)
+        config.xp_samples = f(config.x_samples)
 
     val = [v for v in np.logspace(-3, 2, num=10, endpoint=True, dtype=float)]
     tuner = GridSearchTuner(
@@ -73,7 +74,7 @@ def scenario_config(config: Configuration):
     log.set_verbosity(log.LOG_INFO)
     s = estimator.score(config.x_samples, feature_map(config.xp_samples))
     new_x_samples = config.X_bounds.sample(1000)
-    new_xp_samples = f(new_x_samples)
+    new_xp_samples = f(new_x_samples) + np.random.normal(scale=config.noise_scale)
     s2 = estimator.score(config.X_bounds.sample(1000), feature_map(new_xp_samples))
     log.info(f"Estimator {estimator} score: {s} and {s2}")
 
