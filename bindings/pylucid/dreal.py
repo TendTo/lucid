@@ -23,18 +23,25 @@ try:
     from dreal import Variable as Real
     from dreal import cos as Cosine
     from dreal import sin as Sine
+    from dreal import exp as Exp
+    from dreal import Expression
 except ImportError as e:
     log.warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
     raise e
 
 Real.cos = lambda self: Cosine(self)
 Real.sin = lambda self: Sine(self)
+Real.exp = lambda self: Exp(self)
+Expression.cos = lambda self: Cosine(self)
+Expression.sin = lambda self: Sine(self)
+Expression.exp = lambda self: Exp(self)
 
 math_original_cos = math.cos
 math_original_sin = math.sin
-math.cos = lambda x: Cosine(x) if isinstance(x, Real) else math_original_cos(x)
-math.sin = lambda x: Sine(x) if isinstance(x, Real) else math_original_sin(x)
-
+math_exp = math.exp
+math.cos = lambda x: Cosine(x) if isinstance(x, (Real, Expression)) else math_original_cos(x)
+math.sin = lambda x: Sine(x) if isinstance(x, (Real, Expression)) else math_original_sin(x)
+math.exp = lambda x: Exp(x) if isinstance(x, (Real, Expression)) else math_exp(x)
 
 def build_set_constraint(xs: "list", X_set: "Set"):
     """
