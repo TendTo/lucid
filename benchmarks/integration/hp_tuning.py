@@ -49,7 +49,7 @@ def grid_search_tuner(config: Configuration, grid: "dict[Parameter, ParameterVal
     score_estimator(config)
 
 
-def scenario_tuner(file_path: str, grid: "dict[Parameter, ParameterValuesType]"):
+def hp_tuning(file_path: str, grid: "dict[Parameter, ParameterValuesType]"):
     action = ConfigAction(option_strings=None, dest="input")
     config = Configuration()
     action(None, config, Path(file_path), None)

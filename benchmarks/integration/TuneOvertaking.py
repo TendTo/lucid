@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pylucid import *
-from ScenarioTuner import scenario_tuner
+from hp_tuning import hp_tuning
 import itertools
 
 
