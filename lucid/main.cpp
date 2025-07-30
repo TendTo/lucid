@@ -205,7 +205,7 @@ bool test_overtaking(const CliArgs& args) {
                           RectSet{{1, 90}, {18, 19}, {-std::numbers::pi, std::numbers::pi}},
                           RectSet{{40, 45}, {-6, 6}, {-std::numbers::pi, std::numbers::pi}}};
 
-  const Matrix x_samples{X_bounds.sample(1000)};
+  const Matrix x_samples{X_bounds.sample(args.num_samples)};
   const Matrix xp_samples{x_samples + Matrix::Constant(x_samples.rows(), x_samples.cols(), 0.1)};
   KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(args.sigma_l, args.sigma_f), args.lambda};
   LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, args.sigma_l, args.sigma_f, X_bounds};
@@ -380,16 +380,16 @@ int main(const int argc, char* argv[]) {
       .seed = 42,
       .gamma = 1.0,
       .time_horizon = 5,
-      .num_samples = 1000,
+      .num_samples = 500,
       .lambda = 1e-3,
       .sigma_f = 15.0,
       .sigma_l = 1.75555556,
-      .num_frequencies = 4,
+      .num_frequencies = 8,
       .plot = true,
       .verify = true,
       .problem_log_file = log_file,
       .iis_log_file = "iis.ilp",
-      .oversample_factor = 32.0,
+      .oversample_factor = 2.0,
       .noise_scale = 0.01,
       .solver = solver,
   });

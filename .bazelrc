@@ -6,6 +6,7 @@ build --@spdlog//:header_only=False
 # Flag aliases
 build --flag_alias=enable_static_build=//tools:enable_static_build
 build --flag_alias=enable_dynamic_build=//tools:enable_dynamic_build
+build --flag_alias=enable_omp_build=//tools:enable_omp_build
 build --flag_alias=enable_python_build=//tools:enable_python_build
 build --flag_alias=enable_gui_build=//tools:enable_gui_build
 build --flag_alias=enable_benchmark_build=//tools:enable_benchmark_build
@@ -39,12 +40,14 @@ build:dbg --enable_verbose_eigen_build
 # Optimized build
 build:opt --compilation_mode=opt
 build:opt --cxxopt=-O3
+build:opt --enable_omp_build
 
 # Building python bindings
 build:py --compilation_mode=opt
 build:py --enable_static_build
 build:py --enable_python_build
 build:py --enable_matplotlib_build=False
+build:py --enable_omp_build
 
 # Benchmark build
 build:bench --compilation_mode=opt
@@ -55,6 +58,7 @@ build:bench --enable_matplotlib_build=False
 build:bench --enable_gurobi_build=False
 build:bench --start_end_lib=no
 build:bench --linkopt=-fuse-ld=bfd
+build:bench --enable_omp_build
 
 # Sanity checks build (gcc memory)
 build:snm --compilation_mode=dbg

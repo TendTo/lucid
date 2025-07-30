@@ -90,12 +90,36 @@ def _get_copts(rule_copts, cc_test = False):
     Returns:
         A list of copts.
     """
-    return select({
-        "//tools:gcc_build": GCC_FLAGS + (GCC_TEST_FLAGS if cc_test else []) + rule_copts,
-        "//tools:clang_build": CLANG_FLAGS + (CLANG_CL_TEST_FLAGS if cc_test else []) + rule_copts,
-        "//tools:msvc_cl_build": MSVC_CL_FLAGS + (MSVC_CL_TEST_FLAGS if cc_test else []) + rule_copts,
-        "//tools:clang_cl_build": CLANG_CL_FLAGS + (CLANG_CL_TEST_FLAGS if cc_test else []) + rule_copts,
-        "//conditions:default": CXX_FLAGS + rule_copts,
+    return rule_copts + select({
+        "//tools:gcc_build": GCC_FLAGS + (GCC_TEST_FLAGS if cc_test else []),
+        "//tools:clang_build": CLANG_FLAGS + (CLANG_CL_TEST_FLAGS if cc_test else []),
+        "//tools:msvc_cl_build": MSVC_CL_FLAGS + (MSVC_CL_TEST_FLAGS if cc_test else []),
+        "//tools:clang_cl_build": CLANG_CL_FLAGS + (CLANG_CL_TEST_FLAGS if cc_test else []),
+        "//conditions:default": CXX_FLAGS,
+    }) + select({
+        "//tools:gcc_omp_build": ["-fopenmp"],
+        "//tools:clang_omp_build": ["-fopenmp"],
+        "//tools:msvc_cl_omp_build": ["/openmp"],
+        "//tools:clang_cl_omp_build": ["-fopenmp"],
+        "//conditions:default": [],
+    })
+
+def _get_linkopts(rule_linkopts, cc_test = False):
+    """Alter the provided rule specific linkopts, adding the platform-specific ones.
+
+    When cc_test is True, the corresponding test flags will be added.
+    It should only be set on cc_test rules or rules that are boil down to cc_test rules.
+
+    Args:
+        rule_linkopts: The linkopts passed to the rule.
+        cc_test: Whether the rule is a cc_test rule.
+
+    Returns:
+        A list of linkopts.
+    """
+    return rule_linkopts + select({
+        "//tools:gcc_omp_build": ["-lgomp"],
+        "//conditions:default": [],
     })
 
 def _get_defines(rule_defines):
@@ -131,6 +155,12 @@ def _get_defines(rule_defines):
         "//conditions:default": [],
     }) + select({
         "//tools:verbose_eigen_build": ["LUCID_VERBOSE_EIGEN_BUILD"],
+        "//conditions:default": [],
+    }) + select({
+        "//tools:gui_build": ["LUCID_GUI_BUILD"],
+        "//conditions:default": [],
+    }) + select({
+        "//tools:omp_build": ["LUCID_OMP_BUILD"],
         "//conditions:default": [],
     })
 
@@ -174,6 +204,7 @@ def lucid_cc_library(
         srcs = None,
         deps = None,
         copts = [],
+        linkopts = [],
         linkstatic = None,
         defines = [],
         implementation_deps = [],
@@ -187,6 +218,7 @@ def lucid_cc_library(
         deps: A list of dependencies. Will be inherited by dependents.
         implementation_deps: A list of dependencies that are only needed for this target.
         copts: A list of compiler options.
+        linkopts: A list of linker options.
         linkstatic: Whether to link statically.
         defines: A list of compiler defines used when compiling this target and its dependents.
         **kwargs: Additional arguments to pass to cc_library.
@@ -198,6 +230,7 @@ def lucid_cc_library(
         deps = deps,
         implementation_deps = implementation_deps,
         copts = _get_copts(copts),
+        linkopts = _get_linkopts(linkopts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
         **kwargs
@@ -208,6 +241,7 @@ def lucid_cc_binary(
         srcs = None,
         deps = None,
         copts = [],
+        linkopts = [],
         linkstatic = None,
         defines = [],
         features = [],
@@ -220,6 +254,7 @@ def lucid_cc_binary(
         deps: A list of dependencies.
         copts: A list of compiler options.
         linkstatic: Whether to link statically.
+        linkopts: A list of linker options.
         defines: A list of compiler defines used when compiling this target.
         features: A list of features to add to the binary.
         **kwargs: Additional arguments to pass to cc_binary.
@@ -229,6 +264,7 @@ def lucid_cc_binary(
         srcs = srcs,
         deps = deps,
         copts = _get_copts(copts),
+        linkopts = _get_linkopts(linkopts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
         features = _get_features(features),
@@ -241,6 +277,7 @@ def lucid_cc_test(
         data = [],
         deps = None,
         copts = [],
+        linkopts = [],
         tags = [],
         defines = [],
         **kwargs):
@@ -259,6 +296,7 @@ def lucid_cc_test(
         data: A list of data files to include in the test. Can be used to provide input files.
         deps: A list of dependencies.
         copts: A list of compiler options.
+        linkopts: A list of linker options.
         tags: A list of tags to add to the test. Allows for test filtering.
         defines: A list of compiler defines used when compiling this target.
         **kwargs: Additional arguments to pass to cc_test.
@@ -275,6 +313,7 @@ def lucid_cc_test(
         data = data,
         deps = deps,
         copts = _get_copts(copts, cc_test = True),
+        linkopts = _get_linkopts(linkopts, cc_test = True),
         linkstatic = True,
         tags = tags + ["lucid", "".join([word.lower() for word in name.split("_")][1:])],
         defines = _get_defines(defines),
@@ -398,6 +437,7 @@ def lucid_pybind_library(
         srcs = None,
         deps = [],
         copts = [],
+        linkopts = [],
         linkstatic = None,
         defines = [],
         features = [],
@@ -409,6 +449,7 @@ def lucid_pybind_library(
         srcs: A list of source files to compile.
         deps: A list of dependencies.
         copts: A list of compiler options.
+        linkopts: A list of linker options.
         linkstatic: Whether to link statically.
         defines: A list of defines to add to the library.
         features: A list of features to add to the library.
@@ -419,13 +460,23 @@ def lucid_pybind_library(
         srcs = srcs,
         deps = deps,
         copts = _get_copts(copts),
+        linkopts = _get_linkopts(linkopts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
         features = features,  # Do not use _get_features here, as it will add fully_static_link and that is not supported
         **kwargs
     )
 
-def lucid_pybind_extension(name, srcs, deps = [], copts = [], linkstatic = None, defines = [], features = [], **kwargs):
+def lucid_pybind_extension(
+        name,
+        srcs,
+        deps = [],
+        copts = [],
+        linkopts = [],
+        linkstatic = None,
+        defines = [],
+        features = [],
+        **kwargs):
     """Creates a rule to declare a pybind11 extension.
 
     Args:
@@ -433,6 +484,7 @@ def lucid_pybind_extension(name, srcs, deps = [], copts = [], linkstatic = None,
         srcs: A list of source files to compile.
         deps: A list of dependencies.
         copts: A list of compiler options.
+        linkopts: A list of linker options.
         linkstatic: Whether to link statically.
         defines: A list of defines to add to the extension.
         features: A list of features to add to the extension.
@@ -443,6 +495,7 @@ def lucid_pybind_extension(name, srcs, deps = [], copts = [], linkstatic = None,
         srcs = srcs,
         deps = deps,
         copts = _get_copts(copts),
+        linkopts = _get_linkopts(linkopts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
         features = features,  # Do not use _get_features here, as it will add fully_static_link and that is not supported
