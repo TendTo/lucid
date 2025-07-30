@@ -4,11 +4,11 @@ import multiprocessing
 import time
 
 import numpy as np
-from benchmark import grid_to_config, single_benchmark
+from benchmark import single_benchmark
 
 from pylucid import *
 from pylucid import __version__
-from pylucid.plot import plot_function, plot_data
+from pylucid.plot import plot_data
 from pylucid.cli import ConfigAction
 
 

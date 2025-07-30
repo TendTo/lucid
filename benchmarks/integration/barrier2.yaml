@@ -5,8 +5,8 @@ system_dynamics:
   - -sin(x1)**2
 X_bounds:
   - RectSet:
-      - [-3, 3]
-      - [-3, 3]
+      - [-2, 2]
+      - [-2, 2]
 X_init:
   - SphereSet:
       center: [-0.5, 0.5]
@@ -16,14 +16,14 @@ X_unsafe:
       center: [0.7, -0.7]
       radius: 0.3
 sigma_f: 1
-sigma_l: [1.00001, 5.39338]
+sigma_l: [1.0, 5.39338]
 # sigma_l: [0.0129155, 0.0464159]
 # sigma_l: [0.0483293, 0.0206914]
 # num_frequencies: 32
 num_frequencies: 33
 oversample_factor: 1.0
 # num_oversample: 97
-c_coefficient: 0.2
+c_coefficient: 1.0
 lambda: 1.0e-6
 num_samples: 1000
 time_horizon: 5

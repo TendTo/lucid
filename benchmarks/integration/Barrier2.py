@@ -8,7 +8,6 @@ from benchmark import single_benchmark
 
 from pylucid import *
 from pylucid import __version__
-from pylucid.plot import plot_function, plot_data
 
 
 def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) -> Configuration:
@@ -37,22 +36,6 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     config.x_samples = config.X_bounds.sample(config.num_samples)
     config.xp_samples = f(config.x_samples)
 
-    plot_function(
-        f=config.system_dynamics,
-        X_bounds=config.X_bounds,
-        X_init=config.X_init,
-        X_unsafe=config.X_unsafe,
-    )
-
-    plot_data(
-        config.x_samples,
-        config.xp_samples,
-        X_bounds=config.X_bounds,
-        X_init=config.X_init,
-        X_unsafe=config.X_unsafe,
-    )
-    return
-
     # feature_map = config.feature_map(
     #     num_frequencies=config.num_frequencies,
     #     sigma_l=config.sigma_l,
@@ -71,16 +54,10 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # ################################## #
     # Running the pipeline
     # ################################## #
-
-    if config.num_frequencies >= 12 and config.oversample_factor > 20.0:
-        log.warn("The number of frequencies and oversampling factor too high.")
-        return
-
     single_benchmark(
-        name="Barrier3",
+        name="Barrier2",
         config=config,
     )
-
 
 if __name__ == "__main__":
     # ################################## #
@@ -91,12 +68,12 @@ if __name__ == "__main__":
 
     grid = {
         # "num_frequencies": [9, 12, 13, 16, 17],
-        # "num_frequencies": [9, 12, 13],
+        "num_frequencies": [15],
         # "num_frequencies": [4],
         "c_coefficient": [1.0],
         "time_horizon": [5],
         # "oversample_factor": [10.0, 20.0, 30.0],
-        "num_oversample": [250.0],
+        "num_oversample": [250, 300, 350],
         # "oversample_factor": [10.0],
     }
 

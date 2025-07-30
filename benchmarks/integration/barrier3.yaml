@@ -2,10 +2,11 @@ seed: 42
 gamma: 2.0 
 time_horizon: 5
 num_samples: 4000 
-lambda: 1.e-11
+lambda: 1.e-8
 sigma_f: 1.0 
-sigma_l: [ 0.00359381,  0.0464159] 
-num_frequencies: 4
+sigma_l: [0.0129155, 0.16681] 
+# sigma_l: [1,  1] 
+num_frequencies: 20
 plot: True
 verify: True 
 oversample_factor: 1.0

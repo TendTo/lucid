@@ -15,7 +15,8 @@ gamma: 0.5
 c_coefficient: 1.0
 lambda: 1.0e-05
 sigma_f: 7
-sigma_l: [3.59381, 0.278256, 0.278256]
+# sigma_l: [3.59381, 0.278256, 0.278256]
+sigma_l: [7.9296, 1.51437, 1.06127]
 time_horizon: 5
 plot: true
 verify: false

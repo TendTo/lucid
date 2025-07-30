@@ -33,7 +33,7 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # ################################## #
     # Data
     # ################################## #
-    f = lambda x: config.system_dynamics(x)  # + (np.random.normal(scale=config.noise_scale))
+    f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
     config.x_samples = config.X_bounds.sample(config.num_samples)
     config.xp_samples = f(config.x_samples)
 
@@ -74,12 +74,12 @@ if __name__ == "__main__":
 
     grid = {
         # "num_frequencies": [9, 12, 13, 16, 17],
-        "num_frequencies": [9, 12, 13],
+        "num_frequencies": [13],
         # "num_frequencies": [4],
         "c_coefficient": [1.0],
         "time_horizon": [5],
-        # "oversample_factor": [10.0, 20.0, 30.0],
-        "num_oversample": [250.0],
+        "oversample_factor": [20.0, 25.0],
+        # "num_oversample": [250, 300, 350, 400],
         # "oversample_factor": [10.0],
     }
 
