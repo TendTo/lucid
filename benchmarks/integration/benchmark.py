@@ -63,7 +63,11 @@ def benchmark(name: str, config: Configuration, grid: dict[str, list[Any]]):
 def single_benchmark(name: str, config: Configuration):
     """Run the benchmark scenario."""
     logs: list[str] = []
-    log.set_sink(logs.append)
+    def handle_log(message: str):
+        logs.append(message)
+        if "C:" in message:
+            print(message)
+    log.set_sink(handle_log)
     log.set_verbosity(log.LOG_DEBUG)
 
     mlflow.set_experiment(experiment_name=name)

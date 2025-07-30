@@ -1,7 +1,7 @@
 seed: 42 
 gamma: 2.0 
 time_horizon: 5
-num_samples: 4000 
+num_samples: 1000 
 lambda: 1.e-8
 sigma_f: 1.0 
 sigma_l: [0.0129155, 0.16681] 
