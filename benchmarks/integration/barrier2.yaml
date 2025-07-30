@@ -1,8 +1,4 @@
 # yaml-language-server: $schema=../../bindings/pylucid/configuration_schema.json
-seed: 42
-system_dynamics:
-  - x2 - 1 + exp(-x1)
-  - -sin(x1)**2
 X_bounds:
   - RectSet:
       - [-2, 2]
@@ -15,22 +11,25 @@ X_unsafe:
   - SphereSet:
       center: [0.7, -0.7]
       radius: 0.3
+c_coefficient: 1
+estimator: KernelRidgeRegressor
+feature_map: LinearTruncatedFourierFeatureMap
+gamma: 100
+kernel: GaussianKernel
+lambda: 1.0e-06
+noise_scale: 0.01
+num_frequencies: 15
+num_oversample: 350
+num_samples: 1000
+optimiser: GurobiOptimiser
+oversample_factor: 1
+plot: true
+seed: 42
 sigma_f: 1
 sigma_l: [1.0, 5.39338]
-# sigma_l: [0.0129155, 0.0464159]
-# sigma_l: [0.0483293, 0.0206914]
-# num_frequencies: 32
-num_frequencies: 33
-oversample_factor: 1.0
-# num_oversample: 97
-c_coefficient: 1.0
-lambda: 1.0e-6
-num_samples: 1000
+system_dynamics:
+  - x2 - 1 + exp(-x1)
+  - '-sin(x1)**2'
 time_horizon: 5
-gamma: 100.0
-noise_scale: 0.01
-plot: true
+verbose: 3
 verify: false
-optimiser: GurobiOptimiser
-iis_log_file: iis.ilp
-problem_log_file: problem.lp

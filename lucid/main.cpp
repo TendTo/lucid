@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <numbers>
 #include <span>
 #include <string>
 #include <utility>
@@ -194,6 +195,54 @@ struct CliArgs {
   Solver solver{Solver::Gurobi};
 };
 
+bool test_overtaking(const CliArgs& args) {
+  const long long start_time = std::chrono::steady_clock::now().time_since_epoch().count();
+  random::seed(args.seed);
+
+  const RectSet X_bounds{{{1, 90}, {-7, 19}, {-std::numbers::pi, std::numbers::pi}}};
+  const RectSet X_init{{{1, 2}, {-0.5, 0.5}, {-0.005, 0.005}}};
+  const MultiSet X_unsafe{RectSet{{1, 90}, {-7, -6}, {-std::numbers::pi, std::numbers::pi}},
+                          RectSet{{1, 90}, {18, 19}, {-std::numbers::pi, std::numbers::pi}},
+                          RectSet{{40, 45}, {-6, 6}, {-std::numbers::pi, std::numbers::pi}}};
+
+  const Matrix x_samples{X_bounds.sample(1000)};
+  const Matrix xp_samples{x_samples + Matrix::Constant(x_samples.rows(), x_samples.cols(), 0.1)};
+  KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(args.sigma_l, args.sigma_f), args.lambda};
+  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, args.sigma_l, args.sigma_f, X_bounds};
+
+  const Matrix f_xp_samples{feature_map(xp_samples)};
+
+  const int n_per_dim = args.num_oversample < 0
+                            ? static_cast<int>(std::ceil((2 * args.num_frequencies + 1) * args.oversample_factor))
+                            : args.num_oversample;
+  LUCID_DEBUG_FMT("Number of samples per dimension: {}", n_per_dim);
+  LUCID_ASSERT(n_per_dim > 2 * args.num_frequencies,
+               "n_per_dim must be greater than nyquist (2 * num_freq_per_dim + 1)");
+
+  LUCID_DEBUG_FMT("Estimator pre-fit: {}", estimator);
+  estimator.fit(x_samples, f_xp_samples);
+  LUCID_INFO_FMT("Estimator post-fit: {}", estimator);
+
+  LUCID_DEBUG_FMT("Feature map: {}", feature_map);
+
+  const Matrix x_lattice = X_bounds.lattice(n_per_dim, true);
+  const Matrix u_f_x_lattice = feature_map(x_lattice);
+  Matrix u_f_xp_lattice_via_regressor = estimator(x_lattice);
+  // We are fixing the zero frequency to the constant value we computed in the feature map
+  // If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
+  u_f_xp_lattice_via_regressor.col(0).array() = feature_map.weights()[0] * args.sigma_f;
+
+  const Matrix x0_lattice = X_init.lattice(n_per_dim, true);
+  const Matrix f_x0_lattice = feature_map(x0_lattice);
+
+  const Matrix xu_lattice = X_unsafe.lattice(n_per_dim, true);
+  const Matrix f_xu_lattice = feature_map(xu_lattice);
+
+  LUCID_INFO_FMT("End of operation, took {:.3f} seconds",
+                 (std::chrono::steady_clock::now().time_since_epoch().count() - start_time) / 1e9);
+  return false;
+}
+
 bool test_linear(const CliArgs& args) {
   random::seed(args.seed);
 
@@ -327,7 +376,7 @@ int main(const int argc, char* argv[]) {
   std::string log_file = fmt::format("{}.problem.lp", solver == Solver::Gurobi   ? "gurobi"
                                                       : solver == Solver::Alglib ? "alglib"
                                                                                  : "highs");
-  test_linear({
+  test_overtaking({
       .seed = 42,
       .gamma = 1.0,
       .time_horizon = 5,

@@ -1,4 +1,4 @@
-from ScenarioTuner import scenario_tuner, Parameter
+from hp_tuning import hp_tuning, Parameter
 import numpy as np
 import itertools
 
