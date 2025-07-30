@@ -65,14 +65,24 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
-\todo{Motivation and background ...}
+Embodied forms of AI are on the rise, including applications such as autonomous vehicles, robotics, personalized healthcare, and smart infrastructure.
+Their core functionality is build around the advances of deep learning, enabling systems to understand and reason in complex and human-like ways to produce a desired behavior.
+Whilst the black-box nature of AI components has been a crucial contributor to the widespread success of deep learning, in response to a rapidly evolving legal scrutinization~\cite{veale2021demystifying}, the resulting lack of traceability and certifiability has put a premature halt to its deployment in safety-critical applications.
 
-Trustworthy embodied AI: AI agency in physical world
+As deep learning agents are left to choose their actions autonomously in closed-loop interaction with the physical world, they are confronted with a world riddled with randomness and uncertainty. 
+Efforts to establishing trust in their safe operation have been largely focused on developing tools to verify the input--output behavior of neural networks (NNs) embedded in the systems~\cite{liu2021algorithms}.
+Unfortunately, there do not exist any tools that could take these results and certify the safety of the entire system, as uncertainty-aware models of closed-loop systems are rarely available and simulators are often too complicated and opaque to perform verification directly~\cite{wongpiromsarn2023formal}. This motivates a holistic black-box treatment~\cite{corso2021survey}, where safety guarantees are to be established from behavioral data and in account of the unknown uncertainty.
 
-Whilst verification tools for e.g. neural networks rely on the availability of the neural network model, for closed-loop systems such models are often not available or simulators are much too complicated to perform verification on directly.
+There exist no tools capable of solving this problem with quantified guarantees.
+%
+For the setting where a model of the closed-loop system is available, \npinterval by \citet{harapanahalli2023forward} verifies safety of nonlinear systems with non-deterministic disturbance based on existing NN verification tools. See the references therein and the annual friendly competition by \citet{abate2024arch} for adjacent work.
+%
+Few data-driven approaches for stochastic systems exist. 
+\omnisafe is a comprehensive platform for the development of safe reinforcement learning (RL) algorithms~\citet{ji2024omnisafe}. However, safe RL does generally only \emph{encourage} safer behavior, without providing any rigorous or quantified guarantees on the probability of the absence of unsafe behavior.
+As a popular working principle for certifying safety, control barrier certificates (CBCs)~\cite{prajna2006barrier} are at the basis of tools such as \trust~\cite{gardner2025trust} (supports only polynomial dynamics) and \fossil~\cite{edwards2024fossil} (model-based), which are restricted to deterministic systems.
 
-% \lipsum[1-3]
 
+To close this gap (see Table~\ref{tab:qualitative_comparison}), we introduce \lucid, the first verification engine for black-box stochastic dynamical systems with quantified guarantees.
 \begin{table}
     \centering
     \begin{tabular}{ccccccc}
@@ -81,59 +91,45 @@ Whilst verification tools for e.g. neural networks rely on the availability of t
                                                          & \rotatebox{90}{Guarantees}                      & \rotatebox{90}{Data Driven} & \rotatebox{90}{Stochastic D.} & \rotatebox{90}{Non-Poly. D.} & \rotatebox{90}{Stat. Correct.} & \rotatebox{90}{Closed Loop} \\
         \midrule
         \textbf{\lucid}                                  & \cmark                                          & \cmark                      & \cmark                        & \cmark                       & \cmark                         & \cmark                      \\
-        \trust~\shortcite{gardner2025trust}              & \cmark                                          & \cmark                      & \xmarkred                     & \xmarkred                    & \cmark\footnotemark            & \cmark                      \\
+        \trust~\shortcite{gardner2025trust}              & \cmark                                          & \cmark                      & \xmarkred                     & \xmarkred                    & \cmark\footnotemark[1]            & \cmark                      \\
         \fossil~\shortcite{edwards2024fossil}            & \cmark                                          & \xmarkred                   & \xmarkred                     & \cmark                       & NA                             & \cmark                      \\
         \omnisafe~\shortcite{ji2024omnisafe}             & \xmarkred                                       & \cmark                      & \cmark                        & \cmark                       & \xmarkred                      & \cmark                      \\
-        \npinterval~\shortcite{harapanahalli2023forward} & \cmark                                          & \xmarkred                   & \cmark/\xmarkred\footnotemark & ?                            & NA                             & \cmark                      \\
+        \npinterval~\shortcite{harapanahalli2023forward} & \cmark                                          & \xmarkred                   & \cmark/\xmarkred\footnotemark[2] & \cmark                            & NA                             & \cmark                      \\
         % \deepsplit~\shortcite{henriksen2021deepsplit} & \xmarkred & \xmarkred & \cmark & \xmarkred& \xmarkred \\
         % \reluplex~\shortcite{katz2017reluplex} & \xmarkred & \xmarkred & \cmark & \xmarkred & \xmarkred \\
-        tool6                                            &                                                 &                             &                               &                                                                                             \\
+        % tool6                                            &                                                 &                             &                               &                                                                                             \\
         \bottomrule
     \end{tabular}
-    \caption{Qualitative comparison with existing tools based on their supported features: quantified coverage guarantees, data driven, stochastic dynamics, non-polynomial dynamics, statistical correctness guarantees of the learned model (only applicable if data driven), and support for closed-loop systems.}
+    \caption{Qualitative comparison with existing tools based on their supported features: quantified safety guarantees, data driven, stochastic dynamics, non-polynomial dynamics, statistical correctness guarantees of the learned model (only applicable if data driven), and support for closed-loop systems.}
     \label{tab:qualitative_comparison}
 \end{table}
-\footnotetext{Assuming the data satisfies persistence of excitation.} % TRUST
-\footnotetext{Accepts non-deterministic bounded disturbances.} % npinterval
+\footnotetext[1]{Assuming the data satisfies persistence of excitation.} % TRUST
+\footnotetext[2]{Accepts non-deterministic bounded disturbances.} % npinterval
+At its core, it learns CBCs for unknown systems based solely on data, by constructing an uncertainty-aware estimator of the expected system behavior based on \emph{conditional mean embeddings} (CMEs)~\cite{muandet2017kernel}.
+Crucially, the underlying learning framework establishes quantified safety probabilities with distributionally robust guarantees for arbitrary smooth dynamics, thus relaxing the need for restrictive structural assumptions common to related approaches.
+For instance, \citet{schoen2024distributionally} learn CBCs for systems with polynomial dynamics and \citet{chen2025distributionally} assume systems with known deterministic component.
+%
+Alternative approaches often leave the statistical correctness with respect to the underlying data-generating process unaddressed: \citet{kazemi2020fullLTL} use model-free reinforcement learning, relying on known Lipschitz constants; \citet{lew2021sampling} compute reachable sets for stochastic systems using a sampling-based scheme, which yields only asymptotic guarantees; and \citet{salamati2024data} use a scenario-based method, based on Lipschitz constants and exponentially large datasets.
+For data-driven safety verification of stochastic systems via conformal prediction~\cite{lindemann2024formal}, no tools are available.
 
-\OS{Need to mention the difference between quantified coverage guarantees and statistical correctness guarantees}
 
-The main contributions of this work are:
+
+We summarize the main contributions of this work:
 \begin{itemize}
-    \item A novel verification engine that learns control barrier certificates from data using kernel methods and conditional mean embeddings.
-    \item A tractable reformulation of the verification problem via finite Fourier expansion, enabling efficient linear programming-based synthesis of barrier certificates.
+    \item We introduce \lucid, a novel verification engine that learns control barrier certificates from data using kernel-based CMEs. \lucid uses a tractable reformulation of the verification problem via a finite Fourier expansion, enabling efficient barrier synthesis based on a linear program.
     \item A robust and extensible software implementation, with both C++ and Python interfaces, supporting configuration via YAML, JSON, or Python scripts, and offering both a \gls{cli} and a \gls{gui}.
-    \item Comprehensive evaluation on a suite of benchmarks, demonstrating \lucid{}’s scalability, robustness, and practical utility.
+    \item Numerical evaluation on a suite of benchmarks, demonstrating \lucid{}’s unique capabilities, robustness, and practical utility.
 \end{itemize}
 
 
-\paragraph{Related Work (optionally)}
-None of the tools provide an answer to the problem we are solving here!
 
-Different categories for verification in annual friendly competitions~\cite{abate2024arch}.
-There exist a lot of tools for verifying the input--output behavior of neural networks~\cite{liu2021algorithms}.
-For closed-loop systems, ... [see literature in \cite{harapanahalli2023forward}]
-Black-box verification of stochastic dynamical systems very sparsely populated.
-Comparison with the most related existing tools in Table~\ref{tab:qualitative_comparison}: Focus on data-driven tools, with few exceptions if noteworthy because very related.
-Result: Few data-driven tools; No data-driven tools for stochastic systems.
-
-\citet{ji2024omnisafe} present \omnisafe, a comprehensive platform for the development of safe reinforcement learning (RL) algorithms. In comparison to \lucid, safe RL does generally only \emph{encourage} safer behavior, without providing any rigorous or quantified guarantees on the probability of the absence of any unsafe behavior.
-
-\Sadegh{When describing Table 1, it would be good if we could also highlight the underlying major assumptions raised in any of these papers. I guess we are the ones putting the least assumption.}
-
-What are the working principles used.
-No other kernel-based tools? (foundations of distributionally robust barrier certificates in \cite{schoen2024distributionally,chen2025distributionally} (the latter only uncertain stochastic noise), both leading to SOS-based formulations) \OS{Or rather add \cite{chen2025ontheconstruction} instead?}
-Not tools: What works have achieved related things.
-Sampling-based reachability analysis~\cite{lew2021sampling}.
-
-\OS{We should make clear how the presented approach compares to conformal prediction.}
 
 \paragraph{Organization}
 The paper is organized as follows:
-Section~\ref{sec:theory} provides the theoretical foundations of \lucid, including the safety of black-box dynamical systems, control barrier certificates, conditional mean embeddings, and linear programming.
-Section~\ref{sec:tool} describes the architecture and functionalities of \lucid, including its components and how they interact.
-Section~\ref{sec:example} presents a simple example use case, demonstrating how to use \lucid to certify the safety of a simple linear system.
-Finally, Section~\ref{sec:experiments} evaluates \lucid on a suite of benchmarks, demonstrating its scalability, robustness, and practical utility. \Sadegh{Revise this paragraph as there is no section number.}
+Section~\ref{sec:theory} provides the theoretical foundations of \lucid, including the safety of black-box dynamical systems, control barrier certificates, conditional mean embeddings, and derivation of the relaxed linear program.
+Section~\ref{sec:tool} describes the architecture and functionalities of \lucid alongside a running example, presenting \lucid's components and how they interact.
+% Section~\ref{sec:example} presents a simple example use case, demonstrating how to use \lucid to certify the safety of a simple linear system.
+Section~\ref{sec:experiments} evaluates \lucid on a suite of benchmarks. Finally, Sections~\ref{sec:future_extensions} and \ref{sec:conclusion} provide future extensions and a conclusion.
 
 \section{Theoretical Working Principles}\label{sec:theory}
 \subsection{Safety of Black-Box Dynamical Systems}
@@ -201,7 +197,7 @@ Assuming access to a finite dataset $\data_N$ from the black-box system $\S$ in 
 \lucid provides a solution to this problem by automating the steps in Figure~\ref{fig:steps}, outlined in the next sections.
 
 \subsection{Control Barrier Certificates}\label{sec:cbc}
-\glspl{cbc}\footnote{\glspl{cbc} and discrete-time \glspl{cbf} \cite{cosner2023generative} are equivalent.} leverage the concept of set invariance to arrive at an abstraction-free numerical solution to finding a lower bound on $P_{\text{safe}}(\S^\pi)$. This has made them popular tools for safety verification and controller synthesis~\cite{prajna2006barrier}.
+\glspl{cbc}\footnote[3]{\glspl{cbc} and discrete-time \glspl{cbf} \cite{cosner2023generative} are equivalent.} leverage the concept of set invariance to arrive at an abstraction-free numerical solution to finding a lower bound on $P_{\text{safe}}(\S^\pi)$. This has made them popular tools for safety verification and controller synthesis~\cite{prajna2006barrier}.
 
 A non-negative function $\B\colon\X\rightarrow\R_{\geq 0}$ is a \gls{cbc} of a system $\S$ with reference to an unsafe set $\X_U$, if it satisfies
 \begin{itemize}
@@ -407,7 +403,7 @@ pip install pylucid[gui,plot] --index-url \
 % The system and the specification \lucid will check against shall be provided as a configuration to the program.
 To certify safety of a system, \lucid accepts a configuration comprising data from the system and the safety specification.
 We suggest defining it as a \yaml or equivalent \json file.%
-\footnote{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}
+\footnote[4]{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}
 % \OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
 If more flexibility is needed, a Python script generating a configuration can be used instead,
 with the only requirement being that it must contain a function named \lstinline|scenario_config| returning a \texttt{Configuration} object.
@@ -654,7 +650,7 @@ Running \lstinline|pylucid-gui| will open a browser tab containing the interface
     \label{fig:gui}
 \end{figure}
 
-\OS{End then end the chapter}
+
 
 \begin{comment}
 \subsection{Functionality}
@@ -789,14 +785,18 @@ The form of data \eqref{eq:data} considered here assumes access to full state me
 \OS{As the GaussianKernel and KernelRidgeRegressor are the only options we currently provide, is specifying them explicitly necessary? Maybe we could also add a sentence about the fact that they are currently the only option, but that in the future we plan to extend this to to allow to include prior knowledge about the system dynamics (in the spirit of physics-informed approaches).}
 
 \section{Conclusion}\label{sec:conclusion}
+...
 
-\OS{Will add some more theoretical details in the appendix, if needed.}
-% \input{appendix}
+\input{appendix}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \bibliography{aaai25}
+
+\newpage
+\def\isChecklistMainFile{\FALSE}
+\input{reproducibility checklist/ReproducibilityChecklist}
 
 \end{document}

@@ -1,38 +1,87 @@
 % !TEX root =  main.tex
 \appendix
 
-\section{Additional Theoretical Details}
-\paragraph{RKHS basics.}
-A symmetric function $k_\X:\X\times\X\rightarrow\R$ is called a (positive definite) \emph{kernel} (note the distinction from \emph{probability kernels}) if for all $N\in\N_{>0}$ we have $\sum_{i=1}^{N}\sum_{j=1}^{N}a_i a_j\allowbreak k_\X(x_i,x_j) \geq 0$ for $x_1,\ldots,x_N\in\X\subset{\R^n}$ and $a_1,\ldots,a_N\in\R$.
-A prominent example is the \emph{squared exponential} (SQExp) kernel \shortcite{Rasmussen2005GP,Kanagawa2018GPvsKernel}:
-\begin{equation}
-    k_\X(x,x') := \sigma_f^2 \exp\left( -\frac{1}{2} (x-x')\T \Sigma\, (x-x') \right),\quad \Sigma:=\mathrm{diag}(\sigma_l)^{-2},\label{eq:sqexp_kernel}
-\end{equation}
-with amplitude $\sigma_f^2\geq0$ and lengthscale coefficients $\sigma_l\in\R^n$.
-\new{For this work,} we assume that all kernels are bounded on their domain, i.e., $\E_{}[k_\X(x,x)]<\infty$, $x\in\X$.
-Given a kernel $k_\X$ on a non-empty set $\X$, there exists a unique corresponding
-\emph{reproducing kernel Hilbert space} (RKHS) $\Hilbert_{k_\X}$
-of functions $f:\X\rightarrow\R$ equipped with an inner product $\innerH{\cdotx}{\cdotx}{\Hilbert_{k_\X}}$
-with the celebrated \emph{reproducing property} such that for any function $f\in\Hilbert_{k_\X}$ and $x\in\X$ we have $f(x)=\innerH{f}{k_\X(\cdotx,x)}{\Hilbert_{k_\X}}$.
-Note that $k_\X(\cdotx,x):\X\rightarrow\Hilbert_{k_\X}$ is a real-valued function,
-which is also called an implicit \emph{canonical} \emph{embedding} or \emph{feature map} $\phi_\X$
-such that $k_\X(x,x')=\innerH{\phi_\X(x)}{\phi_\X(x')}{\Hilbert_{k_\X}}$ for all $x,x'\in\X$.
-For an RKHS $\Hilbert_{k_\X}$, we use the associated feature map $\phi_\X$ and kernel $k_\X$ interchangeably for ease of notation and comprehensibility.
-The inner product induces the norm $\norm{f}_{\Hilbert_{k_\X}}\!\!\!\!:=\!\!\sqrt{\smash[b]{\innerH{f}{f}{\Hilbert_{k_\X}}}}$ of the RKHS. 
-Throughout this paper, we assume that all RKHSs are \emph{separable}.
-Refer to the monograph by \citet{Berlinet2004RKHSProbStat} for a comprehensive study on RKHSs.
-Given $N$ i.i.d. samples $\hat X_N:=[\hat{x}_i]_{i=1}^N$ with $\hat{x}_i\in\X$, the
-\emph{Gram matrix} of $k_\X$ is given by
-$\new{K_{\hat{X}}^N}:=[k_\X(\hat{x}_i,\hat{x}_j)]_{i,j=1}^N.$
-Furthermore, we define the vector-valued function 
-$\new{k_{\hat{X}}^N}(x)  := [k_\X(x,\hat{x}_i)]_{i=1}^N.$
+% \section{Additional Theoretical Details}
+% \paragraph{RKHS basics.}
+% A symmetric function $k_\X:\X\times\X\rightarrow\R$ is called a (positive definite) \emph{kernel} (note the distinction from \emph{probability kernels}) if for all $N\in\N_{>0}$ we have $\sum_{i=1}^{N}\sum_{j=1}^{N}a_i a_j\allowbreak k_\X(x_i,x_j) \geq 0$ for $x_1,\ldots,x_N\in\X\subset{\R^n}$ and $a_1,\ldots,a_N\in\R$.
+% A prominent example is the \emph{squared exponential} (SQExp) kernel \shortcite{Rasmussen2005GP,Kanagawa2018GPvsKernel}:
+% \begin{equation}
+%     k_\X(x,x') := \sigma_f^2 \exp\left( -\frac{1}{2} (x-x')\T \Sigma\, (x-x') \right),\quad \Sigma:=\mathrm{diag}(\sigma_l)^{-2},\label{eq:sqexp_kernel}
+% \end{equation}
+% with amplitude $\sigma_f^2\geq0$ and lengthscale coefficients $\sigma_l\in\R^n$.
+% \new{For this work,} we assume that all kernels are bounded on their domain, i.e., $\E_{}[k_\X(x,x)]<\infty$, $x\in\X$.
+% Given a kernel $k_\X$ on a non-empty set $\X$, there exists a unique corresponding
+% \emph{reproducing kernel Hilbert space} (RKHS) $\Hilbert_{k_\X}$
+% of functions $f:\X\rightarrow\R$ equipped with an inner product $\innerH{\cdotx}{\cdotx}{\Hilbert_{k_\X}}$
+% with the celebrated \emph{reproducing property} such that for any function $f\in\Hilbert_{k_\X}$ and $x\in\X$ we have $f(x)=\innerH{f}{k_\X(\cdotx,x)}{\Hilbert_{k_\X}}$.
+% Note that $k_\X(\cdotx,x):\X\rightarrow\Hilbert_{k_\X}$ is a real-valued function,
+% which is also called an implicit \emph{canonical} \emph{embedding} or \emph{feature map} $\phi_\X$
+% such that $k_\X(x,x')=\innerH{\phi_\X(x)}{\phi_\X(x')}{\Hilbert_{k_\X}}$ for all $x,x'\in\X$.
+% For an RKHS $\Hilbert_{k_\X}$, we use the associated feature map $\phi_\X$ and kernel $k_\X$ interchangeably for ease of notation and comprehensibility.
+% The inner product induces the norm $\norm{f}_{\Hilbert_{k_\X}}\!\!\!\!:=\!\!\sqrt{\smash[b]{\innerH{f}{f}{\Hilbert_{k_\X}}}}$ of the RKHS. 
+% Throughout this paper, we assume that all RKHSs are \emph{separable}.
+% Refer to the monograph by \citet{Berlinet2004RKHSProbStat} for a comprehensive study on RKHSs.
+% Given $N$ i.i.d. samples $\hat X_N:=[\hat{x}_i]_{i=1}^N$ with $\hat{x}_i\in\X$, the
+% \emph{Gram matrix} of $k_\X$ is given by
+% $\new{K_{\hat{X}}^N}:=[k_\X(\hat{x}_i,\hat{x}_j)]_{i,j=1}^N.$
+% Furthermore, we define the vector-valued function 
+% $\new{k_{\hat{X}}^N}(x)  := [k_\X(x,\hat{x}_i)]_{i=1}^N.$
 
-\begin{definition}[Conditional Mean Embedding (CME)]\label{def:condMeanEmbed}
-    Given two RKHSs $\Hilbert_{k_\X}$ and $\Hilbert_{k_\Y}$ with the associated kernels $k_\X\colon\X\times\X\to\R$ and $k_\Y\colon\X\times\X\to\R$, the \emph{CME} of a probability kernel $\Tr\colon\X\times\borel{\Y}\rightarrow[0,1]$ is an $X$-measurable random variable taking values in $\Hilbert_{k_\Y}$, given by
+% \begin{definition}[Conditional Mean Embedding (CME)]\label{def:condMeanEmbed}
+%     Given two RKHSs $\Hilbert_{k_\X}$ and $\Hilbert_{k_\Y}$ with the associated kernels $k_\X\colon\X\times\X\to\R$ and $k_\Y\colon\X\times\X\to\R$, the \emph{CME} of a probability kernel $\Tr\colon\X\times\borel{\Y}\rightarrow[0,1]$ is an $X$-measurable random variable taking values in $\Hilbert_{k_\Y}$, given by
+%     \begin{equation*}
+%         \cme_{k_\Y|k_\X}(\Tr)(\cdotx) := \E_{\Tr}[\phi_\Y(Y)\mid X=\cdotx].
+%     \end{equation*}
+% \end{definition}
+
+
+
+
+
+\section{Linear Program}
+The finitely-constrained LP discussed in Section~\ref{sec:ddbarriers} is presented. For this, the lattices $X_{{N}}\subset\X$, $\smash{\{ x_0^{1}, \ldots, x_0^{{N}_0} \}} \subset \X_0$, and $\smash{\{ x_u^{1}, \ldots, x_u^{{N}_u} \}} \subset \X_u$ of cardinality ${N}_0\in\N$ and ${N}_u\in\N$, respectively, are formed.
+%
+For given values of $\overline{\B}$, $\gamma$, and robustness radius $\mathcal{R}\geq0$, the following LP is obtained:
     \begin{equation*}
-        \cme_{k_\Y|k_\X}(\Tr)(\cdotx) := \E_{\Tr}[\phi_\Y(Y)\mid X=\cdotx].
+        \begin{alignedat}{3}
+                  & \min_{\stackrel{b, c, \eta}{\Bmin_{{N}}^{\X_0}, \Bmax_{{N}}^{\X_u},\Bmax_{{N}}^\X,\Bmin_\Delta}}\hspace{-1.5em}  &                                            & \eta + cT,                                          &                       &
+            %\label{eq:blackbox:linear_prog_objective}
+            \\
+                  & \text{subject to}
+                  &                                                                                                                                & \phi_M(x_0^{i})\T b\leq\hat{\eta}, \quad &                                                     & i=1,\ldots,{N}_0,
+            %\label{eq:blackbox:linear_prog_initial}
+            \\
+                  &                                                                                                                                &                                            & \phi_M(x_u^{i})\T b\geq\hat{\gamma},
+            \quad &                                                                                                                                & i=1,\ldots,{N}_u,
+            %\label{eq:blackbox:linear_prog_unsafe}
+            \\
+                  &                                                                                                                                &                                            & \phi_M(x^{i})\T(Hb - b) \leq \hat{\Delta},
+            \quad &                                                                                                                                & i=1,\ldots,{N},
+            %\label{eq:blackbox:linear_prog_kushner}
+            \\
+                  &                                                                                                                                &                                            & \phi_M(x^{i})\T b\geq \hat{\xi},
+            \quad &                                                                                                                                & i=1,\ldots,{N},
+            %\label{eq:blackbox:linear_prog_positive}
+            \\
+                  &                                                                                                                                &                                            & \Bmin_{{N}}^{\X_0}\leq\phi_M(x_0^{i})\T b,
+            \quad &                                                                                                                                & i=1,\ldots,{N}_0,                                                                                                      \\
+                  &                                                                                                                                &                                            & \Bmax_{{N}}^{\X_u}\geq\phi_M(x_u^{i})\T b,
+            \quad &                                                                                                                                & i=1,\ldots,{N}_u,                                                                                                      \\
+                  &                                                                                                                                &                                            & \Bmax_{{N}}^\X\geq\phi_M(x^{i})\T b,
+            \quad &                                                                                                                                & i=1,\ldots,{N},                                                                                                        \\
+                  &                                                                                                                                &                                            & \Bmin_\Delta\leq\phi_M(x^{i})\T (Hb - b),
+            \quad &                                                                                                                                & i=1,\ldots,{N},                                                                                                        \\
+                  &                                                                                                                                &                                            & c\geq 0,\,\gamma>\eta\geq 0,\, b\in\R^{2M+1},       &                       &
+            \label{eq:blackbox:linear_prog}%
+        \end{alignedat}
     \end{equation*}
-\end{definition}
+with $\overline{\kappa}\geq\sigma_f$, $\overline{\B}\geq\norm{b}_2$, and constraint-tightening coefficients
+    \begin{align*}
+        \hat{\eta}   & := \frac{2}{C_{{N}}+1}\eta + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_{{N}}^{\X_0},
+                     \\                                                                                                                                    & \hat{\gamma} := \frac{2}{C_{{N}}+1}\gamma + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^{\X_u}, \\
+        \hat{\Delta} & := \frac{2}{C_{{N}}+1}\left(c - \mathcal{R}\overline{\B}\overline{\kappa}\right) + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_\Delta,
+                     \\                                                                                                                                     & \hat{\xi} := \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^\X.
+    \end{align*}
 
 
 
