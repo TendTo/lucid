@@ -34,81 +34,170 @@
 %     \end{equation*}
 % \end{definition}
 
+\section{Linear Program}
+The finitely-constrained LP discussed in Section~\ref{sec:ddbarriers} is presented. For this, the lattices $X_{{N}}\subset\X$, $\smash{\{ x_0^{1}, \ldots, x_0^{{N}_0} \}} \subset \X_0$, and $\smash{\{ x_u^{1}, \ldots, x_u^{{N}_u} \}} \subset \X_u$ of cardinality ${N}_0\in\N$ and ${N}_u\in\N$, respectively, are formed.
+%
+For given values of $\overline{\B}$, $\gamma$, and robustness radius $\mathcal{R}\geq0$, the following LP is obtained:
+\begin{equation*}
+      \begin{alignedat}{3}
+                  & \min_{\stackrel{b, c, \eta}{\Bmin_{{N}}^{\X_0}, \Bmax_{{N}}^{\X_u},\Bmax_{{N}}^\X,\Bmin_\Delta}}\hspace{-1.5em} &                                          & \eta + cT,                                    &                   &
+            %\label{eq:blackbox:linear_prog_objective}
+            \\
+                  & \text{subject to}
+                  &                                                                                                                 & \phi_M(x_0^{i})\T b\leq\hat{\eta}, \quad &                                               & i=1,\ldots,{N}_0,
+            %\label{eq:blackbox:linear_prog_initial}
+            \\
+                  &                                                                                                                 &                                          & \phi_M(x_u^{i})\T b\geq\hat{\gamma},
+            \quad &                                                                                                                 & i=1,\ldots,{N}_u,
+            %\label{eq:blackbox:linear_prog_unsafe}
+            \\
+                  &                                                                                                                 &                                          & \phi_M(x^{i})\T(Hb - b) \leq \hat{\Delta},
+            \quad &                                                                                                                 & i=1,\ldots,{N},
+            %\label{eq:blackbox:linear_prog_kushner}
+            \\
+                  &                                                                                                                 &                                          & \phi_M(x^{i})\T b\geq \hat{\xi},
+            \quad &                                                                                                                 & i=1,\ldots,{N},
+            %\label{eq:blackbox:linear_prog_positive}
+            \\
+                  &                                                                                                                 &                                          & \Bmin_{{N}}^{\X_0}\leq\phi_M(x_0^{i})\T b,
+            \quad &                                                                                                                 & i=1,\ldots,{N}_0,                                                                                              \\
+                  &                                                                                                                 &                                          & \Bmax_{{N}}^{\X_u}\geq\phi_M(x_u^{i})\T b,
+            \quad &                                                                                                                 & i=1,\ldots,{N}_u,                                                                                              \\
+                  &                                                                                                                 &                                          & \Bmax_{{N}}^\X\geq\phi_M(x^{i})\T b,
+            \quad &                                                                                                                 & i=1,\ldots,{N},                                                                                                \\
+                  &                                                                                                                 &                                          & \Bmin_\Delta\leq\phi_M(x^{i})\T (Hb - b),
+            \quad &                                                                                                                 & i=1,\ldots,{N},                                                                                                \\
+                  &                                                                                                                 &                                          & c\geq 0,\,\gamma>\eta\geq 0,\, b\in\R^{2M+1}, &                   &
+            \label{eq:blackbox:linear_prog}%
+      \end{alignedat}
+\end{equation*}
+with $\overline{\kappa}\geq\sigma_f$, $\overline{\B}\geq\norm{b}_2$, and constraint-tightening coefficients
+\begin{align*}
+      \hat{\eta}   & := \frac{2}{C_{{N}}+1}\eta + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_{{N}}^{\X_0},
+      \\                                                                                                                                    & \hat{\gamma} := \frac{2}{C_{{N}}+1}\gamma + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^{\X_u}, \\
+      \hat{\Delta} & := \frac{2}{C_{{N}}+1}\left(c - \mathcal{R}\overline{\B}\overline{\kappa}\right) + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_\Delta,
+      \\                                                                                                                                     & \hat{\xi} := \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^\X.
+\end{align*}
+
+
+% \section{Proofs}
+% We have collected a series of proofs of the claims we made in the main text.
+
 \section{Installation}
 Provided \texttt{Python>=3.8} is already present, \pylucid can be installed with the command
 \begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
 pip install pylucid[gui,plot] --index-url \
   https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
 \end{lstlisting}
-% \EC{The command is long, but at the moment it cannot be shortened (we would need to host the package on PyPI).}
+There are a few limitation some of the dependencies introduce, which may preclude the ability of using certain features on not supported platforms.
+Formal verification of the barrier requires the \dreal SMT solver, which can only be installed on Linux and non-ARM macOS.
+Support for \highs \gls{lp} is not available on Windows at the moment.
+The \gurobi solver must be installed beforehand, and requires a license for commercial use, but is free for academic purposes.
 
+For more details on the installation process, please refer to the online documentation at \url{https://lucidtoolsource.gitlab.io/lucid/md_docs_2Pylucid.html}.
 
-\section{Linear Program}
-The finitely-constrained LP discussed in Section~\ref{sec:ddbarriers} is presented. For this, the lattices $X_{{N}}\subset\X$, $\smash{\{ x_0^{1}, \ldots, x_0^{{N}_0} \}} \subset \X_0$, and $\smash{\{ x_u^{1}, \ldots, x_u^{{N}_u} \}} \subset \X_u$ of cardinality ${N}_0\in\N$ and ${N}_u\in\N$, respectively, are formed.
-%
-For given values of $\overline{\B}$, $\gamma$, and robustness radius $\mathcal{R}\geq0$, the following LP is obtained:
-    \begin{equation*}
-        \begin{alignedat}{3}
-                  & \min_{\stackrel{b, c, \eta}{\Bmin_{{N}}^{\X_0}, \Bmax_{{N}}^{\X_u},\Bmax_{{N}}^\X,\Bmin_\Delta}}\hspace{-1.5em}  &                                            & \eta + cT,                                          &                       &
-            %\label{eq:blackbox:linear_prog_objective}
-            \\
-                  & \text{subject to}
-                  &                                                                                                                                & \phi_M(x_0^{i})\T b\leq\hat{\eta}, \quad &                                                     & i=1,\ldots,{N}_0,
-            %\label{eq:blackbox:linear_prog_initial}
-            \\
-                  &                                                                                                                                &                                            & \phi_M(x_u^{i})\T b\geq\hat{\gamma},
-            \quad &                                                                                                                                & i=1,\ldots,{N}_u,
-            %\label{eq:blackbox:linear_prog_unsafe}
-            \\
-                  &                                                                                                                                &                                            & \phi_M(x^{i})\T(Hb - b) \leq \hat{\Delta},
-            \quad &                                                                                                                                & i=1,\ldots,{N},
-            %\label{eq:blackbox:linear_prog_kushner}
-            \\
-                  &                                                                                                                                &                                            & \phi_M(x^{i})\T b\geq \hat{\xi},
-            \quad &                                                                                                                                & i=1,\ldots,{N},
-            %\label{eq:blackbox:linear_prog_positive}
-            \\
-                  &                                                                                                                                &                                            & \Bmin_{{N}}^{\X_0}\leq\phi_M(x_0^{i})\T b,
-            \quad &                                                                                                                                & i=1,\ldots,{N}_0,                                                                                                      \\
-                  &                                                                                                                                &                                            & \Bmax_{{N}}^{\X_u}\geq\phi_M(x_u^{i})\T b,
-            \quad &                                                                                                                                & i=1,\ldots,{N}_u,                                                                                                      \\
-                  &                                                                                                                                &                                            & \Bmax_{{N}}^\X\geq\phi_M(x^{i})\T b,
-            \quad &                                                                                                                                & i=1,\ldots,{N},                                                                                                        \\
-                  &                                                                                                                                &                                            & \Bmin_\Delta\leq\phi_M(x^{i})\T (Hb - b),
-            \quad &                                                                                                                                & i=1,\ldots,{N},                                                                                                        \\
-                  &                                                                                                                                &                                            & c\geq 0,\,\gamma>\eta\geq 0,\, b\in\R^{2M+1},       &                       &
-            \label{eq:blackbox:linear_prog}%
-        \end{alignedat}
-    \end{equation*}
-with $\overline{\kappa}\geq\sigma_f$, $\overline{\B}\geq\norm{b}_2$, and constraint-tightening coefficients
-    \begin{align*}
-        \hat{\eta}   & := \frac{2}{C_{{N}}+1}\eta + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_{{N}}^{\X_0},
-                     \\                                                                                                                                    & \hat{\gamma} := \frac{2}{C_{{N}}+1}\gamma + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^{\X_u}, \\
-        \hat{\Delta} & := \frac{2}{C_{{N}}+1}\left(c - \mathcal{R}\overline{\B}\overline{\kappa}\right) + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_\Delta,
-                     \\                                                                                                                                     & \hat{\xi} := \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^\X.
-    \end{align*}
+\section{Benchmarks}
+\label{app:benchmarks}
+Complete list of results for the benchmarks presented in Section~\ref{sec:experiments}.
+The legend is as follows:
+\textit{Output} indicates the result produced by the solver (i.e., optimal, unbounded, infeasible or unspecified),
+\textit{Prec} indicates the number of bits used in the last floating-point number representation,
+\textit{Ref} indicates the number of refinements,
+and \textit{time} is the time in seconds.
 
+All benchmarks were run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, and 64 GB of RAM, and all runs had the random seed set to $42$ to ensure reproducibility.
+The scripts responsible for running the benchmarks and \hp tuning are available in the \texttt{benchmarks/integration} folder of the repository.
+Note that a version of \texttt{Python>=3.9} is required to run the scripts, as some dependencies used to track the benchmarks' metrics across multiple runs are not compatible with \texttt{Python 3.8}.
+The \hp tuning of the \estimator was performed with the \texttt{LbfgsTuner}, bounding the value of $\sigma_l$ between $[10^{-5}, 10^5]$, and refined with the \texttt{GridSearchTuner}.
+The implementation can be found in the \texttt{benchmarks/integration/hp\_tuning.py} script. 
+Note that we used the \gurobi optimiser.
+Other optimizers, such as \alglib or \highs, can be used instead, but may yield different results, especially in terms of performance.
 
+\subsection{Linear}
 
+We consider the following system:
+\begin{equation*}
+    \begin{bmatrix}
+        {x}_{t+1}
+    \end{bmatrix}
+    = \begin{bmatrix}
+        0.5 {x}_{t}
+    \end{bmatrix} + w_t,
+\end{equation*}
+where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_1)$.
+Given
+\begin{align*}
+    &\X = [-1, 1] \\
+    &\X_0 = [-0.5, 0.5] \\
+    &\X_U = [-1, -0.9] \cup [0.9, 1],
+\end{align*}
+we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=15$ time steps.
+The complete configuration for the linear example benchmark is shown in Listing~\ref{lst:linear}.
+\lstinputlisting[language=yaml,caption={Configuration for linear example},captionpos=b,label={lst:linear}]{code/linear.yaml}
 
+\subsection{Barrier 2}
 
+We consider the following system:
+\begin{equation*}
+    \begin{bmatrix}
+        {x}_{1, t+1} \\
+        {x}_{2, t+1}
+    \end{bmatrix}
+    = \begin{bmatrix}
+        {x}_{2, t} - 1 + e^{-x_{1, t}} \\
+        -\sin^2(x_{1, t})
+    \end{bmatrix} + w_t,
+\end{equation*}
+where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
+Given
+\begin{align*}
+    &\X = [ -2, 2 ] \times [ -2 , 2 ] \\
+    &\X_0 = \{ [x_1, x_2] : (x_1 + 0.5)^2 + (x_2 - 0.5)^2 \leq 0.4 \} \\
+    &\X_U = \{ [x_1, x_2] : (x_1 - 0.7)^2 + (x_2 + 0.7)^2 \leq 0.3 \},
+\end{align*}
+we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
+The complete configuration for the \barrII benchmark is shown in Listing~\ref{lst:barrier2}.
+\lstinputlisting[language=yaml,caption={Configuration for \barrII},captionpos=b,label={lst:barrier2}]{code/barrier2.yaml}
 
+\subsection{Barrier 3}
 
+We consider the following system:
+\begin{equation*}
+    \begin{bmatrix}
+        {x}_{1, t+1} \\
+        {x}_{2, t+1}
+    \end{bmatrix}
+    = \begin{bmatrix}
+        {x}_{2, t} \\
+        \frac{1}{3} {x}^3_{1, t} - {x}_{1,t} - {x}_{2,t}
+    \end{bmatrix} + w_t,
+\end{equation*}
+where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
+Given
+\begin{align*}
+    &\X = [ -3, 2.5 ] \times [ -2 , 1 ] \\
+    &\X_0 = [ 1 , 2 ] \times [ -0.7 , 0.3 ] \cup [ -1.8 , -1.4 ] \times [ -0.1 , 0.1 ] \\
+    &\qquad \cup [-1.4, -1.2] \times [-0.5 , 0.1] \\
+    &\X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
+\end{align*}
+we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
+The complete configuration for the \barrIII benchmark is shown in Listing~\ref{lst:barrier3}.
+\lstinputlisting[language=yaml,caption={Configuration for \barrIII},captionpos=b,label={lst:barrier3}]{code/barrier3.yaml}
 
+\subsection{Overtaking}
 
+We consider a scenario where an autonomous vehicle (AV) controlled by a \gls{nn} is overtaking another vehicle.
+The dynamics of the ego vehicle are given by Dubin's car model \EC{does it need a cit or is it just textbook} by adding the noise vector $w = \begin{bmatrix}w_t^1 & w_t^2 & w_t^3\end{bmatrix}$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$, respectively.
+The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity $v=1$.
+Given
+\todo{correct the sets}
+\begin{align*}
+    &\X = [ -3, 2.5 ] \times [ -2 , 1 ] \\
+    &\X_0 = [ 1 , 2 ] \times [ -0.7 , 0.3 ] \cup [ -1.8 , -1.4 ] \times [ -0.1 , 0.1 ] \\
+    &\qquad \cup [-1.4, -1.2] \times [-0.5 , 0.1] \\
+    &\X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
+\end{align*}
+we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
 
-    
-
-    % \section{Proofs}
-    % We have collected a series of proofs of the claims we made in the main text.
-
-
-
-    % \section{Benchmarks}
-    % \label{app:benchmarks}
-    % Complete list of results for the benchmarks presented in \autoref{sec:benchmarks}.
-    % The legend is as follows:
-    % \textit{Output} indicates the result produced by the solver (i.e., optimal, unbounded, infeasible or unspecified),
-    % \textit{Prec} indicates the number of bits used in the last floating-point number representation,
-    % \textit{Ref} indicates the number of refinements,
-    % and \textit{time} is the time in seconds.
+The complete configuration for the \overtaking benchmark is shown in Listing~\ref{lst:overtaking}.
+\lstinputlisting[language=yaml,caption={Configuration for \overtaking},captionpos=b,label={lst:overtaking}]{code/overtaking.yaml}
