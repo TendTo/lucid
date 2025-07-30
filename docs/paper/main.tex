@@ -404,7 +404,7 @@ A high-level visualization of \lucid's architecture is illustrated in Figure~\re
 We also provide a Python wrapper, called \pylucid, to facilitate the integration of the tool into existing workflows and effortlessly leverage well-established libraries such as NumPy~\cite{numpy} and SciPy~\cite{scipy}.
 Moreover, \pylucid can be extensively configured in a variety of ways (e.g., Python scripts, YAML files, GUI), making it the recommended way to operate \lucid.
 Hence, for the rest of the paper, we will focus on \pylucid when describing the user interfaces.
-{\color{red}Instructions for installing \lucid are deferred to the appendix.}
+{\color{red}Further information about \pylucid are deferred to the appendix.}
 
 
 \paragraph{Configuration}
@@ -458,13 +458,12 @@ While going over each component of \lucid, we will show how they can be configur
 % \todo{Should this be considered a component? It is more about the data loader} \Sadegh{This is good to have as a separate component.}
 Due to its data-driven nature, all that \lucid needs to operate, is a set of sampled transitions $\data_N$ from the system, as shown in \eqref{eq:data}, and the safety specification itself.
 % Data can be obtained by defining a function that takes as input the current state and control input and returns the next state, adding i.i.d. noise sampled from an appropriate distribution, or it may be collected from an external simulator or real-world system.
-The samples can be specified directly in the configuration file:
+The samples can be specified directly in the configuration file, divided into $x^1,\ldots,x^N$ and $x^1_+,\ldots,x^N_+$:
 \begin{lstlisting}[language=yaml,backgroundcolor=\color{ipython_bg}]
 x_samples: [[5.930e-01], ..., [-1.937e-01]]
 xp_samples: [[3.015e-01], ..., [-1.018e-01]]
 \end{lstlisting}
 Alternatively, the samples can either be generated programmatically in the user-provided Python configuration script, or be stored in a separate file.
-\pylucid natively supports common formats such as \texttt{.csv}, \texttt{.mat}, \texttt{.npy}, and \texttt{.npz}.
 % Refer to the documentation for more details.
 \begin{comment}
 \begin{lstlisting}[language=iPython]
@@ -511,7 +510,7 @@ estimator: "KernelRidgeRegressor"
 
 \paragraph{\Circled{3}~Tuner}
 Being parameter-free approaches, kernel methods do not require the expensive learning processes of other machine learning methods, such as neural networks.
-However, they still depend on a number of \hp, such as the kernel bandwidth $\sigma_f$, the lengthscale $\sigma_l$, and the regularization constant $\lambda$.
+However, they still depend on a number of \hp, such as the kernel bandwidth $\sigma_f$, the lengthscale $\sigma_l$, and the regularization constant $\lambda$ (see \eqref{eq:gaussian_kernel}--\eqref{eq:empiricalEstimate}).
 Changes in their values can have a significant impact on the \estimator's efficiency and accuracy.
 The process of finding good values for these \hp is known as \emph{hyperparameter tuning}, with the optimal parameters being problem dependent.
 \lucid provides a set of utilities, which specialize the \texttt{Tuner} interface, to aid in this task:
@@ -586,7 +585,7 @@ After being defined with the same \hp $(\sigma_f,\sigma_l)$ that characterize th
     \item \texttt{ConstantTruncatedFourierFeatureMap} defines frequency bands with a fixed size.
 \end{itemize}
 Different feature map implementations may yield different results.
-In our example, we truncate the Fourier expansion to $5$ frequency bands, including the constant term, and use $64$ times the Nyquist frequency of lattice points to build the constraints of the optimization problem, to avoid it being too conservative.\OS{Specifying it as a multiple of the Nyquist frequency will inevitably raise questions. Just say we generate $X$ lattice points? "lattice density"}
+In our example, we truncate the Fourier expansion to $5$ frequency bands, including the constant term, and use $64$ times the Nyquist frequency of lattice points to build the constraints of the optimization problem, to avoid it being too conservative.\OS{Specifying it as a multiple of the Nyquist frequency will inevitably raise questions. Just say we generate $X$ lattice points? "lattice size"}
 \begin{lstlisting}[language=yaml,backgroundcolor=\color{ipython_bg}]
 feature_map: 
     "LinearTruncatedFourierFeatureMap"
@@ -633,7 +632,7 @@ For the running example, we obtain the barrier certificate shown in Figure~\ref{
 \paragraph{Validation (optional)}
 Albeit, if \lucid finds a barrier, this is already formally sound with respect to the data-driven estimator,
 if the system dynamics are known, \lucid provides the option to formally verify the correctness of the barrier using the \dreal SMT solver~\cite{dreal}.
-Note that \dreal has to be installed separately with \lstinline|pip install dreal| and may not be available on all systems.
+
 
 % The resulting barrier can then be checked with the verifier, provided we have access to the system's model, to ensure its correctness.
 
@@ -686,6 +685,29 @@ This gives us absolute control over how the \estimator is tuned before being use
 
 To ascertain the performance of \lucid, we conducted a series of experiments, run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, and 64 GB of RAM.
 All runs had the random seed set to $42$ to ensure reproducibility.
+The results of all experimental results are summarized in Table~\ref{tbl:benchmarks_results}.
+\begin{table}[tb]
+    \centering
+    \begin{tabular}{ccccc}
+        \toprule
+        \textbf{Benchmark} & \textbf{Dim} & \textbf{Lattice} & \textbf{Runtime} & \textbf{Safety} \\
+                           &              & \textbf{Size} & [mm:ss]          & \textbf{Probability}                  \\ % Units
+        \midrule
+        Linear             & 1            & $?$              & 00:02            & 95.15\%                 \\
+        Barr2              & 2            & $350^2$           & 14:42            & 75.34\%                    \\
+        Barr3              & 2            & $30^2$           & XX:XX            & XX\%                    \\
+                           &              & $40^2$           & XX:XX            & XX\%                    \\
+                           &              & $?^2$            & XX:XX            & XX\%                    \\
+        Overtaking         & 3            & $?^3$            & XX:XX            & XX\%                    \\
+                           & 3            & $?^3$            & XX:XX            & XX\%                    \\
+                           & 3            & $?^3$            & XX:XX            & XX\%                    \\
+        name2              & 7            &                  & XX:XX            & XX\%                    \\
+        \bottomrule
+    \end{tabular}
+    \caption{Computational benchmarks: ...}
+    \label{tbl:benchmarks_results}
+\end{table}
+
 
 \subsection{Barrier 2}
 
@@ -794,27 +816,7 @@ Note that this is only certifying safety w.r.t. the empirical distribution, i.e.
 %     \label{tbl:benchmarks}
 % \end{table}
 
-Overview of the experimental results in Table~\ref{tbl:benchmarks_results}.
-\begin{table}[tb]
-    \centering
-    \begin{tabular}{ccccc}
-        \toprule
-        \textbf{Benchmark} & \textbf{Dim} & \textbf{Lattice} & \textbf{Runtime} & \textbf{Safety Prob.} \\
-                           &              & \textbf{Density} & [mm:ss]          & [\%]                  \\ % Units
-        \midrule
-        Linear             & 1            & $?$              & 00:02            & 95.15                 \\
-        Barr3              & 2            & $30^2$           & XX:XX            & XX                    \\
-                           &              & $40^2$           & XX:XX            & XX                    \\
-                           &              & $?^2$            & XX:XX            & XX                    \\
-        Overtaking         & 3            & $?^3$            & XX:XX            & XX                    \\
-                           & 3            & $?^3$            & XX:XX            & XX                    \\
-                           & 3            & $?^3$            & XX:XX            & XX                    \\
-        name2              & 7            &                  & XX:XX            & XX                    \\
-        \bottomrule
-    \end{tabular}
-    \caption{Computational benchmarks: ...}
-    \label{tbl:benchmarks_results}
-\end{table}
+
 
 \begin{figure}
     \centering

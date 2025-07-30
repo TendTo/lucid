@@ -83,18 +83,61 @@ with $\overline{\kappa}\geq\sigma_f$, $\overline{\B}\geq\norm{b}_2$, and constra
 % \section{Proofs}
 % We have collected a series of proofs of the claims we made in the main text.
 
-\section{Installation}
-Provided \texttt{Python>=3.8} is already present, \pylucid can be installed with the command
+\section{Tool technical details}
+
+\subsection{Installation}
+\OS{Ernesto, can we organise this in a better order?}
+The recommended way to install \pylucid is via the \texttt{pip} package manager, using one of the pre-built wheels, 
+hence avoiding the time-consuming need to compile the code from source.
+Provided \texttt{Python>=3.8} is already present, installing \pylucid requires only the command
 \begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
 pip install pylucid[gui,plot] --index-url \
   https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
 \end{lstlisting}
-There are a few limitation some of the dependencies introduce, which may preclude the ability of using certain features on not supported platforms.
-Formal verification of the barrier requires the \dreal SMT solver, which can only be installed on Linux and non-ARM macOS.
-Support for \highs \gls{lp} is not available on Windows at the moment.
-The \gurobi solver must be installed beforehand, and requires a license for commercial use, but is free for academic purposes.
-
+If the desired platform's wheel is not available, \pylucid can be installed from source by cloning the repository and running
+\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
+pip install .[gui,plot]
+\end{lstlisting}
+Note that this requires \texttt{Python>=3.8} and \texttt{Bazel>=8.0} to be installed on the system.
 For more details on the installation process, please refer to the online documentation at \url{https://lucidtoolsource.gitlab.io/lucid/md_docs_2Pylucid.html}.
+
+\subsection{Platform support}
+Some dependencies \pylucid includes do not support all platforms, which may preclude the ability of using certain features.
+Formal verification of the barrier requires the \dreal SMT solver, which can be installed with \lstinline|pip install dreal|, but only supports Linux and non-ARM macOS.
+The \highs \gls{lp} solver cannot be used on Windows at the moment.
+The \gurobi solver must be installed separately beforehand and requires a licence.
+
+\subsection{Configuration formats}
+\pylucid provides extensive support for configuration, which can be specified as a \texttt{.yaml} file (recommended), \texttt{.json} file,
+with a \texttt{.py} file returning a \texttt{Configuration} object, or directly via command line arguments.
+Moreover, sampled transitions can be embedded in the configuration file, or be provided separately with \texttt{.csv}, \texttt{.mat}, \texttt{.npy}, or \texttt{.npz} file.
+For example, following configurations will be equivalent:
+\lstinputlisting[language=yaml,caption={Yaml configuration.},captionpos=b,label={lst:configuration.yaml}]{code/configuration.yaml}
+\lstinputlisting[language=json,caption={Json configuration.},captionpos=b,label={lst:configuration.json}]{code/configuration.json}
+\lstinputlisting[language=iPython,style={nonumbers},caption={Python configuration.},captionpos=b,label={lst:configuration.py}]{code/configuration.py}
+\lstinputlisting[language=bash,style={nonumbers},caption={Command line configuration. Assumes that the transition samples have been stored as \texttt{.csv} files.},captionpos=b,label={lst:configuration.sh}]{code/configuration.sh}
+
+\subsection{Graphical User Interface}
+
+\pylucid provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
+Running \lstinline|pylucid-gui| will open a browser tab containing the interface shown in Figures~[\ref{fig:gui-left},\ref{fig:gui-right}], while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
+\begin{figure}
+    \centering
+    \includegraphics[trim={0 12.4cm 15cm 0},clip,width=.7\linewidth]{figures/frontend.png}
+    \caption{\lucid's \gls{gui} can be accessed via any web browser. 
+    The left half of the screen allows the user to provide the transition samples and the safety specification to verify.
+    }
+    \label{fig:gui-left}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[trim={0 12.4cm 15cm 0},clip,width=.7\linewidth]{figures/frontend.png}
+    \caption{\lucid's \gls{gui} can be accessed via any web browser. 
+    The right half of the screen shows the results produced by \lucid, including a plot of the computed barrier function, 
+    the numerical safety guarantee and , and detailed logs of the computations.
+    }
+    \label{fig:gui-right}
+\end{figure}
 
 \section{Benchmarks}
 \label{app:benchmarks}
@@ -109,7 +152,7 @@ All benchmarks were run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Cor
 The scripts responsible for running the benchmarks and \hp tuning are available in the \texttt{benchmarks/integration} folder of the repository.
 Note that a version of \texttt{Python>=3.9} is required to run the scripts, as some dependencies used to track the benchmarks' metrics across multiple runs are not compatible with \texttt{Python 3.8}.
 The \hp tuning of the \estimator was performed with the \texttt{LbfgsTuner}, bounding the value of $\sigma_l$ between $[10^{-5}, 10^5]$, and refined with the \texttt{GridSearchTuner}.
-The implementation can be found in the \texttt{benchmarks/integration/hp\_tuning.py} script. 
+The implementation can be found in the \texttt{benchmarks/integration/hp\_tuning.py} script.
 Note that we used the \gurobi optimiser.
 Other optimizers, such as \alglib or \highs, can be used instead, but may yield different results, especially in terms of performance.
 
@@ -117,19 +160,19 @@ Other optimizers, such as \alglib or \highs, can be used instead, but may yield 
 
 We consider the following system:
 \begin{equation*}
-    \begin{bmatrix}
-        {x}_{t+1}
-    \end{bmatrix}
-    = \begin{bmatrix}
-        0.5 {x}_{t}
-    \end{bmatrix} + w_t,
+      \begin{bmatrix}
+            {x}_{t+1}
+      \end{bmatrix}
+      = \begin{bmatrix}
+            0.5 {x}_{t}
+      \end{bmatrix} + w_t,
 \end{equation*}
 where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_1)$.
 Given
 \begin{align*}
-    &\X = [-1, 1] \\
-    &\X_0 = [-0.5, 0.5] \\
-    &\X_U = [-1, -0.9] \cup [0.9, 1],
+       & \X = [-1, 1]                     \\
+       & \X_0 = [-0.5, 0.5]               \\
+       & \X_U = [-1, -0.9] \cup [0.9, 1],
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=15$ time steps.
 The complete configuration for the linear example benchmark is shown in Listing~\ref{lst:linear}.
@@ -139,21 +182,21 @@ The complete configuration for the linear example benchmark is shown in Listing~
 
 We consider the following system:
 \begin{equation*}
-    \begin{bmatrix}
-        {x}_{1, t+1} \\
-        {x}_{2, t+1}
-    \end{bmatrix}
-    = \begin{bmatrix}
-        {x}_{2, t} - 1 + e^{-x_{1, t}} \\
-        -\sin^2(x_{1, t})
-    \end{bmatrix} + w_t,
+      \begin{bmatrix}
+            {x}_{1, t+1} \\
+            {x}_{2, t+1}
+      \end{bmatrix}
+      = \begin{bmatrix}
+            {x}_{2, t} - 1 + e^{-x_{1, t}} \\
+            -\sin^2(x_{1, t})
+      \end{bmatrix} + w_t,
 \end{equation*}
 where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
 Given
 \begin{align*}
-    &\X = [ -2, 2 ] \times [ -2 , 2 ] \\
-    &\X_0 = \{ [x_1, x_2] : (x_1 + 0.5)^2 + (x_2 - 0.5)^2 \leq 0.4 \} \\
-    &\X_U = \{ [x_1, x_2] : (x_1 - 0.7)^2 + (x_2 + 0.7)^2 \leq 0.3 \},
+       & \X = [ -2, 2 ] \times [ -2 , 2 ]                                  \\
+       & \X_0 = \{ [x_1, x_2] : (x_1 + 0.5)^2 + (x_2 - 0.5)^2 \leq 0.4 \}  \\
+       & \X_U = \{ [x_1, x_2] : (x_1 - 0.7)^2 + (x_2 + 0.7)^2 \leq 0.3 \},
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
 The complete configuration for the \barrII benchmark is shown in Listing~\ref{lst:barrier2}.
@@ -163,22 +206,22 @@ The complete configuration for the \barrII benchmark is shown in Listing~\ref{ls
 
 We consider the following system:
 \begin{equation*}
-    \begin{bmatrix}
-        {x}_{1, t+1} \\
-        {x}_{2, t+1}
-    \end{bmatrix}
-    = \begin{bmatrix}
-        {x}_{2, t} \\
-        \frac{1}{3} {x}^3_{1, t} - {x}_{1,t} - {x}_{2,t}
-    \end{bmatrix} + w_t,
+      \begin{bmatrix}
+            {x}_{1, t+1} \\
+            {x}_{2, t+1}
+      \end{bmatrix}
+      = \begin{bmatrix}
+            {x}_{2, t} \\
+            \frac{1}{3} {x}^3_{1, t} - {x}_{1,t} - {x}_{2,t}
+      \end{bmatrix} + w_t,
 \end{equation*}
 where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
 Given
 \begin{align*}
-    &\X = [ -3, 2.5 ] \times [ -2 , 1 ] \\
-    &\X_0 = [ 1 , 2 ] \times [ -0.7 , 0.3 ] \cup [ -1.8 , -1.4 ] \times [ -0.1 , 0.1 ] \\
-    &\qquad \cup [-1.4, -1.2] \times [-0.5 , 0.1] \\
-    &\X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
+       & \X = [ -3, 2.5 ] \times [ -2 , 1 ]                                                 \\
+       & \X_0 = [ 1 , 2 ] \times [ -0.7 , 0.3 ] \cup [ -1.8 , -1.4 ] \times [ -0.1 , 0.1 ]  \\
+       & \qquad \cup [-1.4, -1.2] \times [-0.5 , 0.1]                                       \\
+       & \X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
 The complete configuration for the \barrIII benchmark is shown in Listing~\ref{lst:barrier3}.
@@ -190,12 +233,12 @@ We consider a scenario where an autonomous vehicle (AV) controlled by a \gls{nn}
 The dynamics of the ego vehicle are given by Dubin's car model \EC{does it need a cit or is it just textbook} by adding the noise vector $w = \begin{bmatrix}w_t^1 & w_t^2 & w_t^3\end{bmatrix}$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$, respectively.
 The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity $v=1$.
 Given
-\todo{correct the sets}
 \begin{align*}
-    &\X = [ -3, 2.5 ] \times [ -2 , 1 ] \\
-    &\X_0 = [ 1 , 2 ] \times [ -0.7 , 0.3 ] \cup [ -1.8 , -1.4 ] \times [ -0.1 , 0.1 ] \\
-    &\qquad \cup [-1.4, -1.2] \times [-0.5 , 0.1] \\
-    &\X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
+       & \X = [ 1, 90 ] \times [ -7, 19 ] \times [ -\pi, \pi ]         \\
+       & \X_0 = [ 1, 3 ] \times [ -1, 1 ] \times [ -0.5, 0.5 ]         \\
+       & \X_U = [ 1, 90 ] \times [ -7, -6 ] \times [ -\pi, \pi ]       \\
+       & \qquad \cup [ 1, 90 ] \times [ 18, 19 ] \times [ -\pi, \pi ]  \\
+       & \qquad \cup [ 40, 45 ] \times [ -6, 6 ] \times [ -\pi, \pi ],
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
 

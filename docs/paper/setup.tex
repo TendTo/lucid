@@ -259,6 +259,26 @@ literate =  {---}{{\ProcessThreeDashes}}3
 {|}{{\textcolor{red}\textbar}}1
 {\ -\ }{{\mdseries\ -\ }}3,
 }
+\lstdefinelanguage{json}{
+numbers=none,
+xleftmargin=0em,
+keywords = {true,false,null,y,n},
+sensitive=false,
+stringstyle=\color{stringRed}\ttfamily,
+morestring=[b]",
+morestring=[b]',
+literate=
+*{0}{{{\color{keywordBlue}0}}}{1}
+{1}{{{\color{keywordBlue}1}}}{1}
+{2}{{{\color{keywordBlue}2}}}{1}
+{3}{{{\color{keywordBlue}3}}}{1}
+{4}{{{\color{keywordBlue}4}}}{1}
+{5}{{{\color{keywordBlue}5}}}{1}
+{6}{{{\color{keywordBlue}6}}}{1}
+{7}{{{\color{keywordBlue}7}}}{1}
+{8}{{{\color{keywordBlue}8}}}{1}
+{9}{{{\color{keywordBlue}9}}}{1}
+}
 
 \definecolor{commentGreen}{RGB}{0, 100, 0}
 \definecolor{stringRed}{RGB}{163, 21, 21}
