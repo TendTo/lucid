@@ -675,14 +675,50 @@ This gives us absolute control over how the \estimator is tuned before being use
 \section{Experimental Evaluation}
 \label{sec:experiments}
 
-\todo{Platform, configuration, seed for reproducibility}
-
 To ascertain the performance of \lucid, we conducted a series of experiments, run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, and 64 GB of RAM.
 All runs had the random seed set to $42$ to ensure reproducibility.
 
+\subsection{Barrier 2}
+
+The \barrII experiment is inspired by the one from \cite{abate2021fossil}, which we extend by adding stochastic noise $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$ to arrive at the two-dimensional nonlinear stochastic dynamics
+
+\begin{equation*}
+    \begin{bmatrix}
+        {x}_{1, t+1} \\
+        {x}_{2, t+1}
+    \end{bmatrix}
+    = \begin{bmatrix}
+        {x}_{2, t} - 1 + e^{-x_{1, t}} \\
+        -\sin^2(x_{1, t})
+    \end{bmatrix} + w_t.
+\end{equation*}
+Given
+\begin{align*}
+    &\X = [ -2, 2 ] \times [ -2 , 2 ] \\
+    &\X_0 = \{ [x_1, x_2] : (x_1 + 0.5)^2 + (x_2 - 0.5)^2 \leq 0.4 \} \\
+    &\X_u = \{ [x_1, x_2] : (x_1 - 0.7)^2 + (x_2 + 0.7)^2 \leq 0.3 \}
+\end{align*}
+we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
+\EC{we can remove all the explicit set intevals}
+The results are shown in Figure~\ref{fig:CSBarr2}.
+The kernel \hp have been selected through offline tuning to be $\sigma_f=X$ and $\sigma_l=[X, X]$.
+Using a spectral basis of $M=X^3-1$ frequencies and a lattice density of $\hat{N} = X^2$, 
+we were able to generate a \gls{cbc} with $\eta \approx X.X$, $\gamma \approx X.X$, and $c \approx X.X$ in $X$ minutes and $X$ seconds, achieving a safety probability of $P_{safe}(\S^\pi) \approx XX.X\%$.
+% Knowing the system dynamics, we were also able to formally validate the barrier.
+
+\begin{figure}[ht]
+    \resizebox{\columnwidth}{!}{\import{figures}{barrier3.pgf}}%
+    \caption{\gls{cbc} synthesis for the \barrIII benchmark.
+        The blue regions represent the initial set $\X_0$, while the red regions represent the unsafe set $\X_U$.
+        The pink surface indicates the value of $\gamma$.
+    }
+    \label{fig:CSBarr2}
+\end{figure}
+
+
 \subsection{Barrier 3}
 
-The \barr experiment is inspired by the one from \cite{abate2021fossil}, which we extend by adding stochastic noise $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$ to arrive at the two-dimensional nonlinear stochastic dynamics
+The \barrIII experiment is inspired by the one from \cite{abate2021fossil}, which we extend by adding stochastic noise $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$ to arrive at the two-dimensional nonlinear stochastic dynamics
 \begin{equation*}
     \begin{bmatrix}
         {x}_{1, t+1} \\
@@ -712,7 +748,7 @@ we were able to generate a \gls{cbc} with $\eta \approx X.X$, $\gamma \approx X.
 
 \begin{figure}[ht]
     \resizebox{\columnwidth}{!}{\import{figures}{barrier3.pgf}}%
-    \caption{\gls{cbc} synthesis for the \barr benchmark.
+    \caption{\gls{cbc} synthesis for the \barrIII benchmark.
         The blue regions represent the initial set $\X_0$, while the red regions represent the unsafe set $\X_U$.
         The pink surface indicates the value of $\gamma$.
     }
