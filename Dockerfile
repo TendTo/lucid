@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM python:3.12
 
 LABEL authors="Oliver Schon, Ernesto Casablanca"
 LABEL workspace="lucid"
@@ -50,7 +50,7 @@ RUN sed 's/python.toolchain(/python.toolchain(\nignore_root_user_error = True,/g
 RUN pip install . && \
     bazel clean --expunge
 
-ENTRYPOINT [ "python3" ]
+ENTRYPOINT [ "pylucid" ]
 
 # RUN bazel build --config=opt --//tools:enable_static_build=True //lucid
 
