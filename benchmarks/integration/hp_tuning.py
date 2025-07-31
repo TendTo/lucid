@@ -36,7 +36,6 @@ def lbfgs_tuner(config: Configuration):
 
 def grid_search_tuner(config: Configuration, grid: "dict[Parameter, ParameterValuesType]"):
     tuner = GridSearchTuner(parameters=grid)
-    log.set_verbosity(log.LOG_WARN)
     tuner.tune(
         config.estimator,
         config.x_samples,
@@ -45,7 +44,6 @@ def grid_search_tuner(config: Configuration, grid: "dict[Parameter, ParameterVal
         config.num_frequencies,
         config.X_bounds,
     )
-    log.set_verbosity(log.LOG_INFO)
     score_estimator(config)
 
 

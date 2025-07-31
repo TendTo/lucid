@@ -41,7 +41,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
 
   const Vector prod{combvec(prob_dim_wise).colwise().prod()};
   if (captured_probability_ = prod.sum(); captured_probability_ > 0.94)
-    LUCID_INFO_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
+    LUCID_DEBUG_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
   else
     LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", captured_probability_);
 
