@@ -17,8 +17,8 @@
         \node[block, below=1cm of input] (estimator) {\Circled{2} Estimator};
         \node[block, right=of estimator] (tuner) {\Circled{3} Tuner};
         \node[block, left=of estimator] (sets) {\Circled{1} Safety Specification};
-        \node[block, below=of estimator] (feature) {\Circled{4} Feature Map}; % / Barrier template
-        \node[block, left=of feature] (optimizer) {\Circled{5} Solver};
+        \node[block, below=of estimator, text width=2.4cm] (feature) {\Circled{4} Feature Map}; % / Barrier template
+        \node[block, left=.4cm of feature] (optimizer) {\Circled{5} Solver};
         % \node[block, below=of optimizer] (verifier) {Verifier};
         \node[draw, dashed, inner sep=0.25cm, rounded corners,
         % fit=(estimator)(feature)(optimizer)(verifier), label=above:{\textbf{Lucid}}] {};

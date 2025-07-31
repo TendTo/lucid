@@ -91,11 +91,13 @@ The recommended way to install \pylucid is via the \texttt{pip} package manager,
 hence avoiding the time-consuming need to compile the code from source.
 Provided \texttt{Python>=3.8} is already present, installing \pylucid requires only the command
 \begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
-pip install pylucid[gui,plot] --index-url \
+pip install "pylucid[gui,plot]" --index-url \
   https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
 \end{lstlisting}
-If the desired platform's wheel is not available, \pylucid can be installed from source by cloning the repository and running
+If the desired platform's wheel is not available, \pylucid can be installed from source running the following commands:
 \begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
+git clone https://gitlab.com/lucidtoolsource/lucid.git
+cd lucid
 pip install .[gui,plot]
 \end{lstlisting}
 Note that this requires \texttt{Python>=3.8} and \texttt{Bazel>=8.0} to be installed on the system.
@@ -120,7 +122,7 @@ For example, following configurations will be equivalent:
 \subsection{Graphical User Interface}
 
 \pylucid provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
-Running \lstinline|pylucid-gui| will open a browser tab containing the interface shown in Figures~[\ref{fig:gui-left},\ref{fig:gui-right}], while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
+Running \lstinline|pylucid-gui| will open a browser tab containing the interface shown in Figures~\ref{fig:gui-left}--\ref{fig:gui-right}, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
 \begin{figure}
     \centering
     \includegraphics[trim={0 12.4cm 15cm 0},clip,width=.7\linewidth]{figures/frontend.png}
