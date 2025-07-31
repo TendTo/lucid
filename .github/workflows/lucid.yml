@@ -2,16 +2,16 @@ name: lucid CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "lucid/**"
-      - "test/**"
-  pull_request:
-    branches: [main]
-    paths:
-      - "lucid/**"
-      - "test/**"
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "lucid/**"
+  #     - "test/**"
+  # pull_request:
+  #   branches: [main]
+  #   paths:
+  #     - "lucid/**"
+  #     - "test/**"
 
 env:
   LUCID_FLAGS: --enable_gurobi_build=False --enable_matplotlib_build=False
