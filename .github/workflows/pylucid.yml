@@ -73,6 +73,12 @@ jobs:
       - uses: ./.github/actions/bazel-cache
       - uses: ./.github/actions/frontend-setup
         if: matrix.os == 'windows-latest'
+      # - name: Install openmp on macOS
+      #   if: matrix.os == 'macos-latest'
+      #   run: |
+      #     brew install llvm libomp
+      #     export CC=/usr/local/opt/llvm/bin/clang
+      #     export CXX=/usr/local/opt/llvm/bin/clang++
 
       - name: Install python
         uses: actions/setup-python@v5

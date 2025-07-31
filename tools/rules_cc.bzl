@@ -98,9 +98,9 @@ def _get_copts(rule_copts, cc_test = False):
         "//conditions:default": CXX_FLAGS,
     }) + select({
         "//tools:gcc_omp_build": ["-fopenmp"],
-        "//tools:clang_omp_build": ["-fopenmp"],
+        "//tools:clang_omp_build": [],  # ["-fopenmp"],
         "//tools:msvc_cl_omp_build": ["/openmp"],
-        "//tools:clang_cl_omp_build": ["-fopenmp"],
+        "//tools:clang_cl_omp_build": [],  # ["-fopenmp"],
         "//conditions:default": [],
     })
 
