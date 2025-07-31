@@ -48,11 +48,11 @@ if __name__ == "__main__":
 
     grid = {
         # "num_frequencies": [9, 12, 13, 16, 17],
-        "num_frequencies": [5], # [6, 7], 
+        "num_frequencies": [5, 6], # [6, 7], 
         # "num_frequencies": [4],
         "c_coefficient": [1.0],
-        "time_horizon": [5, 15],
-        "oversample_factor": [8.0],  #  , 20.0 , 30.0
+        "time_horizon": [5],
+        "num_oversample": [100, 110],  #  , 20.0 , 30.0
         # "oversample_factor": [10.0],
     }
 

@@ -13,4 +13,4 @@ if __name__ == "__main__":
         Parameter.SIGMA_L: [np.array(x) for x in itertools.product(val, val, val)],
     }
 
-    scenario_tuner("benchmarks/integration/overtaking.yaml", grid)
+    hp_tuning("benchmarks/integration/overtaking.yaml", grid)

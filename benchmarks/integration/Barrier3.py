@@ -37,21 +37,6 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     config.x_samples = config.X_bounds.sample(config.num_samples)
     config.xp_samples = f(config.x_samples)
 
-    # feature_map = config.feature_map(
-    #     num_frequencies=config.num_frequencies,
-    #     sigma_l=config.sigma_l,
-    #     sigma_f=config.sigma_f,
-    #     x_limits=config.X_bounds,
-    # )
-    # config.estimator = ModelEstimator(
-    #     lambda x: feature_map(f(x)),
-    #     {
-    #         Parameter.SIGMA_F: config.sigma_f,
-    #         Parameter.SIGMA_L: config.sigma_l,
-    #         Parameter.REGULARIZATION_CONSTANT: config.lambda_,
-    #     },
-    # )
-
     # ################################## #
     # Running the pipeline
     # ################################## #
@@ -74,12 +59,12 @@ if __name__ == "__main__":
 
     grid = {
         # "num_frequencies": [9, 12, 13, 16, 17],
-        "num_frequencies": [18],
+        "num_frequencies": [30],
         # "num_frequencies": [4],
         "c_coefficient": [1.0],
         "time_horizon": [5],
-        # "oversample_factor": [1.0],
-        "num_oversample": [350],
+        "oversample_factor": [5.0],
+        # "num_oversample": [350],
         # "oversample_factor": [10.0],
     }
 
