@@ -16,7 +16,7 @@
 namespace lucid {
 
 /**
- * Linear optimiser using the Gurobi solver.
+ * Linear optimiser using the [Gurobi](https://www.gurobi.com/) solver.
  */
 class GurobiOptimiser final : public Optimiser {
  public:
