@@ -26,10 +26,12 @@ oversample_factor: 1
 plot: true
 seed: 42
 sigma_f: 1
-sigma_l: [1.0, 5.39338]
+# sigma_l: [1, 5.39338] # Original
+sigma_l: [2.50304, 3.77779] # LB
+# sigma_l: [0.0215443, 0.0215443] # GRID
 system_dynamics:
-  - x2 - 1 + exp(-x1)
-  - '-sin(x1)**2'
+  - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
+  - "x2 + 0.1 * (-sin(x1)**2)"
 time_horizon: 5
 verbose: 3
 verify: false

@@ -566,6 +566,7 @@ def plot_estimator_2d(
         fig.show()
     return fig
 
+
 def plot_estimator_22d(
     estimator: "Estimator",
     x_samples: "NMatrix",
@@ -617,6 +618,7 @@ def plot_estimator_22d(
     if show:
         fig.show()
     return fig
+
 
 def plot_feature_map(
     feature_map: "FeatureMap",
@@ -694,9 +696,7 @@ def plot_estimator(
             estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe, show
         )
     elif x_samples.shape[1] == 2 and xp_samples.shape[1] == 2:
-        return plot_estimator_22d(
-            estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe, show
-        )
+        return plot_estimator_22d(estimator, x_samples, xp_samples, X_bounds, X_init, X_unsafe, show)
     raise exception.LucidNotSupportedException(
         f"Plotting is not supported for {x_samples.shape[1]} => {xp_samples.shape[1]}-dimensional sets. "
         f"Only (1D or 2D) => 1D are supported."

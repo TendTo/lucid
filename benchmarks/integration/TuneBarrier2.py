@@ -5,7 +5,7 @@ import itertools
 
 
 if __name__ == "__main__":
-    val = np.logspace(-3, 2, num=10, endpoint=True, dtype=float)
+    val = np.logspace(-5, 5, num=10, endpoint=True, dtype=float)
 
     grid = {
         Parameter.REGULARIZATION_CONSTANT: [1.0e-6],
@@ -13,4 +13,4 @@ if __name__ == "__main__":
         Parameter.SIGMA_L: [np.array(x) for x in itertools.product(val, val)],
     }
 
-    scenario_tuner("benchmarks/integration/barrier2.yaml", grid)
+    hp_tuning("benchmarks/integration/barrier2.yaml", grid)
