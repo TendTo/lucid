@@ -236,12 +236,11 @@ def main():
 
     CORS(app)
     # Setup the logging configuration so that logs can be captured and sent to the frontend
-    log.set_sink(handle_log)
-    log.set_pattern("[%Y-%m-%d %H:%M:%S] [%l] %v")  # Set the log pattern
-
     if not args.debug:
         log.info("Opening the app in the default web browser.")
         # Open the app in the default web browser
         webbrowser.open(f"http://localhost:{args.port}", new=2)  # Open the app in the default web browser
 
+    log.set_pattern("[%Y-%m-%d %H:%M:%S] [%l] %v")  # Set the log pattern
+    log.set_sink(handle_log)
     app.run(debug=args.debug, host=args.host, port=args.port)
