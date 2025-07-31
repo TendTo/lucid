@@ -3,10 +3,21 @@ import numpy as np
 from pathlib import Path
 
 from pylucid import *
-from pylucid.dreal import verify_barrier_certificate
+
+try:
+    from pylucid.dreal import verify_barrier_certificate
+except ImportError:
+
+    def verify_barrier_certificate(*args, **kwargs):
+        pass
+
+
 from pylucid import random
 import matplotlib.pyplot as plt
 
+plt.rcParams.update({
+    'text.latex.preamble': r'\usepackage{amsfonts}'
+})
 
 def plot_solution_matplotlib(
     args: "argparse.Namespace",
@@ -76,28 +87,28 @@ def plot_solution_1d_matplotlib(
                 )
 
     if X_init is not None:
-        plot_rect_1d(X_init, "blue", label="$\\\mathbb{X}_0$")
+        plot_rect_1d(X_init, "blue", label=r"$\mathbb{X}_0$")
     if X_unsafe is not None:
-        plot_rect_1d(X_unsafe, "red", label="$\\\mathbb{X}_U$")
+        plot_rect_1d(X_unsafe, "red", label=r"$\mathbb{X}_U$")
 
     if eta is not None:
-        ax.axhline(eta, linestyle="dotted", color="green", label="$\\eta$")
+        ax.axhline(eta, linestyle="dotted", color="green", label=r"$\eta$")
     if gamma is not None:
-        ax.axhline(gamma, linestyle="dotted", color="red", label="$\\gamma$")
+        ax.axhline(gamma, linestyle="dotted", color="red", label=r"$\gamma$")
 
     if feature_map is not None and sol is not None:
         x_lattice = X_bounds.lattice(num_samples or 200, True)
         values = feature_map(x_lattice) @ sol.T
-        ax.plot(x_lattice.flatten(), values.flatten(), color="green", label="B(x)")
+        ax.plot(x_lattice.flatten(), values.flatten(), color="green", label=r"$\boldsymbol{B}(x)$")
         # ax.fill_between(x_lattice.flatten(), values, (values + c + 1e-8).flatten(), alpha=0.3, color="lightgreen", label="Barrier region")
 
-        if f is not None:
+        if f is not None and args.plot_bxp:
             f_values = feature_map(f(x_lattice)) @ sol.T
-            ax.plot(x_lattice.flatten(), f_values.flatten(), color="black", label="B(xp)")
+            ax.plot(x_lattice.flatten(), f_values.flatten(), color="black", label=r"$\boldsymbol{B}(x_+)$")
 
-        if estimator is not None:
+        if estimator is not None and args.plot_bxe:
             est_values = estimator(x_lattice) @ sol.T
-            ax.plot(x_lattice.flatten(), est_values.flatten(), color="purple", label="B(xp) est.")
+            ax.plot(x_lattice.flatten(), est_values.flatten(), color="purple", label=r"$\boldsymbol{B}(x_p)$ est.")
 
         # Lattice points
         # x_lattice_grid = X_bounds.lattice(num_samples or (feature_map.num_frequencies * 4), True)
@@ -181,9 +192,9 @@ def plot_solution_2d_matplotlib(
 
     # Draw the initial and unsafe sets as rectangles on the z=0 plane
     if X_init is not None:
-        plot_rect_2d_matplotlib(X_init, "blue", label="$\\mathbb{X}_0$")
+        plot_rect_2d_matplotlib(X_init, "blue", label=r"$\mathbb{X}_0$")
     if X_unsafe is not None:
-        plot_rect_2d_matplotlib(X_unsafe, "red", label="$\\mathbb{X}_U$")
+        plot_rect_2d_matplotlib(X_unsafe, "red", label=r"$\mathbb{X}_U$")
 
     # Plot the barrier certificate as a surface
     if feature_map is not None and sol is not None:
@@ -195,7 +206,16 @@ def plot_solution_2d_matplotlib(
         Z = Z.reshape(X.shape)
 
         # Plot main barrier surface
-        surf = ax.plot_surface(X, Y, Z, cmap="viridis", alpha=0.7, label="$\\boldsymbol{B}(x)$", rstride=1, cstride=1,)
+        surf = ax.plot_surface(
+            X,
+            Y,
+            Z,
+            cmap="viridis",
+            alpha=0.7,
+            label=r"$\boldsymbol{B}(x)$",
+            rstride=1,
+            cstride=1,
+        )
         surf._facecolors2d = surf._facecolor3d
         surf._edgecolors2d = surf._edgecolor3d
 
@@ -205,14 +225,14 @@ def plot_solution_2d_matplotlib(
         # Plot eta and gamma as planes if provided
         if eta is not None:
             eta_plane = ax.plot_surface(
-                plane_X, plane_Y, np.full_like(plane_X, eta), color="green", alpha=0.2, label="$\\eta$"
+                plane_X, plane_Y, np.full_like(plane_X, eta), color="green", alpha=0.2, label=r"$\eta$"
             )
             eta_plane._facecolors2d = eta_plane._facecolor3d
             eta_plane._edgecolors2d = eta_plane._edgecolor3d
 
         if gamma is not None:
             gamma_plane = ax.plot_surface(
-                plane_X, plane_Y, np.full_like(plane_X, gamma), color="red", alpha=0.2, label="$\\gamma$"
+                plane_X, plane_Y, np.full_like(plane_X, gamma), color="red", alpha=0.2, label=r"$\gamma$"
             )
             gamma_plane._facecolors2d = gamma_plane._facecolor3d
             gamma_plane._edgecolors2d = gamma_plane._edgecolor3d
@@ -225,7 +245,7 @@ def plot_solution_2d_matplotlib(
             points_f = f(points)
             Zp = feature_map(points_f) @ sol.T
             Zp = Zp.reshape(X.shape)
-            surf_f = ax.plot_surface(X, Y, Zp, color="black", alpha=0.3, label="$\\boldsymbol{B}(x_+)$")
+            surf_f = ax.plot_surface(X, Y, Zp, color="black", alpha=0.3, label=r"$\boldsymbol{B}(x_+)$")
             surf_f._facecolors2d = surf_f._facecolor3d
             surf_f._edgecolors2d = surf_f._edgecolor3d
 
@@ -233,7 +253,7 @@ def plot_solution_2d_matplotlib(
         if estimator is not None and args.plot_bxe:
             Z_est = estimator(points) @ sol.T
             Z_est = Z_est.reshape(X.shape)
-            surf_est = ax.plot_surface(X, Y, Z_est, color="purple", alpha=0.3, label="$\\boldsymbol{B}(x_p)$ est.")
+            surf_est = ax.plot_surface(X, Y, Z_est, color="purple", alpha=0.3, label=r"$\boldsymbol{B}(x_p)$ est.")
             surf_est._facecolors2d = surf_est._facecolor3d
             surf_est._edgecolors2d = surf_est._edgecolor3d
 
@@ -261,8 +281,7 @@ def load_solution(file_path: "str | Path") -> "tuple[np.ndarray, float, float]":
         data = json.load(file)
     return np.array(data["data"], dtype=float).flatten(), data["eta"], data["c"]
 
-
-def load_configuration(file_path: "str | Path") -> Configuration:
+def base_load_configuration(file_path: "str | Path") -> Configuration:
     action = ConfigAction(option_strings=None, dest="input")
     config = Configuration()
     action(None, config, Path(file_path), None)
@@ -274,6 +293,10 @@ def load_configuration(file_path: "str | Path") -> Configuration:
     if len(config.xp_samples) == 0:
         f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
         config.xp_samples = f(config.x_samples)
+    return config
+
+def load_configuration(file_path: "str | Path") -> Configuration:
+    config = base_load_configuration(file_path)
     config.feature_map = config.feature_map(
         num_frequencies=config.num_frequencies,
         sigma_l=config.sigma_l,
@@ -333,7 +356,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Plot the solution of a barrier certificate.")
-    parser.add_argument("case_study", type=str, help="The case study to plot.")
+    parser.add_argument("experiment", type=str, help="The case study to plot.")
     parser.add_argument("-p", "--points", type=int, help="The number of points for the plot.", default=200)
     parser.add_argument("-e", "--elevation", type=float, help="The elevation angle for the plot.", default=30)
     parser.add_argument("-a", "--azimuth", type=float, help="The azimuth angle for the plot.", default=-15)
@@ -342,4 +365,4 @@ if __name__ == "__main__":
     parser.add_argument("--plot_bxp", action="store_true", help="Plot the B(xp) surface.")
     parser.add_argument("--plot_bxe", action="store_true", help="Plot the B(xp) est. surface.")
     args = parser.parse_args()
-    plot_solution(f"benchmarks/integration/{args.case_study}", args)
+    plot_solution(f"benchmarks/integration/{args.experiment}", args)

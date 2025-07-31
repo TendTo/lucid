@@ -30,8 +30,7 @@ time_horizon: 15
 sigma_f: 18.0
 sigma_l: 0.034
 num_frequencies: 5
-oversample_factor: 64.0
-num_oversample: -1
+num_oversample: 704
 
 # Execution options
 noise_scale: 0.01
