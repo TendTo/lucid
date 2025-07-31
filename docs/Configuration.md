@@ -9,13 +9,38 @@ Moreover, the configuration can be expressed as a [json](https://www.json.org/js
 ## Command line options
 
 The command line options are used to configure Lucid at runtime.
+Lucid will run a default scenario with the parameters provided through the command line.
 To know the available options, you can run the following command:
 
 ```bash
 lucid --help
 ```
 
-Lucid will run a default scenario with the parameters provided through the command line.
+For example, you can run Lucid with the following command:
+
+```bash
+lucid --verbose 3 \
+  --seed 42 \
+  --system_dynamics "x1**2 + x2 / 2 + cos(x3)" "2 * x1 + sin(-x2)" \
+  --X_bounds "RectSet([-3, -2, 0.1], [2.5, 1, 0.2])" \
+  --X_init "MultiSet([RectSet([0.1, 0.2], [0.1, 0.2], [0.1, 0.2]), SphereSet([0.7, -0.7], 0.3)])" \
+  --X_unsafe "RectSet([0.4, 0.1, 1], [0.8, 0.3, 0])" \
+  --gamma 10.0 \
+  --c_coefficient 1.0 \
+  --lambda 0.0001 \
+  --num_samples 1000 \
+  --time_horizon 10 \
+  --sigma_f 15.1 \
+  --sigma_l 1.1 2.0 3.0 \
+  --num_frequencies 4 \
+  --oversample_factor 2.1 \
+  --num_oversample -1 \
+  --noise_scale 0.01 \
+  --plot true \
+  --verify true \
+  --problem_log_file "problem.lp" \
+  --iis_log_file "iis.ilp"
+```
 
 ## Configuration file
 
@@ -55,10 +80,9 @@ X_init:
         - [0.1, 0.2]
         - [0.1, 0.2]
         - [0.1, 0.2]
-    - RectSet:
-        - [0.1, 0.2]
-        - [0.1, 0.2]
-        - [0.1, 0.2]
+    - SphereSet:
+        center: [0.7, -0.7]
+        radius: 0.3
 
 X_unsafe: "RectSet([0.4, 0.1, 1], [0.8, 0.3, 0])" # - As a string
 
@@ -143,11 +167,10 @@ You can use the following example as a template:
         ]
       },
       {
-        "RectSet": [
-          [0.1, 0.2],
-          [0.1, 0.2],
-          [0.1, 0.2]
-        ]
+        "SphereSet": {
+          "center": [0.7, -0.7],
+          "radius": 0.3
+        }
       }
     ]
   },
@@ -203,7 +226,8 @@ def scenario_config(args: Configuration) -> Configuration:
     # Sets
     args.X_bounds = RectSet([(-1, 1)])
     args.X_init = RectSet([(-0.5, 0.5)])
-    args.X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))
+    args.X_unsafe = MultiSet(RectSet([(-1, -0.9)]),
+                            SphereSet(center=(0.7, -0.7), radius=0.3))
 
     # Sampling
     args.x_samples = args.X_bounds.sample(args.num_samples)
