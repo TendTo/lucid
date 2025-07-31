@@ -307,7 +307,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Cons
 }
 std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef, ConstVectorRef) {
   LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiOptimiser::bounding_box", "Gurobi");
-  return false;
+  return {Vector{}, Vector{}};
 }
 #endif  // LUCID_GUROBI_BUILD
 

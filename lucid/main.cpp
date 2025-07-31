@@ -195,6 +195,7 @@ struct CliArgs {
   Solver solver{Solver::Gurobi};
 };
 
+#if 0
 bool test_overtaking(const CliArgs& args) {
   const long long start_time = std::chrono::steady_clock::now().time_since_epoch().count();
   random::seed(args.seed);
@@ -242,6 +243,7 @@ bool test_overtaking(const CliArgs& args) {
                  (std::chrono::steady_clock::now().time_since_epoch().count() - start_time) / 1e9);
   return false;
 }
+#endif
 
 bool test_linear(const CliArgs& args) {
   random::seed(args.seed);
@@ -373,10 +375,10 @@ int main(const int argc, char* argv[]) {
     }
   }
   LUCID_LOG_INIT_VERBOSITY(4);
-  std::string log_file = fmt::format("{}.problem.lp", solver == Solver::Gurobi   ? "gurobi"
-                                                      : solver == Solver::Alglib ? "alglib"
-                                                                                 : "highs");
-  test_overtaking({
+  const std::string log_file = fmt::format("{}.problem.lp", solver == Solver::Gurobi   ? "gurobi"
+                                                            : solver == Solver::Alglib ? "alglib"
+                                                                                       : "highs");
+  test_linear({
       .seed = 42,
       .gamma = 1.0,
       .time_horizon = 5,
