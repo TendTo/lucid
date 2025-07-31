@@ -3,7 +3,7 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * util class.
+ * Util module.
  */
 #ifndef LUCID_PYTHON_BUILD
 #error LUCID_PYTHON_BUILD is not defined. Ensure you are building with the option '--config=py'

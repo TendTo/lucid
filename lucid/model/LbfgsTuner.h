@@ -19,7 +19,7 @@ namespace lucid {
  * Structure copied from [lbfgscpp](http://github.com/yixuan/LBFGSpp),
  * to avoid a transitive dependency on the external library in the header.
  */
-struct LbgsParameters {
+struct LbfgsParameters {
   /**
    * The number of corrections to approximate the inverse Hessian matrix.
    * The L-BFGS routine stores the computation results of previous \ref m
@@ -136,7 +136,7 @@ class LbfgsTuner final : public Tuner {
    * Construct a new LbfgsTuner with the provided `parameters`.
    * @param parameters optimization parameters for the L-BFGS algorithm
    */
-  explicit LbfgsTuner(const LbgsParameters& parameters = {});
+  explicit LbfgsTuner(const LbfgsParameters& parameters = {});
   /**
    * Construct a new LbfgsTuner with the provided bounds and `parameters`.
    * The solution will be constrained to the provided bounds.
@@ -146,7 +146,7 @@ class LbfgsTuner final : public Tuner {
    * @param ub Upper bounds for the parameters
    * @param parameters optimization parameters for the L-BFGS algorithm
    */
-  explicit LbfgsTuner(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const LbgsParameters& parameters = {});
+  explicit LbfgsTuner(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const LbfgsParameters& parameters = {});
   /**
    * Construct a new LbfgsTuner with the provided bounds and `parameters`.
    * The solution will be constrained to the provided bounds.
@@ -154,12 +154,12 @@ class LbfgsTuner final : public Tuner {
    * @param bounds vector of pairs of lower and upper bounds
    * @param parameters optimization parameters for the L-BFGS algorithm
    */
-  explicit LbfgsTuner(const std::vector<std::pair<Scalar, Scalar>>& bounds, const LbgsParameters& parameters = {});
+  explicit LbfgsTuner(const std::vector<std::pair<Scalar, Scalar>>& bounds, const LbfgsParameters& parameters = {});
 
   /** @checker{bounded, optimisation} */
   [[nodiscard]] bool is_bounded() const;
   /** @getter{parameters, L-BGS optimisation} */
-  [[nodiscard]] const LbgsParameters& parameters() const { return parameters_; }
+  [[nodiscard]] const LbfgsParameters& parameters() const { return parameters_; }
 
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
@@ -167,10 +167,10 @@ class LbfgsTuner final : public Tuner {
 
   Eigen::VectorXd lb_;         ///< Lower bounds for the parameters. If empty, no bounds are applied
   Eigen::VectorXd ub_;         ///< Upper bounds for the parameters. If empty, no bounds are applied
-  LbgsParameters parameters_;  ///< Optimization parameters for the L-BFGS algorithm
+  LbfgsParameters parameters_;  ///< Optimization parameters for the L-BFGS algorithm
 };
 
-std::ostream& operator<<(std::ostream& os, const LbgsParameters& lbgs_parameters);
+std::ostream& operator<<(std::ostream& os, const LbfgsParameters& lbgs_parameters);
 std::ostream& operator<<(std::ostream& os, const LbfgsTuner& tuner);
 
 }  // namespace lucid
@@ -179,7 +179,7 @@ std::ostream& operator<<(std::ostream& os, const LbfgsTuner& tuner);
 
 #include "lucid/util/logging.h"
 
-OSTREAM_FORMATTER(lucid::LbgsParameters)
+OSTREAM_FORMATTER(lucid::LbfgsParameters)
 OSTREAM_FORMATTER(lucid::LbfgsTuner)
 
 #endif

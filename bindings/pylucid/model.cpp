@@ -187,43 +187,43 @@ class MultiSetIterator {
 
 void init_model(py::module_ &m) {
   /**************************** Parameters ****************************/
-  py::class_<LbgsParameters>(m, "LbgsParameters")
+  py::class_<LbfgsParameters>(m, "LbfgsParameters")
       .def(py::init<>())
       .def(py::init([](const int m_, const Scalar epsilon_, const Scalar epsilon_rel_, const int past_,
                        const Scalar delta_, const int max_iterations_, const int linesearch_, const int max_submin_,
                        const int max_linesearch_, const Scalar min_step_, const Scalar max_step_, const Scalar ftol_,
                        const Scalar wolfe_) {
-             return LbgsParameters{.m = m_,
-                                   .epsilon = epsilon_,
-                                   .epsilon_rel = epsilon_rel_,
-                                   .past = past_,
-                                   .delta = delta_,
-                                   .max_iterations = max_iterations_,
-                                   .linesearch = linesearch_,
-                                   .max_submin = max_submin_,
-                                   .max_linesearch = max_linesearch_,
-                                   .min_step = min_step_,
-                                   .max_step = max_step_,
-                                   .ftol = ftol_,
-                                   .wolfe = wolfe_};
+             return LbfgsParameters{.m = m_,
+                                    .epsilon = epsilon_,
+                                    .epsilon_rel = epsilon_rel_,
+                                    .past = past_,
+                                    .delta = delta_,
+                                    .max_iterations = max_iterations_,
+                                    .linesearch = linesearch_,
+                                    .max_submin = max_submin_,
+                                    .max_linesearch = max_linesearch_,
+                                    .min_step = min_step_,
+                                    .max_step = max_step_,
+                                    .ftol = ftol_,
+                                    .wolfe = wolfe_};
            }),
            py::arg("m") = 6, py::arg("epsilon") = 1e-5, py::arg("epsilon_rel") = 1e-5, py::arg("past") = 0,
            py::arg("delta") = 0, py::arg("max_iterations") = 0, py::arg("linesearch") = 3, py::arg("max_submin") = 10,
            py::arg("max_linesearch") = 20, py::arg("min_step") = 1e-20, py::arg("max_step") = 1e20,
            py::arg("ftol") = 1e-4, py::arg("wolfe") = 0.9)
-      .def_readwrite("m", &LbgsParameters::m)
-      .def_readwrite("epsilon", &LbgsParameters::epsilon)
-      .def_readwrite("epsilon_rel", &LbgsParameters::epsilon_rel)
-      .def_readwrite("past", &LbgsParameters::past)
-      .def_readwrite("delta", &LbgsParameters::delta)
-      .def_readwrite("max_iterations", &LbgsParameters::max_iterations)
-      .def_readwrite("max_submin", &LbgsParameters::max_submin)
-      .def_readwrite("linesearch", &LbgsParameters::linesearch)
-      .def_readwrite("max_linesearch", &LbgsParameters::max_linesearch)
-      .def_readwrite("min_step", &LbgsParameters::min_step)
-      .def_readwrite("max_step", &LbgsParameters::max_step)
-      .def_readwrite("ftol", &LbgsParameters::ftol)
-      .def_readwrite("wolfe", &LbgsParameters::wolfe);
+      .def_readwrite("m", &LbfgsParameters::m)
+      .def_readwrite("epsilon", &LbfgsParameters::epsilon)
+      .def_readwrite("epsilon_rel", &LbfgsParameters::epsilon_rel)
+      .def_readwrite("past", &LbfgsParameters::past)
+      .def_readwrite("delta", &LbfgsParameters::delta)
+      .def_readwrite("max_iterations", &LbfgsParameters::max_iterations)
+      .def_readwrite("max_submin", &LbfgsParameters::max_submin)
+      .def_readwrite("linesearch", &LbfgsParameters::linesearch)
+      .def_readwrite("max_linesearch", &LbfgsParameters::max_linesearch)
+      .def_readwrite("min_step", &LbfgsParameters::min_step)
+      .def_readwrite("max_step", &LbfgsParameters::max_step)
+      .def_readwrite("ftol", &LbfgsParameters::ftol)
+      .def_readwrite("wolfe", &LbfgsParameters::wolfe);
 
   /**************************** Requests ****************************/
   py::enum_<Request>(m, "Request")
@@ -361,11 +361,11 @@ void init_model(py::module_ &m) {
                                                                                  py::is_final())
       .def(py::init<>());
   py::class_<LbfgsTuner, Tuner, std::shared_ptr<LbfgsTuner>>(m, "LbfgsTuner", py::is_final())
-      .def(py::init<const LbgsParameters &>(), py::arg("parameters") = LbgsParameters{})
-      .def(py::init<const Eigen::VectorXd &, const Eigen::VectorXd &, const LbgsParameters &>(), py::arg("lb"),
-           py::arg("ub"), py::arg("parameters") = LbgsParameters{})
-      .def(py::init<std::vector<std::pair<Scalar, Scalar>>, const LbgsParameters &>(), py::arg("bounds"),
-           py::arg("parameters") = LbgsParameters{});
+      .def(py::init<const LbfgsParameters &>(), py::arg("parameters") = LbfgsParameters{})
+      .def(py::init<const Eigen::VectorXd &, const Eigen::VectorXd &, const LbfgsParameters &>(), py::arg("lb"),
+           py::arg("ub"), py::arg("parameters") = LbfgsParameters{})
+      .def(py::init<std::vector<std::pair<Scalar, Scalar>>, const LbfgsParameters &>(), py::arg("bounds"),
+           py::arg("parameters") = LbfgsParameters{});
   py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", py::is_final())
       .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0)
       .def(py::init([](const py::dict &parameters, const std::size_t n_jobs) {

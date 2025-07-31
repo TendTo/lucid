@@ -22,7 +22,7 @@ namespace lucid {
 
 namespace {
 
-LBFGSpp::LBFGSParam<double> to_lbfgs(const LbgsParameters& parameters) {
+LBFGSpp::LBFGSParam<double> to_lbfgs(const LbfgsParameters& parameters) {
   LBFGSpp::LBFGSParam<double> external_parameters{};
   external_parameters.m = parameters.m;
   external_parameters.epsilon = parameters.epsilon;
@@ -39,7 +39,7 @@ LBFGSpp::LBFGSParam<double> to_lbfgs(const LbgsParameters& parameters) {
   return external_parameters;
 }
 
-LBFGSpp::LBFGSBParam<double> to_lbfgsb(const LbgsParameters& parameters) {
+LBFGSpp::LBFGSBParam<double> to_lbfgsb(const LbfgsParameters& parameters) {
   LBFGSpp::LBFGSBParam<double> external_parameters{};
   external_parameters.m = parameters.m;
   external_parameters.epsilon = parameters.epsilon;
@@ -72,10 +72,10 @@ Eigen::VectorXd bounds_to_vector(const T<std::pair<Scalar, Scalar>>& bounds) {
 
 }  // namespace
 
-LbfgsTuner::LbfgsTuner(const LbgsParameters& parameters) : LbfgsTuner{{}, {}, parameters} {}
-LbfgsTuner::LbfgsTuner(const std::vector<std::pair<Scalar, Scalar>>& bounds, const LbgsParameters& parameters)
+LbfgsTuner::LbfgsTuner(const LbfgsParameters& parameters) : LbfgsTuner{{}, {}, parameters} {}
+LbfgsTuner::LbfgsTuner(const std::vector<std::pair<Scalar, Scalar>>& bounds, const LbfgsParameters& parameters)
     : LbfgsTuner{bounds_to_vector<0, std::vector>(bounds), bounds_to_vector<1, std::vector>(bounds), parameters} {}
-LbfgsTuner::LbfgsTuner(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const LbgsParameters& parameters)
+LbfgsTuner::LbfgsTuner(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const LbfgsParameters& parameters)
     : lb_{lb}, ub_{ub}, parameters_{parameters} {
   LUCID_CHECK_ARGUMENT_EQ(lb_.size(), ub_.size());
 #ifndef NCHECK
@@ -134,8 +134,8 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
   gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x_out));
 }
 
-std::ostream& operator<<(std::ostream& os, const LbgsParameters& lbgs_parameters) {
-  return os << "LbgsParameters( m( " << lbgs_parameters.m << " ) epsilon( " << lbgs_parameters.epsilon
+std::ostream& operator<<(std::ostream& os, const LbfgsParameters& lbgs_parameters) {
+  return os << "LbfgsParameters( m( " << lbgs_parameters.m << " ) epsilon( " << lbgs_parameters.epsilon
             << " ) epsilon_rel( " << lbgs_parameters.epsilon_rel << " ) past( " << lbgs_parameters.past << " ) delta( "
             << lbgs_parameters.delta << " ) max_iterations( " << lbgs_parameters.max_iterations << " ) max_submin( "
             << lbgs_parameters.max_submin << " ) max_linesearch( " << lbgs_parameters.max_linesearch << " ) min_step( "

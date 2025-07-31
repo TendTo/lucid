@@ -15,8 +15,8 @@ using lucid::GaussianKernel;
 using lucid::Index;
 using lucid::Kernel;
 using lucid::KernelRidgeRegressor;
+using lucid::LbfgsParameters;
 using lucid::LbfgsTuner;
-using lucid::LbgsParameters;
 using lucid::Matrix;
 using lucid::Parameter;
 using lucid::Vector;
@@ -31,13 +31,13 @@ class TestLbfgsTuner : public ::testing::Test {
   KernelRidgeRegressor is_regressor_{
       std::make_unique<GaussianKernel>(), regularization_constant_,
       std::make_shared<LbfgsTuner>(Eigen::VectorXd::Constant(1, 1e-5), Eigen::VectorXd::Constant(1, 1e5),
-                                   LbgsParameters{.max_iterations = 10})};
+                                   LbfgsParameters{.max_iterations = 10})};
 };
 
 TEST_F(TestLbfgsTuner, Constructor) { EXPECT_NO_THROW(LbfgsTuner()); }
 
 TEST_F(TestLbfgsTuner, ConstructorWithParams) {
-  LbgsParameters params;
+  LbfgsParameters params;
   params.m = 10;
   params.epsilon = 1e-6;
   params.max_iterations = 100;
@@ -118,7 +118,7 @@ TEST_F(TestLbfgsTuner, OptimizationImprovesFit) {
 #endif
 
 TEST_F(TestLbfgsTuner, CustomMaxIterations) {
-  LbgsParameters params;
+  LbfgsParameters params;
   params.max_iterations = 1;  // Force early stopping
 
   KernelRidgeRegressor limited_regressor{std::make_unique<GaussianKernel>(), regularization_constant_,
@@ -155,7 +155,7 @@ TEST_F(TestLbfgsTuner, MismatchedInputsOutputs) {
 }
 
 TEST_F(TestLbfgsTuner, CustomEpsilon) {
-  LbgsParameters strict_params;
+  LbfgsParameters strict_params;
   strict_params.epsilon = 1e-8;      // Stricter convergence
   strict_params.epsilon_rel = 1e-8;  // Stricter convergence
 

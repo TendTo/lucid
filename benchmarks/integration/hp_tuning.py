@@ -28,7 +28,7 @@ def lbfgs_tuner(config: Configuration):
     tuner = LbfgsTuner(
         lb=[1e-5] * config.X_bounds.dimension,
         ub=[1e5] * config.X_bounds.dimension,
-        parameters=LbgsParameters(min_step=0, linesearch=5),
+        parameters=LbfgsParameters(min_step=0, linesearch=5),
     )
     config.estimator.fit(config.x_samples, config.xp_samples, tuner=tuner)
     score_estimator(config)

@@ -21,7 +21,7 @@ namespace lucid {
 /**
  * Set composed of the union of multiple sets.
  * Checking whether a vector is in the set is equivalent to checking if it is in any of the sets.
- * @todo Simplistic implementation of sampling and dimension.
+ * @todo Simplistic implementation of sampling.
  */
 class MultiSet final : public Set {
  public:

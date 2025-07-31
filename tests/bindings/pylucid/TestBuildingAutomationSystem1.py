@@ -68,7 +68,7 @@ def scenario_config() -> "ScenarioConfig":
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
     tuner = {
-        # "tuner": LbfgsTuner(bounds=((0.1, 15.0),), parameters=LbgsParameters(min_step=0, linesearch=5))
+        # "tuner": LbfgsTuner(bounds=((0.1, 15.0),), parameters=LbfgsParameters(min_step=0, linesearch=5))
         # "tuner": MedianHeuristicTuner(),
         # "tuner": GridSearchTuner(
         #     ParameterValues(
