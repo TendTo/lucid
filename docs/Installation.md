@@ -120,14 +120,14 @@ bazel run //lucid -- [args]
 Lucid comes with a few predefined build configuration for the most common use cases.
 Just add the `--config` flag followed by the desired configuration when running Bazel.
 
-| Configuration | Optimisations | Debug symbols | Assertions | Input checks | Logging | Verbose Eigen Logs | Used for              |
-| ------------- | ------------- | ------------- | ---------- | ------------ | ------- | ------------------ | --------------------- |
-| **default**   | ?             | ?             | Yes        | Yes          | Yes     | No                 | Default build         |
-| `dbg`         | No            | Yes           | Yes        | Yes          | Yes     | Yes                | Testing and debugging |
-| `snt`         | No            | Yes           | Yes        | Yes          | Yes     | No                 | Memory sanitization   |
-| `opt`         | Yes           | No            | No         | Yes          | Yes     | No                 | Production            |
-| `py`          | Yes           | No            | No         | Yes          | Yes     | No                 | Python bindings       |
-| `bench`       | Yes           | No            | No         | No           | No      | No                 | Benchmarking          |
+| Configuration | Optimized | Debug | Assertions | Input checks | Logging | Verbose Eigen | Parallelized (OMP) | Used for              |
+| ------------- | --------- | ----- | ---------- | ------------ | ------- | ------------- | ------------------ | --------------------- |
+| **default**   | ?         | ?     | Yes        | Yes          | Yes     | No            | No                 | Default build         |
+| `dbg`         | No        | Yes   | Yes        | Yes          | Yes     | Yes           | No                 | Testing and debugging |
+| `snt`         | No        | Yes   | Yes        | Yes          | Yes     | No            | No                 | Memory sanitization   |
+| `opt`         | Yes       | No    | No         | Yes          | Yes     | No            | Yes                | Production            |
+| `py`          | Yes       | No    | No         | Yes          | Yes     | No            | Yes                | Python bindings       |
+| `bench`       | Yes       | No    | No         | No           | No      | No            | Yes                | Benchmarking          |
 
 For example, to build Lucid with the `opt` configuration, you can run:
 
@@ -143,6 +143,7 @@ If you want even more fine-grained control over the build, you can also use the 
 | `enable_static_build`                  | Build Lucid as a static library. Defaults to `False`.       |
 | `enable_dynamic_build`                 | Build Lucid as a dynamic library. Defaults to `False`.      |
 | `enable_python_build`                  | Build Lucid with Python bindings. Defaults to `False`.      |
+| `enable_omp_build`                     | Build Lucid with OpenMP support. Defaults to `False`.       |
 | `enable_benchmark_build`               | Build Lucid with benchmarking support. Defaults to `False`. |
 | `enable_matplotlib_build`              | Build Lucid with Matplotlib support. Defaults to `True`.    |
 | `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.        |

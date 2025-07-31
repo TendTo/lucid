@@ -1,5 +1,5 @@
 load("//tools:cpplint.bzl", "cpplint")
-load("//tools:rules_cc.bzl", "lucid_cc_binary", "lucid_cc_library", "lucid_srcs")
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_srcs")
 load("//tools:rules_py_cc.bzl", "lucid_cc_py_binary")
 load("//tools:variables.bzl", "LUCID_DESCRIPTION", "LUCID_NAME", "LUCID_VERSION")
 
@@ -64,15 +64,6 @@ lucid_cc_py_binary(
         "//tools:matplotlib_build": ["//lucid/util:matplotlib"],
         "//conditions:default": [],
     }),
-)
-
-lucid_cc_binary(
-    name = "temp",
-    srcs = ["temp.hops.cpp"],
-    deps = [
-        "@eigen",
-        "@hops",
-    ],
 )
 
 cpplint()
