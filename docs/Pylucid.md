@@ -202,7 +202,7 @@ pylucid-gui
 ```
 
 The program will spin up a web server and open the GUI in your default web browser.
-By default, the web page will be available at [http://127.0.0.1:5000](http://127.0.0.1:5000), but you can change the port by using the `--port` option.
+By default, the web page will be available at [http://127.0.0.1:3661](http://127.0.0.1:3661), but you can change the port by using the `--port` option.
 
 The GUI makes it more user-friendly to configure scenarios, run them, and visualize the results.
 
@@ -251,12 +251,15 @@ In most cases the process will stop soon, (e.g., after an iteration of the optim
 
 #### Address already in use. Port X is in use by another program
 
-When running the GUI, you may encounter this error if the default port (5000) is already in use by another program.
+When running the GUI, you may encounter this error if the default port (3661) is already in use by another program.
 To resolve this, you can either stop the program using that port or specify a different port when launching the GUI:
 
 ```bash
 pylucid-gui --port 5001
 ```
+
+Note that this will change the port the backend will listen on, but the frontend will still try to connect to the default port (3661).
+To change the frontend port, you need to update the `vite.config.ts` file in the `frontend` directory, serve it with `pnpm dev`, and then access the GUI from the indicated url.
 
 #### GUI is stuck
 

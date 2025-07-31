@@ -176,7 +176,7 @@ def get_run():
 
 
 class CliArgs(argparse.Namespace):
-    release: bool
+    debug: bool
     host: str
     port: int
     cache_dir: str
@@ -196,12 +196,12 @@ def parse_args(args: "list[str] | None" = None) -> CliArgs:
         "--port",
         type=int,
         help="Port to run the application on.",
-        default=5000,
+        default=3661,
     )
     parser.add_argument(
-        "--release",
+        "--debug",
         action="store_true",
-        help="Run the app in release mode.",
+        help="Run the app in debug mode.",
     )
     parser.add_argument(
         "-c",
@@ -239,9 +239,9 @@ def main():
     log.set_sink(handle_log)
     log.set_pattern("[%Y-%m-%d %H:%M:%S] [%l] %v")  # Set the log pattern
 
-    if args.release:
+    if not args.debug:
         log.info("Opening the app in the default web browser.")
         # Open the app in the default web browser
-        webbrowser.open("http://localhost:5000", new=2)  # Open the app in the default web browser
+        webbrowser.open(f"http://localhost:{args.port}", new=2)  # Open the app in the default web browser
 
-    app.run(debug=not args.release, host=args.host, port=args.port)
+    app.run(debug=args.debug, host=args.host, port=args.port)

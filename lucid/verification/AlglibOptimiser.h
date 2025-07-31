@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <utility>
+
 #include "lucid/lib/eigen.h"
 #include "lucid/verification/Optimiser.h"
 

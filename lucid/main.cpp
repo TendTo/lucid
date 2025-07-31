@@ -197,7 +197,7 @@ struct CliArgs {
 
 #if 0
 bool test_overtaking(const CliArgs& args) {
-  const long long start_time = std::chrono::steady_clock::now().time_since_epoch().count();
+  const auto start_time = std::chrono::steady_clock::now().time_since_epoch().count();
   random::seed(args.seed);
 
   const RectSet X_bounds{{{1, 90}, {-7, 19}, {-std::numbers::pi, std::numbers::pi}}};
