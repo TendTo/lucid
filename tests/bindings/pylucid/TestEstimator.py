@@ -19,8 +19,19 @@ except ImportError:
 class TestRegression:
     class TestGaussianKernelRidgeRegressor:
 
+        def test_init_default(self):
+            o = KernelRidgeRegressor()
+            assert o is not None
+            assert isinstance(o, Estimator)
+            assert isinstance(o.kernel, GaussianKernel)
+            assert o.training_inputs.size == 0
+            assert o.coefficients.size == 0
+            assert o.get(Parameter.REGULARIZATION_CONSTANT) == o.regularization_constant == 1
+            assert np.allclose(o.get(Parameter.SIGMA_L), o.kernel.sigma_l)
+            assert o.get(Parameter.SIGMA_F) == o.kernel.sigma_f == 1
+
         def test_init(self):
-            k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
+            k = GaussianKernel(sigma_f=2, sigma_l=np.array([3.0, 4.0, 5.0]))
             o = KernelRidgeRegressor(kernel=k, regularization_constant=11)
             assert o is not None
             assert isinstance(o, Estimator)
@@ -97,7 +108,7 @@ class TestRegression:
 
             # Solving (K + λI) * x = y
             # K = sigma_f^2 * exp(-γ||x_i - x_j||^2)
-            kr = KernelRidge(kernel="rbf", gamma=0.5 * sigma_l**-2, alpha=reg_coeff * 2)
+            kr = KernelRidge(kernel="rbf", gamma=0.5 * sigma_l ** -2, alpha=reg_coeff * 2)
 
             training_inputs = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
             training_outputs = np.array([[1.0, 2.0], [5.0, 3.0]])

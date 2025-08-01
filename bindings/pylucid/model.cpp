@@ -485,6 +485,10 @@ void init_model(py::module_ &m) {
       .def("__call__", py::overload_cast<ConstMatrixRef>(&Estimator::operator(), py::const_), ARG_NONCONVERT("x"))
       .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
+      .def(py::init([](double regularization_constant, const std::shared_ptr<Tuner> &tuner) {
+             return KernelRidgeRegressor{std::make_unique<GaussianKernel>(), regularization_constant, tuner};
+           }),
+           py::arg("regularization_constant") = 1.0, py::arg("tuner") = nullptr)
       .def(py::init<const Kernel &, double, const std::shared_ptr<Tuner> &>(), py::arg("kernel"),
            py::arg("regularization_constant") = 1.0, py::arg("tuner") = nullptr)
       .def(
