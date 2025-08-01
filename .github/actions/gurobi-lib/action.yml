@@ -22,36 +22,55 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Download and extract Gurobi
+    - name: Download Gurobi
+      uses: ethanjli/cached-download-action@v0.1.3
+      if: ${{ inputs.os == 'linux' }} && ${{ inputs.arch == 'x86_64' }}
+      with:
+        url: https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_linux64.tar.gz
+        destination: gurobi/gurobi.tar.gz
+    - name: Download Gurobi
+      uses: ethanjli/cached-download-action@v0.1.3
+      if: ${{ inputs.os == 'linux' }} && ${{ inputs.arch == 'aarch64' }}
+      with:
+        url: https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_armlinux64.tar.gz
+        destination: gurobi/gurobi.tar.gz
+    - name: Download Gurobi
+      uses: ethanjli/cached-download-action@v0.1.3
+      if: ${{ inputs.os == 'macos' }}
+      with:
+        url: https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_macos_universal2.pkg
+        destination: gurobi/gurobi.pkg
+    - name: Download Gurobi
+      uses: ethanjli/cached-download-action@v0.1.3
+      if: ${{ inputs.os == 'windows' }}
+      with:
+        url: https://packages.gurobi.com/12.0/Gurobi-${{ inputs.version }}-win64.msi
+        destination: gurobi/gurobi.msi
+
+    - name: Extract Gurobi
       if: ${{ inputs.os == 'linux' }} && ${{ inputs.arch == 'x86_64' }}
       shell: bash
       run: |
-        mkdir -p ${{ github.workspace }}/gurobi
-        curl -L -o ${{ github.workspace }}/gurobi/gurobi.tar.gz https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_linux64.tar.gz
         tar -xzf ${{ github.workspace }}/gurobi/gurobi.tar.gz -C ${{ github.workspace }}/gurobi --strip-components=2
         rm ${{ github.workspace }}/gurobi/gurobi.tar.gz
+
     - name: Download and extract Gurobi
       if: ${{ inputs.os == 'linux' }} && ${{ inputs.arch == 'aarch64' }}
       shell: bash
       run: |
-        mkdir -p ${{ github.workspace }}/gurobi
-        curl -L -o ${{ github.workspace }}/gurobi/gurobi.tar.gz https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_armlinux64.tar.gz
         tar -xzf ${{ github.workspace }}/gurobi/gurobi.tar.gz -C ${{ github.workspace }}/gurobi --strip-components=2
         rm ${{ github.workspace }}/gurobi/gurobi.tar.gz
     - name: Download and extract Gurobi
       if: ${{ inputs.os == 'macos' }}
       shell: bash
       run: |
-        mkdir -p ${{ github.workspace }}/gurobi
-        curl -L -o ${{ github.workspace }}/gurobi/gurobi.pkg https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_macos_universal2.pkg
         sudo installer -pkg ${{ github.workspace }}/gurobi/gurobi.pkg -target /
+        rm -r ${{ github.workspace }}/gurobi
         sudo mv /Library/gurobi1202/macos_universal2 ${{ github.workspace }}/gurobi
-        rm ${{ github.workspace }}/gurobi/gurobi.pkg
     - name: Download and extract Gurobi
       if: ${{ inputs.os == 'windows' }}
-      shell: cmd
+      shell: powershell
       run: |
-        mkdir ${{ github.workspace }}\gurobi
-        curl -L -o ${{ github.workspace }}\gurobi\gurobi.msi https://packages.gurobi.com/12.0/Gurobi-${{ inputs.version }}-win64.msi
-        msiexec /i ${{ github.workspace }}\gurobi\gurobi.msi /qn /norestart
-        del ${{ github.workspace }}/gurobi/gurobi.msi
+        msiexec /a ${{ github.workspace }}\gurobi\gurobi.msi /qb TARGETDIR=${{ github.workspace }}\gurobi
+        mv ${{ github.workspace }}\gurobi\gurobi1200\win64\* ${{ github.workspace }}\gurobi
+        rm ${{ github.workspace }}\gurobi\gurobi.msi
