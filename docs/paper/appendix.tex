@@ -87,7 +87,7 @@ with $\overline{\kappa}\geq\sigma_f$, $\overline{\B}\geq\norm{b}_2$, and constra
 
 \subsection{Installation}
 \OS{Ernesto, can we organise this in a better order?}
-The recommended way to install \pylucid is via the \texttt{pip} package manager, using one of the pre-built wheels, 
+The recommended way to install \pylucid is via the \texttt{pip} package manager, using one of the pre-built wheels,
 hence avoiding the time-consuming need to compile the code from source.
 Provided \texttt{Python>=3.8} is already present, installing \pylucid requires only the command
 \begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
@@ -123,22 +123,35 @@ For example, following configurations will be equivalent:
 
 \pylucid provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
 Running \lstinline|pylucid-gui| will open a browser tab containing the interface shown in Figures~\ref{fig:gui-left}--\ref{fig:gui-right}, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
+Following the same numeration as the arrows in the figures, we provide a list of the main components of the \gls{gui}:
+\begin{enumerate}
+      \item Only a subsection of the configuration options is shown at any given moment. More options can be accessed by clicking on the \textit{Advanced} button.
+      \item It is easy to import or export the configuration using the Json format. The experiments discussed in this paper are also available in the \textit{Import} menu.
+      \item Clicking the \textit{Preview} button produces a visualization of the system function described by the transition samples.
+      \item The dimension of the system can be specified in the \textit{Model} tab.
+      \item You can either provide the transition samples yourself in the \textit{Data} tab, or specify a transition function in the \textit{Model} tab.
+      \item The $x^1,\ldots,x^N$ samples, stored in \texttt{csv} format.
+      \item The $x^1_+,\ldots,x^N_+$ samples, stored in \texttt{csv} format.
+      \item The bounding box of the state space.
+      \item The initial set $\X_0$.
+      \item The unsafe set $\X_U$.
+      \item Clicking the \textit{Submit} button will start the computation of the barrier function with the current configuration.
+      \item Plot of the transition function or the computed barrier function.
+      \item Numerical results of the computation.
+      \item Logs of the computation.
+\end{enumerate}
 \begin{figure}
-    \centering
-    \includegraphics[trim={0 12.4cm 15cm 0},clip,width=.7\linewidth]{figures/frontend.png}
-    \caption{\lucid's \gls{gui} can be accessed via any web browser. 
-    The left half of the screen allows the user to provide the transition samples and the safety specification to verify.
-    }
-    \label{fig:gui-left}
+      \centering
+      \includegraphics[trim={0 0 17cm 0},clip,width=.7\linewidth]{figures/frontend-left.png}
+      \caption{The left half of the page allows the user to provide the transition samples and the safety specification to verify.
+      }
+      \label{fig:gui-left}
 \end{figure}
 \begin{figure}
-    \centering
-    \includegraphics[trim={0 12.4cm 15cm 0},clip,width=.7\linewidth]{figures/frontend.png}
-    \caption{\lucid's \gls{gui} can be accessed via any web browser. 
-    The right half of the screen shows the results produced by \lucid, including a plot of the computed barrier function, 
-    the numerical safety guarantee and , and detailed logs of the computations.
-    }
-    \label{fig:gui-right}
+      \centering
+      \includegraphics[trim={13.5cm 12.4cm 0 0},clip,width=.7\linewidth]{figures/frontend-right.png}
+      \caption{The right half of the page shows the results produced by \lucid, including a plot of the computed barrier function and detailed logs.}
+      \label{fig:gui-right}
 \end{figure}
 
 \section{Benchmarks}
@@ -201,6 +214,10 @@ Given
        & \X_U = \{ [x_1, x_2] : (x_1 - 0.7)^2 + (x_2 + 0.7)^2 \leq 0.3 \},
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
+The kernel \hp set to be $\sigma_f=1$ and $\sigma_l=[1.0, 5.39334]$.
+Using a spectral basis of $M=15^2-1$ frequencies and a lattice density of $\hat{N} = 350^2$,
+we were able to generate a \gls{cbc} with $\eta \approx 5.032$, $\gamma = 100$, and $c \approx 3.926$ in $14.7$ minutes, achieving a lower bound on the safety probability of $P_{\text{safe}}(\S^\pi) \geq 75.34\%$.
+The result is shown in Figure~\ref{fig:CSBarr2}.
 The complete configuration for the \barrII benchmark is shown in Listing~\ref{lst:barrier2}.
 \lstinputlisting[language=yaml,caption={Configuration for \barrII},captionpos=b,label={lst:barrier2}]{code/barrier2.yaml}
 
@@ -226,14 +243,19 @@ Given
        & \X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
+The kernel \hp were set to $\sigma_f=1$ and $\sigma_l=[1.0, 1.0, 1.0]$.
+Hence, we need a rather high number of frequencies to achieve the required expressivity in the barrier.
+Using a spectral basis of $M=15^3-1$ frequencies and a lattice density of $\hat{N} = 30^2$,
+we were able to generate a \gls{cbc} with $\eta \approx 0.1$, $\gamma = 100$, and $c \approx 0.1$ in $XX:XX$ minutes, achieving a lower bound on the safety probability of $P_{\text{safe}}(\S^\pi) \geq XX\%$.
+The result is shown in Figure~\ref{fig:CSBarr3}.
 The complete configuration for the \barrIII benchmark is shown in Listing~\ref{lst:barrier3}.
 \lstinputlisting[language=yaml,caption={Configuration for \barrIII},captionpos=b,label={lst:barrier3}]{code/barrier3.yaml}
 
 \subsection{Overtaking}
 
 We consider a scenario where an autonomous vehicle (AV) controlled by a \gls{nn} is overtaking another vehicle.
-The dynamics of the ego vehicle are given by Dubin's car model \EC{does it need a cit or is it just textbook} by adding the noise vector $w = \begin{bmatrix}w_t^1 & w_t^2 & w_t^3\end{bmatrix}$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$, respectively.
-The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity $v=1$.
+The dynamics of the ego vehicle are given by Dubin's car model by adding the noise vector $w = \begin{bmatrix}w_t^1 & w_t^2 & w_t^3\end{bmatrix}$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$, respectively.
+The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity.
 Given
 \begin{align*}
        & \X = [ 1, 90 ] \times [ -7, 19 ] \times [ -\pi, \pi ]         \\
@@ -246,3 +268,73 @@ we want to ensure that the system, starting in $\X_0$, does not enter the unsafe
 
 The complete configuration for the \overtaking benchmark is shown in Listing~\ref{lst:overtaking}.
 \lstinputlisting[language=yaml,caption={Configuration for \overtaking},captionpos=b,label={lst:overtaking}]{code/overtaking.yaml}
+
+
+% Linear
+% Success: 93.74%, c 0.0032813476604243406, eta 0.013421457997340467, lambda 1e-05, num_frequencies 5, num_oversample 704, oversample_factor 2.0, sigma_l 0.034, sigma_f 18.0, T 15
+% \begin{tabular}{rlrrrrrrrrl}
+%   \toprule
+%   sigma_f   & sigma_l & lambda_  & num_frequencies & num_oversample & T  & gamma    & eta      & c        & percentage & time \\
+%   \midrule
+%   18.000000 & 0.034   & 0.000010 & 5               & 704            & 15 & 1.000000 & 0.013421 & 0.003281 & 93.735833  & 0:01 \\
+%   \bottomrule
+% \end{tabular}
+
+% Barrier 2
+% \begin{tabular}{rlrrrrrrrrl}
+%     \toprule
+%     sigma_f  & sigma_l           & lambda_  & num_frequencies & num_oversample & T & gamma      & eta      & c        & percentage & time  \\
+%     \midrule
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 15              & 400            & 5 & 2.000000   & 0.155993 & 0.141315 & 56.871502  & 10:01 \\
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 350            & 5 & 100.000000 & 8.116091 & 7.537732 & 54.195247  & 2:02  \\
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 11              & 300            & 5 & 2.000000   & 0.183647 & 0.150238 & 53.258213  & 2:25  \\
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 13              & 300            & 5 & 2.000000   & 0.182542 & 0.150821 & 53.167620  & 3:53  \\
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 300            & 5 & 2.000000   & 0.176700 & 0.153188 & 52.868065  & 1:28  \\
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 300            & 5 & 100.000000 & 8.835006 & 7.659386 & 52.868065  & 1:33  \\
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 20              & 300            & 5 & 2.000000   & 0.223455 & 0.147586 & 51.930650  & 16:48 \\
+%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 250            & 5 & 100.000000 & 9.875340 & 7.785029 & 51.199515  & 1:10  \\
+%     \bottomrule
+% \end{tabular}
+
+
+% Barrier3
+% Success: 42.25%, c 0.11928419647787443, eta 0.5584972599863635, lambda 1e-08, num_frequencies 15, num_oversample 800, oversample_factor 1.0, sigma_l [2.99266 4.62946], sigma_f 1.0, T 5
+% \begin{tabular}{rlrrrrrrrrl}
+%     \toprule
+%     sigma_f  & sigma_l           & lambda_  & num_frequencies & num_oversample & T & gamma    & eta      & c        & percentage & time  \\
+%     \midrule
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 15              & 800            & 5 & 2.000000 & 0.558497 & 0.119284 & 42.254088  & 64:20 \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 15              & 600            & 5 & 2.000000 & 0.598432 & 0.122033 & 39.570103  & 25:12 \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 15              & 450            & 5 & 2.000000 & 0.638667 & 0.127644 & 36.155716  & 12:07 \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 14              & 450            & 5 & 2.000000 & 0.638151 & 0.128054 & 36.078977  & 9:58  \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 14              & 400            & 5 & 2.000000 & 0.651139 & 0.130655 & 34.779342  & 7:50  \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 14              & 370            & 5 & 2.000000 & 0.662921 & 0.133060 & 33.589019  & 6:49  \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 16              & 370            & 5 & 2.000000 & 0.646389 & 0.136513 & 33.552259  & 11:35 \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 12              & 370            & 5 & 2.000000 & 0.710767 & 0.127533 & 32.578438  & 4:38  \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 11              & 350            & 5 & 2.000000 & 0.755459 & 0.128623 & 30.071348  & 3:14  \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 10              & 350            & 5 & 2.000000 & 0.812608 & 0.125781 & 27.924451  & 2:34  \\
+%     1.000000 & [2.99266 4.62946] & 0.000000 & 9               & 350            & 5 & 2.000000 & 0.836442 & 0.128851 & 25.965203  & 2:02  \\
+%     \bottomrule
+% \end{tabular}
+
+
+
+% Overtaking
+% Success: 30.32%, c 0.05031756638044985, eta 0.09681458793205037, lambda 1e-05, num_frequencies 5, num_oversample -1, oversample_factor 9.0, sigma_l [10.  7.  5.], sigma_f 7.0, T 5
+% \begin{tabular}{rlrrrrrrrrl}
+%     \toprule
+%     sigma_f  & sigma_l       & lambda_  & num_frequencies & num_oversample & T & gamma    & eta      & c        & percentage & time  \\
+%     \midrule
+%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 99             & 5 & 0.500000 & 0.096815 & 0.050318 & 30.319516  & 46:33 \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 100            & 5 & 0.500000 & 0.100419 & 0.050519 & 29.396944  & 49:21 \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 88             & 5 & 0.500000 & 0.093582 & 0.052546 & 28.737764  & 25:52 \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 77             & 5 & 0.500000 & 0.103997 & 0.054252 & 24.948829  & 13:49 \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 66             & 5 & 0.500000 & 0.124539 & 0.058476 & 16.616154  & 8:16  \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 90             & 5 & 0.500000 & 0.101765 & 0.067857 & 11.790251  & 11:21 \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 81             & 5 & 0.500000 & 0.109691 & 0.068535 & 9.527199   & 8:08  \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 55             & 5 & 0.500000 & 0.135738 & 0.063642 & 9.210252   & 4:15  \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 72             & 5 & 0.500000 & 0.109150 & 0.069704 & 8.465822   & 5:10  \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 44             & 5 & 0.500000 & 0.160935 & 0.062971 & 4.842390   & 2:06  \\
+%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 63             & 5 & 0.500000 & 0.120951 & 0.071611 & 4.198906   & 3:25  \\
+%     \bottomrule
+% \end{tabular}

@@ -1,1 +1,25 @@
-TODO: true
+X_bounds: RectSet([-3, -2], [2.5,  1])
+X_init:
+  - RectSet([1, -0.7], [2,  0.3])
+  - RectSet([-1.8, -0.1], [-1.4,  0.1])
+  - RectSet([-1.4, -0.5], [-1.2,  0.1])
+X_unsafe:
+  - RectSet([0.4, 0.2], [0.6, 0.6])
+  - RectSet([0.6, 0.2], [0.7, 0.4])
+c_coefficient: 1
+estimator: KernelRidgeRegressor
+feature_map: LinearTruncatedFourierFeatureMap
+gamma: 2
+lambda: 1.e-8
+num_frequencies: 20
+num_samples: 1000
+oversample_factor: 1
+plot: true
+seed: 42
+sigma_f: 1
+sigma_l: [2.99266, 4.62946]
+system_dynamics:
+  - x1 + 0.1 * x2
+  - x2 + 0.1 * (-x1 - x2 + 1 / 3 * x1 ** 3)
+time_horizon: 5
+verify: true

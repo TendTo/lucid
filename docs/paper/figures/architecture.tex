@@ -22,12 +22,12 @@
         % \node[block, below=of optimizer] (verifier) {Verifier};
         \node[draw, dashed, inner sep=0.25cm, rounded corners,
         % fit=(estimator)(feature)(optimizer)(verifier), label=above:{\textbf{Lucid}}] {};
-        fit=(estimator)(feature)(optimizer)(sets)(tuner), label=below:{\textbf{\lucid}}] {};
+        fit=(estimator)(feature)(optimizer)(sets)(tuner), label={[xshift=3cm]below:{\textbf{\lucid}}}] {};
 
         % Output block
         % \node[output-block, left=of verifier] (output) {Barrier certificate};
         \node[output-block, below=of optimizer] (output) {Barrier Certificate};
-        \node[output-block, below=.5cm of output] (prob) {Safety Probability};
+        \node[output-block, right=.5cm of output] (prob) {Safety Probability};
         \node[] at ($(output)!0.5!(prob)$) (plus) {$+$};
 
         % Smt solvers

@@ -69,7 +69,7 @@ Embodied forms of AI are on the rise, including applications such as autonomous 
 Their core functionality is built around the advances of deep learning, enabling systems to understand and reason in complex and human-like ways to produce a desired behavior.
 Whilst the black-box nature of AI components has been a crucial contributor to the widespread success of deep learning, in response to a rapidly evolving legal scrutinization~\cite{veale2021demystifying}, the resulting lack of traceability and certifiability has put a premature halt to its deployment in safety-critical applications.
 
-As deep learning agents are left to choose their actions autonomously in closed-loop interaction with the physical world, they are confronted with a world riddled with randomness and uncertainty. 
+As deep learning agents are left to choose their actions autonomously in closed-loop interaction with the physical world, they are confronted with a world riddled with randomness and uncertainty.
 Efforts to establishing trust in their safe operation have been largely focused on developing tools to verify the input--output behavior of \glspl{nn} embedded in the systems~\cite{liu2021algorithms}.
 Unfortunately, there do not exist any tools that could take these results and certify the safety of the entire system, as uncertainty-aware models of closed-loop systems are rarely available and simulators are often too complicated and opaque to perform verification directly~\cite{wongpiromsarn2023formal}. This motivates a holistic black-box treatment~\cite{corso2021survey}, where safety guarantees are to be established from behavioral data and in account of the unknown laws of randomness themselves.
 
@@ -77,7 +77,7 @@ There exist no tools capable of quantifying safety guarantees for complex stocha
 %
 For the setting where a model of the closed-loop system is available, \npinterval by \citet{harapanahalli2023forward} verifies safety of nonlinear systems with non-deterministic disturbance based on existing \gls{nn} verification tools. See the references therein and the annual friendly competition by \citet{abate2024arch} for adjacent work.
 %
-Few data-driven approaches for stochastic systems exist. 
+Few data-driven approaches for stochastic systems exist.
 \omnisafe is a comprehensive platform for the development of safe \gls{rl} algorithms~\cite{ji2024omnisafe}. However, safe \gls{rl} does generally only \emph{encourage} safer behavior, without providing any rigorous or quantified guarantees on the probability of the absence of unsafe behavior.
 As a popular working principle for certifying safety, \glspl{cbc}~\cite{prajna2006barrier} are at the basis of tools such as \trust~\cite{gardner2025trust}, which supports only polynomial dynamics, and \fossil~\cite{edwards2024fossil}, which is model-based, and both being restricted to deterministic systems.
 
@@ -90,14 +90,14 @@ For instance, \citet{schoen2024distributionally} learn \glspl{cbc} for systems w
     \centering
     \begin{tabular}{ccccccc}
         \toprule
-        \textbf{Tool}                                    & \multicolumn{6}{c}{\textbf{Supported Features}}                                                                                                                                                             \\[.4em]
-                                                         & \rotatebox{90}{Guarantees}                      & \rotatebox{90}{Data Driven} & \rotatebox{90}{Stochastic Dyn.} & \rotatebox{90}{Non-Poly. Dyn.} & \rotatebox{90}{Stat. Correct.} & \rotatebox{90}{Closed Loop} \\
+        \textbf{Tool}                                    & \multicolumn{6}{c}{\textbf{Supported Features}}                                                                                                                                                                  \\[.4em]
+                                                         & \rotatebox{90}{Guarantees}                      & \rotatebox{90}{Data Driven} & \rotatebox{90}{Stochastic Dyn.}  & \rotatebox{90}{Non-Poly. Dyn.} & \rotatebox{90}{Stat. Correct.} & \rotatebox{90}{Closed Loop} \\
         \midrule
-        \textbf{\lucid}                                  & \cmark                                          & \cmark                      & \cmark                        & \cmark                       & \cmark                         & \cmark                      \\
-        \trust~\shortcite{gardner2025trust}              & \cmark                                          & \cmark                      & \xmarkred                     & \xmarkred                    & \cmark\footnotemark[1]            & \cmark                      \\
-        \fossil~\shortcite{edwards2024fossil}            & \cmark                                          & \xmarkred                   & \xmarkred                     & \cmark                       & NA                             & \cmark                      \\
-        \omnisafe~\shortcite{ji2024omnisafe}             & \xmarkred                                       & \cmark                      & \cmark                        & \cmark                       & \xmarkred                      & \cmark                      \\
-        \npinterval~\shortcite{harapanahalli2023forward} & \cmark                                          & \xmarkred                   & \cmark/\xmarkred\footnotemark[2] & \cmark                            & NA                             & \cmark                      \\
+        \textbf{\lucid}                                  & \cmark                                          & \cmark                      & \cmark                           & \cmark                         & \cmark                         & \cmark                      \\
+        \trust~\shortcite{gardner2025trust}              & \cmark                                          & \cmark                      & \xmarkred                        & \xmarkred                      & \cmark\footnotemark[1]         & \cmark                      \\
+        \fossil~\shortcite{edwards2024fossil}            & \cmark                                          & \xmarkred                   & \xmarkred                        & \cmark                         & NA                             & \cmark                      \\
+        \omnisafe~\shortcite{ji2024omnisafe}             & \xmarkred                                       & \cmark                      & \cmark                           & \cmark                         & \xmarkred                      & \cmark                      \\
+        \npinterval~\shortcite{harapanahalli2023forward} & \cmark                                          & \xmarkred                   & \cmark/\xmarkred\footnotemark[2] & \cmark                         & NA                             & \cmark                      \\
         % \deepsplit~\shortcite{henriksen2021deepsplit} & \xmarkred & \xmarkred & \cmark & \xmarkred& \xmarkred \\
         % \reluplex~\shortcite{katz2017reluplex} & \xmarkred & \xmarkred & \cmark & \xmarkred & \xmarkred \\
         % tool6                                            &                                                 &                             &                               &                                                                                             \\
@@ -221,7 +221,7 @@ As these conditions in essence all rely on the computation of chance constraint 
 
 Although there exist model-\emph{based} efficient solutions to this problem for linear and control affine systems, especially for complex systems this is generally a semi-infinite problem, demanding a data-driven solution. Furthermore, for the data-driven case, establishing constraint (c) rigorously without relying on impractical assumptions is extremely challenging.
 
-\subsection{Data-Driven Dynamics Estimation via Conditional Mean Embeddings}
+\subsection{Data-Driven Dynamics Estimation via Conditional Mean Embeddings}\label{sec:dd_estimation_via_cme}
 To reason about the expected value of a random variable, embedding the variable into a (higher dimensional) space and forming a data-driven estimate is a well-established concept in machine learning \cite{scholkopf2002learning,Steinwart2008SVM}.
 Following the same reasoning, the \emph{kernel mean embedding} represents the projection of a probability measure into a \gls{rkhs} via a feature map $\phi$ associated with a positive definite kernel $k$~\cite{Smola2007EmbedDistrb,muandet2017kernel}.
 For conditional probability distributions a similar concept exists: \glspl{cme} can be used to model the expected value of any \gls{rkhs} function $\new{g}\colon\X\rightarrow\R$ under a stochastic process such as $\S$~\cite{park2020measuretheoretic,muandet2017kernel}.
@@ -391,7 +391,7 @@ to a semi-infinite linear program, with barrier conditions linear in $b$:
 For example, to enforce barrier constraint (a) in Section~\ref{sec:cbc}, it suffices to construct a lattice $\{x_0^i\}_{i=1}^{N_0}\subset\X_0$ and impose the constraints $b\T\phi_M(x_0^i)\leq\eta$ for $i=1,\ldots,N_0$.
 Selecting lattices with a sampling density meeting the Nyquist-Shannon sampling theorem with respect to the highest frequency $\omega_M$ appearing in the barrier and truncated estimator, the relaxation retains all guarantees.
 As a result, the semi-infinite problem is relaxed to a finitely-constrained \gls{lp}, provided in full in {\color{red}the appendix}.
-Recall that given an appropriate robustness radius, the barriers produced by \lucid based on data $\data_N$ are statistically correct with respect to the unknown true system $\S$, and a lower bound for the safety probability is computed according to \eqref{eq:safety_prob_lb}. 
+Recall that given an appropriate robustness radius, the barriers produced by \lucid based on data $\data_N$ are statistically correct with respect to the unknown true system $\S$, and a lower bound for the safety probability is computed according to \eqref{eq:safety_prob_lb}.
 %\Sadegh{Just to double check: we are not making the third inequality more conservative related to CME.} \OS{Not currently implemented.}
 
 \section{Tool Structure and Functionalities}
@@ -408,7 +408,7 @@ A high-level visualization of \lucid's architecture is illustrated in Figure~\re
 We also provide a Python wrapper, called \pylucid, to facilitate the integration of the tool into existing workflows and effortlessly leverage well-established libraries such as NumPy~\cite{numpy} and SciPy~\cite{scipy}.
 Moreover, \pylucid can be extensively configured in a variety of ways (e.g., Python scripts, YAML files, GUI), making it the recommended way to operate \lucid.
 Hence, for the rest of the paper, we will focus on \pylucid when describing the user interfaces.
-{\color{red}Further information about \pylucid are deferred to the appendix.}
+    {\color{red}Further information about \pylucid are deferred to the appendix.}
 
 
 \paragraph{Configuration}
@@ -421,12 +421,12 @@ If more flexibility is needed, a Python script generating a configuration can be
 with the only requirement being that it must contain a function named \lstinline|scenario_config| returning a \texttt{Configuration} object.
 Regardless of their format, configuration files can be loaded with the command \lstinline|pylucid <config file>| to start the tool's verification pipeline.
 The same configuration values can also be given directly as command line arguments.
-For a list of all available options, run \lstinline|pylucid --help|.
+\pylucid also provides a browser-based \gls{gui} to aid in the configuration and execution of the tool.
 \Sadegh{space needs fixing before ".. to start ...".}
 
 In its current form, \lucid implements all the functionalities needed to certify safety of a closed-loop system with a given control policy $\pi$.
 \OS{Thus the action $a$ in the previous section is replaced with the policy $\pi(x)$.}
-Future releases will expand this core functionality to 
+Future releases will expand this core functionality to
 safe controller synthesis as well.
 Due to its modular architecture, \lucid can be easily extended in multiple directions, as outlined in Section~\ref{sec:conclusion_and_future_extensions}.
 
@@ -591,12 +591,12 @@ After being defined with the same \hp $(\sigma_f,\sigma_l)$ that characterize th
     \item \texttt{ConstantTruncatedFourierFeatureMap} defines frequency bands with a fixed size.
 \end{itemize}
 Different feature map implementations may yield different results.
-In our example, we truncate the Fourier expansion to $5$ frequency bands, including the constant term, and use $64$ times the Nyquist frequency of lattice points to build the constraints of the optimization problem, to avoid it being too conservative.\OS{Specifying it as a multiple of the Nyquist frequency will inevitably raise questions. Just say we generate $X$ lattice points? "lattice size"}
+In our example, we truncate the Fourier expansion to $5$ frequency bands, including the constant term, and use $704$ lattice points to build the constraints of the optimization problem, to avoid it being too conservative.\OS{Specifying it as a multiple of the Nyquist frequency will inevitably raise questions. Just say we generate $X$ lattice points? "lattice size"}\EC{new}
 \begin{lstlisting}[language=yaml,backgroundcolor=\color{ipython_bg}]
 feature_map: 
     "LinearTruncatedFourierFeatureMap"
 num_frequencies: 5
-oversample_factor: 64
+num_oversample: 704
 \end{lstlisting}
 
 \paragraph{\Circled{5} Solver}
@@ -628,18 +628,21 @@ For the running example, we obtain the barrier certificate shown in Figure~\ref{
 
 \begin{figure}
     \centering
-    \resizebox{\columnwidth}{!}{\import{figures}{example.pgf}}
+    \begin{adjustbox}{max width=\columnwidth}
+        \input{figures/example.pgf}
+    \end{adjustbox}
+    %\resizebox{\columnwidth}{!}{\import{figures}{example.pgf}}
     \caption{Barrier certificate for the running example.
         The state space $\X$ is plotted in the X axis, while the value of the barrier $\B$ is plotted in the Y axis.
-        The green line represents the barrier value at time $t$ while the purple one represents the barrier value at time $t+1$.
-        The initial and unsafe sets are highlighted in blue and red respectively. \Sadegh{Figure not very readable.}}
+        The green line represents the barrier value at time $t$.
+        The initial and unsafe sets are highlighted in blue and red respectively. % \Sadegh{Figure not very readable.}
+        }
     \label{fig:example}
 \end{figure}
 
 \paragraph{Validation (optional)}
 Albeit, if \lucid finds a barrier, this is already formally sound with respect to the data-driven estimator,
 if the system dynamics are known, \lucid provides the option to formally verify the correctness of the barrier using the \dreal SMT solver~\cite{dreal}.
-
 
 % The resulting barrier can then be checked with the verifier, provided we have access to the system's model, to ensure its correctness.
 
@@ -648,24 +651,7 @@ Since we know the expected behavior of the example system $\S$ from~\eqref{eq:li
 system_dynamics: ["x1 / 2"]
 verify: true
 \end{lstlisting}
-Doing so confirms that $\B$ is indeed a valid \gls{cbc} for the system.
-
-\subsection{Graphical User Interface}
-
-\pylucid provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
-Running \lstinline|pylucid-gui| will open a browser tab containing the interface shown in Figure~\ref{fig:gui}, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
-\todo{Improve picture of the GUI}
-\begin{figure}
-    \centering
-    \includegraphics[trim={0 12.4cm 15cm 0},clip,width=.7\linewidth]{figures/frontend.png}
-    \caption{\lucid's \gls{gui} can be accessed via any web browser. 
-    The left half of the screen, \Sadegh{as indicated in this picture,} allows the user to provide the transition samples and the safety specification to verify.
-    The results will be shown on the right half of the screen.
-    }
-    \label{fig:gui}
-\end{figure}
-
-
+Doing so confirms that $\B$ is indeed a valid \gls{cbc}.
 
 \begin{comment}
 \subsection{Functionality}
@@ -690,130 +676,67 @@ This gives us absolute control over how the \estimator is tuned before being use
 \section{Experimental Evaluation}
 \label{sec:experiments}
 
-To ascertain the performance of \lucid, we conduct a series of experiments, run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, and 64 GB of RAM.
+To ascertain the performance of \lucid, we conduct a series of experiments, run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, NVIDIA GeForce RTX 3090 GPU, and 64 GB of RAM.
 All runs had the random seed set to $42$ to ensure reproducibility.
-The results of all experimental results are summarized in Table~\ref{tbl:benchmarks_results}.
-\begin{table}[tb]
-    \centering
-    \begin{tabular}{ccccc}
-        \toprule
-        \textbf{Benchmark} & \textbf{Dim} & \textbf{Lattice} & \textbf{Runtime} & \textbf{Safety} \\
-                           &              & \textbf{Size} & [mm:ss]          & \textbf{Probability}                  \\ % Units
-        \midrule
-        Linear             & 1            & $?$              & 00:02            & 95.15\%                 \\
-        Barr2              & 2            & $350^2$           & 14:42            & 75.34\%                    \\
-        Barr3              & 2            & $30^2$           & XX:XX            & XX\%                    \\
-                           &              & $40^2$           & XX:XX            & XX\%                    \\
-                           &              & $?^2$            & XX:XX            & XX\%                    \\
-        Overtaking         & 3            & $?^3$            & XX:XX            & XX\%                    \\
-                           & 3            & $?^3$            & XX:XX            & XX\%                    \\
-                           & 3            & $?^3$            & XX:XX            & XX\%                    \\
-        anotherSimpleOne              & X            &                  & XX:XX            & XX\%                    \\
-        \bottomrule
-    \end{tabular}
-    \caption{Computational benchmarks: ...}
-    \label{tbl:benchmarks_results}
-\end{table}
 
+We adapt the \barrII and \barrIII benchmarks from \cite{abate2021fossil}.
+Both are two-dimensional highly nonlinear systems to which we add the stochastic noise $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
+Given the initial set $\X_0$ and the unsafe set $\X_U$, we synthesize a barrier $\B$ that guarantees trajectories starting in $\X_0$ do not enter $\X_U$ within $T=5$ time steps.
+Note that we can only certify safety w.r.t. the empirical distribution, i.e., the \gls{cme} constructed from the observed data.
+\barrIII is particularly challenging due to the closeness between the initial set and the unsafe set.
+The synthesized barriers are shown in Figures~\ref{fig:CSBarr2}--\ref{fig:CSBarr3}.
+We also consider a scenario, we name \overtaking, where an autonomous vehicle (AV) controlled by a \gls{nn} is overtaking another vehicle.
+The dynamics of the ego vehicle are given by Dubin's car model with an added noise vector $w$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$ respectively.
+The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity.
 
-\subsection{Barrier 2}
-
-The \barrII experiment is inspired by the one from \cite{abate2021fossil}, which we extend by adding stochastic noise $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$ to arrive at the two-dimensional nonlinear stochastic dynamics
-
-\begin{equation*}
-    \begin{bmatrix}
-        {x}_{1, t+1} \\
-        {x}_{2, t+1}
-    \end{bmatrix}
-    = \begin{bmatrix}
-        {x}_{1, t} \\
-        {x}_{2, t}
-    \end{bmatrix}+ h\begin{bmatrix}
-        {x}_{2, t} - 1 + e^{-x_{1, t}} \\
-        -\sin^2(x_{1, t})
-    \end{bmatrix} + w_t.
-\end{equation*}
-with {\color{red}$h:=0.01-0.0001$}.
-Given
-\begin{align*}
-    &\X = [ -2, 2 ] \times [ -2 , 2 ] \\
-    &\X_0 = \{ [x_1, x_2] : (x_1 + 0.5)^2 + (x_2 - 0.5)^2 \leq 0.4 \} \\
-    &\X_U = \{ [x_1, x_2] : (x_1 - 0.7)^2 + (x_2 + 0.7)^2 \leq 0.3 \}
-\end{align*}
-we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
-\EC{we can remove all the explicit set intervals}
-The results are shown in Figure~\ref{fig:CSBarr2}.
-The kernel \hp have been selected through offline tuning to be $\sigma_f=1$ and $\sigma_l=[1.0, 5.39334]$.
-Using a spectral basis of $M=15^2-1$ frequencies and a lattice density of $\hat{N} = 350^2$, 
-we were able to generate a \gls{cbc} with $\eta \approx 5.032$, $\gamma = 100$, and $c \approx 3.926$ in $14.7$ minutes, achieving a lower bound on the safety probability of $P_{\text{safe}}(\S^\pi) \geq 75.34\%$.
-% Knowing the system dynamics, we were also able to formally validate the barrier.
+Table~\ref{tbl:benchmarks_results} summarizes the results of all the experiments presented.
+More details about the configurations and \hp used can be found in the Appendix.
 
 \begin{figure}[ht]
-    %\resizebox{\columnwidth}{!}{\import{figures}{barrier2.pdf}}%
-    \includegraphics[trim={5cm 3cm 2cm 4cm},clip,width=\linewidth]{barrier2.pdf}
-    \caption{\gls{cbc} synthesis for the \barrII benchmark.
-        The blue circle represents the initial set $\X_0$, while the red one represents the unsafe set $\X_U$.
-    }
+    \begin{adjustbox}{clip,trim=0cm 1.7cm 0cm 2cm,max width=\columnwidth}
+        \input{figures/barrier2.pgf}
+    \end{adjustbox}
+    %\includegraphics[trim={5cm 3cm 2cm 4cm},clip,width=\linewidth]{barrier2.pgf}
+    \caption{\gls{cbc} synthesised for the \barrII benchmark.}
     \label{fig:CSBarr2}
 \end{figure}
 
-
-\subsection{Barrier 3}
-
-Similarly, we also tested \lucid on the \barrIII benchmark adapted from \cite{abate2021fossil} with added stochastic noise.
-The resulting nonlinear stochastic dynamics are
-\begin{equation*}
-    \begin{bmatrix}
-        {x}_{1, t+1} \\
-        {x}_{2, t+1}
-    \end{bmatrix}
-    = \begin{bmatrix}
-        {x}_{1, t} \\
-        {x}_{2, t}
-    \end{bmatrix}+ h
-    \begin{bmatrix}
-        {x}_{2, t} \\
-        \frac{1}{3} {x}^3_{1, t} - {x}_{1,t} - {x}_{2,t}
-    \end{bmatrix} + w_t
-\end{equation*}
-with {\color{red}$h:=0.01-0.0001$}.
-Given
-\begin{align*}
-    &\X = [ -3, 2.5 ] \times [ -2 , 1 ] \\
-    &\X_0 = [ 1 , 2 ] \times [ -0.7 , 0.3 ] \cup [ -1.8 , -1.4 ] \times [ -0.1 , 0.1 ] \\
-    &\qquad \cup [-1.4, -1.2] \times [-0.5 , 0.1] \\
-    &\X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
-\end{align*}
-we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=10$ time steps.
-\EC{we can remove all the explicit set intevals}
-This example is particularly challenging due to the closeness between the initial set and the unsafe set.
-Hence, we need a rather high number of frequencies to achieve the required expressivity in the barrier.
-The results are shown in Figure~\ref{fig:CSBarr3}.
-The kernel \hp have been selected through offline tuning to be $\sigma_f=X$ and $\sigma_l=[X, X]$.
-Using a spectral basis of $M=X^3-1$ frequencies and a lattice density of $\hat{N} = X^2$, 
-we were able to generate a \gls{cbc} with $\eta \approx X.X$, $\gamma \approx X.X$, and $c \approx X.X$ in $X$ minutes and $X$ seconds, achieving a safety probability of $P_{safe}(\S^\pi) \approx XX.X\%$.
-% Knowing the system dynamics, we were also able to formally validate the barrier.
-
 \begin{figure}[ht]
-    \resizebox{\columnwidth}{!}{\import{figures}{barrier3.pgf}}%
-    \caption{\gls{cbc} synthesis for the \barrIII benchmark.
-        The blue regions represent the initial set $\X_0$, while the red regions represent the unsafe set $\X_U$.
-        The pink surface indicates the value of $\gamma$.
-    }
+    \begin{adjustbox}{clip,trim=0cm 2cm 0cm 2cm,max width=\columnwidth}
+        \input{figures/barrier3.pgf}
+    \end{adjustbox}
+    %\resizebox{\columnwidth}{!}{\import{figures}{barrier3.pgf}}%
+    \caption{\gls{cbc} synthesised for the \barrIII benchmark.}
     \label{fig:CSBarr3}
 \end{figure}
 
-\subsection{Overtaking}
 
-We consider a scenario where an autonomous vehicle (AV) controlled by a \gls{nn} is overtaking another vehicle, as indicated in Figure~\ref{fig:safety_setup}. 
-The dynamics of the ego vehicle are given by Dubin's car model \EC{does it need a cit or is it just textbook} by adding the noise vector $w = \begin{bmatrix}w_t^1 & w_t^2 & w_t^3\end{bmatrix}$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$, respectively.
-The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity $v=1$.
-The goal is to certify that the controlled system remains safe by computing the probability that the system initialized in $[{x}_0,{y}_0,\phi_0]\T\in \X_0$ does not enter the unsafe region $\X_U$ within $T=50$ time steps.
+\begin{table}[tb]
+    \centering
+    \begin{tabular}{cccccc}
+        \toprule
+                    & \textbf{T} & \textbf{Freq} & \textbf{Lattice} & \textbf{Runtime} & \textbf{Safety} \\
+                    &            &               & \textbf{Size}    & [mm:ss]          & \textbf{Prob}   \\ % Units
+        \midrule
+        \linear     & 15         & 5             & $704$            & 00:02            & 93.74\%         \\
+        \barrII     & 5          & 15            & $350^2$          & 10:01            & 56.87\%         \\
+        \barrIII    & 5          & 15            & $800^2$          & 64:20            & 42.25\%         \\
+        \overtaking & 5          & 5             & $99^3$           & 46:33            & 30.32\%         \\
+        \bottomrule
+    \end{tabular}
+    \caption{Computational benchmarks.
+        The lattice size indicates the number of points of the lattice as the resolution for each dimension raised to the number of dimensions.
+        $T$ is the number of time steps associated with the lower bound on the safety probability, displayed in the last column.
+    }
+    \label{tbl:benchmarks_results}
+\end{table}
 
-The \gls{lp} is generated based on a lattice of $\hat{N}=X^3$ equidistant points and a spectral basis of $M=4^3-1$ frequencies.
-The kernel \hp are selected to be $\sigma_f=X$ and $\sigma_l=[X, X, X]$.
-We obtained a barrier which certifies safety with a probability of at least $XX\%$ with $c=0$, $\gamma=X.X$ and $\eta=X.X$.
-Note that this is only certifying safety w.r.t. the empirical distribution, i.e., the \gls{cme} constructed from the observed data.
+% Linear
+% Success: 93.74%, c 0.0032813476604243406, eta 0.013421457997340467, lambda 1e-05, num_frequencies 5, num_oversample 704, oversample_factor 2.0, sigma_l 0.034, sigma_f 18.0, T 15
+% Barrier3
+% Success: 42.25%, c 0.11928419647787443, eta 0.5584972599863635, lambda 1e-08, num_frequencies 15, num_oversample 800, oversample_factor 1.0, sigma_l [2.99266 4.62946], sigma_f 1.0, T 5
+% Overtaking
+% Success: 30.32%, c 0.05031756638044985, eta 0.09681458793205037, lambda 1e-05, num_frequencies 5, num_oversample -1, oversample_factor 9.0, sigma_l [10.  7.  5.], sigma_f 7.0, T 5
 
 
 % \begin{table}
@@ -832,30 +755,19 @@ Note that this is only certifying safety w.r.t. the empirical distribution, i.e.
 %     \label{tbl:benchmarks}
 % \end{table}
 
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{placeholder.jpeg}
-    \caption{Barrier}
-    \label{fig:barr3_barrier}
-\end{figure}
-
 %\Sadegh{Are we comparing with alternative approaches in the literature? Since we mention alternative tools and their capabilities in Table 1, this raises expectations that we provide a fair benchmarking and show how we are better than them.}
 
 \section{Conclusion and Future Extensions}\label{sec:conclusion_and_future_extensions}
-\Sadegh{we should combine Conclusion and Future extensions into one section and keep it in the main body. We should also mention sparse CME as a way of improving scalability...}
+\new{This paper introduces \lucid, a novel tool capable of quantifying safety guarantees for black-box systems with complex stochastic dynamics and deep learning components in the loop. As such, \lucid fills a gap currently unaddressed by preexisting tools. To achieve this, \lucid, leverages Conditional Mean Embeddings (CME) to learn control barrier certificates from data, and recasts the problem into a tractable linear form via a spectral abstraction.}
 
-\new{This paper introduces \lucid, a novel }
-
-The form of data \eqref{eq:data} considered here assumes access to full state measurements, as it is the case when working with simulated systems. Extending this to partially observed settings adds another level of complexity. Extending \lucid to such settings is on our agenda and builds on top of the results presented in this paper.
-
-\OS{As the GaussianKernel and KernelRidgeRegressor are the only options we currently provide, is specifying them explicitly necessary? Maybe we could also add a sentence about the fact that they are currently the only option, but that in the future we plan to extend this to to allow to include prior knowledge about the system dynamics (in the spirit of physics-informed approaches).}
-
-\OS{Mention robustness radius}
-
-\section{Conclusion}\label{sec:conclusion}
-...
+\new{
+    \lucid is built for extensibility. In its current form, it assumes access to full state measurements (cf.~\eqref{eq:data}), as is the case when working with simulated systems, and focuses on verification, i.e., when a policy is given.
+    Extending \lucid to partially observed settings and safe controller synthesis
+    % adds another level of complexity and 
+    is on our agenda and builds on top of the results presented in this paper.
+    \lucid derives barriers based on the empirical CME, which can be robustified against out-of-sample system behavior by tightening the barrier constraint (c) (cf.~Sections~\ref{sec:dd_estimation_via_cme}--\ref{sec:ddbarriers}).
+    The scalability of \lucid can be improved by performing sparse CME computations or specializing the estimator's \texttt{Kernel} to embed prior knowledge about the system dynamics.
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
