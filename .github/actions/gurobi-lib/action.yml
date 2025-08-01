@@ -1,0 +1,57 @@
+name: "Install the Gurobi library"
+description: "Make the Gurobi library available for use in the workflow. Note that no licence is provide, so this action won't be able to actually run the Gurobi solver."
+
+inputs:
+  os:
+    description: "Operating system"
+    required: false
+    default: "linux"
+  arch:
+    description: "Architecture to install"
+    required: false
+    default: "x86_64"
+  version:
+    description: "Gurobi version to install"
+    required: false
+    default: "12.0.0"
+outputs:
+  gurobi-home:
+    description: "Gurobi home directory"
+    value: "${{ github.workspace }}/gurobi"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download and extract Gurobi
+      if: ${{ inputs.os == 'linux' }} && ${{ inputs.arch == 'x86_64' }}
+      shell: bash
+      run: |
+        mkdir -p ${{ github.workspace }}/gurobi
+        curl -L -o ${{ github.workspace }}/gurobi/gurobi.tar.gz https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_linux64.tar.gz
+        tar -xzf ${{ github.workspace }}/gurobi/gurobi.tar.gz -C ${{ github.workspace }}/gurobi --strip-components=2
+        rm ${{ github.workspace }}/gurobi/gurobi.tar.gz
+    - name: Download and extract Gurobi
+      if: ${{ inputs.os == 'linux' }} && ${{ inputs.arch == 'aarch64' }}
+      shell: bash
+      run: |
+        mkdir -p ${{ github.workspace }}/gurobi
+        curl -L -o ${{ github.workspace }}/gurobi/gurobi.tar.gz https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_armlinux64.tar.gz
+        tar -xzf ${{ github.workspace }}/gurobi/gurobi.tar.gz -C ${{ github.workspace }}/gurobi --strip-components=2
+        rm ${{ github.workspace }}/gurobi/gurobi.tar.gz
+    - name: Download and extract Gurobi
+      if: ${{ inputs.os == 'macos' }}
+      shell: bash
+      run: |
+        mkdir -p ${{ github.workspace }}/gurobi
+        curl -L -o ${{ github.workspace }}/gurobi/gurobi.pkg https://packages.gurobi.com/12.0/gurobi${{ inputs.version }}_macos_universal2.pkg
+        sudo installer -pkg ${{ github.workspace }}/gurobi/gurobi.pkg -target /
+        sudo mv /Library/gurobi1202/macos_universal2 ${{ github.workspace }}/gurobi
+        rm ${{ github.workspace }}/gurobi/gurobi.pkg
+    - name: Download and extract Gurobi
+      if: ${{ inputs.os == 'windows' }}
+      shell: cmd
+      run: |
+        mkdir ${{ github.workspace }}\gurobi
+        curl -L -o ${{ github.workspace }}\gurobi\gurobi.msi https://packages.gurobi.com/12.0/Gurobi-${{ inputs.version }}-win64.msi
+        msiexec /i ${{ github.workspace }}\gurobi\gurobi.msi /qn /norestart
+        del ${{ github.workspace }}/gurobi/gurobi.msi
