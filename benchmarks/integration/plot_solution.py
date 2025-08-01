@@ -15,10 +15,6 @@ except ImportError:
 from pylucid import random
 import matplotlib.pyplot as plt
 
-plt.rcParams.update({
-    'text.latex.preamble': r'\usepackage{amsfonts}'
-})
-
 def plot_solution_matplotlib(
     args: "argparse.Namespace",
     X_bounds: "RectSet",
@@ -75,21 +71,21 @@ def plot_solution_1d_matplotlib(
     # Draw the initial and unsafe sets
     def plot_rect_1d(s, color, label=None):
         if isinstance(s, RectSet):
-            ax.plot([s.lower_bound[0], s.upper_bound[0]], [-0.005, -0.005], color=color, linewidth=4, label=label)
+            ax.plot([s.lower_bound[0], s.upper_bound[0]], [-0.005, -0.005], color=color, linewidth=3, label=label)
         elif isinstance(s, MultiSet):
             for i, rect in enumerate(s):
                 ax.plot(
                     [rect.lower_bound[0], rect.upper_bound[0]],
                     [-0.005, -0.005],
                     color=color,
-                    linewidth=4,
+                    linewidth=3,
                     label=label if i == 0 else None,
                 )
 
     if X_init is not None:
-        plot_rect_1d(X_init, "blue", label=r"$\mathbb{X}_0$")
+        plot_rect_1d(X_init, "blue", label=r"$X_0$")
     if X_unsafe is not None:
-        plot_rect_1d(X_unsafe, "red", label=r"$\mathbb{X}_U$")
+        plot_rect_1d(X_unsafe, "red", label=r"$X_U$")
 
     if eta is not None:
         ax.axhline(eta, linestyle="dotted", color="green", label=r"$\eta$")
@@ -99,16 +95,16 @@ def plot_solution_1d_matplotlib(
     if feature_map is not None and sol is not None:
         x_lattice = X_bounds.lattice(num_samples or 200, True)
         values = feature_map(x_lattice) @ sol.T
-        ax.plot(x_lattice.flatten(), values.flatten(), color="green", label=r"$\boldsymbol{B}(x)$")
+        ax.plot(x_lattice.flatten(), values.flatten(), color="green", label=r"$B(x)$")
         # ax.fill_between(x_lattice.flatten(), values, (values + c + 1e-8).flatten(), alpha=0.3, color="lightgreen", label="Barrier region")
 
         if f is not None and args.plot_bxp:
             f_values = feature_map(f(x_lattice)) @ sol.T
-            ax.plot(x_lattice.flatten(), f_values.flatten(), color="black", label=r"$\boldsymbol{B}(x_+)$")
+            ax.plot(x_lattice.flatten(), f_values.flatten(), color="black", label=r"$B(x_+)$")
 
         if estimator is not None and args.plot_bxe:
             est_values = estimator(x_lattice) @ sol.T
-            ax.plot(x_lattice.flatten(), est_values.flatten(), color="purple", label=r"$\boldsymbol{B}(x_p)$ est.")
+            ax.plot(x_lattice.flatten(), est_values.flatten(), color="purple", label=r"$B(x_p)$ est.")
 
         # Lattice points
         # x_lattice_grid = X_bounds.lattice(num_samples or (feature_map.num_frequencies * 4), True)
@@ -125,8 +121,10 @@ def plot_solution_1d_matplotlib(
 
     # Lower the legend to the bottom
     # Slighly increase the legend font size
-    ax.legend(loc="center", ncol=2, fontsize=12)
+    ax.legend(loc="center", ncol=2, fontsize=16, frameon=True)
     fig.tight_layout()
+    fig.savefig(f"benchmarks/integration/{args.experiment.lower()}.pgf", bbox_inches="tight", dpi=300)
+
 
     if show:
         plt.show()
@@ -192,9 +190,9 @@ def plot_solution_2d_matplotlib(
 
     # Draw the initial and unsafe sets as rectangles on the z=0 plane
     if X_init is not None:
-        plot_rect_2d_matplotlib(X_init, "blue", label=r"$\mathbb{X}_0$")
+        plot_rect_2d_matplotlib(X_init, "blue", label=r"$X_0$")
     if X_unsafe is not None:
-        plot_rect_2d_matplotlib(X_unsafe, "red", label=r"$\mathbb{X}_U$")
+        plot_rect_2d_matplotlib(X_unsafe, "red", label=r"$X_U$")
 
     # Plot the barrier certificate as a surface
     if feature_map is not None and sol is not None:
@@ -212,15 +210,15 @@ def plot_solution_2d_matplotlib(
             Z,
             cmap="viridis",
             alpha=0.7,
-            label=r"$\boldsymbol{B}(x)$",
-            rstride=1,
-            cstride=1,
+            label=r"$B(x)$",
+            rstride=4,
+            cstride=4,
         )
         surf._facecolors2d = surf._facecolor3d
         surf._edgecolors2d = surf._edgecolor3d
 
-        plane_x = np.array([X_bounds.lower_bound[0], X_bounds.upper_bound[0], 2])
-        plane_y = np.array([X_bounds.lower_bound[1], X_bounds.upper_bound[1], 2])
+        plane_x = np.array([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+        plane_y = np.array([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
         plane_X, plane_Y = np.meshgrid(plane_x, plane_y)
         # Plot eta and gamma as planes if provided
         if eta is not None:
@@ -245,7 +243,7 @@ def plot_solution_2d_matplotlib(
             points_f = f(points)
             Zp = feature_map(points_f) @ sol.T
             Zp = Zp.reshape(X.shape)
-            surf_f = ax.plot_surface(X, Y, Zp, color="black", alpha=0.3, label=r"$\boldsymbol{B}(x_+)$")
+            surf_f = ax.plot_surface(X, Y, Zp, color="black", alpha=0.3, label=r"$B(x_+)$")
             surf_f._facecolors2d = surf_f._facecolor3d
             surf_f._edgecolors2d = surf_f._edgecolor3d
 
@@ -253,7 +251,7 @@ def plot_solution_2d_matplotlib(
         if estimator is not None and args.plot_bxe:
             Z_est = estimator(points) @ sol.T
             Z_est = Z_est.reshape(X.shape)
-            surf_est = ax.plot_surface(X, Y, Z_est, color="purple", alpha=0.3, label=r"$\boldsymbol{B}(x_p)$ est.")
+            surf_est = ax.plot_surface(X, Y, Z_est, color="purple", alpha=0.3, label=r"$B(x_p)$ est.")
             surf_est._facecolors2d = surf_est._facecolor3d
             surf_est._edgecolors2d = surf_est._edgecolor3d
 
@@ -264,12 +262,12 @@ def plot_solution_2d_matplotlib(
 
     # Move the legend on the rigt top
     # a bit more to the right
-    ax.legend(loc="upper right", fontsize=10, frameon=False, bbox_to_anchor=(1.1, 0.9))
+    ax.legend(loc="upper right", fontsize=16, frameon=True, bbox_to_anchor=(1.1, 0.9))
 
     # Save figure
     ax.view_init(args.elevation, args.azimuth, args.roll)
     fig.tight_layout()
-
+    fig.savefig(f"benchmarks/integration/{args.experiment.lower()}.pgf", bbox_inches="tight", dpi=300)
     if show:
         plt.show()
 
@@ -280,6 +278,7 @@ def load_solution(file_path: "str | Path") -> "tuple[np.ndarray, float, float]":
     with open(file_path, "r", encoding="utf-8") as file:
         data = json.load(file)
     return np.array(data["data"], dtype=float).flatten(), data["eta"], data["c"]
+
 
 def base_load_configuration(file_path: "str | Path") -> Configuration:
     action = ConfigAction(option_strings=None, dest="input")
@@ -294,6 +293,7 @@ def base_load_configuration(file_path: "str | Path") -> Configuration:
         f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
         config.xp_samples = f(config.x_samples)
     return config
+
 
 def load_configuration(file_path: "str | Path") -> Configuration:
     config = base_load_configuration(file_path)

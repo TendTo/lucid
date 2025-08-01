@@ -26,6 +26,8 @@ class Args(argparse.Namespace):
 
 def plot_solution(args: Args, data: pd.DataFrame):
     config = base_load_configuration(f"benchmarks/integration/{args.experiment.lower()}.yaml")
+    if isinstance(data, tuple):
+        data = pd.DataFrame([data._asdict()])
     for run in data.itertuples():
         feature_map = config.feature_map(
             num_frequencies=run.num_frequencies,
@@ -70,39 +72,67 @@ def main(args: Args):
     runs = client.search_runs(
         experiment_ids=[e.experiment_id for e in experiments],
         filter_string=FILTER,
-        order_by=["metrics.run.obj_val desc"],
+        order_by=["metrics.run.obj_val asc"],
     )
     print(f"Found {len(runs)} runs in experiment '{args.experiment}'.")
     data = pd.DataFrame(
         {
+            # Params
+            "sigma_f": float(run.data.params["sigma_f"]),
+            "sigma_l": np.array(eval(run.data.params["sigma_l"])),
+            "oversample_factor": float(run.data.params["oversample_factor"]),
+            "lambda_": float(run.data.params["lambda_"]),
+            "num_frequencies": int(run.data.params["num_frequencies"]),
+            "num_oversample": int(
+                (
+                    run.data.params["num_oversample"]
+                    if run.data.params["num_oversample"] != "-1"
+                    else np.ceil(
+                        (2 * int(run.data.params["num_frequencies"]) + 1) * float(run.data.params["oversample_factor"])
+                    )
+                ),
+            ),
+            "T": int(run.data.params["time_horizon"]),
+            "gamma": float(run.data.params["gamma"]),
+            "noise_scale": float(run.data.params["noise_scale"]),
+            "oversample_factor": float(run.data.params["oversample_factor"]),
             # Metrics
-            "c": float(run.data.metrics["run.c"]),
             "eta": float(run.data.metrics["run.eta"]),
+            "c": float(run.data.metrics["run.c"]),
             "norm": float(run.data.metrics["run.norm"]),
             "obj_val": float(run.data.metrics["run.obj_val"]),
             "percentage": (1 - float(run.data.metrics["run.obj_val"])) * 100,
-            # Params
-            "lambda_": float(run.data.params["lambda_"]),
-            "noise_scale": float(run.data.params["noise_scale"]),
-            "num_frequencies": int(run.data.params["num_frequencies"]),
-            "num_oversample": int(run.data.params["num_oversample"]),
-            "oversample_factor": float(run.data.params["oversample_factor"]),
-            "sigma_l": np.array(eval(run.data.params["sigma_l"])),
-            "sigma_f": float(run.data.params["sigma_f"]),
-            "T": int(run.data.params["time_horizon"]),
-            "gamma": float(run.data.params["gamma"]),
-            # General
-            "time": run.info.end_time - run.info.start_time,
+            # Format time as MM:SS
+            "time": f"{(run.info.end_time - run.info.start_time) // 1000 // 60}:{(run.info.end_time - run.info.start_time) // 1000 % 60:02d}",
             # Results
             "solution": get_solution(run, args.d_uri),
         }
         for run in runs
     )
-    for row in data.itertuples():
+    data.to_latex(
+        f"benchmarks/integration/{args.experiment.lower()}.tex",
+        index=False,
+        columns=[
+            "sigma_l",
+            "sigma_f",
+            "lambda_",
+            "num_frequencies",
+            "num_oversample",
+            "eta",
+            "gamma",
+            "c",
+            "T",
+            "time",
+            "percentage",
+        ],
+    )
+    for i, row in enumerate(data.itertuples()):
         print(
             f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, num_oversample {row.num_oversample}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"
         )
-        plot_solution(args, data)
+        r = input(f"Run {row.Index} - Print?...")
+        if r.lower() == "y" or r.lower() == "yes":
+            plot_solution(args, row)
         print("---" * 20)
 
 
