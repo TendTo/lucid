@@ -131,3 +131,7 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 - [x] Add simple Polytopic Sets 
 - [x] Add other sets
 - [x] tool paper aaai vs this different one
+- [ ] Make gurobi builds work on CI/CD
+- [ ] Align all benchmarks configurations
+- [ ] Improve GUI results (time)
+- [ ] Add a kill button

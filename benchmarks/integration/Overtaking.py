@@ -7,7 +7,6 @@ from benchmark import single_benchmark
 
 from pylucid import *
 from pylucid import __version__
-from pylucid.cli import ConfigAction
 
 
 def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) -> Configuration:
@@ -21,18 +20,9 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     for key, value in zip(param_name, param_combinations):
         setattr(config, key, value)
 
-    # plot_data(
-    #     config.x_samples,
-    #     config.xp_samples,
-    #     X_bounds=config.X_bounds,
-    #     X_init=config.X_init,
-    #     X_unsafe=config.X_unsafe,
-    # )
-
     # ################################## #
     # Running the pipeline
     # ################################## #
-
     single_benchmark(
         name="Overtaking",
         config=config,
@@ -47,13 +37,8 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        # "num_frequencies": [9, 12, 13, 16, 17],
-        "num_frequencies": [5, 6],  # [6, 7],
-        # "num_frequencies": [4],
-        "c_coefficient": [1.0],
-        "time_horizon": [5],
-        "num_oversample": [100, 110],  #  , 20.0 , 30.0
-        # "oversample_factor": [10.0],
+        "num_frequencies": [5, 6],
+        "num_oversample": [100, 110],
     }
 
     param_combinations = list(itertools.product(*grid.values()))

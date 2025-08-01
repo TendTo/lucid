@@ -11,9 +11,6 @@ from pylucid import __version__
 
 
 def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) -> Configuration:
-    """Benchmark scenario taken from
-    https://github.com/oxford-oxcav/fossil/blob/10f1f071784d16b2a5ee5da2f51ff2a81d753e2e/experiments/benchmarks/models.py#L350C1-L360C1
-    """
     # ################################## #
     # System dynamics
     # ################################## #
@@ -39,11 +36,6 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # ################################## #
     # Running the pipeline
     # ################################## #
-
-    if config.num_frequencies >= 12 and config.oversample_factor > 20.0:
-        log.warn("The number of frequencies and oversampling factor too high.")
-        return
-
     single_benchmark(
         name="Barrier3_orig",
         config=config,
