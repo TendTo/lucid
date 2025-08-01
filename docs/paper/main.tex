@@ -93,7 +93,7 @@ For instance, \citet{schoen2024distributionally} learn \glspl{cbc} for systems w
         \textbf{Tool}                                    & \multicolumn{6}{c}{\textbf{Supported Features}}                                                                                                                                                                  \\[.4em]
                                                          & \rotatebox{90}{Guarantees}                      & \rotatebox{90}{Data Driven} & \rotatebox{90}{Stochastic Dyn.}  & \rotatebox{90}{Non-Poly. Dyn.} & \rotatebox{90}{Stat. Correct.} & \rotatebox{90}{Closed Loop} \\
         \midrule
-        \textbf{\lucid}                                  & \cmark                                          & \cmark                      & \cmark                           & \cmark                         & \cmark                         & \cmark                      \\
+        \textbf{\lucid} (this work)                      & \cmark                                          & \cmark                      & \cmark                           & \cmark                         & \cmark                         & \cmark                      \\
         \trust~\shortcite{gardner2025trust}              & \cmark                                          & \cmark                      & \xmarkred                        & \xmarkred                      & \cmark\footnotemark[1]         & \cmark                      \\
         \fossil~\shortcite{edwards2024fossil}            & \cmark                                          & \xmarkred                   & \xmarkred                        & \cmark                         & NA                             & \cmark                      \\
         \omnisafe~\shortcite{ji2024omnisafe}             & \xmarkred                                       & \cmark                      & \cmark                           & \cmark                         & \xmarkred                      & \cmark                      \\
@@ -117,7 +117,7 @@ For data-driven safety verification of stochastic systems via conformal predicti
 
 We summarize the main contributions of this work:
 \begin{itemize}
-    \item We introduce \lucid, a novel verification engine that learns control barrier certificates from data using kernel-based \glspl{cme}. \lucid uses a tractable reformulation of the verification problem via a finite Fourier expansion, enabling efficient barrier synthesis based on a linear program.
+    \item We introduce \lucid, a novel verification engine that learns control barrier certificates from data using kernel-based \glspl{cme}. \lucid uses a tractable reformulation of the problem via a finite Fourier expansion, enabling efficient barrier synthesis based on a linear program.
     \item A robust and extensible software implementation, with both C++ and Python interfaces, supporting configuration via YAML, JSON, or Python scripts, and offering both a \gls{cli} and a \gls{gui}.
     \item Numerical evaluation on a suite of benchmarks, demonstrating \lucid{}’s unique capabilities, robustness, and practical utility.
 \end{itemize}
@@ -219,7 +219,7 @@ Notably, the system dynamics only enters the barrier conditions through the cond
 Whilst \eqref{eq:safety_prob_lb} can provide a robust assessment of a system's safety, in practice, the bound can be overly conservative and thus several improved variants of the original barrier constraints exist~\cite{mahathi2022kinductive}.
 As these conditions in essence all rely on the computation of chance constraint with respect to the expected behavior of the system, they are basically interchangeable.
 
-Although there exist model-\emph{based} efficient solutions to this problem for linear and control affine systems, especially for complex systems this is generally a semi-infinite problem, demanding a data-driven solution. Furthermore, for the data-driven case, establishing constraint (c) rigorously without relying on impractical assumptions is extremely challenging.
+Although there exist model-\emph{based} efficient solutions to this problem for linear and control affine systems, this is generally a semi-infinite problem, demanding a data-driven solution. Furthermore, for the data-driven case, establishing constraint (c) rigorously without relying on impractical assumptions is extremely challenging.
 
 \subsection{Data-Driven Dynamics Estimation via Conditional Mean Embeddings}\label{sec:dd_estimation_via_cme}
 To reason about the expected value of a random variable, embedding the variable into a (higher dimensional) space and forming a data-driven estimate is a well-established concept in machine learning \cite{scholkopf2002learning,Steinwart2008SVM}.
@@ -415,7 +415,7 @@ Hence, for the rest of the paper, we will focus on \pylucid when describing the 
 % The system and the specification \lucid will check against shall be provided as a configuration to the program.
 To certify safety of a system, \lucid accepts a configuration comprising data from the system and the safety specification.
 We suggest defining it as a \yaml or equivalent \json file.%
-\footnote[4]{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}
+%\footnote[4]{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}
 % \OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
 If more flexibility is needed, a Python script generating a configuration can be used instead,
 with the only requirement being that it must contain a function named \lstinline|scenario_config| returning a \texttt{Configuration} object.
@@ -469,7 +469,7 @@ The samples can be specified directly in the configuration file, divided into $x
 x_samples: [[5.930e-01], ..., [-1.937e-01]]
 xp_samples: [[3.015e-01], ..., [-1.018e-01]]
 \end{lstlisting}
-Alternatively, the samples can either be generated programmatically in the user-provided Python configuration script, or be stored in a separate file.
+Alternatively, the samples can either be generated by the Python configuration script, or be stored in a separate file.
 % Refer to the documentation for more details.
 \begin{comment}
 \begin{lstlisting}[language=iPython]
@@ -521,8 +521,8 @@ Changes in their values can have a significant impact on the \estimator's effici
 The process of finding good values for these \hp is known as \emph{hyperparameter tuning}, with the optimal parameters being problem dependent.
 \lucid provides a set of utilities, which specialize the \texttt{Tuner} interface, to aid in this task:
 \begin{itemize}
-    \item \texttt{MedianHeuristicTuner} uses the \emph{median heuristic} \cite{garreau2018largesampleanalysismedian} to produce rule-of-thumb-type estimates for the hyperparameters $\sigma_f$ and $\sigma_l$ of, e.g., the Gaussian kernel \eqref{eq:gaussian_kernel}, via closed-form expressions.
-          This can offer a cheap starting point for successive fine-tuning.
+    \item \texttt{MedianHeuristicTuner} uses the \emph{median heuristic} \cite{garreau2018largesampleanalysismedian} to produce rule-of-thumb-type estimates for the \hp $\sigma_f$ and $\sigma_l$ of, e.g., the Gaussian kernel \eqref{eq:gaussian_kernel}, via closed-form expressions.
+          It can be useful as a starting point for subsequent improvements.
     \item \texttt{LbfgsTuner} finds the \hp that maximize the \emph{log marginal likelihood}~\cite{rasmussen2006gaussian}, defined as
           \begin{equation*}
               \begin{split}
@@ -531,26 +531,24 @@ The process of finding good values for these \hp is known as \emph{hyperparamete
               \end{split}
           \end{equation*}
           where $\theta:=(\sigma_f,\sigma_l,\lambda)$ is the hyperparameter being optimized.
-          The \texttt{LbfgsTuner} uses the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming},
-          implemented in the \texttt{LBFGS++} library.\footnote{https://github.com/yixuan/LBFGSpp}
+          We use the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming},
+          implemented in the \texttt{LBFGS++} library~\cite{LBFGSpp}.
+          %          \footnote{https://github.com/yixuan/LBFGSpp}
     \item \texttt{GridSearchTuner} implements the grid search method, exploring the space of possible \hp values to find the one that maximizes the \estimator's $R^2$ score, defined as $$R^2 = 1 - (\sum_{i=1}^M (y_i - \hat{y}_i)^2/\sum_{i=1}^M (y_i - \bar{y})^2).$$
 \end{itemize}
 Tuners open a wide range of possibilities to the user.
 We recommend using them within a Python script generating a configuration to automate the tuning process before finalizing the \estimator's hyperparameter values:
 \begin{lstlisting}[language=iPython,style=nonumbers]
 def scenario_config(c: Configuration):
-    ...
     t = LbfgsTuner(lb=[1e-5], ub=[1e5])
-    c.estimator = KernelRidgeRegressor(
-        kernel=GaussianKernel(),
-    )
+    c.estimator = KernelRidgeRegressor()
     c.estimator.fit(c.x_samples, c.xp_samples, tuner=t)
     return c
 \end{lstlisting}
-For the running example, we set the hyperparameters explicitly:
+In this example, we set the \hp explicitly:
 \begin{lstlisting}[language=yaml,backgroundcolor=\color{ipython_bg}]
 sigma_f: 15
-sigma_l: [1.76]
+sigma_l: [1.2]
 lambda: 1.0e-5
 \end{lstlisting}
 
@@ -624,7 +622,7 @@ optimiser: "GurobiOptimiser"
 We have configured all the components needed to run \lucid.
 Putting it all together in a single configuration file \texttt{config.yaml} we can run the tool with the command \lstinline|pylucid config.yaml --plot|.
 \lucid will parse the configuration, synthesize a barrier certificate and plot the result.
-For the running example, we obtain the barrier certificate shown in Figure~\ref{fig:example} for a time horizon of $T = 15$ certifying safety of the system in \eqref{eq:linear-system} with a probability of at least $93.73\%$ ($\eta = 0.013, \gamma=1.0, c = 0.003$). %\|B\| = 1.72
+For the running example, we obtain the barrier certificate shown in Figure~\ref{fig:example} for a time horizon of $T = 15$ certifying safety of the system in \eqref{eq:linear-system} with a probability of at least $95.12\%$ ($\eta = 0.03, \gamma=1.0, c = 0.001$). %\|B\| = 1.72
 
 \begin{figure}
     \centering
@@ -632,11 +630,11 @@ For the running example, we obtain the barrier certificate shown in Figure~\ref{
         \input{figures/example.pgf}
     \end{adjustbox}
     %\resizebox{\columnwidth}{!}{\import{figures}{example.pgf}}
-    \caption{Barrier certificate for the running example.
-        The state space $\X$ is plotted in the X axis, while the value of the barrier $\B$ is plotted in the Y axis.
-        The green line represents the barrier value at time $t$.
+    \caption{Barrier certificate for the example.
+        The value of the barrier $\B$ is plotted against the state space $\X$.
+        The green line represents the barrier value.
         The initial and unsafe sets are highlighted in blue and red respectively. % \Sadegh{Figure not very readable.}
-        }
+    }
     \label{fig:example}
 \end{figure}
 
@@ -676,7 +674,7 @@ This gives us absolute control over how the \estimator is tuned before being use
 \section{Experimental Evaluation}
 \label{sec:experiments}
 
-To ascertain the performance of \lucid, we conduct a series of experiments, run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, NVIDIA GeForce RTX 3090 GPU, and 64 GB of RAM.
+To ascertain the performance of \lucid, we conduct a series of experiments on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, NVIDIA GeForce RTX 3090 GPU, and 64 GB of RAM.
 All runs had the random seed set to $42$ to ensure reproducibility.
 
 We adapt the \barrII and \barrIII benchmarks from \cite{abate2021fossil}.
@@ -690,14 +688,14 @@ The dynamics of the ego vehicle are given by Dubin's car model with an added noi
 The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity.
 
 Table~\ref{tbl:benchmarks_results} summarizes the results of all the experiments presented.
-More details about the configurations and \hp used can be found in the Appendix.
+More details about the dynamics, configurations and \hp used can be found in the Appendix.
 
 \begin{figure}[ht]
     \begin{adjustbox}{clip,trim=0cm 1.7cm 0cm 2cm,max width=\columnwidth}
         \input{figures/barrier2.pgf}
     \end{adjustbox}
     %\includegraphics[trim={5cm 3cm 2cm 4cm},clip,width=\linewidth]{barrier2.pgf}
-    \caption{\gls{cbc} synthesised for the \barrII benchmark.}
+    \caption{\gls{cbc} synthesized for the \barrII benchmark.}
     \label{fig:CSBarr2}
 \end{figure}
 
@@ -706,7 +704,7 @@ More details about the configurations and \hp used can be found in the Appendix.
         \input{figures/barrier3.pgf}
     \end{adjustbox}
     %\resizebox{\columnwidth}{!}{\import{figures}{barrier3.pgf}}%
-    \caption{\gls{cbc} synthesised for the \barrIII benchmark.}
+    \caption{\gls{cbc} synthesized for the \barrIII benchmark.}
     \label{fig:CSBarr3}
 \end{figure}
 
@@ -715,18 +713,18 @@ More details about the configurations and \hp used can be found in the Appendix.
     \centering
     \begin{tabular}{cccccc}
         \toprule
-                    & \textbf{T} & \textbf{Freq} & \textbf{Lattice} & \textbf{Runtime} & \textbf{Safety} \\
-                    &            &               & \textbf{Size}    & [mm:ss]          & \textbf{Prob}   \\ % Units
+                    & \textbf{T} & \textbf{Freq.} & \textbf{Lattice} & \textbf{Runtime} & \textbf{Safety} \\
+                    &            &                & \textbf{Size}    & [mm:ss]          & \textbf{Prob.}  \\ % Units
         \midrule
-        \linear     & 15         & 5             & $704$            & 00:02            & 93.74\%         \\
-        \barrII     & 5          & 15            & $350^2$          & 10:01            & 56.87\%         \\
-        \barrIII    & 5          & 15            & $800^2$          & 64:20            & 42.25\%         \\
-        \overtaking & 5          & 5             & $99^3$           & 46:33            & 30.32\%         \\
+        \linear     & 15         & 5              & $704$            & 00:02            & 95.12\%         \\
+        \barrII     & 5          & 15             & $350^2$          & 10:01            & 56.87\%         \\
+        \barrIII    & 5          & 15             & $800^2$          & 64:20            & 42.25\%         \\
+        \overtaking & 5          & 5              & $99^3$           & 46:33            & 30.32\%         \\
         \bottomrule
     \end{tabular}
     \caption{Computational benchmarks.
         The lattice size indicates the number of points of the lattice as the resolution for each dimension raised to the number of dimensions.
-        $T$ is the number of time steps associated with the lower bound on the safety probability, displayed in the last column.
+        $T$ is the time horizon associated with the lower bound on the safety probability, displayed in the last column.
     }
     \label{tbl:benchmarks_results}
 \end{table}
