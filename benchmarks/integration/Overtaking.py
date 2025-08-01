@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     grid = {
         # "num_frequencies": [9, 12, 13, 16, 17],
-        "num_frequencies": [5, 6], # [6, 7], 
+        "num_frequencies": [5, 6],  # [6, 7],
         # "num_frequencies": [4],
         "c_coefficient": [1.0],
         "time_horizon": [5],
@@ -63,10 +63,10 @@ if __name__ == "__main__":
     args_list = [(grid_keys, param_combination) for param_combination in param_combinations]
 
     # Run benchmarks in parallel using multiprocessing
-    MAX_PARALLEL = multiprocessing.cpu_count() // 2
-    MAX_PARALLEL = 1
+    MAX_PARALLEL = multiprocessing.cpu_count() // 3
     with multiprocessing.Pool(processes=max(1, MAX_PARALLEL)) as pool:
         pool.starmap(scenario_config, args_list)
+    # scenario_config(*args_list[0])  # Run only one configuration for testing
 
     end = time.time()
     log.info(f"Elapsed time: {end - start}")

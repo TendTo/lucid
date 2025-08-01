@@ -20,7 +20,7 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # Algorithm parameters
     config = Configuration()
     action = ConfigAction(option_strings=None, dest="input")
-    action(None, config, Path("examples/linear.yaml"), None)
+    action(None, config, Path("benchmarks/integration/linear.yaml"), None)
 
     # Add process noise
     if config.seed >= 0:
@@ -52,9 +52,7 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        "c_coefficient": [1.0],
-        "time_horizon": [5, 10],
-        "oversample_factor": [20.0, 40.0, 60.0],
+        "num_oversample": [704],
     }
 
     param_combinations = list(itertools.product(*grid.values()))
@@ -64,8 +62,10 @@ if __name__ == "__main__":
     args_list = [(grid_keys, param_combination) for param_combination in param_combinations]
 
     # Run benchmarks in parallel using multiprocessing
-    with multiprocessing.Pool(processes=max(1, multiprocessing.cpu_count() - 2)) as pool:
+    MAX_PARALLEL = multiprocessing.cpu_count() // 3
+    with multiprocessing.Pool(processes=max(1, MAX_PARALLEL)) as pool:
         pool.starmap(scenario_config, args_list)
+    # scenario_config(*args_list[0])  # Run only one configuration for testing
 
     end = time.time()
     log.info(f"Elapsed time: {end - start}")

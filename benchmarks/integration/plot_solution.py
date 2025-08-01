@@ -1,6 +1,7 @@
 import json
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 
 from pylucid import *
 
@@ -12,8 +13,10 @@ except ImportError:
         pass
 
 
-from pylucid import random
 import matplotlib.pyplot as plt
+
+from pylucid import random
+
 
 def plot_solution_matplotlib(
     args: "argparse.Namespace",
@@ -124,7 +127,6 @@ def plot_solution_1d_matplotlib(
     ax.legend(loc="center", ncol=2, fontsize=16, frameon=True)
     fig.tight_layout()
     fig.savefig(f"benchmarks/integration/{args.experiment.lower()}.pgf", bbox_inches="tight", dpi=300)
-
 
     if show:
         plt.show()

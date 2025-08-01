@@ -1,11 +1,12 @@
-from mlflow import MlflowClient, artifacts
-from mlflow.entities import Run
+import argparse
+from dataclasses import dataclass
+
+import numpy as np
 import pandas as pd
 import requests
-import numpy as np
-from plot_solution import plot_solution_matplotlib, base_load_configuration
-from dataclasses import dataclass
-import argparse
+from mlflow import MlflowClient, artifacts
+from mlflow.entities import Run
+from plot_solution import base_load_configuration, plot_solution_matplotlib
 
 FILTER = 'params.c_coefficient = "1.0" and metrics.run.obj_val > 0 and metrics.run.obj_val < 1 and params.constant_lattice_points = "False" and metrics.run.success = 1'
 

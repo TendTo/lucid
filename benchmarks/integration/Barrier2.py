@@ -59,6 +59,7 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
         config=config,
     )
 
+
 if __name__ == "__main__":
     # ################################## #
     # Lucid
@@ -67,12 +68,13 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
+        "c_coefficient": [1.0],
         # "num_frequencies": [9, 12, 13, 16, 17],
-        "num_frequencies": [20],
+        # "num_frequencies": [15],
         # "num_frequencies": [4],
-        "time_horizon": [5],
+        # "time_horizon": [5],
         # "oversample_factor": [10.0, 20.0, 30.0],
-        "num_oversample": [300],
+        # "num_oversample": [400],
         # "oversample_factor": [10.0],
     }
 
@@ -83,10 +85,10 @@ if __name__ == "__main__":
     args_list = [(grid_keys, param_combination) for param_combination in param_combinations]
 
     # Run benchmarks in parallel using multiprocessing
-    MAX_PARALLEL = multiprocessing.cpu_count() // 2
-    MAX_PARALLEL = 1
+    MAX_PARALLEL = multiprocessing.cpu_count() // 3
     with multiprocessing.Pool(processes=max(1, MAX_PARALLEL)) as pool:
         pool.starmap(scenario_config, args_list)
+    # scenario_config(*args_list[0])  # Run only one configuration for testing
 
     end = time.time()
     log.info(f"Elapsed time: {end - start}")

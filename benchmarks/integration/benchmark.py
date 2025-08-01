@@ -63,10 +63,12 @@ def benchmark(name: str, config: Configuration, grid: dict[str, list[Any]]):
 def single_benchmark(name: str, config: Configuration):
     """Run the benchmark scenario."""
     logs: list[str] = []
+
     def handle_log(message: str):
         logs.append(message)
         if "C:" in message:
             print(message)
+
     log.set_sink(handle_log)
     log.set_verbosity(log.LOG_DEBUG)
 

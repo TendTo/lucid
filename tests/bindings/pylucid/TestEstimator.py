@@ -108,7 +108,7 @@ class TestRegression:
 
             # Solving (K + λI) * x = y
             # K = sigma_f^2 * exp(-γ||x_i - x_j||^2)
-            kr = KernelRidge(kernel="rbf", gamma=0.5 * sigma_l ** -2, alpha=reg_coeff * 2)
+            kr = KernelRidge(kernel="rbf", gamma=0.5 * sigma_l**-2, alpha=reg_coeff * 2)
 
             training_inputs = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
             training_outputs = np.array([[1.0, 2.0], [5.0, 3.0]])

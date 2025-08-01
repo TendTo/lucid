@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+from typing import TYPE_CHECKING
+
 from pylucid import *
 from pylucid import __version__
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pylucid._pylucid import ParameterValuesType

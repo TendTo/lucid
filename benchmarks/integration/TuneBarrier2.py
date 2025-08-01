@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-from pylucid import *
-from hp_tuning import hp_tuning
 import itertools
 
+from hp_tuning import hp_tuning
+
+from pylucid import *
 
 if __name__ == "__main__":
     val = np.logspace(-5, 5, num=10, endpoint=True, dtype=float)

@@ -6,11 +6,11 @@ import numpy as np
 from ._pylucid import (
     Estimator,
     MultiSet,
+    PolytopeSet,
     RectSet,
     SphereSet,
     TruncatedFourierFeatureMap,
     log,
-    PolytopeSet,
 )
 
 if TYPE_CHECKING:
@@ -19,12 +19,11 @@ if TYPE_CHECKING:
     from ._pylucid import NMatrix, NVector, Set
 
 try:
-    from dreal import And, CheckSatisfiability, Implies, Not, Or
+    from dreal import And, CheckSatisfiability, Expression, Implies, Not, Or
     from dreal import Variable as Real
     from dreal import cos as Cosine
-    from dreal import sin as Sine
     from dreal import exp as Exp
-    from dreal import Expression
+    from dreal import sin as Sine
 except ImportError as e:
     log.warn("Could not import dreal. Make sure it is installed with 'pip install dreal'")
     raise e
@@ -42,6 +41,7 @@ math_exp = math.exp
 math.cos = lambda x: Cosine(x) if isinstance(x, (Real, Expression)) else math_original_cos(x)
 math.sin = lambda x: Sine(x) if isinstance(x, (Real, Expression)) else math_original_sin(x)
 math.exp = lambda x: Exp(x) if isinstance(x, (Real, Expression)) else math_exp(x)
+
 
 def build_set_constraint(xs: "list", X_set: "Set"):
     """

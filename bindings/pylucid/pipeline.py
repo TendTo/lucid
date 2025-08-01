@@ -157,7 +157,6 @@ def pipeline(
     u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * args.sigma_f
     log.debug(f"x_lattice: {x_lattice.shape}, u_f_x_lattice: {u_f_x_lattice.shape}")
 
-
     if args.constant_lattice_points:
         x0_lattice = args.X_init.lattice(num_oversample, True)
         xu_lattice = args.X_unsafe.lattice(num_oversample, True)
