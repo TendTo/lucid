@@ -52,14 +52,14 @@ jobs:
           bazel test --config=py --python_version=${{ matrix.python_version }} ${{ env.LUCID_FLAGS }} //tests/bindings/pylucid/...
 
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     # needs: test # TODO: enable this again
     strategy:
       matrix:
         os:
-          - ubuntu-latest
+          - ubuntu-22.04
           # - macos-latest
-          - windows-latest
+          # - windows-latest
         python_version:
           - "3.8"
           # - "3.9"
@@ -123,6 +123,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist/
+          merge-multiple: true
 
       - name: Publish release distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -131,4 +132,5 @@ jobs:
           verbose: true
           repository-url: https://gitlab.com/api/v4/projects/71977529/packages/pypi
           user: pylucid
+          attestations: false
           password: ${{ secrets.GITLAB_PACKAGE_TOKEN }}
