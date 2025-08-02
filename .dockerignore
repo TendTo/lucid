@@ -77,7 +77,7 @@ benchmark/smt2/*
 benchmark/*.csv
 
 # Docs
-docs/out/
+docs/
 
 # Temporary files and directories
 temp/
@@ -100,3 +100,9 @@ docker-compose*
 .dockerignore
 .git
 .gitignore
+.github/
+benchmarks/
+.devcontainer/
+scripts/
+/pylucid*/
+mlruns/
