@@ -217,6 +217,12 @@ pylucid-gui --help
 
 ## Troubleshooting
 
+#### ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found
+
+This error occurs if the `libc` version on your Linux system is too old.
+Updating is challenging and error prone.
+We recommend moving to a supported Linux distribution (e.g., Ubuntu 22.04).
+
 #### ImportError: libpython3.12.so.1.0: cannot open shared object file: No such file or directory
 
 This error occurs when the expected Python shared library is not found in the expected location on the system

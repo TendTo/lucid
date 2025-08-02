@@ -47,36 +47,41 @@ runs:
         url: https://packages.gurobi.com/12.0/Gurobi-${{ inputs.version }}-win64.msi
         destination: gurobi/gurobi.msi
 
+    - name: Remove dots from the version
+      id: remove-dots
+      shell: bash
+      run: |
+        echo "gurobi_dir=${gurobi_version//./}" >> $GITHUB_OUTPUT
+      with:
+        gurobi_version: "${{ inputs.version }}"
+
     - name: Extract Gurobi
       if: ${{ startsWith(inputs.os, 'ubuntu') }}
       shell: bash
       run: |
-        sudo mkdir -p /opt/gurobi1200/linux64
-        sudo tar -xzf ${{ github.workspace }}/gurobi/gurobi.tar.gz -C /opt/gurobi1200/linux64 --strip-components=2
-        rm ${{ github.workspace }}/gurobi/gurobi.tar.gz
+        sudo mkdir -p /opt/${{ steps.remove-dots.outputs.gurobi_dir }}/linux64
+        sudo tar -xzf ${{ github.workspace }}/gurobi/gurobi.tar.gz -C /opt/${{ steps.remove-dots.outputs.gurobi_dir }}/linux64 --strip-components=2
     - name: Download and extract Gurobi
       if: ${{ startsWith(inputs.os, 'macos') }}
       shell: bash
       run: |
         sudo installer -pkg ${{ github.workspace }}/gurobi/gurobi.pkg -target /
-        rm -r ${{ github.workspace }}/gurobi
     - name: Download and extract Gurobi
       if: ${{ startsWith(inputs.os, 'windows') }}
       shell: powershell
       run: |
         choco install lessmsi
         lessmsi x gurobi\gurobi.msi gurobi
-        mv ${{ github.workspace }}\gurobi\SourceDir\gurobi1200\win64\* ${{ github.workspace }}\gurobi
-        rm ${{ github.workspace }}\gurobi\gurobi.msi
+        mv ${{ github.workspace }}\gurobi\SourceDir\${{ steps.remove-dots.outputs.gurobi_dir }}\win64\* ${{ github.workspace }}\gurobi
 
     - name: Set Gurobi home output
       id: set-gurobi-home
       shell: bash
       run: |
         if [[ "${{ inputs.os }}" == macos* ]]; then
-          echo "path=/Library/gurobi1200/macos_universal2" >> $GITHUB_OUTPUT
+          echo "path=/Library/${{ steps.remove-dots.outputs.gurobi_dir }}/macos_universal2" >> $GITHUB_OUTPUT
         elif [[ "${{ inputs.os }}" == ubuntu* ]]; then
-          echo "path=/opt/gurobi1200/linux64" >> $GITHUB_OUTPUT
+          echo "path=/opt/${{ steps.remove-dots.outputs.gurobi_dir }}/linux64" >> $GITHUB_OUTPUT
         else
           echo "path=${{ github.workspace }}/gurobi" >> $GITHUB_OUTPUT
         fi
