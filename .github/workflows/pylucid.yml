@@ -52,7 +52,7 @@ jobs:
           bazel test --config=py --python_version=${{ matrix.python_version }} ${{ env.LUCID_FLAGS }} //tests/bindings/pylucid/...
 
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     # needs: test # TODO: enable this again
     strategy:
       matrix:

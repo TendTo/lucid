@@ -21,16 +21,23 @@ docker pull ghcr.io/tendto/lucid:main
 docker build -t lucid .
 ```
 
-Then, simply run the image with the following command:
+Then, simply run the image.
+You have the option to run the main script, to which you have to pass the configuration, or the GUI, which can be accessed via a web browser at `http://localhost:3661`.
 
 ```bash
 # Run the image
 # Mount the script you want to run (e.g. /path/to/script.py) somewhere in the container (e.g. /scripts)
-# Keep in mind that you need to mount a Gurobi WS License (gurobi.lic) in the container
+# Keep in mind that you need to mount a Gurobi WS License (gurobi.lic) in the container for the Gurobi solver to work.
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
   ghcr.io/tendto/lucid:main /scripts/script.py
+
+# Run the GUI.
+# Keep in mind that you need to mount a Gurobi WS License (gurobi.lic) in the container for the Gurobi solver to work.
+docker run --name lucid -it --rm -p 3661:3661 \
+  -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
+  --entrypoint pylucid-gui ghcr.io/tendto/lucid:main
 ```
 
 ## Lucid (source)

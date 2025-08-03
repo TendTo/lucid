@@ -51,8 +51,8 @@ runs:
       id: remove-dots
       shell: bash
       run: |
-        echo "gurobi_dir=${gurobi_version//./}" >> $GITHUB_OUTPUT
-      with:
+        echo "gurobi_dir=gurobi${gurobi_version//./}" >> $GITHUB_OUTPUT
+      env:
         gurobi_version: "${{ inputs.version }}"
 
     - name: Extract Gurobi

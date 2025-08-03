@@ -31,11 +31,17 @@ For more details, see the [installation instructions](docs/Installation.md).
 docker pull ghcr.io/tendto/lucid:main
 
 # Run the image on script/path/to/script.py.
-# Needs the Gurobi WS licence /path/to/gurobi.lic
+# Needs a Gurobi WS licence to use the Gurobi solver.
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
   ghcr.io/tendto/lucid:main /scripts/script.py
+
+# Run the GUI.
+# Needs a Gurobi WS licence to use the Gurobi solver.
+docker run --name lucid -it --rm -p 3661:3661 \
+  -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
+  --entrypoint pylucid-gui ghcr.io/tendto/lucid:main
 ```
 
 [//]: # "@end-tab"
@@ -55,11 +61,17 @@ docker run --name lucid -it --rm \
 docker build -t lucid .
 
 # Run the image on script/path/to/script.py.
-# Needs the Gurobi WS licence /path/to/gurobi.lic
+# Needs a Gurobi WS licence to use the Gurobi solver.
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
   lucid /scripts/script.py
+
+# Run the GUI.
+# Needs a Gurobi WS licence to use the Gurobi solver.
+docker run --name lucid -it --rm -p 3661:3661 \
+  -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
+  --entrypoint pylucid-gui lucid
 ```
 
 [//]: # "@end-tab"
