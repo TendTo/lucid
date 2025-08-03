@@ -6,6 +6,7 @@ import secrets
 import threading
 import webbrowser
 from queue import Queue
+import time
 
 import numpy as np
 from cachelib import FileSystemCache
@@ -35,17 +36,24 @@ def run_lucid(config: Configuration):
         random.seed(config.seed)
     log.set_verbosity(config.verbose)
 
-    def check_cb(result: "OptimiserResult"):
+    def optimiser_cb(result: "OptimiserResult"):
         if not result["success"]:
             result["error"] = "Optimization failed"
         if isinstance(result["sol"], np.ndarray):
             result["sol"] = result["sol"].tolist()
-        if result["fig"] is not None:
-            result["fig"] = result["fig"].to_json(validate=False)
         QUEUES[threading.get_ident()].put(result)
 
+    def plot_cb(fig: "Figure"):
+        if fig is not None:
+            fig_json = fig.to_json(validate=False)
+            QUEUES[threading.get_ident()].put({"fig": fig_json})
+            time.sleep(0.01)  # Give time for the figure to be processed
+
+    def check_cb(verified: bool):
+        QUEUES[threading.get_ident()].put({"verified": verified})
+
     try:
-        pipeline(scenario_config(config), show=False, optimiser_cb=check_cb)
+        pipeline(scenario_config(config), show=False, optimiser_cb=optimiser_cb, plot_cb=plot_cb, verify_cb=check_cb)
     except Exception as e:
         log.error(f"Error during optimisation: {e}")
         raise e

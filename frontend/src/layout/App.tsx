@@ -7,7 +7,6 @@ import type {
   FormSteps,
   LogEntry,
   ServerResponse,
-  SuccessResponseData,
 } from "@/types/types";
 import { defaultValues, emptyFigure } from "@/utils/constants";
 import { parseLogEntry } from "@/utils/parseLog";
@@ -15,11 +14,11 @@ import { configurationSchema, type Configuration } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { PlotParams } from "react-plotly.js";
 import OutputSection from "./OutputSection";
 import InputSection from "./InputSection";
 import { capableConfiguration } from "@/utils/utils";
 import { useCapabilities } from "@/hooks/useCapabilities";
+import { useSuccessData } from "@/hooks/useSuccessData";
 
 const initialFormSteps = {
   system: {
@@ -44,12 +43,10 @@ const initialFormSteps = {
 
 export default function App() {
   const capabilities = useCapabilities();
+  const { successData, resetSuccessData, updateField, updateFigure } =
+    useSuccessData();
   const [formSteps, setFormSteps] = useState<FormSteps>(initialFormSteps);
-  const [fig, setFig] = useState<PlotParams>(emptyFigure);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [successData, setSuccessData] = useState<SuccessResponseData | null>(
-    null
-  );
 
   const [submitError, setSubmitError] = useState<string>("");
   const [previewError, setPreviewError] = useState<string>("");
@@ -68,17 +65,15 @@ export default function App() {
   }, [methods, capabilities]);
 
   const resetOutput = useCallback(() => {
-    setFig(emptyFigure);
     setLogs([]);
-    setSuccessData(null);
+    resetSuccessData();
     setSubmitError("");
     setPreviewError("");
     setSubmitLoading(false);
     setPreviewLoading(false);
   }, [
-    setFig,
     setLogs,
-    setSuccessData,
+    resetSuccessData,
     setSubmitError,
     setPreviewError,
     setSubmitLoading,
@@ -142,24 +137,14 @@ export default function App() {
         const data: ServerResponse = JSON.parse(event.data);
         if (data.log)
           setLogs((prevLogs) => [...prevLogs, parseLogEntry(data.log)]);
-        try {
-          setFig(data.fig ? JSON.parse(data.fig) : emptyFigure);
-        } catch (e) {
-          setFig(emptyFigure);
-          console.error("Failed to parse figure data:", e);
-        }
-
-        if (data.success !== undefined) {
-          setSuccessData({
-            success: data.success,
-            obj_val: data.obj_val,
-            eta: data.eta,
-            c: data.c,
-            norm: data.norm,
-            verified: data.verified,
-            time: data.time ?? 0,
-          });
-        }
+        if (data.fig !== undefined) updateFigure(data.fig);
+        if (data.success !== undefined) updateField("success", data.success);
+        if (data.obj_val !== undefined) updateField("obj_val", data.obj_val);
+        if (data.eta !== undefined) updateField("eta", data.eta);
+        if (data.c !== undefined) updateField("c", data.c);
+        if (data.norm !== undefined) updateField("norm", data.norm);
+        if (data.verified !== undefined) updateField("verified", data.verified);
+        if (data.time !== undefined) updateField("time", data.time);
       };
 
       // Handle connection open
@@ -185,13 +170,14 @@ export default function App() {
     },
     [
       setLogs,
-      setFig,
       methods,
       setSubmitError,
       setSubmitLoading,
       previewLoading,
       submitLoading,
       resetOutput,
+      updateField,
+      updateFigure,
     ]
   );
 
@@ -234,7 +220,7 @@ export default function App() {
     });
     setPreviewLoading(false);
     if (!response.ok) {
-      setFig({ data: [], layout: {} });
+      updateFigure(emptyFigure);
       const error: ServerResponse = await response.json();
       if (error.cause) {
         methods.setError(error.cause as keyof Configuration, {
@@ -246,13 +232,8 @@ export default function App() {
       return;
     }
     const json = await response.json();
-    try {
-      setFig(json.fig ? JSON.parse(json.fig) : emptyFigure);
-    } catch (e) {
-      setFig(emptyFigure);
-      console.error("Failed to parse figure data:", e);
-    }
-  }, [methods, setFig, setPreviewError, setPreviewLoading, resetOutput]);
+    updateFigure(json.fig);
+  }, [methods, setPreviewError, setPreviewLoading, resetOutput, updateFigure]);
 
   const setCurrentStep = useCallback(
     (step: FormStepName) => {
@@ -292,7 +273,7 @@ export default function App() {
           previewLoading={previewLoading}
         />
         <OutputSection
-          fig={fig}
+          fig={successData?.fig || emptyFigure}
           logs={logs}
           loading={submitLoading || previewLoading}
           successData={successData}

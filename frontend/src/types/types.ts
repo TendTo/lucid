@@ -1,4 +1,5 @@
 import type { FieldErrors, FieldValues } from "react-hook-form";
+import type { PlotParams } from "react-plotly.js";
 
 export type FormStep = {
   name: string;
@@ -54,11 +55,12 @@ export type LogEntry = {
 };
 
 export type SuccessResponseData = {
-  success: boolean;
+  success?: boolean;
   obj_val?: number;
   eta?: number;
   c?: number;
   norm?: number;
   verified?: boolean;
-  time: number;
+  time?: number;
+  fig: PlotParams;
 };

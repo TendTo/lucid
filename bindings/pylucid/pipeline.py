@@ -49,8 +49,6 @@ class OptimiserResult(TypedDict):
     eta: float
     c: float
     norm: float
-    fig: "Figure"
-    verified: bool
     time: float
 
 
@@ -70,7 +68,11 @@ def tune() -> "Estimator":
 
 
 def pipeline(
-    config: "Configuration", show: bool = True, optimiser_cb: "Callable[[OptimiserResult], None]" = None
+    config: "Configuration",
+    show: bool = True,
+    optimiser_cb: "Callable[[OptimiserResult], None]" = None,
+    plot_cb: "Callable[[Figure], None]" = None,
+    verify_cb: "Callable[[bool], None]" = None,
 ) -> bool:
     """Run Lucid with the given parameters.
     This function makes it easier to work with the library by providing
@@ -204,8 +206,6 @@ def pipeline(
             eta=eta,
             c=c,
             norm=norm,
-            fig=None,
-            verified=False,
             time=duration,
         )
         if not success:
@@ -214,9 +214,12 @@ def pipeline(
             log.info("Optimization succeeded")
             log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
             log.debug(f"{sol = }")
+        if optimiser_cb is not None:
+            optimiser_cb(result)
         log.info(f"Time taken: {duration:.2f} seconds")
         if config.plot and config.X_bounds.dimension <= 2:
-            result["fig"] = plot_solution(
+            log.info("Plotting the solution")
+            fig = plot_solution(
                 X_bounds=config.X_bounds,
                 X_init=config.X_init,
                 X_unsafe=config.X_unsafe,
@@ -230,8 +233,11 @@ def pipeline(
                 c=c if success else None,
                 show=show,
             )
+            if plot_cb is not None:
+                plot_cb(fig)
         if config.verify and config.system_dynamics is not None and success:
-            result["verified"] = verify_barrier_certificate(
+            log.info("Verifying the solution")
+            verified = verify_barrier_certificate(
                 X_bounds=config.X_bounds,
                 X_init=config.X_init,
                 X_unsafe=config.X_unsafe,
@@ -244,8 +250,8 @@ def pipeline(
                 tffm=feature_map,
                 sol=sol,
             )
-        if optimiser_cb is not None:
-            optimiser_cb(result)
+            if verify_cb is not None:
+                verify_cb(verified)
 
     return config.optimiser(
         config.time_horizon,

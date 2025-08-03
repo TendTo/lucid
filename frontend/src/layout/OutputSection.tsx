@@ -13,7 +13,7 @@ import { useDimensions } from "@/hooks/useDimension";
 import type { LogEntry, SuccessResponseData } from "@/types/types";
 import { formatNumber } from "@/utils/utils";
 import { useRef } from "react";
-import { FaCheck, FaX } from "react-icons/fa6";
+import { FaCheck, FaX, FaQuestion, FaSpinner } from "react-icons/fa6";
 import type { PlotParams } from "react-plotly.js";
 
 type OutputSectionProps = {
@@ -22,6 +22,12 @@ type OutputSectionProps = {
   loading: boolean;
   successData?: SuccessResponseData | null;
 };
+
+function toTime(seconds: number, milliseconds: number): string {
+  const date = new Date(0);
+  date.setSeconds(seconds, milliseconds);
+  return date.toISOString().slice(11, 23);
+}
 
 export default function OutputSection({
   fig,
@@ -37,7 +43,9 @@ export default function OutputSection({
     <section className="flex-grow basis-0 mx-auto p-4 flex flex-col items-center relative">
       <div ref={figContainerRef} className="w-full flex-grow-2 basis-0">
         {fig.data.length > 0 && <Figure {...fig} />}
-        {loading && <Skeleton className="h-full w-full rounded" />}
+        {fig.data.length === 0 && loading && (
+          <Skeleton className="h-full w-full rounded" />
+        )}
       </div>
       <Accordion
         type="single"
@@ -49,12 +57,23 @@ export default function OutputSection({
           <AccordionTrigger>
             <div className="w-full flex items-baseline gap-2">
               <h3 className="text-lg font-semibold mb-2">Results</h3>
-              {successData ? (
+              {successData && successData.success !== undefined ? (
                 successData.success ? (
-                  <FaCheck className="text-green-500" />
+                  <FaCheck
+                    className="text-green-500"
+                    title="The optimization was successful."
+                  />
                 ) : (
-                  <FaX className="text-red-500" />
+                  <FaX
+                    className="text-red-500"
+                    title="The optimization failed."
+                  />
                 )
+              ) : loading ? (
+                <FaSpinner
+                  className="text-gray-500 animate-spin"
+                  title="The optimization is in progress."
+                />
               ) : null}
             </div>
           </AccordionTrigger>
@@ -99,25 +118,37 @@ export default function OutputSection({
                   <Label htmlFor="resultVerified" className="font-bold">
                     Verified
                   </Label>
-                  {successData.verified ? (
-                    <FaCheck className="text-green-500" />
+                  {loading ? (
+                    <FaSpinner
+                      className="mr-2 animate-spin"
+                      title="The barrier is being verified."
+                    />
+                  ) : successData.verified === undefined ? (
+                    <FaQuestion
+                      className="text-gray-500"
+                      title="Barrier verification status unknown."
+                    />
+                  ) : successData.verified ? (
+                    <FaCheck
+                      className="text-green-500"
+                      title="The barrier has been verified."
+                    />
                   ) : (
-                    <FaX className="text-red-500" />
+                    <FaX
+                      className="text-red-500"
+                      title="The barrier has failed the verification."
+                    />
                   )}
                 </>
               )}
-              {successData && successData.time > 0 && (
+              {successData && (successData.time ?? 0) > 0 && (
                 <>
                   <Label htmlFor="resultTime" className="font-bold">
                     Time
                   </Label>
                   <Input
                     id="resultTime"
-                    value={`${(() => {
-                      const date = new Date(0);
-                      date.setSeconds(0, successData.time * 1000);
-                      return date.toISOString().slice(11, 23);
-                    })()}`}
+                    value={toTime(0, successData.time! * 1000)}
                     readOnly
                   />
                 </>
