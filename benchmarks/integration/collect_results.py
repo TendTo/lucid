@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 import requests
-from mlflow import MlflowClient, artifacts
+from mlflow import MlflowClient
 from mlflow.entities import Run
 from plot_solution import base_load_configuration, plot_solution_matplotlib
 
@@ -23,6 +23,7 @@ class Args(argparse.Namespace):
     plot_bxe: bool
     uri: str
     d_uri: str
+    download: bool
 
 
 def plot_solution(args: Args, data: pd.DataFrame):
@@ -66,7 +67,7 @@ def get_solution(run: "Run", d_uri: str):
     return np.array([])
 
 
-def main(args: Args):
+def get_data_from_mlflow(args: Args):
     # Create an experiment with a name that is unique and case sensitive.
     client = MlflowClient(tracking_uri=args.uri)
     experiments = client.search_experiments(filter_string=f"name = '{args.experiment}'")
@@ -81,7 +82,6 @@ def main(args: Args):
             # Params
             "sigma_f": float(run.data.params["sigma_f"]),
             "sigma_l": np.array(eval(run.data.params["sigma_l"])),
-            "oversample_factor": float(run.data.params["oversample_factor"]),
             "lambda_": float(run.data.params["lambda_"]),
             "num_frequencies": int(run.data.params["num_frequencies"]),
             "num_oversample": int(
@@ -104,12 +104,30 @@ def main(args: Args):
             "obj_val": float(run.data.metrics["run.obj_val"]),
             "percentage": (1 - float(run.data.metrics["run.obj_val"])) * 100,
             # Format time as MM:SS
+            "time_milliseconds": run.info.end_time - run.info.start_time,
             "time": f"{(run.info.end_time - run.info.start_time) // 1000 // 60}:{(run.info.end_time - run.info.start_time) // 1000 % 60:02d}",
             # Results
             "solution": get_solution(run, args.d_uri),
         }
         for run in runs
     )
+    data.to_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
+    return data
+
+
+def get_data_from_pickle(args: Args):
+    """
+    Load data from a pickle file.
+    This is useful for testing or when the data is already available in a local file.
+    """
+    data = pd.read_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
+    print(f"Loaded {len(data)} runs from pickle file for experiment '{args.experiment}'.")
+    return data
+
+
+def main(args: Args):
+    # Create an experiment with a name that is unique and case sensitive.
+    data = get_data_from_mlflow(args) if args.download else get_data_from_pickle(args)
     data.to_latex(
         f"benchmarks/integration/{args.experiment.lower()}.tex",
         index=False,
@@ -127,7 +145,7 @@ def main(args: Args):
             "percentage",
         ],
     )
-    for i, row in enumerate(data.itertuples()):
+    for row in data.itertuples():
         print(
             f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, num_oversample {row.num_oversample}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"
         )
@@ -154,10 +172,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--azimuth", type=float, help="The azimuth angle for the plot.", default=-15)
     parser.add_argument("-r", "--roll", type=float, help="The roll angle for the plot.", default=0)
     parser.add_argument("-v", "--verify", action="store_true", help="Verify the barrier certificate.")
+    parser.add_argument("--download", action="store_true", help="Download data from MLflow.")
     parser.add_argument("--plot_bxp", action="store_true", help="Plot the B(xp) surface.")
     parser.add_argument("--plot_bxe", action="store_true", help="Plot the B(xp) est. surface.")
     main(parser.parse_args())
-
-# Forwarding                    https://75002213d6dc.ngrok-free.app -> http://localhost:8080
-# Forwarding                    https://c65058fe26b2.ngrok-free.app -> http://localhost:5000
-# py .\benchmarks\integration\collect_results.py -u https://c65058fe26b2.ngrok-free.app -d https://75002213d6dc.ngrok-free.app Barrier2
