@@ -1,8 +1,8 @@
 <img alt="Icon" src="docs/_static/logo.svg" align="left" width="35" height="35">
 
-# LUCID — Lifting-based Uncertain Control Invariant Dynamics
+# LUCID
 
-_Probabilistic Verification Engine for Black-Box Dynamical Systems_
+_Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems_
 
 [![lucid CI](https://github.com/TendTo/lucid/actions/workflows/lucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/lucid.yml)
 [![pylucid CI](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml)
@@ -77,7 +77,13 @@ docker run --name lucid -it --rm \
 **Requirements**
 
 - [Python](https://www.python.org/) 3.8 or higher
-- [Linux](https://www.linux.org/), [Windows](https://www.microsoft.com/en-us/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
+- [Linux, Glibc >= 2.35](https://gist.github.com/richardlau/6a01d7829cc33ddab35269dacc127680), [Windows](https://www.microsoft.com/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
+- [Gurobi](https://www.gurobi.com/) 12.0.0 or higher
+
+> [!WARNING]  
+> The pre-built Python package expects to find the _Gurobi Optimizer >= 12.0_ installed on your system.
+> You can freely download it from the [Gurobi website](https://www.gurobi.com/downloads/) (a login may be required).
+> You **do not need** to have a valid license if you don't plan to use the Gurobi solver.
 
 **Installation commands**
 
@@ -111,7 +117,7 @@ python3 -c "import pylucid; print(pylucid.__version__)"
   - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
   - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
   - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
-- [Gurobi](https://www.gurobi.com/) 12.0.1
+- [Gurobi](https://www.gurobi.com/) 12.0.0 or higher
 
 **Installation commands**
 
