@@ -129,6 +129,9 @@ def get_data_from_pickle(args: Args):
 def main(args: Args):
     # Create an experiment with a name that is unique and case sensitive.
     data = get_data_from_mlflow(args) if args.download else get_data_from_pickle(args)
+    # Remove duplicate runs based on the 'objective value' column
+    data = data.drop_duplicates(subset=["obj_val"], keep="first")
+    print(f"Found {len(data)} unique runs in experiment '{args.experiment}'.")
     data.to_latex(
         f"benchmarks/integration/{args.experiment.lower()}.tex",
         index=False,
