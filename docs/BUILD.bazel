@@ -110,6 +110,7 @@ doxygen(
         "docs/_static/mermaid.dist.js",
         "docs/_static/plotly.js",
         "docs/_static/plotly.min.js",
+        "docs/_static/lucid-banner.png",
     ],
     html_extra_stylesheet = [
         "docs/_static/doxygen-awesome.css",

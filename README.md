@@ -1,6 +1,4 @@
-<img alt="Icon" src="docs/_static/logo.svg" align="left" width="35" height="35">
-
-# LUCID
+# <img alt="Icon" src="docs/_static/logo.svg" align="left" width="35" height="35"> LUCID
 
 _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems_
 
@@ -8,11 +6,6 @@ _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical System
 [![pylucid CI](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/pylucid.yml)
 [![Docker CI](https://github.com/TendTo/lucid/actions/workflows/docker.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docker.yml)
 [![Docs CI](https://github.com/TendTo/lucid/actions/workflows/docs.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docs.yml)
-
-<div style="display: none">
-<!-- Necessary to load the image in the Doxygen output folder. Do not remove! -->
-<img src="docs/_static/lucid-banner.png" alt="Lucid banner">
-</div>
 
 > My integral is your table.  
 > -- _[Oliver Schön](https://oliverschon.com/)_
@@ -98,7 +91,7 @@ source .venv/bin/activate
 .venv\Scripts\activate
 
 # Install pylucid
-pip install pylucid --index-url https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
+pip install "pylucid[gui,plot]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
 
 # Ensure pylucid is installed correctly
 python3 -c "import pylucid; print(pylucid.__version__)"
@@ -138,7 +131,7 @@ source .venv/bin/activate
 .venv\Scripts\activate
 
 # Install the python wrapper (pylucid)
-pip install .
+pip install ".[gui,plot]"
 
 # Ensure pylucid is installed
 python3 -c "import pylucid; print(pylucid.__version__)"
