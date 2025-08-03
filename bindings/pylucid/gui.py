@@ -28,12 +28,12 @@ logger = logging.getLogger(__name__)
 QUEUES: "dict[int, Queue[str]]" = {}
 
 
-def run_lucid(args: Configuration):
+def run_lucid(config: Configuration):
     # Define the system dynamics function
-    if args.seed >= 0:
-        np.random.seed(args.seed)
-        random.seed(args.seed)
-    log.set_verbosity(args.verbose)
+    if config.seed >= 0:
+        np.random.seed(config.seed)
+        random.seed(config.seed)
+    log.set_verbosity(config.verbose)
 
     def check_cb(result: "OptimiserResult"):
         if not result["success"]:
@@ -45,7 +45,7 @@ def run_lucid(args: Configuration):
         QUEUES[threading.get_ident()].put(result)
 
     try:
-        pipeline(scenario_config(args), show=False, optimiser_cb=check_cb)
+        pipeline(scenario_config(config), show=False, optimiser_cb=check_cb)
     except Exception as e:
         log.error(f"Error during optimisation: {e}")
         raise e
@@ -61,22 +61,22 @@ def handle_log(log_entry: str):
     q.join()  # Ensure the log entry is processed before continuing
 
 
-def get_args(config_dict: "dict | None" = None) -> Configuration:
+def get_config(config_dict: "dict | None" = None) -> Configuration:
     config_dict = config_dict or request.json
     try:
-        args: Configuration = Configuration()
+        config: Configuration = Configuration()
         config_action = ConfigAction(option_strings=None, dest="")
         config_action.validate(config_dict)
-        config_action.dict_to_configuration(config_dict, args)
+        config_action.dict_to_configuration(config_dict, config)
         # Just to ensure the system dynamics function is compatible with the initial state
-        if args.system_dynamics is None and len(args.xp_samples) == 0:
+        if config.system_dynamics is None and len(config.xp_samples) == 0:
             return {
                 "error": "System dynamics must be provided if xp_samples is not given.",
                 "cause": "system_dynamics",
             }, 400
-        if args.system_dynamics is not None:
-            args.system_dynamics(args.X_init.lattice(1))
-        logger.debug("Parsed CLI arguments: %s", args)
+        if config.system_dynamics is not None:
+            config.system_dynamics(config.X_init.lattice(1))
+        logger.debug("Parsed CLI arguments: %s", config)
     except ValidationError as val_err:
         logger.error("Validation error: %s", val_err.message)
         return {"error": val_err.message}, 400
@@ -90,7 +90,7 @@ def get_args(config_dict: "dict | None" = None) -> Configuration:
     except Exception as e:
         logger.error(f"Error processing configuration: {e}")
         return {"error": f"Error processing configuration. {e}"}, 500
-    return args
+    return config
 
 
 def event_streamer(worker_id: int):
@@ -115,31 +115,31 @@ def capabilities():
 @blueprint.route("/preview-graph", methods=["POST"])
 def preview_graph():
     logger.info("Received request to preview graph.")
-    args = get_args()
-    if not isinstance(args, Configuration):
-        return args
-    if args.system_dynamics is not None:
+    config = get_config()
+    if not isinstance(config, Configuration):
+        return config
+    if config.system_dynamics is not None:
         try:
             fig = plot_function(
-                X_bounds=args.X_bounds,
-                X_init=args.X_init,
-                X_unsafe=args.X_unsafe,
-                f=args.system_dynamics,
+                X_bounds=config.X_bounds,
+                X_init=config.X_init,
+                X_unsafe=config.X_unsafe,
+                f=config.system_dynamics,
                 show=False,
             )
         except ValueError as ve:
             logger.error(f"Could not plot function: {ve}")
             return {"error": f"Could not plot function: {ve}"}, 400
-    elif len(args.x_samples) > 0 and (len(args.xp_samples) > 0 or args.system_dynamics is not None):
-        if len(args.xp_samples) == 0 and args.system_dynamics is not None:
+    elif len(config.x_samples) > 0 and (len(config.xp_samples) > 0 or config.system_dynamics is not None):
+        if len(config.xp_samples) == 0 and config.system_dynamics is not None:
             # If xp_samples is not provided, compute it using the system dynamics function
-            args.xp_samples = args.system_dynamics(args.x_samples)
+            config.xp_samples = config.system_dynamics(config.x_samples)
         fig = plot_data(
-            X_bounds=args.X_bounds,
-            X_init=args.X_init,
-            X_unsafe=args.X_unsafe,
-            x_samples=args.x_samples,
-            xp_samples=args.xp_samples,
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            x_samples=config.x_samples,
+            xp_samples=config.xp_samples,
             show=False,
         )
     else:
@@ -151,9 +151,9 @@ def preview_graph():
 @blueprint.route("/run", methods=["POST"])
 def post_run():
     logger.info("Received request to run lucid. Storing config_dict in session.")
-    args = get_args()
-    if not isinstance(args, Configuration):
-        return args
+    config = get_config()
+    if not isinstance(config, Configuration):
+        return config
     session["config_dict"] = request.json
     return Response(status=202)
 
@@ -164,14 +164,14 @@ def get_run():
     config_dict = session.get("config_dict", None)
     if config_dict is None:
         return {"error": "You must submit config_dict before starting a run"}, 404
-    args = get_args(config_dict)
-    if not isinstance(args, Configuration):
-        return args
+    config = get_config(config_dict)
+    if not isinstance(config, Configuration):
+        return config
     # Implement logic to retrieve the status of the run using the UUID
-    worker = threading.Thread(target=run_lucid, args=[args], daemon=True)
+    worker = threading.Thread(target=run_lucid, args=[config], daemon=True)
     worker.start()
 
-    session.pop("args", None)  # Clear the args after starting the run
+    session.pop("config_dict", None)  # Clear the config after starting the run
     return Response(event_streamer(worker.ident), mimetype="text/event-stream")
 
 
@@ -217,7 +217,7 @@ def parse_args(args: "list[str] | None" = None) -> CliArgs:
         help="Threshold for cache size.",
         default=500,
     )
-    return parser.parse_args()
+    return parser.parse_args(args=args)
 
 
 def main():

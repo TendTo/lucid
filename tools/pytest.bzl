@@ -86,7 +86,7 @@ def pylucid_gurobi_py_test(name, srcs = None, deps = [], args = [], data = [], s
         args = args,
         deps = deps,
         size = size,
-        tags = tags,
+        tags = tags + ["gurobi"],
         data = data + select({
             "//tools:gurobi_build": ["gurobi.lic"],
             "//conditions:default": [],

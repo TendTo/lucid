@@ -157,6 +157,7 @@ export default function App() {
             c: data.c,
             norm: data.norm,
             verified: data.verified,
+            time: data.time ?? 0,
           });
         }
       };

@@ -1,3 +1,4 @@
+import time
 from typing import TYPE_CHECKING, TypedDict
 
 import numpy as np
@@ -50,6 +51,7 @@ class OptimiserResult(TypedDict):
     norm: float
     fig: "Figure"
     verified: bool
+    time: float
 
 
 def rmse(x: "NMatrix", y: "NMatrix", ax=0):
@@ -68,7 +70,7 @@ def tune() -> "Estimator":
 
 
 def pipeline(
-    args: "Configuration", show: bool = True, optimiser_cb: "Callable[[OptimiserResult], None]" = None
+    config: "Configuration", show: bool = True, optimiser_cb: "Callable[[OptimiserResult], None]" = None
 ) -> bool:
     """Run Lucid with the given parameters.
     This function makes it easier to work with the library by providing
@@ -77,7 +79,7 @@ def pipeline(
     If you need more control, use the individual functions and classes directly.
 
     Args:
-        args: The configuration object containing all the parameters.
+        config: The configuration object containing all the parameters.
         optimiser_cb: A callback function to handle the optimization results.
 
 
@@ -87,110 +89,124 @@ def pipeline(
     Returns:
         True if the optimization was successful, False otherwise.
     """
-    log.debug(f"Pipeline started with {args}")
+    log.debug(f"Pipeline started with {config}")
     assert (
-        args.x_samples.shape[0] == args.xp_samples.shape[0]
+        config.x_samples.shape[0] == config.xp_samples.shape[0]
     ), "x_samples and xp_samples must have the same number of samples"
-    assert isinstance(args.sigma_f, float) and args.sigma_f > 0, "sigma_f must be a positive float"
+    assert isinstance(config.sigma_f, float) and config.sigma_f > 0, "sigma_f must be a positive float"
     assert (
-        not isinstance(args.feature_map, FeatureMap) or args.num_frequencies <= 0
+        not isinstance(config.feature_map, FeatureMap) or config.num_frequencies <= 0
     ), "num_frequencies and feature_map are mutually exclusive"
     assert (
-        args.f_xp_samples is not None or args.feature_map is None or isinstance(args.feature_map, (FeatureMap, type))
+        config.f_xp_samples is not None
+        or config.feature_map is None
+        or isinstance(config.feature_map, (FeatureMap, type))
     ), "f_xp_samples must be provided when feature_map is a callback"
 
-    if isinstance(args.estimator, type):
-        estimator = args.estimator(
-            kernel=args.kernel(sigma_l=args.sigma_l, sigma_f=args.sigma_f),
-            regularization_constant=args.lambda_,
-            **({"tuner": args.tuner} if args.tuner is not None else {}),
+    tick = time.time()
+    if isinstance(config.estimator, type):
+        estimator = config.estimator(
+            kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),
+            regularization_constant=config.lambda_,
+            **({"tuner": config.tuner} if config.tuner is not None else {}),
         )
     else:
-        estimator = args.estimator
-    if isinstance(args.feature_map, type) and issubclass(args.feature_map, FeatureMap):
-        assert args.num_frequencies > 0, "num_frequencies must be set and positive if feature_map is a class"
+        estimator = config.estimator
+    if isinstance(config.feature_map, type) and issubclass(config.feature_map, FeatureMap):
+        assert config.num_frequencies > 0, "num_frequencies must be set and positive if feature_map is a class"
         sigma_l = estimator.get(Parameter.SIGMA_L)
-        feature_map = args.feature_map(
-            num_frequencies=args.num_frequencies,
+        feature_map = config.feature_map(
+            num_frequencies=config.num_frequencies,
             sigma_l=sigma_l if len(sigma_l) > 1 else sigma_l[0],
-            sigma_f=args.sigma_f,
-            x_limits=args.X_bounds,
+            sigma_f=config.sigma_f,
+            x_limits=config.X_bounds,
         )
     else:
-        feature_map = args.feature_map
+        feature_map = config.feature_map
 
-    num_frequencies = feature_map.num_frequencies if args.num_frequencies < 0 else args.num_frequencies
+    num_frequencies = feature_map.num_frequencies if config.num_frequencies < 0 else config.num_frequencies
     num_oversample = (
-        np.ceil((2 * num_frequencies + 1) * args.oversample_factor) if args.num_oversample < 0 else args.num_oversample
+        np.ceil((2 * num_frequencies + 1) * config.oversample_factor)
+        if config.num_oversample < 0
+        else config.num_oversample
     )
     num_oversample = int(num_oversample)
     log.debug(f"Number of samples per dimension: {num_oversample}")
     assert num_oversample > 2 * num_frequencies, f"n_per_dim must be greater than nyquist ({2 * num_frequencies + 1})"
 
-    if args.f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
+    if config.f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
         assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
-        args.f_xp_samples = feature_map(args.xp_samples)
+        config.f_xp_samples = feature_map(config.xp_samples)
 
     log.debug(f"Estimator pre-fit: {estimator}")
-    estimator.fit(x=args.x_samples, y=args.f_xp_samples)  # Actual fitting of the regressor
+    estimator.fit(x=config.x_samples, y=config.f_xp_samples)  # Actual fitting of the regressor
     log.info(f"Estimator post-fit: {estimator}")
 
     if callable(feature_map) and not isinstance(feature_map, FeatureMap):
         feature_map = feature_map(estimator)  # Compute the feature map if it is a callable
     assert isinstance(feature_map, FeatureMap), "feature_map must return a FeatureMap instance"
 
-    log.debug(f"RMSE on f_xp_samples {rmse(estimator(args.x_samples), args.f_xp_samples)}")
-    log.debug(f"Score on f_xp_samples {estimator.score(args.x_samples, args.f_xp_samples)}")
-    if args.system_dynamics is not None:
+    log.debug(f"RMSE on f_xp_samples {rmse(estimator(config.x_samples), config.f_xp_samples)}")
+    log.debug(f"Score on f_xp_samples {estimator.score(config.x_samples, config.f_xp_samples)}")
+    if config.system_dynamics is not None:
         # Sample some other points (half of the x_samples) to evaluate the regressor against overfitting
-        x_evaluation = args.X_bounds.sample(args.x_samples.shape[0] // 2)
-        f_xp_evaluation = feature_map(args.system_dynamics(x_evaluation))
+        x_evaluation = config.X_bounds.sample(config.x_samples.shape[0] // 2)
+        f_xp_evaluation = feature_map(config.system_dynamics(x_evaluation))
         log.debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
         log.debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
     log.debug(f"Feature map: {feature_map}")
-    x_lattice = args.X_bounds.lattice(num_oversample, True)
+    x_lattice = config.X_bounds.lattice(num_oversample, True)
     u_f_x_lattice = feature_map(x_lattice)
     u_f_xp_lattice_via_regressor = estimator(x_lattice)
     # We are fixing the zero frequency to the constant value we computed in the feature map
     # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
-    u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * args.sigma_f
+    u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * config.sigma_f
     log.debug(f"x_lattice: {x_lattice.shape}, u_f_x_lattice: {u_f_x_lattice.shape}")
 
-    if args.constant_lattice_points:
-        x0_lattice = args.X_init.lattice(num_oversample, True)
-        xu_lattice = args.X_unsafe.lattice(num_oversample, True)
+    if config.constant_lattice_points:
+        x0_lattice = config.X_init.lattice(num_oversample, True)
+        xu_lattice = config.X_unsafe.lattice(num_oversample, True)
     else:
         # TODO: implement this more efficiently in lucid (C++)
         # Extreme points are always included in the lattice,
         # to make sure gamma and eta conditions are satisfied on the boundaries
-        x0_extreme_points = args.X_init.lattice(2, True)
+        x0_extreme_points = config.X_init.lattice(2, True)
         x0_lattice = np.concatenate([x0_extreme_points, np.empty_like(x_lattice)], axis=0)
         count = x0_extreme_points.shape[0]
         for point in x_lattice:
-            if point in args.X_init:
+            if point in config.X_init:
                 x0_lattice[count] = point
                 count += 1
-        x0_lattice.resize((count, args.X_bounds.dimension))
+        x0_lattice.resize((count, config.X_bounds.dimension))
 
         # Extreme points are always included in the lattice,
         # to make sure gamma and eta conditions are satisfied on the boundaries
-        xu_extreme_points = args.X_unsafe.lattice(2, True)
+        xu_extreme_points = config.X_unsafe.lattice(2, True)
         xu_lattice = np.concatenate([xu_extreme_points, np.empty_like(x_lattice)], axis=0)
         count = xu_extreme_points.shape[0]
         for point in x_lattice:
-            if point in args.X_unsafe:
+            if point in config.X_unsafe:
                 xu_lattice[count] = point
                 count += 1
-        xu_lattice.resize((count, args.X_bounds.dimension))
+        xu_lattice.resize((count, config.X_bounds.dimension))
     log.debug(f"x0_lattice: {x0_lattice.shape}, xu_lattice: {xu_lattice.shape}")
 
     f_x0_lattice = feature_map(x0_lattice)
     f_xu_lattice = feature_map(xu_lattice)
 
     def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
+        duration = time.time() - tick
         result = OptimiserResult(
-            success=success, obj_val=obj_val, sol=sol, eta=eta, c=c, norm=norm, fig=None, verified=False
+            success=success,
+            obj_val=obj_val,
+            sol=sol,
+            eta=eta,
+            c=c,
+            norm=norm,
+            fig=None,
+            verified=False,
+            time=duration,
         )
         if not success:
             log.error("Optimization failed")
@@ -198,31 +214,32 @@ def pipeline(
             log.info("Optimization succeeded")
             log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
             log.debug(f"{sol = }")
-        if args.plot and args.X_bounds.dimension <= 2:
+        log.info(f"Time taken: {duration:.2f} seconds")
+        if config.plot and config.X_bounds.dimension <= 2:
             result["fig"] = plot_solution(
-                X_bounds=args.X_bounds,
-                X_init=args.X_init,
-                X_unsafe=args.X_unsafe,
+                X_bounds=config.X_bounds,
+                X_init=config.X_init,
+                X_unsafe=config.X_unsafe,
                 feature_map=feature_map,
                 eta=eta if success else None,
-                gamma=args.gamma,
+                gamma=config.gamma,
                 sol=sol if success else None,
-                f=args.system_dynamics,
+                f=config.system_dynamics,
                 estimator=estimator,
                 num_samples=num_oversample,
                 c=c if success else None,
                 show=show,
             )
-        if args.verify and args.system_dynamics is not None and success:
+        if config.verify and config.system_dynamics is not None and success:
             result["verified"] = verify_barrier_certificate(
-                X_bounds=args.X_bounds,
-                X_init=args.X_init,
-                X_unsafe=args.X_unsafe,
-                sigma_f=args.sigma_f,
+                X_bounds=config.X_bounds,
+                X_init=config.X_init,
+                X_unsafe=config.X_unsafe,
+                sigma_f=config.sigma_f,
                 eta=eta,
                 c=c,
-                f_det=args.system_dynamics,
-                gamma=args.gamma,
+                f_det=config.system_dynamics,
+                gamma=config.gamma,
                 estimator=estimator,
                 tffm=feature_map,
                 sol=sol,
@@ -230,24 +247,24 @@ def pipeline(
         if optimiser_cb is not None:
             optimiser_cb(result)
 
-    return args.optimiser(
-        args.time_horizon,
-        args.gamma,
+    return config.optimiser(
+        config.time_horizon,
+        config.gamma,
         0.0,
         1.0,
         b_kappa=1.0,
-        C_coeff=args.c_coefficient,
-        sigma_f=args.sigma_f,
-        problem_log_file=args.problem_log_file,
-        iis_log_file=args.iis_log_file,
+        C_coeff=config.c_coefficient,
+        sigma_f=config.sigma_f,
+        problem_log_file=config.problem_log_file,
+        iis_log_file=config.iis_log_file,
     ).solve(
         f0_lattice=f_x0_lattice,
         fu_lattice=f_xu_lattice,
         phi_mat=u_f_x_lattice,
         w_mat=u_f_xp_lattice_via_regressor,
         rkhs_dim=feature_map.dimension,
-        num_frequencies_per_dim=args.num_frequencies - 1,
+        num_frequencies_per_dim=config.num_frequencies - 1,
         num_frequency_samples_per_dim=num_oversample,
-        original_dim=args.X_bounds.dimension,
+        original_dim=config.X_bounds.dimension,
         callback=check_cb,
     )

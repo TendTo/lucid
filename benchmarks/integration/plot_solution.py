@@ -283,9 +283,7 @@ def load_solution(file_path: "str | Path") -> "tuple[np.ndarray, float, float]":
 
 
 def base_load_configuration(file_path: "str | Path") -> Configuration:
-    action = ConfigAction(option_strings=None, dest="input")
-    config = Configuration()
-    action(None, config, Path(file_path), None)
+    config = Configuration.from_file(file_path)
     if config.seed >= 0:
         np.random.seed(config.seed)
         random.seed(config.seed)

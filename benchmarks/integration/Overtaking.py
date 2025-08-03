@@ -13,9 +13,7 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # ################################## #
     # System dynamics
     # ################################## #
-    action = ConfigAction(option_strings=None, dest="input")
-    config = Configuration()
-    action(None, config, Path("benchmarks/integration/overtaking.yaml"), None)
+    config = Configuration.from_file("benchmarks/integration/overtaking.yaml")
 
     for key, value in zip(param_name, param_combinations):
         setattr(config, key, value)

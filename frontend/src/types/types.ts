@@ -36,6 +36,7 @@ export type ServerResponse = {
   log?: string;
   cause?: string;
   verified?: boolean;
+  time?: number;
 };
 export type ServerCapabilities = {
   GUROBI: boolean;
@@ -59,4 +60,5 @@ export type SuccessResponseData = {
   c?: number;
   norm?: number;
   verified?: boolean;
+  time: number;
 };

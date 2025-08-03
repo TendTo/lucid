@@ -49,9 +49,7 @@ def grid_search_tuner(config: Configuration, grid: "dict[Parameter, ParameterVal
 
 
 def hp_tuning(file_path: str, grid: "dict[Parameter, ParameterValuesType]"):
-    action = ConfigAction(option_strings=None, dest="input")
-    config = Configuration()
-    action(None, config, Path(file_path), None)
+    config = Configuration.from_file(file_path)
     log.info(f"Configuration: {config}")
     if config.seed >= 0:
         np.random.seed(config.seed)  # For reproducibility

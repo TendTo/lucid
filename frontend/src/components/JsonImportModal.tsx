@@ -54,8 +54,10 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
       // Parse the JSON
       const parsedJson = {
         ...capableConfiguration(defaultValues, capabilities),
+        ...{ dimension: undefined },
         ...JSON.parse(jsonText),
       };
+      parsedJson.dimension ??= parsedJson?.X_bounds[0]?.RectSet[0]?.length || 1;
 
       // Validate against schema
       const result = configurationSchema.safeParse(parsedJson);
@@ -64,9 +66,6 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
         setError("Invalid JSON format: " + result.error.message);
         return;
       }
-
-      parsedJson.dimension =
-        parsedJson.dimension || parsedJson.X_bounds[0].RectSet[0].length || 1;
 
       // Store the current JSON text in the browser's local storage
       localStorage.setItem("lucid-import-json", jsonText);

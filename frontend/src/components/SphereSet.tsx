@@ -15,7 +15,6 @@ export default function SphereSet({ name, idx }: SphereSetProps) {
     control,
     name: `${name}.${idx}.SphereSet.center`,
   });
-  console.log(`${name}.${idx}.SphereSet.center`, fields);
   return (
     <>
       <span className="font-semibold">Center</span>

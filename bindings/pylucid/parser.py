@@ -216,7 +216,6 @@ class SymbolicParser(ABC, Generic[T]):
         Returns:
             The symbolic expression with variables substituted with their values.
         """
-        pass
 
     @abstractmethod
     def evaluate(self, expr: "T", **subs: "dict[str, float]") -> "float | bool":
@@ -234,7 +233,6 @@ class SymbolicParser(ABC, Generic[T]):
         Returns:
             The evaluated result of the expression as a python float or boolean value.
         """
-        pass
 
 
 class Z3Parser(SymbolicParser["z3.ExprRef"]):

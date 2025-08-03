@@ -59,50 +59,70 @@ export default function OutputSection({
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            {successData && successData.success && (
-              <div className="grid grid-cols-2 gap-4">
-                <Label htmlFor="resultObj_val" className="font-bold">
-                  Safety probability
-                </Label>
-                <Input
-                  id="resultObj_val"
-                  value={`${formatNumber(
-                    (1 - (successData.obj_val ?? 1)) * 100
-                  )}%`}
-                  readOnly
-                />
-                <Label htmlFor="resultEta" className="font-bold">
-                  Eta (η)
-                </Label>
-                <Input
-                  id="resultEta"
-                  value={formatNumber(successData.eta)}
-                  readOnly
-                />
-                <Label htmlFor="resultC" className="font-bold">
-                  c
-                </Label>
-                <Input
-                  id="resultC"
-                  value={formatNumber(successData.c)}
-                  readOnly
-                />
-                <Label htmlFor="resultNorm" className="font-bold">
-                  Norm
-                </Label>
-                <Input
-                  id="resultNorm"
-                  value={formatNumber(successData.norm)}
-                  readOnly
-                />
-                <Label className="font-bold">Verified</Label>
-                {successData.verified ? (
-                  <FaCheck className="text-green-500" />
-                ) : (
-                  <FaX className="text-red-500" />
-                )}
-              </div>
-            )}
+            <div className="grid grid-cols-2 gap-4">
+              {successData && successData.success && (
+                <>
+                  <Label htmlFor="resultObj_val" className="font-bold">
+                    Safety probability
+                  </Label>
+                  <Input
+                    id="resultObj_val"
+                    value={`${formatNumber(
+                      (1 - (successData.obj_val ?? 1)) * 100
+                    )}%`}
+                    readOnly
+                  />
+                  <Label htmlFor="resultEta" className="font-bold">
+                    Eta (η)
+                  </Label>
+                  <Input
+                    id="resultEta"
+                    value={formatNumber(successData.eta)}
+                    readOnly
+                  />
+                  <Label htmlFor="resultC" className="font-bold">
+                    c
+                  </Label>
+                  <Input
+                    id="resultC"
+                    value={formatNumber(successData.c)}
+                    readOnly
+                  />
+                  <Label htmlFor="resultNorm" className="font-bold">
+                    Norm
+                  </Label>
+                  <Input
+                    id="resultNorm"
+                    value={formatNumber(successData.norm)}
+                    readOnly
+                  />
+                  <Label htmlFor="resultVerified" className="font-bold">
+                    Verified
+                  </Label>
+                  {successData.verified ? (
+                    <FaCheck className="text-green-500" />
+                  ) : (
+                    <FaX className="text-red-500" />
+                  )}
+                </>
+              )}
+              {successData && successData.time > 0 && (
+                <>
+                  <Label htmlFor="resultTime" className="font-bold">
+                    Time
+                  </Label>
+                  <Input
+                    id="resultTime"
+                    value={`${(() => {
+                      const date = new Date(0);
+                      date.setSeconds(0, successData.time * 1000);
+                      return date.toISOString().slice(11, 23);
+                    })()}`}
+                    readOnly
+                  />
+                </>
+              )}
+            </div>
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="logs">
@@ -133,9 +153,6 @@ export default function OutputSection({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-
-      {/* Success Card - floating at bottom right */}
-      {/* {successData && <SuccessCard data={successData} />} */}
     </section>
   );
 }

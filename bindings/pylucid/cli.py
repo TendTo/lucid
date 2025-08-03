@@ -124,8 +124,6 @@ class Configuration(Namespace):
 
     def to_yaml(self, path: "str | Path | None" = None) -> str:
         """Convert the configuration to a YAML string or save it to a file."""
-        import yaml
-
         config_dict = self.to_safe_dict()
         yaml_str = yaml.safe_dump(config_dict, default_flow_style=False, sort_keys=False)
         if path is not None:
@@ -136,6 +134,21 @@ class Configuration(Namespace):
     def shallow_copy(self) -> "Configuration":
         """Create a shallow copy of the configuration."""
         return Configuration(**self.__dict__.copy())
+
+    @classmethod
+    def from_file(cls, path: "str | Path") -> "Configuration":
+        """Load a configuration from a YAML file."""
+        config = cls()
+        action = ConfigAction(option_strings=None, dest="input")
+        action(None, config, Path(path))
+        return config
+
+    @classmethod
+    def from_dict(cls, config_dict: dict) -> "Configuration":
+        """Load a configuration from a dictionary."""
+        config = cls()
+        ConfigAction.dict_to_configuration(config_dict, config)
+        return config
 
 
 class ConfigAction(Action):
@@ -185,7 +198,8 @@ class ConfigAction(Action):
         except ValidationError as e:
             raise raise_error(f"{e.message}", ValidationError) from (e if verbosity >= log.LOG_DEBUG else None)
 
-    def dict_to_configuration(self, config_dict: dict, args: Configuration) -> Configuration:
+    @classmethod
+    def dict_to_configuration(cls, config_dict: dict, args: Configuration) -> Configuration:
         """
         Convert a dictionary parsed from a YAML or JSON file to a Configuration object.
 
@@ -242,10 +256,11 @@ class ConfigAction(Action):
                 set_parser = set_parser or SetParser()
                 setattr(args, set_name, set_parser.parse(config_dict[set_name]))
             else:
-                set_value = self.parse_set_from_config(config_dict[set_name])
+                set_value = cls.parse_set_from_config(config_dict[set_name])
                 setattr(args, set_name, set_value)
 
-    def parse_set_from_config(self, set_config: "dict | list | str") -> "Set":
+    @classmethod
+    def parse_set_from_config(cls, set_config: "dict | list | str") -> "Set":
         """Helper function to parse set objects from dictionary/list representation"""
         if isinstance(set_config, str):
             set_parser = SetParser()
@@ -254,8 +269,8 @@ class ConfigAction(Action):
             if len(set_config) == 0:
                 raise raise_error("Set configuration cannot be empty")
             if len(set_config) == 1 and isinstance(set_config[0], dict):
-                return self.parse_set_from_config(set_config[0])
-            return MultiSet(*tuple(self.parse_set_from_config(rect_item) for rect_item in set_config))
+                return cls.parse_set_from_config(set_config[0])
+            return MultiSet(*tuple(cls.parse_set_from_config(rect_item) for rect_item in set_config))
         assert isinstance(set_config, dict), "Set configuration must be a dictionary or a list of dictionaries"
         if "RectSet" in set_config:
             rect_data = set_config["RectSet"]

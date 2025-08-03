@@ -14,9 +14,7 @@ def scenario_config(param_name: tuple[str], param_combinations: tuple[tuple]) ->
     # ################################## #
     # System dynamics
     # ################################## #
-    config = Configuration()
-    action = ConfigAction(option_strings=None, dest="input")
-    action(None, config, Path("benchmarks/integration/linear.yaml"), None)
+    config = Configuration.from_file("benchmarks/integration/linear.yaml")
 
     # Add process noise
     if config.seed >= 0:

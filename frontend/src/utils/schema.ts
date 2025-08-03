@@ -13,11 +13,6 @@ function compareSetDimension(
   set: (RectSet | SphereSet)[],
   expected: number
 ): boolean {
-  console.log(
-    `Comparing set dimension: expected ${expected}, got ${set.map(
-      getSetDimension
-    )}`
-  );
   if (set.length === 0) return true;
   return set.every((r) => getSetDimension(r) === expected);
 }
