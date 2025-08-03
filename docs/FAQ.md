@@ -88,3 +88,25 @@ To change the frontend port, you need to update the `vite.config.ts` file in the
 This can happen for a variety of reasons, usually related to the web server being unable to conclude a long operation in a timely manner.
 The simplest solution is to restart the process.
 To stop the server, you can press `Ctrl+C` in the terminal where the GUI was launched or simply kill the terminal session.
+
+#### Bazel server stuck
+
+Sometimes, especially on windows, bazel can get stuck compiling without a clear reason why.
+If this happens, the bazel server may become unavailable and unable to run any other command.
+To solve the situation, you can kill the bazel server and restart it.
+
+```bash
+# Get the bazel server PID.
+# If it is stuck, it will return something like:
+# Another command (pid=7760) is running. Waiting for it to complete on the server (server_pid=8032)...
+bazel info server_pid
+```
+
+```bash
+# Kill the bazel server (Windows)
+taskkill /F /PID <server_pid>
+# Kill the bazel server (Linux)
+kill -9 <server_pid>
+```
+
+Any other command will restart the bazel server automatically.

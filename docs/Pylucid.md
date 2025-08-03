@@ -11,7 +11,34 @@ You can either run it withing the Bazel environment, or you can install it in yo
 > Building the bindings on Windows with GUI support requires an additional step.
 > See the [Building on Windows](#building-on-windows) section for more details.
 
-## Installing Pylucid
+## Installing Pylucid (pre-built)
+
+We provide a pre-built Pylucid package that can be installed directly with pip without requiring any compilation.
+
+### Requirements
+
+- [Python](https://www.python.org/) 3.8 or higher
+- [Linux, Glibc >= 2.35](https://gist.github.com/richardlau/6a01d7829cc33ddab35269dacc127680), [Windows](https://www.microsoft.com/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
+- [Gurobi](https://www.gurobi.com/) 12.0.0 or higher
+
+> [!WARNING]  
+> The pre-built Python package expects to find the _Gurobi Optimizer >= 12.0_ installed on your system.
+> You can freely download it from the [Gurobi website](https://www.gurobi.com/downloads/) (a login may be required).
+> You **do not need** to have a valid license if you don't plan to use the Gurobi solver.
+
+**Installation commands**
+
+```bash
+# Install pylucid
+pip install pylucid[gui,plot] --index-url https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
+
+# Ensure pylucid is installed correctly
+python3 -c "import pylucid; print(pylucid.__version__)"
+```
+
+If you notice any errors, please refer to the [Troubleshooting](FAQ.md#troubleshooting) section or open an issue.
+
+## Installing Pylucid (source)
 
 [//]: # "@tabbed"
 [//]: # "@tab"

@@ -97,10 +97,10 @@ source .venv/bin/activate
 # Activate the virtual environment on Windows (optional)
 .venv\Scripts\activate
 
-# Install the python wrapper (pylucid)
+# Install pylucid
 pip install pylucid --index-url https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
 
-# Ensure pylucid is installed
+# Ensure pylucid is installed correctly
 python3 -c "import pylucid; print(pylucid.__version__)"
 ```
 
