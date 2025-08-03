@@ -6,7 +6,7 @@ from pylucid import __version__
 from pylucid.pipeline import pipeline, rmse
 
 
-def scenario_config() -> "ScenarioConfig":
+def scenario_config() -> "Configuration":
     # ################################## #
     # Script configuration
     # ################################## #
@@ -91,16 +91,16 @@ def scenario_config() -> "ScenarioConfig":
     # Running the pipeline
     # ################################## #
 
-    return ScenarioConfig(
+    return Configuration(
         x_samples=x_samples,
         xp_samples=xp_samples,
         X_bounds=X_bounds,
         X_init=X_init,
         X_unsafe=X_unsafe,
-        T=T,
+        time_horizon=T,
         gamma=gamma,
-        f_det=f_det,  # The deterministic part of the system dynamics
-        num_freq_per_dim=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
+        system_dynamics=f_det,  # The deterministic part of the system dynamics
+        num_frequencies=num_freq_per_dim,  # Number of frequencies per dimension for the Fourier feature map
         estimator=estimator,  # The estimator used to model the system dynamics
         sigma_f=estimator.get(Parameter.SIGMA_F),
         problem_log_file="problem.mps",  # The lp file containing the optimization problem
@@ -114,6 +114,6 @@ if __name__ == "__main__":
     # ################################## #
     log.info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    pipeline(**scenario_config())
+    pipeline(scenario_config())
     end = time.time()
     log.info(f"Elapsed time: {end - start}")

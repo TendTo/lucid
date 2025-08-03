@@ -9,7 +9,7 @@ from pylucid.pipeline import pipeline
 
 
 def scenario_config(
-    args: Configuration = Configuration(
+    config: Configuration = Configuration(
         seed=42,
         gamma=1,
         time_horizon=5,
@@ -24,7 +24,7 @@ def scenario_config(
         iis_log_file="iis.ilp",
         oversample_factor=32.0,
     )
-) -> "ScenarioConfig":
+) -> "Configuration":
     # ################################## #
     # System dynamics                    #
     # ################################## #
@@ -48,7 +48,7 @@ def scenario_config(
     # Sampling                           #
     # ################################## #
 
-    x_samples = X_bounds.sample(args.num_samples)
+    x_samples = X_bounds.sample(config.num_samples)
     xp_samples = f(x_samples)
 
     # ################################## #
@@ -57,40 +57,40 @@ def scenario_config(
 
     # De-comment the tuner you want to use or leave it empty to avoid tuning.
     estimator = KernelRidgeRegressor(
-        kernel=GaussianKernel(sigma_f=args.sigma_f, sigma_l=args.sigma_l),
-        regularization_constant=args.lambda_,
+        kernel=GaussianKernel(sigma_f=config.sigma_f, sigma_l=config.sigma_l),
+        regularization_constant=config.lambda_,
     )
     feature_map = LinearTruncatedFourierFeatureMap(
-        num_frequencies=args.num_frequencies,
-        sigma_l=args.sigma_l,
-        sigma_f=args.sigma_f,
+        num_frequencies=config.num_frequencies,
+        sigma_l=config.sigma_l,
+        sigma_f=config.sigma_f,
         x_limits=X_bounds,
     )
     # estimator = ModelEstimator(f=lambda x: feature_map(f_det(x)))  # Use the custom model estimator
 
-    return ScenarioConfig(
+    return Configuration(
         x_samples=x_samples,
         xp_samples=xp_samples,
         X_bounds=X_bounds,
         X_init=X_init,
         X_unsafe=X_unsafe,
-        T=args.time_horizon,
-        gamma=args.gamma,
+        time_horizon=config.time_horizon,
+        gamma=config.gamma,
         feature_map=feature_map,  # The feature map used to transform the input data
-        f_det=f_det,  # The deterministic part of the system dynamics
+        system_dynamics=f_det,  # The deterministic part of the system dynamics
         estimator=estimator,  # The estimator used to model the system dynamics
-        sigma_f=args.sigma_f,  # Signal variance parameter for the kernel
-        problem_log_file=args.problem_log_file,  # The lp file containing the optimization problem
-        iis_log_file=args.iis_log_file,  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
-        plot=args.plot,  # Whether to plot the results
-        verify=args.verify,  # Whether to verify the barrier certificate using dReal
-        oversample_factor=args.oversample_factor,  # Factor by which to oversample the frequency space
+        sigma_f=config.sigma_f,  # Signal variance parameter for the kernel
+        problem_log_file=config.problem_log_file,  # The lp file containing the optimization problem
+        iis_log_file=config.iis_log_file,  # The ilp file containing the irreducible infeasible set (IIS) if the problem is infeasible
+        plot=config.plot,  # Whether to plot the results
+        verify=config.verify,  # Whether to verify the barrier certificate using dReal
+        oversample_factor=config.oversample_factor,  # Factor by which to oversample the frequency space
     )
 
 
 if __name__ == "__main__":
     log.info(f"Running benchmark (LUCID version: {__version__})")
     start = time.time()
-    pipeline(**scenario_config())
+    pipeline(scenario_config())
     end = time.time()
     log.info(f"Elapsed time: {end - start}")

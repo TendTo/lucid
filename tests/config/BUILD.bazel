@@ -1,0 +1,14 @@
+"""Configuration files for tests."""
+
+exports_files([
+    "barrier2.yaml",
+    "barrier3.yaml",
+    "overtaking.yaml",
+    "linear.yaml",
+])
+
+filegroup(
+    name = "all_configs",
+    srcs = glob(["*.yaml"]),
+    visibility = ["//visibility:public"],
+)
