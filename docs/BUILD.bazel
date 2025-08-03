@@ -86,6 +86,7 @@ doxygen(
     disable_index = False,
     enable_preprocessing = True,
     example_path = "example",
+    exclude_symbols = ["*::internal::*"],
     expand_as_defined = "TODO",
     expand_only_predef = True,
     extract_private = True,

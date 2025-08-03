@@ -13,8 +13,18 @@
 
 namespace lucid {
 
+/**
+ * Multidimensional sphere set.
+ * A vector @x is in the set if @f$ ||x - c||_2 \le r @f$,
+ */
 class SphereSet final : public Set {
  public:
+  /**
+   * Construct a sphere set from a `center` and a `radius`.
+   * The dimension of the space the sphere set lives in is determined by the size of the `center` vector.
+   * @param center vector representing the center of the sphere
+   * @param radius radius of the sphere
+   */
   SphereSet(ConstVectorRef center, Scalar radius);
   [[nodiscard]] Dimension dimension() const override { return center_.size(); }
   [[nodiscard]] Matrix sample(Index num_samples) const override;
@@ -27,8 +37,8 @@ class SphereSet final : public Set {
   [[nodiscard]] Scalar radius() const { return radius_; }
 
  private:
-  Vector center_;
-  Scalar radius_;
+  Vector center_;  ///< Center of the sphere. Determines the dimension of the sphere set
+  Scalar radius_;  ///< Radius of the sphere
 };
 
 std::ostream &operator<<(std::ostream &os, const SphereSet &set);
