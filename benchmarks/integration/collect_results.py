@@ -24,6 +24,7 @@ class Args(argparse.Namespace):
     uri: str
     d_uri: str
     download: bool
+    plot: bool
 
 
 def plot_solution(args: Args, data: pd.DataFrame):
@@ -149,9 +150,10 @@ def main(args: Args):
         print(
             f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, num_oversample {row.num_oversample}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"
         )
-        r = input(f"Run {row.Index} - Print?...")
-        if r.lower() == "y" or r.lower() == "yes":
-            plot_solution(args, row)
+        if args.plot:
+            r = input(f"Run {row.Index} - Print?...")
+            if r.lower() == "y" or r.lower() == "yes":
+                plot_solution(args, row)
         print("---" * 20)
 
 
@@ -165,7 +167,7 @@ if __name__ == "__main__":
         "-u", "--uri", type=str, default="http://localhost:5000", help="URI of the MLflow tracking server."
     )
     parser.add_argument(
-        "-d", "--d_uri", type=str, default="http://localhost:8080", help="URI of the MLflow download server."
+        "-d", "--d_uri", type=str, default="http://localhost:8000", help="URI of the MLflow download server."
     )
     parser.add_argument("-p", "--points", type=int, help="The number of points for the plot.", default=200)
     parser.add_argument("-e", "--elevation", type=float, help="The elevation angle for the plot.", default=30)
@@ -175,4 +177,5 @@ if __name__ == "__main__":
     parser.add_argument("--download", action="store_true", help="Download data from MLflow.")
     parser.add_argument("--plot_bxp", action="store_true", help="Plot the B(xp) surface.")
     parser.add_argument("--plot_bxe", action="store_true", help="Plot the B(xp) est. surface.")
+    parser.add_argument("--plot", action="store_true", help="Plot the solution.")
     main(parser.parse_args())
