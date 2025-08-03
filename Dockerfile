@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM ubuntu:22.04
 
 LABEL authors="Oliver Schon, Ernesto Casablanca"
 LABEL workspace="lucid"
@@ -6,7 +6,7 @@ LABEL workspace="lucid"
 # Initial setup
 RUN apt-get update && \
     export DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y curl && \
+    apt-get install -y --no-install-recommends curl software-properties-common gpg-agent && \
     apt-get autoremove -y && \
     apt-get clean -y
 
@@ -18,8 +18,9 @@ RUN curl -fSsL -o /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/re
     && chmod 0755 /usr/local/bin/bazel
 
 # Install required packages
-ARG APT_PACKAGES="git python3 python3-pip build-essential python3-dev"
+ARG APT_PACKAGES="git python3 python3-pip build-essential python3-dev libibex-dev libnlopt-cxx-dev"
 RUN export DEBIAN_FRONTEND=noninteractive && \
+    add-apt-repository ppa:dreal/dreal -y && \
     apt-get install -y --no-install-recommends ${APT_PACKAGES} && \
     apt-get autoremove -y && \
     apt-get clean -y
@@ -47,7 +48,8 @@ RUN sed 's/python.toolchain(/python.toolchain(\nignore_root_user_error = True,/g
 # RUN bazel build --config=opt //lucid
 
 # Install pylucid bindings and clean up bazel
-RUN pip install . && \
+RUN pip install --upgrade pip && \
+    pip install --ignore-installed --no-cache-dir ".[plot,verification,gui]" && \
     bazel clean --expunge
 
 ENTRYPOINT [ "pylucid" ]
