@@ -230,7 +230,7 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   lp_problem.solve();
 
   // Check if the problem is infeasible
-  if (lp_problem.report().terminationtype < 1 && lp_problem.report().terminationtype > 4) {
+  if (lp_problem.report().terminationtype < 1 || lp_problem.report().terminationtype > 4) {
     LUCID_INFO_FMT("No solution found, optimization status = {}", lp_problem.report().terminationtype);
     cb(false, 0, Vector{}, 0, 0, 0);
     return false;
