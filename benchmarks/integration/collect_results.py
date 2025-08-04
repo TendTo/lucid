@@ -6,9 +6,13 @@ import pandas as pd
 import requests
 from mlflow import MlflowClient
 from mlflow.entities import Run
-from plot_solution import base_load_configuration, plot_solution_matplotlib
+from plot_solution import (
+    base_load_configuration,
+    plot_contour_benchmarks,
+    plot_solution_matplotlib,
+)
 
-FILTER = 'params.c_coefficient = "1.0" and metrics.run.obj_val > 0 and metrics.run.obj_val < 1 and params.constant_lattice_points = "False" and metrics.run.success = 1'
+FILTER = 'params.c_coefficient = "1.0" and metrics.run.obj_val > 0 and metrics.run.obj_val < 1 and params.constant_lattice_points = "False" and metrics.run.success = 1 and T = "5"'
 
 
 @dataclass
@@ -124,6 +128,8 @@ def get_data_from_pickle(args: Args):
     """
     data = pd.read_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
     print(f"Loaded {len(data)} runs from pickle file for experiment '{args.experiment}'.")
+    # Filter out the data where "T" != 5
+    data = data[data["T"] == 5]
     return data
 
 
@@ -159,6 +165,7 @@ def main(args: Args):
             if r.lower() == "y" or r.lower() == "yes":
                 plot_solution(args, row)
         print("---" * 20)
+    plot_contour_benchmarks(x=data["num_frequencies"].values, y=data["num_oversample"].values, z=data["obj_val"].values)
 
 
 if __name__ == "__main__":

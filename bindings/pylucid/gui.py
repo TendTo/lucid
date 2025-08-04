@@ -4,9 +4,9 @@ import logging
 import os
 import secrets
 import threading
+import time
 import webbrowser
 from queue import Queue
-import time
 
 import numpy as np
 from cachelib import FileSystemCache
