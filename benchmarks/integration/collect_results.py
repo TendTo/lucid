@@ -81,6 +81,7 @@ def get_data_from_mlflow(args: Args):
     data = pd.DataFrame(
         {
             # Params
+            "seed": int(run.data.params["seed"]),
             "sigma_f": float(run.data.params["sigma_f"]),
             "sigma_l": np.array(eval(run.data.params["sigma_l"])),
             "lambda_": float(run.data.params["lambda_"]),
@@ -126,28 +127,28 @@ def get_data_from_pickle(args: Args):
     return data
 
 
+LATEX_KEEPS = {
+    "num_frequencies": "Freq.",
+    "num_oversample": "Lattice Size",
+    "eta": r"$\eta$",
+    "gamma": r"$\gamma$",
+    "c": r"$c$",
+    "time": "Runtime",
+    "percentage": "Safety Prob.",
+}
+
+
 def main(args: Args):
     # Create an experiment with a name that is unique and case sensitive.
     data = get_data_from_mlflow(args) if args.download else get_data_from_pickle(args)
     # Remove duplicate runs based on the 'objective value' column
     data = data.drop_duplicates(subset=["obj_val"], keep="first")
     print(f"Found {len(data)} unique runs in experiment '{args.experiment}'.")
-    data.to_latex(
+    data[LATEX_KEEPS.keys()].rename(LATEX_KEEPS, axis=1).to_latex(
         f"benchmarks/integration/{args.experiment.lower()}.tex",
         index=False,
-        columns=[
-            "sigma_l",
-            "sigma_f",
-            "lambda_",
-            "num_frequencies",
-            "num_oversample",
-            "eta",
-            "gamma",
-            "c",
-            "T",
-            "time",
-            "percentage",
-        ],
+        float_format="%.2f",
+        column_format="c" * len(LATEX_KEEPS),
     )
     for row in data.itertuples():
         print(
