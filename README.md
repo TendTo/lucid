@@ -12,7 +12,8 @@ _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical System
 
 ## Quick installation
 
-For more details, see the [installation instructions](docs/Installation.md).
+For more details, see the [installation](docs/Installation.md) or the [Pylucid](docs/Pylucid.md) sections.
+If you encounter any errors, please refer to the [Troubleshooting](docs/FAQ.md#troubleshooting) section or open an [issue](https://github.com/TendTo/lucid/issues).
 
 [//]: # "@tabbed"
 [//]: # "@tab"

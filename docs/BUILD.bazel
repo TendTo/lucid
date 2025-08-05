@@ -89,6 +89,7 @@ doxygen(
     exclude_symbols = ["*::internal::*"],
     expand_as_defined = "TODO",
     expand_only_predef = True,
+    extra_packages = ["pmboxdraw"],
     extract_private = True,
     filter_patterns = ["*.md=bash docs/filters/markdown.sh"],
     full_sidebar = False,
