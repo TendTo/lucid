@@ -165,7 +165,7 @@ def main(args: Args):
             if r.lower() == "y" or r.lower() == "yes":
                 plot_solution(args, row)
         print("---" * 20)
-    plot_contour_benchmarks(x=data["num_frequencies"].values, y=data["num_oversample"].values, z=data["obj_val"].values)
+    plot_contour_benchmarks(args.experiment, x=data["num_frequencies"].values, y=data["num_oversample"].values, z=data["obj_val"].values)
 
 
 if __name__ == "__main__":

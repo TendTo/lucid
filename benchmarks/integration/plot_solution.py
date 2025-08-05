@@ -1,9 +1,15 @@
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pylucid import *
+
+if TYPE_CHECKING:
+    from typing import Callable
+
+    from pylucid._pylucid import NMatrix, NVector
 
 try:
     from pylucid.dreal import verify_barrier_certificate
@@ -16,6 +22,9 @@ except ImportError:
 import matplotlib.pyplot as plt
 
 from pylucid import random
+
+CM = 1 / 2.54  # centimeters in inches
+plt.rcParams["font.family"] = ["Times New Roman"]
 
 
 def plot_solution_matplotlib(
@@ -309,6 +318,23 @@ def load_configuration(file_path: "str | Path") -> Configuration:
     )
     config.estimator.consolidate(config.x_samples, config.feature_map(config.xp_samples))
     return config
+
+
+def plot_contour_benchmarks(name: str, x: "np.ndarray", y: "np.ndarray", z: "np.ndarray"):
+    fig = plt.figure(figsize=(11 * CM, 11 * CM))
+    ax = fig.add_subplot(111)
+
+    ax.tricontour(x, y, 1 - z, levels=len(np.unique(z)) // 2, linewidths=0.5, colors="k")
+    cntr2 = ax.tricontourf(x, y, 1 - z, levels=len(np.unique(z)) // 2, cmap="RdBu")
+
+    fig.colorbar(cntr2, ax=ax)
+    ax.plot(x, y, "ko", ms=3)
+    ax.set_xlabel("Number of frequencies", fontsize=11)
+    ax.set_ylabel("Lattice size per dimension", fontsize=11)
+    ax.set_xticks(np.linspace(min(x), max(x), max(x) - min(x) + 1, endpoint=True))
+    fig.tight_layout()
+    fig.savefig(f"benchmarks/integration/contour-{name.lower()}.pgf", bbox_inches="tight", dpi=300)
+    plt.show()
 
 
 def plot_solution(experiment_name: "str", args: "argparse.Namespace"):
