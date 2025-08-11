@@ -399,6 +399,7 @@ def plot_solution_2d(
         Z = Z.reshape(X.shape)
 
         fig.add_surface(x=X, y=Y, z=Z, colorscale="Viridis", opacity=0.7, name="B(x)", showscale=False, showlegend=True)
+        fig.update_layout(scene=dict(zaxis=dict(range=[0, np.max(Z) + 0.1])))
 
         # Plot eta and gamma as planes
         if eta is not None:
@@ -423,7 +424,6 @@ def plot_solution_2d(
                 showscale=False,
                 showlegend=True,
             )
-            fig.update_layout(scene=dict(zaxis=dict(range=[0, gamma + 1])))
 
         # Plot f(x) and estimator if provided
         if f is not None:
