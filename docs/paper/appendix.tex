@@ -1,5 +1,6 @@
 % !TEX root =  main.tex
 \appendix
+\onecolumn
 
 % \section{Additional Theoretical Details}
 % \paragraph{RKHS basics.}
@@ -35,206 +36,295 @@
 % \end{definition}
 
 \section{Linear Program}
-The finitely-constrained LP discussed in Section~\ref{sec:ddbarriers} is presented. For this, the lattices $X_{{N}}\subset\X$, $\smash{\{ x_0^{1}, \ldots, x_0^{{N}_0} \}} \subset \X_0$, and $\smash{\{ x_u^{1}, \ldots, x_u^{{N}_u} \}} \subset \X_u$ of cardinality ${N}_0\in\N$ and ${N}_u\in\N$, respectively, are formed.
+The finitely-constrained LP discussed in Section~\ref{sec:ddbarriers} is presented. For this, the lattices $\smash{\{ x^{1}, \ldots, x^{{N}} \}}\subset\X$, $\smash{\{ x_0^{1}, \ldots, x_0^{{N}_0} \}} \subset \X_0$, and $\smash{\{ x_U^{1}, \ldots, x_U^{N_U} \}} \subset \X_U$ of cardinality $N\in\N$, ${N}_0\in\N$, and $N_U\in\N$, respectively, are formed.
 %
 For given values of $\overline{\B}$, $\gamma$, and robustness radius $\mathcal{R}\geq0$, the following LP is obtained:
 \begin{equation*}
       \begin{alignedat}{3}
-                  & \min_{\stackrel{b, c, \eta}{\Bmin_{{N}}^{\X_0}, \Bmax_{{N}}^{\X_u},\Bmax_{{N}}^\X,\Bmin_\Delta}}\hspace{-1.5em} &                                          & \eta + cT,                                    &                   &
+            & \min_{\stackrel{b, c, \eta}{\Bmin_{{N}}^{\X_0}, \Bmax_{{N}}^{\X_U},\Bmax_{{N}}^\X,\Bmin_\Delta}} &                                          & \eta + cT,                                    &                   &
             %\label{eq:blackbox:linear_prog_objective}
             \\
-                  & \text{subject to}
-                  &                                                                                                                 & \phi_M(x_0^{i})\T b\leq\hat{\eta}, \quad &                                               & i=1,\ldots,{N}_0,
+            & \text{subject to}
+            &                                                                                                  & \phi_M(x_0^{i})\T b\leq\hat{\eta}, \quad &                                               & i=1,\ldots,{N}_0,
             %\label{eq:blackbox:linear_prog_initial}
             \\
-                  &                                                                                                                 &                                          & \phi_M(x_u^{i})\T b\geq\hat{\gamma},
-            \quad &                                                                                                                 & i=1,\ldots,{N}_u,
+            &                                                                                                  &                                          & \phi_M(x_U^{i})\T b\geq\hat{\gamma},
+            \quad &                                                                                                  & i=1,\ldots,N_U,
             %\label{eq:blackbox:linear_prog_unsafe}
             \\
-                  &                                                                                                                 &                                          & \phi_M(x^{i})\T(Hb - b) \leq \hat{\Delta},
-            \quad &                                                                                                                 & i=1,\ldots,{N},
+            &                                                                                                  &                                          & \phi_M(x^{i})\T(Hb - b) \leq \hat{\Delta},
+            \quad &                                                                                                  & i=1,\ldots,{N},
             %\label{eq:blackbox:linear_prog_kushner}
             \\
-                  &                                                                                                                 &                                          & \phi_M(x^{i})\T b\geq \hat{\xi},
-            \quad &                                                                                                                 & i=1,\ldots,{N},
+            &                                                                                                  &                                          & \phi_M(x^{i})\T b\geq \hat{\xi},
+            \quad &                                                                                                  & i=1,\ldots,{N},
             %\label{eq:blackbox:linear_prog_positive}
             \\
-                  &                                                                                                                 &                                          & \Bmin_{{N}}^{\X_0}\leq\phi_M(x_0^{i})\T b,
-            \quad &                                                                                                                 & i=1,\ldots,{N}_0,                                                                                              \\
-                  &                                                                                                                 &                                          & \Bmax_{{N}}^{\X_u}\geq\phi_M(x_u^{i})\T b,
-            \quad &                                                                                                                 & i=1,\ldots,{N}_u,                                                                                              \\
-                  &                                                                                                                 &                                          & \Bmax_{{N}}^\X\geq\phi_M(x^{i})\T b,
-            \quad &                                                                                                                 & i=1,\ldots,{N},                                                                                                \\
-                  &                                                                                                                 &                                          & \Bmin_\Delta\leq\phi_M(x^{i})\T (Hb - b),
-            \quad &                                                                                                                 & i=1,\ldots,{N},                                                                                                \\
-                  &                                                                                                                 &                                          & c\geq 0,\,\gamma>\eta\geq 0,\, b\in\R^{2M+1}, &                   &
+            &                                                                                                  &                                          & \Bmin_{{N}}^{\X_0}\leq\phi_M(x_0^{i})\T b,
+            \quad &                                                                                                  & i=1,\ldots,{N}_0,                                                                                              \\
+            &                                                                                                  &                                          & \Bmax_{{N}}^{\X_U}\geq\phi_M(x_U^{i})\T b,
+            \quad &                                                                                                  & i=1,\ldots,N_U,                                                                                              \\
+            &                                                                                                  &                                          & \Bmax_{{N}}^\X\geq\phi_M(x^{i})\T b,
+            \quad &                                                                                                  & i=1,\ldots,{N},                                                                                                \\
+            &                                                                                                  &                                          & \Bmin_\Delta\leq\phi_M(x^{i})\T (Hb - b),
+            \quad &                                                                                                  & i=1,\ldots,{N},                                                                                                \\
+            &                                                                                                  &                                          & c\geq 0,\,\gamma>\eta\geq 0,\, b\in\R^{2M+1}, &                   &
             \label{eq:blackbox:linear_prog}%
       \end{alignedat}
 \end{equation*}
 with $\overline{\kappa}\geq\sigma_f$, $\overline{\B}\geq\norm{b}_2$, and constraint-tightening coefficients
 \begin{align*}
       \hat{\eta}   & := \frac{2}{C_{{N}}+1}\eta + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_{{N}}^{\X_0},
-      \\                                                                                                                                    & \hat{\gamma} := \frac{2}{C_{{N}}+1}\gamma + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^{\X_u}, \\
+                   &                                                                                                                             & \hat{\gamma} := \frac{2}{C_{{N}}+1}\gamma + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^{\X_U}, \\
       \hat{\Delta} & := \frac{2}{C_{{N}}+1}\left(c - \mathcal{R}\overline{\B}\overline{\kappa}\right) + \frac{C_{{N}}-1}{C_{{N}}+1}\Bmin_\Delta,
-      \\                                                                                                                                     & \hat{\xi} := \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^\X.
+                   &                                                                                                                             & \hat{\xi} := \frac{C_{{N}}-1}{C_{{N}}+1}\Bmax_{{N}}^\X.
 \end{align*}
 
 
 % \section{Proofs}
 % We have collected a series of proofs of the claims we made in the main text.
 
-\section{Tool technical details}
+\section{Tool Technical Details}
 
 \subsection{Installation}
-\OS{Ernesto, can we organise this in a better order?}
 The recommended way to install \pylucid is via the \texttt{pip} package manager, using one of the pre-built wheels,
 hence avoiding the time-consuming need to compile the code from source.
-Provided \texttt{Python>=3.8} is already present, installing \pylucid requires only the command
-\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
-pip install "pylucid[gui,plot]" --index-url \
-  https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
+Provided \texttt{Python>=3.8} is already present on the system, \pylucid is installed using a single command:
+%
+\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em,backgroundcolor=\color{ipython_bg}]
+pip install "pylucid[gui,plot]" --index-url https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple
 \end{lstlisting}
-If the desired platform's wheel is not available, \pylucid can be installed from source running the following commands:
-\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em]
+%
+Note that installing \pylucid this way requires \gurobi to be installed beforehand, which can be obtained for free from the official website.
+A valid license is not required unless the \gurobi solver is used.
+If no wheel is available for the desired platform, \pylucid can be installed from source by running the following commands:
+%
+\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em,backgroundcolor=\color{ipython_bg}]
 git clone https://gitlab.com/lucidtoolsource/lucid.git
 cd lucid
-pip install .[gui,plot]
+pip install ".[gui,plot]"
 \end{lstlisting}
+%
 Note that this requires \texttt{Python>=3.8} and \texttt{Bazel>=8.0} to be installed on the system.
 For more details on the installation process, please refer to the online documentation at \url{https://lucidtoolsource.gitlab.io/lucid/md_docs_2Pylucid.html}.
 
-\subsection{Platform support}
-Some dependencies \pylucid includes do not support all platforms, which may preclude the ability of using certain features.
-Formal verification of the barrier requires the \dreal SMT solver, which can be installed with \lstinline|pip install dreal|, but only supports Linux and non-ARM macOS.
-The \highs \gls{lp} solver cannot be used on Windows at the moment.
-The \gurobi solver must be installed separately beforehand and requires a licence.
+\subsection{Containerized Installation}
 
-\subsection{Configuration formats}
-\pylucid provides extensive support for configuration, which can be specified as a \texttt{.yaml} file (recommended), \texttt{.json} file,
-with a \texttt{.py} file returning a \texttt{Configuration} object, or directly via command line arguments.
-Moreover, sampled transitions can be embedded in the configuration file, or be provided separately with \texttt{.csv}, \texttt{.mat}, \texttt{.npy}, or \texttt{.npz} file.
-For example, following configurations will be equivalent:
-\lstinputlisting[language=yaml,caption={Yaml configuration.},captionpos=b,label={lst:configuration.yaml}]{code/configuration.yaml}
-\lstinputlisting[language=json,caption={Json configuration.},captionpos=b,label={lst:configuration.json}]{code/configuration.json}
-\lstinputlisting[language=iPython,style={nonumbers},caption={Python configuration.},captionpos=b,label={lst:configuration.py}]{code/configuration.py}
-\lstinputlisting[language=bash,style={nonumbers},caption={Command line configuration. Assumes that the transition samples have been stored as \texttt{.csv} files.},captionpos=b,label={lst:configuration.sh}]{code/configuration.sh}
+We also provide a pre-built Docker image that can be used to run \pylucid in a containerized environment, making Docker the only dependency.
+To run the image with the desired configuration, the following command can be used:
+\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em,backgroundcolor=\color{ipython_bg}]
+docker run --name lucid -it --rm \
+  -v/path/to/conf.py:/config \
+  registry.gitlab.com/lucidtoolsource/lucid:latest /config/conf.py
+\end{lstlisting}
+Alternatively, the container can also run the GUI by changing the command to
+\begin{lstlisting}[language=bash,numbers=none,xleftmargin=0em,backgroundcolor=\color{ipython_bg}]
+docker run --name lucid -it --rm \
+  -p 3661:3661 --entrypoint pylucid-gui \
+  registry.gitlab.com/lucidtoolsource/lucid:latest
+\end{lstlisting}
+The GUI will be accessible at \url{http://localhost:3661}.
+In both cases, to use the \gurobi solver, a \gurobi Web License Service (WLS) license\footnote{See \url{https://www.gurobi.com/features/web-license-service/}} will have to be mounted in the container.
+
+\subsection{Platform Support}
+Some of \pylucid's dependencies are not supported on all platforms, which may preclude the ability of using certain features.
+For instance, optional formal verification of the barrier requires the \dreal SMT solver, which can be installed only on Linux and non-ARM macOS.
+The \highs \gls{lp} solver cannot be used on Windows at the moment.
+The \gurobi solver must be installed separately beforehand and requires a licence, which is free for academic use.
+Using the Docker container sidesteps most of these issues, with the only requirement being a CPU with x86-64 architecture.
+
+\subsection{Configuration Formats}
+\pylucid provides extensive support for various ways of specifying configurations, which can be defined as a \texttt{.yaml} file (recommended), \texttt{.json} file,
+generated via a \texttt{.py} file returning a \texttt{Configuration} object, or provided directly via command line arguments.
+Moreover, system transition data can be either embedded directly in the configuration file or provided separately in the form of \texttt{.csv}, \texttt{.mat}, \texttt{.npy}, or \texttt{.npz} files.
+For example, the following configurations are equivalent:
+
+\begin{minipage}{.45\columnwidth}
+      \lstinputlisting[language=yaml,style={bgnonumbers},caption={YAML configuration.},captionpos=b,label={lst:configuration.yaml},backgroundcolor=\color{ipython_bg}]{code/configuration.yaml}
+\end{minipage}\hfill
+\begin{minipage}{.45\columnwidth}
+      \lstinputlisting[language=json,style={bgnonumbers},caption={JSON configuration.},captionpos=b,label={lst:configuration.json}]{code/configuration.json}
+\end{minipage}
+\begin{minipage}{.45\columnwidth}
+      \lstinputlisting[language=iPython,style={bgnonumbers},caption={Python configuration.},captionpos=b,label={lst:configuration.py}]{code/configuration.py}
+\end{minipage}\hfill
+\begin{minipage}{.45\columnwidth}
+      \lstinputlisting[language=bash,style={bgnonumbers},caption={Command line configuration assuming that the transition samples have been stored as \texttt{.csv} files.},captionpos=b,label={lst:configuration.sh}]{code/configuration.sh}
+\end{minipage}
+
 
 \subsection{Graphical User Interface}
 
-\pylucid provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive way.
-Running \lstinline|pylucid-gui| will open a browser tab containing the interface shown in Figures~\ref{fig:gui-left}--\ref{fig:gui-right}, while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
-Following the same numeration as the arrows in the figures, we provide a list of the main components of the \gls{gui}:
+\pylucid provides a \gls{gui} to guide the user in the creation of the scenario configuration and presenting the results in an intuitive format.
+Running \lstinline|pylucid-gui| will open a browser tab with the interface shown in
+%Figures~\ref{fig:gui-left}--\ref{fig:gui-right}, 
+Figure~\ref{fig:gui-full},
+while a local server will listen for requests coming from the \gls{gui}, computing and returning the results.
+Following the same enumeration as the arrows in the figure, we provide a list of the main components of the \gls{gui}:
+
+\begin{figure}
+      \centering
+      \shadowimage[width=16.5cm]{figures/frontend-highlight.png}
+      \caption{
+            \pylucid's \gls{gui} as presented in the browser.
+            The left half of the page allows the user to provide the transition samples and the safety specification to verify.
+            The right half of the page shows the results produced by \lucid, including a plot of the computed barrier function and detailed logs.}
+      \label{fig:gui-full}
+\end{figure}
+
 \begin{enumerate}
-      \item Only a subsection of the configuration options is shown at any given moment. More options can be accessed by clicking on the \textit{Advanced} button.
-      \item It is easy to import or export the configuration using the Json format. The experiments discussed in this paper are also available in the \textit{Import} menu.
-      \item Clicking the \textit{Preview} button produces a visualization of the system function described by the transition samples.
-      \item The dimension of the system can be specified in the \textit{Model} tab.
-      \item You can either provide the transition samples yourself in the \textit{Data} tab, or specify a transition function in the \textit{Model} tab.
-      \item The $x^1,\ldots,x^N$ samples, stored in \texttt{csv} format.
-      \item The $x^1_+,\ldots,x^N_+$ samples, stored in \texttt{csv} format.
-      \item The bounding box of the state space.
-      \item The initial set $\X_0$.
-      \item The unsafe set $\X_U$.
-      \item Clicking the \textit{Submit} button will start the computation of the barrier function with the current configuration.
-      \item Plot of the transition function or the computed barrier function.
-      \item Numerical results of the computation.
-      \item Logs of the computation.
+      \item It is easy to import or export configurations in JSON format.
+            In the \textit{Import} menu, the user can paste the configuration or load it from a file.
+            The experiments discussed in this paper are also available and can be selected from a dropdown list.
+            The \textit{Export} menu can be used to copy the current configuration to the clipboard or download it locally.
+      \item The dimension $n$ of the system is specified. Here, $n=1$.
+      \item  The user can provide transition samples directly by copy--pasting them into the text fields in the Data tab.
+            Alternatively, if a model describing the system’s expected behavior is available, the user can specify it in the Model tab.
+            Lucid will then automatically generate a set of transitions from the model to be used in the computation of the barrier function.
+            Note that this model-based generation is mainly intended for reference and convenience.
+      \item The $x^1,\ldots,x^N$ samples are specified in CSV format. They can be edited manually or loaded from a file.
+      \item The $x^1_+,\ldots,x^N_+$ samples are specified analogously.
+      \item The state space $\X$ is defined by a \texttt{RectSet}. Here, $\X=[-1,1]$.
+      \item The initial set $\X_0$ is defined from one of the available type options. A \texttt{MultiSet} can be defined via the \textit{+} button. Here, $\X_0=[-0.5,0.5]$.
+      \item The unsafe set $\X_U$ is defined analogously. Here, $\X_U=[-1, -0.9] \cup [0.9, 1]$.
+      \item The \textit{Preview} button visualizes the expected stochastic behavior of the black-box system, predicted from the transition samples or alternatively as specified in the \textit{Model} tab,
+            alongside the bounding boxes of the state space $\X$, the initial set $\X_0$, and the unsafe set $\X_U$.
+      \item The \textit{Submit} button starts the computation of the barrier function with the current configuration.
+      \item The plot of the transition function or the computed barrier function.
+      \item The numerical results of the computation, including the lower bound on the safety probability, values of $\eta$ and $c$, and the computation time.
+            If a model of the expected system behavior is provided, it is also possible to formally verify the computed barrier function via \dreal.
+      \item The logs provide information on the progress of the computation, updated in real-time.
+            The verbosity of the logs can be adjusted in the \textit{Advanced} options.
+      \item The main \gls{gui} displays the most important configuration options.
+            More advanced options can be accessed via the \textit{Advanced} button.
+            This includes the kernel \hp, time horizon, number of frequencies and lattice size, \gls{lp} solver selection, etc.
 \end{enumerate}
-\begin{figure}
-      \centering
-      \includegraphics[trim={0 0 17cm 0},clip,width=.7\linewidth]{figures/frontend-left.png}
-      \caption{The left half of the page allows the user to provide the transition samples and the safety specification to verify.
-      }
-      \label{fig:gui-left}
-\end{figure}
-\begin{figure}
-      \centering
-      \includegraphics[trim={13.5cm 12.4cm 0 0},clip,width=.7\linewidth]{figures/frontend-right.png}
-      \caption{The right half of the page shows the results produced by \lucid, including a plot of the computed barrier function and detailed logs.}
-      \label{fig:gui-right}
-\end{figure}
+
+
 
 \section{Benchmarks}
 \label{app:benchmarks}
-Complete list of results for the benchmarks presented in Section~\ref{sec:experiments}.
-The legend is as follows:
-\textit{Output} indicates the result produced by the solver (i.e., optimal, unbounded, infeasible or unspecified),
-\textit{Prec} indicates the number of bits used in the last floating-point number representation,
-\textit{Ref} indicates the number of refinements,
-and \textit{time} is the time in seconds.
-
-All benchmarks were run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, and 64 GB of RAM, and all runs had the random seed set to $42$ to ensure reproducibility.
-The scripts responsible for running the benchmarks and \hp tuning are available in the \texttt{benchmarks/integration} folder of the repository.
-Note that a version of \texttt{Python>=3.9} is required to run the scripts, as some dependencies used to track the benchmarks' metrics across multiple runs are not compatible with \texttt{Python 3.8}.
-The \hp tuning of the \estimator was performed with the \texttt{LbfgsTuner}, bounding the value of $\sigma_l$ between $[10^{-5}, 10^5]$, and refined with the \texttt{GridSearchTuner}.
-The implementation can be found in the \texttt{benchmarks/integration/hp\_tuning.py} script.
-Note that we used the \gurobi optimiser.
+We provide a more detailed description of the benchmarks presented in Section~\ref{sec:experiments}, including the corresponding configuration files and an extended list of experiments.
+All benchmarks were run on a Windows 10 machine with an AMD Ryzen 9 5950X 16-Core Processor @ 3.40 GHz, NVIDIA GeForce RTX 3090 GPU, and 64 GB of RAM.
+To ensure reproducibility, all runs had the random seed set to $42$.
+We ascertained that the variance of the safety probability is low across different seeds, and can be reduced further by increasing the number of samples used to fit the \estimator.
+The scripts for running the benchmarks and tuning the \hp are available in the \texttt{benchmarks/integration/} folder of the repository.
+Note that \texttt{Python>=3.9} is required to run the scripts, as some dependencies used to track the benchmarks' metrics across multiple runs are not compatible with Python 3.8.
+The hyperparameter tuning of the \estimator was performed with the \texttt{LbfgsTuner}, bounding the value of $\sigma_l$ between $[10^{-5}, 10^5]$, and refined with the \texttt{GridSearchTuner}.
+We use $N=1000$ sample transitions and the \gurobi solver for all experiments;
 Other optimizers, such as \alglib or \highs, can be used instead, but may yield different results, especially in terms of performance.
 
 \subsection{Linear}
 
-We consider the following system:
+We consider a black-box system with the following dynamics:
 \begin{equation*}
-      \begin{bmatrix}
-            {x}_{t+1}
-      \end{bmatrix}
-      = \begin{bmatrix}
-            0.5 {x}_{t}
-      \end{bmatrix} + w_t,
+      {x}_{t+1} = 0.5 {x}_{t} + w_t,
 \end{equation*}
 where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_1)$.
-Given
-\begin{align*}
-       & \X = [-1, 1]                     \\
-       & \X_0 = [-0.5, 0.5]               \\
-       & \X_U = [-1, -0.9] \cup [0.9, 1],
-\end{align*}
+The data sampled from this black-box system is used as input for \lucid.
+Given $\X = [-1, 1]$, $\X_0 = [-0.5, 0.5]$, and $\X_U = [-1, -0.9] \cup [0.9, 1]$,
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=15$ time steps.
-The complete configuration for the linear example benchmark is shown in Listing~\ref{lst:linear}.
-\lstinputlisting[language=yaml,caption={Configuration for linear example},captionpos=b,label={lst:linear}]{code/linear.yaml}
+We set the kernel \hp to $\sigma_f=15$, $\sigma_l=1.2$, and $\lambda=0.00001$.
+The complete configuration for the linear example benchmark is shown in Listing~\ref{lst:linear}, with a satisfying barrier plotted in Figure~\ref{fig:example}.
+\lstinputlisting[language=yaml,style={bgnonumbers},caption={Configuration for the linear example.},captionpos=b,label={lst:linear},backgroundcolor=\color{ipython_bg}]{code/linear.yaml}
 
 \subsection{Barrier 2}
 
-We consider the following system:
+We consider a black-box system with the following nonlinear dynamics:
 \begin{equation*}
       \begin{bmatrix}
             {x}_{1, t+1} \\
             {x}_{2, t+1}
       \end{bmatrix}
       = \begin{bmatrix}
+            {x}_{1, t} \\
+            {x}_{2, t}
+      \end{bmatrix} + 0.1 \begin{bmatrix}
             {x}_{2, t} - 1 + e^{-x_{1, t}} \\
             -\sin^2(x_{1, t})
       \end{bmatrix} + w_t,
 \end{equation*}
 where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
+The data sampled from this black-box system is used as input for \lucid.
 Given
 \begin{align*}
-       & \X = [ -2, 2 ] \times [ -2 , 2 ]                                  \\
-       & \X_0 = \{ [x_1, x_2] : (x_1 + 0.5)^2 + (x_2 - 0.5)^2 \leq 0.4 \}  \\
+       & \X = [ -2, 2 ] \times [ -2 , 2 ]   ,                              \\
+       & \X_0 = \{ [x_1, x_2] : (x_1 + 0.5)^2 + (x_2 - 0.5)^2 \leq 0.4 \}, \\
        & \X_U = \{ [x_1, x_2] : (x_1 - 0.7)^2 + (x_2 + 0.7)^2 \leq 0.3 \},
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
-The kernel \hp set to be $\sigma_f=1$ and $\sigma_l=[1.0, 5.39334]$.
-Using a spectral basis of $M=15^2-1$ frequencies and a lattice density of $\hat{N} = 350^2$,
-we were able to generate a \gls{cbc} with $\eta \approx 5.032$, $\gamma = 100$, and $c \approx 3.926$ in $14.7$ minutes, achieving a lower bound on the safety probability of $P_{\text{safe}}(\S^\pi) \geq 75.34\%$.
-The result is shown in Figure~\ref{fig:CSBarr2}.
-The complete configuration for the \barrII benchmark is shown in Listing~\ref{lst:barrier2}.
-\lstinputlisting[language=yaml,caption={Configuration for \barrII},captionpos=b,label={lst:barrier2}]{code/barrier2.yaml}
+The system dynamics and safety specification are visualized in Figure~\ref{fig:model-barrier2}.
+The kernel \hp are set to $\sigma_f=1$, $\sigma_l=[2.50, 3.78]$, and $\lambda=\smash{10^{-6}}$.
+The complete configuration for the \barrII benchmark is shown in Listing~\ref{lst:barrier2}, with a satisfying barrier is plotted in Figure~\ref{fig:CSBarr2}.
+A list of experiments using different combinations of frequencies and lattice sizes, showing their impact on performance and final result, is presented in Table~\ref{tab:results-barrier2}.
+\lstinputlisting[language=yaml,style={bgnonumbers},caption={Configuration for \barrII.},captionpos=b,label={lst:barrier2}]{code/barrier2.yaml}
+
+\begin{figure}[ht]
+      \centering
+      \input{figures/model-barrier2-noise.pgf}
+      \caption{Visualization of the stochastic system behavior (based on 10 random transitions from an $100\times 100$ grid of initial states) and safety specification for the \barrII benchmark.}
+      \label{fig:model-barrier2}
+\end{figure}
+
+\begin{table}[tb]
+      \centering
+      \begin{tabular}{ccccccc}
+            \toprule
+            \textbf{Freq.} & \textbf{Lattice} & $\eta$ & $\gamma$ & $c$  & \textbf{Runtime} & \textbf{Safety} \\
+                           & \textbf{Size}    &        &          &      & [mm:ss]          & \textbf{Prob.}  \\ % Units
+            \midrule
+            17             & $700^2$          & 0.11   & 2        & 0.12 & 85:50            & 63.46\%         \\
+            16             & $700^2$          & 0.11   & 2        & 0.12 & 57:15            & 63.24\%         \\
+            18             & $600^2$          & 0.13   & 2        & 0.12 & 59:23            & 62.17\%         \\
+            17             & $600^2$          & 0.13   & 2        & 0.12 & 43:53            & 61.93\%         \\
+            16             & $600^2$          & 0.12   & 2        & 0.12 & 33:25            & 61.78\%         \\
+            10             & $800^2$          & 0.11   & 2        & 0.13 & 15:27            & 60.57\%         \\
+            18             & $500^2$          & 0.14   & 2        & 0.13 & 33:56            & 60.12\%         \\
+            17             & $500^2$          & 0.14   & 2        & 0.13 & 24:10            & 59.95\%         \\
+            16             & $500^2$          & 0.14   & 2        & 0.13 & 20:44            & 59.90\%         \\
+            10             & $700^2$          & 0.11   & 2        & 0.13 & 10:47            & 59.80\%         \\
+            9              & $800^2$          & 0.11   & 2        & 0.13 & 10:39            & 59.59\%         \\
+            9              & $700^2$          & 0.12   & 2        & 0.13 & 7:14             & 58.89\%         \\
+            10             & $600^2$          & 0.12   & 2        & 0.13 & 7:20             & 58.80\%         \\
+            9              & $600^2$          & 0.12   & 2        & 0.14 & 5:22             & 57.98\%         \\
+            10             & $500^2$          & 0.13   & 2        & 0.14 & 5:05             & 57.53\%         \\
+            18             & $400^2$          & 0.17   & 2        & 0.13 & 19:09            & 57.16\%         \\
+            15             & $400^2$          & 0.15   & 2        & 0.14 & 10:01            & 56.87\%         \\
+            9              & $500^2$          & 0.13   & 2        & 0.14 & 3:40             & 56.82\%         \\
+            10             & $400^2$          & 0.15   & 2        & 0.14 & 3:22             & 55.78\%         \\
+            9              & $400^2$          & 0.15   & 2        & 0.14 & 2:20             & 55.25\%         \\
+            11             & $300^2$          & 0.18   & 2        & 0.15 & 2:25             & 53.25\%         \\
+            13             & $300^2$          & 0.18   & 2        & 0.15 & 3:53             & 53.16\%         \\
+            10             & $300^2$          & 0.17   & 2        & 0.15 & 1:54             & 53.13\%         \\
+            9              & $300^2$          & 0.17   & 2        & 0.15 & 1:25             & 52.86\%         \\
+            18             & $300^2$          & 0.20   & 2        & 0.14 & 12:04            & 52.58\%         \\
+            20             & $300^2$          & 0.22   & 2        & 0.14 & 16:48            & 51.93\%         \\
+            \bottomrule
+      \end{tabular}
+      \caption{
+            \barrII results, sorted by the last column. For each combination of number of frequencies, $M$, and lattice size (i.e., number of lattice points per dimension), we report the values of $c$, $\gamma$, $\lambda$, the runtime, and the achieved lower bound on the safety probability.}
+      \label{tab:results-barrier2}
+\end{table}
+
 
 \subsection{Barrier 3}
 
-We consider the following system:
+We consider a black-box system that has the following dynamics:
 \begin{equation*}
       \begin{bmatrix}
             {x}_{1, t+1} \\
             {x}_{2, t+1}
       \end{bmatrix}
       = \begin{bmatrix}
+            {x}_{1, t} \\
+            {x}_{2, t}
+      \end{bmatrix} + 0.1 \begin{bmatrix}
             {x}_{2, t} \\
             \frac{1}{3} {x}^3_{1, t} - {x}_{1,t} - {x}_{2,t}
       \end{bmatrix} + w_t,
 \end{equation*}
 where $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
+The data sampled from this black-box system is used as input for \lucid.
 Given
 \begin{align*}
        & \X = [ -3, 2.5 ] \times [ -2 , 1 ]                                                 \\
@@ -243,100 +333,117 @@ Given
        & \X_U = [ 0.4 , 0.6 ] \times [ 0.2 , 0.6 ] \cup [ 0.6 , 0.7 ] \times [ 0.2 , 0.4 ],
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
-The kernel \hp were set to $\sigma_f=1$ and $\sigma_l=[1.0, 1.0, 1.0]$.
-Hence, we need a rather high number of frequencies to achieve the required expressivity in the barrier.
-Using a spectral basis of $M=15^3-1$ frequencies and a lattice density of $\hat{N} = 30^2$,
-we were able to generate a \gls{cbc} with $\eta \approx 0.1$, $\gamma = 100$, and $c \approx 0.1$ in $XX:XX$ minutes, achieving a lower bound on the safety probability of $P_{\text{safe}}(\S^\pi) \geq XX\%$.
-The result is shown in Figure~\ref{fig:CSBarr3}.
-The complete configuration for the \barrIII benchmark is shown in Listing~\ref{lst:barrier3}.
-\lstinputlisting[language=yaml,caption={Configuration for \barrIII},captionpos=b,label={lst:barrier3}]{code/barrier3.yaml}
+The system dynamics and safety specification can be visualized in Figure~\ref{fig:model-barrier3}.
+The kernel \hp were set to $\sigma_f=1$, $\sigma_l=[2.99, 4.63]$, and $\lambda=10^{-8}$.
+The complete configuration for the \barrIII benchmark is shown in Listing~\ref{lst:barrier3}, while the barrier function is plotted in Figure~\ref{fig:CSBarr3}.
+A list of experiments using different combinations of frequencies and lattice sizes, showing their impact on performance and final result, is presented in Table~\ref{tab:results-barrier3}.
+\lstinputlisting[language=yaml,style={bgnonumbers},caption={Configuration for \barrIII.},captionpos=b,label={lst:barrier3}]{code/barrier3.yaml}
+
+\begin{figure}[ht]
+      \centering
+      \input{figures/model-barrier3-noise.pgf}
+      \caption{Visualization of the stochastic system behavior (based on 10 random transitions from an $100\times 100$ grid of initial states) and safety specification for the \barrIII benchmark.}
+      \label{fig:model-barrier3}
+\end{figure}
+
+\begin{table}[tb]
+      \centering
+      \begin{tabular}{cccccccc}
+            \toprule
+            \textbf{Freq.} & \textbf{Lattice} & $\eta$ & $\gamma$ & $c$  & \textbf{Runtime} & \textbf{Runtime Mac} & \textbf{Safety} \\
+                           & \textbf{Size}    &        &          &      & [mm:ss]          & [mm:ss]              & \textbf{Prob.}  \\ % Units
+            \midrule
+            15             & $800^2$          & 0.55   & 2        & 0.11 & 66:56            &                      & 42.25\%         \\
+            16             & $700^2$          & 0.53   & 2        & 0.12 & 52:51            &                      & 41.98\%         \\
+            14             & $800^2$          & 0.58   & 2        & 0.11 & 45:44            &                      & 41.66\%         \\
+            13             & $800^2$          & 0.57   & 2        & 0.12 & 35:51            &                      & 40.72\%         \\
+            14             & $700^2$          & 0.59   & 2        & 0.11 & 32:42            &                      & 40.57\%         \\
+            13             & $700^2$          & 0.60   & 2        & 0.12 & 25:40            &                      & 39.69\%         \\
+            15             & $600^2$          & 0.59   & 2        & 0.12 & 25:12            &                      & 39.57\%         \\
+            12             & $800^2$          & 0.61   & 2        & 0.11 & 27:38            &                      & 39.40\%         \\
+            14             & $600^2$          & 0.60   & 2        & 0.12 & 20:29            &                      & 39.24\%         \\
+            13             & $600^2$          & 0.61   & 2        & 0.12 & 16:39            &                      & 38.50\%         \\
+            12             & $700^2$          & 0.63   & 2        & 0.12 & 19:10            &                      & 38.43\%         \\
+            12             & $600^2$          & 0.64   & 2        & 0.12 & 11:53            &                      & 37.38\%         \\
+            15             & $450^2$          & 0.63   & 2        & 0.12 & 12:07            &                      & 36.15\%         \\
+            14             & $450^2$          & 0.63   & 2        & 0.12 & 9:58             &                      & 36.07\%         \\
+            14             & $400^2$          & 0.65   & 2        & 0.13 & 7:50             &                      & 34.77\%         \\
+            14             & $370^2$          & 0.66   & 2        & 0.13 & 6:49             & 149:48               & 33.58\%         \\
+            16             & $370^2$          & 0.64   & 2        & 0.13 & 11:35            &                      & 33.55\%         \\
+            12             & $370^2$          & 0.71   & 2        & 0.12 & 4:38             &                      & 32.57\%         \\
+            10             & $600^2$          & 0.73   & 2        & 0.12 & 46:40            &                      & 32.46\%         \\
+            9              & $800^2$          & 0.74   & 2        & 0.12 & 53:07            &                      & 31.45\%         \\
+            10             & $500^2$          & 0.76   & 2        & 0.12 & 45:03            &                      & 31.07\%         \\
+            9              & $700^2$          & 0.75   & 2        & 0.12 & 56:43            &                      & 30.78\%         \\
+            11             & $350^2$          & 0.75   & 2        & 0.12 & 3:14             &                      & 30.07\%         \\
+            9              & $600^2$          & 0.77   & 2        & 0.12 & 33:57            &                      & 29.91\%         \\
+            10             & $400^2$          & 0.79   & 2        & 0.12 & 34:09            &                      & 29.37\%         \\
+            9              & $500^2$          & 0.79   & 2        & 0.12 & 33:40            &                      & 28.74\%         \\
+            10             & $350^2$          & 0.81   & 2        & 0.12 & 2:34             &                      & 27.92\%         \\
+            9              & $400^2$          & 0.80   & 2        & 0.12 & 13:07            &                      & 27.29\%         \\
+            10             & $300^2$          & 0.84   & 2        & 0.12 & 8:18             &                      & 26.26\%         \\
+            9              & $350^2$          & 0.83   & 2        & 0.12 & 2:02             &                      & 25.96\%         \\
+            9              & $300^2$          & 0.85   & 2        & 0.13 & 6:35             & 1:21                 & 24.54\%         \\
+            \bottomrule
+      \end{tabular}
+      \caption{\barrIII results, sorted by the last column. For each combination of number of frequencies $M$ and lattice size (i.e., number of lattice points per dimension), we report the values of $c$, $\gamma$, $\lambda$, the runtime, and the achieved lower bound on the safety probability.}
+      \label{tab:results-barrier3}
+\end{table}
 
 \subsection{Overtaking}
 
-We consider a scenario where an autonomous vehicle (AV) controlled by a \gls{nn} is overtaking another vehicle.
-The dynamics of the ego vehicle are given by Dubin's car model by adding the noise vector $w = \begin{bmatrix}w_t^1 & w_t^2 & w_t^3\end{bmatrix}$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$, respectively.
+We consider a scenario where an autonomous vehicle controlled by a \gls{nn} is overtaking another vehicle.
+The dynamics of the ego vehicle are given by Dubin's car model with additive noise $w = \smash{\begin{bmatrix}w_t^1 & w_t^2 & w_t^3\end{bmatrix}\T}$ where each component $w_t^i$ is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$, respectively.
 The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity.
-Given
+Given $N=1000$ sample transitions and the sets
 \begin{align*}
-       & \X = [ 1, 90 ] \times [ -7, 19 ] \times [ -\pi, \pi ]         \\
-       & \X_0 = [ 1, 3 ] \times [ -1, 1 ] \times [ -0.5, 0.5 ]         \\
-       & \X_U = [ 1, 90 ] \times [ -7, -6 ] \times [ -\pi, \pi ]       \\
-       & \qquad \cup [ 1, 90 ] \times [ 18, 19 ] \times [ -\pi, \pi ]  \\
-       & \qquad \cup [ 40, 45 ] \times [ -6, 6 ] \times [ -\pi, \pi ],
+       & \X = [ 1, 90 ] \times [ -7, 19 ] \times [ -\pi, \pi ],
+       &                                                        & \X_0 = [ 1, 3 ] \times [ -1, 1 ] \times [ -0.5, 0.5 ],
+       &                                                        & \X_U = [ 1, 90 ] \times [ -7, -6 ] \times [ -\pi, \pi ]                                                                       \\
+       &                                                        &                                                         &  &  & \qquad \cup [ 1, 90 ] \times [ 18, 19 ] \times [ -\pi, \pi ]  \\
+       &                                                        &                                                         &  &  & \qquad \cup [ 40, 45 ] \times [ -6, 6 ] \times [ -\pi, \pi ],
 \end{align*}
 we want to ensure that the system, starting in $\X_0$, does not enter the unsafe regions $\X_U$ within $T=5$ time steps.
-
+The sampled transitions and safety specification are visualized in Figure~\ref{fig:model-overtaking}.
+The kernel \hp are set to $\sigma_f=7$, $\sigma_l=[10, 7, 5]$, and $\lambda=10^{-5}$.
 The complete configuration for the \overtaking benchmark is shown in Listing~\ref{lst:overtaking}.
-\lstinputlisting[language=yaml,caption={Configuration for \overtaking},captionpos=b,label={lst:overtaking}]{code/overtaking.yaml}
+A list of experiments using different combinations of frequencies and lattice sizes, showing their impact on performance and final result, is presented in Table~\ref{tab:results-overtaking}.
+\lstinputlisting[language=yaml,style={bgnonumbers},caption={Configuration for \overtaking. The transition samples were generated by a separate script and appended to the configuration, abbreviated here for conciseness.},captionpos=b,label={lst:overtaking}]{code/overtaking.yaml}
 
+\begin{figure}[ht]
+      \centering
+      \input{figures/model-overtaking.pgf}
+      \caption{Visualization of $N=200$ sample transitions and safety specification for the \overtaking benchmark.}
+      \label{fig:model-overtaking}
+\end{figure}
 
-% Linear
-% Success: 93.74%, c 0.0032813476604243406, eta 0.013421457997340467, lambda 1e-05, num_frequencies 5, num_oversample 704, oversample_factor 2.0, sigma_l 0.034, sigma_f 18.0, T 15
-%\begin{tabular}{rlrrrrrrrrl}
-%    \toprule
-%    sigma_f   & sigma_l & lambda_  & num_frequencies & num_oversample & T  & gamma    & eta      & c        & percentage & time \\
-%    \midrule
-%    15.000000 & 1.2     & 0.000010 & 5               & 704            & 15 & 1.000000 & 0.031663 & 0.001139 & 95.125590  & 0:03 \\
-%    18.000000 & 0.034   & 0.000010 & 5               & 704            & 15 & 1.000000 & 0.013421 & 0.003281 & 93.735833  & 0:01 \\
-%    \bottomrule
-%\end{tabular}
+\begin{table}[tb]
+      \centering
+      \begin{tabular}{ccccccc}
+            \toprule
+            \textbf{Freq.} & \textbf{Lattice} & $\eta$ & $\gamma$ & $c$  & \textbf{Runtime} & \textbf{Safety} \\
+                           & \textbf{Size}    &        &          &      & [mm:ss]          & \textbf{Prob.}  \\ % Units
+            \midrule
+            5              & $99^3$           & 0.09   & 0.5      & 0.05 & 46:33            & 30.31\%         \\
+            5              & $100^3$          & 0.10   & 0.5      & 0.05 & 49:21            & 29.39\%         \\
+            5              & $88^3$           & 0.09   & 0.5      & 0.05 & 25:52            & 28.73\%         \\
+            5              & $77^3$           & 0.10   & 0.5      & 0.05 & 13:49            & 24.94\%         \\
+            5              & $66^3$           & 0.12   & 0.5      & 0.05 & 8:16             & 16.61\%         \\
+            4              & $90^3$           & 0.10   & 0.5      & 0.06 & 11:21            & 11.79\%         \\
+            4              & $81^3$           & 0.11   & 0.5      & 0.06 & 8:08             & 9.52\%          \\
+            5              & $55^3$           & 0.13   & 0.5      & 0.06 & 4:15             & 9.21\%          \\
+            4              & $72^3$           & 0.10   & 0.5      & 0.06 & 5:10             & 8.46\%          \\
+            5              & $44^3$           & 0.16   & 0.5      & 0.06 & 2:06             & 4.84\%          \\
+            4              & $63^3$           & 0.12   & 0.5      & 0.07 & 3:25             & 4.19\%          \\
+            \bottomrule
+      \end{tabular}
+      \caption{\overtaking results, sorted by the last column. For each combination of number of frequencies $M$ and lattice size (i.e., number of lattice points per dimension), we report the values of $c$, $\gamma$, $\lambda$, the runtime, and the achieved lower bound on the safety probability.}
+      \label{tab:results-overtaking}
+\end{table}
 
-
-% Barrier 2
-% \begin{tabular}{rlrrrrrrrrl}
-%     \toprule
-%     sigma_f  & sigma_l           & lambda_  & num_frequencies & num_oversample & T & gamma      & eta      & c        & percentage & time  \\
-%     \midrule
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 15              & 400            & 5 & 2.000000   & 0.155993 & 0.141315 & 56.871502  & 10:01 \\
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 350            & 5 & 100.000000 & 8.116091 & 7.537732 & 54.195247  & 2:02  \\
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 11              & 300            & 5 & 2.000000   & 0.183647 & 0.150238 & 53.258213  & 2:25  \\
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 13              & 300            & 5 & 2.000000   & 0.182542 & 0.150821 & 53.167620  & 3:53  \\
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 300            & 5 & 2.000000   & 0.176700 & 0.153188 & 52.868065  & 1:28  \\
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 300            & 5 & 100.000000 & 8.835006 & 7.659386 & 52.868065  & 1:33  \\
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 20              & 300            & 5 & 2.000000   & 0.223455 & 0.147586 & 51.930650  & 16:48 \\
-%     1.000000 & [2.50304 3.77779] & 0.000001 & 9               & 250            & 5 & 100.000000 & 9.875340 & 7.785029 & 51.199515  & 1:10  \\
-%     \bottomrule
-% \end{tabular}
-
-
-% Barrier3
-% Success: 42.25%, c 0.11928419647787443, eta 0.5584972599863635, lambda 1e-08, num_frequencies 15, num_oversample 800, oversample_factor 1.0, sigma_l [2.99266 4.62946], sigma_f 1.0, T 5
-% \begin{tabular}{rlrrrrrrrrl}
-%     \toprule
-%     sigma_f  & sigma_l           & lambda_  & num_frequencies & num_oversample & T & gamma    & eta      & c        & percentage & time  \\
-%     \midrule
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 15              & 800            & 5 & 2.000000 & 0.558497 & 0.119284 & 42.254088  & 64:20 \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 15              & 600            & 5 & 2.000000 & 0.598432 & 0.122033 & 39.570103  & 25:12 \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 15              & 450            & 5 & 2.000000 & 0.638667 & 0.127644 & 36.155716  & 12:07 \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 14              & 450            & 5 & 2.000000 & 0.638151 & 0.128054 & 36.078977  & 9:58  \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 14              & 400            & 5 & 2.000000 & 0.651139 & 0.130655 & 34.779342  & 7:50  \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 14              & 370            & 5 & 2.000000 & 0.662921 & 0.133060 & 33.589019  & 6:49  \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 16              & 370            & 5 & 2.000000 & 0.646389 & 0.136513 & 33.552259  & 11:35 \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 12              & 370            & 5 & 2.000000 & 0.710767 & 0.127533 & 32.578438  & 4:38  \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 11              & 350            & 5 & 2.000000 & 0.755459 & 0.128623 & 30.071348  & 3:14  \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 10              & 350            & 5 & 2.000000 & 0.812608 & 0.125781 & 27.924451  & 2:34  \\
-%     1.000000 & [2.99266 4.62946] & 0.000000 & 9               & 350            & 5 & 2.000000 & 0.836442 & 0.128851 & 25.965203  & 2:02  \\
-%     \bottomrule
-% \end{tabular}
-
-
-
-% Overtaking
-% Success: 30.32%, c 0.05031756638044985, eta 0.09681458793205037, lambda 1e-05, num_frequencies 5, num_oversample -1, oversample_factor 9.0, sigma_l [10.  7.  5.], sigma_f 7.0, T 5
-% \begin{tabular}{rlrrrrrrrrl}
-%     \toprule
-%     sigma_f  & sigma_l       & lambda_  & num_frequencies & num_oversample & T & gamma    & eta      & c        & percentage & time  \\
-%     \midrule
-%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 99             & 5 & 0.500000 & 0.096815 & 0.050318 & 30.319516  & 46:33 \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 100            & 5 & 0.500000 & 0.100419 & 0.050519 & 29.396944  & 49:21 \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 88             & 5 & 0.500000 & 0.093582 & 0.052546 & 28.737764  & 25:52 \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 77             & 5 & 0.500000 & 0.103997 & 0.054252 & 24.948829  & 13:49 \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 66             & 5 & 0.500000 & 0.124539 & 0.058476 & 16.616154  & 8:16  \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 90             & 5 & 0.500000 & 0.101765 & 0.067857 & 11.790251  & 11:21 \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 81             & 5 & 0.500000 & 0.109691 & 0.068535 & 9.527199   & 8:08  \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 55             & 5 & 0.500000 & 0.135738 & 0.063642 & 9.210252   & 4:15  \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 72             & 5 & 0.500000 & 0.109150 & 0.069704 & 8.465822   & 5:10  \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 5               & 44             & 5 & 0.500000 & 0.160935 & 0.062971 & 4.842390   & 2:06  \\
-%     7.000000 & [10.  7.  5.] & 0.000010 & 4               & 63             & 5 & 0.500000 & 0.120951 & 0.071611 & 4.198906   & 3:25  \\
-%     \bottomrule
-% \end{tabular}
+\begin{figure}[ht]
+      \centering
+      \input{figures/contour-overtaking.pgf}
+      \caption{Contour plot of the lower bound on the safety probability with respect to the number of frequencies $M$ and the lattice size per dimension for the \overtaking benchmark.}
+      \label{fig:contour-overtaking}
+\end{figure}

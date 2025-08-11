@@ -27,6 +27,7 @@
 \usepackage{xspace}
 \usepackage{circledsteps}
 \usepackage{tikz}
+\include{shader}
 \usetikzlibrary{arrows.meta, calc, positioning}
 \tikzset{>=latex} % for LaTeX arrow head
 \usepackage{pgfplots} % for the axis environment
@@ -98,7 +99,7 @@
 \newcommand{\Q}{\mathbb{Q}}
 \newcommand{\1}{\mathbbm{1}}
 \newcommand{\e}{\mathbbm{e}}
-\newcommand{\w}{\new{\mathbf{w}}} % Weight
+\newcommand{\w}{\mathbf{w}} % Weight
 \newcommand{\x}{\boldsymbol{x}}
 \newcommand{\y}{\boldsymbol{y}}
 \newcommand{\z}{\boldsymbol{z}}
@@ -315,6 +316,8 @@ literate=
 \newfloat{listing}{tb}{lst}{}
 \floatname{listing}{Listing}
 \lstdefinestyle{nonumbers}{numbers=none,numberstyle=\footnotesize,xleftmargin=0em}
+\lstdefinestyle{spacednonumbers}{numbers=none,numberstyle=\footnotesize,xleftmargin=0em,aboveskip=15pt,belowskip=15pt,backgroundcolor=\color{white}}
+\lstdefinestyle{bgnonumbers}{numbers=none,numberstyle=\footnotesize,xleftmargin=0em,backgroundcolor=\color{white},backgroundcolor=\color{ipython_bg},}
 %
 % Keep the \pdfinfo as shown here. There's no need
 % for you to add the /Title and /Author tags.

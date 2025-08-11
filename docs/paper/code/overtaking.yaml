@@ -6,15 +6,14 @@ X_unsafe:
   - RectSet: [[1, 90], [-7, -6], [-3.14159265358979, 3.14159265358979]]
   - RectSet: [[1, 90], [18, 19], [-3.14159265358979, 3.14159265358979]]
   - RectSet: [[40, 45], [-6, 6], [-3.14159265358979, 3.14159265358979]]
-c_coefficient: 1
-estimator: KernelRidgeRegressor
-feature_map: LinearTruncatedFourierFeatureMap
+estimator: "KernelRidgeRegressor"
+feature_map: "LinearTruncatedFourierFeatureMap"
 gamma: 2
-kernel: GaussianKernel
+kernel: "GaussianKernel"
 lambda: 0.00001
 num_frequencies: 5
 num_oversample: -1
-optimiser: GurobiOptimiser
+optimiser: "GurobiOptimiser"
 oversample_factor: 2
 plot: true
 seed: 42

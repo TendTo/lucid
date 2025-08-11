@@ -1,7 +1,5 @@
 X_bounds:
-  - RectSet:
-      - [-2, 2]
-      - [-2, 2]
+  - RectSet: [[-2, 2], [-2, 2]]
 X_init:
   - SphereSet:
       center: [-0.5, 0.5]
@@ -10,7 +8,6 @@ X_unsafe:
   - SphereSet:
       center: [0.7, -0.7]
       radius: 0.3
-c_coefficient: 1
 estimator: "KernelRidgeRegressor"
 feature_map: "LinearTruncatedFourierFeatureMap"
 gamma: 100
@@ -24,8 +21,8 @@ optimiser: "GurobiOptimiser"
 oversample_factor: 1
 plot: true
 seed: 42
-sigma_f: 1
-sigma_l: [1.0, 5.39338]
+sigma_f: 1.0
+sigma_l: [2.50, 3.78]
 system_dynamics:
   - "x2 - 1 + exp(-x1)"
   - "-sin(x1)**2"

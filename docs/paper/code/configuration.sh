@@ -2,12 +2,13 @@ pylucid \
   --seed 42 \
   --X_bounds "RectSet([-1], [1])" \
   --X_init "RectSet([-0.5], [0.5])" \
-  --X_unsafe "MultiSet([RectSet([-1], [-0.9]), RectSet([0.9], [1])])" \
+  --X_unsafe "MultiSet([RectSet([-1], [-0.9]),
+  RectSet([0.9], [1])])" \
   --lambda "1.0e-5" \
   --time_horizon 15 \
   --sigma_f 18.0 \
   --sigma_l 0.034 \
   --num_frequencies 5 \
-  --oversample_factor 64.0 \
+  --num_oversample 700 \
   -i x_samples.csv \
   -o xp_samples.csv

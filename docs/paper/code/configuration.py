@@ -8,7 +8,10 @@ def scenario_config() -> Configuration:
     c.seed = 42
     c.X_bounds = RectSet([(-1, 1)])
     c.X_init = RectSet([(-0.5, 0.5)])
-    c.X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))
+    c.X_unsafe = MultiSet(
+        RectSet([(-1, -0.9)]), 
+        RectSet([(0.9, 1)]),
+    )
     c.x_samples = np.array([[1.0], [-1.0]])
     c.xp_samples = np.array([[0.5], [-0.5]])
     c.lambda_ = 1.0e-5
@@ -16,5 +19,5 @@ def scenario_config() -> Configuration:
     c.sigma_f = 18.0
     c.sigma_l = 0.034
     c.num_frequencies = 5
-    c.oversample_factor = 64.0
+    c.num_oversample = 700
     return c

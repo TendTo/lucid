@@ -10,7 +10,9 @@
 % nouns, adverbs, adjectives should be capitalized, including both words in hyphenated terms, while
 % articles, conjunctions, and prepositions are lower case unless they
 % directly follow a colon or long dash
-\title{LUCID: Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems}
+\title{
+Supplementary Material for
+``LUCID: Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems''}
 %\title{LUCID -- ???}
 % Black-Box Verification Engine for Embodied AI Systems?
 % \author {
@@ -141,7 +143,7 @@ Many AI-driven systems exhibit complex, nonlinear, and stochastic behavior that 
     \label{eq:model}
     \S\colon\quad x_{t+1}  = f(x_t,a_t,w_t),\quad w_t\sim p_w,
 \end{equation}
-where $f\colon\X\times\A\times\W\rightarrow\X$ is a continuous vector field describing the evolution of the system state $x_t\in\X\subset\R^n$ over time $t\in\N_{\geq0}$, driven by control actions $a_t\in\A\subset\R^m$ and process noise $w_t\in\W\subset\R^l$.
+where $f\colon\X\times\A\times\W\rightarrow\X$ is a continuous vector field describing the evolution of the system state $x_t\in\X\subset\R^n$ over time $t\in\smash{\N_{\geq0}}$, driven by control actions $a_t\in\A\subset\R^m$ and process noise $w_t\in\W\subset\R^l$.
 The noise is assumed to be drawn from a stochastic distribution $p_w$ in an independent and identically distributed (i.i.d.) manner.
 %
 This general formulation subsumes a wide range of systems, including discrete-time \glspl{mdp}.
@@ -189,14 +191,18 @@ A question that often arises when designing a policy $\pi$ for a system $\S$, es
 
 %Such safety problems are tricky and even for the case where an explicit model \eqref{eq:model} is given, 
 Certifying safety of a discrete-time stochastic system over an uncountable state space does not generally admit an analytical solution and is extremely challenging, especially for complex dynamics~\cite{abate2008probabilistic}.
-Furthermore, for unbounded stochasticity $w_t\sim p_w$, there is generally no yes/no answer to safety, but a safety probability $P_{\text{safe}}(\S^\pi)\in[0,1)$. Thus the goal is generally to estimate a \emph{lower bound} on the true safety probability $P_{\text{safe}}(\S^\pi)$.
+Furthermore, for unbounded stochasticity $w_t\sim p_w$, there is generally no yes/no answer to safety, but a safety probability $P_{\text{safe}}(\S^\pi)\in[0,1)$. 
+Note that given a policy $\pi$, for every initial state $x_0\in\X_0$ there is an associated safety probability. Our goal is to estimate a \emph{lower bound} on the infimum of such probabilities across all initial states in $\X_0$.
+% Thus the goal is generally to estimate a \emph{lower bound} on the true safety probability $P_{\text{safe}}(\S^\pi)$. \textcolor{blue}{[Paolo] I think this needs clarification: given a policy $\pi$, for every initial state there is a safety probability. With Lucid we aim at computing a lower bound on the inf of such probabilities across all initial states. Did I understand correctly?}
 
 \paragraph{Problem Statement}
 Assuming access to a finite dataset $\data_N$ from the black-box system $\S$ in \eqref{eq:model}, quantify a certifiable lower bound on the probability of the black-box system $\S^\pi$ being safe with respect to a safety specification given by $(\X_0,\X_U,T)$.
 
-\medskip
+\smallskip
 
-\lucid provides a solution to this problem by automating the steps in Figure~\ref{fig:steps}, outlined in the next sections.
+Available sampling-based methods such as Monte Carlo simulation are unfit to solve this problem, as they compute guarantees for fixed initial conditions $x_0\in\X$.
+\lucid provides a solution for continuous sets $\X_0$ by automating the steps in Figure~\ref{fig:steps}, outlined in the next sections.
+
 
 \subsection{Control Barrier Certificates}\label{sec:cbc}
 \glspl{cbc}\footnote[3]{\glspl{cbc} and discrete-time \glspl{cbf} \cite{cosner2023generative} are equivalent.} leverage the concept of set invariance to arrive at an abstraction-free numerical solution to finding a lower bound on $P_{\text{safe}}(\S^\pi)$. This has made them popular tools for safety verification and controller synthesis~\cite{prajna2006barrier}.
@@ -224,12 +230,12 @@ Although there exist model-\emph{based} efficient solutions to this problem for 
 \subsection{Data-Driven Dynamics Estimation via Conditional Mean Embeddings}\label{sec:dd_estimation_via_cme}
 To reason about the expected value of a random variable, embedding the variable into a (higher dimensional) space and forming a data-driven estimate is a well-established concept in machine learning \cite{scholkopf2002learning,Steinwart2008SVM}.
 Following the same reasoning, the \emph{kernel mean embedding} represents the projection of a probability measure into a \gls{rkhs} via a feature map $\phi$ associated with a positive definite kernel $k$~\cite{Smola2007EmbedDistrb,muandet2017kernel}.
-For conditional probability distributions a similar concept exists: \glspl{cme} can be used to model the expected value of any \gls{rkhs} function $\new{g}\colon\X\rightarrow\R$ under a stochastic process such as $\S$~\cite{park2020measuretheoretic,muandet2017kernel}.
+For conditional probability distributions a similar concept exists: \glspl{cme} can be used to model the expected value of any \gls{rkhs} function $g\colon\X\rightarrow\R$ under a stochastic process such as $\S$~\cite{park2020measuretheoretic,muandet2017kernel}.
 For the Gaussian kernel,
 \begin{equation}
     k(x,x') := \sigma_f^2 \exp\left( -\tfrac{1}{2} (x-x')\T \Sigma\, (x-x') \right),\label{eq:gaussian_kernel}
 \end{equation}
-where $\Sigma:=\diag(\sigma_l)^{-2}$, with hyperparameters $\sigma_f,\sigma_l\in\R$, \new{the associated RKHS encompasses all smooth functions $g$}.
+where $\Sigma:=\diag(\sigma_l)^{-2}$, with hyperparameters $\sigma_f,\sigma_l\in\R$, the associated RKHS encompasses all smooth functions $g$.
 A data-driven estimate can then be obtained in closed form from a finite amount of data $\data_N$:
 \begin{align}
     \begin{split}
@@ -252,16 +258,17 @@ To arrive at a tractable solution, \lucid conducts two additional steps:
     k(x, x') \equiv \sigma_f^2 \int_{\R^{n}}\!\! \mathcal{N}(d\omega\mid0,\Sigma)\; e^{\mathbf{i}\omega\T (P(x)-P(x'))},\label{eq:sqexp_kernel_fourier}
 \end{align}
 with the zero-mean Gaussian distribution $\smash{\mathcal{N}(d\omega\mid0,\Sigma)}$ with covariance $\Sigma$, the imaginary unit $\mathbf{i}:=\smash{\sqrt{-1}}$, and where the projection $x \mapsto P(x)$ maps the domain $\X$ into the unit hypercube $[0,1]^{n}$.
-Partitioning the space of spatial frequencies $\omega\in\R^n$ into a set of discrete frequency bands (see Figure~\ref{fig:spectral_barrier}) yields a spectral abstraction of the associated \gls{rkhs}, i.e., characterizing learnable functions $B$ in the form of Fourier series.
+Partitioning the space of spatial frequencies $\omega\in\R^n$ into a set of discrete frequency bands (see Figure~\ref{fig:spectral_barrier}) yields a spectral abstraction of the associated \gls{rkhs}, i.e., characterizing learnable functions $\B$ in the form of Fourier series.
 By truncating the series to a finite number, $M$, of fixed frequency bands $\omega_j\in\R^{n}$, $j\in\{0,\ldots,M\}$, the resulting barriers are of the form
 \begin{align*}
     \B(x) = \alpha_0 +\sum_{i=1}^{M} \alpha_i \cos\left(\omega_i\T P(x)\right) + \beta_i \sin\left(\omega_i\T P(x)\right).%\label{eq:blackbox:representer_form_spectral}
 \end{align*}
-Notably, $\B$ admits the linear form \new{$B(x)=\phi_M(x)\T b$}, with a truncated Fourier feature map $\phi_M\colon\X\rightarrow\R^{2M+1}$, parametrized by learnable spectral amplitudes
+Notably, $\B$ admits the linear form $\B(x)=\phi_M(x)\T b$, with a truncated Fourier feature map $\phi_M\colon\X\rightarrow\R^{2M+1}$, parametrized by learnable spectral amplitudes
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{fourier_series.pdf}
-    \caption{Spectral barrier certificate \new{$B(x)=\phi_M(x)\T b$}.}
+    \includegraphics[width=0.9\linewidth]{fourier_series.pdf}
+    \caption{Spectral barrier certificate $\B(x)=\phi_M(x)\T b$.}
+    \vspace{-0.3cm}
     \label{fig:spectral_barrier}
 \end{figure}
 \begin{align*}
@@ -274,9 +281,9 @@ The \gls{cme}-based estimator \eqref{eq:empiricalEstimate} is approximated in th
 \begin{equation*}
     k_{XA}^N(x,a)\T\left[ K_{XA}^N+N \lambda I_N\right]^{-1}\! \Phi_{M,+}^N
     \approx
-    \new{\varphi_M(x,a)}\T H,
+    \varphi_M(x,a)\T H,
 \end{equation*}
-where $\Phi_{M,+}^N:=[\phi_M(x_+^i)\T]_{i=1}^N$, \new{$\varphi_M(x,a)\colon\X\times\A\rightarrow\smash{\R^{2M+1}}$ a feature map augmenting $\phi_M(x)$}, and
+where $\Phi_{M,+}^N:=[\phi_M(x_+^i)\T]_{i=1}^N$, $\varphi_M(x,a)\colon\X\times\A\rightarrow\smash{\R^{2M+1}}$ a feature map augmenting $\phi_M(x)$, and
 with an approximation error decreasing exponentially with $M$~\cite{rahimi2007random}.
 This reduces the barrier synthesis problem
 % This simplifies the barrier problem 
@@ -284,9 +291,9 @@ to a semi-infinite linear program, with barrier conditions linear in $b$:
 \begin{itemize}
     \item[(a)] $\forall x_0\in \X_0\colon\,\phi_M(x_0)\T b\leq\eta$;
     \item[(b)] $\forall x_U\in \X_U\colon\,\phi_M(x_U)\T b\geq\gamma$; and
-    \item[(c)] $\forall x\in\X,\,\exists a\in\A\colon\,\new{\varphi_M(x,a)}\T (Hb -b) \leq  c.$
+    \item[(c)] $\forall x\in\X,\,\exists a\in\A\colon\,\varphi_M(x,a)\T (Hb -b) \leq  c.$
 \end{itemize}
-\new{For the case where $a$ is provided by a given fixed policy $\pi$, $\varphi_M(x,a)$ reduces to $\phi_M(x)$.}
+For the case where $a$ is provided by a given fixed policy $\pi$, $\varphi_M(x,a)$ reduces to $\phi_M(x)$.
 % \OS{Importantly, the closed-form estimator in \eqref{eq:empiricalEstimate} does not depend on the choice of features and only through the spectral abstraction is the feature map introduced directly.}
 \begin{figure}
     \centering
@@ -383,6 +390,7 @@ to a semi-infinite linear program, with barrier conditions linear in $b$:
     \end{tikzpicture}
     % \includegraphics[width=\linewidth]{figures/spectral_measure_abstraction.png}
     \caption{Abstraction of a 1-dim. Gaussian spectral measure of the Gaussian kernel, shown in \eqref{eq:sqexp_kernel_fourier}.}
+    \vspace{-0.5cm}
     \label{fig:spectral_measure_abstraction}
 \end{figure}
 % Naturally, barriers of the form \eqref{eq:blackbox:representer_form_spectral} will be referred to as \emph{Fourier control barrier certificates}.
@@ -390,7 +398,7 @@ to a semi-infinite linear program, with barrier conditions linear in $b$:
 \paragraph{2. Finite-Constraint Relaxation} To obtain a program with \emph{finitely} many constraints, trigonometric bounding results \cite{pfister2018bounding} are used to obtain a relaxed linear program by sampling spatial lattices on $\X$, $\X_0$, and $\X_U$.
 For example, to enforce barrier constraint (a) in Section~\ref{sec:cbc}, it suffices to construct a lattice $\{x_0^i\}_{i=1}^{N_0}\subset\X_0$ and impose the constraints $b\T\phi_M(x_0^i)\leq\eta$ for $i=1,\ldots,N_0$.
 Selecting lattices with a sampling density meeting the Nyquist-Shannon sampling theorem with respect to the highest frequency $\omega_M$ appearing in the barrier and truncated estimator, the relaxation retains all guarantees.
-As a result, the semi-infinite problem is relaxed to a finitely-constrained \gls{lp}, provided in full in {\color{red}the appendix}.
+As a result, the semi-infinite problem is relaxed to a finitely-constrained \gls{lp}, provided in full in the supplementary material.
 Recall that given an appropriate robustness radius, the barriers produced by \lucid based on data $\data_N$ are statistically correct with respect to the unknown true system $\S$, and a lower bound for the safety probability is computed according to \eqref{eq:safety_prob_lb}.
 %\Sadegh{Just to double check: we are not making the third inequality more conservative related to CME.} \OS{Not currently implemented.}
 
@@ -408,13 +416,13 @@ A high-level visualization of \lucid's architecture is illustrated in Figure~\re
 We also provide a Python wrapper, called \pylucid, to facilitate the integration of the tool into existing workflows and effortlessly leverage well-established libraries such as NumPy~\cite{numpy} and SciPy~\cite{scipy}.
 Moreover, \pylucid can be extensively configured in a variety of ways (e.g., Python scripts, YAML files, GUI), making it the recommended way to operate \lucid.
 Hence, for the rest of the paper, we will focus on \pylucid when describing the user interfaces.
-    {\color{red}Further information about \pylucid are deferred to the appendix.}
+Further information about \pylucid are deferred to the supplementary material.
 
 
 \paragraph{Configuration}
 % The system and the specification \lucid will check against shall be provided as a configuration to the program.
 To certify safety of a system, \lucid accepts a configuration comprising data from the system and the safety specification.
-We suggest defining it as a \yaml or equivalent \json file.%
+We suggest defining it as a \yaml or equivalent \json file.
 %\footnote[4]{The Json schema for \yaml and \json files can be found at \url{https://lucidtoolsource.gitlab.io/lucid/configuration_schema.json}}
 % \OS{I would personally avoid the word "scenario", as it could be misunderstood with an actual run of the system.}
 If more flexibility is needed, a Python script generating a configuration can be used instead,
@@ -422,10 +430,9 @@ with the only requirement being that it must contain a function named \lstinline
 Regardless of their format, configuration files can be loaded with the command \lstinline|pylucid <config file>| to start the tool's verification pipeline.
 The same configuration values can also be given directly as command line arguments.
 \pylucid also provides a browser-based \gls{gui} to aid in the configuration and execution of the tool.
-\Sadegh{space needs fixing before ".. to start ...".}
 
 In its current form, \lucid implements all the functionalities needed to certify safety of a closed-loop system with a given control policy $\pi$.
-\OS{Thus the action $a$ in the previous section is replaced with the policy $\pi(x)$.}
+Thus the action $a$ in the previous section is replaced with the policy $\pi(x)$.
 Future releases will expand this core functionality to
 safe controller synthesis as well.
 Due to its modular architecture, \lucid can be easily extended in multiple directions, as outlined in Section~\ref{sec:conclusion_and_future_extensions}.
@@ -534,7 +541,7 @@ The process of finding good values for these \hp is known as \emph{hyperparamete
           We use the L-BFGS or L-BFGS-B quasi-Newton optimization algorithms~\cite{book:nonlinear-programming},
           implemented in the \texttt{LBFGS++} library~\cite{LBFGSpp}.
           %          \footnote{https://github.com/yixuan/LBFGSpp}
-    \item \texttt{GridSearchTuner} implements the grid search method, exploring the space of possible \hp values to find the one that maximizes the \estimator's $R^2$ score, defined as $$R^2 = 1 - (\sum_{i=1}^M (y_i - \hat{y}_i)^2/\sum_{i=1}^M (y_i - \bar{y})^2).$$
+    \item \texttt{GridSearchTuner} implements the grid search method, exploring the space of possible \hp values to find the one that maximizes the \estimator's $R^2$ score, defined as $$R^2 = 1 - \textstyle\left(\sum_{i=1}^M (y_i - \hat{y}_i)^2/\sum_{i=1}^M (y_i - \bar{y})^2\right),$$ with $\hat{y}_i$ and $\bar{y}:=(\sum_{i=1}^N y_i)/N$ being the $i^{\text{th}}$ predicted and mean observed outputs, respectively.
 \end{itemize}
 Tuners open a wide range of possibilities to the user.
 We recommend using them within a Python script generating a configuration to automate the tuning process before finalizing the \estimator's hyperparameter values:
@@ -578,7 +585,7 @@ implemented in the \texttt{LBFGS++} library\footnote{https://github.com/yixuan/L
 \end{comment}
 
 \paragraph{\Circled{4}~Feature Map}
-We exploit the truncated spectral kernel expansion in \eqref{eq:sqexp_kernel_fourier} by building an explicit approximated feature map, composed of a linear sum of trigonometric functions with increasing frequencies (see Figure~\ref{fig:spectral_barrier}).
+We exploit the spectral kernel expansion in \eqref{eq:sqexp_kernel_fourier} by building an explicit approximated feature map, composed of a linear sum of trigonometric functions with increasing frequencies (see Figure~\ref{fig:spectral_barrier}).
 The underlying kernel expansion, visualized in Figure~\ref{fig:spectral_measure_abstraction}, can be controlled to trade-off efficiency and accuracy/conserativeness.
 % The full expansion of the kernel would need a sum of infinitely many terms with diminishing impact on the overall result, which we truncate arbitrarily short, a decision based on the tradeoff we are looking for between efficiency and accuracy.
 After being defined with the same \hp $(\sigma_f,\sigma_l)$ that characterize the \texttt{KernelRidgeRegressor}, the function can be used to map any point from $\X$ to the \gls{rkhs} associated with the kernel.
@@ -589,7 +596,7 @@ After being defined with the same \hp $(\sigma_f,\sigma_l)$ that characterize th
     \item \texttt{ConstantTruncatedFourierFeatureMap} defines frequency bands with a fixed size.
 \end{itemize}
 Different feature map implementations may yield different results.
-In our example, we truncate the Fourier expansion to $5$ frequency bands, including the constant term, and use $704$ lattice points to build the constraints of the optimization problem, to avoid it being too conservative.\OS{Specifying it as a multiple of the Nyquist frequency will inevitably raise questions. Just say we generate $X$ lattice points? "lattice size"}\EC{new}
+In our example, we truncate the Fourier expansion to $5$ frequency bands, including the constant term, and use $704$ lattice points to build the constraints of the optimization problem, to avoid it being too conservative.
 \begin{lstlisting}[language=yaml,backgroundcolor=\color{ipython_bg}]
 feature_map: 
     "LinearTruncatedFourierFeatureMap"
@@ -613,7 +620,7 @@ In the benchmarks in Section~\ref{sec:experiments}, we showcase the relation num
 % While the theory gives us a precise indication on how to construct the \gls{lp} which yields a correct-by-design solution, in practice the constraints may be too conservative to find a valid solution.
 % To mitigate this, the user can either increase the number of lattice points $Q$, worsening the computational efficiency,
 % or adjust the coefficient $C_{\hat{N}}$, improving performance at the cost of loosening the guarantees.
-For solving the \gls{lp}, \lucid can interface with different linear optimizers: \gurobi, \alglib or \highs. Here, we use \gurobi:
+For solving the \gls{lp}, \lucid can interface with different linear optimizers: \gurobi, \alglib, or \highs. Here, we use \gurobi:
 \begin{lstlisting}[language=yaml,backgroundcolor=\color{ipython_bg}]
 optimiser: "GurobiOptimiser"
 \end{lstlisting}
@@ -679,19 +686,19 @@ All runs had the random seed set to $42$ to ensure reproducibility.
 
 We adapt the \barrII and \barrIII benchmarks from \cite{abate2021fossil}.
 Both are two-dimensional highly nonlinear systems to which we add the stochastic noise $w_t\sim\mathcal{N}(\cdotx\vert 0,0.01I_2)$.
-Given the initial set $\X_0$ and the unsafe set $\X_U$, we synthesize a barrier $\B$ that guarantees trajectories starting in $\X_0$ do not enter $\X_U$ within $T=5$ time steps.
+Given $N=1000$ samples, initial set $\X_0$, and unsafe set $\X_U$, we synthesize a barrier $\B$ that guarantees trajectories starting in $\X_0$ do not enter $\X_U$ within $T=5$ time steps.
 Note that we can only certify safety w.r.t. the empirical distribution, i.e., the \gls{cme} constructed from the observed data.
 \barrIII is particularly challenging due to the closeness between the initial set and the unsafe set.
 The synthesized barriers are shown in Figures~\ref{fig:CSBarr2}--\ref{fig:CSBarr3}.
-We also consider a scenario, we name \overtaking, where an autonomous vehicle (AV) controlled by a \gls{nn} is overtaking another vehicle.
+We also consider a scenario, we name \overtaking, where an autonomous vehicle controlled by a \gls{nn} is overtaking another vehicle.
 The dynamics of the ego vehicle are given by Dubin's car model with an added noise vector $w$ where each component is drawn from a zero-mean Gaussian with standard deviation $0.01$, $0.01$, and $0.001$ respectively.
 The steering wheel angle is supplied by the \gls{nn} controller and we travel at a fixed velocity.
 
 Table~\ref{tbl:benchmarks_results} summarizes the results of all the experiments presented.
-More details about the dynamics, configurations and \hp used can be found in the Appendix.
+Further results and details on the dynamics, configurations, and \hp can be found in the supplementary material.
 
 \begin{figure}[ht]
-    \begin{adjustbox}{clip,trim=0cm 1.7cm 0cm 2cm,max width=\columnwidth}
+    \begin{adjustbox}{clip,trim=0cm 1.5cm 0cm 2cm,max width=\columnwidth}
         \input{figures/barrier2.pgf}
     \end{adjustbox}
     %\includegraphics[trim={5cm 3cm 2cm 4cm},clip,width=\linewidth]{barrier2.pgf}
@@ -727,6 +734,7 @@ More details about the dynamics, configurations and \hp used can be found in the
         $T$ is the time horizon associated with the lower bound on the safety probability, displayed in the last column.
     }
     \label{tbl:benchmarks_results}
+    \vspace{-0.5cm}
 \end{table}
 
 % Linear
@@ -756,16 +764,15 @@ More details about the dynamics, configurations and \hp used can be found in the
 %\Sadegh{Are we comparing with alternative approaches in the literature? Since we mention alternative tools and their capabilities in Table 1, this raises expectations that we provide a fair benchmarking and show how we are better than them.}
 
 \section{Conclusion and Future Extensions}\label{sec:conclusion_and_future_extensions}
-\new{This paper introduces \lucid, a novel tool capable of quantifying safety guarantees for black-box systems with complex stochastic dynamics and deep learning components in the loop. As such, \lucid fills a gap currently unaddressed by preexisting tools. To achieve this, \lucid, leverages Conditional Mean Embeddings (CME) to learn control barrier certificates from data, and recasts the problem into a tractable linear form via a spectral abstraction.}
+This paper introduces \lucid, a novel tool capable of quantifying safety guarantees for black-box systems with complex stochastic dynamics and deep learning components in the loop. As such, \lucid fills a gap currently unaddressed by preexisting tools. To achieve this, \lucid leverages Conditional Mean Embeddings (CME) to learn control barrier certificates from data, and recasts the problem into a tractable linear form via a spectral abstraction.
 
-\new{
-    \lucid is built for extensibility. In its current form, it assumes access to full state measurements (cf.~\eqref{eq:data}), as is the case when working with simulated systems, and focuses on verification, i.e., when a policy is given.
-    Extending \lucid to partially observed settings and safe controller synthesis
-    % adds another level of complexity and 
-    is on our agenda and builds on top of the results presented in this paper.
-    \lucid derives barriers based on the empirical CME, which can be robustified against out-of-sample system behavior by tightening the barrier constraint (c) (cf.~Sections~\ref{sec:dd_estimation_via_cme}--\ref{sec:ddbarriers}).
-    The scalability of \lucid can be improved by performing sparse CME computations or specializing the estimator's \texttt{Kernel} to embed prior knowledge about the system dynamics.
-}
+\lucid is built for extensibility. In its current form, it assumes access to full state measurements (cf.~\eqref{eq:data}), as is the case when working with simulated systems, and focuses on verification, i.e., when a policy is given.
+Extending \lucid to partially observed settings and safe controller synthesis
+% adds another level of complexity and 
+is on our agenda and builds on top of the results presented in this paper.
+\lucid derives barriers based on the empirical CME, which can be robustified against out-of-sample system behavior by tightening the barrier constraint (c) (cf.~Sections~\ref{sec:dd_estimation_via_cme}--\ref{sec:ddbarriers}).
+The scalability of \lucid can be improved by performing sparse CME computations or specializing the estimator's \texttt{Kernel} to embed prior knowledge about the system dynamics.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -777,6 +784,6 @@ More details about the dynamics, configurations and \hp used can be found in the
 
 \newpage
 % \def\isChecklistMainFile{\FALSE}
-\input{reproducibility checklist/ReproducibilityChecklist}
+% \input{reproducibility checklist/ReproducibilityChecklist}
 
 \end{document}

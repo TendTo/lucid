@@ -15,4 +15,4 @@ time_horizon: 15
 sigma_f: 18.0
 sigma_l: 0.034
 num_frequencies: 5
-oversample_factor: 64.0
+num_oversample: 700
