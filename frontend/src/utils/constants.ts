@@ -192,7 +192,7 @@ const Barrier3: Partial<Configuration> = {
 };
 
 const Overtaking: Partial<Configuration> = {
-  verbose: 4,
+  verbose: 3,
   seed: 42,
   dimension: 3,
   X_bounds: [

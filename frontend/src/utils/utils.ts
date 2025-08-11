@@ -50,8 +50,8 @@ export function capableConfiguration<T extends Partial<Configuration>>(
       : capabilities.ALGLIB
       ? "AlglibOptimiser"
       : "HighsOptimiser",
-    plot: capabilities.PLOT,
-    verify: capabilities.VERIFICATION,
+    plot: capabilities.PLOT && config.plot,
+    verify: capabilities.VERIFICATION && config.verify,
   };
 }
 
