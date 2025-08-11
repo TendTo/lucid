@@ -8,13 +8,12 @@ X_unsafe:
   - RectSet: [[40, 45], [-6, 6], [-3.14159265358979, 3.14159265358979]]
 estimator: "KernelRidgeRegressor"
 feature_map: "LinearTruncatedFourierFeatureMap"
-gamma: 2
+gamma: 0.5
 kernel: "GaussianKernel"
 lambda: 0.00001
 num_frequencies: 5
-num_oversample: -1
+num_oversample: 99
 optimiser: "GurobiOptimiser"
-oversample_factor: 2
 plot: true
 seed: 42
 sigma_f: 7

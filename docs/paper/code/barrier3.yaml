@@ -11,9 +11,9 @@ estimator: "KernelRidgeRegressor"
 feature_map: "LinearTruncatedFourierFeatureMap"
 gamma: 2
 lambda: 1.e-8
-num_frequencies: 20
+num_frequencies: 15
 num_samples: 1000
-oversample_factor: 1
+num_oversample: 800
 plot: true
 seed: 42
 sigma_f: 1
