@@ -8,6 +8,7 @@ from pylucid import *
 
 if TYPE_CHECKING:
     from typing import Callable
+
     from pylucid._pylucid import NMatrix, NVector
 
 try:
@@ -42,7 +43,7 @@ def plot_solution_matplotlib(
     show: bool = True,
 ) -> plt.Figure:
     assert X_bounds.dimension > 0, "X_bounds must have a positive dimension."
-    plot_solution_fun = (plot_solution_1d_matplotlib, plot_solution_2d_matplotlib)
+    plot_solution_fun = (plot_solution_1d_matplotlib, plot_solution_2d_matplotlib, plot_solution_3d_matplotlib)
     if X_bounds.dimension <= len(plot_solution_fun):
         return plot_solution_fun[X_bounds.dimension - 1](
             args, X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, estimator, f, c, num_samples, show
@@ -67,10 +68,6 @@ def plot_solution_1d_matplotlib(
     num_samples: "int | None" = None,
     show: bool = True,
 ):
-    """
-    Alternative to plot_solution_1d using matplotlib instead of plotly.
-    """
-
     # use an interactive backend if available
 
     fig, ax = plt.subplots()
@@ -156,14 +153,14 @@ def plot_solution_2d_matplotlib(
     num_samples: "int | None" = None,
     show: bool = True,
 ):
-    """
-    Alternative to plot_solution_2d using matplotlib instead of plotly.
-    """
+    import matplotlib.colors as colors
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
 
+    # Create a color map so that values below eta are blue, values between eta and gamma are transparent, and values above gamma are red
+    mygreens = colors.ListedColormap(["blue", "#00000000", "red"])
     fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection="3d")
+    ax: "Axes3D" = fig.add_subplot(111, projection="3d")
 
     # Set plot bounds
     ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
@@ -214,6 +211,149 @@ def plot_solution_2d_matplotlib(
         Z = Z.reshape(X.shape)
 
         # Plot main barrier surface
+        ax.plot_surface(
+            X,
+            Y,
+            Z,
+            cmap="viridis",
+            alpha=0.7,
+            label=r"$B(x)$",
+            rstride=4,
+            cstride=4,
+        )
+        contour_Z = Z.copy()
+        np.clip(contour_Z, eta, gamma, out=contour_Z)  # Clip values to be non-negative
+        contour_Z[np.logical_and(eta < contour_Z, contour_Z < gamma)] = (gamma - eta) / 2 + eta
+        ax.contour(X, Y, contour_Z, zdir="z", offset=0, cmap=mygreens, linestyles="dotted", linewidths=2)
+        # contour_Z[Z < gamma] = 0  # Set values above gamma to 0 for contouring
+
+        x_plane = np.array([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+        y_plane = np.array([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
+        X_plane, Y_plane = np.meshgrid(x_plane, y_plane)
+        # Plot eta and gamma as planes if provided
+        if eta is not None:
+            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, eta), color="green", alpha=0.2, label=r"$\eta$")
+
+        if gamma is not None:
+            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, gamma), color="red", alpha=0.2, label=r"$\gamma$")
+            # Update z-axis limit if gamma is provided
+            current_zlim = ax.get_zlim()
+            ax.set_zlim([0, max(current_zlim[1], gamma + 1)])
+
+        # Plot f(x) surface if provided
+        if f is not None and args.plot_bxp:
+            points_f = f(points)
+            Zp = feature_map(points_f) @ sol.T
+            Zp = Zp.reshape(X.shape)
+            surf_f = ax.plot_surface(X, Y, Zp, color="black", alpha=0.3, label=r"$B(x_+)$")
+            surf_f._facecolors2d = surf_f._facecolor3d
+            surf_f._edgecolors2d = surf_f._edgecolor3d
+
+        # Plot estimator surface if provided
+        if estimator is not None and args.plot_bxe:
+            Z_est = estimator(points) @ sol.T
+            Z_est = Z_est.reshape(X.shape)
+            surf_est = ax.plot_surface(X, Y, Z_est, color="purple", alpha=0.3, label=r"$B(x_p)$ est.")
+            surf_est._facecolors2d = surf_est._facecolor3d
+            surf_est._edgecolors2d = surf_est._edgecolor3d
+
+    # Set labels and title
+    ax.set_xlabel("State space x[0]")
+    ax.set_ylabel("State space x[1]")
+    ax.set_zlabel("Barrier value")
+
+    # Move the legend on the rigt top
+    # a bit more to the right
+    ax.legend(loc="upper right", fontsize=16, frameon=True, bbox_to_anchor=(1.1, 0.9))
+
+    # Save figure
+    ax.view_init(args.elevation, args.azimuth, args.roll)
+    fig.tight_layout()
+    fig.savefig(f"benchmarks/integration/{args.experiment.lower()}.pgf", bbox_inches="tight", dpi=300)
+    if show:
+        plt.show()
+
+    return fig, ax
+
+
+def plot_solution_3d_matplotlib(
+    args: "argparse.Namespace",
+    X_bounds: "RectSet",
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    feature_map: "FeatureMap | None" = None,
+    sol: "NVector | None" = None,
+    eta: "float | None" = None,
+    gamma: "float | None" = None,
+    estimator: "Estimator | None" = None,
+    f: "callable | None" = None,
+    c: float = 0.0,
+    num_samples: "int | None" = None,
+    show: bool = True,
+):
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure(figsize=(12 * CM, 12 * CM))
+    ax = fig.add_subplot(111, projection="3d")
+
+    # Set plot bounds
+    ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+    ax.set_ylim([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
+    ax.set_zlim([0, gamma + 0.2])
+    # scale the z-axis to fit the plot to make the plot shorter
+    ax.set_box_aspect([1, 1, 0.5])  # Aspect ratio for x, y, z axes
+
+    # Helper function to plot sets in 2D on the z=0 plane
+    def plot_rect_2d_matplotlib(s, color, label=None, alpha=0.3):
+        if isinstance(s, RectSet):
+            # Draw rectangle outline on z=0 plane
+            x = [s.lower_bound[0], s.upper_bound[0], s.upper_bound[0], s.lower_bound[0], s.lower_bound[0]]
+            y = [s.lower_bound[1], s.lower_bound[1], s.upper_bound[1], s.upper_bound[1], s.lower_bound[1]]
+            z = [0, 0, 0, 0, 0]
+            ax.plot(x, y, z, color=color, linewidth=3, label=label)
+
+            # Fill the rectangle on z=0 plane for better visibility
+            xx = [s.lower_bound[0], s.upper_bound[0], s.upper_bound[0], s.lower_bound[0]]
+            yy = [s.lower_bound[1], s.lower_bound[1], s.upper_bound[1], s.upper_bound[1]]
+            zz = [0, 0, 0, 0]
+            ax.plot_trisurf(xx, yy, zz, color=color, alpha=alpha)
+
+        elif isinstance(s, SphereSet):
+            # Draw circle outline on z=0 plane
+            theta = np.linspace(0, 2 * np.pi, 100)
+            x = s.center[0] + s.radius * np.cos(theta)
+            y = s.center[1] + s.radius * np.sin(theta)
+            z = np.zeros_like(x)
+            ax.plot(x, y, z, color=color, linewidth=3, label=label)
+        elif isinstance(s, MultiSet):
+            for i, rect in enumerate(s):
+                plot_rect_2d_matplotlib(rect, color, label if i == 0 else None, alpha)
+
+    # Draw the initial and unsafe sets as rectangles on the z=0 plane
+    if X_init is not None:
+        plot_rect_2d_matplotlib(X_init, "blue", label=r"$X_0$")
+    if X_unsafe is not None:
+        plot_rect_2d_matplotlib(X_unsafe, "red", label=r"$X_U$")
+
+    def extend_3d(points: "NMatrix") -> "NMatrix":
+        """Extend 2D points to 3D by adding a zero z-coordinate."""
+        if points.ndim == 1:
+            return np.column_stack((points, np.zeros_like(points)))
+        elif points.ndim == 2 and points.shape[1] == 2:
+            return np.column_stack((points, np.zeros(points.shape[0])))
+        return points
+
+    # Plot the barrier certificate as a surface
+    if feature_map is not None and sol is not None:
+        x = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], num_samples or 25)
+        y = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], num_samples or 25)
+        X, Y = np.meshgrid(x, y)
+        points = extend_3d(np.stack([X.ravel(), Y.ravel()], axis=1))
+        Z = feature_map(points) @ sol.T
+        Z = Z.reshape(X.shape)
+        ax.set_zlim([0, Z.max()])
+
+        # Plot main barrier surface
         surf = ax.plot_surface(
             X,
             Y,
@@ -227,26 +367,25 @@ def plot_solution_2d_matplotlib(
         surf._facecolors2d = surf._facecolor3d
         surf._edgecolors2d = surf._edgecolor3d
 
-        plane_x = np.array([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
-        plane_y = np.array([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
-        plane_X, plane_Y = np.meshgrid(plane_x, plane_y)
+        x_plane = np.array([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+        y_plane = np.array([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
+        X_plane, Y_plane = np.meshgrid(x_plane, y_plane)
         # Plot eta and gamma as planes if provided
         if eta is not None:
             eta_plane = ax.plot_surface(
-                plane_X, plane_Y, np.full_like(plane_X, eta), color="green", alpha=0.2, label=r"$\eta$"
+                X_plane, Y_plane, np.full_like(X_plane, eta), color="green", alpha=0.2, label=r"$\eta$"
             )
             eta_plane._facecolors2d = eta_plane._facecolor3d
             eta_plane._edgecolors2d = eta_plane._edgecolor3d
 
         if gamma is not None:
             gamma_plane = ax.plot_surface(
-                plane_X, plane_Y, np.full_like(plane_X, gamma), color="red", alpha=0.2, label=r"$\gamma$"
+                X_plane, Y_plane, np.full_like(X_plane, gamma), color="red", alpha=0.2, label=r"$\gamma$"
             )
             gamma_plane._facecolors2d = gamma_plane._facecolor3d
             gamma_plane._edgecolors2d = gamma_plane._edgecolor3d
             # Update z-axis limit if gamma is provided
             current_zlim = ax.get_zlim()
-            ax.set_zlim([0, max(current_zlim[1], gamma + 1)])
 
         # Plot f(x) surface if provided
         if f is not None and args.plot_bxp:

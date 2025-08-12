@@ -283,15 +283,6 @@ def plot_solution_1d(
                 name="B(xp) est. (lattice)",
             )
 
-    # Mainly for the presentation
-    # fig.update_layout(margin=dict(l=0, r=0, t=40, b=10))
-    # fig.update_layout(legend=dict(
-    #     yanchor="middle",
-    #     y=0.5,
-    #     xanchor="center",
-    #     x=0.5
-    # ))
-
     fig.update_layout(title="Barrier certificate", xaxis_title="State space", showlegend=True)
 
     if show:
@@ -398,15 +389,35 @@ def plot_solution_2d(
         Z = feature_map(points) @ sol.T
         Z = Z.reshape(X.shape)
 
-        fig.add_surface(x=X, y=Y, z=Z, colorscale="Viridis", opacity=0.7, name="B(x)", showscale=False, showlegend=True)
+        x_plane = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], 2, endpoint=True)
+        y_plane = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], 2, endpoint=True)
+        X_plane, Y_plane = np.meshgrid(x_plane, y_plane)
+
+        fig.add_surface(
+            x=X,
+            y=Y,
+            z=Z,
+            colorscale="Viridis",
+            opacity=0.7,
+            name="B(x)",
+            showscale=False,
+            showlegend=True,
+            contours=dict(
+                # x=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True),
+                # y=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True),
+                z=dict(
+                    show=True, start=2 * eta - gamma, end=gamma + 0.1, size=gamma - eta, project_z=True, highlight=False
+                ),
+            ),
+        )
         fig.update_layout(scene=dict(zaxis=dict(range=[0, np.max(Z) + 0.1])))
 
         # Plot eta and gamma as planes
         if eta is not None:
             fig.add_surface(
-                x=X,
-                y=Y,
-                z=np.full_like(X, eta),
+                x=X_plane,
+                y=Y_plane,
+                z=np.full_like(X_plane, eta),
                 colorscale=[[0, "green"], [1, "green"]],
                 opacity=0.2,
                 name="eta",
@@ -415,9 +426,9 @@ def plot_solution_2d(
             )
         if gamma is not None:
             fig.add_surface(
-                x=X,
-                y=Y,
-                z=np.full_like(X, gamma),
+                x=X_plane,
+                y=Y_plane,
+                z=np.full_like(X_plane, gamma),
                 colorscale=[[0, "red"], [1, "red"]],
                 opacity=0.2,
                 name="gamma",

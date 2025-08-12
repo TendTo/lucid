@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.2] - Unreleased
 
+### Added
+
+- Added contour for gamma and eta planes when plotting the 2D barrier function
+
 ### Changed
 
 - The default examples in the GUI have been updated to match the ones in the paper
+- Optimized the number of points required for plotting eta and gamma planes
 
 ## [0.0.1]
 
