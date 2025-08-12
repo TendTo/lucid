@@ -20,19 +20,16 @@ lucid_cc_library(
     name = "optimiser",
     srcs = [
         "AlglibOptimiser.cpp",
-        "GurobiOptimiser.cpp",
         "HighsOptimiser.cpp",
         "Optimiser.cpp",
     ],
     hdrs = [
         "AlglibOptimiser.h",
-        "GurobiOptimiser.h",
         "HighsOptimiser.h",
         "Optimiser.h",
     ],
     implementation_deps = [
         "//lucid/lib:alglib",
-        "//lucid/lib:gurobi",
         "//lucid/lib:highs",
         "//lucid/util:error",
         "//lucid/util:logging",
@@ -46,10 +43,29 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "gurobi_optimiser",
+    srcs = ["GurobiOptimiser.cpp"],
+    hdrs = ["GurobiOptimiser.h"],
+    implementation_deps = [
+        "//lucid/lib:gurobi",
+        "//lucid/util:error",
+        "//lucid/util:logging",
+    ] + select({
+        "//tools:python_build": ["//bindings/pylucid:interrupt"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":optimiser",
+        "//lucid/lib:eigen",
+    ],
+)
+
+lucid_cc_library(
     name = "verification",
     hdrs = ["verification.h"],
     visibility = ["//visibility:public"],
     deps = [
+        ":gurobi_optimiser",
         ":optimiser",
     ],
 )

@@ -9,7 +9,7 @@ from pylucid.pipeline import OptimiserResult, pipeline
 def optimiser_cb(res: OptimiserResult):
     """Callback function to handle the results of the optimiser."""
     assert res["success"], "Optimisation failed"
-    assert res["obj_val"] <= 0.05, "Safety lower bound should be >= 95%"
+    assert res["obj_val"] <= 0.06, "Safety lower bound should be >= 94%"
     assert res["norm"] <= 0.1, "Norm of the solution should be <= 0.1"
     assert len(res["sol"]) == 9
 

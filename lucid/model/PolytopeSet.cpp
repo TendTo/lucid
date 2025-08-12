@@ -19,7 +19,6 @@
 #include "lucid/model/RectSet.h"
 #include "lucid/util/error.h"
 #include "lucid/verification/AlglibOptimiser.h"
-#include "lucid/verification/GurobiOptimiser.h"
 
 namespace lucid {
 
@@ -103,10 +102,8 @@ std::pair<Vector, Vector> PolytopeSet::compute_bounding_box() const {
   // For each dimension, solve linear programming problems to find bounds
 #ifdef LUCID_ALGLIB_BUILD
   return AlglibOptimiser::bounding_box(A_, b_);
-#elif defined LUCID_GUROBI_BUILD
-  return GurobiOptimiser::bounding_box(A_, b_);
 #else
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("PolytopeSet", "Gurobi");
+  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("PolytopeSet", "Alglib");
 #endif
 }
 

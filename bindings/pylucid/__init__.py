@@ -20,7 +20,7 @@ __version__ = __pylucid_version__
 __doc__ = __pylucid_doc__
 
 CAPABILITIES = {
-    "GUROBI": GUROBI_BUILD,
+    "GUROBI": GUROBI_BUILD and GurobiOptimiser is not None,
     "ALGLIB": ALGLIB_BUILD,
     "HIGHS": HIGHS_BUILD,
     "MATPLOTLIB": MATPLOTLIB_BUILD,

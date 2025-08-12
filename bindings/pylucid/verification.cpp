@@ -9,11 +9,16 @@
 #error LUCID_PYTHON_BUILD is not defined. Ensure you are building with the option '--config=py'
 #endif
 
-#include "lucid/verification/verification.h"
-
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
+
+#include <iostream>
+
+#include "lucid/util/logging.h"
+#include "lucid/verification/AlglibOptimiser.h"
+#include "lucid/verification/HighsOptimiser.h"
+#include "lucid/verification/Optimiser.h"
 
 namespace py = pybind11;
 using namespace lucid;
@@ -39,13 +44,6 @@ void init_verification(py::module_& m) {
       .def("solve", &AlglibOptimiser::solve, py::arg("f0_lattice"), py::arg("fu_lattice"), py::arg("phi_mat"),
            py::arg("w_mat"), py::arg("rkhs_dim"), py::arg("num_frequencies_per_dim"),
            py::arg("num_frequency_samples_per_dim"), py::arg("original_dim"), py::arg("callback"));
-  py::class_<GurobiOptimiser, Optimiser>(m, "GurobiOptimiser")
-      .def(py::init<int, double, double, double, double, double, double, std::string, std::string>(), py::arg("T"),
-           py::arg("gamma"), py::arg("epsilon"), py::arg("b_norm"), py::arg("b_kappa"), py::arg("sigma_f"),
-           py::arg("C_coeff") = 1.0, py::arg("problem_log_file") = "", py::arg("iis_log_file") = "")
-      .def("solve", &GurobiOptimiser::solve, py::arg("f0_lattice"), py::arg("fu_lattice"), py::arg("phi_mat"),
-           py::arg("w_mat"), py::arg("rkhs_dim"), py::arg("num_frequencies_per_dim"),
-           py::arg("num_frequency_samples_per_dim"), py::arg("original_dim"), py::arg("callback"));
   py::class_<HighsOptimiser, Optimiser>(m, "HighsOptimiser")
       .def(py::init<int, double, double, double, double, double, double, std::string, std::string>(), py::arg("T"),
            py::arg("gamma"), py::arg("epsilon"), py::arg("b_norm"), py::arg("b_kappa"), py::arg("sigma_f"),
@@ -53,4 +51,12 @@ void init_verification(py::module_& m) {
       .def("solve", &HighsOptimiser::solve, py::arg("f0_lattice"), py::arg("fu_lattice"), py::arg("phi_mat"),
            py::arg("w_mat"), py::arg("rkhs_dim"), py::arg("num_frequencies_per_dim"),
            py::arg("num_frequency_samples_per_dim"), py::arg("original_dim"), py::arg("callback"));
+
+  try {
+    py::module_ g = py::module::import("pylucid._gurobi");
+    m.attr("GurobiOptimiser") = g.attr("GurobiOptimiser");
+  } catch (const py::error_already_set& e) {
+    m.attr("GurobiOptimiser") = py::none();
+    LUCID_WARN_FMT("Could not import GurobiOptimiser. {}", e.what());
+  }
 }

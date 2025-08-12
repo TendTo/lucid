@@ -22,7 +22,6 @@
 #include "lucid/util/Tensor.h"
 #include "lucid/util/TensorView.h"
 #include "lucid/util/error.h"
-#include "lucid/verification/verification.h"
 
 namespace py = pybind11;
 using namespace lucid;

@@ -101,7 +101,7 @@ class Configuration(Namespace):
     estimator: "type[Estimator]" = KernelRidgeRegressor
     kernel: "type[Kernel]" = GaussianKernel
     feature_map: "type[FeatureMap] | FeatureMap | Callable[[Estimator], FeatureMap]" = LinearTruncatedFourierFeatureMap
-    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else AlglibOptimiser
+    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD and GurobiOptimiser is not None else AlglibOptimiser
     tuner: "Tuner | None" = None  # Tuner for the estimator, if any
 
     constant_lattice_points: bool = False  # Flag to indicate whether to a constant number of lattice points
@@ -118,7 +118,7 @@ class Configuration(Namespace):
                 config_dict[k] = str(v)
             elif isinstance(v, Set):
                 config_dict[k] = str(v)
-            elif isinstance(v, (Estimator, Kernel, FeatureMap, Optimiser)):
+            elif isinstance(v, (Estimator, Kernel, FeatureMap, Optimiser, GurobiOptimiser)):
                 config_dict[k] = v.__class__.__name__
         return config_dict
 
@@ -363,7 +363,7 @@ class FeatureMapAction(Action):
 
 class OptimiserAction(Action):
     def __call__(self, parser, namespace, values: "str | type[Optimiser]", option_string=None):
-        if isinstance(values, type) and issubclass(values, Optimiser):
+        if isinstance(values, type) and issubclass(values, (Optimiser, GurobiOptimiser)):
             return setattr(namespace, self.dest, values)
         if values == "GurobiOptimiser":
             return setattr(namespace, self.dest, GurobiOptimiser)
