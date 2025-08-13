@@ -15,8 +15,11 @@
 #include <span>
 #include <string>
 
-// The following lines will add the `write` and `read` methods to Eigen matrix class.
-// They must be included before the Eigen library.
+/**
+ * Define the Eigen MatrixBase plugin header file path.
+ * This plugin extends Eigen matrices with additional functionality like read/write methods.
+ * Must be defined before including any Eigen headers.
+ */
 #define EIGEN_MATRIXBASE_PLUGIN "lucid/lib/eigen_matrix_base_plugin.h"
 
 #include <Eigen/Cholesky>                  // NOLINT(build/include_order): must be after the plugin
