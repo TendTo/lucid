@@ -320,11 +320,11 @@ std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstV
 #else
 bool AlglibOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                             Dimension, Dimension, const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("AlglibOptimiser::solve", "alglib");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve", "alglib");
   return false;
 }
 std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("AlglibOptimiser::bounding_box", "alglib");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::bounding_box", "alglib");
   return {};
 }
 #endif  // LUCID_ALGLIB_BUILD

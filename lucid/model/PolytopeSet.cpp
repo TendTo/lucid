@@ -103,7 +103,7 @@ std::pair<Vector, Vector> PolytopeSet::compute_bounding_box() const {
 #ifdef LUCID_ALGLIB_BUILD
   return AlglibOptimiser::bounding_box(A_, b_);
 #else
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("PolytopeSet", "Alglib");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("PolytopeSet", "Alglib");
 #endif
 }
 

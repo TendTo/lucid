@@ -302,11 +302,11 @@ std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef A, ConstV
 #else
 bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                             Dimension, Dimension, const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
   return false;
 }
 std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef, ConstVectorRef) {
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("GurobiOptimiser::bounding_box", "Gurobi");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::bounding_box", "Gurobi");
   return {Vector{}, Vector{}};
 }
 #endif  // LUCID_GUROBI_BUILD

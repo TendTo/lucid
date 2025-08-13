@@ -352,7 +352,7 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
 #else
 bool HighsOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                            Dimension, Dimension, const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_DEPENDENCY("HighsOptimiser::solve", "HiGHS");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve", "HiGHS");
   return false;
 }
 #endif  // LUCID_HIGHS_BUILD
