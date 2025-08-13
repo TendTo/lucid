@@ -15,6 +15,7 @@
 
 #include <iostream>
 
+#include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 #include "lucid/verification/AlglibOptimiser.h"
 #include "lucid/verification/HighsOptimiser.h"
@@ -22,6 +23,14 @@
 
 namespace py = pybind11;
 using namespace lucid;
+
+class DummyOptimiser : public Optimiser {
+ public:
+  DummyOptimiser(std::string original_solver, std::string missing_dependency)
+      : Optimiser(1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) {
+    LUCID_NOT_SUPPORTED_MISSING_RUNTIME_DEPENDENCY(original_solver, missing_dependency);
+  }
+};
 
 void init_verification(py::module_& m) {
   /**************************** Optimiser ****************************/
@@ -56,7 +65,8 @@ void init_verification(py::module_& m) {
     py::module_ g = py::module::import("pylucid._gurobi");
     m.attr("GurobiOptimiser") = g.attr("GurobiOptimiser");
   } catch (const py::error_already_set& e) {
-    m.attr("GurobiOptimiser") = py::none();
-    LUCID_WARN_FMT("Could not import GurobiOptimiser. {}", e.what());
+    py::class_<DummyOptimiser, Optimiser>(m, "GurobiOptimiser").def(py::init([](const py::args&, const py::kwargs&) {
+      return DummyOptimiser("GurobiOptimiser", "Gurobi");
+    }));
   }
 }
