@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Contour for gamma and eta planes when plotting the 2D barrier function
 - MACRO documentation
+- Windows support for HiGHS 
 
 ### Changed
 

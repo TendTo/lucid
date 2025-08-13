@@ -22,7 +22,7 @@ sigma_l: 1.2
 num_frequencies: 5
 num_oversample: 704
 noise_scale: 0.01
-plot: true
+plot: false
 verify: true
 estimator: KernelRidgeRegressor
 feature_map: LinearTruncatedFourierFeatureMap

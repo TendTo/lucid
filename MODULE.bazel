@@ -32,6 +32,11 @@ bazel_dep(name = "spdlog", version = "1.15.2")
 
 # MIT | Linear optimization software
 bazel_dep(name = "highs", version = "1.11.0")
+git_override(
+    module_name = "highs",
+    commit = "340f0982e2587628608549d4891420c7304057d3",
+    remote = "https://github.com/ERGO-Code/HiGHS.git",
+)
 
 # https://www.boost.org/users/license.html | Boost C++ Libraries for math
 bazel_dep(name = "boost.math", version = "1.87.0")

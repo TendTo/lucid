@@ -46,8 +46,8 @@ class HighsLpProblem {
     LUCID_ASSERT(num_vars > 0, "Number of variables must be greater than 0.");
     LUCID_ASSERT(num_constraints > 0, "Number of constraints must be greater than 0.");
 
-    model_.lp_.num_col_ = num_vars;
-    model_.lp_.num_row_ = num_constraints;
+    model_.lp_.num_col_ = static_cast<HighsInt>(num_vars);
+    model_.lp_.num_row_ = static_cast<HighsInt>(num_constraints);
     model_.lp_.sense_ = ObjSense::kMinimize;
     model_.lp_.col_cost_ = std::vector<double>(num_vars, 0);
     model_.lp_.col_lower_ = std::vector<double>(num_vars, neg_infinity);
@@ -86,7 +86,7 @@ class HighsLpProblem {
                  "The number of constraints must not exceed the number of rows in the matrix.");
     for (std::size_t i = 0; i < coeffs.size(); i++) {
       LUCID_ASSERT(i < model_.lp_.col_cost_.size(), "Variable index must be less than the number of variables.");
-      triplets_.emplace_back(new_row_idx, i, coeffs[i]);
+      triplets_.emplace_back(new_row_idx, static_cast<Dimension>(i), coeffs[i]);
     }
     add_constraint<Op>(additional_vars, additional_coeffs, rhs, std::move(name));
   }
@@ -159,7 +159,7 @@ class HighsLpProblem {
     A_.setFromTriplets(triplets_.begin(), triplets_.end());
     model_.lp_.a_matrix_.format_ = MatrixFormat::kColwise;
     model_.lp_.a_matrix_.start_.assign(A_.outerIndexPtr(), A_.outerIndexPtr() + A_.cols());
-    model_.lp_.a_matrix_.start_.push_back(A_.nonZeros());
+    model_.lp_.a_matrix_.start_.push_back(static_cast<int>(A_.nonZeros()));
     model_.lp_.a_matrix_.index_.assign(A_.innerIndexPtr(), A_.innerIndexPtr() + A_.nonZeros());
     model_.lp_.a_matrix_.value_.assign(A_.valuePtr(), A_.valuePtr() + A_.nonZeros());
   }

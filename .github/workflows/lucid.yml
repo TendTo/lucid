@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/bazel-cache
 
       - name: Build
-        run: bazel build ${{ env.LUCID_FLAGS }} ${{ matrix.os == 'windows-latest' && '--enable_highs_build=False' || '' }} //lucid
+        run: bazel build ${{ env.LUCID_FLAGS }} //lucid
 
   lint:
     strategy:
@@ -63,7 +63,7 @@ jobs:
       - uses: ./.github/actions/bazel-cache
 
       - name: Test
-        run: bazel test ${{ env.LUCID_FLAGS }} ${{ matrix.os == 'windows-latest' && '--enable_highs_build=False' || '' }} //tests/unit/...
+        run: bazel test ${{ env.LUCID_FLAGS }} //tests/unit/...
 
   integration-test:
     strategy:
@@ -79,7 +79,7 @@ jobs:
       - uses: ./.github/actions/bazel-cache
 
       - name: Test
-        run: bazel test ${{ env.LUCID_FLAGS }} ${{ matrix.os == 'windows-latest' && '--enable_highs_build=False' || '' }} //tests/integration/...
+        run: bazel test ${{ env.LUCID_FLAGS }} //tests/integration/...
 
   dwyu:
     strategy:

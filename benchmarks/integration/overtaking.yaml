@@ -11,7 +11,7 @@ X_unsafe:
   - RectSet: [[40, 45], [-6, 6], [-3.14159265358979, 3.14159265358979]]
 
 num_frequencies: 5
-gamma: 2.0
+gamma: 0.5
 c_coefficient: 1.0
 lambda: 1.0e-05
 sigma_f: 7
@@ -21,8 +21,7 @@ sigma_l: [10.0, 7.0, 5.0]
 time_horizon: 5
 plot: true
 verify: false
-oversample_factor: 2.0
-num_oversample: -1
+num_oversample: 77
 estimator: KernelRidgeRegressor
 kernel: GaussianKernel
 feature_map: LinearTruncatedFourierFeatureMap
@@ -6029,3 +6028,4 @@ xp_samples:
   - - 23.5608749389648
     - 14.869288444519
     - -1.14058113098145
+
