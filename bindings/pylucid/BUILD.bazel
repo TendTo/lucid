@@ -146,6 +146,7 @@ genrule(
         "_pylucid/random.pyi",
         "_pylucid/exception.pyi",
         "_pylucid/log.pyi",
+        "_gurobi.pyi",
         "__init__.pyi",
         "py.typed",
     ],
