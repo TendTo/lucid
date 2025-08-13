@@ -64,7 +64,7 @@ void init_verification(py::module_& m) {
   try {
     py::module_ g = py::module::import("pylucid._gurobi");
     m.attr("GurobiOptimiser") = g.attr("GurobiOptimiser");
-  } catch (const py::error_already_set& e) {
+  } catch (const py::error_already_set&) {
     py::class_<DummyOptimiser, Optimiser>(m, "GurobiOptimiser").def(py::init([](const py::args&, const py::kwargs&) {
       return DummyOptimiser("GurobiOptimiser", "Gurobi");
     }));
