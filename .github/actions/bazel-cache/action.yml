@@ -5,12 +5,9 @@ runs:
   using: 'composite'
   steps:
     - name: Cache Bazel
-      uses: actions/cache@v4
+      uses: bazel-contrib/setup-bazel@0.15.0
       with:
-        path: |
-          ~/.cache/bazel
-          /private/var/tmp/_bazel_*
-          ~/_bazel_*
-        key: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
-        restore-keys: |
-          ${{ runner.os }}-bazel-
+        bazelisk-cache: true
+        disk-cache: ${{ runner.os }}-bazel-${{ hashFiles('.bazelversion', '.bazelrc', 'MODULE.bazel') }}
+        repository-cache: true
+        external-cache: true
