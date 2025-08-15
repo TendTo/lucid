@@ -8,6 +8,11 @@ lucid_cc_googletest(
 )
 
 lucid_cc_googletest(
+    name = "test_configuration",
+    deps = ["//lucid/util:configuration"],
+)
+
+lucid_cc_googletest(
     name = "test_index_iterator",
     deps = [
         "//lucid/util:exception",

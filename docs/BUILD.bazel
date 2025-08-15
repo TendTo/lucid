@@ -87,7 +87,11 @@ doxygen(
     enable_preprocessing = True,
     example_path = "example",
     exclude_symbols = ["*::internal::*"],
-    expand_as_defined = "TODO",
+    expand_as_defined = [
+        "TODO",
+        "LUCID_CONSTEXPR_PARAMETER",
+        "LUCID_CONST_PARAMETER",
+    ],
     expand_only_predef = True,
     extra_packages = ["pmboxdraw"],
     extract_private = True,

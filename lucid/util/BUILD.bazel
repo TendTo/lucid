@@ -42,6 +42,18 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "configuration",
+    srcs = ["Configuration.cpp"],
+    hdrs = ["Configuration.h"],
+    implementation_deps = [":error"],
+    deps = [
+        ":logging",
+        "//lucid/lib:eigen",
+        "//lucid/model:set",
+    ],
+)
+
+lucid_cc_library(
     name = "error",
     hdrs = ["error.h"],
     deps = [
