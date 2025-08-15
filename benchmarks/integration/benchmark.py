@@ -259,8 +259,8 @@ def benchmark_pipeline(config: Configuration):
         return config.optimiser(
             config.time_horizon,
             config.gamma,
-            0.0,
-            1.0,
+            epsilon=0.0,
+            b_norm=1.0,
             b_kappa=1.0,
             C_coeff=config.c_coefficient,
             sigma_f=config.sigma_f,
