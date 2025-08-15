@@ -52,7 +52,7 @@ void set_logger_sink(spdlog::custom_log_callback cb) {
 
   // Create a pair of loggers that will use the same callback sink.
   auto callback_sink = std::make_shared<spdlog::sinks::callback_sink_mt>(cb);
-  callback_sink->set_level(spdlog::level::trace);
+  callback_sink->set_level(level_);
   spdlog::register_logger(std::make_shared<spdlog::logger>("lucid_out", callback_sink));
   spdlog::register_logger(std::make_shared<spdlog::logger>("lucid_err", callback_sink));
 }
