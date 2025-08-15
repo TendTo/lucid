@@ -156,6 +156,21 @@
       "description": "Unsafe states of the system.",
       "$ref": "#/$defs/set_type"
     },
+    "epsilon": {
+      "description": "Radius of the barrier certificate.",
+      "type": "number",
+      "default": 0.0
+    },
+    "b_kappa": {
+      "description": "Coefficient.",
+      "type": "number",
+      "default": 1.0
+    },
+    "b_norm": {
+      "description": "Norm of the barrier function.",
+      "type": "number",
+      "default": 1.0
+    },
     "gamma": {
       "type": "number"
     },

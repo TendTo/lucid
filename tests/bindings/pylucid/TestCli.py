@@ -62,6 +62,9 @@ class TestCli:
             assert args.num_samples == 1000
             assert args.time_horizon == 5
             assert args.noise_scale == 0.01
+            assert args.epsilon == 0.0
+            assert args.b_kappa == 1.0
+            assert args.b_norm == 1.0
             assert not args.plot
             assert not args.verify
             assert args.problem_log_file == ""
@@ -104,6 +107,12 @@ class TestCli:
                     "GaussianKernel",
                     "--optimiser",
                     "AlglibOptimiser",
+                    "--epsilon",
+                    "0.1",
+                    "--b_kappa",
+                    "0.5",
+                    "--b_norm",
+                    "2.0",
                 ],
             )
 
@@ -124,6 +133,9 @@ class TestCli:
             assert args.estimator == KernelRidgeRegressor
             assert args.kernel == GaussianKernel
             assert args.optimiser == AlglibOptimiser
+            assert args.epsilon == 0.1
+            assert args.b_kappa == 0.5
+            assert args.b_norm == 2.0
 
     class TestTypeConversions:
         """Test type conversion functions used in argument parsing"""
@@ -506,6 +518,9 @@ class TestCli:
                     "lambda": 0.001,
                     "num_samples": 1000,
                     "time_horizon": 5,
+                    "epsilon": 5.0,
+                    "b_kappa": 6.0,
+                    "b_norm": 7.0,
                     "sigma_f": 15.0,
                     "sigma_l": 1.5,
                     "num_frequencies": 4,
@@ -533,7 +548,11 @@ class TestCli:
                     "X_bounds": "RectSet([-2, -2], [2, 2])",
                     "X_init": "RectSet([-1, -1], [1, 1])",
                     "X_unsafe": "RectSet([1.5, 1.5], [2, 2])",
+                    "epsilon": 6.0,
+                    "b_kappa": 7.0,
+                    "b_norm": 8.0,
                     "gamma": 0.12,
+                    "c_coefficient": 0.5,
                     "lambda": 0.131,
                     "sigma_f": 10555.0,
                     "sigma_l": [71.0, 2.0],
@@ -567,6 +586,9 @@ class TestCli:
             assert namespace.time_horizon == yaml_dict["time_horizon"]
             assert namespace.sigma_f == yaml_dict["sigma_f"]
             assert namespace.sigma_l == yaml_dict["sigma_l"]
+            assert namespace.epsilon == yaml_dict["epsilon"]
+            assert namespace.b_kappa == yaml_dict["b_kappa"]
+            assert namespace.b_norm == yaml_dict["b_norm"]
             assert namespace.feature_map == ConstantTruncatedFourierFeatureMap
 
             assert namespace.noise_scale == yaml_dict["noise_scale"]
@@ -592,7 +614,10 @@ class TestCli:
             assert isinstance(namespace.X_init, RectSet)
             assert isinstance(namespace.X_unsafe, RectSet)
             assert namespace.gamma == json_dict["gamma"]
-
+            assert namespace.c_coefficient == json_dict["c_coefficient"]
+            assert namespace.epsilon == json_dict["epsilon"]
+            assert namespace.b_kappa == json_dict["b_kappa"]
+            assert namespace.b_norm == json_dict["b_norm"]
             assert namespace.lambda_ == json_dict["lambda"]
             assert namespace.sigma_f == json_dict["sigma_f"]
             assert np.array_equal(namespace.sigma_l, json_dict["sigma_l"])

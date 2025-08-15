@@ -18,18 +18,47 @@ export default function ConfigAdvanced() {
           type="number"
           step={0.01}
           min={0}
-          description="Gamma value for the algorithm"
+          description="Minimum value of the barrier over the unsafe set"
+          required
+        />
+        <FormTextInput
+          name="epsilon"
+          label="Epsilon"
+          placeholder="Epsilon value"
+          type="number"
+          min={0}
+          description="Robustifying radius"
+          required
+        />
+        <FormTextInput
+          name="b_kappa"
+          label="Barrier kappa"
+          placeholder="Barrier kappa value"
+          type="number"
+          step={0.01}
+          min={0}
+          description="Barrier kappa value for the optimisation"
+          required
+        />
+        <FormTextInput
+          name="b_norm"
+          label="Barrier norm"
+          placeholder="Barrier norm value"
+          type="number"
+          step={0.01}
+          min={0}
+          description="Norm of the barrier function"
           required
         />
 
         <FormTextInput
           name="c_coefficient"
-          label="C Coefficient"
-          placeholder="C Coefficient value"
+          label="C coefficient"
+          placeholder="C coefficient value"
           type="number"
           step={0.01}
           min={0}
-          description="Strictness parameter for the algorithm. A higher value means more strictness."
+          description="Conservativeness parameter for the algorithm"
           required
         />
 
@@ -49,7 +78,7 @@ export default function ConfigAdvanced() {
           placeholder="Enter number of samples"
           type="number"
           min={1}
-          description="Total number of samples to use in the algorithm"
+          description="Number of transitions to sample. Only used if the data is not provided"
           required
         />
 
@@ -59,7 +88,7 @@ export default function ConfigAdvanced() {
           placeholder="Enter time horizon"
           type="number"
           min={1}
-          description="Time horizon for the algorithm in seconds"
+          description="Number of time steps to consider in the specification"
           required
         />
 
@@ -70,7 +99,7 @@ export default function ConfigAdvanced() {
           type="number"
           step={0.01}
           min={0}
-          description="Sigma F parameter for the algorithm"
+          description="Amplitude parameter of the kernel"
           required
         />
 
@@ -79,7 +108,7 @@ export default function ConfigAdvanced() {
           label="Sigma L"
           placeholder="Sigma L value(s)"
           type="text"
-          description="Single value or comma-separated list of Sigma L values"
+          description="Single or comma-separated list of length scales of the kernel"
           required
           onChange={(value: string | number) => {
             if (typeof value === "number") return value;
@@ -93,28 +122,28 @@ export default function ConfigAdvanced() {
           placeholder="Enter number of frequencies"
           type="number"
           min={1}
-          description="Total number of frequencies to use in the algorithm"
+          description="Number of frequencies to use in the algorithm. Includes the constant term (0 frequency)"
           required
         />
 
         <FormTextInput
           name="oversample_factor"
-          label="Oversample Factor"
-          placeholder="Enter oversample factor"
+          label="Oversample factor"
+          placeholder="Oversample factor"
           type="number"
           step={0.01}
           min={0}
-          description="Oversample factor for the algorithm"
+          description="Lattice points for each dimension in terms of the nyquist frequency. Only used if the number of lattice points is not provided"
           required
         />
 
         <FormTextInput
           name="num_oversample"
-          label="Number of Oversamples"
-          placeholder="Enter number of oversamples"
+          label="Number oversample"
+          placeholder="Number oversample"
           type="number"
           min={-1}
-          description="Number of oversamples to use, -1 for no oversampling"
+          description="Lattice points for each dimension"
           required
         />
 
@@ -125,7 +154,7 @@ export default function ConfigAdvanced() {
           type="number"
           step={0.001}
           min={0}
-          description="Scale of the noise to add to the system dynamics"
+          description="Scale of the noise to add to the system dynamics. Only used if the data is not provided"
           required
         />
       </div>
@@ -210,13 +239,13 @@ export default function ConfigAdvanced() {
         <FormTextInput
           name="problem_log_file"
           label="Problem Log File"
-          placeholder="Enter problem log file path"
+          placeholder="Log file path"
         />
 
         <FormTextInput
           name="iis_log_file"
           label="IIS Log File"
-          placeholder="Enter IIS log file path"
+          placeholder="IIS log file path"
         />
       </div>
     </div>

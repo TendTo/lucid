@@ -256,9 +256,9 @@ def pipeline(
     return config.optimiser(
         config.time_horizon,
         config.gamma,
-        0.0,
-        1.0,
-        b_kappa=1.0,
+        epsilon=config.epsilon,
+        b_norm=config.b_norm,
+        b_kappa=config.b_kappa,
         C_coeff=config.c_coefficient,
         sigma_f=config.sigma_f,
         problem_log_file=config.problem_log_file,
