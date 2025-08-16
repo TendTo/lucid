@@ -32,7 +32,7 @@ void init_util(py::module_& m) {
   log.attr("LOG_DEBUG") = 4;
   log.attr("LOG_TRACE") = 5;
 
-  log.def("set_verbosity", [](const int value) { LUCID_LOG_INIT_VERBOSITY(value); }, py::arg("level") = 3);
+  log.def("set_verbosity", py::overload_cast<int>(log::set_verbosity_level), py::arg("level") = 3);
   log.def("set_sink", py::overload_cast<std::function<void(std::string)>>(log::set_logger_sink), py::arg("cb"));
   log.def("set_pattern", &log::set_pattern, py::arg("pattern"));
   log.def("clear", log::clear_logger);

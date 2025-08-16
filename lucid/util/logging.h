@@ -99,6 +99,11 @@ std::shared_ptr<spdlog::logger> get_logger(LoggerType logger_type);
  */
 void set_verbosity_level(spdlog::level::level_enum level);
 /**
+ * Set the verbosity level of the logger.
+ * @param level verbosity level to set
+ */
+void set_verbosity_level(int level);
+/**
  * Replace the standard logger sink with a custom callback.
  * This action can be undone by calling @ref clear_logger.
  * @note The logger will no longer output to stdout or stderr, unless `cb` explicitly does so.
