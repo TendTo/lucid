@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized the number of points required for plotting eta and gamma planes
 - Pylucid loads Gurobi dynamically at runtime, to avoid forcing its installation if it is not needed
 
+### Fixed
+
+- Race condition in logger creation
+
 ## [0.0.1]
 
 ### Added

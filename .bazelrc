@@ -61,24 +61,40 @@ build:bench --linkopt=-fuse-ld=bfd
 build:bench --enable_omp_build
 
 # Sanity checks build (gcc memory)
-build:snm --compilation_mode=dbg
-build:snm --cxxopt=-fno-common
-build:snm --cxxopt=-fsanitize=leak
-build:snm --cxxopt=-fsanitize=address
-build:snm --cxxopt=-fsanitize=undefined
-build:snm --cxxopt=-fsanitize-address-use-after-scope
-build:snm --cxxopt=-O0
-build:snm --cxxopt=-fno-omit-frame-pointer
-build:snm --cxxopt=-fno-optimize-sibling-calls
-build:snm --cxxopt=-DCDS_ADDRESS_SANITIZER_ENABLED
-build:snm --cxxopt=-D_FORTIFY_SOURCE=0
-build:snm --cxxopt=-static-libasan
-build:snm --cxxopt=-static-libubsan
-build:snm --linkopt=-g
-build:snm --linkopt=-fsanitize=leak
-build:snm --linkopt=-fsanitize=address
-build:snm --linkopt=-fsanitize=undefined
-build:snm --linkopt=-fsanitize-address-use-after-scope
+build:msan --compilation_mode=dbg
+build:msan --cxxopt=-fno-common
+build:msan --cxxopt=-fsanitize=leak
+build:msan --cxxopt=-fsanitize=address
+build:msan --cxxopt=-fsanitize=undefined
+build:msan --cxxopt=-fsanitize-address-use-after-scope
+build:msan --cxxopt=-O0
+build:msan --cxxopt=-fno-stack-protector
+build:msan --cxxopt=-fno-omit-frame-pointer
+build:msan --cxxopt=-fno-optimize-sibling-calls
+build:msan --cxxopt=-DCDS_ADDRESS_SANITIZER_ENABLED
+build:msan --cxxopt=-D_FORTIFY_SOURCE=0
+build:msan --cxxopt=-static-libasan
+build:msan --cxxopt=-static-libubsan
+build:msan --linkopt=-g
+build:msan --linkopt=-fsanitize=leak
+build:msan --linkopt=-fsanitize=address
+build:msan --linkopt=-fsanitize=undefined
+build:msan --linkopt=-fsanitize-address-use-after-scope
+
+# Sanity checks build (gcc threads)
+# The ASLR needs to be disabled (e.g.,echo 0 | sudo tee /proc/sys/kernel/randomize_va_space)
+build:tsan --compilation_mode=dbg
+build:tsan --cxxopt=-fno-common
+build:tsan --cxxopt=-fsanitize=thread
+build:tsan --cxxopt=-O0
+build:tsan --cxxopt=-pthread
+build:tsan --cxxopt=-fno-stack-protector
+build:tsan --cxxopt=-fno-omit-frame-pointer
+build:tsan --cxxopt=-fno-optimize-sibling-calls
+build:tsan --cxxopt=-DCDS_THREAD_SANITIZER_ENABLED
+build:tsan --cxxopt=-D_FORTIFY_SOURCE=0
+build:tsan --linkopt=-g
+build:tsan --linkopt=-fsanitize=thread
 
 # Dependency clean
 build:dwyu --aspects=//tools:dwyu.bzl%dwyu

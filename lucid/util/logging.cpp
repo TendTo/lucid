@@ -24,10 +24,12 @@ namespace lucid::log {
 namespace {
 // NOLINTNEXTLINE(runtime/string): Global logging pattern.
 std::string pattern_ = "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [thread %t] %v";  ///< Default logging pattern.
-spdlog::level::level_enum level_ = spdlog::level::off;  ///< Default logging level is off. It can be set by the user.
+std::atomic<spdlog::level::level_enum> level_ = spdlog::level::off;       ///< Default logging level is off
+std::mutex logger_mutex_;  ///< Mutex to protect the logger creation and access.
 }  // namespace
 
 std::shared_ptr<spdlog::logger> get_logger(const LoggerType logger_type) {
+  std::lock_guard<std::mutex> lock(logger_mutex_);
   // Checks if there exists a logger with the name. If it exists, return it.
   const char *logger_name = logger_type == LoggerType::OUT ? "lucid_out" : "lucid_err";
   // NOLINTNEXTLINE(build/include_what_you_use): false positive
@@ -48,7 +50,8 @@ std::shared_ptr<spdlog::logger> get_logger(const LoggerType logger_type) {
   return logger;
 }
 void set_logger_sink(spdlog::custom_log_callback cb) {
-  clear_logger();
+  std::lock_guard<std::mutex> lock(logger_mutex_);
+  spdlog::drop_all();
 
   // Create a pair of loggers that will use the same callback sink.
   auto callback_sink = std::make_shared<spdlog::sinks::callback_sink_mt>(cb);
@@ -81,6 +84,7 @@ void set_verbosity_level(const spdlog::level::level_enum level) {
   get_logger(LoggerType::OUT)->set_level(level);
   get_logger(LoggerType::ERR)->set_level(level);
 }
+void set_verbosity_level(const int level) { set_verbosity_level(LUCID_VERBOSITY_TO_LOG_LEVEL(level)); }
 }  // namespace lucid::log
 
 #else
