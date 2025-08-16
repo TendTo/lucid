@@ -10,14 +10,6 @@ import mlflow.entities
 from pylucid import *
 from pylucid.plot import plot_solution
 
-try:
-    from pylucid.dreal import verify_barrier_certificate
-except ImportError:
-    log.warn("Verification disabled")
-
-    def verify_barrier_certificate(*args, **kwargs) -> "bool":
-        return False
-
 
 def rmse(x: "NMatrix", y: "NMatrix", ax=0) -> "np.ndarray":
     return np.sqrt(((x - y) ** 2).mean(axis=ax))
@@ -315,6 +307,14 @@ def check_cb_factory(config: Configuration, num_oversample: int, feature_map: Fe
                 "solution.html",
             )
         if config.verify and config.system_dynamics is not None and success:
+            try:
+                from pylucid.dreal import verify_barrier_certificate
+            except ImportError:
+                log.warn("Verification disabled")
+
+                def verify_barrier_certificate(*args, **kwargs) -> "bool":
+                    return False
+
             mlflow.log_metric(
                 "run.verified",
                 verify_barrier_certificate(
