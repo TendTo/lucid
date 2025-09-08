@@ -101,6 +101,12 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "timer",
+    srcs = ["Timer.cpp"],
+    hdrs = ["Timer.h"],
+)
+
+lucid_cc_library(
     name = "index_iterator",
     srcs = ["IndexIterator.cpp"],
     hdrs = ["IndexIterator.h"],
@@ -149,5 +155,6 @@ lucid_cc_library(
         ":math",
         ":random",
         ":tensor",
+        ":timer",
     ],
 )
