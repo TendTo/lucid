@@ -19,6 +19,22 @@
 namespace py = pybind11;
 using namespace lucid;
 
+#define STATS_PROPERTY(name)                                                             \
+  [](const ScopedStats& self) {                                                          \
+    if (self.stats.empty()) {                                                            \
+      throw std::runtime_error("No stats available. Make sure to use the 'with' sytax"); \
+    }                                                                                    \
+    return self.stats.at(0)->name;                                                       \
+  }
+
+struct ScopedStats {
+  std::vector<Stats::Scoped> stats;
+};
+
+std::ostream& operator<<(std::ostream& os, const ScopedStats& stats) {
+  return os << (stats.stats.empty() ? "No stats available." : fmt::format("{}", *stats.stats.at(0)));
+}
+
 void init_util(py::module_& m) {
   py::module_ r = m.def_submodule("random");
   r.def("seed", &random::seed, py::arg("s") = -1);
@@ -58,4 +74,22 @@ void init_util(py::module_& m) {
   py::register_exception<exception::LucidUnreachableException>(e, "LucidUnreachableException", PyExc_RuntimeError);
   py::register_exception<exception::LucidPyException>(e, "LucidPyException", PyExc_RuntimeError);
   py::register_exception<exception::LucidLpSolverException>(e, "LucidLpSolverException", PyExc_RuntimeError);
+
+  py::class_<ScopedStats>(m, "Stats")
+      .def(py::init<>())
+      .def_property_readonly("estimator_time", STATS_PROPERTY(estimator_timer.seconds()))
+      .def_property_readonly("feature_map_time", STATS_PROPERTY(feature_map_timer.seconds()))
+      .def_property_readonly("optimiser_time", STATS_PROPERTY(optimiser_timer.seconds()))
+      .def_property_readonly("tuning_time", STATS_PROPERTY(tuning_timer.seconds()))
+      .def_property_readonly("num_constraints", STATS_PROPERTY(num_constraints))
+      .def_property_readonly("num_variables", STATS_PROPERTY(num_variables))
+      .def_property_readonly("peak_memory_usage_kb", STATS_PROPERTY(peak_memory_usage_kb))
+      .def("__enter__",
+           [](ScopedStats& self) -> ScopedStats& {
+             self.stats.emplace_back();
+             return self;
+           })
+      .def("__exit__",
+           [](ScopedStats& self, const py::object&, const py::object&, const py::object&) { self.stats.pop_back(); })
+      .def("__str__", STRING_LAMBDA(ScopedStats));
 }

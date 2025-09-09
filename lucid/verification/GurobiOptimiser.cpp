@@ -13,6 +13,8 @@
 #include <utility>
 
 #include "lucid/lib/gurobi.h"
+#include "lucid/util/Stats.h"
+#include "lucid/util/Timer.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
@@ -52,6 +54,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
                             ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
                             const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
                             const SolutionCallback& cb) const {
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().optimiser_timer : nullptr};
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   LUCID_CHECK_ARGUMENT_CMP(num_frequency_samples_per_dim, >, 0);
@@ -63,6 +66,12 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   // What if we make C as big as it can be?
   // const double C = pow((1 - 2.0 * num_freq_per_dim / (2.0 * num_freq_per_dim + 1)), -original_dim / 2.0);
   LUCID_DEBUG_FMT("C: {}", C);
+
+  if (Stats::Scoped::top()) {
+    Stats::Scoped::top()->value().num_variables = rkhs_dim + 2 + 4;
+    Stats::Scoped::top()->value().num_constraints =
+        1 + 2 * (phi_mat.rows() + f0_lattice.rows() + fu_lattice.rows() + phi_mat.rows());
+  }
 
   GRBEnv env{true};
   env.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);

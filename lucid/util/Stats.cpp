@@ -22,8 +22,7 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  Number of variables:       {}\n"
              "  Peak memory usage (kB):    {}\n",
              stats.estimator_timer.seconds(), stats.feature_map_timer.seconds(), stats.optimiser_timer.seconds(),
-             stats.tuning_timer.seconds(), stats.number_of_constraints, stats.number_of_variables,
-             stats.peak_memory_usage_kb);
+             stats.tuning_timer.seconds(), stats.num_constraints, stats.num_variables, stats.peak_memory_usage_kb);
 }
 
 }  // namespace lucid

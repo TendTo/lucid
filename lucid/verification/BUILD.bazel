@@ -33,6 +33,8 @@ lucid_cc_library(
         "//lucid/lib:highs",
         "//lucid/util:error",
         "//lucid/util:logging",
+        "//lucid/util:stats",
+        "//lucid/util:timer",
     ] + select({
         "//tools:python_build": ["//bindings/pylucid:interrupt"],
         "//conditions:default": [],
@@ -50,6 +52,8 @@ lucid_cc_library(
         "//lucid/lib:gurobi",
         "//lucid/util:error",
         "//lucid/util:logging",
+        "//lucid/util:stats",
+        "//lucid/util:timer",
     ] + select({
         "//tools:python_build": ["//bindings/pylucid:interrupt"],
         "//conditions:default": [],

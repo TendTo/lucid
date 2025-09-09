@@ -15,6 +15,8 @@
 #include <vector>
 
 #include "lucid/lib/alglib.h"
+#include "lucid/util/Stats.h"
+#include "lucid/util/Timer.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
@@ -118,6 +120,7 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
                             ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
                             const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
                             const SolutionCallback& cb) const {
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().optimiser_timer : nullptr};
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   LUCID_CHECK_ARGUMENT_CMP(num_frequency_samples_per_dim, >, 0);
@@ -127,6 +130,12 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   const auto num_vars = static_cast<alglib::ae_int_t>(rkhs_dim + 2 + 4);
   const double C =
       std::pow(1 - C_coeff_ * 2.0 * num_frequencies_per_dim / num_frequency_samples_per_dim, -original_dim / 2.0);
+
+  if (Stats::Scoped::top()) {
+    Stats::Scoped::top()->value().num_variables = num_vars;
+    Stats::Scoped::top()->value().num_constraints =
+        1 + 2 * (phi_mat.rows() + f0_lattice.rows() + fu_lattice.rows() + phi_mat.rows());
+  }
 
   // What if we make C as big as it can be?
   // const double C = pow((1 - 2.0 * num_freq_per_dim / (2.0 * num_freq_per_dim + 1)), -original_dim / 2.0);
@@ -168,8 +177,6 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   LUCID_DEBUG("Restricting safety probabilities to be positive");
   lp_problem.add_constraint<'<'>(std::array{eta, c}, std::array{1.0, static_cast<double>(T_)}, gamma_);
 
-  // TODO(tend): since we are using row major order, there is no need to copy each row of the matrix.
-  //  Just add an assertion to make sure this is not changed at a later date, breaking the LP problem.
   LUCID_DEBUG_FMT(
       "Positive barrier - {} constraints\n"
       "for all x: [ B(x) >= hatxi ] AND [ B(x) <= maxXX ]\n"

@@ -178,6 +178,7 @@ lucid_cc_library(
         ":math",
         ":random",
         ":scoped_value",
+        ":stats",
         ":tensor",
         ":timer",
     ],
