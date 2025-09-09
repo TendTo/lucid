@@ -11,6 +11,9 @@
 
 #include "lucid/model/KernelRidgeRegressor.h"
 #include "lucid/model/Tuner.h"
+#include "lucid/util/Stats.h"
+#include "lucid/util/Timer.h"
+#include "lucid/util/ScopedValue.h"
 
 namespace lucid {
 
@@ -29,6 +32,10 @@ Estimator& Estimator::fit(ConstMatrixRef training_inputs, ConstMatrixRef trainin
 Estimator& Estimator::fit_online(ConstMatrixRef training_inputs, const OutputComputer& training_outputs) {
   return tuner_ ? fit_online(training_inputs, training_outputs, *tuner_)
                 : consolidate(training_inputs, training_outputs(*this, training_inputs), Request::_);
+}
+Estimator& Estimator::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, Requests requests) {
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().estimator_timer : nullptr};
+  return consolidate_impl(training_inputs, training_outputs, requests);
 }
 Estimator& Estimator::fit_online(ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
                                  const Tuner& tuner) {

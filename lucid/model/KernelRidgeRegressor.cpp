@@ -100,8 +100,8 @@ Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, cons
 
   return log_likelihood_gradient;
 }
-Estimator& KernelRidgeRegressor::consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
-                                             const Requests requests) {
+Estimator& KernelRidgeRegressor::consolidate_impl(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                                                  const Requests requests) {
   LUCID_TRACE_FMT("({}, {}, {})", LUCID_FORMAT_MATRIX(training_inputs), LUCID_FORMAT_MATRIX(training_outputs),
                   requests);
 

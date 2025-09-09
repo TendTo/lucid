@@ -25,12 +25,12 @@ class MockEstimator_ : public Estimator {
  public:
   explicit MockEstimator_(Matrix predictions) : predictions_{std::move(predictions)} {
     ON_CALL(*this, predict).WillByDefault(testing::Return(predictions_));
-    ON_CALL(*this, consolidate).WillByDefault(testing::ReturnRef(*this));
+    ON_CALL(*this, consolidate_impl).WillByDefault(testing::ReturnRef(*this));
   }
 
   MOCK_METHOD(Matrix, predict, (ConstMatrixRef), (const override));
   MOCK_METHOD(bool, has, (lucid::Parameter), (const override));
-  MOCK_METHOD(Estimator&, consolidate, (ConstMatrixRef, ConstMatrixRef, Requests), (override));
+  MOCK_METHOD(Estimator&, consolidate_impl, (ConstMatrixRef, ConstMatrixRef, Requests), (override));
   MOCK_METHOD(double, score, (ConstMatrixRef, ConstMatrixRef), (const override));
   [[nodiscard]] std::unique_ptr<Estimator> clone() const override {
     return std::make_unique<MockEstimator_>(predictions_);

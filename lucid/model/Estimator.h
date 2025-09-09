@@ -149,8 +149,7 @@ class Estimator : public Parametrizable {
    * @param requests requests for the consolidation process
    * @return reference to the estimator
    */
-  virtual Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
-                                 Requests requests) = 0;
+  Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, Requests requests);
   /**
    * Score the estimator assigning a numerical value to its accuracy in predicting the `evaluation_outputs`
    * given the `evaluation_inputs`.
@@ -177,6 +176,17 @@ class Estimator : public Parametrizable {
    * @return new instance of the estimator
    */
   [[nodiscard]] virtual std::unique_ptr<Estimator> clone() const = 0;
+
+ protected:
+  /**
+   * Concrete implementation of the @ref consolidate method.
+   * @param training_inputs training input data
+   * @param training_outputs training output data
+   * @param requests requests for the consolidation process
+   * @return reference to the estimator
+   */
+  virtual Estimator& consolidate_impl(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                                      Requests requests) = 0;
 
  private:
   std::shared_ptr<const Tuner>

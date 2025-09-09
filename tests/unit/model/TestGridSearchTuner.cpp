@@ -50,7 +50,7 @@ class MockEstimator_ : public Estimator {
         return predictions_;
       return predictions_.array() + 1;  // Alter predictions if parameters are not as expected
     }));
-    ON_CALL(*this, consolidate).WillByDefault(testing::ReturnRef(*this));
+    ON_CALL(*this, consolidate_impl).WillByDefault(testing::ReturnRef(*this));
     ON_CALL(*this, score).WillByDefault(testing::Invoke([this](ConstMatrixRef inputs, ConstMatrixRef outputs) {
       return r2_score(*this, inputs, outputs);
     }));
@@ -82,7 +82,7 @@ class MockEstimator_ : public Estimator {
   }
 
   MOCK_METHOD(Matrix, predict, (ConstMatrixRef), (const override));
-  MOCK_METHOD(Estimator &, consolidate, (ConstMatrixRef, ConstMatrixRef, Requests), (override));
+  MOCK_METHOD(Estimator &, consolidate_impl, (ConstMatrixRef, ConstMatrixRef, Requests), (override));
   MOCK_METHOD(double, score, (ConstMatrixRef, ConstMatrixRef), (const override));
   MOCK_METHOD(void, set, (Parameter, int), (override));
   MOCK_METHOD(void, set, (Parameter, double), (override));
@@ -159,7 +159,7 @@ TEST_P(TestGridSearchTuner, Tune) {
       EXPECT_CALL(estimator, predict).Times(num_iterations_);
       EXPECT_CALL(estimator, score).Times(num_iterations_);
       // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
-      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, consolidate_impl).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
@@ -186,7 +186,7 @@ TEST_P(TestGridSearchTuner, TuneOnline) {
       EXPECT_CALL(estimator, predict).Times(num_iterations_);
       EXPECT_CALL(estimator, score).Times(num_iterations_);
       // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
-      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, consolidate_impl).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
@@ -217,7 +217,7 @@ TEST_P(TestGridSearchTuner, TuneLinearTruncatedFourierFeatureMap) {
       EXPECT_CALL(estimator, predict).Times(num_iterations_);
       EXPECT_CALL(estimator, score).Times(num_iterations_);
       // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
-      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, consolidate_impl).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
@@ -246,7 +246,7 @@ TEST_P(TestGridSearchTuner, TuneConstantTruncatedFourierFeatureMap) {
       EXPECT_CALL(estimator, predict).Times(num_iterations_);
       EXPECT_CALL(estimator, score).Times(num_iterations_);
       // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
-      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, consolidate_impl).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);
@@ -275,7 +275,7 @@ TEST_P(TestGridSearchTuner, TuneLogTruncatedFourierFeatureMap) {
       EXPECT_CALL(estimator, predict).Times(num_iterations_);
       EXPECT_CALL(estimator, score).Times(num_iterations_);
       // Set should be called for each possible combination during the grid search + 1 to apply the best fit parameters
-      EXPECT_CALL(estimator, consolidate).Times(num_iterations_ + 1);
+      EXPECT_CALL(estimator, consolidate_impl).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<int>())).Times(num_iterations_ + 1);
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<double>())).Times(2 * (num_iterations_ + 1));
       EXPECT_CALL(estimator, set(testing::An<Parameter>(), testing::An<const Vector &>())).Times(num_iterations_ + 1);

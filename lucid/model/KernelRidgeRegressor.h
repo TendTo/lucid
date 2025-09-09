@@ -121,7 +121,8 @@ class KernelRidgeRegressor final : public GradientOptimizable {
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;
 
-  Estimator& consolidate(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, Requests requests) override;
+  Estimator& consolidate_impl(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+                              Requests requests) override;
 
   [[nodiscard]] double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override;
 
