@@ -98,6 +98,9 @@ lucid_cc_library(
         ":gram_matrix",
         "//lucid/util:error",
         "//lucid/util:index_iterator",
+        "//lucid/util:scoped_value",
+        "//lucid/util:stats",
+        "//lucid/util:timer",
         "@lbfgscpp",  # Unfortunately, this target causes issues with the DWYU check
     ],
     tags = ["no-dwyu"],
