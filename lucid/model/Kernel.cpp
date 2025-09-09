@@ -9,9 +9,16 @@
 #include <ostream>
 
 #include "lucid/model/GaussianKernel.h"
-#include "lucid/util/error.h"
+#include "lucid/util/Stats.h"
+#include "lucid/util/Timer.h"
 
 namespace lucid {
+
+Matrix Kernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const {
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().kernel_timer : nullptr};
+  if (Stats::Scoped::top()) Stats::Scoped::top()->value().num_kernel_applications++;
+  return apply_impl(x1, x2, gradient);
+}
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel) {
   if (const auto* casted = dynamic_cast<const GaussianKernel*>(&kernel)) return os << *casted;

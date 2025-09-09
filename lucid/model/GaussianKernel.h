@@ -70,7 +70,7 @@ class GaussianKernel final : public Kernel {
   void set(Parameter parameter, const Vector& value) override;
 
  private:
-  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const override;
+  Matrix apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const override;
   [[nodiscard]] double get_d(Parameter parameter) const override;
   [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
 

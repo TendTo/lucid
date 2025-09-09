@@ -21,6 +21,9 @@ struct Stats {
   Timer feature_map_timer;
   Timer optimiser_timer;
   Timer tuning_timer;
+  Timer kernel_timer;
+  std::size_t num_estimator_consolidations{0};
+  std::size_t num_kernel_applications{0};
   std::size_t number_of_constraints{0};
   std::size_t number_of_variables{0};
   std::size_t peak_memory_usage_kb{0};

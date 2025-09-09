@@ -104,7 +104,22 @@ class Kernel : public Parametrizable {
    * @param[out] gradient pointer to store the gradient of the kernel function with respect to the kernel parameters
    * @return kernel value
    */
-  virtual Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const = 0;
+  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const;
+  /**
+   * Compute the kernel function on @x1 and @x2, both being matrices of row vectors in @XsubRd,
+   * @f[
+   * k(x_1, x_2) .
+   * @f]
+   * If `gradient` is not `nullptr`, the gradient of the kernel function with respect to the parameters
+   * is computed and stored in `*gradient`.
+   * @pre `x1` and `x2` must have the same number of columns.
+   * @param x1 @n1xd first input matrix
+   * @param x2 @n2xd second input matrix
+   * @param[out] gradient pointer to store the gradient of the kernel function with respect to the kernel
+   * parameters
+   * @return kernel value
+   */
+  virtual Matrix apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel);

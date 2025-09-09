@@ -30,7 +30,7 @@ GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
   is_isotropic_ = true;
 }
 
-Matrix GaussianKernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* const gradient) const {
+Matrix GaussianKernel::apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* const gradient) const {
   LUCID_TRACE_FMT("({}, {}, gradient)", LUCID_FORMAT_MATRIX(x1), LUCID_FORMAT_MATRIX(x2));
   LUCID_ASSERT(&x1 == &x2 || !gradient, "The gradient can be computed only over the same vector");
   LUCID_ASSERT(sigma_l_.size() > 0, "sigma_l must have at least one element");

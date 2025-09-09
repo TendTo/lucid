@@ -106,8 +106,8 @@ py::object get_parameter_values(const ParameterValues &self) {
 class PyKernel final : public Kernel {
  public:
   using Kernel::Kernel;
-  Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix> *gradient) const override {
-    PYBIND11_OVERRIDE_PURE_NAME(Matrix, Kernel, "__call__", operator(), x1, x2, gradient);
+  Matrix apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix> *gradient) const override {
+    PYBIND11_OVERRIDE_PURE(Matrix, Kernel, apply_impl, x1, x2, gradient);
   }
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override {
     pybind11::pybind11_fail("Tried to call pure virtual function \"Kernel::clone\"");
