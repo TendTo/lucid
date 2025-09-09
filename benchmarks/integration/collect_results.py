@@ -29,6 +29,8 @@ class Args(argparse.Namespace):
     d_uri: str
     download: bool
     plot: bool
+    filter: str
+    output: str
 
 
 def plot_solution(args: Args, data: pd.DataFrame):
@@ -63,6 +65,34 @@ def plot_solution(args: Args, data: pd.DataFrame):
         )
 
 
+def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
+    config = base_load_configuration(f"benchmarks/integration/{args.experiment.lower()}.yaml")
+    if isinstance(data, tuple):
+        data = pd.DataFrame([data._asdict()])
+    for run in data.itertuples():
+        feature_map = config.feature_map(
+            num_frequencies=run.num_frequencies,
+            sigma_l=run.sigma_l,
+            sigma_f=run.sigma_f,
+            x_limits=config.X_bounds,
+        )
+        estimator = config.estimator(
+            kernel=config.kernel(sigma_l=run.sigma_l, sigma_f=run.sigma_f),
+            regularization_constant=run.lambda_,
+        )
+        estimator.consolidate(config.x_samples, feature_map(config.xp_samples))
+
+        data = data.copy()
+        x_lattice = config.X_bounds.lattice(config.num_samples or 1000, True)
+        data["x_lattice"] = x_lattice
+        data["x_barrier_values"] = feature_map(x_lattice) @ run.solution.T
+        data["xp_est_barrier_values"] = estimator(x_lattice) @ run.solution.T
+        if config.system_dynamics:
+            data["xp_barrier_values"] = feature_map(config.system_dynamics(x_lattice)) @ run.solution.T
+
+        return data
+
+
 def get_solution(run: "Run", d_uri: str):
     _, path = run.info.artifact_uri.split("/mlruns/")
     file = requests.get(f"{d_uri}/{path}/solution.json", timeout=10)
@@ -78,7 +108,7 @@ def get_data_from_mlflow(args: Args):
     experiments = client.search_experiments(filter_string=f"name = '{args.experiment}'")
     runs = client.search_runs(
         experiment_ids=[e.experiment_id for e in experiments],
-        filter_string=FILTER,
+        filter_string=args.filter,
         order_by=["metrics.run.obj_val asc"],
     )
     print(f"Found {len(runs)} runs in experiment '{args.experiment}'.")
@@ -156,10 +186,14 @@ def main(args: Args):
         float_format="%.2f",
         column_format="c" * len(LATEX_KEEPS),
     )
-    for row in data.itertuples():
+    for i, row in enumerate(data.itertuples()):
         print(
             f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, num_oversample {row.num_oversample}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"
         )
+        if args.output:
+            data = export_solution(args, data)
+            data.to_csv(f"{args.output}-{i}.csv")
+            print(f"Exported solution to {args.output}-{i}.csv")
         if args.plot:
             r = input(f"Run {row.Index} - Print?...")
             if r.lower() == "y" or r.lower() == "yes":
@@ -191,4 +225,12 @@ if __name__ == "__main__":
     parser.add_argument("--plot_bxp", action="store_true", help="Plot the B(xp) surface.")
     parser.add_argument("--plot_bxe", action="store_true", help="Plot the B(xp) est. surface.")
     parser.add_argument("--plot", action="store_true", help="Plot the solution.")
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default="",
+        help="Output file path if the solution is to be exported, without the extension.",
+    )
+    parser.add_argument("-f", "--filter", type=str, default=FILTER, help="Filter for the MLflow runs.")
     main(parser.parse_args())
