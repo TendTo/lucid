@@ -104,6 +104,15 @@ lucid_cc_library(
     name = "timer",
     srcs = ["Timer.cpp"],
     hdrs = ["Timer.h"],
+    implementation_deps = [
+        ":error",
+        ":logging",
+    ],
+)
+
+lucid_cc_library(
+    name = "scoped_value",
+    hdrs = ["ScopedValue.h"],
 )
 
 lucid_cc_library(
@@ -154,6 +163,7 @@ lucid_cc_library(
         ":index_iterator",
         ":math",
         ":random",
+        ":scoped_value",
         ":tensor",
         ":timer",
     ],

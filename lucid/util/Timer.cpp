@@ -10,7 +10,7 @@
 
 #include <stdexcept>
 
-#include "lucid/util/exception.h"
+#include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
 namespace lucid {
@@ -62,8 +62,7 @@ std::chrono::duration<double>::rep TimerBase<T>::seconds() const {
 user_clock::time_point user_clock::now() {
   LUCID_TRACE("user_clock::now");
   struct rusage usage{};
-  if (0 != getrusage(RUSAGE_SELF, &usage))
-    throw exception::LucidException("Failed to get current resource usage (getrusage)");
+  if (0 != getrusage(RUSAGE_SELF, &usage)) LUCID_RUNTIME_ERROR("Failed to get current resource usage (getrusage)");
   return time_point(duration(static_cast<uint64_t>(usage.ru_utime.tv_sec) * std::micro::den +
                              static_cast<uint64_t>(usage.ru_utime.tv_usec)));
 }

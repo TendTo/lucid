@@ -8,6 +8,7 @@
 #pragma once
 
 #include "lucid/util/IndexIterator.h"
+#include "lucid/util/ScopedValue.h"
 #include "lucid/util/Tensor.h"
 #include "lucid/util/TensorIterator.h"
 #include "lucid/util/TensorView.h"
