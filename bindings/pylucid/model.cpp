@@ -146,8 +146,8 @@ class PyTuner final : public Tuner {
 class PyFeatureMap : public FeatureMap {
  public:
   using FeatureMap::FeatureMap;
-  [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override {
-    PYBIND11_OVERRIDE_PURE_NAME(Matrix, FeatureMap, "__call__", operator(), x);
+  [[nodiscard]] Matrix apply_impl(ConstMatrixRef x) const override {
+    PYBIND11_OVERRIDE_PURE(Matrix, FeatureMap, apply_impl, x);
   }
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override {
     pybind11::pybind11_fail("Tried to call pure virtual function \"FeatureMap::clone\"");

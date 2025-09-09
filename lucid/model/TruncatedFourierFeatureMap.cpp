@@ -6,9 +6,9 @@
  */
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 
+#include <memory>
 #include <numbers>
 #include <utility>
-#include <memory>
 
 #include "lucid/util/IndexIterator.h"
 #include "lucid/util/error.h"
@@ -82,7 +82,7 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
 }
 Matrix TruncatedFourierFeatureMap::map_matrix(ConstMatrixRef x) const { return (*this)(x); }
 
-Matrix TruncatedFourierFeatureMap::operator()(ConstMatrixRef x) const {
+Matrix TruncatedFourierFeatureMap::apply_impl(ConstMatrixRef x) const {
   Matrix out{x.rows(), weights_.size()};
   for (Index row = 0; row < x.rows(); row++) out.row(row) = map_vector(x.row(row));
   return out;

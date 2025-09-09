@@ -69,7 +69,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * @param x input vector
    * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
    */
-  [[nodiscard]] Matrix operator()(ConstMatrixRef x) const override;
+  [[nodiscard]] Matrix apply_impl(ConstMatrixRef x) const override;
 
   /** @getter{dimension, the feature map space} */
   [[nodiscard]] Dimension dimension() const { return weights_.size(); }

@@ -11,20 +11,23 @@
 #include "LbfgsTuner.h"
 #include "lucid/model/GridSearchTuner.h"
 #include "lucid/model/MedianHeuristicTuner.h"
+#include "lucid/util/ScopedValue.h"
+#include "lucid/util/Stats.h"
+#include "lucid/util/Timer.h"
 #include "lucid/util/error.h"
 
 namespace lucid {
 
 void Tuner::tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs) const {
-  LUCID_TRACE_FMT("({}, {}, {})", estimator, LUCID_FORMAT_MATRIX(training_inputs),
-                  LUCID_FORMAT_MATRIX(training_outputs));
   LUCID_CHECK_ARGUMENT_EQ(training_inputs.rows(), training_outputs.rows());
-  tune_impl(estimator, training_inputs,
-            [training_outputs](const Estimator&, ConstMatrixRef) { return training_outputs; });
+  tune_online(estimator, training_inputs,
+              [training_outputs](const Estimator&, ConstMatrixRef) { return training_outputs; });
 }
 void Tuner::tune_online(Estimator& estimator, ConstMatrixRef training_inputs,
                         const OutputComputer& training_outputs) const {
-  LUCID_TRACE_FMT("({}, {}, <lambda>)", estimator, LUCID_FORMAT_MATRIX(training_inputs));
+  LUCID_TRACE_FMT("({}, {}, training_outputs)", estimator, LUCID_FORMAT_MATRIX(training_inputs));
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().tuning_timer : nullptr};
+  if (Stats::Scoped::top()) Stats::Scoped::top()->value().num_tuning++;
   tune_impl(estimator, training_inputs, training_outputs);
 }
 std::ostream& operator<<(std::ostream& os, const Tuner& tuner) {

@@ -64,6 +64,8 @@ lucid_cc_library(
     ],
     implementation_deps = [
         "//lucid/util:error",
+        "//lucid/util:stats",
+        "//lucid/util:timer",
     ],
     deps = [
         ":parameter",
@@ -98,7 +100,6 @@ lucid_cc_library(
         ":gram_matrix",
         "//lucid/util:error",
         "//lucid/util:index_iterator",
-        "//lucid/util:scoped_value",
         "//lucid/util:stats",
         "//lucid/util:timer",
         "@lbfgscpp",  # Unfortunately, this target causes issues with the DWYU check
@@ -134,6 +135,8 @@ lucid_cc_library(
         "//lucid/util:error",
         "//lucid/util:index_iterator",
         "//lucid/util:math",
+        "//lucid/util:stats",
+        "//lucid/util:timer",
     ],
     deps = [
         ":set",

@@ -15,6 +15,7 @@
 namespace lucid {
 
 Matrix Kernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const {
+  LUCID_TRACE_FMT("({}, {}, {})", LUCID_FORMAT_MATRIX(x1), LUCID_FORMAT_MATRIX(x2), gradient != nullptr);
   TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().kernel_timer : nullptr};
   if (Stats::Scoped::top()) Stats::Scoped::top()->value().num_kernel_applications++;
   return apply_impl(x1, x2, gradient);
