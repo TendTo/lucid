@@ -129,6 +129,7 @@ class UserTimer : public TimerBase<user_clock> {};
  * };
  * @endcode
  */
+template <class T>
 class TimerGuard {
  public:
   /**
@@ -140,7 +141,7 @@ class TimerGuard {
    * @param timer a pointer to the timer object to be guarded. Must remain valid for the lifetime of the guard
    * @param start_timer whether the timer should be started as soon as the guard is created
    */
-  explicit TimerGuard(Timer *timer, bool start_timer = true);
+  explicit TimerGuard(T *timer, bool start_timer = true);
 
   TimerGuard(const TimerGuard &) = delete;
   TimerGuard(TimerGuard &&) = delete;
@@ -160,7 +161,7 @@ class TimerGuard {
   void resume();
 
  private:
-  Timer *const timer_;  ///< The timer to be guarded.
+  T *const timer_;  ///< The timer to be guarded.
 };
 
 }  // namespace lucid
