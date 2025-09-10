@@ -6,12 +6,19 @@
  */
 #include "lucid/util/Timer.h"
 
-#include <sys/resource.h>
-
 #include <stdexcept>
 
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
+
+#if defined(__linux__) || defined(__APPLE__)
+#include <sys/resource.h>
+#elif defined(_WIN32)
+#include <windows.h>
+#ifdef OUT
+#undef OUT
+#endif
+#endif
 
 namespace lucid {
 
@@ -61,30 +68,50 @@ std::chrono::duration<double>::rep TimerBase<T>::seconds() const {
 
 user_clock::time_point user_clock::now() {
   LUCID_TRACE("user_clock::now");
-  struct rusage usage{};
+#if defined(__linux__) || defined(__APPLE__)
+  rusage usage{};
   if (0 != getrusage(RUSAGE_SELF, &usage)) LUCID_RUNTIME_ERROR("Failed to get current resource usage (getrusage)");
   return time_point(duration(static_cast<uint64_t>(usage.ru_utime.tv_sec) * std::micro::den +
                              static_cast<uint64_t>(usage.ru_utime.tv_usec)));
+#elif defined(_WIN32)
+  static HANDLE process = GetCurrentProcess();
+  FILETIME creation_time, exit_time, kernel_time, user_time;
+  if (0 == GetProcessTimes(process, &creation_time, &exit_time, &kernel_time, &user_time))
+    LUCID_RUNTIME_ERROR("Failed to get current process times (GetProcessTimes)");
+  ULARGE_INTEGER u;
+  u.LowPart = user_time.dwLowDateTime;
+  u.HighPart = user_time.dwHighDateTime;
+  return time_point(duration(u.QuadPart / 10));  // Convert from 100-nanosecond intervals to microseconds
+#else
+  return 0;
+#endif
 }
 
 // Explicit instantiations
 template class TimerBase<chosen_steady_clock>;
 template class TimerBase<user_clock>;
 
-TimerGuard::TimerGuard(Timer *const timer, const bool start_timer) : timer_{timer} {
+template <class T>
+TimerGuard<T>::TimerGuard(T *const timer, const bool start_timer) : timer_{timer} {
   if (start_timer && timer_) timer_->resume();
 }
 
-TimerGuard::~TimerGuard() {
+template <class T>
+TimerGuard<T>::~TimerGuard() {
   if (timer_) timer_->pause();
 }
 
-void TimerGuard::pause() {
+template <class T>
+void TimerGuard<T>::pause() {
   if (timer_) timer_->pause();
 }
 
-void TimerGuard::resume() {
+template <class T>
+void TimerGuard<T>::resume() {
   if (timer_) timer_->resume();
 }
+
+template class TimerGuard<Timer>;
+template class TimerGuard<UserTimer>;
 
 }  // namespace lucid
