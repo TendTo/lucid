@@ -13,6 +13,8 @@
 
 namespace lucid {
 
+const Matrix emptyMatrix{Matrix::Zero(0, 0)};
+
 std::ostream &operator<<(std::ostream &os, const Configuration &config) {
   return os << fmt::format(
              "Config( "

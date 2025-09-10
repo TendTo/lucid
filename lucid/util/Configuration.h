@@ -16,11 +16,7 @@
 
 namespace lucid {
 
-namespace {
-
-const Matrix emptyMatrix{Matrix::Zero(0, 0)};
-
-}
+extern const Matrix emptyMatrix;
 
 #define LUCID_CONSTEXPR_PARAMETER(param_name, type, default_value, help)                   \
  public:                                                                                   \

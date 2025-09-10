@@ -7,6 +7,7 @@
 #include "lucid/model/Kernel.h"
 
 #include <ostream>
+#include <vector>
 
 #include "lucid/model/GaussianKernel.h"
 #include "lucid/util/Stats.h"
