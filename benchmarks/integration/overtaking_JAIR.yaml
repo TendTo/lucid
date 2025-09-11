@@ -19,7 +19,7 @@ sigma_f: 7
 sigma_l: [10.0, 7.0, 5.0]
 time_horizon: 20
 plot: true
-verify: false
+verify: true
 num_oversample: 30
 estimator: KernelRidgeRegressor
 kernel: GaussianKernel
