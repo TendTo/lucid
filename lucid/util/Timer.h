@@ -12,6 +12,8 @@
 #include <ratio>
 #include <type_traits>
 
+#include "lucid/util/concept.h"
+
 namespace lucid {
 
 // Forward declaration
@@ -91,7 +93,7 @@ using chosen_steady_clock = std::conditional_t<std::chrono::high_resolution_cloc
                                                std::chrono::high_resolution_clock, std::chrono::steady_clock>;
 
 extern template class TimerBase<chosen_steady_clock>;
-/** Timer class using the a steady clock. */
+/** Timer class using the steady clock (wall time). */
 class Timer : public TimerBase<chosen_steady_clock> {};
 
 /**
@@ -108,7 +110,7 @@ struct user_clock {
 };
 
 extern template class TimerBase<user_clock>;
-/** Timer class using the user_clock. */
+/** Timer class using the user_clock (CPU user timer). */
 class UserTimer : public TimerBase<user_clock> {};
 
 /**
@@ -129,7 +131,7 @@ class UserTimer : public TimerBase<user_clock> {};
  * };
  * @endcode
  */
-template <class T>
+template <IsAnyOf<Timer, UserTimer> T>
 class TimerGuard {
  public:
   /**

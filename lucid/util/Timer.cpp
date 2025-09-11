@@ -91,22 +91,22 @@ user_clock::time_point user_clock::now() {
 template class TimerBase<chosen_steady_clock>;
 template class TimerBase<user_clock>;
 
-template <class T>
+template <IsAnyOf<Timer, UserTimer> T>
 TimerGuard<T>::TimerGuard(T *const timer, const bool start_timer) : timer_{timer} {
   if (start_timer && timer_) timer_->resume();
 }
 
-template <class T>
+template <IsAnyOf<Timer, UserTimer> T>
 TimerGuard<T>::~TimerGuard() {
   if (timer_) timer_->pause();
 }
 
-template <class T>
+template <IsAnyOf<Timer, UserTimer> T>
 void TimerGuard<T>::pause() {
   if (timer_) timer_->pause();
 }
 
-template <class T>
+template <IsAnyOf<Timer, UserTimer> T>
 void TimerGuard<T>::resume() {
   if (timer_) timer_->resume();
 }

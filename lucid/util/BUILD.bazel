@@ -46,6 +46,7 @@ lucid_cc_library(
     srcs = ["metrics.cpp"],
     hdrs = ["metrics.h"],
     implementation_deps = [":error"],
+    deps = [":logging"],
 )
 
 lucid_cc_library(
@@ -115,6 +116,7 @@ lucid_cc_library(
         ":error",
         ":logging",
     ],
+    deps = [":concepts"],
 )
 
 lucid_cc_library(
@@ -123,9 +125,10 @@ lucid_cc_library(
     hdrs = ["Stats.h"],
     implementation_deps = [
         ":error",
-        ":logging",
+        ":metrics",
     ],
     deps = [
+        ":logging",
         ":scoped_value",
         ":timer",
     ],
