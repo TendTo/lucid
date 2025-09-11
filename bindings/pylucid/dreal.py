@@ -221,3 +221,84 @@ def verify_barrier_certificate(
     if (true_barrier_p - true_barrier > c + tolerance * c).any():
         log.error("Violated barrier condition: Bp - B <= c.")
     return False
+
+# Implemented by Oliver:
+def verify_barrier_conditions(
+    X_bounds: "RectSet",
+    X_init: "Set",
+    X_unsafe: "Set",
+    sigma_f: float,
+    eta: float,
+    gamma: float,
+    c: float,
+    estimator: "Estimator",
+    tffm: "TruncatedFourierFeatureMap",
+    sol: "NVector",
+    epsilon: float,
+    b_norm: float,
+):
+    """Use the dReal SMT solver to verify the barrier conditions on their entire continuous sets X_bounds, X_init, and X_unsafe.
+    If a counterexample is found, it prints the counterexample point and the corresponding barrier values.
+
+    Args:
+        X_bounds: set of bounds for the state space
+        X_init: set of initial states
+        X_unsafe: set of unsafe states
+        sigma_f: kernel bandwidth parameter
+        eta: expected value of the barrier function at the initial state
+        gamma: minimum value of the barrier function in the unsafe set
+        c: maximum change in the barrier function value between successive states
+        estimator: estimator object used to model the black-box system
+        tffm: TruncatedFourierFeatureMap object containing the Fourier feature map
+        sol: barrier certificate solution which uniquely identifies the barrier function
+
+    Returns:
+        True if the barrier conditions are satisfied, False otherwise.
+    """
+    # Create symbolic variables for the input dimensions
+    x = np.array([Real(f"x{i}") for i in range(X_bounds.dimension)])[np.newaxis, :] # x in X_bounds
+    x = x[0].tolist()  # Convert to a list for further processing
+    barrier = build_barrier_expression(xs=x, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
+    barrier_p = estimator(x) @ sol.T
+
+ 
+    # Idea: Trying to find a counterexample that violates one of the barrier conditions.
+    # ========= Barrier condition 1: Positivity ========================================
+    tolerance = 1e-8
+    constraints_pos = Not(barrier >= -tolerance),
+
+    # ========= Barrier condition 2: Initial set =======================================
+    constraints_init = Implies(build_set_constraint(x, X_init), Not(barrier <= eta + tolerance * eta))
+
+    # ========= Barrier condition 3: Unsafe set ========================================
+    constraints_unsafe = Implies(build_set_constraint(x, X_unsafe), Not(barrier >= gamma - tolerance * gamma))
+
+    # ========= Barrier condition 4: Kushner condition =================================
+    kappa = sigma_f * epsilon * b_norm
+    constraints_kushner = Implies(Not(build_set_constraint(x, X_unsafe)), Not(barrier_p - barrier <= c + tolerance * c + kappa))
+
+    condition_names = ["1 (Positivity)", "2 (Initial set)", "3 (Unsafe set)", "4 (Kushner)"]
+    for constraint, name in zip([constraints_pos, constraints_init, constraints_unsafe, constraints_kushner], condition_names):
+        res = CheckSatisfiability(constraint, 1e-8)
+        if res is None:
+            log.info(f"Condition {name} has been verified via dReal.")
+        else:
+            log.error("Found counter example")
+            model = {str(x_): res[x_].lb() for x_ in x}
+            log.error(f"Model: {model}")
+            point = np.array([list(model.values())], dtype=np.float64)
+            true_barrier = tffm(point) @ sol.T
+            estimated_barrier_p = estimator(point) @ sol.T
+            log.error(f"X: {point}, barrier value: {true_barrier}")
+            log.error(f"Xp: estimated, barrier value: {estimated_barrier_p}")
+            if (true_barrier < -tolerance).any():
+                log.error("Violated barrier condition: B >= 0.")
+            if point in X_unsafe and (true_barrier < gamma - tolerance * gamma).any():
+                log.error("Violated barrier condition: B >= gamma.")
+            if point in X_init and (true_barrier > eta + tolerance * eta).any():
+                log.error("Violated barrier condition: B <= eta.")
+            if (estimated_barrier_p - true_barrier > c + tolerance * c + kappa).any():
+                log.error("Violated barrier condition: Bp - B <= c + kappa.")
+            return False
+        
+    return True # If no counterexample was found, all conditions are satisfied

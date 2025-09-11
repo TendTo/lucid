@@ -23,11 +23,11 @@ if TYPE_CHECKING:
 
 
 try:
-    from .dreal import verify_barrier_certificate
+    from .dreal import verify_barrier_conditions
 except ImportError:
     log.warn("Verification disabled")
 
-    def verify_barrier_certificate(*args, **kwargs) -> "bool":
+    def verify_barrier_conditions(*args, **kwargs) -> "bool":
         pass
 
 
@@ -235,20 +235,21 @@ def pipeline(
             )
             if plot_cb is not None:
                 plot_cb(fig)
-        if config.verify and config.system_dynamics is not None and success:
+        if config.verify and success:
             log.info("Verifying the solution")
-            verified = verify_barrier_certificate(
+            verified = verify_barrier_conditions(
                 X_bounds=config.X_bounds,
                 X_init=config.X_init,
                 X_unsafe=config.X_unsafe,
                 sigma_f=config.sigma_f,
                 eta=eta,
                 c=c,
-                f_det=config.system_dynamics,
                 gamma=config.gamma,
                 estimator=estimator,
                 tffm=feature_map,
                 sol=sol,
+                epsilon=config.epsilon,
+                b_norm=config.b_norm,
             )
             if verify_cb is not None:
                 verify_cb(verified)
