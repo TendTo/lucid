@@ -102,6 +102,13 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 
 - [ ] Use templates instead of polymorphism where possible
 - [ ] Parallelization via OpenMP and/or GPU
+- [ ] Remove lattice points from $X_{\hat{N}}$ that intersect with the unsafe set $X_u$ (effort 1/performance +2)
+- [ ] Eliminate cross-frequencies from the basis, thus reducing the problem size significantly (effort 1/performance +3.5)
+- [ ] Use cheating coefficient c_coefficient<1 and use dReal to certify if the constraints hold on the entire continuous sets X_bounds, X_init, X_unsafe (effort 1/performance +4)
+- [ ] Include variables $min_{\hat N}^{X_0}$ and $max_{\hat N}^{X_u}$ for each individual initial and unsafe region; applies only when multiple initial and/or unsafe regions are given (effort 2/performance +4)
+- [ ] Allow to define dimension-wise independent lattice densities; only helps if no. of frequencies can also be specified to be dimension-wise differently (effort 2/performance +3)
+- [ ] Use global optimizer instead of LP solver; operate directly on nonlinear (in x) trigonometric barrier conditions (effort 4/performance +5)
+- [ ] Partition state space and define variables $min_{\Delta}$ and $max_{\hat N}^{X}$ for each local partition to make the conditions less conservative (effort 5/performance +5)
 
 ### Documentation
 
