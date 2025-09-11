@@ -101,4 +101,41 @@ size_t get_current_rss() { return 0; }
 size_t get_peak_rss() { return 0; }
 #endif
 
+double bytes_to(const std::size_t size_in_bytes, const MemoryUnit unit) {
+  switch (unit) {
+    case MemoryUnit::B:
+      return static_cast<double>(size_in_bytes);
+    case MemoryUnit::KB:
+      return static_cast<double>(size_in_bytes) / static_cast<double>(1 << 10);
+    case MemoryUnit::MB:
+      return static_cast<double>(size_in_bytes) / static_cast<double>(1 << 20);
+    case MemoryUnit::GB:
+      return static_cast<double>(size_in_bytes) / static_cast<double>(1 << 30);
+    default:
+      return 0.0;
+  }
+}
+
+MemoryUnit get_suggested_memory_unit(const std::size_t size_in_bytes) {
+  if (size_in_bytes < (1 << 10)) return MemoryUnit::B;
+  if (size_in_bytes < (1 << 20)) return MemoryUnit::KB;
+  if (size_in_bytes < (1 << 30)) return MemoryUnit::MB;
+  return MemoryUnit::GB;
+}
+
+std::ostream& operator<<(std::ostream& os, MemoryUnit unit) {
+  switch (unit) {
+    case MemoryUnit::B:
+      return os << "B";
+    case MemoryUnit::KB:
+      return os << "KB";
+    case MemoryUnit::MB:
+      return os << "MB";
+    case MemoryUnit::GB:
+      return os << "GB";
+    default:
+      LUCID_UNREACHABLE();
+  }
+}
+
 }  // namespace lucid::metrics

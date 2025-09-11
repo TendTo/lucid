@@ -8,6 +8,13 @@
 #pragma once
 
 #include <cstddef>
+#include <iosfwd>
+
+/**
+ * @namespace lucid::metrics
+ * Collection of metric measuring functions.
+ */
+namespace lucid::metrics {
 
 /** Memory units for conversion. */
 enum class MemoryUnit {
@@ -16,12 +23,6 @@ enum class MemoryUnit {
   MB,  ///< Megabytes (1024 Kilobytes)
   GB   ///< Gigabytes (1024 Megabytes)
 };
-
-/**
- * @namespace lucid::metrics
- * Collection of metric measuring functions.
- */
-namespace lucid::metrics {
 
 /**
  * Get the current Resident Set Size (RSS) in bytes.
@@ -40,7 +41,7 @@ std::size_t get_peak_rss();
  * Convert a size in bytes to the specified memory unit.
  * @tparam U memory unit to convert to (default: MB)
  * @param size_in_bytes size in bytes
- * @return size in megabytes
+ * @return size in the specified memory unit
  */
 template <MemoryUnit U = MemoryUnit::MB>
 double bytes_to(const std::size_t size_in_bytes) {
@@ -51,4 +52,31 @@ double bytes_to(const std::size_t size_in_bytes) {
   return 0.0;
 }
 
+/**
+ * Convert a size in bytes to the specified memory unit.
+ * @param unit memory unit to convert to (default: MB)
+ * @param size_in_bytes size in bytes
+ * @return size in the specified memory unit
+ */
+double bytes_to(std::size_t size_in_bytes, MemoryUnit unit);
+
+/**
+ * Suggest the most appropriate memory unit for a given size in bytes.
+ * The function selects the largest memory unit such that the converted size is at least 1 and less than 1024,
+ * provided the size is non-zero and within the range of known memory units.
+ * @param size_in_bytes size in bytes
+ * @return suggested memory unit for the given size in bytes
+ */
+MemoryUnit get_suggested_memory_unit(std::size_t size_in_bytes);
+
+std::ostream& operator<<(std::ostream& os, MemoryUnit unit);
+
 }  // namespace lucid::metrics
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::metrics::MemoryUnit)
+
+#endif

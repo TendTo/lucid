@@ -1,7 +1,6 @@
 import importlib
 import inspect
 import sys
-import time
 
 import numpy as np
 
@@ -83,17 +82,17 @@ def main(argv: "Sequence[str] | None" = None) -> int:
             raise raise_error("The 'scenario_config' function must return an instance of 'Configuration'")
     else:
         # If no input file is provided, use the default scenario configuration
-        log.info("No input file provided, using default scenario configuration")
+        log.info("No python script provided, using default scenario configuration with the specified parameters")
         config = scenario_config(config)
 
     # If all the checks pass, run the scenario
     from pylucid.pipeline import pipeline
 
     log.info(f"Running scenario (LUCID version: {__version__})")
-    start = time.time()
-    pipeline(config)
-    end = time.time()
-    log.info(f"Elapsed time: {end - start}")
+    with Stats() as stats:
+        pipeline(config)
+        stats.collect_peak_rss_memory_usage()
+        log.info(str(stats))
     return 0
 
 
