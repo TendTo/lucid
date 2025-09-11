@@ -12,27 +12,74 @@
 #include "lucid/util/util.h"
 
 #include <pybind11/functional.h>
+#include <pybind11/stl.h>
+
+#include <optional>
 
 #include "bindings/pylucid/pylucid.h"
+#include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
 namespace py = pybind11;
 using namespace lucid;
 
-#define STATS_PROPERTY(name)                                                             \
-  [](const ScopedStats& self) {                                                          \
-    if (self.stats.empty()) {                                                            \
-      throw std::runtime_error("No stats available. Make sure to use the 'with' sytax"); \
-    }                                                                                    \
-    return self.stats.at(0)->name;                                                       \
+#define THROW_NOT_STATS_AVAILABLE_ERROR() \
+  throw exception::LucidPyException(      \
+      "No stats available. Make sure to check the property the 'with' block it was defined in")
+
+#define STATS_PROPERTY(name) [](const ScopedStats& self) { return self.stats().name; }
+
+/**
+ * Scoped stats class to be used in Python bindings.
+ * This class provides a context manager interface to collect and access statistics
+ * related to various operations within a defined scope.
+ * @todo Replace the vector with an optional when the issue with pybind11's __enter__ and optional is resolved.
+ */
+class ScopedStats {
+ public:
+  /** Create a new ScopedStats instance. */
+  ScopedStats() { stats_.reserve(1); }
+
+  /**
+   * Emplace a new Stats instance onto the stack if none exists.
+   * This method ensures that there is always a Stats instance available when entering a new scope.
+   * @return reference to the top Stats instance
+   */
+  ScopedStats& enter() {
+    if (stats_.empty()) stats_.emplace_back();
+    stats_.front()->total_timer.start();
+    return *this;
   }
 
-struct ScopedStats {
-  std::vector<Stats::Scoped> stats;
+  /** Clear the Stats instance from the stack. */
+  void exit() { stats_.clear(); }
+
+  /**
+   * Get a read-only reference to the top Stats instance.
+   * @return const reference to the top Stats instance
+   * @throw lucid::exception::LucidException if no Stats instance is available
+   */
+  [[nodiscard]] const Stats& stats() const {
+    if (stats_.empty()) THROW_NOT_STATS_AVAILABLE_ERROR();
+    return *stats_.front();
+  }
+
+  /** @checker{has_stats, whether stats are available} */
+  [[nodiscard]] bool has_stats() const { return !stats_.empty(); }
+
+  void collect_peak_rss_memory_usage() {
+    if (stats_.empty()) THROW_NOT_STATS_AVAILABLE_ERROR();
+    stats_.front()->peak_rss_memory_usage = metrics::get_peak_rss();
+  }
+
+ private:
+  std::vector<Stats::Scoped> stats_;  ///< Stack of Stats instances. Can contain at most one element.
 };
 
 std::ostream& operator<<(std::ostream& os, const ScopedStats& stats) {
-  return os << (stats.stats.empty() ? "No stats available." : fmt::format("{}", *stats.stats.at(0)));
+  return os << (stats.has_stats()
+                    ? fmt::format("{}", stats.stats())
+                    : "No stats available. Make sure the object is within the 'with' block it was defined in");
 }
 
 void init_util(py::module_& m) {
@@ -77,19 +124,21 @@ void init_util(py::module_& m) {
 
   py::class_<ScopedStats>(m, "Stats")
       .def(py::init<>())
+      .def("collect_peak_rss_memory_usage", &ScopedStats::collect_peak_rss_memory_usage)
       .def_property_readonly("estimator_time", STATS_PROPERTY(estimator_timer.seconds()))
       .def_property_readonly("feature_map_time", STATS_PROPERTY(feature_map_timer.seconds()))
       .def_property_readonly("optimiser_time", STATS_PROPERTY(optimiser_timer.seconds()))
       .def_property_readonly("tuning_time", STATS_PROPERTY(tuning_timer.seconds()))
+      .def_property_readonly("kernel_time", STATS_PROPERTY(kernel_timer.seconds()))
+      .def_property_readonly("total_time", STATS_PROPERTY(total_timer.seconds()))
       .def_property_readonly("num_constraints", STATS_PROPERTY(num_constraints))
       .def_property_readonly("num_variables", STATS_PROPERTY(num_variables))
-      .def_property_readonly("peak_memory_usage_kb", STATS_PROPERTY(peak_memory_usage_kb))
-      .def("__enter__",
-           [](ScopedStats& self) -> ScopedStats& {
-             self.stats.emplace_back();
-             return self;
-           })
-      .def("__exit__",
-           [](ScopedStats& self, const py::object&, const py::object&, const py::object&) { self.stats.pop_back(); })
+      .def_property_readonly("peak_rss_memory_usage", STATS_PROPERTY(peak_rss_memory_usage))
+      .def_property_readonly("num_estimator_consolidations", STATS_PROPERTY(num_estimator_consolidations))
+      .def_property_readonly("num_feature_map_applications", STATS_PROPERTY(num_feature_map_applications))
+      .def_property_readonly("num_kernel_applications", STATS_PROPERTY(num_kernel_applications))
+      .def_property_readonly("num_tuning", STATS_PROPERTY(num_tuning))
+      .def("__enter__", &ScopedStats::enter)
+      .def("__exit__", [](ScopedStats& self, const py::object&, const py::object&, const py::object&) { self.exit(); })
       .def("__str__", STRING_LAMBDA(ScopedStats));
 }

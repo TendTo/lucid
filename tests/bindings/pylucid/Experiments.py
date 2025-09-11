@@ -7,8 +7,6 @@ from pylucid.plot import plot_solution
 
 np.set_printoptions(linewidth=200, suppress=True)
 
-# log.set_verbosity(log.LOG_DEBUG)
-
 
 def rmse(x: "np.typing.NDArray[np.float64]", y: "np.typing.NDArray[np.float64]", ax=0):
     return np.sqrt(((x - y) ** 2).mean(axis=ax))

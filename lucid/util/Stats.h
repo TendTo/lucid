@@ -14,21 +14,23 @@
 
 namespace lucid {
 
+/** Simple struct to hold various statistics about the execution of different components. */
 struct Stats {
   using Scoped = ScopedValue<Stats, struct StatsTag>;
 
-  Timer estimator_timer;
-  Timer feature_map_timer;
-  Timer optimiser_timer;
-  Timer tuning_timer;
-  Timer kernel_timer;
-  std::size_t num_estimator_consolidations{0};
-  std::size_t num_kernel_applications{0};
-  std::size_t num_feature_map_applications{0};
-  std::size_t num_tuning{0};
-  std::size_t num_constraints{0};
-  std::size_t num_variables{0};
-  std::size_t peak_memory_usage_kb{0};
+  Timer estimator_timer;                        ///< Timer spent for estimator applications
+  Timer feature_map_timer;                      ///< Timer spent for feature map applications
+  Timer optimiser_timer;                        ///< Timer spent in optimising
+  Timer tuning_timer;                           ///< Timer spent for hyperparameter tuning
+  Timer kernel_timer;                           ///< Timer spent for kernel evaluations
+  Timer total_timer;                            ///< Timer for the whole pipeline
+  std::size_t num_estimator_consolidations{0};  ///< Number of times an estimator was consolidated
+  std::size_t num_kernel_applications{0};       ///< Number of times a kernel was applied
+  std::size_t num_feature_map_applications{0};  ///< Number of times a feature map was applied
+  std::size_t num_tuning{0};                    ///< Number of hyperparameter tuning runs
+  std::size_t num_constraints{0};               ///< Number of constraints in the last optimisation problem
+  std::size_t num_variables{0};                 ///< Number of variables in the last optimisation problem
+  std::size_t peak_rss_memory_usage{0};         ///< Peak Resident Set Size (RSS) memory usage in bytes
 };
 
 std::ostream& operator<<(std::ostream& os, const Stats& stats);

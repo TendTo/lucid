@@ -42,6 +42,14 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "metrics",
+    srcs = ["metrics.cpp"],
+    hdrs = ["metrics.h"],
+    implementation_deps = [":error"],
+    deps = [":logging"],
+)
+
+lucid_cc_library(
     name = "configuration",
     srcs = ["Configuration.cpp"],
     hdrs = ["Configuration.h"],
@@ -108,6 +116,7 @@ lucid_cc_library(
         ":error",
         ":logging",
     ],
+    deps = [":concepts"],
 )
 
 lucid_cc_library(
@@ -116,9 +125,10 @@ lucid_cc_library(
     hdrs = ["Stats.h"],
     implementation_deps = [
         ":error",
-        ":logging",
+        ":metrics",
     ],
     deps = [
+        ":logging",
         ":scoped_value",
         ":timer",
     ],
@@ -176,6 +186,7 @@ lucid_cc_library(
         ":exception",
         ":index_iterator",
         ":math",
+        ":metrics",
         ":random",
         ":scoped_value",
         ":stats",
