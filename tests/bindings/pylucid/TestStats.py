@@ -29,6 +29,7 @@ class TestStats:
             assert stats.optimiser_time == 0.0
             assert stats.tuning_time == 0.0
             assert stats.kernel_time == 0.0
+            assert stats.total_time > 0
             assert stats.num_estimator_consolidations == 0
             assert stats.num_kernel_applications == 0
             assert stats.num_feature_map_applications == 0
@@ -45,6 +46,8 @@ class TestStats:
         assert stats is not None
         with pytest.raises(RuntimeError):
             _ = stats.estimator_time
+        with pytest.raises(RuntimeError):
+            _ = stats.total_time
         with pytest.raises(RuntimeError):
             _ = stats.num_estimator_consolidations
         with pytest.raises(RuntimeError):
