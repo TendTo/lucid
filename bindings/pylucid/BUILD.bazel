@@ -46,21 +46,7 @@ lucid_pybind_extension(
         "//lucid/util",
         "//lucid/util:error",
         "//lucid/util:logging",
-        "//lucid/verification:optimiser",
-    ],
-)
-
-lucid_pybind_extension(
-    name = "_gurobi",
-    srcs = [
-        "gurobi.cpp",
-    ],
-    linkstatic = select({
-        "//tools:static_build": True,
-        "//conditions:default": False,
-    }),
-    deps = [
-        "//lucid/verification:gurobi_optimiser",
+        "//lucid/verification",
     ],
 )
 
@@ -81,8 +67,6 @@ py_library(
         "//conditions:default": [],
     }),
     data = [
-        ":_gurobi.pyd",
-        ":_gurobi.so",
         ":_pylucid.pyd",
         ":_pylucid.so",
         ":configuration_schema.json",
@@ -138,15 +122,12 @@ genrule(
         ":pylucid_lib",
         ":_pylucid.pyd",
         ":_pylucid.so",
-        ":_gurobi.pyd",
-        ":_gurobi.so",
     ],
     outs = [
         "_pylucid/__init__.pyi",
         "_pylucid/random.pyi",
         "_pylucid/exception.pyi",
         "_pylucid/log.pyi",
-        "_gurobi.pyi",
         "__init__.pyi",
         "py.typed",
     ],
@@ -159,7 +140,6 @@ filegroup(
     name = "pylucid_files",
     srcs = [
         "configuration_schema.json",
-        ":_gurobi",
         ":_pylucid",
         ":pylucid_lib",
         ":stubgen",

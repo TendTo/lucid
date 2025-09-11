@@ -5,6 +5,9 @@ import os
 if os.name == "nt" and os.environ.get("GUROBI_HOME", "") != "":
     # Windows
     os.add_dll_directory(os.path.join(os.environ.get("GUROBI_HOME", ""), "bin"))
+elif os.environ.get("GUROBI_HOME", "") == "":
+    import gurobipy
+
 
 from importlib.util import find_spec
 
