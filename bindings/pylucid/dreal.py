@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+
 from ._pylucid import (
     Estimator,
     MultiSet,
@@ -11,6 +12,8 @@ from ._pylucid import (
     SphereSet,
     TruncatedFourierFeatureMap,
     log,
+    KernelRidgeRegressor,
+    GaussianKernel,
 )
 
 if TYPE_CHECKING:
@@ -222,6 +225,24 @@ def verify_barrier_certificate(
         log.error("Violated barrier condition: Bp - B <= c.")
     return False
 
+
+def apply_estimator(estimator: "Estimator", x: "np.ndarray[Real]") -> "np.ndarray[Real]":
+    """Apply the estimator to the input data.
+
+    Args:
+        estimator: an instance of the Estimator class
+        x: input data as symbolic variables for dReal
+
+    Returns:
+        The estimated output as symbolic variables for dReal
+    """
+    assert isinstance(estimator, KernelRidgeRegressor)
+    assert isinstance(estimator.kernel, GaussianKernel)
+    res = x / estimator.kernel.sigma_l - estimator.training_inputs / estimator.kernel.sigma_l
+    K = np.sum(res**2, axis=1)
+    return np.exp(-0.5 * K)
+
+
 # Implemented by Oliver:
 def verify_barrier_conditions(
     X_bounds: "RectSet",
@@ -231,7 +252,7 @@ def verify_barrier_conditions(
     eta: float,
     gamma: float,
     c: float,
-    estimator: "Estimator",
+    estimator: "KernelRidgeRegressor",
     tffm: "TruncatedFourierFeatureMap",
     sol: "NVector",
     epsilon: float,
@@ -256,29 +277,52 @@ def verify_barrier_conditions(
         True if the barrier conditions are satisfied, False otherwise.
     """
     # Create symbolic variables for the input dimensions
-    x = np.array([Real(f"x{i}") for i in range(X_bounds.dimension)])[np.newaxis, :] # x in X_bounds
+    x = np.array([Real(f"x{i}") for i in range(X_bounds.dimension)])[np.newaxis, :]  # x in X_bounds
     x = x[0].tolist()  # Convert to a list for further processing
     barrier = build_barrier_expression(xs=x, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
-    barrier_p = estimator(x) @ sol.T
 
- 
+    build_barrier_expression(xs=x, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
+
+    H = estimator.coefficients
+    b = sol.T
+    if False:
+        phi = np.array(
+            [
+                build_barrier_expression(
+                    xs=x, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=tffm(training_input)[0]
+                )
+                for training_input in estimator.training_inputs
+            ]
+        )
+
+        barrier_p = phi @ (H @ b)
+    else:
+        barrier_p = apply_estimator(estimator, x) @ (H @ b)
+
     # Idea: Trying to find a counterexample that violates one of the barrier conditions.
     # ========= Barrier condition 1: Positivity ========================================
     tolerance = 1e-8
-    constraints_pos = Not(barrier >= -tolerance),
+    constraints_pos = And(build_set_constraint(x, X_bounds), Not(barrier >= -tolerance))
 
     # ========= Barrier condition 2: Initial set =======================================
-    constraints_init = Implies(build_set_constraint(x, X_init), Not(barrier <= eta + tolerance * eta))
+    constraints_init = And(build_set_constraint(x, X_init), Not(barrier <= eta + tolerance * eta))
 
     # ========= Barrier condition 3: Unsafe set ========================================
-    constraints_unsafe = Implies(build_set_constraint(x, X_unsafe), Not(barrier >= gamma - tolerance * gamma))
+    constraints_unsafe = And(build_set_constraint(x, X_unsafe), Not(barrier >= gamma - tolerance * gamma))
 
     # ========= Barrier condition 4: Kushner condition =================================
     kappa = sigma_f * epsilon * b_norm
-    constraints_kushner = Implies(Not(build_set_constraint(x, X_unsafe)), Not(barrier_p - barrier <= c + tolerance * c + kappa))
+    constraints_kushner = And(
+        build_set_constraint(x, X_bounds),
+        Not(build_set_constraint(x, X_unsafe)),
+        Not(barrier_p - barrier <= c + tolerance * c + kappa),
+    )
 
     condition_names = ["1 (Positivity)", "2 (Initial set)", "3 (Unsafe set)", "4 (Kushner)"]
-    for constraint, name in zip([constraints_pos, constraints_init, constraints_unsafe, constraints_kushner], condition_names):
+    for constraint, name in zip(
+        [constraints_pos, constraints_init, constraints_unsafe, constraints_kushner], condition_names
+    ):
+        log.debug(f"Verifying condition {name}")
         res = CheckSatisfiability(constraint, 1e-8)
         if res is None:
             log.info(f"Condition {name} has been verified via dReal.")
@@ -290,6 +334,7 @@ def verify_barrier_conditions(
             true_barrier = tffm(point) @ sol.T
             estimated_barrier_p = estimator(point) @ sol.T
             log.error(f"X: {point}, barrier value: {true_barrier}")
+            log.error(f"X: {point}, barrier value: {true_barrier}")
             log.error(f"Xp: estimated, barrier value: {estimated_barrier_p}")
             if (true_barrier < -tolerance).any():
                 log.error("Violated barrier condition: B >= 0.")
@@ -300,5 +345,5 @@ def verify_barrier_conditions(
             if (estimated_barrier_p - true_barrier > c + tolerance * c + kappa).any():
                 log.error("Violated barrier condition: Bp - B <= c + kappa.")
             return False
-        
-    return True # If no counterexample was found, all conditions are satisfied
+
+    return True  # If no counterexample was found, all conditions are satisfied
