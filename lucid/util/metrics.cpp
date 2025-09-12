@@ -104,13 +104,13 @@ size_t get_peak_rss() { return 0; }
 double bytes_to(const std::size_t size_in_bytes, const MemoryUnit unit) {
   switch (unit) {
     case MemoryUnit::B:
-      return static_cast<double>(size_in_bytes);
+      return bytes_to<MemoryUnit::B>(size_in_bytes);
     case MemoryUnit::KB:
-      return static_cast<double>(size_in_bytes) / static_cast<double>(1 << 10);
+      return bytes_to<MemoryUnit::KB>(size_in_bytes);
     case MemoryUnit::MB:
-      return static_cast<double>(size_in_bytes) / static_cast<double>(1 << 20);
+      return bytes_to<MemoryUnit::MB>(size_in_bytes);
     case MemoryUnit::GB:
-      return static_cast<double>(size_in_bytes) / static_cast<double>(1 << 30);
+      return bytes_to<MemoryUnit::GB>(size_in_bytes);
     default:
       return 0.0;
   }
@@ -123,6 +123,31 @@ MemoryUnit get_suggested_memory_unit(const std::size_t size_in_bytes) {
   return MemoryUnit::GB;
 }
 
+double time_to(double duration_in_seconds, TimeUnit unit) {
+  switch (unit) {
+    case TimeUnit::MS:
+      return time_to<TimeUnit::MS>(duration_in_seconds);
+    case TimeUnit::S:
+      return time_to<TimeUnit::S>(duration_in_seconds);
+    case TimeUnit::M:
+      return time_to<TimeUnit::M>(duration_in_seconds);
+    case TimeUnit::H:
+      return time_to<TimeUnit::H>(duration_in_seconds);
+    case TimeUnit::D:
+      return time_to<TimeUnit::D>(duration_in_seconds);
+    default:
+      return 0.0;
+  }
+}
+
+TimeUnit get_suggested_time_unit(double duration_in_seconds) {
+  if (duration_in_seconds < 1e-2) return TimeUnit::MS;
+  if (duration_in_seconds < 60) return TimeUnit::S;
+  if (duration_in_seconds < 60 * 60) return TimeUnit::M;
+  if (duration_in_seconds < 60 * 60 * 24) return TimeUnit::H;
+  return TimeUnit::D;
+}
+
 std::ostream& operator<<(std::ostream& os, MemoryUnit unit) {
   switch (unit) {
     case MemoryUnit::B:
@@ -133,6 +158,23 @@ std::ostream& operator<<(std::ostream& os, MemoryUnit unit) {
       return os << "MB";
     case MemoryUnit::GB:
       return os << "GB";
+    default:
+      LUCID_UNREACHABLE();
+  }
+}
+
+std::ostream& operator<<(std::ostream& os, TimeUnit unit) {
+  switch (unit) {
+    case TimeUnit::MS:
+      return os << "ms";
+    case TimeUnit::S:
+      return os << "s";
+    case TimeUnit::M:
+      return os << "min";
+    case TimeUnit::H:
+      return os << "h";
+    case TimeUnit::D:
+      return os << "d";
     default:
       LUCID_UNREACHABLE();
   }
