@@ -180,7 +180,7 @@ struct CliArgs {
   int num_samples{1000};
   double lambda{1e-6};
   double sigma_f{1.0};
-  double sigma_l{1.0};
+  std::vector<double> sigma_l{1.0};
   int num_frequencies{4};
   double c_coefficient{1.0};
   bool plot{false};
@@ -191,6 +191,10 @@ struct CliArgs {
   int num_oversample{-1};
   double noise_scale{0.01};
   Solver solver{Solver::Gurobi};
+  std::unique_ptr<RectSet> X_bounds;
+  std::unique_ptr<Set> X_init;
+  std::unique_ptr<Set> X_unsafe;
+  std::function<Matrix(const Matrix&)> f_det;
 };
 
 #if 0
@@ -243,30 +247,26 @@ bool test_overtaking(const CliArgs& args) {
 }
 #endif
 
-bool test_linear(const CliArgs& args) {
+Vector to_eigen(const std::vector<double>& vectors) {
+  return Vector::NullaryExpr(vectors.size(), [&vectors](const Index i) { return vectors[i]; });
+}
+
+bool pipeline(const CliArgs& args) {
   random::seed(args.seed);
 
-  auto f_det = [](const Matrix& x) -> Matrix {
-    // Linear function: f(x) = 0.5 * x
-    return 0.5 * x;
-  };
-
-  auto f = [&f_det, &args](const Matrix& x) -> Matrix {
+  auto f = [&args](const Matrix& x) -> Matrix {
     std::normal_distribution d{0.0, args.noise_scale};
     // Add noise to the linear function
-    const Matrix y{f_det(x)};
-    return f_det(x) + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
+    const Matrix y{args.f_det(x)};
+    return args.f_det(x) + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
   };
 
-  const RectSet X_bounds{{{-1, 1}}};
-  const RectSet X_init{{{-0.5, 0.5}}};
-  const MultiSet X_unsafe{RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}};
-
-  const Matrix x_samples{X_bounds.sample(1000)};
+  const Matrix x_samples{args.X_bounds->sample(args.num_samples)};
   const Matrix xp_samples{f(x_samples)};
 
-  KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(args.sigma_l, args.sigma_f), args.lambda};
-  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, args.sigma_l, args.sigma_f, X_bounds};
+  Vector sigma_l{to_eigen(args.sigma_l)};
+  KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(sigma_l, args.sigma_f), args.lambda};
+  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, sigma_l, args.sigma_f, *args.X_bounds, true};
 
   const Matrix f_xp_samples{feature_map(xp_samples)};
 
@@ -284,25 +284,25 @@ bool test_linear(const CliArgs& args) {
   {
     LUCID_DEBUG_FMT("RMSE on f_xp_samples {}", scorer::rmse_score(estimator, x_samples, f_xp_samples));
     LUCID_DEBUG_FMT("Score on f_xp_samples {}", estimator.score(x_samples, f_xp_samples));
-    Matrix x_evaluation = X_bounds.sample(x_samples.rows() / 2);
-    Matrix f_xp_evaluation = feature_map(f_det(x_evaluation));
+    Matrix x_evaluation = args.X_bounds->sample(x_samples.rows() / 2);
+    Matrix f_xp_evaluation = feature_map(args.f_det(x_evaluation));
     LUCID_DEBUG_FMT("RMSE on f_det_evaluated {}", scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation));
     LUCID_DEBUG_FMT("Score on f_det_evaluated {}", estimator.score(x_evaluation, f_xp_evaluation));
   }
 
   LUCID_DEBUG_FMT("Feature map: {}", feature_map);
 
-  const Matrix x_lattice = X_bounds.lattice(n_per_dim, true);
+  const Matrix x_lattice = args.X_bounds->lattice(n_per_dim, true);
   const Matrix u_f_x_lattice = feature_map(x_lattice);
   Matrix u_f_xp_lattice_via_regressor = estimator(x_lattice);
   // We are fixing the zero frequency to the constant value we computed in the feature map
   // If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
   u_f_xp_lattice_via_regressor.col(0).array() = feature_map.weights()[0] * args.sigma_f;
 
-  const Matrix x0_lattice = X_init.lattice(n_per_dim, true);
+  const Matrix x0_lattice = args.X_init->lattice(n_per_dim, true);
   const Matrix f_x0_lattice = feature_map(x0_lattice);
 
-  const Matrix xu_lattice = X_unsafe.lattice(n_per_dim, true);
+  const Matrix xu_lattice = args.X_unsafe->lattice(n_per_dim, true);
   const Matrix f_xu_lattice = feature_map(xu_lattice);
 
   [[maybe_unused]] auto check_cb = []([[maybe_unused]] const bool success, [[maybe_unused]] const float obj_val,
@@ -325,7 +325,7 @@ bool test_linear(const CliArgs& args) {
           args.problem_log_file, args.iis_log_file,
       }
           .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
-                 args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
+                 args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
 #endif
 #ifdef LUCID_ALGLIB_BUILD
     case Solver::Alglib:
@@ -334,7 +334,7 @@ bool test_linear(const CliArgs& args) {
           args.problem_log_file, args.iis_log_file,
       }
           .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
-                 args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
+                 args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
 #endif
 #ifdef LUCID_HIGHS_BUILD
     case Solver::HiGHS:
@@ -343,7 +343,7 @@ bool test_linear(const CliArgs& args) {
           args.problem_log_file, args.iis_log_file,
       }
           .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
-                 args.num_frequencies - 1, n_per_dim, X_bounds.dimension(), check_cb);
+                 args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
 #endif
     default:
       LUCID_NOT_SUPPORTED("The chosen solver");
@@ -376,23 +376,64 @@ int main(const int argc, char* argv[]) {
   const std::string log_file = fmt::format("{}.problem.lp", solver == Solver::Gurobi   ? "gurobi"
                                                             : solver == Solver::Alglib ? "alglib"
                                                                                        : "highs");
-  test_linear({
-      .seed = 42,
-      .gamma = 1.0,
-      .time_horizon = 5,
-      .num_samples = 500,
-      .lambda = 1e-3,
-      .sigma_f = 15.0,
-      .sigma_l = 1.75555556,
-      .num_frequencies = 8,
-      .plot = true,
-      .verify = true,
-      .problem_log_file = log_file,
-      .iis_log_file = "iis.ilp",
-      .oversample_factor = 2.0,
-      .noise_scale = 0.01,
-      .solver = solver,
-  });
+
+#if 0
+  pipeline({.seed = 42,
+            .gamma = 1.0,
+            .time_horizon = 5,
+            .num_samples = 500,
+            .lambda = 1e-3,
+            .sigma_f = 15.0,
+            .sigma_l = {1.75555556},
+            .num_frequencies = 8,
+            .plot = true,
+            .verify = true,
+            .problem_log_file = log_file,
+            .iis_log_file = "iis.ilp",
+            .oversample_factor = 2.0,
+            .noise_scale = 0.01,
+            .solver = solver,
+            .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-1, 1}}),
+            .X_init = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-0.5, 0.5}}),
+            .X_unsafe = std::make_unique<MultiSet>(RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}),
+            .f_det = [](const Matrix& x) -> Matrix { return x * 0.5; }});
+#else
+  Vector centre_0{2}, centre_u{2};
+  centre_0 << -0.5, -0.5;
+  centre_u << 0.7, -0.7;
+  pipeline(CliArgs{.seed = 42,
+                   .gamma = 2.0,
+                   .time_horizon = 5,
+                   .num_samples = 500,
+                   .lambda = 1.0e-03,
+                   .sigma_f = 15.0,
+                   .sigma_l = {2.50304, 3.77779},
+                   .num_frequencies = 6,
+                   .plot = true,
+                   .verify = true,
+                   .problem_log_file = log_file,
+                   .iis_log_file = "iis.ilp",
+                   .oversample_factor = 2.0,
+                   .num_oversample = 150,
+                   .noise_scale = 0.01,
+                   .solver = solver,
+                   .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-2, 2}, {-2, 2}}),
+                   .X_init = std::make_unique<SphereSet>(centre_0, 0.4),
+                   .X_unsafe = std::make_unique<SphereSet>(centre_u, 0.3),
+                   .f_det = [](const Matrix& x) -> Matrix {
+                     // x1 = "x1 + 0.1 * (x2 - 1 + exp(-x1))"
+                     // x2 = "x2 + 0.1 * (-sin(x1)**2)"
+                     Matrix out{x.rows(), x.cols()};
+                     // out.col(0) = x.col(0).array() + 0.1 * (x.col(1).array() - 1 + (-x.col(0)).array().exp());
+                     // out.col(1) = x.col(1).array() + 0.1 * -x.col(0).array().sin().square();
+                     out = Matrix::NullaryExpr(x.rows(), x.cols(), [&x](const Index row, Index col) {
+                       return col == 0 ? x(row, 0) + 0.1 * (x(row, 1) - 1 + std::exp(-x(row, 0)))
+                                       : x(row, 1) + 0.1 * std::sin(x(row, 0)) * std::sin(x(row, 0));
+                     });
+                     return out;
+                   }});
+#endif
+
   return 0;
 }
 
