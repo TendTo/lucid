@@ -59,7 +59,6 @@ lucid_cc_py_binary(
         ":lucid_hdr",
         "//lucid/util:error",
         "//lucid/util:logging",
-        "@fmt",
     ] + select({
         "//tools:matplotlib_build": ["//lucid/util:matplotlib"],
         "//conditions:default": [],

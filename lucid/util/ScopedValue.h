@@ -23,6 +23,39 @@ class ScopedValueShield;
  * This class maintains a linked vector of instances, allowing easy access to the top (most recently created)
  * and bottom (first created) instances.
  * @code
+ * #include <iostream>
+ * #include "lucid/util/ScopedValue.h"
+ * 
+ * struct Config {
+ *   std::string path;
+ *   int level = 0;
+ * };
+ * 
+ * const Config default_config{"default_path", 0};
+ * 
+ * // The tag avoids conflicts with other ScopedValue<Config> usages.
+ * using ScopedConfig = lucid::ScopedValue<Config, struct CommandLineConfigTag>; 
+ * 
+ * void fun() {  // Note there are no parameters. This could be at any level of the call stack.
+ *   // If there is any scoped config on the stack, use it. Otherwise, use the default config.
+ *   const Config& config = ScopedConfig::top() ? ScopedConfig::top()->value() : default_config;
+ *   std::cout << "Path: " << config.path << ", level: " << config.level << std::endl;
+ * }
+ * 
+ * int main() {
+ *   fun();  // Path: default_path, level: 0
+ *   {
+ *     ScopedConfig config1{"path 1", 1};  // Push new config onto the stack
+ *     fun();                              // Path: path 1, level: 1
+ *     {
+ *       fun();                              // Path: path 1, level: 1
+ *       ScopedConfig config2{"path 2", 2};  // Push another config onto the stack
+ *       fun();                              // Path: path 2, level: 2
+ *     }  // config2 goes out of scope and is popped from the stack
+ *     fun();  // Path: path 1, level: 1
+ *   }  // config1 goes out of scope and is popped from the stack
+ *   fun();  // Path: default_path, level: 0
+ * }
  * @endcode
  * @tparam T Type of the value to be scoped.
  * @tparam Tags Variadic template parameters to uniquely identify different scoped value types.
