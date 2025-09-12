@@ -84,6 +84,7 @@ py_library(
         requirement("sympy"),
         requirement("pyyaml"),
         requirement("jsonschema"),
+        requirement("gurobipy"),
     ],
 )
 
@@ -113,6 +114,7 @@ py_binary(
         requirement("sympy"),
         requirement("pyyaml"),
         requirement("jsonschema"),
+        requirement("gurobipy"),
     ],
 )
 
