@@ -8,15 +8,23 @@
 
 #include "lucid/lib/alglib.h"
 
+#include <cassert>
 #include <iostream>
 #include <ostream>
 #include <span>
 
-#include "lucid/util/error.h"
-#include "lucid/util/logging.h"
-
 namespace lucid {
 
+std::ostream& operator<<(std::ostream& os, const std::span<const double>& data) {
+  os << "[";
+  for (std::size_t i = 0; i < data.size(); ++i) {
+    os << data[i];
+    if (i < data.size() - 1) {
+      os << ", ";
+    }
+  }
+  return os << "]";
+}
 std::ostream& operator<<(std::ostream& os, const alglib::sparsematrix& matrix) {
   const alglib::ae_int_t nrows = alglib::sparsegetnrows(matrix);
   const alglib::ae_int_t ncols = alglib::sparsegetncols(matrix);
@@ -31,13 +39,13 @@ std::ostream& operator<<(std::ostream& os, const alglib::sparsematrix& matrix) {
 }
 std::ostream& operator<<(std::ostream& os, const alglib::real_1d_array& array) {
   const std::span<const double> data(array.getcontent(), array.length());
-  return os << fmt::format("Real 1D array (length={}): {}", data.size(), data);
+  return os << "Real 1D array (length=" << data.size() << "): " << data;
 }
 void print_lp(const alglib::sparsematrix& matrix, const alglib::real_1d_array& lb, const alglib::real_1d_array& ub) {
-  LUCID_ASSERT(lb.length() == ub.length(), "The number of lower and upper bounds must be the same.");
+  assert(lb.length() == ub.length());
   const alglib::ae_int_t nrows = alglib::sparsegetnrows(matrix);
   const alglib::ae_int_t ncols = alglib::sparsegetncols(matrix);
-  LUCID_ASSERT(nrows == lb.length(), "The number of rows in the matrix must match the length of the bounds.");
+  assert(nrows == lb.length());
   for (alglib::ae_int_t i = 0; i < nrows; ++i) {
     std::cout << "Row " << i << ": ";
     for (alglib::ae_int_t j = 0; j < ncols; ++j) {

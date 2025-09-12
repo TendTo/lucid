@@ -5,8 +5,6 @@
  * @licence Apache-2.0 license
  * @file
  */
-#include <fmt/core.h>
-
 #include <chrono>
 #include <iostream>
 #include <numbers>

@@ -1,0 +1,3 @@
+#!/bin/bash
+bazel query --noimplicit_deps --notool_deps 'deps(//lucid) -kind("source file", deps(//lucid)) -kind("py_*", deps(//lucid)) -attr(name, pybind, deps(//lucid)) -attr(name, msvc_compiler, deps(//lucid)) -@platforms//...:* -@pypi//...:* -//tools:* -@rules_python//python:* -@rules_cc//:link_extra_libs -@rules_cc//:link_extra_lib  -@rules_python//python/...:*  -@pybind11_bazel//...:* -@rules_cc//cc/...:* -//lucid:lucid_py_runtime -//lucid:generate_version_header -@bazel_tools//tools/cpp:* -deps(@gurobi) -deps(@alglib) -deps(@highs) -deps(@spdlog) -deps(@boost.math) union @boost.math union @fmt union @spdlog union @highs union @gurobi union @alglib'  \
+--output graph > graph.in && dot -Tpng < graph.in > graph.png && rm graph.in

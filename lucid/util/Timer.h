@@ -16,9 +16,6 @@
 
 namespace lucid {
 
-// Forward declaration
-struct user_clock;
-
 /**
  * Simple timer class to evaluate the performance of the software.
  * The timer can be started, paused, and resumed.

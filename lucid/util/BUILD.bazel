@@ -123,10 +123,7 @@ lucid_cc_library(
     name = "stats",
     srcs = ["Stats.cpp"],
     hdrs = ["Stats.h"],
-    implementation_deps = [
-        ":error",
-        ":metrics",
-    ],
+    implementation_deps = [":metrics"],
     deps = [
         ":logging",
         ":scoped_value",
