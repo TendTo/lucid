@@ -47,6 +47,15 @@ LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num
                                                                    const Scalar sigma_f, const RectSet& x_limits)
     : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                        x_limits} {}
+LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, ConstVectorRef sigma_l,
+                                                                   const Scalar sigma_f, const RectSet& x_limits, bool)
+    : TruncatedFourierFeatureMap{num_frequencies, get_prob_dim_wise(num_frequencies, sigma_l), sigma_f, x_limits,
+                                 true} {}
+LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
+                                                                   const Scalar sigma_f, const RectSet& x_limits, bool)
+    : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
+                                       x_limits, true} {}
+
 std::unique_ptr<FeatureMap> LinearTruncatedFourierFeatureMap::clone() const {
   LUCID_TRACE("Cloning");
   return std::make_unique<LinearTruncatedFourierFeatureMap>(*this);

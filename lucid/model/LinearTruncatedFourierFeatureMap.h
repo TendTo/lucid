@@ -44,6 +44,9 @@ class LinearTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap
   LinearTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f,
                                    const RectSet& x_limits);
   LinearTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits);
+  LinearTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& x_limits,
+                                   bool);
+  LinearTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits, bool);
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 };
