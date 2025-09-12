@@ -38,6 +38,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
       omega_(row, col++) = 2 * std::numbers::pi * static_cast<double>(val);
   }
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
+  LUCID_CRITICAL_FMT("Omega: {}", LUCID_FORMAT_MATRIX(omega_));
 
   const Vector prod{combvec(prob_dim_wise).colwise().prod()};
   if (captured_probability_ = prod.sum(); captured_probability_ > 0.94)
@@ -53,6 +54,62 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
     weights_(2 * i) = single_weights(i);
     weights_(2 * i - 1) = single_weights(i);
   }
+  LUCID_CRITICAL_FMT("weights_: {}", LUCID_FORMAT_MATRIX(weights_));
+}
+
+double get_prob(const Matrix& prob_dim_wise, Index dim, Index tot_dims, Index freq) {
+  double prod = 1.0;
+  for (Index other_dim = 0; other_dim < tot_dims; other_dim++) {
+    prod *= other_dim == dim ? prob_dim_wise(other_dim, freq) : prob_dim_wise(other_dim, 0);
+  }
+  return prod;
+}
+
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_dim_wise, Scalar sigma_f,
+                                                       const RectSet& x_limits, const bool)
+    : num_frequencies_per_dimension_{num_frequencies},
+      omega_{Matrix::Zero((num_frequencies - 1) * x_limits.dimension() + 1, x_limits.dimension())},
+      weights_{(num_frequencies - 1) * x_limits.dimension() * 2 + 1},
+      sigma_f_{sigma_f},
+      x_limits_{x_limits} {
+  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 0);
+  LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
+  LUCID_CHECK_ARGUMENT_EQ(prob_dim_wise.rows(), x_limits.dimension());
+  // Iterate over all possible combinations where the values in the vector can go from 0 to num_frequencies_ - 1
+  // [ 0, ..., 1 ] -> [ 0, ..., 2 ] -> ... -> [ 0, ..., num_frequencies_ - 1, ]
+  // [ 1, ..., 0 ] -> [ 2, ..., 0 ] -> ... -> [ num_frequencies_ - 1, ..., 0, ]
+  Index row = 1;
+  for (Index dim = 0; dim < x_limits.dimension(); dim++) {
+    for (Index freq = 1; freq < num_frequencies_per_dimension_; freq++) {
+      omega_(row++, dim) = 2 * std::numbers::pi * static_cast<double>(freq);
+    }
+  }
+  LUCID_CRITICAL_FMT("Omega: {}", LUCID_FORMAT_MATRIX(omega_));
+  LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
+
+  Vector single_weights{(num_frequencies - 1) * x_limits.dimension() + 1};
+  row = 0;
+  single_weights(row++) = std::sqrt(get_prob(prob_dim_wise, 0, x_limits_.dimension(), 0));
+  for (Index current_dim = 0; current_dim < x_limits.dimension(); current_dim++) {
+    for (Index freq = 1; freq < num_frequencies_per_dimension_; freq++) {
+      single_weights(row++) = std::sqrt(get_prob(prob_dim_wise, current_dim, x_limits_.dimension(), freq));
+    }
+  }
+  LUCID_CRITICAL_FMT("single_weights: {}", LUCID_FORMAT_MATRIX(single_weights));
+
+  if (captured_probability_ = single_weights.cwiseProduct(single_weights).sum(); captured_probability_ > 0.94)
+    LUCID_DEBUG_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
+  else
+    LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", captured_probability_);
+
+  // TODO(tend): Repeat each column twice, except the first one, or repeat all?
+  weights_(0) = single_weights(0);  // The 0th frequency does not need to be repeated
+  for (Index i = 1; i < single_weights.size(); i++) {
+    weights_(2 * i) = single_weights(i);
+    weights_(2 * i - 1) = single_weights(i);
+  }
+
+  LUCID_CRITICAL_FMT("weights_: {}", LUCID_FORMAT_MATRIX(weights_));
 }
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {

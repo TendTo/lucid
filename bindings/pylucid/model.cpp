@@ -439,6 +439,8 @@ void init_model(py::module_ &m) {
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("prob_dim_wise"),
            py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, ConstVectorRef, Scalar, RectSet, bool>(), py::arg("num_frequencies"),
+           py::arg("prob_dim_wise"), py::arg("sigma_f"), py::arg("x_limits"), py::arg("unused"))
       .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"))
       .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"))
       .def("__call__", &TruncatedFourierFeatureMap::operator(), ARG_NONCONVERT("x"))
@@ -457,7 +459,11 @@ void init_model(py::module_ &m) {
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"));
+           py::arg("sigma_f"), py::arg("x_limits"))
+      .def(py::init<long, Scalar, Scalar, RectSet, bool>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"), py::arg("unused"))
+      .def(py::init<long, Scalar, Scalar, RectSet, bool>(), py::arg("num_frequencies"), py::arg("sigma_l"),
+           py::arg("sigma_f"), py::arg("x_limits"), py::arg("unused"));
   py::class_<LogTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LogTruncatedFourierFeatureMap",
                                                                         py::is_final())
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
