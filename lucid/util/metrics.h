@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <chrono>
 #include <cstddef>
 #include <iosfwd>
 
@@ -22,6 +23,15 @@ enum class MemoryUnit {
   KB,  ///< Kilobytes (1024 Bytes)
   MB,  ///< Megabytes (1024 Kilobytes)
   GB   ///< Gigabytes (1024 Megabytes)
+};
+
+/** Time units for conversion. */
+enum class TimeUnit {
+  MS,  ///< Milliseconds
+  S,   ///< Seconds
+  M,   ///< Minutes (60 Seconds)
+  H,   ///< Hours (60 Minutes)
+  D    ///< Days (24 Hours)
 };
 
 /**
@@ -67,7 +77,7 @@ double bytes_to(std::size_t size_in_bytes, MemoryUnit unit);
 /**
  * Suggest the most appropriate memory unit for a given size in bytes.
  * The function selects the largest memory unit such that the converted size is at least 1 and less than 1024,
- * provided the size is non-zero and within the range of known memory units.
+ * provided the size is in the range of known memory units.
  * @code
  * get_suggested_memory_unit(500);            // Returns MemoryUnit::B  -> 500 B
  * get_suggested_memory_unit(2048);           // Returns MemoryUnit::KB -> 2 KB
@@ -78,6 +88,49 @@ double bytes_to(std::size_t size_in_bytes, MemoryUnit unit);
  * @return suggested memory unit for the given size in bytes
  */
 MemoryUnit get_suggested_memory_unit(std::size_t size_in_bytes);
+
+/**
+ * Convert a duration in seconds to the specified time unit.
+ * @tparam U time unit to convert to
+ * @param duration_in_seconds duration in seconds
+ * @return duration in the specified time unit
+ */
+template <TimeUnit U>
+double time_to(const double duration_in_seconds) {
+  if constexpr (U == TimeUnit::MS) return duration_in_seconds * 1e3;
+  if constexpr (U == TimeUnit::S) return duration_in_seconds;
+  if constexpr (U == TimeUnit::M) return duration_in_seconds / 60.0;
+  if constexpr (U == TimeUnit::H) return duration_in_seconds / 3600.0;
+  if constexpr (U == TimeUnit::D) return duration_in_seconds / 86400.0;
+  return 0.0;
+}
+
+/**
+ * Convert a duration in seconds to the specified time unit.
+ * @param duration_in_seconds duration in seconds
+ * @param unit time unit to convert to
+ * @return duration in the specified time unit
+ */
+double time_to(double duration_in_seconds, TimeUnit unit);
+
+/**
+ * Suggest the most appropriate time unit for a given duration in seconds.
+ * The function selects the largest time unit such that the converted duration is around 1
+ * and less than the next larger unit,
+ * provided the duration in the range of known time units.
+ * @note Seconds has a larger range to capture ranges over a 1/100th of a second up to a minute.
+ * @code
+ * get_suggested_time_unit(0.002);        // Returns TimeUnit::MS  -> 2 ms
+ * get_suggested_time_unit(0.5);          // Returns TimeUnit::S   -> 0.5 s
+ * get_suggested_time_unit(2);            // Returns TimeUnit::S   -> 2 s
+ * get_suggested_time_unit(120);          // Returns TimeUnit::M   -> 2 min
+ * get_suggested_time_unit(7200);         // Returns TimeUnit::H   -> 2 h
+ * get_suggested_time_unit(172800);      // Returns TimeUnit::D    -> 2 d
+ * @endcode
+ * @param duration_in_seconds duration in seconds
+ * @return suggested time unit for the given duration in seconds
+ */
+TimeUnit get_suggested_time_unit(double duration_in_seconds);
 
 std::ostream& operator<<(std::ostream& os, MemoryUnit unit);
 

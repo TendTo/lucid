@@ -21,7 +21,7 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  Estimator time (s):                {:.3f}\n"
              "  Tuning time (s):                   {:.3f}\n"
              "  Optimiser time (s):                {:.3f}\n"
-             "  Pipeline time (s):                 {:.3f}\n"
+             "  Total time (s):                    {:.3f}\n"
              "  No. of estimator consolidations:   {}\n"
              "  No. of kernel applications:        {}\n"
              "  No. of feature map applications:   {}\n"
