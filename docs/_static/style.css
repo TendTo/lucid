@@ -92,9 +92,9 @@ html div[data-plot] {
 }
 @media (prefers-color-scheme: dark) {
   html:not(.light-mode) div[data-plot] {
-    filter: invert(75%) hue-rotate(180deg);
+    filter: invert(100%) hue-rotate(180deg);
   }
 }
 html.dark-mode div[data-plot] {
-  filter: invert(75%) hue-rotate(180deg);
+  filter: invert(100%) hue-rotate(180deg);
 }
