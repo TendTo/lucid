@@ -44,10 +44,12 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * @pre `sigma_f` must be greater than 0.
    * @param num_frequencies number of frequencies per dimension. Includes the zero frequency
    * @param prob_per_dim probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
+   * @param omega_per_dim matrix omega where each row is a dimension and each column is a frequency coefficient
    * @param sigma_f scaling factor
    * @param x_limits domain of the input space, @XsubRd
    */
-  TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, Scalar sigma_f, const RectSet& x_limits);
+  TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
+                             Scalar sigma_f, const RectSet& x_limits);
   /**
    * Construct a truncated Fourier feature map.
    * It will not compute the cross-frequencies of the basis, thus reducing the problem size significantly with
@@ -56,12 +58,13 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * @pre `sigma_f` must be greater than 0.
    * @param num_frequencies number of frequencies per dimension. Includes the zero frequency
    * @param prob_per_dim probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
+   * @param omega_per_dim matrix omega where each row is a dimension and each column is a frequency coefficient
    * @param sigma_f scaling factor
    * @param x_limits domain of the input space, @XsubRd
    * @param unused unused parameter to differentiate the constructor from the other one
    */
-  TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, Scalar sigma_f, const RectSet& x_limits,
-                             bool unused);
+  TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
+                             Scalar sigma_f, const RectSet& x_limits, bool unused);
 
   /**
    * Given a @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.

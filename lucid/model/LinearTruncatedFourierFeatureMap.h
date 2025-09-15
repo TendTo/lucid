@@ -25,9 +25,10 @@ namespace lucid {
  *  w_j^2 := \int_{(2\hat{\zeta}_j-1)\pi}^{(2\hat{\zeta}_j+1)\pi}\mathcal{N}(d\xi|0,\Sigma), 1 \le j \le M .
  * @f]
  * where @f$ \hat{\zeta}_j @f$ is a linear transformation of the original @f$ \zeta_j @f$.
- * For example, with @f$ \sigma_l = 3 @f$ and @f$ M = 4 @f$, we split the normal distribution into 4 intervals
- * on each side of the origin.
- * Then, we sum each interval with its specular counterpart.
+ * For example, with @f$ \sigma_l = 3 @f$ and @f$ 4 @f$ frequencies, including the @f$ 0 @f$ frequency,
+ * we split the normal distribution into 4 intervals on each side of the origin.
+ * The plot only shows the positive side, as the negative side is symmetric.
+ * Then, we sum each interval with its symmetric counterpart to get the weights.
  * @plot
  * {
  * "f": "(x) => (1 / (3.0 * Math.sqrt(2 * Math.PI))) * Math.exp(-((x - 0.0) ** 2) / (2 * 3.0 ** 2))",
