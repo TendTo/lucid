@@ -17,7 +17,7 @@
 
 namespace lucid {
 
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_dim_wise,
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_per_dim,
                                                        const Scalar sigma_f, const RectSet& x_limits)
     : num_frequencies_per_dimension_{num_frequencies},
       omega_{::lucid::pow(num_frequencies, x_limits.dimension()), x_limits.dimension()},
@@ -26,7 +26,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
       x_limits_{x_limits} {
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 0);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
-  LUCID_CHECK_ARGUMENT_EQ(prob_dim_wise.rows(), x_limits.dimension());
+  LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), x_limits.dimension());
   // Iterate over all possible combinations where the values in the vector can go from 0 to num_frequencies_ - 1
   // [ 0, ..., 0 ] -> [ 0, ..., 1 ] -> ... -> [ num_frequencies_ - 1, ..., num_frequencies_ - 1, ]
   IndexIterator<Index> it{static_cast<std::size_t>(x_limits_.dimension()), num_frequencies_per_dimension_};
@@ -40,7 +40,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
   LUCID_CRITICAL_FMT("Omega: {}", LUCID_FORMAT_MATRIX(omega_));
 
-  const Vector prod{combvec(prob_dim_wise).colwise().prod()};
+  const Vector prod{combvec(prob_per_dim).colwise().prod()};
   if (captured_probability_ = prod.sum(); captured_probability_ > 0.94)
     LUCID_DEBUG_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
   else
@@ -57,15 +57,15 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
   LUCID_CRITICAL_FMT("weights_: {}", LUCID_FORMAT_MATRIX(weights_));
 }
 
-double get_prob(const Matrix& prob_dim_wise, Index dim, Index tot_dims, Index freq) {
+double get_prob(const Matrix& prob_per_dim, Index dim, Index tot_dims, Index freq) {
   double prod = 1.0;
   for (Index other_dim = 0; other_dim < tot_dims; other_dim++) {
-    prod *= other_dim == dim ? prob_dim_wise(other_dim, freq) : prob_dim_wise(other_dim, 0);
+    prod *= other_dim == dim ? prob_per_dim(other_dim, freq) : prob_per_dim(other_dim, 0);
   }
   return prod;
 }
 
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_dim_wise, Scalar sigma_f,
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, Scalar sigma_f,
                                                        const RectSet& x_limits, const bool)
     : num_frequencies_per_dimension_{num_frequencies},
       omega_{Matrix::Zero((num_frequencies - 1) * x_limits.dimension() + 1, x_limits.dimension())},
@@ -74,7 +74,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
       x_limits_{x_limits} {
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 0);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
-  LUCID_CHECK_ARGUMENT_EQ(prob_dim_wise.rows(), x_limits.dimension());
+  LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), x_limits.dimension());
   // Iterate over all possible combinations where the values in the vector can go from 0 to num_frequencies_ - 1
   // [ 0, ..., 1 ] -> [ 0, ..., 2 ] -> ... -> [ 0, ..., num_frequencies_ - 1, ]
   // [ 1, ..., 0 ] -> [ 2, ..., 0 ] -> ... -> [ num_frequencies_ - 1, ..., 0, ]
@@ -89,10 +89,10 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
 
   Vector single_weights{(num_frequencies - 1) * x_limits.dimension() + 1};
   row = 0;
-  single_weights(row++) = std::sqrt(get_prob(prob_dim_wise, 0, x_limits_.dimension(), 0));
+  single_weights(row++) = std::sqrt(get_prob(prob_per_dim, 0, x_limits_.dimension(), 0));
   for (Index current_dim = 0; current_dim < x_limits.dimension(); current_dim++) {
     for (Index freq = 1; freq < num_frequencies_per_dimension_; freq++) {
-      single_weights(row++) = std::sqrt(get_prob(prob_dim_wise, current_dim, x_limits_.dimension(), freq));
+      single_weights(row++) = std::sqrt(get_prob(prob_per_dim, current_dim, x_limits_.dimension(), freq));
     }
   }
   LUCID_CRITICAL_FMT("single_weights: {}", LUCID_FORMAT_MATRIX(single_weights));
