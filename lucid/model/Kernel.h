@@ -106,7 +106,7 @@ class Kernel : public Parametrizable {
    */
   Matrix operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const;
   /**
-   * Concrete implementation of @ref operator().
+   * Concrete implementation of @ref operator()().
    * @param x1 @n1xd first input matrix
    * @param x2 @n2xd second input matrix
    * @param[out] gradient pointer to store the gradient of the kernel function with respect to the kernel
