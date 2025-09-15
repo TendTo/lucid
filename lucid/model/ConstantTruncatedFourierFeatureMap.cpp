@@ -9,6 +9,7 @@
 #include <memory>
 #include <numbers>
 
+#include "lucid/util/error.h"
 #include "lucid/util/math.h"
 
 namespace lucid {
@@ -35,12 +36,23 @@ Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
   return prob_per_dim;
 }
 
+Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
+  LUCID_NOT_IMPLEMENTED();
+  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
+  return Matrix::NullaryExpr(sigma_l.size(), num_frequencies,
+                             [&sigma_l, num_frequencies](const Index row, const Index col) {
+                               const double offset = 3 * sigma_l(row) / (num_frequencies - 0.5);
+                               return offset * static_cast<double>(col);
+                             });
+}
+
 }  // namespace
 
 ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int num_frequencies,
                                                                        ConstVectorRef sigma_l, const Scalar sigma_f,
                                                                        const RectSet& x_limits)
-    : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l), sigma_f, x_limits} {}
+    : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l),
+                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, x_limits} {}
 ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
                                                                        const Scalar sigma_f, const RectSet& x_limits)
     : ConstantTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,

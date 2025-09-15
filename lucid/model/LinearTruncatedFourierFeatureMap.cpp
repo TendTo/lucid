@@ -32,24 +32,38 @@ Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
     intervals(1) = offset;
     for (Index j = 2; j < intervals.size(); j++) intervals(j) = intervals(j - 1) + offset * 2;
     prob_per_dim.row(i) = normal_cdf(intervals.tail(num_frequencies), 0, sigma_l(i)) -
-                           normal_cdf(intervals.head(num_frequencies), 0, sigma_l(i));
+                          normal_cdf(intervals.head(num_frequencies), 0, sigma_l(i));
     prob_per_dim.row(i) *= 2;
   }
   return prob_per_dim;
+}
+
+Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
+  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
+  return Matrix::NullaryExpr(sigma_l.size(), num_frequencies,
+                             [&sigma_l, num_frequencies](const Index row, const Index col) {
+                               const double offset = 3 * sigma_l(row) / (num_frequencies - 0.5);
+                               return offset * static_cast<double>(col);
+                             });
 }
 
 }  // namespace
 
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, ConstVectorRef sigma_l,
                                                                    const Scalar sigma_f, const RectSet& x_limits)
-    : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l), sigma_f, x_limits} {}
+    : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l),
+                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, x_limits} {}
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
                                                                    const Scalar sigma_f, const RectSet& x_limits)
     : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                        x_limits} {}
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, ConstVectorRef sigma_l,
                                                                    const Scalar sigma_f, const RectSet& x_limits, bool)
-    : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l), sigma_f, x_limits,
+    : TruncatedFourierFeatureMap{num_frequencies,
+                                 get_prob_per_dim(num_frequencies, sigma_l),
+                                 get_omega_per_dim(num_frequencies, sigma_l),
+                                 sigma_f,
+                                 x_limits,
                                  true} {}
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
                                                                    const Scalar sigma_f, const RectSet& x_limits, bool)
