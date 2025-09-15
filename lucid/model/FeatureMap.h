@@ -43,7 +43,7 @@ class FeatureMap {
 
  protected:
   /**
-   * Concrete implementation of @ref operator().
+   * Concrete implementation of @ref operator()().
    * @param x @nxd input vector
    * @return @f$ n \times M @f$ output, where @f$ M @f$ is the dimension of the feature space
    */
