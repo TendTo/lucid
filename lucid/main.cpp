@@ -115,17 +115,17 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, Scalar s
                      const int num_frequencies_per_dimension) {
   if (sigma_l.size() < 1) throw std::invalid_argument("sigma_l must have at least one element");
 
-  const Vector omega_dim_wise_lb =
+  const Vector omega_per_dim_lb =
       (2 * std::numbers::pi * arange(0, num_frequencies_per_dimension)).array() - std::numbers::pi;
-  const Vector omega_dim_wise_ub = omega_dim_wise_lb.array() + 2 * std::numbers::pi;
+  const Vector omega_per_dim_ub = omega_per_dim_lb.array() + 2 * std::numbers::pi;
 
-  Matrix prob_dim_wise{dimension, num_frequencies_per_dimension};
+  Matrix prob_per_dim{dimension, num_frequencies_per_dimension};
   for (Dimension i = 0; i < dimension; i++) {
-    prob_dim_wise.row(i) = normal_cdf(omega_dim_wise_ub, 0, sigma_l(i)) - normal_cdf(omega_dim_wise_lb, 0, sigma_l(i));
-    prob_dim_wise.row(i).rightCols(prob_dim_wise.cols() - 1) *= 2;
+    prob_per_dim.row(i) = normal_cdf(omega_per_dim_ub, 0, sigma_l(i)) - normal_cdf(omega_per_dim_lb, 0, sigma_l(i));
+    prob_per_dim.row(i).rightCols(prob_per_dim.cols() - 1) *= 2;
   }
 
-  auto prod_ND = combvec(prob_dim_wise);
+  auto prod_ND = combvec(prob_per_dim);
   auto prod = prod_ND.colwise().prod().transpose();
   if (Scalar sum = prod.sum(); sum > 0.9)
     LUCID_INFO_FMT("Probability captured by Fourier expansion is {:.3f} percent", sum);
