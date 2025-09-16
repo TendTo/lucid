@@ -8,6 +8,8 @@
 #pragma once
 
 #include "lucid/verification/AlglibOptimiser.h"
+#include "lucid/verification/BarrierCertificate.h"
+#include "lucid/verification/FourierBarrierCertificate.h"
 #include "lucid/verification/GurobiOptimiser.h"
 #include "lucid/verification/HighsOptimiser.h"
 #include "lucid/verification/Optimiser.h"

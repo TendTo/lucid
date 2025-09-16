@@ -37,22 +37,9 @@ class HighsOptimiser final : public Optimiser {
                            Dimension num_frequency_samples_per_dim, Dimension original_dim,
                            const SolutionCallback& cb) const;
 
-  /** @getter{time horizon, solver} */
-  [[nodiscard]] int T() const { return T_; }
-  /** @getter{gamma, solver} */
-  [[nodiscard]] double gamma() const { return gamma_; }
-  /** @getter{epsilon, solver} */
-  [[nodiscard]] double epsilon() const { return epsilon_; }
-  /** @getter{b_norm, solver} */
-  [[nodiscard]] double b_norm() const { return b_norm_; }
-  /** @getter{kappa, solver} */
-  [[nodiscard]] double b_kappa() const { return b_kappa_; }
-  /** @getter{sigma_f, solver} */
-  [[nodiscard]] double sigma_f() const { return sigma_f_; }
-  /** @getter{C coefficient, solver} */
-  [[nodiscard]] double C_coeff() const { return C_coeff_; }
-
  private:
+  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+                                            const SolutionCallback& cb) const override;
 };
 
 }  // namespace lucid

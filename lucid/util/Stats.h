@@ -21,6 +21,7 @@ struct Stats {
   Timer estimator_timer;                        ///< Timer spent for estimator applications
   Timer feature_map_timer;                      ///< Timer spent for feature map applications
   Timer optimiser_timer;                        ///< Timer spent in optimising
+  Timer barrier_timer;                          ///< Timer spent in barrier certificate synthesis
   Timer tuning_timer;                           ///< Timer spent for hyperparameter tuning
   Timer kernel_timer;                           ///< Timer spent for kernel evaluations
   Timer total_timer;                            ///< Timer for the whole pipeline

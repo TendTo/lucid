@@ -26,6 +26,8 @@ doxygen(
         "licence=@par Licence:^^",
         # Math
         "X=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} @f$",
+        "Xu=@f$ \\texttip{\\mathcal{X}}{Usafe set}_u @f$",
+        "X0=@f$ \\texttip{\\mathcal{X}}{Initial set}_0 @f$",
         "XsubRd=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^d @f$",
         "XsubRdx=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^{d_x} @f$",
         "YsubRdy=@f$ \\texttip{\\mathcal{Y}}{Polish sample vector space} \\subseteq \\mathbb{R}^{d_y} @f$",
@@ -50,6 +52,13 @@ doxygen(
         "nxdy=@f$ \\texttip{n}{Number of samples} \\times \\texttip{d_y}{Dimension of the output vector space} @f$",
         "sigmal=@f$ \\sigma_l @f$",
         "sigmaf=@f$ \\sigma_f @f$",
+        "gamma=@f$ \\gamma @f$",
+        "lambda=@f$ \\lambda @f$",
+        "mu=@f$ \\mu @f$",
+        "rho=@f$ \\rho @f$",
+        "theta=@f$ \\theta @f$",
+        "eta=@f$ \\eta @f$",
+        "epsilon=@f$ \\epsilon @f$",
         # Method descriptors
         "constructor{1}=Construct a new \\1 object.^^",
         "getter{2}=Get read-only access to the \\1 of the \\2.^^@return \\1 of the \\2^^",

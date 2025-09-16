@@ -98,6 +98,12 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] int num_frequencies() const { return num_frequencies_per_dimension_; }
   /** @getter{probability captured by the Fourier expansion, truncated Fourier feature map, NaN if not computed} */
   [[nodiscard]] Scalar captured_probability() const { return captured_probability_; }
+  /** @getter{limits, original input space} */
+  [[nodiscard]] const RectSet& x_limits() const { return x_limits_; }
+  /** @getter{sigma_f value, truncated Fourier feature map} */
+  [[nodiscard]] double sigma_f() const { return sigma_f_; }
+  /** @getter{periodic coefficients, truncated Fourier feature map} */
+  [[nodiscard]] const Vector& periodic_coefficients() const { return periodic_coefficients_; }
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 
@@ -108,6 +114,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   Scalar sigma_f_;                     ///< Sigma_f value
   RectSet x_limits_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
   Scalar captured_probability_;        ///< Probability captured by the Fourier expansion. NaN if not computed
+  Vector periodic_coefficients_;       ///< Coefficient to convert from the truncated Fourier basis to the periodic one
 };
 
 }  // namespace lucid

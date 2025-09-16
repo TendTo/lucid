@@ -20,6 +20,7 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  Feature map time (s):              {:.3f}\n"
              "  Estimator time (s):                {:.3f}\n"
              "  Tuning time (s):                   {:.3f}\n"
+             "  Barrier time (s):                  {:.3f}\n"
              "  Optimiser time (s):                {:.3f}\n"
              "  Total time (s):                    {:.3f}\n"
              "  No. of estimator consolidations:   {}\n"
@@ -33,6 +34,7 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              stats.feature_map_timer.seconds(),   //
              stats.estimator_timer.seconds(),     //
              stats.tuning_timer.seconds(),        //
+             stats.barrier_timer.seconds(),       //
              stats.optimiser_timer.seconds(),     //
              stats.total_timer.seconds(),         //
              stats.num_estimator_consolidations,  //

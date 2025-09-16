@@ -127,6 +127,7 @@ void init_util(py::module_& m) {
       .def("collect_peak_rss_memory_usage", &ScopedStats::collect_peak_rss_memory_usage)
       .def_property_readonly("estimator_time", STATS_PROPERTY(estimator_timer.seconds()))
       .def_property_readonly("feature_map_time", STATS_PROPERTY(feature_map_timer.seconds()))
+      .def_property_readonly("barrier_time", STATS_PROPERTY(barrier_timer.seconds()))
       .def_property_readonly("optimiser_time", STATS_PROPERTY(optimiser_timer.seconds()))
       .def_property_readonly("tuning_time", STATS_PROPERTY(tuning_timer.seconds()))
       .def_property_readonly("kernel_time", STATS_PROPERTY(kernel_timer.seconds()))
