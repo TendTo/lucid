@@ -24,8 +24,9 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
       omega_{combvec(omega_per_dim).transpose()},
       weights_{::lucid::pow(num_frequencies, x_limits.dimension()) * 2 - 1},
       sigma_f_{sigma_f},
-      x_limits_{x_limits} {
-  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 0);
+      x_limits_{x_limits},
+      periodic_coefficients_{2 * std::numbers::pi / omega_per_dim.col(1).array()} {
+  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 2);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
   LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), x_limits.dimension());
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");

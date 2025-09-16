@@ -14,6 +14,25 @@
 
 namespace lucid {
 
+/** Parameters required for Fourier barrier synthesis. */
+struct FourierBarrierSynthesisParameters {
+  Dimension num_vars;          ///< Number of variables in the LP
+  Dimension num_constraints;   ///< Number of constraints in the LP
+  ConstMatrixRef fx_lattice;   ///< Lattice obtained from the state space after applying the feature map
+  ConstMatrixRef fxp_lattice;  ///< Lattice obtained from the one-step reachable set after applying the feature map
+  ConstMatrixRef fx0_lattice;  ///< Lattice obtained from the initial set after applying the feature map
+  ConstMatrixRef fxu_lattice;  ///< Lattice obtained from the unsafe set after applying the feature map
+  int T;                       ///< Time horizon
+  double gamma;                ///< @gamma value
+  double C;                    ///< Conservative coefficient used to obtain guarantees on the whole state space
+  double b_kappa;
+  double maxXX_coeff;
+  double fctr1;
+  double fctr2;
+  double unsafe_rhs;
+  double kushner_rhs;
+};
+
 /**
  * Base class for optimisation solvers.
  * This class provides a common interface for different optimisation backends
@@ -21,6 +40,7 @@ namespace lucid {
  */
 class Optimiser {
  public:
+  virtual ~Optimiser() = default;
   /**
    * Callback function called when the optimisation is done.
    * @param success true if the optimisation was successful, false if no solution was found
@@ -46,6 +66,10 @@ class Optimiser {
    */
   Optimiser(int T, double gamma, double epsilon, double b_norm, double b_kappa, double sigma_f, double C_coeff = 1.0,
             std::string problem_log_file = "", std::string iis_log_file = "");
+  explicit Optimiser(std::string problem_log_file = "", std::string iis_log_file = "");
+
+  bool solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters& params,
+                                       const SolutionCallback& cb) const;
 
   /** @getter{problem log file, solver} */
   [[nodiscard]] const std::string& problem_log_file() const { return problem_log_file_; }
@@ -79,6 +103,9 @@ class Optimiser {
   [[nodiscard]] bool should_log_iis() const { return !iis_log_file_.empty(); }
 
  protected:
+  virtual bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+                                                    const SolutionCallback& cb) const = 0;
+
   const int T_;                   ///< Time horizon
   const double gamma_;            ///< Gamma value
   const double epsilon_;          ///< Epsilon value

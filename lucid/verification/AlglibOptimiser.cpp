@@ -323,11 +323,128 @@ std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstV
 
   return bounds;
 }
+bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+                                                           const SolutionCallback& cb) const {
+  const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma, C, b_kappa,
+               maxXX_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
+  static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
+  static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
+  constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
+  const double max_num = alglib::fp_posinf;
+  constexpr double min_eta = 0;
+
+  AlglibLpProblem lp_problem{num_vars};
+
+  // Specify constraints
+  // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
+  // Variables [b_1, ..., b_nBasis_x, c, eta, ...
+  // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
+  // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
+  const alglib::ae_int_t c = num_vars - 6;         // Index of the c variable
+  const alglib::ae_int_t eta = num_vars - 5;       // Index of the eta variable
+  const alglib::ae_int_t minX0 = num_vars - 4;     // Index of the minX0 variable
+  const alglib::ae_int_t maxXU = num_vars - 3;     // Index of the maxXU variable
+  const alglib::ae_int_t maxXX = num_vars - 2;     // Index of the maxXX variable
+  const alglib::ae_int_t minDelta = num_vars - 1;  // Index of the minDelta variable
+
+  // Variables related to the feature map
+  for (int var = 0; var < fx_lattice.cols(); ++var) lp_problem.set_bounds(var);
+  lp_problem.set_bounds(c, 0, max_num);
+  lp_problem.set_bounds(eta, min_eta, gamma - min_num);  // To enforce a strict inequality
+  lp_problem.set_bounds(minDelta, alglib::fp_neginf, max_num);
+  for (const alglib::ae_int_t var : std::array{minX0, maxXU, maxXX}) {
+    lp_problem.set_bounds(var, 0, max_num);
+  }
+
+  // To obtain only positive safety probabilities, restrict
+  // eta + c*T in [0, gamma]
+  // 1) eta + c*T >= 0 by design
+  // 2) eta + c*T <= gamma
+  LUCID_DEBUG("Restricting safety probabilities to be positive");
+  lp_problem.add_constraint<'<'>(std::array{eta, c}, std::array{1.0, static_cast<double>(T)}, gamma);
+
+  LUCID_DEBUG_FMT(
+      "Positive barrier - {} constraints\n"
+      "for all x: [ B(x) >= hatxi ] AND [ B(x) <= maxXX ]\n"
+      "hatxi = (C - 1) / (C + 1) * maxXX",
+      fx_lattice.rows() * 2);
+  for (Index row = 0; row < fx_lattice.rows(); ++row) {
+    // B(x) >= hatxi
+    lp_problem.add_constraint<'>'>(fx_lattice.row(row).data(), std::array{maxXX}, std::array{maxXX_coeff}, 0.0);
+    // B(x) <= maxXX
+    lp_problem.add_constraint<'<'>(fx_lattice.row(row).data(), std::array{maxXX}, std::array{-1.0}, 0.0);
+  }
+
+  LUCID_DEBUG_FMT(
+      "Initial constraints - {} constraints\n"
+      "for all x_0: [ B(x_0) <= hateta ] AND [ B(x_0) >= minX0 ]\n"
+      "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0",
+      fx0_lattice.rows() * 2);
+  for (Index row = 0; row < fx0_lattice.rows(); ++row) {
+    // B(x_0) <= hateta
+    lp_problem.add_constraint<'<'>(fx0_lattice.row(row).data(), std::array{eta, minX0}, std::array{-fctr1, -fctr2},
+                                   0.0);
+    // B(x_0) >= minX0
+    lp_problem.add_constraint<'>'>(fx0_lattice.row(row).data(), std::array{minX0}, std::array{-1.0}, 0.0);
+  }
+
+  LUCID_DEBUG_FMT(
+      "Unsafe constraints - {} constraints\n"
+      "for all x_u: [ B(x_u) >= hatgamma ] AND [ B(x_u) <= maxXU ]\n"
+      "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU",
+      fxu_lattice.rows() * 2);
+  for (Index row = 0; row < fxu_lattice.rows(); ++row) {
+    // B(x_u) >= hatgamma
+    lp_problem.add_constraint<'>'>(fxu_lattice.row(row).data(), std::array{maxXU}, std::array{-fctr2}, unsafe_rhs);
+    // B(x_u) <= maxXU
+    lp_problem.add_constraint<'<'>(fxu_lattice.row(row).data(), std::array{maxXU}, std::array{-1.0}, 0.0);
+  }
+
+  LUCID_DEBUG_FMT(
+      "Kushner constraints (verification case) - {} constraints\n"
+      "for all x: [ B(xp) - B(x) <= hatDelta ] AND [ B(x) >= minDelta ]\n"
+      "hatDelta = 2 / (C + 1) * (c - epsilon*Bnorm*kappa_x) + (C - 1) / (C + 1) * minDelta",
+      fx_lattice.rows() * 2);
+  const Matrix mult{fxp_lattice - b_kappa * fx_lattice};
+  for (Index row = 0; row < mult.rows(); ++row) {
+    // B(xp) - B(x) <= hatDelta
+    lp_problem.add_constraint<'<'>(mult.row(row).data(), std::array{c, minDelta}, std::array{-fctr1, -fctr2},
+                                   kushner_rhs);
+    // B(x) >= minDelta
+    lp_problem.add_constraint<'>'>(mult.row(row).data(), std::array{minDelta}, std::array{-1.0}, 0.0);
+  }
+
+  // Objective function (η + cT)
+  std::vector<double> cost_data(num_vars, 0.0);
+  cost_data[c] = T / gamma;
+  cost_data[eta] = 1.0 / gamma;
+  lp_problem.set_min_objective(cost_data);
+
+  LUCID_INFO("Optimizing");
+  lp_problem.solve();
+
+  // Check if the problem is infeasible
+  if (lp_problem.report().terminationtype < 1 || lp_problem.report().terminationtype > 4) {
+    LUCID_INFO_FMT("No solution found, optimization status = {}", lp_problem.report().terminationtype);
+    cb(false, 0, Vector{}, 0, 0, 0);
+    return false;
+  }
+
+  const Vector solution{
+      Vector::NullaryExpr(fx_lattice.cols(), [&lp_problem](const Index i) { return lp_problem.solution()[i]; })};
+  cb(true, lp_problem.report().f, solution, lp_problem.solution()[eta], lp_problem.solution()[c], solution.norm());
+  return true;
+}
 
 #else
 bool AlglibOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                             Dimension, Dimension, const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve", "alglib");
+  return false;
+}
+bool AlglibOptimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters&,
+                                                      const SolutionCallback&) const {
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve_fourier_barrier_synthesis", "alglib");
   return false;
 }
 std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {

@@ -40,6 +40,10 @@ class AlglibOptimiser final : public Optimiser {
                            const SolutionCallback& cb) const;
 
   static std::pair<Vector, Vector> bounding_box(ConstMatrixRef A, ConstVectorRef b);
+
+ private:
+  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+                                            const SolutionCallback& cb) const override;
 };
 
 }  // namespace lucid

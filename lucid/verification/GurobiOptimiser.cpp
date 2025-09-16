@@ -61,10 +61,15 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
   constexpr double max_num = std::numeric_limits<double>::infinity();
   constexpr double min_eta = 0;
+  // make_me_periodic = 2 * boost::math::constants::pi / omega_low;
+  // const int num_frequency_samples_per_dim_periodic = floor(num_frequency_samples_per_dim * make_me_periodic); //
+  // Determine number of samples per dimension required in the associated lattice on the periodic space const int
+  // fraction = num_frequencies_per_dim /
+  //                           num_frequency_samples_per_dim_periodic;  // Determines the most sparsliest sampled
+  //                           dimension
+  // const double C = std::pow(1 - C_coeff_ * 2.0 * fraction, -original_dim / 2.0);
   const double C =
       std::pow(1 - C_coeff_ * 2.0 * num_frequencies_per_dim / num_frequency_samples_per_dim, -original_dim / 2.0);
-  // What if we make C as big as it can be?
-  // const double C = pow((1 - 2.0 * num_freq_per_dim / (2.0 * num_freq_per_dim + 1)), -original_dim / 2.0);
   LUCID_DEBUG_FMT("C: {}", C);
 
   if (Stats::Scoped::top()) {
@@ -239,6 +244,168 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   return true;
 }
 
+bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+                                                           const SolutionCallback& cb) const {
+  const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma_val, C, b_kappa,
+               maxXX_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
+  static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
+  static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
+  constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
+  constexpr double max_num = std::numeric_limits<double>::infinity();
+  constexpr double min_eta = 0;
+
+  GRBEnv env{true};
+  env.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
+  env.start();
+  GRBModel model{env};
+  model.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
+  model.set(GRB_DoubleParam_TimeLimit, 10000);
+#ifdef LUCID_PYTHON_BUILD
+  PyInterruptCallback callback;
+  model.setCallback(&callback);
+#endif
+
+  // Specify constraints
+  // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
+  // Variables [b_1, ..., b_nBasis_x, c, eta, ...
+  // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
+  // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
+  const bool should_log = should_log_problem();
+  std::unique_ptr<GRBVar[]> vars_{model.addVars(num_vars)};
+  const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(num_vars)};
+  GRBVar& c = vars[vars.size() - 6];
+  GRBVar& eta = vars[vars.size() - 5];
+  GRBVar& minX0 = vars[vars.size() - 4];
+  GRBVar& maxXU = vars[vars.size() - 3];
+  GRBVar& maxXX = vars[vars.size() - 2];
+  GRBVar& minDelta = vars[vars.size() - 1];
+
+#ifndef NLOG
+  if (should_log) {
+    c.set(GRB_StringAttr_VarName, "c");
+    eta.set(GRB_StringAttr_VarName, "eta");
+    minX0.set(GRB_StringAttr_VarName, "minX0");
+    maxXU.set(GRB_StringAttr_VarName, "maxXU");
+    maxXX.set(GRB_StringAttr_VarName, "maxXX");
+    minDelta.set(GRB_StringAttr_VarName, "minDelta");
+  }
+#endif
+
+  // Variables related to the feature map
+  int idx = 0;
+  for (GRBVar& var : vars.subspan(0, fx_lattice.cols())) {
+    var.set(GRB_DoubleAttr_LB, -max_num);
+    var.set(GRB_DoubleAttr_UB, max_num);
+#ifndef NLOG
+    if (should_log) var.set(GRB_StringAttr_VarName, fmt::format("b[{}]", idx++));
+#endif
+  }
+  c.set(GRB_DoubleAttr_LB, 0);
+  c.set(GRB_DoubleAttr_UB, max_num);
+  eta.set(GRB_DoubleAttr_LB, min_eta);
+  eta.set(GRB_DoubleAttr_UB, gamma_val - min_num);  // To enforce a strict inequality, we sub a small number to the ub
+  minDelta.set(GRB_DoubleAttr_LB, -max_num);
+  minDelta.set(GRB_DoubleAttr_UB, max_num);
+  for (GRBVar& var : std::array{minX0, maxXU, maxXX}) {
+    var.set(GRB_DoubleAttr_LB, 0);
+    var.set(GRB_DoubleAttr_UB, max_num);
+  }
+
+  // To obtain only positive safety probabilities, restrict
+  // eta + c*T in [0, gamma]
+  // 1) eta + c*T >= 0 by design
+  // 2) eta + c*T <= gamma
+  LUCID_DEBUG("Restricting safety probabilities to be positive");
+  LUCID_MODEL_ADD_CONSTRAINT(model, eta + T * c, GRB_LESS_EQUAL, gamma_val, "eta+c*T<=gamma", should_log);
+
+  LUCID_DEBUG_FMT(
+      "Positive barrier - {} constraints\n"
+      "for all x: [ B(x) >= hatxi ] AND [ B(x) <= maxXX ]\n"
+      "hatxi = (C - 1) / (C + 1) * maxXX",
+      fx_lattice.rows() * 2);
+  for (Index row = 0; row < fx_lattice.rows(); ++row) {
+    GRBLinExpr expr{};
+    expr.addTerms(fx_lattice.row(row).data(), vars_.get(), static_cast<int>(fx_lattice.cols()));
+    expr += maxXX * maxXX_coeff;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(x)>=hatxi[{}]", row), should_log);
+    expr.remove(maxXX);
+    expr += -maxXX;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, 0, fmt::format("B(x)<=maxXX[{}]", row), should_log);
+  }
+
+  LUCID_DEBUG_FMT(
+      "Initial constraints - {} constraints\n"
+      "for all x_0: [ B(x_0) <= hateta ] AND [ B(x_0) >= minX0 ]\n"
+      "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0",
+      fx0_lattice.rows() * 2);
+  for (Index row = 0; row < fx0_lattice.rows(); ++row) {
+    GRBLinExpr expr{};
+    expr.addTerms(fx0_lattice.row(row).data(), vars_.get(), static_cast<int>(fx0_lattice.cols()));
+    expr += -fctr1 * eta - fctr2 * minX0;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, 0, fmt::format("B(x_0)<=hateta[{}]", row), should_log);
+    expr.remove(eta);
+    expr.remove(minX0);
+    expr += -minX0;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(x_0)>=minX0[{}]", row), should_log);
+  }
+
+  LUCID_DEBUG_FMT(
+      "Unsafe constraints - {} constraints\n"
+      "for all x_u: [ B(x_u) >= hatgamma ] AND [ B(x_u) <= maxXU ]\n"
+      "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU",
+      fxu_lattice.rows() * 2);
+  for (Index row = 0; row < fxu_lattice.rows(); ++row) {
+    GRBLinExpr expr{};
+    expr.addTerms(fxu_lattice.row(row).data(), vars_.get(), static_cast<int>(fxu_lattice.cols()));
+    expr += -fctr2 * maxXU;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, unsafe_rhs, fmt::format("B(x_u)>=hatgamma[{}]", row),
+                               should_log);
+    expr.remove(maxXU);
+    expr += -maxXU;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, 0, fmt::format("B(x_u)<=maxXU[{}]", row), should_log);
+  }
+
+  LUCID_DEBUG_FMT(
+      "Kushner constraints (verification case) - {} constraints\n"
+      "for all x: [ B(xp) - B(x) <= hatDelta ] AND [ B(x) >= minDelta ]\n"
+      "hatDelta = 2 / (C + 1) * (c - epsilon*Bnorm*kappa_x) + (C - 1) / (C + 1) * minDelta",
+      fx_lattice.rows() * 2);
+  const Matrix mult{fxp_lattice - b_kappa * fx_lattice};
+  for (Index row = 0; row < mult.rows(); ++row) {
+    GRBLinExpr expr{};
+    expr.addTerms(mult.row(row).data(), vars_.get(), static_cast<int>(mult.cols()));
+    expr += -fctr1 * c - fctr2 * minDelta;  // TODO(tend): c − εB̄κ
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_LESS_EQUAL, kushner_rhs, fmt::format("B(xp)-B(x)<=hatDelta[{}]", row),
+                               should_log);
+    expr.remove(c);
+    expr.remove(minDelta);
+    expr += -minDelta;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(xp)-B(x)>=minDelta[{}]", row),
+                               should_log);
+  }
+
+  // Objective function (η + cT)
+  model.setObjective(GRBLinExpr{(eta + c * T) / gamma_val}, GRB_MINIMIZE);
+
+  LUCID_INFO("Optimizing");
+  model.optimize();
+  if (!problem_log_file_.empty()) model.write(problem_log_file_);
+
+  if (model.get(GRB_IntAttr_SolCount) == 0) {
+    model.computeIIS();
+    LUCID_INFO_FMT("No solution found, optimization status = {}", model.get(GRB_IntAttr_Status));
+    if (!iis_log_file_.empty()) model.write(iis_log_file_);
+    cb(false, 0, Vector{}, 0, 0, 0);
+    return false;
+  }
+
+  const Vector solution{
+      Vector::NullaryExpr(fx_lattice.cols(), [&vars](const Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
+  cb(true, model.get(GRB_DoubleAttr_ObjVal), solution, eta.get(GRB_DoubleAttr_X), c.get(GRB_DoubleAttr_X),
+     solution.norm());
+  return true;
+}
+
 std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {
   std::pair<Vector, Vector> bounds{Vector::Constant(A.cols(), -std::numeric_limits<double>::infinity()),
                                    Vector::Constant(A.cols(), std::numeric_limits<double>::infinity())};
@@ -312,6 +479,11 @@ std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef A, ConstV
 bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
                             Dimension, Dimension, const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
+  return false;
+}
+bool GurobiOptimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters&,
+                                                      const SolutionCallback&) const {
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve_fourier_barrier_synthesis", "Gurobi");
   return false;
 }
 std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef, ConstVectorRef) {

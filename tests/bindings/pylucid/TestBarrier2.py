@@ -15,7 +15,8 @@ def optimiser_cb(res: OptimiserResult):
 
 def scenario_config() -> "Configuration":
     config = Configuration.from_file("tests/config/barrier2.yaml")
-    config.optimiser = AlglibOptimiser
+    random.seed(config.seed)
+    np.random.seed(config.seed)
     f = lambda x: config.system_dynamics(x) + np.random.normal(scale=config.noise_scale)
     config.x_samples = config.X_bounds.sample(config.num_samples)
     config.xp_samples = f(config.x_samples)

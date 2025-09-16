@@ -7,7 +7,6 @@
  */
 #pragma once
 
-#include <string>
 #include <utility>
 
 #include "lucid/lib/eigen.h"
@@ -38,6 +37,9 @@ class GurobiOptimiser final : public Optimiser {
   bool solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat, ConstMatrixRef w_mat,
              Dimension rkhs_dim, Dimension num_frequencies_per_dim, Dimension num_frequency_samples_per_dim,
              Dimension original_dim, const SolutionCallback& cb) const;
+
+  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+                                            const SolutionCallback& cb) const;
 
   /**
    * Compute the bounding box of a polytope defined by Ax <= b.

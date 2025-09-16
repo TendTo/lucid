@@ -7,7 +7,6 @@ lucid_cc_googletest(
     deps = [
         "//lucid/lib:gurobi",
         "//lucid/util:exception",
-        "//lucid/verification:gurobi_optimiser",
         "//lucid/verification:optimiser",
     ],
 )

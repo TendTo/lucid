@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 
+#include "lucid/util/Stats.h"
 #include "lucid/util/error.h"
 
 namespace lucid {
@@ -31,6 +32,14 @@ Optimiser::Optimiser(const int T, const double gamma, const double epsilon, cons
       "problem_log_file", problem_log_file_, "must be a valid file path with .lp or .mps extension");
   LUCID_CHECK_ARGUMENT_EXPECTED(iis_log_file_.empty() || iis_log_file_.ends_with(".ilp"), "iis_log_file", iis_log_file_,
                                 "must be a valid file path with .ilp extension");
+}
+Optimiser::Optimiser(std::string problem_log_file, std::string iis_log_file)
+    : Optimiser(1, 1, 0, 1, 1, 1, 1, std::move(problem_log_file), std::move(iis_log_file)) {}
+
+bool Optimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters& params,
+                                                const SolutionCallback& cb) const {
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().optimiser_timer : nullptr};
+  return solve_fourier_barrier_synthesis_impl(params, cb);
 }
 
 }  // namespace lucid
