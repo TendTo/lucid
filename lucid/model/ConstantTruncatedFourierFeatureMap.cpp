@@ -30,7 +30,8 @@ Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
 
   Matrix prob_per_dim{sigma_l.size(), num_frequencies};
   for (Dimension i = 0; i < sigma_l.size(); i++) {
-    prob_per_dim.row(i) = normal_cdf(omega_per_dim_ub, 0, sigma_l(i)) - normal_cdf(omega_per_dim_lb, 0, sigma_l(i));
+    prob_per_dim.row(i) =
+        normal_cdf(omega_per_dim_ub, 0, 1 / sigma_l(i)) - normal_cdf(omega_per_dim_lb, 0, 1 / sigma_l(i));
     prob_per_dim.row(i).rightCols(prob_per_dim.cols() - 1) *= 2;
   }
   return prob_per_dim;
