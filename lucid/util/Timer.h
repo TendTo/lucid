@@ -33,21 +33,18 @@ class TimerBase {
 
   /**
    * Start the timer.
-   *
    * The timer is reset to zero.
    */
   void start();
 
   /**
    * Pause the timer.
-   *
    * If the timer is not running, this function does nothing.
    */
   void pause();
 
   /**
    * Resume the timer.
-   *
    * If the timer is not running, this function does nothing.
    */
   void resume();
@@ -133,7 +130,6 @@ class TimerGuard {
  public:
   /**
    * Construct a new TimeGuard object.
-   *
    * If `timer` is a nullptr, the guard will not do anything.
    * If `start_timer` is true, the `timer` starts as soon as the guard is constructed.
    * Otherwise, the method @ref resume has to be called manually to start the timer.

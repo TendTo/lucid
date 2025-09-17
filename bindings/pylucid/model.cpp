@@ -16,6 +16,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
+#include "bindings/pylucid/doxygen_docstrings.h"
 #include "bindings/pylucid/pylucid.h"
 #include "lucid/model/Scorer.h"
 #include "lucid/model/SphereSet.h"
@@ -187,7 +188,7 @@ class MultiSetIterator {
 
 void init_model(py::module_ &m) {
   /**************************** Parameters ****************************/
-  py::class_<LbfgsParameters>(m, "LbfgsParameters")
+  py::class_<LbfgsParameters>(m, "LbfgsParameters", LbfgsParameters_)
       .def(py::init<>())
       .def(py::init([](const int m_, const Scalar epsilon_, const Scalar epsilon_rel_, const int past_,
                        const Scalar delta_, const int max_iterations_, const int linesearch_, const int max_submin_,
@@ -210,20 +211,20 @@ void init_model(py::module_ &m) {
            py::arg("m") = 6, py::arg("epsilon") = 1e-5, py::arg("epsilon_rel") = 1e-5, py::arg("past") = 0,
            py::arg("delta") = 0, py::arg("max_iterations") = 0, py::arg("linesearch") = 3, py::arg("max_submin") = 10,
            py::arg("max_linesearch") = 20, py::arg("min_step") = 1e-20, py::arg("max_step") = 1e20,
-           py::arg("ftol") = 1e-4, py::arg("wolfe") = 0.9)
-      .def_readwrite("m", &LbfgsParameters::m)
-      .def_readwrite("epsilon", &LbfgsParameters::epsilon)
-      .def_readwrite("epsilon_rel", &LbfgsParameters::epsilon_rel)
-      .def_readwrite("past", &LbfgsParameters::past)
-      .def_readwrite("delta", &LbfgsParameters::delta)
-      .def_readwrite("max_iterations", &LbfgsParameters::max_iterations)
-      .def_readwrite("max_submin", &LbfgsParameters::max_submin)
-      .def_readwrite("linesearch", &LbfgsParameters::linesearch)
-      .def_readwrite("max_linesearch", &LbfgsParameters::max_linesearch)
-      .def_readwrite("min_step", &LbfgsParameters::min_step)
-      .def_readwrite("max_step", &LbfgsParameters::max_step)
-      .def_readwrite("ftol", &LbfgsParameters::ftol)
-      .def_readwrite("wolfe", &LbfgsParameters::wolfe);
+           py::arg("ftol") = 1e-4, py::arg("wolfe") = 0.9, py::doc(""))
+      .def_readwrite("m", &LbfgsParameters::m, LbfgsParameters_m)
+      .def_readwrite("epsilon", &LbfgsParameters::epsilon, LbfgsParameters_epsilon)
+      .def_readwrite("epsilon_rel", &LbfgsParameters::epsilon_rel, LbfgsParameters_epsilon_rel)
+      .def_readwrite("past", &LbfgsParameters::past, LbfgsParameters_past)
+      .def_readwrite("delta", &LbfgsParameters::delta, LbfgsParameters_delta)
+      .def_readwrite("max_iterations", &LbfgsParameters::max_iterations, LbfgsParameters_max_iterations)
+      .def_readwrite("max_submin", &LbfgsParameters::max_submin, LbfgsParameters_max_submin)
+      .def_readwrite("linesearch", &LbfgsParameters::linesearch, LbfgsParameters_linesearch)
+      .def_readwrite("max_linesearch", &LbfgsParameters::max_linesearch, LbfgsParameters_max_linesearch)
+      .def_readwrite("min_step", &LbfgsParameters::min_step, LbfgsParameters_min_step)
+      .def_readwrite("max_step", &LbfgsParameters::max_step, LbfgsParameters_max_step)
+      .def_readwrite("ftol", &LbfgsParameters::ftol, LbfgsParameters_ftol)
+      .def_readwrite("wolfe", &LbfgsParameters::wolfe, LbfgsParameters_wolfe);
 
   /**************************** Requests ****************************/
   py::enum_<Request>(m, "Request")
@@ -237,78 +238,82 @@ void init_model(py::module_ &m) {
       .value("SIGMA_F", Parameter::SIGMA_F)
       .value("REGULARIZATION_CONSTANT", Parameter::REGULARIZATION_CONSTANT)
       .value("GRADIENT_OPTIMIZABLE", Parameter::GRADIENT_OPTIMIZABLE);
-  py::class_<ParameterValue>(m, "ParameterValue")
-      .def(py::init<Parameter, int>(), py::arg("parameter"), py::arg("value"))
-      .def(py::init<Parameter, double>(), py::arg("parameter"), py::arg("value"))
-      .def(py::init<Parameter, const Vector &>(), py::arg("parameter"), py::arg("value"))
+  py::class_<ParameterValue>(m, "ParameterValue", ParameterValue_)
+      .def(py::init<Parameter, int>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
+      .def(py::init<Parameter, double>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
+      .def(py::init<Parameter, const Vector &>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def("__str__", STRING_LAMBDA(ParameterValue))
-      .def_property_readonly("parameter", &ParameterValue::parameter)
-      .def_property_readonly("value", get_parameter_value);
-  py::class_<ParameterValues>(m, "ParameterValues")
-      .def(py::init<Parameter, std::vector<int>>(), py::arg("parameter"), py::arg("values"))
-      .def(py::init<Parameter, std::vector<double>>(), py::arg("parameter"), py::arg("values"))
-      .def(py::init<Parameter, std::vector<Vector>>(), py::arg("parameter"), py::arg("values"))
+      .def_property_readonly("parameter", &ParameterValue::parameter, ParameterValue_parameter)
+      .def_property_readonly("value", get_parameter_value, ParameterValue_value);
+  py::class_<ParameterValues>(m, "ParameterValues", ParameterValues_)
+      .def(py::init<Parameter, std::vector<int>>(), py::arg("parameter"), py::arg("values"),
+           ParameterValues_ParameterValues)
+      .def(py::init<Parameter, std::vector<double>>(), py::arg("parameter"), py::arg("values"),
+           ParameterValues_ParameterValues)
+      .def(py::init<Parameter, std::vector<Vector>>(), py::arg("parameter"), py::arg("values"),
+           ParameterValues_ParameterValues)
       .def("__len__", &ParameterValues::size)
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def("__str__", STRING_LAMBDA(ParameterValues))
-      .def_property_readonly("size", &ParameterValues::size)
-      .def_property_readonly("parameter", &ParameterValues::parameter)
-      .def_property_readonly("values", get_parameter_values);
-  py::class_<Parametrizable>(m, "Parametrizable")
-      .def("get", get_parametrizable, py::arg("parameter"), py::return_value_policy::reference_internal)
+      .def_property_readonly("size", &ParameterValues::size, ParameterValues_size)
+      .def_property_readonly("parameter", &ParameterValues::parameter, ParameterValues_parameter)
+      .def_property_readonly("values", get_parameter_values, ParameterValues_values);
+  py::class_<Parametrizable>(m, "Parametrizable", Parametrizable_)
+      .def("get", get_parametrizable, py::arg("parameter"), py::return_value_policy::reference_internal,
+           Parametrizable_get)
       .def(
           "set",
           [](Parametrizable &self, const Parameter parameter, const int value) { return self.set(parameter, value); },
-          py::arg("parameter"), py::arg("value"))
+          py::arg("parameter"), py::arg("value"), Parametrizable_set)
       .def(
           "set",
           [](Parametrizable &self, const Parameter parameter, const double value) {
             return self.set(parameter, value);
           },
-          py::arg("parameter"), py::arg("value"))
+          py::arg("parameter"), py::arg("value"), Parametrizable_set)
       .def(
           "set",
           [](Parametrizable &self, const Parameter parameter, const Vector &value) {
             return self.set(parameter, value);
           },
-          py::arg("parameter"), py::arg("value"))
-      .def("has", &Parametrizable::has, py::arg("parameter"))
+          py::arg("parameter"), py::arg("value"), Parametrizable_set)
+      .def("has", &Parametrizable::has, py::arg("parameter"), Parametrizable_has)
       .def_property_readonly("parameters", &Parametrizable::parameters_list)
       .def("__contains__", &Parametrizable::has, py::arg("parameter"));
 
   /**************************** Set ****************************/
-  py::class_<Set, PySet>(m, "Set")
+  py::class_<Set, PySet>(m, "Set", Set_)
       .def(py::init<>())
-      .def_property_readonly("dimension", &Set::dimension)
-      .def("sample", py::overload_cast<Index>(&Set::sample, py::const_), py::arg("num_samples"))
-      .def("sample", py::overload_cast<>(&Set::sample, py::const_))
+      .def_property_readonly("dimension", &Set::dimension, Set_dimension)
+      .def("sample", py::overload_cast<Index>(&Set::sample, py::const_), py::arg("num_samples"), Set_sample)
+      .def("sample", py::overload_cast<>(&Set::sample, py::const_), Set_sample)
       .def("lattice", py::overload_cast<Index, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
-           py::arg("include_endpoints") = false)
+           py::arg("include_endpoints") = false, Set_lattice)
       .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
-           py::arg("include_endpoints"))
-      .def("contains", &Set::contains, ARG_NONCONVERT("x"))
-      .def("__contains__", &Set::contains, ARG_NONCONVERT("x"))
-      .def("__call__", &Set::operator(), ARG_NONCONVERT("x"))
+           py::arg("include_endpoints"), Set_lattice)
+      .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
+      .def("__contains__", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
+      .def("__call__", &Set::operator(), ARG_NONCONVERT("x"), Set_operator_apply)
       .def("__str__", STRING_LAMBDA(Set));
-  py::class_<RectSet, Set>(m, "RectSet")
-      .def(py::init<Vector, Vector>(), py::arg("lb"), py::arg("ub"))
-      .def(py::init<std::vector<std::pair<Scalar, Scalar>>>(), py::arg("bounds"))
-      .def_property_readonly("lower_bound", &RectSet::lower_bound)
-      .def_property_readonly("upper_bound", &RectSet::upper_bound);
-  py::class_<SphereSet, Set>(m, "SphereSet")
-      .def(py::init<Vector, double>(), py::arg("center"), py::arg("radius"))
-      .def_property_readonly("center", &SphereSet::center)
-      .def_property_readonly("radius", &SphereSet::radius);
-  py::class_<PolytopeSet, Set>(m, "PolytopeSet")
-      .def(py::init<Matrix, Vector>(), py::arg("A"), py::arg("b"))
-      .def("scale", &PolytopeSet::scale, py::arg("factor"))
-      .def_property_readonly("A", &PolytopeSet::A)
-      .def_property_readonly("b", &PolytopeSet::b)
+  py::class_<RectSet, Set>(m, "RectSet", RectSet_)
+      .def(py::init<Vector, Vector>(), py::arg("lb"), py::arg("ub"), RectSet_RectSet)
+      .def(py::init<std::vector<std::pair<Scalar, Scalar>>>(), py::arg("bounds"), RectSet_RectSet)
+      .def_property_readonly("lower_bound", &RectSet::lower_bound, RectSet_lower_bound)
+      .def_property_readonly("upper_bound", &RectSet::upper_bound, RectSet_upper_bound);
+  py::class_<SphereSet, Set>(m, "SphereSet", SphereSet_)
+      .def(py::init<Vector, double>(), py::arg("center"), py::arg("radius"), SphereSet_SphereSet)
+      .def_property_readonly("center", &SphereSet::center, SphereSet_center)
+      .def_property_readonly("radius", &SphereSet::radius, SphereSet_radius);
+  py::class_<PolytopeSet, Set>(m, "PolytopeSet", PolytopeSet_)
+      .def(py::init<Matrix, Vector>(), py::arg("A"), py::arg("b"), PolytopeSet_PolytopeSet)
+      .def("scale", &PolytopeSet::scale, py::arg("factor"), PolytopeSet_scale)
+      .def_property_readonly("A", &PolytopeSet::A, PolytopeSet_A)
+      .def_property_readonly("b", &PolytopeSet::b, PolytopeSet_b)
       .def_property_readonly("bounding_box", &PolytopeSet::bounding_box);
-  py::class_<MultiSet, Set>(m, "MultiSet")
+  py::class_<MultiSet, Set>(m, "MultiSet", MultiSet_)
       .def(py::init([](const py::args &sets) {
         std::vector<std::unique_ptr<Set>> unique_sets;
         unique_sets.reserve(sets.size());
@@ -352,21 +357,22 @@ void init_model(py::module_ &m) {
         ARG_NONCONVERT("y"));
 
   /**************************** Tuner ****************************/
-  py::class_<Tuner, PyTuner, std::shared_ptr<Tuner>>(m, "Tuner")
+  py::class_<Tuner, PyTuner, std::shared_ptr<Tuner>>(m, "Tuner", Tuner_)
       .def(py::init<>())
       .def("tune", &Tuner::tune, py::arg("estimator"), ARG_NONCONVERT("training_inputs"),
-           ARG_NONCONVERT("training_outputs"))
+           ARG_NONCONVERT("training_outputs"), Tuner_tune)
       .def("__str__", STRING_LAMBDA(Tuner));
   py::class_<MedianHeuristicTuner, Tuner, std::shared_ptr<MedianHeuristicTuner>>(m, "MedianHeuristicTuner",
-                                                                                 py::is_final())
+                                                                                 MedianHeuristicTuner_, py::is_final())
       .def(py::init<>());
-  py::class_<LbfgsTuner, Tuner, std::shared_ptr<LbfgsTuner>>(m, "LbfgsTuner", py::is_final())
-      .def(py::init<const LbfgsParameters &>(), py::arg("parameters") = LbfgsParameters{})
+  py::class_<LbfgsTuner, Tuner, std::shared_ptr<LbfgsTuner>>(m, "LbfgsTuner", LbfgsTuner_, py::is_final())
+      .def(py::init<const LbfgsParameters &>(), py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner)
       .def(py::init<const Eigen::VectorXd &, const Eigen::VectorXd &, const LbfgsParameters &>(), py::arg("lb"),
-           py::arg("ub"), py::arg("parameters") = LbfgsParameters{})
+           py::arg("ub"), py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner)
       .def(py::init<std::vector<std::pair<Scalar, Scalar>>, const LbfgsParameters &>(), py::arg("bounds"),
-           py::arg("parameters") = LbfgsParameters{});
-  py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", py::is_final())
+           py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner);
+  py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", GridSearchTuner_,
+                                                                       py::is_final())
       .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0)
       .def(py::init([](const py::dict &parameters, const std::size_t n_jobs) {
              std::vector<ParameterValues> parameter_values;
@@ -412,48 +418,55 @@ void init_model(py::module_ &m) {
           },
           py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
           py::arg("feature_map_type"), py::arg("num_frequencies"), py::arg("x_limits"))
-      .def_property_readonly("n_jobs", &GridSearchTuner::n_jobs)
-      .def_property_readonly("parameters", &GridSearchTuner::parameters);
+      .def_property_readonly("n_jobs", &GridSearchTuner::n_jobs, GridSearchTuner_n_jobs)
+      .def_property_readonly("parameters", &GridSearchTuner::parameters, GridSearchTuner_parameters);
 
   /**************************** Kernel ****************************/
-  py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel")
+  py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel", Kernel_)
       .def(
           "__call__", [](const Kernel &self, ConstMatrixRef x1, ConstMatrixRef x2) { return self(x1, x2); },
-          ARG_NONCONVERT("x1"), ARG_NONCONVERT("x2"))
+          ARG_NONCONVERT("x1"), ARG_NONCONVERT("x2"), Kernel_operator_apply)
       .def(
-          "__call__", [](const Kernel &self, ConstMatrixRef x1) { return self(x1, x1); }, ARG_NONCONVERT("x1"))
-      .def("clone", &Kernel::clone)
-      .def_property_readonly("is_stationary", &Kernel::is_stationary)
+          "__call__", [](const Kernel &self, ConstMatrixRef x1) { return self(x1, x1); }, ARG_NONCONVERT("x1"),
+          Kernel_operator_apply)
+      .def("clone", &Kernel::clone, Kernel_clone)
+      .def_property_readonly("is_stationary", &Kernel::is_stationary, Kernel_is_stationary)
       .def("__str__", STRING_LAMBDA(Kernel));
-  py::class_<GaussianKernel, Kernel>(m, "GaussianKernel")
-      .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0)
-      .def(py::init<double, double>(), py::arg("sigma_l") = 1.0, py::arg("sigma_f") = 1.0)
-      .def_property_readonly("is_isotropic", &GaussianKernel::is_isotropic)
-      .def_property_readonly("sigma_f", &GaussianKernel::sigma_f)
-      .def_property_readonly("sigma_l", &GaussianKernel::sigma_l);
+  py::class_<GaussianKernel, Kernel>(m, "GaussianKernel", GaussianKernel_)
+      .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0,
+           GaussianKernel_GaussianKernel)
+      .def(py::init<double, double>(), py::arg("sigma_l") = 1.0, py::arg("sigma_f") = 1.0,
+           GaussianKernel_GaussianKernel)
+      .def_property_readonly("is_isotropic", &GaussianKernel::is_isotropic, GaussianKernel_is_isotropic)
+      .def_property_readonly("sigma_f", &GaussianKernel::sigma_f, GaussianKernel_sigma_f)
+      .def_property_readonly("sigma_l", &GaussianKernel::sigma_l, GaussianKernel_sigma_l);
 
   /**************************** FeatureMap ****************************/
-  py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap")
-      .def("clone", &FeatureMap::clone)
+  py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap", FeatureMap_)
+      .def("clone", &FeatureMap::clone, FeatureMap_clone)
       .def("__str__", STRING_LAMBDA(FeatureMap));
-  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap")
+  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap", TruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"),
            py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet, bool>(), py::arg("num_frequencies"),
            py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("x_limits"),
            py::arg("unused"))
-      .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"))
-      .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"))
-      .def("__call__", &TruncatedFourierFeatureMap::operator(), ARG_NONCONVERT("x"))
-      .def_property_readonly("sigma_f", &TruncatedFourierFeatureMap::sigma_f)
-      .def_property_readonly("periodic_coefficients", &TruncatedFourierFeatureMap::periodic_coefficients)
-      .def_property_readonly("x_limits", &TruncatedFourierFeatureMap::x_limits)
-      .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension)
-      .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega)
-      .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights)
-      .def_property_readonly("num_frequencies", &TruncatedFourierFeatureMap::num_frequencies);
-  py::class_<ConstantTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "ConstantTruncatedFourierFeatureMap",
-                                                                             py::is_final())
+      .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"),
+           TruncatedFourierFeatureMap_map_vector)
+      .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"),
+           TruncatedFourierFeatureMap_map_matrix)
+      .def("__call__", &TruncatedFourierFeatureMap::operator(), ARG_NONCONVERT("x"), FeatureMap_operator_apply)
+      .def_property_readonly("sigma_f", &TruncatedFourierFeatureMap::sigma_f, TruncatedFourierFeatureMap_sigma_f)
+      .def_property_readonly("periodic_coefficients", &TruncatedFourierFeatureMap::periodic_coefficients,
+                             TruncatedFourierFeatureMap_periodic_coefficients)
+      .def_property_readonly("x_limits", &TruncatedFourierFeatureMap::x_limits, TruncatedFourierFeatureMap_x_limits)
+      .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension, TruncatedFourierFeatureMap_dimension)
+      .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega, TruncatedFourierFeatureMap_omega)
+      .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights, TruncatedFourierFeatureMap_weights)
+      .def_property_readonly("num_frequencies", &TruncatedFourierFeatureMap::num_frequencies,
+                             TruncatedFourierFeatureMap_num_frequencies);
+  py::class_<ConstantTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(
+      m, "ConstantTruncatedFourierFeatureMap", ConstantTruncatedFourierFeatureMap_, py::is_final())
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
@@ -476,25 +489,27 @@ void init_model(py::module_ &m) {
            py::arg("sigma_f"), py::arg("x_limits"));
 
   /**************************** Estimator ****************************/
-  estimator.def(py::init<>())
-      .def("predict", &Estimator::predict, ARG_NONCONVERT("x"))
+  estimator.def(py::init<>(), Estimator_Estimator)
+      .def("predict", &Estimator::predict, ARG_NONCONVERT("x"), Estimator_predict)
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), ARG_NONCONVERT("x"),
-           ARG_NONCONVERT("y"))
+           ARG_NONCONVERT("y"), Estimator_fit)
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit),
-           ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("tuner"))
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("tuner"), Estimator_fit)
       .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer &>(&Estimator::fit_online),
-           ARG_NONCONVERT("x"), py::arg("y"))
+           ARG_NONCONVERT("x"), py::arg("y"), Estimator_fit_online)
       .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer &, const Tuner &>(&Estimator::fit_online),
-           ARG_NONCONVERT("x"), py::arg("y"), py::arg("tuner"))
-      .def("score", &Estimator::score, py::arg("x"), py::arg("y"))
-      .def_property("tuner", &Estimator::tuner,
-                    [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; })
+           ARG_NONCONVERT("x"), py::arg("y"), py::arg("tuner"), Estimator_fit_online)
+      .def("score", &Estimator::score, py::arg("x"), py::arg("y"), Estimator_score)
+      .def_property(
+          "tuner", &Estimator::tuner,
+          [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; }, Estimator_tuner)
       .def("consolidate", py::overload_cast<ConstMatrixRef, ConstMatrixRef, Requests>(&Estimator::consolidate),
-           ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("requests") = NoRequests)
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("requests") = NoRequests, Estimator_consolidate)
       .def("clone", &Estimator::clone)
-      .def("__call__", py::overload_cast<ConstMatrixRef>(&Estimator::operator(), py::const_), ARG_NONCONVERT("x"))
+      .def("__call__", py::overload_cast<ConstMatrixRef>(&Estimator::operator(), py::const_), ARG_NONCONVERT("x"),
+           Estimator_operator_apply)
       .def("__str__", STRING_LAMBDA(Estimator));
-  py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor")
+  py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor", KernelRidgeRegressor_)
       .def(py::init([](double regularization_constant, const std::shared_ptr<Tuner> &tuner) {
              return KernelRidgeRegressor{std::make_unique<GaussianKernel>(), regularization_constant, tuner};
            }),
@@ -513,11 +528,14 @@ void init_model(py::module_ &m) {
             return feature_map == nullptr ? self.predict(x) : self.predict(x, *feature_map);
           },
           ARG_NONCONVERT("x"), py::arg("feature_map").none(true) = nullptr)
-      .def_property_readonly("kernel",
-                             [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); })
-      .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs)
-      .def_property_readonly("coefficients", &KernelRidgeRegressor::coefficients)
-      .def_property_readonly("regularization_constant", &KernelRidgeRegressor::regularization_constant);
+      .def_property_readonly(
+          "kernel", [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); },
+          KernelRidgeRegressor_kernel)
+      .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs,
+                             KernelRidgeRegressor_training_inputs)
+      .def_property_readonly("coefficients", &KernelRidgeRegressor::coefficients, KernelRidgeRegressor_coefficients)
+      .def_property_readonly("regularization_constant", &KernelRidgeRegressor::regularization_constant,
+                             KernelRidgeRegressor_regularization_constant);
 
   /**************************** Misc ****************************/
   // TODO(tend): it would be nice to encapsulate this in a class

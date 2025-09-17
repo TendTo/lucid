@@ -47,7 +47,7 @@ using HP = Parameter;                                                       ///<
 using Parameters = std::underlying_type_t<Parameter>;                       ///< Efficient set of parameters as bitset
 constexpr Parameters NoParameters = static_cast<Parameters>(Parameter::_);  ///< No parameter value placeholder
 
-LUCID_FLAG_ENUMS(Parameter, Parameters, GRADIENT_OPTIMIZABLE)
+LUCID_FLAG_ENUMS(Parameter, Parameters, GRADIENT_OPTIMIZABLE);
 
 namespace internal {
 

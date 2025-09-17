@@ -3,17 +3,16 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-
 from ._pylucid import (
     Estimator,
+    GaussianKernel,
+    KernelRidgeRegressor,
     MultiSet,
     PolytopeSet,
     RectSet,
     SphereSet,
     TruncatedFourierFeatureMap,
     log,
-    KernelRidgeRegressor,
-    GaussianKernel,
 )
 
 if TYPE_CHECKING:
