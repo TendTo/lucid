@@ -107,6 +107,7 @@ class BaseScopedValue {
    * Set the entire stack of scoped value instances.
    * Useful for initialising the scope stack in other threads.
    * @note The entire current stack will be replaced.
+   * @param new_scopes new stack of scoped value instances.
    */
   static void set_scopes(std::vector<BaseScopedValue*> new_scopes) { scope_stack_ = std::move(new_scopes); }
 

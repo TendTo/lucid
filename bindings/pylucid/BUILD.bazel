@@ -35,6 +35,7 @@ lucid_pybind_extension(
         "pylucid.h",
         "util.cpp",
         "verification.cpp",
+        ":doxygen_docstring_extractor",
     ],
     linkstatic = select({
         "//tools:static_build": True,
@@ -118,6 +119,17 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "doxygen_docstring_extractor_bin",
+    srcs = ["_doxygen_docstring_extractor.py"],
+    imports = [".."],
+    main = "_doxygen_docstring_extractor.py",
+    python_version = "PY3",
+    deps = [
+        requirement("cxxheaderparser"),
+    ],
+)
+
 genrule(
     name = "stubgen",
     srcs = [
@@ -136,6 +148,19 @@ genrule(
     cmd = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
     cmd_bat = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
     tools = [":stubgen_bin"],
+)
+
+genrule(
+    name = "doxygen_docstring_extractor",
+    srcs = [
+        "//lucid:all_srcs",
+    ],
+    outs = [
+        "doxygen_docstrings.h",
+    ],
+    cmd = "$(location :doxygen_docstring_extractor_bin) $(SRCS) $(OUTS)",
+    cmd_bat = "$(location :doxygen_docstring_extractor_bin) $(SRCS) $(OUTS)",
+    tools = [":doxygen_docstring_extractor_bin"],
 )
 
 filegroup(

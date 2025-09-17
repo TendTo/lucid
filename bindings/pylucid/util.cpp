@@ -16,6 +16,7 @@
 
 #include <optional>
 
+#include "bindings/pylucid/doxygen_docstrings.h"
 #include "bindings/pylucid/pylucid.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
@@ -122,23 +123,27 @@ void init_util(py::module_& m) {
   py::register_exception<exception::LucidPyException>(e, "LucidPyException", PyExc_RuntimeError);
   py::register_exception<exception::LucidLpSolverException>(e, "LucidLpSolverException", PyExc_RuntimeError);
 
-  py::class_<ScopedStats>(m, "Stats")
+  py::class_<ScopedStats>(m, "Stats", Stats_)
       .def(py::init<>())
       .def("collect_peak_rss_memory_usage", &ScopedStats::collect_peak_rss_memory_usage)
-      .def_property_readonly("estimator_time", STATS_PROPERTY(estimator_timer.seconds()))
-      .def_property_readonly("feature_map_time", STATS_PROPERTY(feature_map_timer.seconds()))
-      .def_property_readonly("barrier_time", STATS_PROPERTY(barrier_timer.seconds()))
-      .def_property_readonly("optimiser_time", STATS_PROPERTY(optimiser_timer.seconds()))
-      .def_property_readonly("tuning_time", STATS_PROPERTY(tuning_timer.seconds()))
-      .def_property_readonly("kernel_time", STATS_PROPERTY(kernel_timer.seconds()))
-      .def_property_readonly("total_time", STATS_PROPERTY(total_timer.seconds()))
-      .def_property_readonly("num_constraints", STATS_PROPERTY(num_constraints))
-      .def_property_readonly("num_variables", STATS_PROPERTY(num_variables))
-      .def_property_readonly("peak_rss_memory_usage", STATS_PROPERTY(peak_rss_memory_usage))
-      .def_property_readonly("num_estimator_consolidations", STATS_PROPERTY(num_estimator_consolidations))
-      .def_property_readonly("num_feature_map_applications", STATS_PROPERTY(num_feature_map_applications))
-      .def_property_readonly("num_kernel_applications", STATS_PROPERTY(num_kernel_applications))
-      .def_property_readonly("num_tuning", STATS_PROPERTY(num_tuning))
+      .def_property_readonly("estimator_time", STATS_PROPERTY(estimator_timer.seconds()), Stats_estimator_timer)
+      .def_property_readonly("feature_map_time", STATS_PROPERTY(feature_map_timer.seconds()), Stats_feature_map_timer)
+      .def_property_readonly("barrier_time", STATS_PROPERTY(barrier_timer.seconds()), Stats_barrier_timer)
+      .def_property_readonly("optimiser_time", STATS_PROPERTY(optimiser_timer.seconds()), Stats_optimiser_timer)
+      .def_property_readonly("tuning_time", STATS_PROPERTY(tuning_timer.seconds()), Stats_tuning_timer)
+      .def_property_readonly("kernel_time", STATS_PROPERTY(kernel_timer.seconds()), Stats_kernel_timer)
+      .def_property_readonly("total_time", STATS_PROPERTY(total_timer.seconds()), Stats_total_timer)
+      .def_property_readonly("num_constraints", STATS_PROPERTY(num_constraints), Stats_num_constraints)
+      .def_property_readonly("num_variables", STATS_PROPERTY(num_variables), Stats_num_variables)
+      .def_property_readonly("peak_rss_memory_usage", STATS_PROPERTY(peak_rss_memory_usage),
+                             Stats_peak_rss_memory_usage)
+      .def_property_readonly("num_estimator_consolidations", STATS_PROPERTY(num_estimator_consolidations),
+                             Stats_num_estimator_consolidations)
+      .def_property_readonly("num_feature_map_applications", STATS_PROPERTY(num_feature_map_applications),
+                             Stats_num_feature_map_applications)
+      .def_property_readonly("num_kernel_applications", STATS_PROPERTY(num_kernel_applications),
+                             Stats_num_kernel_applications)
+      .def_property_readonly("num_tuning", STATS_PROPERTY(num_tuning), Stats_num_tuning)
       .def("__enter__", &ScopedStats::enter)
       .def("__exit__", [](ScopedStats& self, const py::object&, const py::object&, const py::object&) { self.exit(); })
       .def("__str__", STRING_LAMBDA(ScopedStats));

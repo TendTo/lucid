@@ -41,7 +41,7 @@ enum class Request : std::uint16_t {
 using Requests = std::underlying_type_t<Request>;                   ///< Efficient set of requests
 constexpr Requests NoRequests = static_cast<Requests>(Request::_);  ///< No request value
 
-LUCID_FLAG_ENUMS(Request, Requests, GRADIENT)
+LUCID_FLAG_ENUMS(Request, Requests, GRADIENT);
 
 std::ostream& operator<<(std::ostream& os, const Request& request);
 
