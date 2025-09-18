@@ -51,8 +51,8 @@ class PyInterruptCallback final : public GRBCallback {
 }  // namespace
 
 bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
-                            ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
-                            const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
+                            ConstMatrixRef w_mat, Dimension rkhs_dim, Dimension num_frequencies_per_dim,
+                            Dimension num_frequency_samples_per_dim, Dimension original_dim,
                             const SolutionCallback& cb) const {
   TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().optimiser_timer : nullptr};
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
@@ -136,7 +136,6 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
     var.set(GRB_DoubleAttr_UB, max_num);
   }
 
-  const double maxXX_coeff = -(C - 1) / (C + 1);
   const double fctr1 = 2 / (C + 1);
   const double fctr2 = (C - 1) / (C + 1);
   const double unsafe_rhs = fctr1 * gamma_;
@@ -157,7 +156,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   for (Index row = 0; row < phi_mat.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(phi_mat.row(row).data(), vars_.get(), static_cast<int>(phi_mat.cols()));
-    expr += maxXX * maxXX_coeff;
+    expr += maxXX * -fctr2;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(x)>=hatxi[{}]", row), should_log);
     expr.remove(maxXX);
     expr += -maxXX;
@@ -247,7 +246,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
 bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
                                                            const SolutionCallback& cb) const {
   const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma_val, C, b_kappa,
-               maxXX_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
+               fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
@@ -326,7 +325,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   for (Index row = 0; row < fx_lattice.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(fx_lattice.row(row).data(), vars_.get(), static_cast<int>(fx_lattice.cols()));
-    expr += maxXX * maxXX_coeff;
+    expr += maxXX * -fctr2;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, GRB_GREATER_EQUAL, 0, fmt::format("B(x)>=hatxi[{}]", row), should_log);
     expr.remove(maxXX);
     expr += -maxXX;

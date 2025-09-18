@@ -14,6 +14,7 @@ build --flag_alias=enable_matplotlib_build=//tools:enable_matplotlib_build
 build --flag_alias=enable_gurobi_build=//tools:enable_gurobi_build
 build --flag_alias=enable_alglib_build=//tools:enable_alglib_build
 build --flag_alias=enable_highs_build=//tools:enable_highs_build
+build --flag_alias=enable_soplex_build=//tools:enable_soplex_build
 build --flag_alias=enable_verbose_eigen_build=//tools:enable_verbose_eigen_build
 build --flag_alias=python_version=@rules_python//python/config_settings:python_version
 

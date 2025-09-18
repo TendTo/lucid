@@ -21,6 +21,7 @@
 #include "bindings/pylucid/pylucid.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
+#include "lucid/verification/SoplexOptimiser.h"
 
 namespace py = pybind11;
 using namespace lucid;
@@ -88,6 +89,8 @@ void init_verification(py::module_& m) {
            py::arg("w_mat"), py::arg("rkhs_dim"), py::arg("num_frequencies_per_dim"),
            py::arg("num_frequency_samples_per_dim"), py::arg("original_dim"), py::arg("callback"),
            GurobiOptimiser_solve);
+  py::class_<SoplexOptimiser, Optimiser>(m, "SoplexOptimiser", SoplexOptimiser_)
+      .def(py::init<std::string, std::string>(), py::arg("problem_log_file") = "", py::arg("iis_log_file") = "");
 
   py::class_<BarrierCertificate, PyBarrierCertificate>(m, "BarrierCertificate", BarrierCertificate_)
       .def_property_readonly("T", &BarrierCertificate::T, BarrierCertificate_T)

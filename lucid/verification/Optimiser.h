@@ -26,7 +26,6 @@ struct FourierBarrierSynthesisParameters {
   double gamma;                ///< @gamma value
   double C;                    ///< Conservative coefficient used to obtain guarantees on the whole state space
   double b_kappa;
-  double maxXX_coeff;
   double fctr1;
   double fctr2;
   double unsafe_rhs;

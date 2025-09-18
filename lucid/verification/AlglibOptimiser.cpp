@@ -164,7 +164,6 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
     lp_problem.set_bounds(var, 0, max_num);
   }
 
-  const double maxXX_coeff = -(C - 1) / (C + 1);
   const double fctr1 = 2 / (C + 1);
   const double fctr2 = (C - 1) / (C + 1);
   const double unsafe_rhs = fctr1 * gamma_;
@@ -184,7 +183,7 @@ bool AlglibOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
       phi_mat.rows() * 2);
   for (Index row = 0; row < phi_mat.rows(); ++row) {
     // B(x) >= hatxi
-    lp_problem.add_constraint<'>'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{maxXX_coeff}, 0.0);
+    lp_problem.add_constraint<'>'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{-fctr2}, 0.0);
     // B(x) <= maxXX
     lp_problem.add_constraint<'<'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{-1.0}, 0.0);
   }
@@ -326,7 +325,7 @@ std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstV
 bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
                                                            const SolutionCallback& cb) const {
   const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma, C, b_kappa,
-               maxXX_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
+               fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
@@ -370,7 +369,7 @@ bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
       fx_lattice.rows() * 2);
   for (Index row = 0; row < fx_lattice.rows(); ++row) {
     // B(x) >= hatxi
-    lp_problem.add_constraint<'>'>(fx_lattice.row(row).data(), std::array{maxXX}, std::array{maxXX_coeff}, 0.0);
+    lp_problem.add_constraint<'>'>(fx_lattice.row(row).data(), std::array{maxXX}, std::array{-fctr2}, 0.0);
     // B(x) <= maxXX
     lp_problem.add_constraint<'<'>(fx_lattice.row(row).data(), std::array{maxXX}, std::array{-1.0}, 0.0);
   }

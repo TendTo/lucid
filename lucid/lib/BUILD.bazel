@@ -57,6 +57,19 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "soplex",
+    hdrs = ["soplex.h"],
+    tags = ["no-dwyu"],
+    deps = ["//lucid/util:logging"] + select({
+        "//tools:soplex_build": [
+            "@soplex",
+            "@zlib",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+lucid_cc_library(
     name = "pocketfft",
     hdrs = ["pocketfft.h"],
     deps = ["@pocketfft"],

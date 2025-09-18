@@ -146,7 +146,7 @@ bazel build --config=opt //lucid
 If you want even more fine-grained control over the build, you can also use the following flags or even add more custom compiler flags.
 
 | Flag                                   | Description                                                 |
-| -------------------------------------- | ----------------------------------------------------------- |
+|----------------------------------------|-------------------------------------------------------------|
 | `enable_static_build`                  | Build Lucid as a static library. Defaults to `False`.       |
 | `enable_dynamic_build`                 | Build Lucid as a dynamic library. Defaults to `False`.      |
 | `enable_python_build`                  | Build Lucid with Python bindings. Defaults to `False`.      |
@@ -156,6 +156,7 @@ If you want even more fine-grained control over the build, you can also use the 
 | `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.        |
 | `enable_alglib_build`                  | Build Lucid with ALGLIB support. Defaults to `True`.        |
 | `enable_highs_build`                   | Build Lucid with HiGHS support. Defaults to `True`.         |
+| `enable_soplx_build`                   | Build Lucid with SoPlex support. Defaults to `True`.        |
 | `enable_verbose_eigen_build`           | Enable verbose logging for Eigen. Defaults to `False`.      |
 | `python_version`                       | Specify the Python version to use for the Python bindings.  |
 | `compilation_mode=[fastbuild,dbg,opt]` | Use Bazel's compilation modes. Default to `fastbuild`.      |
