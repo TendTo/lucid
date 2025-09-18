@@ -25,23 +25,23 @@ class ScopedValueShield;
  * @code
  * #include <iostream>
  * #include "lucid/util/ScopedValue.h"
- * 
+ *
  * struct Config {
  *   std::string path;
  *   int level = 0;
  * };
- * 
+ *
  * const Config default_config{"default_path", 0};
- * 
+ *
  * // The tag avoids conflicts with other ScopedValue<Config> usages.
- * using ScopedConfig = lucid::ScopedValue<Config, struct CommandLineConfigTag>; 
- * 
+ * using ScopedConfig = lucid::ScopedValue<Config, struct CommandLineConfigTag>;
+ *
  * void fun() {  // Note there are no parameters. This could be at any level of the call stack.
  *   // If there is any scoped config on the stack, use it. Otherwise, use the default config.
  *   const Config& config = ScopedConfig::top() ? ScopedConfig::top()->value() : default_config;
  *   std::cout << "Path: " << config.path << ", level: " << config.level << std::endl;
  * }
- * 
+ *
  * int main() {
  *   fun();  // Path: default_path, level: 0
  *   {
@@ -148,6 +148,7 @@ class PolymorphicScopedValue final : public BaseScopedValue<B, Tags...> {
   using BaseScopedValue<B, Tags...>::value;
 
   template <class... Args>
+    requires std::is_constructible_v<T, Args...>
   explicit PolymorphicScopedValue(Args&&... args)
       : BaseScopedValue<B, Tags...>(), value_{std::forward<Args>(args)...} {}
   PolymorphicScopedValue(const PolymorphicScopedValue& other) = default;
