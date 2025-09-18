@@ -114,7 +114,7 @@ class Configuration(Namespace):
     estimator: "type[Estimator]" = KernelRidgeRegressor
     kernel: "type[Kernel]" = GaussianKernel
     feature_map: "type[FeatureMap] | FeatureMap | Callable[[Estimator], FeatureMap]" = LinearTruncatedFourierFeatureMap
-    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD and GurobiOptimiser is not None else AlglibOptimiser
+    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD and GurobiOptimiser is not None else SoplexOptimiser
     tuner: "Tuner | None" = None
 
     constant_lattice_points: bool = False
@@ -391,7 +391,7 @@ class FeatureMapAction(Action):
 
 class OptimiserAction(Action):
     def __call__(self, parser, namespace, values: "str | type[Optimiser]", option_string=None):
-        if isinstance(values, type) and issubclass(values, (Optimiser, GurobiOptimiser)):
+        if isinstance(values, type) and issubclass(values, Optimiser):
             return setattr(namespace, self.dest, values)
         if values == "GurobiOptimiser":
             return setattr(namespace, self.dest, GurobiOptimiser)
@@ -399,6 +399,8 @@ class OptimiserAction(Action):
             return setattr(namespace, self.dest, AlglibOptimiser)
         if values == "HighsOptimiser":
             return setattr(namespace, self.dest, HighsOptimiser)
+        if values == "SoplexOptimiser":
+            return setattr(namespace, self.dest, SoplexOptimiser)
         raise raise_error(f"Unsupported optimiser type: {values}")
 
 
@@ -738,6 +740,7 @@ def arg_parser() -> "ArgumentParser":
             "GurobiOptimiser",
             "AlglibOptimiser",
             "HighsOptimiser",
+            "SoplexOptimiser",
         ],
         help="optimiser class to use for the optimization",
     )

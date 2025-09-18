@@ -21,6 +21,7 @@ from pylucid import (
     MultiSet,
     OptimiserAction,
     RectSet,
+    SoplexOptimiser,
     log,
 )
 from pylucid.cli import (
@@ -221,6 +222,8 @@ class TestCli:
             assert args.optimiser == GurobiOptimiser
             action(None, args, "HighsOptimiser")
             assert args.optimiser == HighsOptimiser
+            action(None, args, "SoplexOptimiser")
+            assert args.optimiser == SoplexOptimiser
 
             # Test invalid optimiser string
             with pytest.raises(ValueError):

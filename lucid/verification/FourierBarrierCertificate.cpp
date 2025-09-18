@@ -54,7 +54,6 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatr
       static_cast<double>(feature_map.num_frequencies() - 1) / num_frequency_samples_per_dim_periodic;
   const double C =
       std::pow(1 - C_coeff * 2.0 * fraction, -static_cast<double>(feature_map.x_limits().dimension()) / 2.0);
-  const double maxXX_coeff = -(C - 1) / (C + 1);
   const double fctr1 = 2 / (C + 1);
   const double fctr2 = (C - 1) / (C + 1);
   const double unsafe_rhs = fctr1 * gamma_;
@@ -64,8 +63,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatr
   LUCID_DEBUG_FMT("num_frequencies_per_dim: {}, num_frequency_samples_per_dim_periodic {}",
                   feature_map.num_frequencies(), num_frequency_samples_per_dim_periodic);
   LUCID_DEBUG_FMT("fraction: {}, C_coeff: {}, C: {}", fraction, C_coeff, C);
-  LUCID_DEBUG_FMT("maxXX_coeff: {}, fctr1: {}, fctr2: {}, unsafe_rhs: {}, kushner_rhs: {}", maxXX_coeff, fctr1, fctr2,
-                  unsafe_rhs, kushner_rhs);
+  LUCID_DEBUG_FMT("fctr1: {}, fctr2: {}, unsafe_rhs: {}, kushner_rhs: {}", fctr1, fctr2, unsafe_rhs, kushner_rhs);
 
   if (Stats::Scoped::top()) {
     Stats::Scoped::top()->value().num_variables = num_variables;
@@ -83,7 +81,6 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatr
           .gamma = gamma_,
           .C = C,
           .b_kappa = b_kappa,
-          .maxXX_coeff = maxXX_coeff,
           .fctr1 = fctr1,
           .fctr2 = fctr2,
           .unsafe_rhs = unsafe_rhs,

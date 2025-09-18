@@ -4,8 +4,8 @@
  * @licence BSD 3-Clause License
  * @file
  * HiGHS wrapper.
- * This header includes the gurobi library and provides various helpers.
- * Other files in the library should depend on this header instead of the gurobi library directly.
+ * This header includes the HiGHS library and provides various helpers.
+ * Other files in the library should depend on this header instead of the HiGHS library directly.
  * Instead of including <Highs.h>, include "lucid/lib/highs.h".
  */
 #pragma once

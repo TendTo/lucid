@@ -276,7 +276,7 @@
     "optimiser": {
       "description": "Type of optimiser to use for the estimator.",
       "type": "string",
-      "enum": ["GurobiOptimiser", "AlglibOptimiser", "HighsOptimiser"],
+      "enum": ["GurobiOptimiser", "AlglibOptimiser", "HighsOptimiser", "SoplexOptimiser"],
       "default": "GurobiOptimiser"
     }
   }

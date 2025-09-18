@@ -154,6 +154,9 @@ def _get_defines(rule_defines):
         "//tools:highs_build": ["LUCID_HIGHS_BUILD"],
         "//conditions:default": [],
     }) + select({
+        "//tools:soplex_build": ["LUCID_SOPLEX_BUILD"],
+        "//conditions:default": [],
+    }) + select({
         "//tools:verbose_eigen_build": ["LUCID_VERBOSE_EIGEN_BUILD"],
         "//conditions:default": [],
     }) + select({

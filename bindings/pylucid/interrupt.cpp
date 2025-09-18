@@ -21,4 +21,8 @@ void py_check_signals() {
   }
 }
 
+void py_interrupt_flag(volatile bool *interrupt) {
+  if (PyErr_CheckSignals() == -1) *interrupt = true;
+}
+
 }  // namespace lucid

@@ -148,7 +148,7 @@ def main():
         sys.exit(1)
     # Filter out all non-header files
     headers = [f for f in sys.argv[1:-1] if valid_header(f)]
-    print(f"Processing header files: {headers}", file=sys.stderr)
+    print(f"Processing header files: {headers}")
 
     visitor = DocxygenVisitor()
     for header in headers:

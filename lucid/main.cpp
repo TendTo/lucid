@@ -171,7 +171,7 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, const Sc
 }
 #endif
 
-enum class Solver { Gurobi, Alglib, HiGHS };
+enum class Solver { Gurobi, Alglib, HiGHS, SOPLEX };
 
 struct CliArgs {
   int seed{-1};
@@ -245,10 +245,70 @@ bool test_overtaking(const CliArgs& args) {
                  (std::chrono::steady_clock::now().time_since_epoch().count() - start_time) / 1e9);
   return false;
 }
+
+
+switch (args.solver) {
+#ifdef LUCID_GUROBI_BUILD
+  case Solver::Gurobi:
+    return GurobiOptimiser{
+      args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
+      args.problem_log_file, args.iis_log_file,
+  }
+    .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
+           args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
+#endif
+#ifdef LUCID_ALGLIB_BUILD
+  case Solver::Alglib:
+    return AlglibOptimiser{
+      args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
+      args.problem_log_file, args.iis_log_file,
+  }
+    .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
+           args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
+#endif
+#ifdef LUCID_HIGHS_BUILD
+  case Solver::HiGHS:
+    return HighsOptimiser{
+      args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
+      args.problem_log_file, args.iis_log_file,
+  }
+    .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
+           args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
+#endif
+  default:
+    LUCID_NOT_SUPPORTED("The chosen solver");
+}
 #endif
 
 Vector to_eigen(const std::vector<double>& vectors) {
   return Vector::NullaryExpr(vectors.size(), [&vectors](const Index i) { return vectors[i]; });
+}
+
+std::unique_ptr<Optimiser> get_optimiser(const Solver solver, const CliArgs& args) {
+  switch (solver) {
+#ifdef LUCID_GUROBI_BUILD
+    case Solver::Gurobi:
+      return std::make_unique<GurobiOptimiser>(args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient,
+                                               args.problem_log_file, args.iis_log_file);
+#endif
+#ifdef LUCID_ALGLIB_BUILD
+    case Solver::Alglib:
+      return std::make_unique<AlglibOptimiser>(args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient,
+                                               args.problem_log_file, args.iis_log_file);
+#endif
+#ifdef LUCID_HIGHS_BUILD
+    case Solver::HiGHS:
+      return std::make_unique<HighsOptimiser>(args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient,
+                                              args.problem_log_file, args.iis_log_file);
+#endif
+#ifdef LUCID_SOPLEX_BUILD
+    case Solver::SOPLEX:
+      return std::make_unique<SoplexOptimiser>(args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient,
+                                               args.problem_log_file, args.iis_log_file);
+#endif
+    default:
+      throw std::invalid_argument("Solver not supported or not built");
+  }
 }
 
 bool pipeline(const CliArgs& args) {
@@ -266,7 +326,7 @@ bool pipeline(const CliArgs& args) {
 
   Vector sigma_l{to_eigen(args.sigma_l)};
   KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(sigma_l, args.sigma_f), args.lambda};
-  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, sigma_l, args.sigma_f, *args.X_bounds, true};
+  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, sigma_l, args.sigma_f, *args.X_bounds};
 
   const Matrix f_xp_samples{feature_map(xp_samples)};
 
@@ -305,49 +365,11 @@ bool pipeline(const CliArgs& args) {
   const Matrix xu_lattice = args.X_unsafe->lattice(n_per_dim, true);
   const Matrix f_xu_lattice = feature_map(xu_lattice);
 
-  [[maybe_unused]] auto check_cb = []([[maybe_unused]] const bool success, [[maybe_unused]] const float obj_val,
-                                      [[maybe_unused]] const Vector& sol, [[maybe_unused]] float eta,
-                                      [[maybe_unused]] float c, [[maybe_unused]] float norm) {
-    if (!success) {
-      std::cerr << "Optimization failed" << std::endl;
-    } else {
-      std::cout << "Optimization succeeded with ojb_val = " << obj_val << std::endl;
-      LUCID_INFO_FMT("obj_val = {}, eta = {}, c = {}, norm = {}", obj_val, eta, c, norm);
-      LUCID_INFO_FMT("sol = {}", sol);
-    }
-  };
-
-  switch (args.solver) {
-#ifdef LUCID_GUROBI_BUILD
-    case Solver::Gurobi:
-      return GurobiOptimiser{
-          args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
-          args.problem_log_file, args.iis_log_file,
-      }
-          .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
-                 args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
-#endif
-#ifdef LUCID_ALGLIB_BUILD
-    case Solver::Alglib:
-      return AlglibOptimiser{
-          args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
-          args.problem_log_file, args.iis_log_file,
-      }
-          .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
-                 args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
-#endif
-#ifdef LUCID_HIGHS_BUILD
-    case Solver::HiGHS:
-      return HighsOptimiser{
-          args.time_horizon,     args.gamma,        0, 1, 1, args.sigma_f, args.c_coefficient,
-          args.problem_log_file, args.iis_log_file,
-      }
-          .solve(f_x0_lattice, f_xu_lattice, u_f_x_lattice, u_f_xp_lattice_via_regressor, feature_map.dimension(),
-                 args.num_frequencies - 1, n_per_dim, args.X_bounds->dimension(), check_cb);
-#endif
-    default:
-      LUCID_NOT_SUPPORTED("The chosen solver");
-  }
+  FourierBarrierCertificate barrier{args.time_horizon, args.gamma};
+  barrier.synthesize(*get_optimiser(args.solver, args), u_f_x_lattice, u_f_xp_lattice_via_regressor, f_x0_lattice,
+                     f_xu_lattice, feature_map, n_per_dim, args.c_coefficient);
+  std::cout << barrier << std::endl;
+  return true;
 }
 
 }  // namespace
@@ -365,32 +387,37 @@ int main(const int argc, char* argv[]) {
       solver = Solver::Alglib;
     } else if (std::string_view{argv[1]} == "gurobi") {  // NOLINT(whitespace/braces): standard initialisation
       solver = Solver::Gurobi;
-    } else if (std::string_view{argv[1]} == "highs") {  // NOLINT(whitespace/braces): standard initialisation
+    } else if (std::string_view{argv[1]} == "highs") {
+      // NOLINT(whitespace/braces): standard initialisation
       solver = Solver::HiGHS;
+    } else if (std::string_view{argv[1]} == "soplex") {
+      solver = Solver::SOPLEX;
     } else {
-      fmt::print("Usage: {} [gurobi|alglib|highs]\n", argv[0]);
+      fmt::print("Usage: {} [gurobi|alglib|highs|soplex]\n", argv[0]);
       return 1;
     }
   }
   LUCID_LOG_INIT_VERBOSITY(4);
-  const std::string log_file = fmt::format("{}.problem.lp", solver == Solver::Gurobi   ? "gurobi"
-                                                            : solver == Solver::Alglib ? "alglib"
-                                                                                       : "highs");
+  const std::string log_file = fmt::format("/home/campus.ncl.ac.uk/c3054737/Programming/phd/keid/{}.problem.lp",
+                                           solver == Solver::Gurobi   ? "gurobi"
+                                           : solver == Solver::Alglib ? "alglib"
+                                           : solver == Solver::HiGHS  ? "highs"
+                                                                      : "soplex");
 
-#if 0
+#if 1
   pipeline({.seed = 42,
             .gamma = 1.0,
-            .time_horizon = 5,
-            .num_samples = 500,
+            .time_horizon = 15,
+            .num_samples = 1000,
             .lambda = 1e-3,
             .sigma_f = 15.0,
-            .sigma_l = {1.75555556},
-            .num_frequencies = 8,
+            .sigma_l = {1.2},
+            .num_frequencies = 5,
             .plot = true,
             .verify = true,
             .problem_log_file = log_file,
             .iis_log_file = "iis.ilp",
-            .oversample_factor = 2.0,
+            .num_oversample = 704,
             .noise_scale = 0.01,
             .solver = solver,
             .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-1, 1}}),
