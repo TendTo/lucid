@@ -38,22 +38,19 @@ using namespace lucid;
  */
 class ScopedStats {
  public:
-  /** Create a new ScopedStats instance. */
-  ScopedStats() { stats_.reserve(1); }
-
   /**
    * Emplace a new Stats instance onto the stack if none exists.
    * This method ensures that there is always a Stats instance available when entering a new scope.
    * @return reference to the top Stats instance
    */
   ScopedStats& enter() {
-    if (stats_.empty()) stats_.emplace_back();
-    stats_.front()->total_timer.start();
+    if (!stats_.has_value()) stats_.emplace();
+    stats_.value()->total_timer.start();
     return *this;
   }
 
   /** Clear the Stats instance from the stack. */
-  void exit() { stats_.clear(); }
+  void exit() { stats_.reset(); }
 
   /**
    * Get a read-only reference to the top Stats instance.
@@ -61,20 +58,20 @@ class ScopedStats {
    * @throw lucid::exception::LucidException if no Stats instance is available
    */
   [[nodiscard]] const Stats& stats() const {
-    if (stats_.empty()) THROW_NOT_STATS_AVAILABLE_ERROR();
-    return *stats_.front();
+    if (!stats_.has_value()) THROW_NOT_STATS_AVAILABLE_ERROR();
+    return *stats_.value();
   }
 
   /** @checker{has_stats, whether stats are available} */
-  [[nodiscard]] bool has_stats() const { return !stats_.empty(); }
+  [[nodiscard]] bool has_stats() const { return stats_.has_value(); }
 
   void collect_peak_rss_memory_usage() {
-    if (stats_.empty()) THROW_NOT_STATS_AVAILABLE_ERROR();
-    stats_.front()->peak_rss_memory_usage = metrics::get_peak_rss();
+    if (!stats_.has_value()) THROW_NOT_STATS_AVAILABLE_ERROR();
+    stats_.value()->peak_rss_memory_usage = metrics::get_peak_rss();
   }
 
  private:
-  std::vector<Stats::Scoped> stats_;  ///< Stack of Stats instances. Can contain at most one element.
+  std::optional<Stats::Scoped> stats_;  ///< Stack of Stats instances. Can contain at most one element.
 };
 
 std::ostream& operator<<(std::ostream& os, const ScopedStats& stats) {
