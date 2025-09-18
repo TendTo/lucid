@@ -11,27 +11,9 @@ class DocxygenVisitor(CxxVisitor):
         self._current_class = ""
         self._strings: "dict[tuple[str, str], str]" = {}
 
-    @property
-    def strings(self) -> "dict[tuple[str, str], str]":
-        return self._strings
-
-    def on_class_start(self, state):
-        class_name = state.class_decl.typename.segments[0].name
-        self._current_class = class_name
-        if state.class_decl.doxygen is not None:
-            self._strings[(class_name, "")] = self.doxygen_to_sphinx(state.class_decl.doxygen)
-
-    def on_class_end(self, _):
-        self._current_class = ""
-
-    def on_class_field(self, state, f):
-        if f.doxygen is not None:
-            self._strings[(self._current_class, f.name)] = self.doxygen_to_sphinx(f.doxygen)
-
-    def on_class_method(self, state, method):
-        method_name = method.name.segments[0].name
-        method_name = (
-            method_name.replace("operator()", "operator_apply")
+    def _sanitize_method_name(self, name: str):
+        return (
+            name.replace("operator()", "operator_apply")
             .replace("operator++", "operator_increment")
             .replace("operator--", "operator_decrement")
             .replace("operator*", "operator_multiply")
@@ -52,6 +34,39 @@ class DocxygenVisitor(CxxVisitor):
             .replace("~", "d_")
             .replace("operatornew[]", "operator_new_array")
         )
+
+    @property
+    def strings(self) -> "dict[tuple[str, str], str]":
+        return self._strings
+
+    def on_class_start(self, state):
+        class_name = state.class_decl.typename.segments[0].name
+        self._current_class = class_name
+        if state.class_decl.doxygen is not None:
+            self._strings[(class_name, "")] = self.doxygen_to_sphinx(state.class_decl.doxygen)
+
+    def on_class_end(self, _):
+        self._current_class = ""
+
+    def on_class_field(self, state, f):
+        if f.doxygen is not None:
+            self._strings[(self._current_class, f.name)] = self.doxygen_to_sphinx(f.doxygen)
+
+    def on_enum(self, state, enum):
+        if enum.doxygen is not None:
+            enum_name = enum.typename.segments[0].name
+            self._strings[(self._current_class, enum_name)] = self.doxygen_to_sphinx(enum.doxygen)
+        for value in enum.values:
+            if value.doxygen is not None:
+                self._strings[(enum_name, value.name)] = self.doxygen_to_sphinx(value.doxygen)
+
+    def on_function(self, state, fn):
+        if fn.doxygen is not None:
+            fn_name = self._sanitize_method_name(fn.name.segments[0].name)
+            self._strings[("", fn_name)] = self.doxygen_to_sphinx(fn.doxygen)
+
+    def on_class_method(self, state, method):
+        method_name = self._sanitize_method_name(method.name.segments[0].name)
         if method.doxygen is not None:
             self._strings[(self._current_class, method_name)] = self.doxygen_to_sphinx(method.doxygen)
 
@@ -67,9 +82,8 @@ class DocxygenVisitor(CxxVisitor):
             .replace("@todo", "\n.. todo::")
             .replace("@deprecated", "\n.. deprecated::")
             .replace("@see", "\n.. seealso::")
-            .replace("@ref", ":ref:`")
             .replace("@brief", "")
-            .replace("@f[", "\n.. math::\n   :nowrap:")
+            .replace("@f[", "\n.. math::\n\n")
             .replace("@f]", "\n")
             .replace("@gamma", ":math: `\\gamma`")
             .replace("@epsilon", ":math: `\\epsilon`")
@@ -106,6 +120,7 @@ class DocxygenVisitor(CxxVisitor):
         )
         sphinx = re.sub(r"@f\$ *([\w\W]+?) *@f\$", r"\n:math: `\1`:", sphinx)
         sphinx = re.sub(r"@param ([^ ]+)", r"\n:param \1:", sphinx)
+        sphinx = re.sub(r"@ref ([^ ]+)", r"\n:ref \1:", sphinx)
         sphinx = re.sub(r"@throw ([^ ]+)", r"\n:raises \1:", sphinx)
         sphinx = re.sub(r"\n\* ", r"\n", sphinx)
         sphinx = re.sub(
