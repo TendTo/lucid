@@ -18,13 +18,13 @@ namespace lucid {
 struct Stats {
   using Scoped = ScopedValue<Stats, struct StatsTag>;
 
-  Timer estimator_timer;                        ///< Timer spent for estimator applications
-  Timer feature_map_timer;                      ///< Timer spent for feature map applications
-  Timer optimiser_timer;                        ///< Timer spent in optimising
-  Timer barrier_timer;                          ///< Timer spent in barrier certificate synthesis
-  Timer tuning_timer;                           ///< Timer spent for hyperparameter tuning
-  Timer kernel_timer;                           ///< Timer spent for kernel evaluations
-  Timer total_timer;                            ///< Timer for the whole pipeline
+  Timer estimator_timer;                        ///< Metric measuring the time spent for estimator applications
+  Timer feature_map_timer;                      ///< Metric measuring the time spent for feature map applications
+  Timer optimiser_timer;                        ///< Metric measuring the time spent in optimising
+  Timer barrier_timer;                          ///< Metric measuring the time spent in barrier certificate synthesis
+  Timer tuning_timer;                           ///< Metric measuring the time spent for hyperparameter tuning
+  Timer kernel_timer;                           ///< Metric measuring the time spent for kernel evaluations
+  Timer total_timer;                            ///< Metric measuring the total time spent in the whole pipeline
   std::size_t num_estimator_consolidations{0};  ///< Number of times an estimator was consolidated
   std::size_t num_kernel_applications{0};       ///< Number of times a kernel was applied
   std::size_t num_feature_map_applications{0};  ///< Number of times a feature map was applied

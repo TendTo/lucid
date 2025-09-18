@@ -227,17 +227,17 @@ void init_model(py::module_ &m) {
       .def_readwrite("wolfe", &LbfgsParameters::wolfe, LbfgsParameters_wolfe);
 
   /**************************** Requests ****************************/
-  py::enum_<Request>(m, "Request")
-      .value("OBJECTIVE_VALUE", Request::OBJECTIVE_VALUE)
-      .value("GRADIENT", Request::GRADIENT);
+  py::enum_<Request>(m, "Request", _Request)
+      .value("OBJECTIVE_VALUE", Request::OBJECTIVE_VALUE, Request_OBJECTIVE_VALUE)
+      .value("GRADIENT", Request::GRADIENT, Request_GRADIENT);
 
   /**************************** Parameters ****************************/
-  py::enum_<Parameter>(m, "Parameter")
-      .value("DEGREE", Parameter::DEGREE)
-      .value("SIGMA_L", Parameter::SIGMA_L)
-      .value("SIGMA_F", Parameter::SIGMA_F)
-      .value("REGULARIZATION_CONSTANT", Parameter::REGULARIZATION_CONSTANT)
-      .value("GRADIENT_OPTIMIZABLE", Parameter::GRADIENT_OPTIMIZABLE);
+  py::enum_<Parameter>(m, "Parameter", _Parameter)
+      .value("DEGREE", Parameter::DEGREE, Parameter_DEGREE)
+      .value("SIGMA_L", Parameter::SIGMA_L, Parameter_SIGMA_L)
+      .value("SIGMA_F", Parameter::SIGMA_F, Parameter_SIGMA_F)
+      .value("REGULARIZATION_CONSTANT", Parameter::REGULARIZATION_CONSTANT, Parameter_REGULARIZATION_CONSTANT)
+      .value("GRADIENT_OPTIMIZABLE", Parameter::GRADIENT_OPTIMIZABLE, Parameter_GRADIENT_OPTIMIZABLE);
   py::class_<ParameterValue>(m, "ParameterValue", ParameterValue_)
       .def(py::init<Parameter, int>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
       .def(py::init<Parameter, double>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
@@ -281,7 +281,7 @@ void init_model(py::module_ &m) {
           },
           py::arg("parameter"), py::arg("value"), Parametrizable_set)
       .def("has", &Parametrizable::has, py::arg("parameter"), Parametrizable_has)
-      .def_property_readonly("parameters", &Parametrizable::parameters_list)
+      .def_property_readonly("parameters", &Parametrizable::parameters_list, Parametrizable_parameters_list)
       .def("__contains__", &Parametrizable::has, py::arg("parameter"));
 
   /**************************** Set ****************************/
@@ -344,17 +344,17 @@ void init_model(py::module_ &m) {
 
   /**************************** Scorer ****************************/
   m.def("r2_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::r2_score),
-        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"));
+        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _r2_score);
   m.def("r2_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::r2_score), ARG_NONCONVERT("x"),
-        ARG_NONCONVERT("y"));
+        ARG_NONCONVERT("y"), _r2_score);
   m.def("mse_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::mse_score),
-        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"));
+        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _mse_score);
   m.def("mse_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::mse_score), ARG_NONCONVERT("x"),
-        ARG_NONCONVERT("y"));
+        ARG_NONCONVERT("y"), _mse_score);
   m.def("rmse_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score),
-        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"));
+        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _rmse_score);
   m.def("rmse_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score), ARG_NONCONVERT("x"),
-        ARG_NONCONVERT("y"));
+        ARG_NONCONVERT("y"), _rmse_score);
 
   /**************************** Tuner ****************************/
   py::class_<Tuner, PyTuner, std::shared_ptr<Tuner>>(m, "Tuner", Tuner_)
@@ -373,7 +373,8 @@ void init_model(py::module_ &m) {
            py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner);
   py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", GridSearchTuner_,
                                                                        py::is_final())
-      .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0)
+      .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0,
+           GridSearchTuner_GridSearchTuner)
       .def(py::init([](const py::dict &parameters, const std::size_t n_jobs) {
              std::vector<ParameterValues> parameter_values;
              parameter_values.reserve(parameters.size());
@@ -387,14 +388,14 @@ void init_model(py::module_ &m) {
              }
              return GridSearchTuner(std::move(parameter_values), n_jobs);
            }),
-           py::arg("parameters"), py::arg("n_jobs") = 0)
+           py::arg("parameters"), py::arg("n_jobs") = 0, GridSearchTuner_GridSearchTuner)
       .def(py::init([](const py::args &parameters, const std::size_t n_jobs) {
              std::vector<ParameterValues> parameter_values;
              parameter_values.reserve(parameters.size());
              for (const auto &param : parameters) parameter_values.emplace_back(param.cast<ParameterValues>());
              return GridSearchTuner(std::move(parameter_values), n_jobs);
            }),
-           py::kw_only(), py::arg("n_jobs") = 0)
+           py::kw_only(), py::arg("n_jobs") = 0, GridSearchTuner_GridSearchTuner)
       .def("tune", py::overload_cast<Estimator &, ConstMatrixRef, ConstMatrixRef>(&Tuner::tune, py::const_),
            py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"))
       .def(
@@ -471,8 +472,8 @@ void init_model(py::module_ &m) {
            py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"));
-  py::class_<LinearTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LinearTruncatedFourierFeatureMap",
-                                                                           py::is_final())
+  py::class_<LinearTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(
+      m, "LinearTruncatedFourierFeatureMap", py::is_final(), LinearTruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
@@ -482,7 +483,7 @@ void init_model(py::module_ &m) {
       .def(py::init<long, Scalar, Scalar, RectSet, bool>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"), py::arg("unused"));
   py::class_<LogTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LogTruncatedFourierFeatureMap",
-                                                                        py::is_final())
+                                                                        py::is_final(), LogTruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
