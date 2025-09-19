@@ -172,4 +172,57 @@ double rmse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, 
  */
 double rmse_score(ConstMatrixRef x, ConstMatrixRef y);
 
+/**
+ * Compute the mean absolute percentage error (MAPE) score of the `estimator` on the given evaluation data.
+ * Given the evaluation inputs @f$ x = \{ x_1, \dots, x_n \} @f$,
+ * where @f$ x_i \in \mathcal{X} \subseteq \mathbb{R}^{d_x}, 0 \le i \le n @f$,
+ * we want to compute the mean absolute percentage error of the model's predictions
+ * @f$ \hat{y} = \{ \hat{y}_1, \dots, \hat{y}_n \} @f$
+ * where @f$ \hat{y}_i \in \mathcal{Y} \subseteq \mathbb{R}^{d_y}, 0 \le i \le n @f$,
+ * with respect to the true outputs 
+ * @f$ y = \{ y_1, \dots, y_n \} @f$
+ * where @f$ y_i \in \mathcal{Y} , 0 \le i \le n @f$.
+ * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates a perfect fit,
+ * and more negative values indicate a worse fit.
+ * @f[
+ * \text{MAPE} = -\frac{1}{n} \sum_{i=1}^n \left| \frac{y_i - \hat{y}_i}{y_i} \right|
+ * @f]
+ * where @f$ n @f$ is the number of rows in the evaluation data.
+ * The MAPE score is always non-positive, and a higher value indicates a better fit.
+ * @warning The MAPE score is non-positive by definition in this implementation.
+ * @pre The estimator must be able to make predictions,
+ * i.e., it should have been fitted or consolidated before calling this method.
+ * @pre The estimator's prediction must belong to a vector space with the same number of dimensions
+ * as the one the evaluation outputs inhabit.
+ * @pre The number of rows in `evaluation_inputs` must be equal to the number of
+ * rows in `evaluation_outputs`.
+ * @pre None of the elements in `evaluation_outputs` should be zero,
+ *  as this would lead to division by zero in the MAPE calculation.
+ * @param estimator estimator to score
+ */
+double mape_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs);
+
+/**
+ * Compute the mean absolute percentage error (MAPE) score of the closeness between `x` and `y`.
+ * We are given the set of row vectors @f$ x = \{ x_1, \dots, x_n \} @f$,
+ * where @f$ x_i \in \mathcal{X} \subseteq \mathbb{R}^{d}, 0 \le i \le n @f$,
+ * and the set of row vectors @f$ y = \{ y_1, \dots, y_n \} @f$,
+ * where @f$ y_i \in \mathcal{X} \subseteq \mathbb{R}^{d}, 0 \le i \le n @f$.
+ * The score belongs in the range @f$ [-\infty, 0 ] @f$, where @f$ 0 @f$ indicates no distance
+ * (i.e., perfect predictions) and more negative values indicate more distance.
+ * @f[
+ * \text{MAPE} = -\frac{1}{n} \sum_{i=1}^n \left| \frac{y_i - x_i}{y_i} \right|
+ * @f]
+ * where @f$ n @f$ is the number of rows in the evaluation data.
+ * The MAPE score is always non-positive, and a higher value indicates a better fit.
+ * @warning The MAPE score is non-positive by definition in this implementation.
+ * @pre The number of rows in `x` must be equal to the number of rows in `y`.
+ * @pre None of the elements in `y` should be zero,
+ *  as this would lead to division by zero in the MAPE calculation.
+ * @param x @nxd matrix of row vectors
+ * @param y @nxd matrix of row vectors
+ * @return mean absolute percentage error between the two sets of row vectors
+ */
+double mape_score(ConstMatrixRef x, ConstMatrixRef y);
+
 }  // namespace lucid::scorer
