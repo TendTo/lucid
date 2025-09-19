@@ -202,18 +202,20 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_INFO("Optimizing");
 #ifdef LUCID_PYTHON_BUILD
   spx.optimize();
+  // TODO(tend): add support for interrupting SoPlex
   // volatile bool interrupt = false;
   // volatile bool finished = false;
-  // std::thread interrupt_checker_thread([&interrupt, &finished]() {
-  //   while (!finished && !interrupt) {
-  //     LUCID_INFO("interrupt");
-  //     py_interrupt_flag(&interrupt);
-  //     if (interrupt) LUCID_ERROR("interrupt");
-  //     std::this_thread::sleep_for(std::chrono::seconds(1));
-  //   }
+  // std::thread interrupt_checker_thread([&spx, &interrupt, &finished]() {
+  //   spx.optimize(&interrupt);
+  //   LUCID_ERROR_FMT("soplex interrupt value: {}", interrupt);
+  //   finished = true;
   // });
-  // spx.optimize(&interrupt);
-  // finished = true;
+  // while (!finished && !interrupt) {
+  //   py_interrupt_flag(&interrupt);
+  //   LUCID_INFO("waiting...");
+  //   if (interrupt) LUCID_ERROR("interrupt");
+  //   std::this_thread::sleep_for(std::chrono::seconds(1));
+  // }
   // interrupt_checker_thread.join();
 #else
   spx.optimize();
@@ -231,7 +233,8 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   soplex::VectorReal sol{static_cast<int>(num_vars)};
   [[maybe_unused]] const bool res = spx.getPrimal(sol);
   LUCID_ASSERT(res, "error getting solution");
-  const Vector solution{Vector::NullaryExpr(fx_lattice.cols(), [&sol](const Index i) { return sol[static_cast<int>(i)]; })};
+  const Vector solution{
+      Vector::NullaryExpr(fx_lattice.cols(), [&sol](const Index i) { return sol[static_cast<int>(i)]; })};
   cb(true, spx.objValueReal(), solution, sol[eta], sol[c], solution.norm());
   return true;
 }
