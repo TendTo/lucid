@@ -270,7 +270,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
   // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
   const bool should_log = should_log_problem();
-  std::unique_ptr<GRBVar[]> vars_{model.addVars(num_vars)};
+  std::unique_ptr<GRBVar[]> vars_{model.addVars(static_cast<int>(num_vars))};
   const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(num_vars)};
   GRBVar& c = vars[vars.size() - 6];
   GRBVar& eta = vars[vars.size() - 5];
