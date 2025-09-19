@@ -386,9 +386,9 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   // Objective function (η + cT)
   model.setObjective(GRBLinExpr{(eta + c * T) / gamma_val}, GRB_MINIMIZE);
 
+  if (!problem_log_file_.empty()) model.write(problem_log_file_);
   LUCID_INFO("Optimizing");
   model.optimize();
-  if (!problem_log_file_.empty()) model.write(problem_log_file_);
 
   if (model.get(GRB_IntAttr_SolCount) == 0) {
     model.computeIIS();

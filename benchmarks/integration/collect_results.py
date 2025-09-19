@@ -12,6 +12,8 @@ from plot_solution import (
     plot_solution_matplotlib,
 )
 
+from lucid import MultiSet, RectSet
+
 FILTER = 'params.c_coefficient = "1.0" and metrics.run.obj_val > 0 and metrics.run.obj_val < 1 and params.constant_lattice_points = "False" and metrics.run.success = 1 and T = "5"'
 
 
@@ -65,6 +67,19 @@ def plot_solution(args: Args, data: pd.DataFrame):
         )
 
 
+def get_bounds(bounds: "MultiSet | RectSet") -> tuple[list[np.ndarray], list[np.ndarray]]:
+    if isinstance(bounds, RectSet):
+        return [bounds.lower_bound], [bounds.upper_bound]
+    if isinstance(bounds, MultiSet):
+        lb, ub = np.array([]), np.array([])
+        for s in bounds:
+            if isinstance(s, RectSet):
+                lb = np.vstack([lb, s.lower_bound]) if lb.size else s.lower_bound
+                ub = np.vstack([ub, s.upper_bound]) if ub.size else s.upper_bound
+        return [lb], [ub]
+    raise TypeError("Unsupported bounds type")
+
+
 def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
     config = base_load_configuration(f"benchmarks/integration/{args.experiment.lower()}.yaml")
     if isinstance(data, tuple):
@@ -84,6 +99,12 @@ def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
 
         data = data.copy()
         x_lattice = config.X_bounds.lattice(config.num_samples or 1000, True)
+        assert isinstance(config.X_bounds, RectSet)
+
+        # data["X_bounds_lower"], data["X_bounds_upper"] = get_bounds(config.X_bounds)
+        # data["X_init_lower"], data["X_init_upper"] = get_bounds(config.X_init)
+        # data["X_unsafe_lower"], data["X_unsafe_upper"] = get_bounds(config.X_unsafe)
+
         data["x_lattice"] = x_lattice
         data["x_barrier_values"] = feature_map(x_lattice) @ run.solution.T
         data["xp_est_barrier_values"] = estimator(x_lattice) @ run.solution.T
@@ -192,8 +213,8 @@ def main(args: Args):
         )
         if args.output:
             data = export_solution(args, data)
-            data.to_csv(f"{args.output}-{i}.csv")
-            print(f"Exported solution to {args.output}-{i}.csv")
+            data.to_hdf(f"{args.output}-{i}.h5", mode="w")
+            print(f"Exported solution to {args.output}-{i}.h5")
         if args.plot:
             r = input(f"Run {row.Index} - Print?...")
             if r.lower() == "y" or r.lower() == "yes":
