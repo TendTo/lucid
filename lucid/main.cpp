@@ -404,12 +404,12 @@ int main(const int argc, char* argv[]) {
                                            : solver == Solver::HiGHS  ? "highs"
                                                                       : "soplex");
 
-#if 1
+#if 0
   pipeline({.seed = 42,
             .gamma = 1.0,
             .time_horizon = 15,
             .num_samples = 1000,
-            .lambda = 1e-3,
+            .lambda = 1e-6,
             .sigma_f = 15.0,
             .sigma_l = {1.2},
             .num_frequencies = 5,
@@ -432,7 +432,7 @@ int main(const int argc, char* argv[]) {
                    .gamma = 2.0,
                    .time_horizon = 5,
                    .num_samples = 500,
-                   .lambda = 1.0e-03,
+                   .lambda = 1.0e-06,
                    .sigma_f = 15.0,
                    .sigma_l = {2.50304, 3.77779},
                    .num_frequencies = 6,
