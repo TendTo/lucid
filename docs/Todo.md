@@ -142,3 +142,5 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 - [ ] Align all benchmarks configurations
 - [x] Improve GUI results (time)
 - [ ] Add a kill button
+
+- [ ] Remove dependency on system installation of Gurobi, rather depend on a gurobipy version we know it's compatible

@@ -231,7 +231,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   soplex::VectorReal sol{static_cast<int>(num_vars)};
   [[maybe_unused]] const bool res = spx.getPrimal(sol);
   LUCID_ASSERT(res, "error getting solution");
-  const Vector solution{Vector::NullaryExpr(fx_lattice.cols(), [&sol](const Index i) { return sol[i]; })};
+  const Vector solution{Vector::NullaryExpr(fx_lattice.cols(), [&sol](const Index i) { return sol[static_cast<int>(i)]; })};
   cb(true, spx.objValueReal(), solution, sol[eta], sol[c], solution.norm());
   return true;
 }

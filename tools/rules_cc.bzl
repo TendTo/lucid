@@ -53,6 +53,7 @@ MSVC_CL_FLAGS = [
     # "-wd4068",  # unknown pragma
     "-wd4673",  # the following types will not be considered at the catch site
     "-wd4670",  # the base class is inaccessible
+    "-wd4068",  # unknown pragma 'GCC'
     "-wd4702",  # unreachable code
     "-external:anglebrackets",  # Treat angle brackets headers as external headers
     "-external:W0",  # Disable warnings for external headers

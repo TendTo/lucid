@@ -15,7 +15,7 @@ estimator: KernelRidgeRegressor
 feature_map: LinearTruncatedFourierFeatureMap
 gamma: 2.0
 kernel: GaussianKernel
-lambda: 1.0e-06
+lambda: 1.0e-03
 noise_scale: 0.01
 num_frequencies: 6
 num_oversample: 150

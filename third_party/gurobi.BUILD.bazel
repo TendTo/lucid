@@ -33,8 +33,8 @@ filegroup(
 filegroup(
     name = "gurobi_c++md.lib",
     srcs = select({
-        "@lucid//tools:release_build": glob(["lib/gurobi_c++md*.lib"], allow_empty = True, exclude = ["lib/gurobi_c++mdd*.lib"]),
-        "//conditions:default": glob(["lib/gurobi_c++mdd*.lib"], allow_empty = True),
+        "@lucid//tools:debug_build": glob(["lib/gurobi_c++mdd*.lib"], allow_empty = True),
+        "//conditions:default": glob(["lib/gurobi_c++md*.lib"], allow_empty = True, exclude = ["lib/gurobi_c++mdd*.lib"]),
     }),
 )
 
