@@ -31,7 +31,7 @@ sigma_l: [2.50304, 3.77779] # LB
 # sigma_l: [0.0215443, 0.0215443] # GRID
 system_dynamics:
   - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
-  - "x2 + 0.1 * (-sin(x1)**2)"
+  - "x2 + 0.1 * (-(sin(x1)**2))"
 time_horizon: 5
 verbose: 3
 verify: false

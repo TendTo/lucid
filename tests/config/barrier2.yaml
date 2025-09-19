@@ -15,7 +15,7 @@ estimator: KernelRidgeRegressor
 feature_map: LinearTruncatedFourierFeatureMap
 gamma: 2.0
 kernel: GaussianKernel
-lambda: 1.0e-03
+lambda: 1.0e-06
 noise_scale: 0.01
 num_frequencies: 6
 num_oversample: 150
@@ -25,10 +25,10 @@ oversample_factor: 1
 plot: false
 seed: 42
 sigma_f: 1
-sigma_l: [2.50304, 3.77779]
+sigma_l: [25, 25]
 system_dynamics:
   - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
-  - "x2 + 0.1 * (-sin(x1)**2)"
+  - "x2 + 0.1 * (-(sin(x1)**2))"
 time_horizon: 5
 verbose: 3
 verify: false

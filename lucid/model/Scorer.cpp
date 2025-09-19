@@ -64,8 +64,8 @@ double mape_score(ConstMatrixRef x, ConstMatrixRef y) {
   LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
   LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
-  const double mape = ((y - x).array() / y.array()).abs();
-  return -mape.mean();  // Return negative to follow the convention of scorer functions
+  // Return negative to follow the convention of scorer functions
+  return -(((y - x).array() / y.array()).abs().colwise().mean()).mean();
 }
 
 double mape_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {

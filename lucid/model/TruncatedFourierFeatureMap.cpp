@@ -30,7 +30,6 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
   LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), x_limits.dimension());
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
-  LUCID_CRITICAL_FMT("Omega: {}", LUCID_FORMAT_MATRIX(omega_));
   LUCID_ASSERT(static_cast<std::size_t>(omega_.rows()) == ::lucid::pow(num_frequencies, x_limits.dimension()),
                "omega_.rows() == num_frequencies^dimension");
   LUCID_ASSERT(omega_.cols() == x_limits.dimension(), "omega_.cols() == dimension");
@@ -49,7 +48,6 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
     weights_(2 * i) = single_weights(i);
     weights_(2 * i - 1) = single_weights(i);
   }
-  LUCID_CRITICAL_FMT("weights_: {}", LUCID_FORMAT_MATRIX(weights_));
 }
 
 double get_prob(const Matrix& prob_per_dim, Index dim, Index tot_dims, Index freq) {
@@ -71,7 +69,6 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 0);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
   LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), x_limits.dimension());
-  LUCID_CRITICAL_FMT("Omega: {}", LUCID_FORMAT_MATRIX(omega_));
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
   LUCID_NOT_IMPLEMENTED();
 
@@ -83,7 +80,6 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
       single_weights(row++) = std::sqrt(get_prob(prob_per_dim, current_dim, x_limits_.dimension(), freq));
     }
   }
-  LUCID_CRITICAL_FMT("single_weights: {}", LUCID_FORMAT_MATRIX(single_weights));
 
   if (captured_probability_ = single_weights.cwiseProduct(single_weights).sum(); captured_probability_ > 0.94)
     LUCID_DEBUG_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
@@ -96,8 +92,6 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
     weights_(2 * i) = single_weights(i);
     weights_(2 * i - 1) = single_weights(i);
   }
-
-  LUCID_CRITICAL_FMT("weights_: {}", LUCID_FORMAT_MATRIX(weights_));
 }
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {

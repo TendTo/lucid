@@ -1,4 +1,3 @@
-import time
 from typing import TYPE_CHECKING, TypedDict
 
 import numpy as np
@@ -6,6 +5,7 @@ import numpy as np
 from ._pylucid import (
     Estimator,
     FeatureMap,
+    FourierBarrierCertificate,
     GaussianKernel,
     KernelRidgeRegressor,
     MedianHeuristicTuner,
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
     from ._pylucid import NMatrix, NVector
     from .cli import Configuration
-
 
 try:
     from .dreal import verify_barrier_conditions
@@ -54,6 +53,10 @@ class OptimiserResult(TypedDict):
 
 def rmse(x: "NMatrix", y: "NMatrix", ax=0):
     return np.sqrt(((x - y) ** 2).mean(axis=ax))
+
+
+def mape(x: "NMatrix", y: "NMatrix", ax=0):
+    return (np.abs((x - y) / y).mean(axis=ax)) * 100
 
 
 def tune() -> "Estimator":
@@ -105,7 +108,6 @@ def pipeline(
         or isinstance(config.feature_map, (FeatureMap, type))
     ), "f_xp_samples must be provided when feature_map is a callback"
 
-    tick = time.time()
     if isinstance(config.estimator, type):
         estimator = config.estimator(
             kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),
@@ -197,81 +199,77 @@ def pipeline(
     f_x0_lattice = feature_map(x0_lattice)
     f_xu_lattice = feature_map(xu_lattice)
 
-    def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
-        duration = time.time() - tick
-        result = OptimiserResult(
-            success=success,
-            obj_val=obj_val,
-            sol=sol,
-            eta=eta,
-            c=c,
-            norm=norm,
-            time=duration,
-        )
-        if not success:
-            log.error("Optimization failed")
-        else:
-            log.info("Optimization succeeded")
-            log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
-            log.debug(f"{sol = }")
-        if optimiser_cb is not None:
-            optimiser_cb(result)
-        log.info(f"Time taken: {duration:.2f} seconds")
-        if config.plot and config.X_bounds.dimension <= 2:
-            log.info("Plotting the solution")
-            fig = plot_solution(
-                X_bounds=config.X_bounds,
-                X_init=config.X_init,
-                X_unsafe=config.X_unsafe,
-                feature_map=feature_map,
-                eta=eta if success else None,
-                gamma=config.gamma,
-                sol=sol if success else None,
-                f=config.system_dynamics,
-                estimator=estimator,
-                num_samples=num_oversample,
-                c=c if success else None,
-                show=show,
-            )
-            if plot_cb is not None:
-                plot_cb(fig)
-        if config.verify and success:
-            log.info("Verifying the solution")
-            verified = verify_barrier_conditions(
-                X_bounds=config.X_bounds,
-                X_init=config.X_init,
-                X_unsafe=config.X_unsafe,
-                sigma_f=config.sigma_f,
+    barrier = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
+    success = barrier.synthesize(
+        fx_lattice=u_f_x_lattice,
+        fxp_lattice=u_f_xp_lattice_via_regressor,
+        fx0_lattice=f_x0_lattice,
+        fxu_lattice=f_xu_lattice,
+        feature_map=feature_map,
+        num_frequency_samples_per_dim=num_oversample,
+        c_coeff=config.c_coefficient,
+        epsilon=config.epsilon,
+        target_norm=config.b_norm,
+        b_kappa=config.b_kappa,
+        optimiser=config.optimiser(config.problem_log_file, config.iis_log_file),
+    )
+
+    obj_val = 1 - barrier.safety
+    eta = barrier.eta
+    c = barrier.c
+    norm = barrier.norm
+    sol = barrier.coefficients
+
+    if not success:
+        log.error("Optimization failed")
+    else:
+        log.info("Optimization succeeded")
+        log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
+        log.debug(f"{sol = }")
+    if optimiser_cb is not None:
+        optimiser_cb(
+            OptimiserResult(
+                success=success,
+                obj_val=obj_val,
+                sol=sol,
                 eta=eta,
                 c=c,
-                gamma=config.gamma,
-                estimator=estimator,
-                tffm=feature_map,
-                sol=sol,
-                epsilon=config.epsilon,
-                b_norm=config.b_norm,
+                norm=norm,
             )
-            if verify_cb is not None:
-                verify_cb(verified)
-
-    return config.optimiser(
-        config.time_horizon,
-        config.gamma,
-        epsilon=config.epsilon,
-        b_norm=config.b_norm,
-        b_kappa=config.b_kappa,
-        C_coeff=config.c_coefficient,
-        sigma_f=config.sigma_f,
-        problem_log_file=config.problem_log_file,
-        iis_log_file=config.iis_log_file,
-    ).solve(
-        f0_lattice=f_x0_lattice,
-        fu_lattice=f_xu_lattice,
-        phi_mat=u_f_x_lattice,
-        w_mat=u_f_xp_lattice_via_regressor,
-        rkhs_dim=feature_map.dimension,
-        num_frequencies_per_dim=config.num_frequencies - 1,
-        num_frequency_samples_per_dim=num_oversample,
-        original_dim=config.X_bounds.dimension,
-        callback=check_cb,
-    )
+        )
+    if config.plot and config.X_bounds.dimension <= 2:
+        log.info("Plotting the solution")
+        fig = plot_solution(
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            feature_map=feature_map,
+            eta=eta if success else None,
+            gamma=config.gamma,
+            sol=sol if success else None,
+            f=config.system_dynamics,
+            estimator=estimator,
+            num_samples=num_oversample,
+            c=c if success else None,
+            show=show,
+        )
+        if plot_cb is not None:
+            plot_cb(fig)
+    if config.verify and success:
+        log.info("Verifying the solution")
+        verified = verify_barrier_conditions(
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            sigma_f=config.sigma_f,
+            eta=eta,
+            c=c,
+            gamma=config.gamma,
+            estimator=estimator,
+            tffm=feature_map,
+            sol=sol,
+            epsilon=config.epsilon,
+            b_norm=config.b_norm,
+        )
+        if verify_cb is not None:
+            verify_cb(verified)

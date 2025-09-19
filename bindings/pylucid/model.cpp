@@ -355,6 +355,10 @@ void init_model(py::module_ &m) {
         py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _rmse_score);
   m.def("rmse_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score), ARG_NONCONVERT("x"),
         ARG_NONCONVERT("y"), _rmse_score);
+  m.def("mape_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::mape_score),
+        py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _mape_score);
+  m.def("mape_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::mape_score), ARG_NONCONVERT("x"),
+        ARG_NONCONVERT("y"), _mape_score);
 
   /**************************** Tuner ****************************/
   py::class_<Tuner, PyTuner, std::shared_ptr<Tuner>>(m, "Tuner", Tuner_)
