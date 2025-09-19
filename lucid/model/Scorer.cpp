@@ -60,4 +60,20 @@ double rmse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, 
   return rmse_score(predictions, evaluation_outputs);
 }
 
+double mape_score(ConstMatrixRef x, ConstMatrixRef y) {
+  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
+  LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
+  const double mape = ((y - x).array() / y.array()).abs();
+  return -mape.mean();  // Return negative to follow the convention of scorer functions
+}
+
+double mape_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
+  LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
+  const Matrix predictions = estimator.predict(evaluation_inputs);
+  LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
+  return mape_score(predictions, evaluation_outputs);
+}
+
 }  // namespace lucid::scorer
