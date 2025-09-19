@@ -17,7 +17,7 @@ GramMatrix& GramMatrix::add_diagonal_term(const Scalar diagonal_term) {
 }
 void GramMatrix::compute_decomposition() const {
   if (decomposition_.cols() == 0) decomposition_ = gram_matrix_.selfadjointView<Eigen::Lower>().llt();
-  LUCID_ASSERT(decomposition_.matrixL().determinant() > 0.0, "The Gram matrix is not invertible");
+  LUCID_CHECK_ARGUMENT_CMP(decomposition_.matrixL().determinant(), >, 0.0);
   LUCID_ASSERT(decomposition_.rows() > 0, "The decomposition is not initialized");
 }
 std::ostream& operator<<(std::ostream& os, const GramMatrix& gram_matrix) {
