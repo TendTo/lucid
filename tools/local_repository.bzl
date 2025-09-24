@@ -18,33 +18,35 @@
 # in a Starlark environment without "@_builtins" injection, and must not refer
 # to symbols associated with build/workspace .bzl files
 
-_UNSET = "_UNSET"
+UNSET = "_UNSET"
 
-def _gurobi_repository_impl(rctx):
-    """A rule to be called in the MODULE.bazel file to set up the Gurobi repository.
+def local_repository_impl(rctx, env_var_name = "", default_pah = UNSET):
+    """A rule to be called in the MODULE.bazel file to set up the Hexaly repository.
 
-    It uses the GUROBI_HOME environment variable to find the Gurobi installation path.
-    Alternatively, the user can specify the path using the --repo_env=GUROBI_HOME=<gurobi/installation/path> flag when building.
+    It uses the 'env_var_name' environment variable to find the repository installation path.
+    Alternatively, the user can specify the path using the --repo_env=<env_var_name>=<hexaly/installation/path> flag when building.
     If such a variable is not set, it fails with an error message.
 
     Args:
         rctx: The context object for the repository rule.
+        env_var_name: The name of the environment variable to use to find the repository installation path.
+        default_pah: The default installation path to use if the environment variable is not set.
     """
-    gurobi_home = rctx.getenv("GUROBI_HOME") or rctx.attr.default_gurobi_home
-    if gurobi_home == _UNSET:
-        fail("The environment variable GUROBI_HOME is not set. " +
-             "Please set it to the path of your Gurobi installation," +
-             "add the flag --repo_env=GUROBI_HOME=<gurobi/installation/path>" +
-             "or use the 'default_gurobi_home' param in the repository rule")
+    local_repository_home = rctx.getenv(env_var_name) or default_pah
+    if local_repository_home == UNSET:
+        fail(("The environment variable %s is not set. " % env_var_name) +
+             "Please set it to the path of your Hexaly installation," +
+             ("add the flag --repo_env=%s=<hexaly/installation/path>" % env_var_name) +
+             "or use the 'default_pah' param in the repository rule")
 
-    if (rctx.attr.build_file == None) == (rctx.attr.build_file_content == _UNSET):
+    if (rctx.attr.build_file == None) == (rctx.attr.build_file_content == UNSET):
         fail("exactly one of `build_file` and `build_file_content` must be specified")
 
-    path = rctx.workspace_root.get_child(gurobi_home)
+    path = rctx.workspace_root.get_child(local_repository_home)
     if not path.is_dir:
         fail(
             ("The repository's path is \"%s\" (absolute: \"%s\") but it does not exist or is not " +
-             "a directory.") % (gurobi_home, path),
+             "a directory.") % (local_repository_home, path),
         )
 
     children = path.readdir()
@@ -66,24 +68,3 @@ def _gurobi_repository_impl(rctx):
             rctx.watch(rctx.attr.build_file)  # same reason as above
     else:
         rctx.file("BUILD.bazel", rctx.attr.build_file_content)
-
-gurobi_repository = repository_rule(
-    implementation = _gurobi_repository_impl,
-    local = True,
-    attrs = {
-        "build_file": attr.label(
-            doc = "A file to use as a BUILD file for this repo.\n\nExactly one of `build_file` and " +
-                  "`build_file_content` must be specified.\n\nThe file addressed by this label " +
-                  "does not need to be named BUILD, but can be. Something like " +
-                  "`BUILD.new-repo-name` may work well to distinguish it from actual BUILD files.",
-        ),
-        "build_file_content": attr.string(
-            doc = "The content of the BUILD file to be created for this repo.\n\nExactly one of `build_file` and `build_file_content` must be specified.",
-            default = _UNSET,
-        ),
-        "default_gurobi_home": attr.string(
-            doc = "The default Gurobi installation path.\n\nThis is used if the GUROBI_HOME environment variable is not set.",
-            default = _UNSET,
-        ),
-    },
-)

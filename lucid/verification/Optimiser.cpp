@@ -35,8 +35,9 @@ std::string FourierBarrierSynthesisProblem::to_string() const {
 Optimiser::Optimiser(std::string problem_log_file, std::string iis_log_file)
     : problem_log_file_{std::move(problem_log_file)}, iis_log_file_{std::move(iis_log_file)} {
   LUCID_CHECK_ARGUMENT_EXPECTED(
-      problem_log_file_.empty() || (problem_log_file_.ends_with(".lp") || problem_log_file_.ends_with(".mps")),
-      "problem_log_file", problem_log_file_, "must be a valid file path with .lp or .mps extension");
+      problem_log_file_.empty() || (problem_log_file_.ends_with(".lp") || problem_log_file_.ends_with(".mps") ||
+                                    problem_log_file_.ends_with(".hxb")),
+      "problem_log_file", problem_log_file_, "must be a valid file path with .lp, .mps or .hxb extension");
   LUCID_CHECK_ARGUMENT_EXPECTED(iis_log_file_.empty() || iis_log_file_.ends_with(".ilp"), "iis_log_file", iis_log_file_,
                                 "must be a valid file path with .ilp extension");
 }

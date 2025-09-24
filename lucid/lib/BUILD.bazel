@@ -46,6 +46,16 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "hexaly",
+    hdrs = ["hexaly.h"],
+    tags = ["no-dwyu"],
+    deps = select({
+        "//tools:hexaly_build": ["@hexaly"],
+        "//conditions:default": [],
+    }),
+)
+
+lucid_cc_library(
     name = "alglib",
     srcs = ["alglib.cpp"],
     hdrs = ["alglib.h"],

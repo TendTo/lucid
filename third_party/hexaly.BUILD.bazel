@@ -1,0 +1,31 @@
+"""Gurobi library for Bazel"""
+
+load("@lucid//tools:make_var_substitution.bzl", "make_var_substitution")
+load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library")
+
+licenses(["notice"])
+
+filegroup(
+    name = "libhexaly.so",
+    srcs = glob(["bin/libhexaly*.so"], allow_empty = True),
+)
+
+cc_import(
+    name = "_hexaly_unix",
+    hdrs = glob(["include/**/*.h"]),
+    shared_library = ":libhexaly.so",
+)
+
+make_var_substitution(name = "env_vars")
+
+cc_library(
+    name = "hexaly",
+    deps = select({
+        "@platforms//os:windows": [],
+        "@platforms//os:linux": [":_hexaly_unix"],
+        "@platforms//os:macos": [],
+    }, "Unsupported platform for Hexaly library"),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    toolchains = [":env_vars"],
+)
