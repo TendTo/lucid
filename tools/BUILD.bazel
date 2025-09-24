@@ -79,6 +79,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "enable_hexaly_build",
+    build_setting_default = True,
+)
+
+bool_flag(
     name = "enable_alglib_build",
     build_setting_default = True,
 )
@@ -181,6 +186,11 @@ config_setting(
 config_setting(
     name = "gurobi_build",
     flag_values = {":enable_gurobi_build": "True"},
+)
+
+config_setting(
+    name = "hexaly_build",
+    flag_values = {":enable_hexaly_build": "True"},
 )
 
 config_setting(

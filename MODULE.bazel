@@ -97,12 +97,20 @@ http_archive(
 
 # Gurobi installation. Must be already installed on the system.
 
-gurobi_repository = use_repo_rule("//tools:gurobi_build.bzl", "gurobi_repository")
+gurobi_repository = use_repo_rule("//tools:gurobi_repository.bzl", "gurobi_repository")
 
 gurobi_repository(
     name = "gurobi",
     build_file = "//third_party:gurobi.BUILD.bazel",
     default_gurobi_home = "/opt/gurobi1201/linux64",  # Replace with your Gurobi installation path. It will be used if the environment variable GUROBI_HOME is not set.
+)
+
+hexaly_repository = use_repo_rule("//tools:hexaly_repository.bzl", "hexaly_repository")
+
+hexaly_repository(
+    name = "hexaly",
+    build_file = "//third_party:hexaly.BUILD.bazel",
+    default_hexaly_home = "/opt/hexaly_14_0",  # Replace with your Gurobi installation path. It will be used if the environment variable HEXALY_HOME is not set.
 )
 
 # GitHub repositories

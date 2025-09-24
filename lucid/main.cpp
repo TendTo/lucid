@@ -171,7 +171,7 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, const Sc
 }
 #endif
 
-enum class Solver { Gurobi, Alglib, HiGHS, SOPLEX };
+enum class Solver { Gurobi, Alglib, HiGHS, SOPLEX, HEXALY };
 
 struct CliArgs {
   int seed{-1};
@@ -306,6 +306,11 @@ std::unique_ptr<Optimiser> get_optimiser(const Solver solver, const CliArgs& arg
       return std::make_unique<SoplexOptimiser>(args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient,
                                                args.problem_log_file, args.iis_log_file);
 #endif
+#ifdef LUCID_HEXALY_BUILD
+    case Solver::HEXALY:
+      return std::make_unique<HexalyOptimiser>(args.time_horizon, args.gamma, 0, 1, 1, args.sigma_f, args.c_coefficient,
+                                               args.problem_log_file, args.iis_log_file);
+#endif
     default:
       throw std::invalid_argument("Solver not supported or not built");
   }
@@ -392,19 +397,23 @@ int main(const int argc, char* argv[]) {
       solver = Solver::HiGHS;
     } else if (std::string_view{argv[1]} == "soplex") {
       solver = Solver::SOPLEX;
+    } else if (std::string_view{argv[1]} == "hexaly") {
+      solver = Solver::HEXALY;
     } else {
       fmt::print("Usage: {} [gurobi|alglib|highs|soplex]\n", argv[0]);
       return 1;
     }
   }
   LUCID_LOG_INIT_VERBOSITY(4);
-  const std::string log_file = fmt::format("/home/campus.ncl.ac.uk/c3054737/Programming/phd/keid/{}.problem.lp",
-                                           solver == Solver::Gurobi   ? "gurobi"
-                                           : solver == Solver::Alglib ? "alglib"
-                                           : solver == Solver::HiGHS  ? "highs"
-                                                                      : "soplex");
+  const std::string log_file = fmt::format("/home/campus.ncl.ac.uk/c3054737/Programming/phd/keid/problem.{}",
+                                           solver == Solver::Gurobi   ? "gurobi.lp"
+                                           : solver == Solver::Alglib ? "alglib.lp"
+                                           : solver == Solver::HiGHS  ? "highs.lp"
+                                           : solver == Solver::SOPLEX ? "soplex.lp"
+                                           : solver == Solver::HEXALY ? "hexaly.hxb"
+                                                                      : "");
 
-#if 0
+#if 1
   pipeline({.seed = 42,
             .gamma = 1.0,
             .time_horizon = 15,

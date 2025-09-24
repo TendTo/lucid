@@ -57,6 +57,7 @@ lucid_cc_library(
     srcs = [
         "AlglibOptimiser.cpp",
         "GurobiOptimiser.cpp",
+        "HexalyOptimiser.cpp",
         "HighsOptimiser.cpp",
         "Optimiser.cpp",
         "SoplexOptimiser.cpp",
@@ -64,6 +65,7 @@ lucid_cc_library(
     hdrs = [
         "AlglibOptimiser.h",
         "GurobiOptimiser.h",
+        "HexalyOptimiser.h",
         "HighsOptimiser.h",
         "Optimiser.h",
         "SoplexOptimiser.h",
@@ -71,6 +73,7 @@ lucid_cc_library(
     implementation_deps = [
         "//lucid/lib:alglib",
         "//lucid/lib:gurobi",
+        "//lucid/lib:hexaly",
         "//lucid/lib:highs",
         "//lucid/lib:soplex",
         "//lucid/util:error",

@@ -12,6 +12,7 @@ build --flag_alias=enable_gui_build=//tools:enable_gui_build
 build --flag_alias=enable_benchmark_build=//tools:enable_benchmark_build
 build --flag_alias=enable_matplotlib_build=//tools:enable_matplotlib_build
 build --flag_alias=enable_gurobi_build=//tools:enable_gurobi_build
+build --flag_alias=enable_hexaly_build=//tools:enable_hexaly_build
 build --flag_alias=enable_alglib_build=//tools:enable_alglib_build
 build --flag_alias=enable_highs_build=//tools:enable_highs_build
 build --flag_alias=enable_soplex_build=//tools:enable_soplex_build

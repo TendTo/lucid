@@ -38,9 +38,6 @@ class GurobiOptimiser final : public Optimiser {
              Dimension rkhs_dim, Dimension num_frequencies_per_dim, Dimension num_frequency_samples_per_dim,
              Dimension original_dim, const SolutionCallback& cb) const;
 
-  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
-                                            const SolutionCallback& cb) const;
-
   /**
    * Compute the bounding box of a polytope defined by Ax <= b.
    * Uses linear programming to find the minimum and maximum values for each dimension.
@@ -49,6 +46,10 @@ class GurobiOptimiser final : public Optimiser {
    * @return pair of vectors (lower_bounds, upper_bounds) for each dimension
    */
   static std::pair<Vector, Vector> bounding_box(ConstMatrixRef A, ConstVectorRef b);
+
+ private:
+  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+                                            const SolutionCallback& cb) const override;
 };
 
 }  // namespace lucid

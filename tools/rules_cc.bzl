@@ -149,6 +149,9 @@ def _get_defines(rule_defines):
         "//tools:gurobi_build": ["LUCID_GUROBI_BUILD"],
         "//conditions:default": [],
     }) + select({
+        "//tools:hexaly_build": ["LUCID_HEXALY_BUILD"],
+        "//conditions:default": [],
+    }) + select({
         "//tools:alglib_build": ["LUCID_ALGLIB_BUILD"],
         "//conditions:default": [],
     }) + select({

@@ -154,6 +154,7 @@ If you want even more fine-grained control over the build, you can also use the 
 | `enable_benchmark_build`               | Build Lucid with benchmarking support. Defaults to `False`. |
 | `enable_matplotlib_build`              | Build Lucid with Matplotlib support. Defaults to `False`.   |
 | `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.        |
+| `enable_hexaly_build`                  | Build Lucid with Hexaly support. Defaults to `True`.        |
 | `enable_alglib_build`                  | Build Lucid with ALGLIB support. Defaults to `True`.        |
 | `enable_highs_build`                   | Build Lucid with HiGHS support. Defaults to `True`.         |
 | `enable_soplx_build`                   | Build Lucid with SoPlex support. Defaults to `True`.        |
