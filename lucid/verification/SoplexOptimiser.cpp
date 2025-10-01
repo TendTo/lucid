@@ -6,8 +6,6 @@
  */
 #include "lucid/verification/SoplexOptimiser.h"
 
-#include <gurobi_c++.h>
-
 #include "lucid/lib/soplex.h"
 #include "lucid/util/error.h"
 
@@ -241,7 +239,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
 #else
 bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
                                                            const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("SoplexOptimiser::solve_fourier_barrier_synthesis", "SoPlex");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("SoplexOptimiser::solve_fourier_barrier_synthesis_impl", "SoPlex");
   return false;
 }
 #endif  // LUCID_SOPLEX_BUILD

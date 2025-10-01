@@ -441,9 +441,9 @@ bool AlglibOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Cons
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve", "alglib");
   return false;
 }
-bool AlglibOptimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters&,
-                                                      const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve_fourier_barrier_synthesis", "alglib");
+bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
+                                                           const SolutionCallback&) const {
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve_fourier_barrier_synthesis_impl", "alglib");
   return false;
 }
 std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {

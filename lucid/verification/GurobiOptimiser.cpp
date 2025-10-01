@@ -480,9 +480,9 @@ bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Cons
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
   return false;
 }
-bool GurobiOptimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters&,
+bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
                                                       const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve_fourier_barrier_synthesis", "Gurobi");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve_fourier_barrier_synthesis_impl", "Gurobi");
   return false;
 }
 std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef, ConstVectorRef) {

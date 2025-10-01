@@ -514,9 +514,9 @@ bool HighsOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Const
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve", "HiGHS");
   return false;
 }
-bool HighsOptimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters&,
+bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
                                                      const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve_fourier_barrier_synthesis", "HiGHS");
+  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve_fourier_barrier_synthesis_impl", "HiGHS");
   return false;
 }
 #endif  // LUCID_HIGHS_BUILD
