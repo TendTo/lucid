@@ -43,9 +43,26 @@ constexpr bool HIGHS_BUILD =
 #endif
 
 // NOLINTNEXTLINE: false positive
+/** Whether Lucid is built with the [Soplex](https://soplex.zib.de/) library. */
+constexpr bool SOPLEX_BUILD =
+#ifdef LUCID_SOPLEX_BUILD
+    true;
+#else
+    false;
+#endif
+
+// NOLINTNEXTLINE: false positive
 /** Whether Lucid is built with the [Matplotlib](https://matplotlib.org/) library. */
 constexpr bool MATPLOTLIB_BUILD =
 #ifdef LUCID_MATPLOTLIB_BUILD
+    true;
+#else
+    false;
+#endif
+// NOLINTNEXTLINE: false positive
+/** Whether Lucid is built with [OpenMP](https://www.openmp.org/) support. */
+constexpr bool OMP_BUILD =
+#ifdef LUCID_OMP_BUILD
     true;
 #else
     false;

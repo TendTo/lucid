@@ -3,6 +3,7 @@
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@pypi//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("//tools:make_var_substitution.bzl", "make_var_substitution")
 load("//tools:variables.bzl", "LUCID_DESCRIPTION", "LUCID_VERSION", "expose_variable")
 

@@ -56,6 +56,9 @@ bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 # Apache License 2.0 | Bazel rules for packaging the project
 bazel_dep(name = "rules_pkg", version = "1.1.0")
 
+# Apache License 2.0 | Bazel rules for shell scripts
+bazel_dep(name = "rules_shell", version = "0.6.1")
+
 # Apache License 2.0 | Node.js toolchain for Bazel
 bazel_dep(name = "rules_nodejs", version = "6.4.0")
 

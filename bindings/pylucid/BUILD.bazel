@@ -51,6 +51,19 @@ lucid_pybind_extension(
     ],
 )
 
+lucid_pybind_extension(
+    name = "_constants",
+    srcs = ["constants.cpp"],
+    linkstatic = select({
+        "//tools:static_build": True,
+        "//conditions:default": False,
+    }),
+    deps = [
+        "//lucid:version",
+        "//lucid/util:constants",
+    ],
+)
+
 py_library(
     name = "pylucid_lib",
     srcs = [
@@ -68,6 +81,8 @@ py_library(
         "//conditions:default": [],
     }),
     data = [
+        ":_constants.pyd",
+        ":_constants.so",
         ":_pylucid.pyd",
         ":_pylucid.so",
         ":configuration_schema.json",
@@ -86,6 +101,7 @@ py_library(
         requirement("pyyaml"),
         requirement("jsonschema"),
         requirement("gurobipy"),
+        requirement("cuda-pathfinder"),
     ],
 )
 
@@ -116,6 +132,7 @@ py_binary(
         requirement("pyyaml"),
         requirement("jsonschema"),
         requirement("gurobipy"),
+        requirement("cuda-pathfinder"),
     ],
 )
 
@@ -136,6 +153,8 @@ genrule(
         ":pylucid_lib",
         ":_pylucid.pyd",
         ":_pylucid.so",
+        "_constants.pyd",
+        "_constants.so",
     ],
     outs = [
         "_pylucid/__init__.pyi",
@@ -167,6 +186,7 @@ filegroup(
     name = "pylucid_files",
     srcs = [
         "configuration_schema.json",
+        ":_constants",
         ":_pylucid",
         ":pylucid_lib",
         ":stubgen",
