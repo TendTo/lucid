@@ -29,6 +29,10 @@
 
 namespace lucid {
 
+HighsOptimiser::HighsOptimiser(std::map<std::string, std::string> options, std::string problem_log_file,
+                               std::string iis_log_file)
+    : options_{std::move(options)}, Optimiser{std::move(problem_log_file), std::move(iis_log_file)} {}
+
 #ifdef LUCID_HIGHS_BUILD
 namespace {
 
@@ -315,11 +319,15 @@ bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice,
   highs.setCallback(interrupt_callback);
   highs.startCallback(HighsCallbackType::kCallbackSimplexInterrupt);
 #endif
-  highs.setOptionValue("time_limit", 10000);
-  highs.setOptionValue("primal_feasibility_tolerance", 1e-9);
-  highs.setOptionValue("log_to_console", LUCID_DEBUG_ENABLED);
   [[maybe_unused]] HighsStatus ret = highs.passModel(lp_problem.model());
   LUCID_ASSERT(ret != HighsStatus::kError, "Failed to pass the model to HiGHS");
+  ret = highs.setOptionValue("time_limit", 10000);
+  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the time limit option in HiGHS");
+  ret = highs.setOptionValue("primal_feasibility_tolerance", 1e-9);
+  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the primal feasibility tolerance option in HiGHS");
+  ret = highs.setOptionValue("log_to_console", LUCID_DEBUG_ENABLED);
+  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the log to console option in HiGHS");
+  for (const auto& [key, value] : options_) highs.setOptionValue(key, value);
 
   if (!problem_log_file_.empty()) highs.writeModel(problem_log_file_);
 
@@ -476,11 +484,15 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
   highs.setCallback(interrupt_callback);
   highs.startCallback(HighsCallbackType::kCallbackSimplexInterrupt);
 #endif
-  highs.setOptionValue("time_limit", 10000);
-  highs.setOptionValue("primal_feasibility_tolerance", 1e-9);
-  highs.setOptionValue("log_to_console", LUCID_DEBUG_ENABLED);
   [[maybe_unused]] HighsStatus ret = highs.passModel(lp_problem.model());
   LUCID_ASSERT(ret != HighsStatus::kError, "Failed to pass the model to HiGHS");
+  ret = highs.setOptionValue("time_limit", 10000);
+  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the time limit option in HiGHS");
+  ret = highs.setOptionValue("primal_feasibility_tolerance", 1e-9);
+  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the primal feasibility tolerance option in HiGHS");
+  ret = highs.setOptionValue("log_to_console", LUCID_DEBUG_ENABLED);
+  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the log to console option in HiGHS");
+  for (const auto& [key, value] : options_) highs.setOptionValue(key, value);
 
   if (!problem_log_file_.empty()) highs.writeModel(problem_log_file_);
 
@@ -510,12 +522,13 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
 }
 #else
 bool HighsOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
+
                            Dimension, Dimension, const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve", "HiGHS");
   return false;
 }
 bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
-                                                     const SolutionCallback&) const {
+                                                          const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve_fourier_barrier_synthesis_impl", "HiGHS");
   return false;
 }

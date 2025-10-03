@@ -7,6 +7,9 @@
  */
 #pragma once
 
+#include <map>
+#include <string>
+
 #include "lucid/lib/eigen.h"
 #include "lucid/verification/Optimiser.h"
 
@@ -18,6 +21,14 @@ namespace lucid {
 class HighsOptimiser final : public Optimiser {
  public:
   using Optimiser::Optimiser;
+  /**
+   * Construct a new Highs Optimiser object.
+   * @param options map of options to set in the HiGHS solver
+   * @param problem_log_file file to log the problem to. If empty, no logging is done
+   * @param iis_log_file file to log the irreducible infeasible set (IIS) to, if found. If empty, no logging is done
+   */
+  HighsOptimiser(std::map<std::string, std::string> options, std::string problem_log_file = "",
+                 std::string iis_log_file = "");
   /**
    * Solve the linear optimisation
    * @param f0_lattice lattice obtained from the initial set after applying the feature map
@@ -40,6 +51,8 @@ class HighsOptimiser final : public Optimiser {
  private:
   bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
                                             const SolutionCallback& cb) const override;
+
+  std::map<std::string, std::string> options_;  ///< Map of options to set in the HiGHS solver
 };
 
 }  // namespace lucid

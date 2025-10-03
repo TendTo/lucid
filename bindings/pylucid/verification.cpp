@@ -73,6 +73,8 @@ void init_verification(py::module_& m) {
            AlglibOptimiser_solve);
   py::class_<HighsOptimiser, Optimiser>(m, "HighsOptimiser", HighsOptimiser_)
       .def(py::init<std::string, std::string>(), py::arg("problem_log_file") = "", py::arg("iis_log_file") = "")
+      .def(py::init<std::map<std::string, std::string>, std::string, std::string>(), py::arg("options"),
+           py::arg("problem_log_file") = "", py::arg("iis_log_file") = "")
       .def(py::init<int, double, double, double, double, double, double, std::string, std::string>(), py::arg("T"),
            py::arg("gamma"), py::arg("epsilon"), py::arg("b_norm"), py::arg("b_kappa"), py::arg("sigma_f"),
            py::arg("C_coeff") = 1.0, py::arg("problem_log_file") = "", py::arg("iis_log_file") = "")
