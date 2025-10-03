@@ -166,6 +166,9 @@ def _get_defines(rule_defines):
     }) + select({
         "//tools:omp_build": ["LUCID_OMP_BUILD"],
         "//conditions:default": [],
+    }) + select({
+        "//tools:cuda_build": ["LUCID_CUDA_BUILD"],
+        "//conditions:default": [],
     })
 
 def _get_static(rule_linkstatic):

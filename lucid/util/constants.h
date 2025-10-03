@@ -59,6 +59,16 @@ constexpr bool MATPLOTLIB_BUILD =
 #else
     false;
 #endif
+
+// NOLINTNEXTLINE: false positive
+/** Whether Lucid is built with [CUDA](https://developer.nvidia.com/cuda-toolkit) support. */
+constexpr bool CUDA_BUILD =
+#ifdef LUCID_CUDA_BUILD
+    true;
+#else
+    false;
+#endif
+
 // NOLINTNEXTLINE: false positive
 /** Whether Lucid is built with [OpenMP](https://www.openmp.org/) support. */
 constexpr bool OMP_BUILD =

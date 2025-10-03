@@ -118,6 +118,15 @@ config_setting(
 )
 
 config_setting(
+    name = "cuda_build",
+    flag_values = {
+        "@highs//:cupdlp_gpu": "True",
+        "@rules_cuda//cuda:enable": "True",
+        "@local_cuda//:valid_toolchain_found": "True",
+    },
+)
+
+config_setting(
     name = "gcc_omp_build",
     flag_values = {
         ":enable_omp_build": "True",

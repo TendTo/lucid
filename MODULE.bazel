@@ -34,8 +34,8 @@ bazel_dep(name = "spdlog", version = "1.15.2")
 bazel_dep(name = "highs", version = "1.11.0")
 git_override(
     module_name = "highs",
-    commit = "340f0982e2587628608549d4891420c7304057d3",
-    remote = "https://github.com/ERGO-Code/HiGHS.git",
+    commit = "44f5b6c4c13772b16e0f1b25b1f8424fa5cab815",
+    remote = "https://github.com/TendTo/HiGHS.git",
 )
 
 # Apache License 2.0 | Linear programming solver
@@ -58,6 +58,9 @@ bazel_dep(name = "rules_pkg", version = "1.1.0")
 
 # Apache License 2.0 | Bazel rules for shell scripts
 bazel_dep(name = "rules_shell", version = "0.6.1")
+
+# Apache License 2.0 | Bazel rules for CUDA
+bazel_dep(name = "rules_cuda", version = "0.2.5")
 
 # Apache License 2.0 | Node.js toolchain for Bazel
 bazel_dep(name = "rules_nodejs", version = "6.4.0")
@@ -144,6 +147,10 @@ doxygen_extension.configuration(
 )
 use_repo(doxygen_extension, "doxygen")
 
+local_cuda = use_extension("@rules_cuda//cuda:extensions.bzl", "toolchain")
+local_cuda.local_toolchain(toolkit_path = "")
+use_repo(local_cuda, "local_cuda")
+
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain(node_version = "20.19.2")
 
@@ -165,26 +172,13 @@ npm.npm_translate_lock(
 )
 use_repo(npm, "npm")
 
+PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.toolchain(
-    python_version = "3.8",
-)
-python.toolchain(
-    python_version = "3.9",
-)
-python.toolchain(
-    is_default = True,
-    python_version = "3.10",
-)
-python.toolchain(
-    python_version = "3.11",
-)
-python.toolchain(
-    python_version = "3.12",
-)
-python.toolchain(
-    python_version = "3.13",
-)
+[
+    python.toolchain(python_version = v)
+    for v in PYTHON_VERSIONS
+]
 use_repo(
     python,
     "python_3_10",
@@ -197,34 +191,12 @@ use_repo(
 )
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-pip.parse(
-    hub_name = "pypi",
-    python_version = "3.8",
-    requirements_lock = "//tools:requirements.txt",
-)
-pip.parse(
-    hub_name = "pypi",
-    python_version = "3.9",
-    requirements_lock = "//tools:requirements.txt",
-)
-pip.parse(
-    hub_name = "pypi",
-    python_version = "3.10",
-    requirements_lock = "//tools:requirements.txt",
-)
-pip.parse(
-    hub_name = "pypi",
-    python_version = "3.11",
-    requirements_lock = "//tools:requirements.txt",
-)
-pip.parse(
-    hub_name = "pypi",
-    python_version = "3.12",
-    requirements_lock = "//tools:requirements.txt",
-)
-pip.parse(
-    hub_name = "pypi",
-    python_version = "3.13",
-    requirements_lock = "//tools:requirements.txt",
-)
+[
+    pip.parse(
+        hub_name = "pypi",
+        python_version = v,
+        requirements_lock = "//tools:requirements.txt",
+    )
+    for v in PYTHON_VERSIONS
+]
 use_repo(pip, "pypi")
