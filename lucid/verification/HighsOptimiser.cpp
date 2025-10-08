@@ -31,7 +31,7 @@ namespace lucid {
 
 HighsOptimiser::HighsOptimiser(std::map<std::string, std::string> options, std::string problem_log_file,
                                std::string iis_log_file)
-    : options_{std::move(options)}, Optimiser{std::move(problem_log_file), std::move(iis_log_file)} {}
+    : Optimiser{std::move(problem_log_file), std::move(iis_log_file)}, options_{std::move(options)} {}
 
 #ifdef LUCID_HIGHS_BUILD
 namespace {

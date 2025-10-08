@@ -41,6 +41,18 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "montecarlo_simulation",
+    srcs = ["MontecarloSimulation.cpp"],
+    hdrs = ["MontecarloSimulation.h"],
+    implementation_deps = ["//lucid/util:error"],
+    deps = [
+        "//lucid/lib:eigen",
+        "//lucid/model:set",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
     name = "optimiser",
     srcs = [
         "AlglibOptimiser.cpp",
@@ -79,6 +91,7 @@ lucid_cc_library(
     hdrs = ["verification.h"],
     visibility = ["//visibility:public"],
     deps = [
+        "montecarlo_simulation",
         ":barrier_certificate",
         ":optimiser",
     ],

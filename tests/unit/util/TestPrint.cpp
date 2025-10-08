@@ -19,6 +19,7 @@ using lucid::LinearTruncatedFourierFeatureMap;
 using lucid::LogTruncatedFourierFeatureMap;
 using lucid::Matrix;
 using lucid::MedianHeuristicTuner;
+using lucid::MontecarloSimulation;
 using lucid::MultiSet;
 using lucid::Parameter;
 using lucid::ParameterValue;
@@ -203,4 +204,8 @@ TEST(TestPrint, GridSearchTuner) {
             "ParameterValues( Parameter( Sigma_l ) values( [1 2 3 4, 5 6 7 8] ), "
             "ParameterValues( Parameter( Degree ) values( [1, 2, 3] )"
             "] ) n_jobs( 4 )");
+}
+
+TEST(TestPrint, MontecarloSimulation) {
+  EXPECT_EQ(fmt::format("{}", MontecarloSimulation()), "MontecarloSimulation( )");
 }

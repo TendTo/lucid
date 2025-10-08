@@ -10,3 +10,12 @@ lucid_cc_googletest(
         "//lucid/verification:optimiser",
     ],
 )
+
+lucid_cc_googletest(
+    name = "test_montecarlo_simulation",
+    deps = [
+        "//lucid/util:exception",
+        "//lucid/util:random",
+        "//lucid/verification:montecarlo_simulation",
+    ],
+)

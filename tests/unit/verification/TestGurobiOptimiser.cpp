@@ -26,7 +26,7 @@ constexpr double C_coeff = 1.0;
 const std::string problem_log_file{"problem.lp"};
 const std::string iis_log_file{"iis.ilp"};
 
-TEST(IndexIterator, Constructor) {
+TEST(TestGurobiOptimiser, Constructor) {
   const GurobiOptimiser o(T, gamma_, epsilon, b_norm, b_kappa, sigma_f);
   EXPECT_EQ(o.T(), T);
   EXPECT_EQ(o.gamma(), gamma_);
@@ -38,7 +38,7 @@ TEST(IndexIterator, Constructor) {
   EXPECT_EQ(o.iis_log_file(), "");
 }
 
-TEST(IndexIterator, ConstructorFiles) {
+TEST(TestGurobiOptimiser, ConstructorFiles) {
   const GurobiOptimiser o(T, gamma_, epsilon, b_norm, b_kappa, sigma_f, C_coeff, problem_log_file, iis_log_file);
   EXPECT_EQ(o.T(), T);
   EXPECT_EQ(o.gamma(), gamma_);
@@ -50,14 +50,14 @@ TEST(IndexIterator, ConstructorFiles) {
   EXPECT_EQ(o.iis_log_file(), iis_log_file);
 }
 
-TEST(IndexIterator, ConstructorInvalidProblemFile) {
+TEST(TestGurobiOptimiser, ConstructorInvalidProblemFile) {
   const std::string invalid_problem_log_file{"invalid_problem.txt"};
   EXPECT_THROW(
       GurobiOptimiser(T, gamma_, epsilon, b_norm, b_kappa, sigma_f, C_coeff, invalid_problem_log_file, iis_log_file),
       lucid::exception::LucidInvalidArgumentException);
 }
 
-TEST(IndexIterator, ConstructorInvalidIisFile) {
+TEST(TestGurobiOptimiser, ConstructorInvalidIisFile) {
   const std::string invalid_iis_log_file{"invalid_iis.txt"};
   EXPECT_THROW(
       GurobiOptimiser(T, gamma_, epsilon, b_norm, b_kappa, sigma_f, C_coeff, problem_log_file, invalid_iis_log_file),
@@ -65,7 +65,7 @@ TEST(IndexIterator, ConstructorInvalidIisFile) {
 }
 
 #ifdef LUCID_GUROBI_BUILD
-TEST(IndexIterator, Solve) {
+TEST(TestGurobiOptimiser, Solve) {
   const GurobiOptimiser o(T, gamma_, epsilon, b_norm, b_kappa, sigma_f, C_coeff);
   const Matrix f0_lattice{Matrix::Random(10, 10)};
   const Matrix fu_lattice{Matrix::Random(10, 10)};

@@ -126,4 +126,10 @@ void init_verification(py::module_& m) {
       .def_property_readonly("coefficients", &FourierBarrierCertificate::coefficients,
                              FourierBarrierCertificate_coefficients)
       .def("__str__", STRING_LAMBDA(FourierBarrierCertificate));
+
+  py::class_<MontecarloSimulation>(m, "MontecarloSimulation", MontecarloSimulation_)
+      .def(py::init<>(), MontecarloSimulation_MontecarloSimulation)
+      .def("safety_probability", &MontecarloSimulation::safety_probability, py::arg("X_bounds"), py::arg("X_init"),
+           py::arg("X_unsafe"), py::arg("system_dynamics"), py::arg("time_horizon"), py::arg("confidence_level") = 0.9,
+           py::arg("num_samples") = 1000, MontecarloSimulation_safety_probability);
 }

@@ -12,6 +12,7 @@
 #include "lucid/verification/FourierBarrierCertificate.h"
 #include "lucid/verification/GurobiOptimiser.h"
 #include "lucid/verification/HighsOptimiser.h"
+#include "lucid/verification/MontecarloSimulation.h"
 #include "lucid/verification/Optimiser.h"
 #include "lucid/verification/SoplexOptimiser.h"
 
