@@ -2,8 +2,15 @@
 
 from importlib.util import find_spec
 
-from ._constants import GUROBI_BUILD, ALGLIB_BUILD, HIGHS_BUILD, SOPLEX_BUILD, MATPLOTLIB_BUILD, OMP_BUILD, CUDA_BUILD
-
+from ._constants import (
+    ALGLIB_BUILD,
+    CUDA_BUILD,
+    GUROBI_BUILD,
+    HIGHS_BUILD,
+    MATPLOTLIB_BUILD,
+    OMP_BUILD,
+    SOPLEX_BUILD,
+)
 
 if GUROBI_BUILD:
     try:

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pylucid import MontecarloSimulation, RectSet, MultiSet, exception, random
+from pylucid import MontecarloSimulation, MultiSet, RectSet, exception, random
 
 
 def dynamics(x: np.ndarray) -> np.ndarray:
