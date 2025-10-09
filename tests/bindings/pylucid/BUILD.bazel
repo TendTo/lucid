@@ -20,6 +20,8 @@ pylucid_py_test(name = "test_feature_map")
 
 pylucid_py_test(name = "test_stats")
 
+pylucid_py_test(name = "test_montecarlo_simulation")
+
 pylucid_py_test(
     name = "test_linear",
     data = ["//tests/config:linear.yaml"],
