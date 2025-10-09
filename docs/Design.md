@@ -4,9 +4,9 @@
 
 ```mermaid
 ---
-  config:
+config:
     class:
-      hideEmptyMembersBox: true
+        hideEmptyMembersBox: true
 ---
 classDiagram
     class Tuner {
@@ -72,26 +72,55 @@ classDiagram
         +inverse_mult(Matrix state) Matrix
     }
 
+    class CrossValidator {
+        <<abstract>>
+        -split() [Vector, Vector]
+        +fit(Estimator, Matrix, Matrix)
+        +fit(Estimator, Matrix, Matrix, Tuner)
+        +fit(Estimator, Matrix, Matrix, Scorer)
+        +fit(Estimator, Matrix, Matrix, Tuner, Scorer)
+    }
+
+    class LeaveOneOut
+    class KFold {
+        +KFold(int n_splits, bool shuffle)
+    }
+
+    class Scorer
+    class r2_score
+    class mse_score
+    class rmse_score
+    class mape_score
+
     Tuner <|-- GridSearchTuner
     Tuner <|-- BFGSTuner
     Tuner <|-- MedianHeuristicTuner
     Estimator o-- Tuner
 
-    Parametrizable <|.. Kernel
     Parametrizable <|.. Estimator
+    Parametrizable <|.. Kernel
 
-    Estimator <|-- GaussianProcess
-    Estimator <|-- KernelRidgeRegressor
-
+    Estimator <|-- GradientOptimizable
+    GradientOptimizable <| -- KernelRidgeRegressor
+    GradientOptimizable <| -- GaussianProcess
 
     Kernel <|-- LinearKernel
     Kernel <|-- GaussianKernel
 
-    GradientOptimizable <|.. KernelRidgeRegressor
-    GradientOptimizable <|.. GaussianKernel
     KernelRidgeRegressor --> GramMatrix
     KernelRidgeRegressor o-- Kernel
 
+    Scorer <|-- mape_score
+    Scorer <|-- r2_score
+    Scorer <|-- rmse_score
+    Scorer <|-- mse_score
+
+    CrossValidator <|-- KFold
+    CrossValidator <|-- LeaveOneOut
+
+    CrossValidator --> Scorer
+    CrossValidator --> Tuner
+    CrossValidator --> Estimator
 ```
 
 ## Sequence Diagram

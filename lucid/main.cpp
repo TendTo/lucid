@@ -23,10 +23,10 @@
 
 using namespace lucid;  // NOLINT
 
-// #pragma GCC diagnostic ignored "-Wunused-variable"
-// #pragma GCC diagnostic ignored "-Wunused-parameter"
-// #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-// #pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-function"
 
 namespace {
 
@@ -341,6 +341,7 @@ bool pipeline(const CliArgs& args) {
   estimator.fit(x_samples, f_xp_samples);
   LUCID_INFO_FMT("Estimator post-fit: {}", estimator);
 
+#ifdef COMPUTE_TRAINING_ERROR
   {
     LUCID_DEBUG_FMT("RMSE on f_xp_samples {}", scorer::rmse_score(estimator, x_samples, f_xp_samples));
     LUCID_DEBUG_FMT("Score on f_xp_samples {}", estimator.score(x_samples, f_xp_samples));
@@ -349,6 +350,7 @@ bool pipeline(const CliArgs& args) {
     LUCID_DEBUG_FMT("RMSE on f_det_evaluated {}", scorer::rmse_score(estimator, x_evaluation, f_xp_evaluation));
     LUCID_DEBUG_FMT("Score on f_det_evaluated {}", estimator.score(x_evaluation, f_xp_evaluation));
   }
+#endif
 
   LUCID_DEBUG_FMT("Feature map: {}", feature_map);
 
@@ -370,6 +372,33 @@ bool pipeline(const CliArgs& args) {
                      f_xu_lattice, feature_map, n_per_dim, args.c_coefficient);
   std::cout << barrier << std::endl;
   return true;
+}
+
+void validator(const CliArgs& args) {
+  random::seed(args.seed);
+
+  auto f = [&args](const Matrix& x) -> Matrix {
+    std::normal_distribution d{0.0, args.noise_scale};
+    // Add noise to the linear function
+    const Matrix y{args.f_det(x)};
+    return args.f_det(x) + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
+  };
+
+  const Matrix x_samples{args.X_bounds->sample(args.num_samples)};
+  const Matrix xp_samples{f(x_samples)};
+
+  Vector sigma_l{to_eigen(args.sigma_l)};
+  KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(sigma_l, args.sigma_f), args.lambda};
+  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, sigma_l, args.sigma_f, *args.X_bounds};
+
+  const LeaveOneOut loo;
+  const KFold kfold5{5};
+  const LbfgsTuner tuner{{{0.1, 1}, {0.1, 15.0}, {0.1, 15.0}}, LbfgsParameters{.linesearch = 15, .min_step = 0}};
+  // const MedianHeuristicTuner tuner;
+  LUCID_INFO_FMT("Initial estimator: {}", estimator);
+
+  kfold5.fit(estimator, x_samples, xp_samples, tuner, static_cast<scorer::ScorerType>(scorer::mse_score));
+  LUCID_INFO_FMT("Estimator after LOO: {}", estimator);
 }
 
 }  // namespace
@@ -404,6 +433,42 @@ int main(const int argc, char* argv[]) {
                                            : solver == Solver::HiGHS  ? "highs"
                                                                       : "soplex");
 
+#if 1
+  Vector centre_0{2}, centre_u{2};
+  centre_0 << -0.5, -0.5;
+  centre_u << 0.7, -0.7;
+  validator(CliArgs{.seed = 42,
+                    .gamma = 2.0,
+                    .time_horizon = 5,
+                    .num_samples = 100,
+                    .lambda = 1.0e-06,
+                    .sigma_f = 15.0,
+                    .sigma_l = {1.18, 1.23},
+                    .num_frequencies = 6,
+                    .plot = true,
+                    .verify = true,
+                    .problem_log_file = log_file,
+                    .iis_log_file = "iis.ilp",
+                    .oversample_factor = 2.0,
+                    .num_oversample = 150,
+                    .noise_scale = 0.01,
+                    .solver = solver,
+                    .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-2, 2}, {-2, 2}}),
+                    .X_init = std::make_unique<SphereSet>(centre_0, 0.4),
+                    .X_unsafe = std::make_unique<SphereSet>(centre_u, 0.3),
+                    .f_det = [](const Matrix& x) -> Matrix {
+                      // x1 = "x1 + 0.1 * (x2 - 1 + exp(-x1))"
+                      // x2 = "x2 + 0.1 * (-sin(x1)**2)"
+                      Matrix out{x.rows(), x.cols()};
+                      // out.col(0) = x.col(0).array() + 0.1 * (x.col(1).array() - 1 + (-x.col(0)).array().exp());
+                      // out.col(1) = x.col(1).array() + 0.1 * -x.col(0).array().sin().square();
+                      out = Matrix::NullaryExpr(x.rows(), x.cols(), [&x](const Index row, Index col) {
+                        return col == 0 ? x(row, 0) + 0.1 * (x(row, 1) - 1 + std::exp(-x(row, 0)))
+                                        : x(row, 1) + 0.1 * std::sin(x(row, 0)) * std::sin(x(row, 0));
+                      });
+                      return out;
+                    }});
+#endif
 #if 0
   pipeline({.seed = 42,
             .gamma = 1.0,
@@ -424,7 +489,7 @@ int main(const int argc, char* argv[]) {
             .X_init = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-0.5, 0.5}}),
             .X_unsafe = std::make_unique<MultiSet>(RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}),
             .f_det = [](const Matrix& x) -> Matrix { return x * 0.5; }});
-#else
+// #else
   Vector centre_0{2}, centre_u{2};
   centre_0 << -0.5, -0.5;
   centre_u << 0.7, -0.7;

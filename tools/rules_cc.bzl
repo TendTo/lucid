@@ -348,7 +348,7 @@ def lucid_cc_googletest(
     By default, it uses use_default_main=True to use GTest's main, via @googletest//:gtest_main.
     If use_default_main is False, it will depend on @googletest//:gtest instead.
     If a list of srcs is not provided, it will be inferred from the name, by capitalizing each _-separated word and appending .cpp.
-    For example, lucid_cc_test(name = "test_foo_bar") will look for TestFooBar.cpp.
+    For example, lucid_cc_googletest(name = "test_foo_bar") will look for TestFooBar.cpp.
     Furthermore, a tag will be added for the test, based on the name, by converting the name to lowercase and removing the "test_" prefix.
 
     Args:
@@ -378,6 +378,101 @@ def lucid_cc_googletest(
         deps = deps,
         size = size,
         tags = tags + ["googletest"],
+        defines = _get_defines(defines),
+        **kwargs
+    )
+
+def lucid_cc_benchmark(
+        name,
+        srcs = None,
+        data = [],
+        deps = None,
+        copts = [],
+        linkopts = [],
+        tags = [],
+        defines = [],
+        **kwargs):
+    """Creates a rule to declare a C++ benchmark.
+
+    Note that for almost all cases, lucid_cc_googlebenchmark should be used instead of this rule.
+
+    If a list of srcs is not provided, it will be inferred from the name, by capitalizing each _-separated word and appending .cpp.
+    For example, lucid_cc_benchmark(name = "bench_foo_bar") will look for BenchFooBar.cpp.
+    Furthermore, a tag will be added for the rule, based on the name, by converting the name to lowercase and removing the "bench_" prefix.
+
+    Args:
+        name: The name of the test.
+        srcs: A list of source files to compile.
+        data: A list of data files to include in the test. Can be used to provide input files.
+        deps: A list of dependencies.
+        copts: A list of compiler options.
+        linkopts: A list of linker options.
+        tags: A list of tags to add to the test. Allows for test filtering.
+        defines: A list of compiler defines used when compiling this target.
+        **kwargs: Additional arguments to pass to cc_test.
+    """
+    if srcs == None:
+        srcs = ["".join([word.capitalize() for word in name.split("_")]) + ".cpp"]
+    if deps == None:
+        deps = []
+    if data:
+        deps.append("@rules_cc//cc/runfiles")
+    cc_binary(
+        name = name,
+        srcs = srcs,
+        data = data,
+        deps = deps,
+        copts = _get_copts(copts, cc_test = True),
+        linkopts = _get_linkopts(linkopts, cc_test = True),
+        linkstatic = True,
+        tags = tags + ["lucid", "".join([word.lower() for word in name.split("_")][1:])],
+        defines = _get_defines(defines),
+        **kwargs
+    )
+
+def lucid_cc_googlebenchmark(
+        name,
+        srcs = None,
+        deps = None,
+        tags = [],
+        use_default_main = True,
+        defines = [],
+        **kwargs):
+    """Creates a rule to declare a C++ unit test using google benchmark.
+
+    Always adds a deps= entry to the google benchmark main (@google_benchmark//:benchmark_main).
+
+    By default, it uses use_default_main=True to use GTest's main, via @google_benchmark//:benchmark_main.
+    If use_default_main is False, it will depend on @google_benchmark//:benchmark instead.
+    If a list of srcs is not provided, it will be inferred from the name, by capitalizing each _-separated word and appending .cpp.
+    For example, lucid_cc_googlebenchmark(name = "bench_foo_bar") will look for BenchFooBar.cpp.
+    Furthermore, a tag will be added for the test, based on the name, by converting the name to lowercase and removing the "bench_" prefix.
+
+    Args:
+        name: The name of the test.
+        srcs: A list of source files to compile.
+        deps: A list of dependencies.
+        tags: A list of tags to add to the test. Allows for test filtering.
+        use_default_main: Whether to use googletest's main.
+        defines: A list of compiler defines used when compiling this target.
+        **kwargs: Additional arguments to pass to lucid_cc_test.
+    """
+    if deps == None:
+        deps = []
+    if type(deps) == "select":
+        if use_default_main:
+            deps += select({"//conditions:default": ["@google_benchmark//:benchmark_main"]})
+        else:
+            deps += select({"//conditions:default": ["@google_benchmark//:benchmark"]})
+    elif use_default_main:
+        deps.append("@google_benchmark//:benchmark_main")
+    else:
+        deps.append("@google_benchmark//:benchmark")
+    lucid_cc_benchmark(
+        name = name,
+        srcs = srcs,
+        deps = deps,
+        tags = tags + ["google_benchmark"],
         defines = _get_defines(defines),
         **kwargs
     )

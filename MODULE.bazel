@@ -74,6 +74,9 @@ bazel_dep(name = "cpplint", version = "2.0.2", dev_dependency = True)
 # BSD-3-Clause license | C++ test suite by Google
 bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
 
+# Apache License 2.0 | A microbenchmark support library from Google
+bazel_dep(name = "google_benchmark", version = "1.9.4")
+
 # Apache License 2.0 | Doxygen documentation generator
 bazel_dep(name = "rules_doxygen", version = "2.4.0", dev_dependency = True)
 

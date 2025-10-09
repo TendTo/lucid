@@ -2,6 +2,7 @@ load("//tools:cpplint.bzl", "cpplint")
 load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_hdrs_tar", "lucid_srcs")
 
 package(default_visibility = [
+    "//benchmarks:__subpackages__",
     "//bindings:__subpackages__",
     "//lucid:__subpackages__",
     "//tests:__subpackages__",
