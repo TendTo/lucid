@@ -1,0 +1,13 @@
+"""Tests for the util submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googlebenchmark")
+
+lucid_cc_googlebenchmark(
+    name = "bench_matrix_initialization",
+    deps = ["//lucid/lib:eigen"],
+)
+
+lucid_cc_googlebenchmark(
+    name = "bench_eigen_operations",
+    deps = ["//lucid/lib:eigen"],
+)
