@@ -12,7 +12,7 @@ class Args:
     config: str
     confidence_level: float = 0.9
     num_samples: int = 1000
-    verbosity: int = log.LOG_WARN
+    verbosity: int = log.LOG_INFO
 
 
 def scenario_config(args: Args):
@@ -26,10 +26,12 @@ def scenario_config(args: Args):
         np.random.seed(config.seed)  # For reproducibility
         random.seed(config.seed)
 
+    log.info(f"Running baseline (LUCID version: {__version__})")
+
     def f(x: np.ndarray) -> np.ndarray:
         # Ensure x is 2D array for consistent noise addition
         if x.ndim == 1:
-            x = x[:, np.newaxis]
+            x = x[np.newaxis, :]
         return config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale, size=x.shape))
 
     bounds = MontecarloSimulation().safety_probability(
@@ -56,15 +58,11 @@ def parse_args() -> Args:
         help="Confidence level for the safety probability estimation.",
     )
     parser.add_argument("-n", "--num_samples", type=int, default=1000, help="Number of Monte Carlo samples to explore.")
-    parser.add_argument("-v", "--verbosity", type=int, default=log.LOG_WARN, help="Logging verbosity level.")
+    parser.add_argument("-v", "--verbosity", type=int, default=log.LOG_INFO, help="Logging verbosity level.")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    # ################################## #
-    # Lucid
-    # ################################## #
-    log.info(f"Running baseline (LUCID version: {__version__})")
     start = time.time()
 
     args = parse_args()
