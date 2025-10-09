@@ -139,7 +139,7 @@ TEST_F(TestMedianHeuristicTuner, IdenticalSamples) {
     training_inputs.row(i) << 1.0, 2.0, 3.0;  // All rows are identical
   }
 
-#ifndef NDEBUG
-  EXPECT_THROW(regressor_.fit(training_inputs, training_outputs_), lucid::exception::LucidAssertionException);
+#ifndef NCHECK
+  EXPECT_THROW(regressor_.fit(training_inputs, training_outputs_), lucid::exception::LucidInvalidArgumentException);
 #endif
 }

@@ -119,8 +119,8 @@ TEST(TestPrint, LogTruncatedFourierFeatureMap) {
   const LogTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
   EXPECT_EQ(fmt::format("{}", feature_map),
             "LogTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
-            "weights( 0.131338 0.237451 0.237451 0.164684 0.164684 0.263491 0.263491 0.476376 0.476376 0.330391 "
-            "0.330391 0.203628 0.203628 0.368148 0.368148 0.255329 0.255329 ) )");
+            "weights(  0.293604  0.327088  0.327088  0.149072  0.149072  0.306567  0.306567   0.34153   0.34153  "
+            "0.155654  0.155654  0.133693  0.133693   0.14894   0.14894 0.0678805 0.0678805 ) )");
 }
 TEST(TestPrint, ConstantTruncatedFourierFeatureMap) {
   constexpr int num_frequencies = 3;

@@ -42,15 +42,15 @@ class MontecarloSimulation {
    * we can create a confidence interval around the true safety probability with the
    * [formula](https://doi.org/10.15439/2023F1144)
    * @f[
-   * P(|\hat{X} - \mathbb{E}[X]| \geq \epsilon) \leq \frac{1}{4 n \epsilon^2} \le (1 - \alpha) ,
+   * P(|\hat{X} - \mathbb{E}[X]| \geq \varepsilon) \leq \frac{1}{4 n \varepsilon^2} \le (1 - \alpha) ,
    * @f]
    * where @f$ \hat{X} = \frac{1}{n} \sum_{i=1}^{n} X_i @f$ is the sample mean, @f$ n @f$ is the number of samples,
-   * @f$ \epsilon @f$ is the error, and @f$ \alpha @f$ is the confidence level.
+   * @f$ \varepsilon @f$ is the error, and @f$ \alpha @f$ is the confidence level.
    * Hence, having fixed @f$ \alpha, n @f$ we can obtain the error bound
    * @f[
-   * \epsilon = \sqrt{\frac{1}{4 n (1 - \alpha)}} ,
+   * \varepsilon = \sqrt{\frac{1}{4 n (1 - \alpha)}} ,
    * @f]
-   * so that the interval @f$ [\hat{X} - \epsilon, \hat{X} + \epsilon] @f$ contains the true safety probability
+   * so that the interval @f$ [\hat{X} - \varepsilon, \hat{X} + \varepsilon] @f$ contains the true safety probability
    * with confidence level @f$ \alpha @f$.
    * @pre `confidence_level` must be in the range [0, 1].
    * @pre `num_samples` must be greater than 0.

@@ -30,21 +30,20 @@ Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
 
   Matrix prob_per_dim{sigma_l.size(), num_frequencies};
   for (Dimension i = 0; i < sigma_l.size(); i++) {
+    const double inverted_sigma_l = 1 / sigma_l(i);
     prob_per_dim.row(i) =
-        normal_cdf(omega_per_dim_ub, 0, 1 / sigma_l(i)) - normal_cdf(omega_per_dim_lb, 0, 1 / sigma_l(i));
+        normal_cdf(omega_per_dim_ub, 0, inverted_sigma_l) - normal_cdf(omega_per_dim_lb, 0, inverted_sigma_l);
+    // No need to multiply the first column by 2, as it is centered at 0 and we are taking [-pi, pi] as interval.
     prob_per_dim.row(i).rightCols(prob_per_dim.cols() - 1) *= 2;
   }
   return prob_per_dim;
 }
 
 Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
-  LUCID_NOT_IMPLEMENTED();
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
+  const double offset = (2 * std::numbers::pi) / static_cast<double>(num_frequencies);
   return Matrix::NullaryExpr(sigma_l.size(), num_frequencies,
-                             [&sigma_l, num_frequencies](const Index row, const Index col) {
-                               const double offset = 3 * sigma_l(row) / (num_frequencies - 0.5);
-                               return offset * static_cast<double>(col);
-                             });
+                             [offset](const Index, const Index col) { return offset * static_cast<double>(col); });
 }
 
 }  // namespace

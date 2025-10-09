@@ -28,10 +28,10 @@ Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
   for (Dimension i = 0; i < sigma_l.size(); i++) {
     const double inverted_sigma_l = 1.0 / sigma_l(i);
     const double offset = 3 * inverted_sigma_l / (2 * num_frequencies - 1);
-    Vector intervals{num_frequencies + 1};
+    Vector intervals{Vector::NullaryExpr(
+        num_frequencies + 1, [offset](const Index idx) { return static_cast<double>(2 * idx - 1) * offset; })};
+    // Reset the first interval to 0 instead of -offset
     intervals(0) = 0;
-    intervals(1) = offset;
-    for (Index j = 2; j < intervals.size(); j++) intervals(j) = intervals(j - 1) + offset * 2;
     prob_per_dim.row(i) = normal_cdf(intervals.tail(num_frequencies), 0, inverted_sigma_l) -
                           normal_cdf(intervals.head(num_frequencies), 0, inverted_sigma_l);
     prob_per_dim.row(i) *= 2;

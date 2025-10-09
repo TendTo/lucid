@@ -38,13 +38,15 @@ Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
 }
 
 Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
-  LUCID_NOT_IMPLEMENTED();
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
-  return Matrix::NullaryExpr(sigma_l.size(), num_frequencies,
-                             [&sigma_l, num_frequencies](const Index row, const Index col) {
-                               const double offset = 3 * sigma_l(row) / (num_frequencies - 0.5);
-                               return offset * static_cast<double>(col);
-                             });
+  Matrix output{Matrix::Zero(sigma_l.size(), num_frequencies)};
+  for (Index row = 0; row < output.rows(); row++) {
+    const double inverted_sigma_l = 1 / sigma_l(row);
+    Vector intervals{Vector::LinSpaced(num_frequencies + 1, 0, std::log(3 * inverted_sigma_l + 1))};
+    intervals = (intervals.array().exp() - 1).eval();
+    for (Index col = 1; col < output.cols(); col++) output(row, col) = (intervals(col + 1) - intervals(col)) / 2;
+  }
+  return output;
 }
 
 }  // namespace
