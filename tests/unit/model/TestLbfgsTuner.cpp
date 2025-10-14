@@ -30,7 +30,7 @@ class TestLbfgsTuner : public ::testing::Test {
   const Matrix training_inputs_{Matrix::Random(num_samples_, dim_)};
   KernelRidgeRegressor is_regressor_{
       std::make_unique<GaussianKernel>(), regularization_constant_,
-      std::make_shared<LbfgsTuner>(Eigen::VectorXd::Constant(1, 1e-5), Eigen::VectorXd::Constant(1, 1e5),
+      std::make_shared<LbfgsTuner>(Eigen::VectorXd::Constant(2, 1e-5), Eigen::VectorXd::Constant(2, 1e5),
                                    LbfgsParameters{.max_iterations = 10})};
 };
 
@@ -62,13 +62,15 @@ TEST_F(TestLbfgsTuner, LogMarginalLikelihoodGradientIsotropicFixed) {
       2, 2, 1;
 
   KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l), lambda, std::make_shared<LbfgsTuner>()};
-  regressor.set(Parameter::GRADIENT_OPTIMIZABLE, Vector::Constant(1, 1));
+  regressor.set(Parameter::GRADIENT_OPTIMIZABLE, Vector::Constant(2, 1));
   regressor.fit(inputs, outputs);
-  EXPECT_EQ(regressor.gradient().size(), 1);
-  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 4.1399452754831145e-08);
-  EXPECT_DOUBLE_EQ(regressor.objective_value(), -45.202528848893763);
-  EXPECT_DOUBLE_EQ(regressor.get<Parameter::SIGMA_L>().value(), 4.8241131432598596);
-  EXPECT_DOUBLE_EQ(regressor.get<Parameter::GRADIENT_OPTIMIZABLE>().value(), 1.5736269133911023);
+  EXPECT_EQ(regressor.gradient().size(), 2);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 1.034720388926047e-06);
+  EXPECT_DOUBLE_EQ(regressor.objective_value(), -19.262020826596288);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::SIGMA_F>(), 3.5474800098184751);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::SIGMA_L>().value(), 6.3383750908153127);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::GRADIENT_OPTIMIZABLE>()(0), 1.2662374950308211);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::GRADIENT_OPTIMIZABLE>()(1), 1.8466224407759202);
 }
 
 TEST_F(TestLbfgsTuner, Tune) {
@@ -78,7 +80,9 @@ TEST_F(TestLbfgsTuner, Tune) {
 
   EXPECT_FALSE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(original_sigma_l));
   EXPECT_TRUE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(
-      is_regressor_.get<Parameter::GRADIENT_OPTIMIZABLE>().array().exp().matrix()));
+      is_regressor_.get<Parameter::GRADIENT_OPTIMIZABLE>().tail(original_sigma_l.size()).array().exp().matrix()));
+  EXPECT_DOUBLE_EQ(is_regressor_.get<Parameter::SIGMA_F>(),
+                   std::exp(is_regressor_.get<Parameter::GRADIENT_OPTIMIZABLE>()(0)));
   EXPECT_TRUE((is_regressor_.get<Parameter::SIGMA_L>().array() > 0).all());
 }
 
@@ -90,7 +94,9 @@ TEST_F(TestLbfgsTuner, TuneOnline) {
 
   EXPECT_FALSE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(original_sigma_l));
   EXPECT_TRUE(is_regressor_.get<Parameter::SIGMA_L>().isApprox(
-      is_regressor_.get<Parameter::GRADIENT_OPTIMIZABLE>().array().exp().matrix()));
+      is_regressor_.get<Parameter::GRADIENT_OPTIMIZABLE>().tail(original_sigma_l.size()).array().exp().matrix()));
+  EXPECT_DOUBLE_EQ(is_regressor_.get<Parameter::SIGMA_F>(),
+                   std::exp(is_regressor_.get<Parameter::GRADIENT_OPTIMIZABLE>()(0)));
   EXPECT_TRUE((is_regressor_.get<Parameter::SIGMA_L>().array() > 0).all());
 }
 

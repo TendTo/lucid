@@ -23,7 +23,16 @@ void MedianHeuristicTuner::tune_impl(Estimator& estimator, ConstMatrixRef traini
     // Assign the median of the distances to the new sigma_l
     new_sigma_l(i) = median(dist);
   }
-  estimator.set(Parameter::SIGMA_L, new_sigma_l);
+  if (estimator.get<Parameter::SIGMA_L>().size() == 1) {
+    if (!(new_sigma_l.array() == new_sigma_l(0)).all()) {
+      LUCID_WARN(
+          "The estimator has an isotropic length scale, but the median heuristic computed an anisotropic one. "
+          "We suggest using an anisotropic length scale. The length scale will be set to the value of the first dim.");
+    }
+    estimator.set<Parameter::SIGMA_L>(Vector{new_sigma_l.head<1>()});
+  } else {
+    estimator.set<Parameter::SIGMA_L>(new_sigma_l);
+  }
   estimator.consolidate(training_inputs, training_outputs(estimator, training_inputs));
 }
 

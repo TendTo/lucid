@@ -19,6 +19,7 @@ using lucid::ConstMatrixRef;
 using lucid::Dimension;
 using lucid::Estimator;
 using lucid::GaussianKernel;
+using lucid::GramMatrix;
 using lucid::Index;
 using lucid::Kernel;
 using lucid::KernelRidgeRegressor;
@@ -212,9 +213,9 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihood) {
   lucid::GramMatrix K{kernel, inputs};
   K.add_diagonal_term(lambda * static_cast<double>(n_samples));  // Add regularisation term to the diagonal
   const Matrix w{K.inverse() * outputs};
-  double expected = (-0.5 * (outputs.array() * w.array()).matrix().colwise().sum().array()  //  -0.5 . (y^T * w)
-                     - K.L().diagonal().array().log().sum()                                 //  -sum(log(diag(L)))
-                     - std::log(2 * std::numbers::pi) * outputs.rows() / 2)                 // -log(2*pi) * n / 2
+  double expected = (-0.5 * (outputs.array() * w.array()).matrix().colwise().sum().array()        //  -0.5 . (y^T * w)
+                     - K.L().diagonal().array().log().sum()                                       //  -sum(log(diag(L)))
+                     - std::log(2 * std::numbers::pi) * static_cast<double>(outputs.rows()) / 2)  // -log(2*pi) * n / 2
                         .sum();
 
   KernelRidgeRegressor regressor{kernel, lambda};
@@ -244,6 +245,46 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodFixed) {
   EXPECT_DOUBLE_EQ(log_likelihood, -28.5091519732376);
 }
 
+TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropic) {
+  constexpr int n_samples = 3;
+  constexpr double sigma_l = 2.3;
+  constexpr double lambda = 0.1 / n_samples;
+  Matrix inputs{3, 2}, outputs{3, 4};
+  inputs << 4, 5, 1, 2, 6, 7;
+  outputs << 4, 4, 4, 1,  //
+      5, 5, 5, -6,        //
+      2, 2, 1, -1;
+
+  KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l), lambda};
+  regressor.consolidate(inputs, outputs, Request::GRADIENT);
+
+  std::vector<Matrix> kernel_gradients;
+  GramMatrix K{GaussianKernel{sigma_l}, inputs, kernel_gradients};
+  K.add_diagonal_term(regressor.regularization_constant() * static_cast<double>(inputs.rows()));
+  const Matrix K_inv{K.inverse()};
+
+  // Compute expected gradient
+  // 1/2 * (y^T K^-1 dK/dtheta K^-1 y - trace(K^-1 dK/dtheta))
+  // y is (n x d_y), K is (n x n), dK/dtheta is (n x n)
+  const double sigma_f_gradient_expected =
+      (1.0 / 2.0 *
+       ((outputs.transpose() * K_inv * kernel_gradients[0] * K_inv * outputs).array() -
+        (K_inv * kernel_gradients[0]).trace()))
+          .matrix()
+          .trace();
+  const double sigma_l_gradient_expected =
+      (1.0 / 2.0 *
+       ((outputs.transpose() * K_inv * kernel_gradients[1] * K_inv * outputs).array() -
+        (K_inv * kernel_gradients[1]).trace()))
+          .matrix()
+          .trace();
+
+  EXPECT_EQ(regressor.gradient().size(), 2);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(0), sigma_f_gradient_expected);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(1), sigma_l_gradient_expected);
+  EXPECT_THAT(regressor.gradient().tail(regressor.gradient().size() - 1),
+              testing::Contains(regressor.gradient()(1)).Times(regressor.gradient().size() - 1));
+}
 TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropicFixed) {
   constexpr int n_samples = 3;
   constexpr double sigma_l = 2.3;
@@ -256,9 +297,11 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientIsotropicFixed) {
 
   KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l), lambda};
   regressor.consolidate(inputs, outputs, Request::GRADIENT);
-  EXPECT_EQ(regressor.gradient().size(), 1);
-  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 24.581888041651847);
-  EXPECT_THAT(regressor.gradient(), testing::Contains(regressor.gradient()(0)).Times(regressor.gradient().size()));
+  EXPECT_EQ(regressor.gradient().size(), 2);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 81.749146186376123);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(1), 24.581888041651847);
+  EXPECT_THAT(regressor.gradient().tail(regressor.gradient().size() - 1),
+              testing::Contains(regressor.gradient()(1)).Times(regressor.gradient().size() - 1));
 }
 TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientAnisotropicFixed) {
   constexpr int n_samples = 3;
@@ -273,7 +316,8 @@ TEST_F(TestKernelRidgeRegressor, LogMarginalLikelihoodGradientAnisotropicFixed) 
 
   KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l), lambda};
   regressor.consolidate(inputs, outputs, Request::GRADIENT);
-  EXPECT_EQ(regressor.gradient().size(), sigma_l.size());
-  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 15.755351787434151);
-  EXPECT_DOUBLE_EQ(regressor.gradient()(1), 0.87226861106901887);
+  EXPECT_EQ(regressor.gradient().size(), sigma_l.size() + 1);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 93.408054508739198);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(1), 15.755351787434151);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(2), 0.87226861106901887);
 }

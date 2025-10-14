@@ -61,35 +61,69 @@ Matrix KernelRidgeRegressor::predict(ConstMatrixRef x, const FeatureMap& feature
   return kernel_input * coefficients_;
 }
 
+/**
+ * Compute the log marginal likelihood of the model given the Gram matrix K and the training outputs y.
+ * The log marginal likelihood is given by:
+ * @f[
+ * \log P(y|x, \theta) = -\frac{1}{2}\ln|K| - \frac{1}{2}y^tK^{-1}y - \frac{N}{2}\ln{2\pi} .
+ * @f]
+ * where @f$ N @f$ is the number of training samples,
+ * @f$ K @f$ is the Gram matrix,
+ * @theta are the log hyperparameters of the kernel,
+ * @f$ y @f$ are the training outputs.
+ * @param K Gram matrix
+ * @param y training outputs
+ * @return log marginal likelihood
+ */
 double compute_log_marginal(const GramMatrix& K, ConstMatrixRef y) {
   LUCID_TRACE_FMT("({}, {})", LUCID_FORMAT_MATRIX(K), LUCID_FORMAT_MATRIX(y));
   LUCID_CHECK_ARGUMENT_EQ(K.rows(), K.cols());
   LUCID_CHECK_ARGUMENT_EQ(K.rows(), y.rows());
   // Compute the log marginal likelihood
   // log p(y | K, λ) = -0.5 . (y^T * w) - sum(log(diag(L))) - log(2*pi) * n / 2
-  // where n is the number of training samples,
-  // K is the Gram matrix,
-  // λ is the regularisation constant,
-  // L is the Cholesky decomposition of K + λnI
-  // w are the coefficients computed as L^{-1} y
+  static const double log2pi = std::log(2 * std::numbers::pi);
   const Matrix w{K.inverse() * y};
   return (-0.5 * (y.array() * w.array()).matrix().colwise().sum().array()  //  -0.5 . (y^T * w)
           - K.L().diagonal().array().log().sum()                           //  -sum(log(diag(L)))
-          - std::log(2 * std::numbers::pi) * y.rows() / 2)                 // -log(2*pi) * n / 2
+          - log2pi * static_cast<double>(y.rows()) / 2)                    // -log(2*pi) * n / 2
       .sum();
 }
 
-Vector compute_log_marginal_gradient(const GramMatrix& K, ConstMatrixRef y, const Matrix& alpha,
-                                     const std::vector<Matrix>& gradient) {
-  LUCID_TRACE_FMT("({}, {}, {}, gradient)", LUCID_FORMAT_MATRIX(K), LUCID_FORMAT_MATRIX(y), LUCID_FORMAT_MATRIX(alpha));
+/**
+ * Compute the gradient of the log marginal likelihood of the model given the Gram matrix K,
+ * the training outputs y, the coefficients alpha and the gradient of the Gram matrix with respect to
+ * the @ref GRADIENT_OPTIMIZABLE hyperparameters.
+ * The gradient of the log marginal likelihood is given by:
+ * @f[
+ * \frac{\partial}{\partial\theta_i} \log P(y|x, \theta) =
+ * \frac{1}{2}y^TK^{-1}\frac{\partial K}{\partial\theta_i}K^{-1}y^T
+ * -\frac{1}{2}\mathrm{tr}\left(K^{-1}\frac{\partial K}{\partial\theta_i}\right) ,
+ * @f]
+ * where @f$ N @f$ is the number of training samples,
+ * @f$ K @f$ is the Gram matrix,
+ * @theta are the log hyperparameters of the kernel,
+ * @f$ y @f$ are the training outputs.
+ * For efficiency reasons, we compute the coefficients @f$ \alpha = K^{-1}y @f$ beforehand
+ * and use them to rewrite the gradient as:
+ * @f[
+ * \frac{1}{2}\mathrm{tr}\left((\alpha\alpha^T - K^{-1})\frac{\partial K}{\partial\theta_i}\right) .
+ * @f]
+ * @note The gradient is computed with respect to the log of the actual hyperparameters.
+ * @param K Gram matrix
+ * @param alpha coefficients such that @f$ \alpha = K^{-1}y @f$
+ * @param gradient gradient of the Gram matrix with respect to the @ref GRADIENT_OPTIMIZABLE hyperparameters
+ * @return log marginal likelihood function gradient with respect to the @ref GRADIENT_OPTIMIZABLE hyperparameters
+ */
+Vector compute_log_marginal_gradient(const GramMatrix& K, const Matrix& alpha, const std::vector<Matrix>& gradient) {
+  LUCID_TRACE_FMT("({}, {}, gradient)", LUCID_FORMAT_MATRIX(K), LUCID_FORMAT_MATRIX(alpha));
   LUCID_CHECK_ARGUMENT_EQ(K.rows(), K.cols());
-  LUCID_CHECK_ARGUMENT_EQ(K.rows(), y.rows());
+  LUCID_CHECK_ARGUMENT_EQ(K.rows(), alpha.rows());
   // Compute the log marginal likelihood gradient
   const Matrix k_inv{K.inverse()};
 
   std::vector<Matrix> inner_term{};
-  inner_term.reserve(y.cols());
-  for (Index i = 0; i < y.cols(); ++i) {
+  inner_term.reserve(alpha.cols());
+  for (Index i = 0; i < alpha.cols(); ++i) {
     inner_term.emplace_back(alpha.col(i) * alpha.col(i).transpose() - k_inv);
   }
 
@@ -123,7 +157,7 @@ Estimator& KernelRidgeRegressor::consolidate_impl(ConstMatrixRef training_inputs
   if (requests && Request::GRADIENT) {
     // and its gradient
     LUCID_TRACE_FMT("kernel_gradient = [{}]", kernel_gradient);
-    gradient_ = compute_log_marginal_gradient(gram_matrix, training_outputs, coefficients_, kernel_gradient);
+    gradient_ = compute_log_marginal_gradient(gram_matrix, coefficients_, kernel_gradient);
     LUCID_TRACE_FMT("gradient.size() = {}", gradient_.size());
   }
   return *this;

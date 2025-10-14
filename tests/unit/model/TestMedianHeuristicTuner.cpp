@@ -82,7 +82,8 @@ TEST_F(TestMedianHeuristicTuner, TuneUniformData) {
 TEST_F(TestMedianHeuristicTuner, DifferentScales) {
   constexpr int dim = 2;
 
-  KernelRidgeRegressor regressor(std::make_unique<GaussianKernel>(dim), 1e-6, std::make_shared<MedianHeuristicTuner>());
+  KernelRidgeRegressor regressor(std::make_unique<GaussianKernel>(Vector::Constant(dim, dim)), 1e-6,
+                                 std::make_shared<MedianHeuristicTuner>());
 
   Matrix training_inputs(num_samples_, dim);
   for (int i = 0; i < num_samples_; ++i) {

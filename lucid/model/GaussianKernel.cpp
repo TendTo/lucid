@@ -18,12 +18,13 @@ namespace lucid {
 GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
     : Kernel{Parameter::SIGMA_F | Parameter::SIGMA_L | Parameter::GRADIENT_OPTIMIZABLE},
       sigma_l_{std::move(sigma_l)},
-      log_sigma_l_{sigma_l_.array().log().matrix()},
+      log_parameters_{sigma_l_.size() + 1},
       sigma_f_{sigma_f},
       is_isotropic_{false} {
   LUCID_TRACE_FMT("({}, {})", sigma_l_, sigma_f);
   LUCID_CHECK_ARGUMENT_CMP(sigma_l_.size(), >, 0);
   LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l_.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
+  log_parameters_ << std::log(sigma_f_), sigma_l_.array().log().matrix();
 }
 GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)
     : GaussianKernel{Vector::Constant(1, sigma_l), sigma_f} {
@@ -48,13 +49,17 @@ Matrix GaussianKernel::apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
   Matrix dist{is_same_input ? pdist<2, true, true>((x1.array().rowwise() / sigma_l_.array()).matrix())
                             : pdist<2, true>((x1.array().rowwise() / sigma_l_.array()).matrix(),
                                              (x2.array().rowwise() / sigma_l_.array()).matrix())};
-  Matrix k{sigma_f() * sigma_f() * (-0.5 * dist.array()).exp()};
+  Matrix k{sigma_f_ * sigma_f_ * (-0.5 * dist.array()).exp()};
   LUCID_ASSERT(k.size() == x1.rows() * x2.rows(), "The shape of the output matrix should be equal to n1 x n2");
 
   if (gradient) {  // If we have been provided a gradient vector, let's compute the gradients
     gradient->clear();
-    gradient->reserve(sigma_l_.size());
-    // If sigma_l is isotropic (i.e., equal for all dimensions), just compute a single gradient.
+    gradient->reserve(sigma_l_.size() + 1);  // +1 for sigma_f
+
+    // Gradient with respect to log sigma_f
+    gradient->emplace_back(2.0 * k.array() / sigma_f_);
+
+    // If sigma_l is isotropic (i.e., equal for all dimensions), just compute a single gradient w.r.t. log sigma_l
     if (is_isotropic_) {
       gradient->emplace_back(k.cwiseProduct(dist));
     } else {
@@ -82,6 +87,7 @@ void GaussianKernel::set(const Parameter parameter, const double value) {
   switch (parameter) {
     case Parameter::SIGMA_F:
       sigma_f_ = value;
+      log_parameters_(0) = std::log(sigma_f_);
       break;
     default:
       Kernel::set(parameter, value);
@@ -90,12 +96,18 @@ void GaussianKernel::set(const Parameter parameter, const double value) {
 void GaussianKernel::set(const Parameter parameter, const Vector& value) {
   switch (parameter) {
     case Parameter::SIGMA_L:
-      sigma_l_ = value;
-      log_sigma_l_ = sigma_l_.array().log().matrix();
+      LUCID_CHECK_ARGUMENT(is_isotropic_ || value.size() == sigma_l_.size(), "value.size", sigma_l_.size());
+      LUCID_CHECK_ARGUMENT(!is_isotropic_ || (value.array() == value(0)).all(), "value components", value(0));
+      sigma_l_ = is_isotropic_ ? value.head<1>() : value;
+      log_parameters_.tail(sigma_l_.size()) = sigma_l_.array().log().matrix();
       break;
     case Parameter::GRADIENT_OPTIMIZABLE:
-      sigma_l_ = value.array().exp().matrix();
-      log_sigma_l_ = value;
+      LUCID_CHECK_ARGUMENT_EQ(value.size(), log_parameters_.size());
+      LUCID_CHECK_ARGUMENT(!is_isotropic_ || (value.tail(log_parameters_.size() - 1).array() == value(1)).all(),
+                           "value[1:] components", value(1));
+      log_parameters_ = value;
+      sigma_l_ = log_parameters_.tail(log_parameters_.size() - 1).array().exp().matrix();
+      sigma_f_ = std::exp(log_parameters_(0));
       break;
     default:
       Kernel::set(parameter, value);
@@ -116,7 +128,7 @@ const Vector& GaussianKernel::get_v(const Parameter parameter) const {
     case Parameter::SIGMA_L:
       return sigma_l_;
     case Parameter::GRADIENT_OPTIMIZABLE:
-      return log_sigma_l_;
+      return log_parameters_;
     default:
       return Kernel::get_v(parameter);
   }

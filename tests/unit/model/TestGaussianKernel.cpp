@@ -91,7 +91,10 @@ TEST_F(TestGaussianKernel, ParametersHas) {
 TEST_F(TestGaussianKernel, ParametersGet) {
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), sigma_f_);
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), an_sigma_l_);
-  EXPECT_TRUE(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>().isApprox(an_sigma_l_.array().log().matrix()));
+  EXPECT_TRUE(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>()
+                  .tail(an_sigma_l_.size())
+                  .isApprox(an_sigma_l_.array().log().matrix()));
+  EXPECT_DOUBLE_EQ(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>()(0), std::log(sigma_f_));
 }
 
 TEST_F(TestGaussianKernel, ParametersSet) {
@@ -104,8 +107,28 @@ TEST_F(TestGaussianKernel, ParametersSet) {
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), new_sigma_f);
   EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), new_sigma_l);
 
-  EXPECT_NO_THROW(kernel_.set(Parameter::GRADIENT_OPTIMIZABLE, Vector{new_sigma_l * 2}));
-  EXPECT_EQ(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>(), new_sigma_l * 2);
+  EXPECT_NO_THROW(kernel_.set<Parameter::GRADIENT_OPTIMIZABLE>(Vector{Vector::Constant(new_sigma_l.size() + 1, 2)}));
+  EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), std::exp(2));
+  EXPECT_EQ(kernel_.get<Parameter::SIGMA_L>(), Vector::Constant(new_sigma_l.size(), std::exp(2)));
+}
+
+TEST_F(TestGaussianKernel, ParametersSetGradientOptimizable) {
+  constexpr double new_sigma_f = 4.0;
+  const Vector new_sigma_l{Vector::LinSpaced(4, 0.1, 0.4)};
+
+  EXPECT_NO_THROW(kernel_.set(Parameter::SIGMA_F, new_sigma_f));
+  EXPECT_NO_THROW(kernel_.set(Parameter::SIGMA_L, new_sigma_l));
+
+  EXPECT_EQ(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>()(0), std::log(new_sigma_f));
+  EXPECT_TRUE(kernel_.get<Parameter::GRADIENT_OPTIMIZABLE>()
+                  .tail(new_sigma_l.size())
+                  .isApprox(new_sigma_l.array().log().matrix()));
+
+  const Vector new_log_params{Vector::LinSpaced(new_sigma_l.size() + 1, 2, 5)};
+  EXPECT_NO_THROW(kernel_.set<Parameter::GRADIENT_OPTIMIZABLE>(new_log_params));
+  EXPECT_EQ(kernel_.get<Parameter::SIGMA_F>(), std::exp(new_log_params(0)));
+  EXPECT_TRUE(
+      kernel_.get<Parameter::SIGMA_L>().isApprox(new_log_params.tail(new_sigma_l.size()).array().exp().matrix()));
 }
 
 TEST_F(TestGaussianKernel, VectorCorrectnessIsotropic) {
@@ -201,9 +224,11 @@ TEST_F(TestGaussianKernel, GradientVectorIsotropic) {
   const GaussianKernel kernel{is_sigma_l_, sigma_f_};
   std::vector<Matrix> gradient;
   EXPECT_TRUE(kernel(x, gradient).isApprox(gaussian(x, x, is_sigma_l_, sigma_f_)));
-  EXPECT_EQ(gradient.size(), 1);
-  EXPECT_EQ(gradient.front().size(), 1);
-  EXPECT_EQ(gradient.front().value(), 0);
+  EXPECT_EQ(gradient.size(), 2);
+  EXPECT_EQ(gradient[0].size(), 1);
+  EXPECT_EQ(gradient[0].value(), 8.4);
+  EXPECT_EQ(gradient[1].size(), 1);
+  EXPECT_EQ(gradient[1].value(), 0);
 }
 
 TEST_F(TestGaussianKernel, GradientVectorAnisotropic) {
@@ -211,9 +236,9 @@ TEST_F(TestGaussianKernel, GradientVectorAnisotropic) {
   const GaussianKernel kernel{an_sigma_l_, sigma_f_};
   std::vector<Matrix> gradient;
   EXPECT_TRUE(kernel(x, gradient).isApprox(gaussian(x, x, an_sigma_l_, sigma_f_)));
-  EXPECT_EQ(gradient.size(), 4);
-  EXPECT_EQ(gradient.front().size(), 1);
-  EXPECT_EQ(gradient.front().value(), 0);
+  EXPECT_EQ(gradient.size(), an_sigma_l_.size() + 1);
+  EXPECT_EQ(gradient[1].size(), 1);
+  EXPECT_EQ(gradient[1].value(), 0);
 }
 
 TEST_F(TestGaussianKernel, GradientIsotropicFixed) {
@@ -229,11 +254,11 @@ TEST_F(TestGaussianKernel, GradientIsotropicFixed) {
       0.692645, 0.0029489, 0, 0.274606,          //
       0.0029489, 9.92725e-09, 0.274606, 0;
 
-  ASSERT_EQ(gradient.size(), 1);
+  ASSERT_EQ(gradient.size(), 2);
   ASSERT_EQ(gradient.front().rows(), x.rows());
   ASSERT_EQ(gradient.front().cols(), x.rows());
 
-  EXPECT_TRUE(gradient.front().isApprox(expected, 1e-6));
+  EXPECT_TRUE(gradient[1].isApprox(expected, 1e-6));
 }
 
 TEST_F(TestGaussianKernel, GradientAnisotropicFixed) {
@@ -252,12 +277,12 @@ TEST_F(TestGaussianKernel, GradientAnisotropicFixed) {
   expected_1 << 0, 0.00811477, 0.082085,  //
       0.00811477, 0, 1.02336e-06,         //
       0.082085, 1.02336e-06, 0;
-  ASSERT_EQ(gradient.size(), 2);
+  ASSERT_EQ(gradient.size(), sigma_l.size() + 1);
   ASSERT_EQ(gradient[0].rows(), x.rows());
   ASSERT_EQ(gradient[0].cols(), x.rows());
   ASSERT_EQ(gradient[1].rows(), x.rows());
   ASSERT_EQ(gradient[1].cols(), x.rows());
 
-  EXPECT_TRUE(gradient[0].isApprox(expected_0, 1e-6));
-  EXPECT_TRUE(gradient[1].isApprox(expected_1, 1e-6));
+  EXPECT_TRUE(gradient[1].isApprox(expected_0, 1e-6));
+  EXPECT_TRUE(gradient[2].isApprox(expected_1, 1e-6));
 }

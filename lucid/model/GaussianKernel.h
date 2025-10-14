@@ -25,12 +25,10 @@ namespace lucid {
  * @f]
  * where  @f$ \Sigma = \text{diag}( \sigma _l )^{-2} @f$.
  * The type of @sigmal on kernel construction determines whether the kernel is isotropic or anisotropic.
- * If @sigmal is a vector, then the kernel is anisotropic and each dimension has its own length scale.
- * Such a kernel can only be used on inputs that belong to the same vector space
- * (i.e., the number of columns) as @sigmal.
- * On the other hand, if @sigmal is a single value, then the kernel is isotropic.
- * The same value is used for all dimensions, and the kernel can be used on inputs of any dimension,
- * since the internal @ref sigma_l_ will be automatically adjusted to match the input dimension.
+ * The kernel can be isotropic or anisotropic.
+ * In the anisotropic case, each dimension has its own length scale (i.e., @sigmal value).
+ * In the isotropic case, the same length scale is used for all dimensions.
+ * If requested, the kernel can also compute the gradient of the kernel matrix with respect to @sigmal and @sigmaf.
  */
 class GaussianKernel final : public Kernel {
  public:
@@ -39,6 +37,8 @@ class GaussianKernel final : public Kernel {
   /**
    * Construct a new anisotropic GaussianKernel object with the given parameters.
    * @pre `sigma_l` must contain at least one element all elements must be greater than 0
+   * @note Even if all the elements of `sigma_l` are equal, the kernel will be anisotropic.
+   * This may play a role during hyperparameter optimization.
    * @param sigma_l @sigmal value
    * @param sigma_f @sigmaf value
    */
@@ -55,8 +55,7 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] Scalar sigma_f() const { return sigma_f_; }
   /**
    * Get read-only access to the @sigmal of the kernel.
-   * If the kernel is isotropic, the size of the vector will be 1 upon construction
-   * and will be adapted to match to the latest inputs
+   * If the kernel is isotropic, the size of the vector will be 1, regardless of the input dimension.
    * @return dimension of the kernel
    */
   [[nodiscard]] const Vector& sigma_l() const { return sigma_l_; }
@@ -75,7 +74,7 @@ class GaussianKernel final : public Kernel {
   [[nodiscard]] const Vector& get_v(Parameter parameter) const override;
 
   mutable Vector sigma_l_;  ///< @sigmal value
-  Vector log_sigma_l_;      ///< @sigmal value in log space. Used for optimization
+  Vector log_parameters_;   ///< [ @sigmaf @sigmal ] value in log space. Used for optimization
   double sigma_f_;          ///< @sigmaf value
   bool is_isotropic_;       ///< True if the kernel is isotropic (i.e., @sigmal is the same for all dimensions)
 };
