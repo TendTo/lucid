@@ -75,6 +75,29 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "cross_validator",
+    srcs = [
+        "CrossValidator.cpp",
+        "LeaveOneOut.cpp",
+    ],
+    hdrs = [
+        "CrossValidator.h",
+        "LeaveOneOut.h",
+    ],
+    implementation_deps = [
+        "//lucid/util:error",
+        "//lucid/util:stats",
+        "//lucid/util:timer",
+    ],
+    deps = [
+        ":estimator",
+        ":parameter",
+        "//lucid/lib:eigen",
+        "//lucid/util:logging",
+    ],
+)
+
+lucid_cc_library(
     name = "estimator",
     srcs = [
         "Estimator.cpp",
@@ -196,6 +219,7 @@ lucid_cc_library(
     hdrs = ["model.h"],
     visibility = ["//visibility:public"],
     deps = [
+        ":cross_validator",
         ":estimator",
         ":feature_map",
         ":gram_matrix",

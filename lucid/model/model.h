@@ -8,6 +8,7 @@
 #pragma once
 
 #include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
+#include "lucid/model/CrossValidator.h"
 #include "lucid/model/Estimator.h"
 #include "lucid/model/FeatureMap.h"
 #include "lucid/model/GaussianKernel.h"
@@ -17,6 +18,7 @@
 #include "lucid/model/Kernel.h"
 #include "lucid/model/KernelRidgeRegressor.h"
 #include "lucid/model/LbfgsTuner.h"
+#include "lucid/model/LeaveOneOut.h"
 #include "lucid/model/LinearTruncatedFourierFeatureMap.h"
 #include "lucid/model/LogTruncatedFourierFeatureMap.h"
 #include "lucid/model/MedianHeuristicTuner.h"
