@@ -26,13 +26,13 @@ class TestTuner:
             assert isinstance(tuner, MedianHeuristicTuner)
 
         def test_with_estimator(self):
-            kernel = GaussianKernel(sigma_l=1.0)
+            kernel = GaussianKernel(sigma_l=np.array([1.0]))
             estimator = KernelRidgeRegressor(kernel=kernel, tuner=MedianHeuristicTuner())
             assert estimator.tuner is not None
 
         def test_basic_tuning(self):
             # Create an estimator with fixed initial sigma_l values
-            kernel = GaussianKernel(sigma_l=1.0)
+            kernel = GaussianKernel(sigma_l=np.array([1.0, 1.0]))
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             # Create data where dimensions have very different scales
@@ -54,7 +54,7 @@ class TestTuner:
             assert new_sigma_l[1] > new_sigma_l[0]  # Second dimension should have larger sigma_l
 
         def test_different_scales(self):
-            kernel = GaussianKernel(sigma_l=1.0)
+            kernel = GaussianKernel(sigma_l=np.array([1.0, 1.0, 1.0]))
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             # Create data with different scales for each dimension
@@ -90,7 +90,7 @@ class TestTuner:
             assert np.allclose(sigma_l[0], sigma_l[1], rtol=0.1)
 
         def test_single_sample_raises_exception(self):
-            kernel = GaussianKernel(sigma_l=1.0)
+            kernel = GaussianKernel(sigma_l=np.array([1.0]))
             estimator = KernelRidgeRegressor(kernel=kernel)
 
             # Single sample
@@ -334,7 +334,7 @@ class TestTuner:
             ]
 
             tuner = GridSearchTuner(params)
-            kernel = GaussianKernel(sigma_l=1.0)
+            kernel = GaussianKernel(sigma_l=np.array([1.0, 1.0]))
             estimator = KernelRidgeRegressor(kernel=kernel, regularization_constant=1.0)
 
             tuner.tune(estimator, X, y, feature_map_type, 2, RectSet([-1, -1], [1, 1]))

@@ -27,6 +27,8 @@
 namespace py = pybind11;
 using namespace lucid;
 
+#define COMMA ,
+
 #ifndef NCONVERT
 #define ARG_NONCONVERT(name) py::arg(name)
 #else
@@ -141,6 +143,21 @@ class PyTuner final : public Tuner {
   void tune_impl(Estimator &estimator, ConstMatrixRef training_inputs,
                  const OutputComputer &training_outputs) const override {
     PYBIND11_OVERRIDE_PURE(void, Tuner, tune_impl, estimator, training_inputs, training_outputs);
+  }
+};
+
+class PyCrossValidator final : public CrossValidator {
+ public:
+  using CrossValidator::CrossValidator;
+
+  [[nodiscard]] Dimension num_folds(ConstMatrixRef training_inputs) const override {
+    PYBIND11_OVERRIDE_PURE(Dimension, CrossValidator, num_folds, training_inputs);
+  }
+
+ private:
+  [[nodiscard]] std::pair<SliceSelector, SliceSelector> compute_folds(ConstMatrixRef training_inputs) const override {
+    PYBIND11_OVERRIDE_PURE(std::pair<SliceSelector COMMA SliceSelector>, CrossValidator, compute_folds,
+                           training_inputs);
   }
 };
 
@@ -541,6 +558,29 @@ void init_model(py::module_ &m) {
       .def_property_readonly("coefficients", &KernelRidgeRegressor::coefficients, KernelRidgeRegressor_coefficients)
       .def_property_readonly("regularization_constant", &KernelRidgeRegressor::regularization_constant,
                              KernelRidgeRegressor_regularization_constant);
+
+  /**************************** CrossValidator ****************************/
+  py::class_<CrossValidator, PyCrossValidator>(m, "CrossValidator", CrossValidator_)
+      .def(py::init<>())
+      .def("num_folds", &CrossValidator::num_folds, ARG_NONCONVERT("training_inputs"), CrossValidator_num_folds)
+      .def("fit",
+           py::overload_cast<Estimator &, ConstMatrixRef, ConstMatrixRef, const scorer::Scorer &>(&CrossValidator::fit,
+                                                                                                  py::const_),
+           py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
+           py::arg("scorer"), CrossValidator_compute_folds)
+      .def("fit",
+           py::overload_cast<Estimator &, ConstMatrixRef, ConstMatrixRef, const Tuner &, const scorer::Scorer &>(
+               &CrossValidator::fit, py::const_),
+           py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
+           py::arg("tuner"), py::arg("scorer") = nullptr, CrossValidator_compute_folds)
+      .def("score",
+           py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef, const scorer::Scorer &>(
+               &CrossValidator::score, py::const_),
+           py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
+           py::arg("scorer"), CrossValidator_compute_folds);
+  py::class_<LeaveOneOut, CrossValidator>(m, "LeaveOneOut", LeaveOneOut_).def(py::init<>());
+  py::class_<KFold, CrossValidator>(m, "KFold", KFold_)
+      .def(py::init<int, bool>(), py::arg("num_folds") = 5, py::arg("shuffle"), KFold_KFold);
 
   /**************************** Misc ****************************/
   // TODO(tend): it would be nice to encapsulate this in a class

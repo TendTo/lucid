@@ -14,10 +14,15 @@ namespace lucid {
 KFold::KFold(const Dimension num_folds, const bool shuffle) : num_folds_{num_folds}, shuffle_{shuffle} {
   LUCID_CHECK_ARGUMENT_CMP(num_folds, >=, 2);
 }
+Dimension KFold::num_folds(ConstMatrixRef training_inputs) const {
+  LUCID_CHECK_ARGUMENT_CMP(num_folds_, <=, training_inputs.rows());
+  return num_folds_;
+}
 
 std::pair<CrossValidator::SliceSelector, CrossValidator::SliceSelector> KFold::compute_folds(
     ConstMatrixRef training_inputs) const {
   LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(training_inputs));
+  LUCID_ERROR_FMT("{} samples are too few for {} folds", training_inputs.rows(), num_folds_);
   LUCID_CHECK_ARGUMENT_CMP(num_folds_, <=, training_inputs.rows());
 
   std::vector<Index> indices(training_inputs.rows());

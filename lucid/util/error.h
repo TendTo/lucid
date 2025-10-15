@@ -49,8 +49,8 @@
 
 /**
  * Assert that a condition is true, throwing an exception if it fails.
- * This macro checks the condition and throws a LucidAssertionException with file and line information if the condition is false.
- * Only active when NDEBUG is not defined (debug builds).
+ * This macro checks the condition and throws a LucidAssertionException with file and line information if the condition
+ * is false. Only active when NDEBUG is not defined (debug builds).
  * @param condition the condition to check
  * @param message descriptive message explaining what the assertion checks
  * @throw LucidAssertionException if the condition is false
@@ -122,14 +122,14 @@
  * @param expected the expected value for comparison
  * @throw LucidInvalidArgumentException if the comparison fails
  */
-#define LUCID_CHECK_ARGUMENT_CMP(value, op, expected)                                                      \
-  do {                                                                                                     \
-    if (!((value)op(expected))) {                                                                          \
-      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException,                                             \
-                                "Invalid argument " #value " violates constraint " #value " == " #expected \
-                                " : received '{}', expected '" #op " {}'",                                 \
-                                value, expected);                                                          \
-    }                                                                                                      \
+#define LUCID_CHECK_ARGUMENT_CMP(value, op, expected)                                                           \
+  do {                                                                                                          \
+    if (!((value)op(expected))) {                                                                               \
+      LUCID_ERROR_LOG_AND_THROW(LucidInvalidArgumentException,                                                  \
+                                "Invalid argument " #value " violates constraint " #value " " #op " " #expected \
+                                " : received '{}', expected '" #op " {}'",                                      \
+                                value, expected);                                                               \
+    }                                                                                                           \
   } while (false)
 /**
  * Check that a value equals an expected value.

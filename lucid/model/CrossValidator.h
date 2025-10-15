@@ -28,6 +28,7 @@ class CrossValidator {
    * The `scorer` is used to evaluate the performance of the model on the validation folds.
    * If no `scorer` is provided, the estimator's default scoring method is used.
    * At the end, the `estimator` is updated to the best model found during cross-validation.
+   * @pre The number of samples @n in `training_inputs` must be at least equal to the number of folds @ref num_folds.
    * @param[in,out] estimator estimator to fit. It will be updated to the best model found
    * @param training_inputs @nxdx training input data
    * @param training_outputs @nxdy training output data
@@ -42,6 +43,7 @@ class CrossValidator {
    * The `scorer` is used to evaluate the performance of the model on the validation folds.
    * If no `scorer` is provided, the estimator's default scoring method is used.
    * At the end, the `estimator` is updated to the best model found during cross-validation.
+   * @pre The number of samples @n in `training_inputs` must be at least equal to the number of folds @ref num_folds.
    * @param[in,out] estimator estimator to fit. It will be updated to the best model found
    * @param training_inputs @nxdx training input data
    * @param training_outputs @nxdy training output data
@@ -59,14 +61,15 @@ class CrossValidator {
    * The `scorer` is used to evaluate the performance of the model on each fold.
    * If no `scorer` is provided, the estimator's default scoring method is used.
    * The result is a vector of scores, one for each fold.
+   * @pre The number of samples @n in `training_inputs` must be at least equal to the number of folds @ref num_folds.
    * @param estimator estimator to evaluate
    * @param inputs @nxdx input data
    * @param outputs @nxdy output data
    * @param scorer scoring function to evaluate the model's performance
    * @return vector of scores, one for each fold
    */
-  std::vector<double> score(const Estimator& estimator, ConstMatrixRef inputs, ConstMatrixRef outputs,
-                            const scorer::Scorer& scorer = nullptr) const;
+  [[nodiscard]] std::vector<double> score(const Estimator& estimator, ConstMatrixRef inputs, ConstMatrixRef outputs,
+                                          const scorer::Scorer& scorer = nullptr) const;
 
   /**
    * Get the number of folds used in the cross-validation on the provided `training_inputs`.
@@ -76,13 +79,14 @@ class CrossValidator {
    */
   [[nodiscard]] virtual Dimension num_folds(ConstMatrixRef training_inputs) const = 0;
 
- private:
+ protected:
   /**
    * Fit the `estimator` using cross-validation on the provided `training_inputs` and `training_outputs` using the
    * tuner `tuner` to optimize @hp, if provided.
    * The `scorer` is used to evaluate the performance of the model on the validation folds.
    * If no `scorer` is provided, the estimator's default scoring method is used.
    * At the end, the `estimator` is updated to the best model found during cross-validation.
+   * @pre The number of samples @n in `training_inputs` must be at least equal to the number of folds @ref num_folds.
    * @param[in,out] estimator estimator to fit. It will be updated to the best model found
    * @param training_inputs @nxdx training input data
    * @param training_outputs @nxdy training output data

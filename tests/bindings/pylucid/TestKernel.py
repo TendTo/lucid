@@ -28,7 +28,7 @@ class TestKernel:
             sigma_l = 5
             k = GaussianKernel(sigma_f=2, sigma_l=sigma_l)
             assert k.is_stationary
-            assert k.is_stationary
+            assert k.is_isotropic
             assert isinstance(k, Kernel)
             assert k.get(Parameter.SIGMA_F) == k.sigma_f == 2
             assert np.allclose(k.get(Parameter.SIGMA_L), [sigma_l])

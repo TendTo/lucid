@@ -17,7 +17,7 @@ namespace lucid {
  * This technique helps to mitigate overfitting and provides a more robust estimate of the model's performance.
  * @mermaid
  * ---
- * title: "K fold (k = 4)"
+ * title: "K fold [k = 4]"
  * config:
  *     packet:
  *         bitWidth: 64
@@ -50,9 +50,11 @@ class KFold final : public CrossValidator {
   /**
    * Get the number of folds used in cross-validation.
    * In KFold cross-validation, the dataset is divided into the number of folds specified during construction.
+   * @pre The number of samples in `training_inputs` must be at least equal to the number of folds
+   * @param training_inputs @nxdx training input data
    * @return number of folds
    */
-  [[nodiscard]] Dimension num_folds(ConstMatrixRef) const override { return num_folds_; }
+  [[nodiscard]] Dimension num_folds(ConstMatrixRef training_inputs) const override;
   /** @checker{data, to be shuffled before being split into folds} */
   [[nodiscard]] bool shuffle() const { return shuffle_; }
 

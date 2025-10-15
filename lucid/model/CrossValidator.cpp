@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+#include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
 namespace lucid {
@@ -18,6 +19,7 @@ double CrossValidator::fit(Estimator& estimator, ConstMatrixRef training_inputs,
   LUCID_TRACE_FMT("({}, {}, {}, {}, {})", estimator, LUCID_FORMAT_MATRIX(training_inputs),
                   LUCID_FORMAT_MATRIX(training_outputs), tuner == nullptr ? "no_tuner" : "with_tuner",
                   scorer == nullptr ? "default_scorer" : "custom_scorer");
+  LUCID_CHECK_ARGUMENT_EQ(training_inputs.rows(), training_outputs.rows());
 
   std::unique_ptr<Estimator> best_estimator;
   double best_score = -std::numeric_limits<double>::infinity();
