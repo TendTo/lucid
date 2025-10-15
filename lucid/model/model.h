@@ -15,6 +15,7 @@
 #include "lucid/model/GradientOptimizable.h"
 #include "lucid/model/GramMatrix.h"
 #include "lucid/model/GridSearchTuner.h"
+#include "lucid/model/KFold.h"
 #include "lucid/model/Kernel.h"
 #include "lucid/model/KernelRidgeRegressor.h"
 #include "lucid/model/LbfgsTuner.h"

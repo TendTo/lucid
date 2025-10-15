@@ -47,17 +47,16 @@ double CrossValidator::fit(Estimator& estimator, ConstMatrixRef training_inputs,
                                                : scorer(*current_estimator, val_inputs, val_outputs);
     if (new_score > best_score) {
       LUCID_DEBUG_FMT("New best score: {} > {}", new_score, best_score);
-      LUCID_DEBUG_FMT("New best estimator: {}", *current_estimator);
+      LUCID_TRACE_FMT("New best estimator: {}", *current_estimator);
       best_score = new_score;
       best_estimator = current_estimator->clone();
-    } else {
-      LUCID_WARN_FMT("Score did not improve: {} <= {}", new_score, best_score);
-      LUCID_WARN_FMT("Current estimator: {}", *current_estimator);
     }
   }
 
-  estimator = *best_estimator;
-  estimator.load(*best_estimator);  // This is needed to ensure all parameters are copied
+  if (best_estimator) {  // If at least one fold succeeded
+    estimator = *best_estimator;
+    estimator.load(*best_estimator);  // This is needed to ensure all parameters are copied
+  }
   LUCID_TRACE_FMT("=> {} produced by {}", best_score, estimator);
   return best_score;
 }

@@ -78,10 +78,12 @@ lucid_cc_library(
     name = "cross_validator",
     srcs = [
         "CrossValidator.cpp",
+        "KFold.cpp",
         "LeaveOneOut.cpp",
     ],
     hdrs = [
         "CrossValidator.h",
+        "KFold.h",
         "LeaveOneOut.h",
     ],
     implementation_deps = [
@@ -94,6 +96,7 @@ lucid_cc_library(
         ":parameter",
         "//lucid/lib:eigen",
         "//lucid/util:logging",
+        "//lucid/util:random",
     ],
 )
 
