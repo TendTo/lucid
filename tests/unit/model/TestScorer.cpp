@@ -263,8 +263,8 @@ TEST(TestScorer, MSEScoreSmallestDataset) {
 }
 
 TEST(TestScorer, MSEScoreSingleDataSample) {
-  const Matrix inputs{Matrix::Random(1, 5)};
-  const Matrix outputs{Matrix::Random(1, 6)};
+  const Matrix inputs{Matrix::Random(0, 5)};
+  const Matrix outputs{Matrix::Random(0, 6)};
 
   const MockEstimator estimator{outputs};
   EXPECT_THROW(mse_score(estimator, inputs, outputs), lucid::exception::LucidInvalidArgumentException);
@@ -428,8 +428,8 @@ TEST(TestScorer, RMSEScoreSmallestDataset) {
 }
 
 TEST(TestScorer, RMSEScoreSingleDataSample) {
-  const Matrix inputs{Matrix::Random(1, 3)};
-  const Matrix outputs{Matrix::Random(1, 2)};
+  const Matrix inputs{Matrix::Random(0, 3)};
+  const Matrix outputs{Matrix::Random(0, 2)};
   const MockEstimator estimator{outputs};
 
   EXPECT_THROW(rmse_score(estimator, inputs, outputs), lucid::exception::LucidInvalidArgumentException);

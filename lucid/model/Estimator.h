@@ -35,6 +35,13 @@ namespace scorer {
  * @param evaluation_outputs @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$
  */
 using Scorer = std::function<double(const Estimator&, ConstMatrixRef, ConstMatrixRef)>;
+/**
+ * Function pointer type used to score the estimator.
+ * @param estimator Estimator object to score
+ * @param evaluation_inputs @f$ n \times d_x @f$ matrix of row vectors in the input space @f$ \mathcal{X} @f$
+ * @param evaluation_outputs @f$ n \times d_y @f$ matrix of row vectors in the output space @f$ \mathcal{Y} @f$
+ */
+using ScorerType = double (*)(const Estimator&, ConstMatrixRef, ConstMatrixRef);
 }  // namespace scorer
 
 /**

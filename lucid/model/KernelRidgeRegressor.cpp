@@ -170,9 +170,10 @@ double KernelRidgeRegressor::score(ConstMatrixRef evaluation_inputs, ConstMatrix
 
 std::unique_ptr<Estimator> KernelRidgeRegressor::clone() const {
   LUCID_TRACE("Cloning");
-  std::unique_ptr<Estimator> out{std::make_unique<KernelRidgeRegressor>(kernel_->clone(), regularization_constant_)};
-  static_cast<KernelRidgeRegressor*>(out.get())->training_inputs_ = training_inputs_;
-  static_cast<KernelRidgeRegressor*>(out.get())->coefficients_ = coefficients_;
+  std::unique_ptr<KernelRidgeRegressor> out{
+      std::make_unique<KernelRidgeRegressor>(kernel_->clone(), regularization_constant_)};
+  out->training_inputs_ = training_inputs_;
+  out->coefficients_ = coefficients_;
   return out;
 }
 

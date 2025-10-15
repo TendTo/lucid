@@ -11,15 +11,24 @@
 
 namespace lucid {
 
-std::vector<std::vector<bool>> LeaveOneOut::compute_folds(ConstMatrixRef training_inputs) const {
+std::pair<LeaveOneOut::SliceSelector, LeaveOneOut::SliceSelector> LeaveOneOut::compute_folds(
+    ConstMatrixRef training_inputs) const {
   LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(training_inputs));
-  std::vector<std::vector<bool>> folds(training_inputs.rows());
+  SliceSelector train_folds(training_inputs.rows());
+  SliceSelector val_folds(training_inputs.rows());
   for (Index i = 0; i < training_inputs.rows(); ++i) {
-    folds[i].resize(training_inputs.rows(), false);
-    folds[i][i] = false;
+    train_folds[i].resize(training_inputs.rows() - 1);
+    val_folds[i].resize(1);
+    for (Index j = 0, k = 0; j < training_inputs.rows(); ++j) {
+      if (j == i) {
+        val_folds[i][0] = j;
+      } else {
+        train_folds[i][k++] = j;
+      }
+    }
   }
-  LUCID_DEBUG_FMT("=> {}", folds);
-  return folds;
+  LUCID_DEBUG_FMT("=> ({}, {})", train_folds, val_folds);
+  return {train_folds, val_folds};
 }
 
 }  // namespace lucid

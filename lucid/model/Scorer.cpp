@@ -19,7 +19,6 @@ double r2_score(ConstMatrixRef x, ConstMatrixRef y) {
   return 1.0 - (ss_res / ss_tot);
 }
 double r2_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
-  LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
   const Matrix predictions = estimator.predict(evaluation_inputs);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
@@ -27,7 +26,7 @@ double r2_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, Co
 }
 
 double mse_score(ConstMatrixRef x, ConstMatrixRef y) {
-  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 0);
   LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
   LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
   const double mse = (y - x).array().square().mean();
@@ -36,7 +35,6 @@ double mse_score(ConstMatrixRef x, ConstMatrixRef y) {
 }
 
 double mse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
-  LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
   const Matrix predictions = estimator.predict(evaluation_inputs);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
@@ -44,7 +42,7 @@ double mse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, C
 }
 
 double rmse_score(ConstMatrixRef x, ConstMatrixRef y) {
-  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 0);
   LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
   LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
   const double rmse = std::sqrt((y - x).array().square().mean());
@@ -53,7 +51,6 @@ double rmse_score(ConstMatrixRef x, ConstMatrixRef y) {
 }
 
 double rmse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
-  LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
   const Matrix predictions = estimator.predict(evaluation_inputs);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
@@ -61,7 +58,7 @@ double rmse_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, 
 }
 
 double mape_score(ConstMatrixRef x, ConstMatrixRef y) {
-  LUCID_CHECK_ARGUMENT_CMP(y.rows(), >, 1);
+  LUCID_CHECK_ARGUMENT_EQ((y.array() != 0).all(), true);
   LUCID_CHECK_ARGUMENT_EQ(x.rows(), y.rows());
   LUCID_CHECK_ARGUMENT_EQ(x.cols(), y.cols());
   // Return negative to follow the convention of scorer functions
@@ -69,7 +66,6 @@ double mape_score(ConstMatrixRef x, ConstMatrixRef y) {
 }
 
 double mape_score(const Estimator& estimator, ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) {
-  LUCID_CHECK_ARGUMENT_CMP(evaluation_inputs.rows(), >, 1);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_inputs.rows(), evaluation_outputs.rows());
   const Matrix predictions = estimator.predict(evaluation_inputs);
   LUCID_CHECK_ARGUMENT_EQ(evaluation_outputs.cols(), predictions.cols());
