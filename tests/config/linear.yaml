@@ -26,4 +26,4 @@ plot: false
 verify: true
 estimator: KernelRidgeRegressor
 feature_map: LinearTruncatedFourierFeatureMap
-optimiser: AlglibOptimiser
+optimiser: HighsOptimiser

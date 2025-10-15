@@ -21,7 +21,7 @@ num_oversample: -1
 estimator: KernelRidgeRegressor
 kernel: GaussianKernel
 feature_map: LinearTruncatedFourierFeatureMap
-optimiser: AlglibOptimiser
+optimiser: HighsOptimiser
 x_samples:
   - - 57.8512086061783
     - -1.18446309747368

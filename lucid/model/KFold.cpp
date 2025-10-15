@@ -7,6 +7,9 @@
  */
 #include "lucid/model/KFold.h"
 
+#include <numeric>
+#include <span>
+
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
 

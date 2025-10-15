@@ -17,9 +17,9 @@ namespace {
 /**
  * Compute the probability measures for each dimension of the input spaces.
  * The normal distribution is divided in @f$ 2 \times \text{num_frequencies} @f$ intervals of equal size so that they
- * fill the interval @f$ [0, 3 \sigma_l] @f$, thus capturing 99.7% of the probability density.
+ * fill the interval @f$ [0, 3 \sigma_l^{-1}] @f$, thus capturing 99.7% of the probability density.
  * @param num_frequencies number of frequencies per dimension
- * @param sigma_l standard deviation of the normal distribution
+ * @param sigma_l inverse of the standard deviation we are going to use for the normal distribution
  * @return matrix containing the CDF values for each dimension
  */
 Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
@@ -39,11 +39,19 @@ Matrix get_prob_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
   return prob_per_dim;
 }
 
+/**
+ * Compute the omega values for each dimension of the input spaces.
+ * The omegas fall in the middle of each interval defined in get_prob_per_dim, with the first being at the origin.
+ * @param num_frequencies number of frequencies per dimension
+ * @param sigma_l inverse of the standard deviation we are going to use for the normal distribution
+ * @return matrix containing the omega values for each dimension
+ */
 Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
   return Matrix::NullaryExpr(sigma_l.size(), num_frequencies,
                              [&sigma_l, num_frequencies](const Index row, const Index col) {
-                               const double offset = 3 * 1 / sigma_l(row) / (num_frequencies - 0.5);
+                               const double inverted_sigma_l = 1.0 / sigma_l(row);
+                               const double offset = 3 * inverted_sigma_l / (num_frequencies - 0.5);
                                return offset * static_cast<double>(col);
                              });
 }

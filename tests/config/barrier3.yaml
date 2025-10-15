@@ -21,4 +21,4 @@ X_init:
 X_unsafe:
   - RectSet([0.4, 0.2], [0.6, 0.6])
   - RectSet([0.6, 0.2], [0.7, 0.4])
-optimiser: AlglibOptimiser
+optimiser: HighsOptimiser
