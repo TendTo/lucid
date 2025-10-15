@@ -56,8 +56,8 @@ Matrix GaussianKernel::apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vec
     gradient->clear();
     gradient->reserve(sigma_l_.size() + 1);  // +1 for sigma_f
 
-    // Gradient with respect to log sigma_f
-    gradient->emplace_back(2.0 * k.array() / sigma_f_);
+    // Gradient with respect to log sigma_f: ∂k/∂(log σf) = 2 * σf^2 * exp(-0.5 * ||(x1 / σl) - (x2 / σl)||^2) = 2 * k
+    gradient->emplace_back(2.0 * k.array());
 
     // If sigma_l is isotropic (i.e., equal for all dimensions), just compute a single gradient w.r.t. log sigma_l
     if (is_isotropic_) {
