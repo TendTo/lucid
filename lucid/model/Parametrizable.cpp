@@ -25,6 +25,13 @@ T Parametrizable::get(const Parameter parameter) const {
   }
 }
 
+std::variant<int, double, Vector> Parametrizable::get(Parameter parameter) const {
+  return dispatch<std::variant<int, double, Vector>>(
+      parameter, [this, &parameter]() { return get<int>(parameter); },
+      [this, &parameter]() { return get<double>(parameter); },
+      [this, &parameter]() { return get<const Vector&>(parameter); });
+}
+
 void Parametrizable::set(const Parameter parameter, const std::variant<int, double, Vector>& value) {
   dispatch<void>(
       parameter, [this, &parameter, &value]() { set(parameter, std::get<int>(value)); },
@@ -49,6 +56,15 @@ std::vector<Parameter> Parametrizable::parameters_list() const {
   }
   return params;
 }
+
+Parametrizable& Parametrizable::load(const Parametrizable& o) {
+  for (const Parameter& parameter : parameters_list()) {
+    // Only load parameters that are present in both objects
+    if (has(parameter) && o.has(parameter)) set(parameter, o.get(parameter));
+  }
+  return *this;
+}
+
 int Parametrizable::get_i(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "int"); }
 double Parametrizable::get_d(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "double"); }
 const Vector& Parametrizable::get_v(Parameter parameter) const { LUCID_INVALID_HYPER_PARAMETER(parameter, "Vector"); }

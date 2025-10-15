@@ -77,6 +77,47 @@ class TestParametrizable : public ::testing::Test {
   MockParametrizable parametrizable_;
 };
 
+TEST_F(TestParametrizable, CopyConstructor) {
+  Vector vec = Vector::Random(3);
+  parametrizable_.set<Parameter::DEGREE>(21);
+  parametrizable_.set<Parameter::SIGMA_F>(0.5772);
+  parametrizable_.set<Parameter::SIGMA_L>(vec);
+
+  MockParametrizable copy{parametrizable_};
+  EXPECT_EQ(copy.parameters(), parametrizable_.parameters());
+  EXPECT_EQ(copy.get<Parameter::DEGREE>(), parametrizable_.get<Parameter::DEGREE>());
+  EXPECT_DOUBLE_EQ(copy.get<Parameter::SIGMA_F>(), parametrizable_.get<Parameter::SIGMA_F>());
+  EXPECT_EQ(copy.get<Parameter::SIGMA_L>(), parametrizable_.get<Parameter::SIGMA_L>());
+}
+
+TEST_F(TestParametrizable, CopyAssignment) {
+  Vector vec = Vector::Random(3);
+  parametrizable_.set<Parameter::DEGREE>(21);
+  parametrizable_.set<Parameter::SIGMA_F>(0.5772);
+  parametrizable_.set<Parameter::SIGMA_L>(vec);
+
+  MockParametrizable copy;
+  copy = parametrizable_;
+  EXPECT_EQ(copy.parameters(), parametrizable_.parameters());
+  EXPECT_EQ(copy.get<Parameter::DEGREE>(), parametrizable_.get<Parameter::DEGREE>());
+  EXPECT_DOUBLE_EQ(copy.get<Parameter::SIGMA_F>(), parametrizable_.get<Parameter::SIGMA_F>());
+  EXPECT_EQ(copy.get<Parameter::SIGMA_L>(), parametrizable_.get<Parameter::SIGMA_L>());
+}
+
+TEST_F(TestParametrizable, Load) {
+  Vector vec = Vector::Random(3);
+  parametrizable_.set<Parameter::DEGREE>(21);
+  parametrizable_.set<Parameter::SIGMA_F>(0.5772);
+  parametrizable_.set<Parameter::SIGMA_L>(vec);
+
+  MockParametrizable copy;
+  copy.load(parametrizable_);
+  EXPECT_EQ(copy.parameters(), parametrizable_.parameters());
+  EXPECT_EQ(copy.get<Parameter::DEGREE>(), parametrizable_.get<Parameter::DEGREE>());
+  EXPECT_DOUBLE_EQ(copy.get<Parameter::SIGMA_F>(), parametrizable_.get<Parameter::SIGMA_F>());
+  EXPECT_EQ(copy.get<Parameter::SIGMA_L>(), parametrizable_.get<Parameter::SIGMA_L>());
+}
+
 TEST_F(TestParametrizable, HasParameter) {
   EXPECT_TRUE(parametrizable_.has(Parameter::DEGREE));
   EXPECT_TRUE(parametrizable_.has(Parameter::SIGMA_F));

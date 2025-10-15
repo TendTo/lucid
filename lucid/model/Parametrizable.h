@@ -30,9 +30,9 @@ class Parametrizable {
  public:
   explicit Parametrizable(const Parameters parameters = NoParameters) : parameters_{parameters} {}
   Parametrizable(const Parametrizable&) = default;
-  Parametrizable(Parametrizable&&) = default;
+  Parametrizable(Parametrizable&&) noexcept = default;
   Parametrizable& operator=(const Parametrizable&) = default;
-  Parametrizable& operator=(Parametrizable&&) = default;
+  Parametrizable& operator=(Parametrizable&&) noexcept = default;
   virtual ~Parametrizable() = default;
 
   /**
@@ -54,6 +54,12 @@ class Parametrizable {
   [[nodiscard]] typename internal::ParameterType<P>::ref_type get() const {
     return get<typename internal::ParameterType<P>::ref_type>(P);
   }
+  /**
+   * Get the value of the specified `parameter`.
+   * @param parameter parameter to retrieve
+   * @return value of the parameter
+   */
+  [[nodiscard]] std::variant<int, double, Vector> get(Parameter parameter) const;
 
   /**
    * Set the `parameter` to the indicated `value`.
@@ -139,6 +145,14 @@ class Parametrizable {
   [[nodiscard]] Parameters parameters() const { return parameters_; }
   /** @getter{list of parameters, parametrizable object} */
   [[nodiscard]] std::vector<Parameter> parameters_list() const;
+
+  /**
+   * Load parameters from another `Parametrizable` object.
+   * Only parameters that are present in both objects will be copied.
+   * @param o object to copy parameters from
+   * @return reference to this object
+   */
+  Parametrizable& load(const Parametrizable& o);
 
  protected:
   /**
