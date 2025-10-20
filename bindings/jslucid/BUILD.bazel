@@ -1,0 +1,79 @@
+load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
+load("//tools:rules_cc.bzl", "lucid_cc_binary", "lucid_cc_library", "lucid_pybind_extension", "lucid_pybind_library")
+
+BASE_COPTS = [
+    #    "-sALLOW_MEMORY_GROWTH=1",
+    #    "-sENVIRONMENT='web,worker,node'",
+    #    "-sEXPORTED_FUNCTIONS=['_malloc','_free']",
+    #    "-sEXTRA_EXPORTED_RUNTIME_METHODS=['ccall','cwrap']",
+]
+
+BASE_LINKOPTS = [
+    "-sTOTAL_MEMORY=3221225472",
+    "-fwasm-exceptions",
+    "-lembind",  # Enable embind
+    "-sMODULARIZE",
+    "-sEXPORT_NAME=jslucid",
+    "--emit-symbol-map",
+    "--emit-tsd",
+    "jslucid.d.ts",
+    "-sASSERTIONS=1",
+    "-sSAFE_HEAP=1",
+]
+
+RELEASE_OPTS = [
+    "--closure=1",  # Run the closure compiler
+    "-O3",
+]
+
+DEBUG_OPTS = [
+    "--closure=0",  # Do not use closure
+    "-g3",
+    "-gsource-map",
+]
+
+lucid_cc_library(
+    name = "emscripten_hdrs",
+    deps = ["@emscripten_bin_linux//:cc_includes"],
+)
+
+lucid_cc_binary(
+    name = "jslucid",
+    srcs = [
+        "jslucid.cpp",
+    ],
+    copts = select({
+        "//tools:debug_build": BASE_COPTS,
+        "//tools:release_build": BASE_COPTS,
+        "//conditions:default": BASE_COPTS,
+    }),
+    data = [
+        "constants.cpp",
+        "util.cpp",
+    ],
+    features = ["wasm_exceptions"],
+    linkopts = select({
+        "//tools:debug_build": BASE_LINKOPTS + DEBUG_OPTS,
+        "//tools:release_build": BASE_LINKOPTS + RELEASE_OPTS,
+        "//conditions:default": BASE_LINKOPTS + RELEASE_OPTS,
+    }),
+    deps = [
+        #        ":emscripten_hdrs",
+        "//lucid:version",
+        "//lucid/lib:eigen",
+        "//lucid/model",
+        "//lucid/util",
+        "//lucid/verification",
+    ],
+)
+
+wasm_cc_binary(
+    name = "jslucid_wasm",
+    cc_target = ":jslucid",
+    outputs = [
+        "main_wasm/jslucid.wasm",
+        "main_wasm/jslucid.js",
+        "main_wasm/jslucid.d.ts",
+        #        "main_wasm/main.js.symbols",
+    ],
+)

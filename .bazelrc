@@ -8,6 +8,7 @@ build --flag_alias=enable_static_build=//tools:enable_static_build
 build --flag_alias=enable_dynamic_build=//tools:enable_dynamic_build
 build --flag_alias=enable_omp_build=//tools:enable_omp_build
 build --flag_alias=enable_python_build=//tools:enable_python_build
+build --flag_alias=enable_js_build=//tools:enable_js_build
 build --flag_alias=enable_gui_build=//tools:enable_gui_build
 build --flag_alias=enable_benchmark_build=//tools:enable_benchmark_build
 build --flag_alias=enable_matplotlib_build=//tools:enable_matplotlib_build
@@ -51,6 +52,15 @@ build:py --enable_static_build
 build:py --enable_python_build
 build:py --enable_matplotlib_build=False
 build:py --enable_omp_build
+
+# Building js bindings
+build:js --compilation_mode=dbg
+build:js --enable_static_build
+build:js --enable_js_build
+build:js --enable_matplotlib_build=False
+build:js --enable_gurobi_build=False
+build:js --enable_soplex_build=False
+build:js --features=wasm_exceptions # Needed to propagate C++ exceptions to js
 
 # Benchmark build
 build:bench --compilation_mode=opt

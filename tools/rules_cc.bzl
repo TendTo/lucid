@@ -144,6 +144,9 @@ def _get_defines(rule_defines):
         "//tools:python_build": ["LUCID_PYTHON_BUILD"],
         "//conditions:default": [],
     }) + select({
+        "//tools:js_build": ["LUCID_JS_BUILD"],
+        "//conditions:default": [],
+    }) + select({
         "//tools:matplotlib_build": ["LUCID_MATPLOTLIB_BUILD"],
         "//conditions:default": [],
     }) + select({
@@ -207,6 +210,9 @@ def _get_features(rule_features):
         "//tools:dynamic_build": [],
         "//tools:static_build": ["fully_static_link"],
         "//conditions:default": [],
+    }) + select({
+        "//tools:js_build": ["wasm_exceptions"],
+        "//conditions:default": [],
     })
 
 def lucid_cc_library(
@@ -219,6 +225,7 @@ def lucid_cc_library(
         linkstatic = None,
         defines = [],
         implementation_deps = [],
+        features = [],
         **kwargs):
     """Creates a rule to declare a C++ library.
 
@@ -232,6 +239,7 @@ def lucid_cc_library(
         linkopts: A list of linker options.
         linkstatic: Whether to link statically.
         defines: A list of compiler defines used when compiling this target and its dependents.
+        features: A list of features to add to the library.
         **kwargs: Additional arguments to pass to cc_library.
     """
     cc_library(
@@ -244,6 +252,7 @@ def lucid_cc_library(
         linkopts = _get_linkopts(linkopts),
         linkstatic = _get_static(linkstatic),
         defines = _get_defines(defines),
+        features = _get_features(features),
         **kwargs
     )
 
