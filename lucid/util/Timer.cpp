@@ -83,7 +83,7 @@ user_clock::time_point user_clock::now() {
   u.HighPart = user_time.dwHighDateTime;
   return time_point(duration(u.QuadPart / 10));  // Convert from 100-nanosecond intervals to microseconds
 #else
-  return 0;
+  return time_point(duration{0});
 #endif
 }
 

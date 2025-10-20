@@ -68,6 +68,9 @@ bazel_dep(name = "rules_nodejs", version = "6.4.0")
 # Apache License 2.0 | rules for running javascript applications in Bazel
 bazel_dep(name = "aspect_rules_js", version = "2.0.2")
 
+# MIT | Emscripten SDK for compiling to WebAssembly
+bazel_dep(name = "emsdk", version = "4.0.16")
+
 # https://github.com/cpplint/cpplint/blob/develop/LICENSE | Google C++ Style Guide
 bazel_dep(name = "cpplint", version = "2.0.2", dev_dependency = True)
 
@@ -220,3 +223,6 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 ]
 
 use_repo(pip, "pypi")
+
+emscripten_deps = use_extension("@emsdk//:emscripten_deps.bzl", "emscripten_deps")
+use_repo(emscripten_deps, "emscripten_bin_linux")

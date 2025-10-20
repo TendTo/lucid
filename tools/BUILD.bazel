@@ -64,6 +64,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "enable_js_build",
+    build_setting_default = False,
+)
+
+bool_flag(
     name = "enable_gui_build",
     build_setting_default = True,
 )
@@ -166,6 +171,11 @@ config_setting(
 config_setting(
     name = "python_build",
     flag_values = {":enable_python_build": "True"},
+)
+
+config_setting(
+    name = "js_build",
+    flag_values = {":enable_js_build": "True"},
 )
 
 config_setting(

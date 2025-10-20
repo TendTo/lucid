@@ -49,6 +49,10 @@ class BarrierCertificate {
    * @param c @f$ c @f$ value in the CBC definition
    */
   explicit BarrierCertificate(int T, double gamma, double eta = 0, double c = 0);
+  BarrierCertificate(const BarrierCertificate &other) = default;
+  BarrierCertificate& operator=(const BarrierCertificate &other) = default;
+  BarrierCertificate(BarrierCertificate &&other) noexcept = default;
+  BarrierCertificate& operator=(BarrierCertificate &&other) noexcept = default;
   virtual ~BarrierCertificate() = default;
 
   /**
