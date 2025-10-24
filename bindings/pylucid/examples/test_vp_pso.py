@@ -278,7 +278,7 @@ def rescale_sets(periodic_bounds, init_bounds):
         return (lb, ub), (init_lb, init_ub)
 
 
-def main(domain_periodic, init, Q_tilde=25):
+def main(domain_periodic, init, increase, Q_tilde=25):
     (lb, ub), (init_lb, init_ub) = rescale_sets(domain_periodic, init)
     n = lb.shape[0]  # dimensionality   
 
@@ -286,7 +286,7 @@ def main(domain_periodic, init, Q_tilde=25):
     lattice = build_lattice(lb, ub, per_dim=Q_tilde)
 
     # Increase X_init percentually (with respect to the periodic domain)
-    percent = 0.1  # 10% increase
+    percent = increase  # X% increase
     lengths = ub - lb
     increase = lengths * percent
     init_lb_rescale = np.maximum(lb, init_lb - increase / 2)
@@ -363,7 +363,8 @@ if __name__ == "__main__":
     init_lb_orig = np.array([-0.5, -0.5])
     init_ub_orig = np.array([0.5, 0.5])
     init = (init_lb_orig, init_ub_orig)
+    increase = 0.1  # 10% increase
 
     Q_tilde = 25 # number of lattice points on periodic domain per dimension
 
-    main(domain_periodic, init, Q_tilde=Q_tilde)
+    main(domain_periodic, init, increase=increase, Q_tilde=Q_tilde)
