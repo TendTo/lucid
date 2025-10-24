@@ -79,7 +79,7 @@ def _wrap_periodic_diffs(diffs, period=2.0 * np.pi):
     # Use vectorised modulo: ((d + half) % period) - half
     return (np.mod(d + half, period) - half)
 
-def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, best_pos, init_lb, init_ub, init_lb_rescale, init_ub_rescale, percent, f_max, Q_tilde, Ntilde):
+def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, init_lb, init_ub, init_lb_rescale, init_ub_rescale, percent, f_max, Q_tilde, Ntilde):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 6))
 
     # nicer colormap and contour lines for clarity
@@ -112,11 +112,11 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, best_pos, in
     ax1.scatter(particles[:, 0], particles[:, 1], s=20, facecolors="#3cff00", edgecolors="k", linewidths=0.6,
                 alpha=0.95, zorder=5, label="particles")
 
-    # best solution
-    ax1.scatter(best_pos[0], best_pos[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0,
-                zorder=6, label="best")
-    ax1.annotate(f"best: ({best_pos[0]:.3f}, {best_pos[1]:.3f})", xy=(best_pos[0], best_pos[1]),
-                 xytext=(best_pos[0] + 0.05, best_pos[1] + 0.05), color="#ff00dd", fontsize=9,
+    # max solution
+    ax1.scatter(x_opt[0], x_opt[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0,
+                zorder=6, label="max")
+    ax1.annotate(f"max: ({x_opt[0]:.3f}, {x_opt[1]:.3f})", xy=(x_opt[0], x_opt[1]),
+                 xytext=(x_opt[0] + 0.05, x_opt[1] + 0.05), color="#ff00dd", fontsize=9,
                  bbox=dict(facecolor="white", alpha=0.7, edgecolor="none"), zorder=7)
 
     ax1.set_title("Vallee-Poussin field and PSO result")
@@ -159,11 +159,11 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, best_pos, in
     ax2.scatter(particles[:, 0], particles[:, 1], s=20, facecolors="#3cff00", edgecolors="k", linewidths=0.6,
                 alpha=0.95, zorder=5, label="particles")
 
-    # best solution
-    ax2.scatter(best_pos[0], best_pos[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0,
-                zorder=6, label="best")
-    ax2.annotate(f"best: ({best_pos[0]:.3f}, {best_pos[1]:.3f})", xy=(best_pos[0], best_pos[1]),
-                 xytext=(best_pos[0] + 0.05, best_pos[1] + 0.05), color="#ff00dd", fontsize=9,
+    # maximizing solution
+    ax2.scatter(x_opt[0], x_opt[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0,
+                zorder=6, label="max")
+    ax2.annotate(f"max: ({x_opt[0]:.3f}, {x_opt[1]:.3f})", xy=(x_opt[0], x_opt[1]),
+                 xytext=(x_opt[0] + 0.05, x_opt[1] + 0.05), color="#ff00dd", fontsize=9,
                  bbox=dict(facecolor="white", alpha=0.7, edgecolor="none"), zorder=7)
 
     ax2.set_title("Vallee-Poussin field and PSO result")
@@ -207,7 +207,7 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, best_pos, in
             # if contouring fails, continue without it
             pass
 
-        # compute objective values for particles and best_pos
+        # compute objective values for particles and x_opt
         def obj_value_at(points):
             p = np.atleast_2d(points)
             diffs = _wrap_periodic_diffs(p[:, None, :] - x0_lattice_wo_init[None, :, :])
@@ -218,10 +218,10 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, best_pos, in
             return (1.0 / Ntilde) * sums
 
         part_vals = obj_value_at(particles)
-        best_val = obj_value_at(best_pos.reshape(1, -1))[0]
+        max_val = obj_value_at(x_opt.reshape(1, -1))[0]
 
         ax3.scatter(particles[:, 0], particles[:, 1], part_vals, s=60, color="#ffee58", edgecolor="k", zorder=10)
-        ax3.scatter([best_pos[0]], [best_pos[1]], [best_val], s=180, color="#d62728", marker="*", edgecolor="k", zorder=11)
+        ax3.scatter([x_opt[0]], [x_opt[1]], [max_val], s=180, color="#d62728", marker="*", edgecolor="k", zorder=11)
         ax3.set_xlabel("x1")
         ax3.set_ylabel("x2")
         ax3.set_zlabel("objective")
@@ -242,7 +242,7 @@ def diagnostics(FIELD, Q_tilde, f_max, n, grid_pts, lattice, Ntilde):
     except Exception:
         multidim_bound = float("nan")
 
-    print(f"Max. in set = {FIELD.max():.6g}, (mean = {FIELD.mean():.6g})")
+    print(f"Max. in X_init set = {FIELD.max():.6g}, (mean = {FIELD.mean():.6g})")
     print(f"Theoretical bound on periodic domain = {multidim_bound:.6g}")
 
     # Compute the supremum over x of the normalized sum of absolute Valée–Poussin kernel
@@ -264,7 +264,7 @@ def diagnostics(FIELD, Q_tilde, f_max, n, grid_pts, lattice, Ntilde):
     except Exception:
         print("Could not compute basis abs-sum diagnostic (likely memory/time constraints).")
 
-def rescale_sets(periodic_bounds, init_bounds):
+def map_sets_to_torustorus(periodic_bounds, init_bounds):
         # Compute rescale factor from original to periodic domain
         rescale = (2.0 * np.pi) / (periodic_bounds[1] - periodic_bounds[0])
 
@@ -277,31 +277,32 @@ def rescale_sets(periodic_bounds, init_bounds):
         init_ub = (init_bounds[1] - periodic_bounds[0]) * rescale
         return (lb, ub), (init_lb, init_ub)
 
+def enlarge_rect(set, periodic_domain, percent):
+    lb, ub = periodic_domain
+    set_lb, set_ub = set
+    lengths = ub - lb
+    increase = lengths * percent
+    new_lb = np.maximum(lb, set_lb - increase / 2)
+    new_ub = np.minimum(ub, set_ub + increase / 2)
+    return new_lb, new_ub
 
-def main(domain_periodic, init, increase, Q_tilde=25):
-    (lb, ub), (init_lb, init_ub) = rescale_sets(domain_periodic, init)
+def contains_rect(point, lb_rect, ub_rect):
+        return np.all(point >= lb_rect) and np.all(point <= ub_rect)
+
+def main(domain_periodic, init, increase_init, Q_tilde=25, f_max=3):
+    assert f_max <= 2*Q_tilde + 1, "f_max must be at least 2*Q_tilde + 1"
+    (lb, ub), (init_lb, init_ub) = map_sets_to_torustorus(domain_periodic, init)
     n = lb.shape[0]  # dimensionality   
+    Ntilde = Q_tilde ** n
 
     # create a lattice (coarse) to serve as x_lattice
     lattice = build_lattice(lb, ub, per_dim=Q_tilde)
-
-    # Increase X_init percentually (with respect to the periodic domain)
-    percent = increase  # X% increase
-    lengths = ub - lb
-    increase = lengths * percent
-    init_lb_rescale = np.maximum(lb, init_lb - increase / 2)
-    init_ub_rescale = np.minimum(ub, init_ub + increase / 2)
-
-    def contains_rect(point, lb_rect, ub_rect):
-        return np.all(point >= lb_rect) and np.all(point <= ub_rect)
-
-    x0_lattice_wo_init = np.array([p for p in lattice if not contains_rect(p, init_lb_rescale, init_ub_rescale)])
-
-    # choose Q_tilde and f_max
-    f_max = 3
-    assert f_max <= 2*Q_tilde + 1, "f_max must be at least 2*Q_tilde + 1"
-    Ntilde = Q_tilde ** n
     assert Ntilde == lattice.shape[0], "Ntilde must equal number of lattice points"
+
+    # increase X_init percentually (with respect to the periodic domain)
+    print(f"Increasing X_init by {increase_init*100:.1f}%.")
+    init_lb_rescale, init_ub_rescale = enlarge_rect((init_lb, init_ub), (lb, ub), increase_init)
+    x0_lattice_wo_init = np.array([p for p in lattice if not contains_rect(p, init_lb_rescale, init_ub_rescale)])
 
     # build PSO objective (we maximise objective, but pyswarms minimises -> return negative)
     def objfn(positions):
@@ -321,15 +322,12 @@ def main(domain_periodic, init, increase, Q_tilde=25):
 
     # run PSO
     t0 = time()
-    optimizer = ps.single.GlobalBestPSO(n_particles=40, dimensions=2, options={"c1": 0.5, "c2": 0.3, "w": 0.9}, bounds=bounds)
-    best_cost, best_pos = optimizer.optimize(objfn, iters=150, verbose=False)
+    optimizer = ps.single.GlobalBestPSO(n_particles=40, dimensions=2, 
+                                        options={"c1": 0.5, "c2": 0.3, "w": 0.9}, bounds=bounds)
+    fval_opt, x_opt = optimizer.optimize(objfn, iters=150, verbose=False)
     t1 = time()
     print(f"PSO completed in {t1 - t0:.3f} seconds.")
-
-    print("best_cost (negated objective):", best_cost)
-    print("best_pos:", best_pos)
-
-
+    print(f"Maximum objective value = {-fval_opt:.6f} at position = {x_opt}")
 
     # plot objective field (grid) for visualization
     grid_n = 200
@@ -350,7 +348,10 @@ def main(domain_periodic, init, increase, Q_tilde=25):
     diagnostics(FIELD, Q_tilde, f_max, n, grid_pts, lattice, Ntilde)
 
     # Plotting
-    plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, best_pos, init_lb, init_ub, init_lb_rescale, init_ub_rescale, percent, f_max, Q_tilde, Ntilde)
+    plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, 
+             init_lb, init_ub, init_lb_rescale, init_ub_rescale, increase_init, f_max, Q_tilde, Ntilde)
+    
+    return fval_opt, x_opt
 
 
 if __name__ == "__main__":
@@ -366,5 +367,6 @@ if __name__ == "__main__":
     increase = 0.1  # 10% increase
 
     Q_tilde = 25 # number of lattice points on periodic domain per dimension
+    f_max = 3   # maximum frequency index (exclude zero)
 
-    main(domain_periodic, init, increase=increase, Q_tilde=Q_tilde)
+    main(domain_periodic, init, increase_init=increase, Q_tilde=Q_tilde, f_max=f_max)
