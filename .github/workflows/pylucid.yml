@@ -106,7 +106,7 @@ jobs:
           LD_LIBRARY_PATH: ${{ steps.gurobi-lib.outputs.gurobi-home }}/lib
 
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: python-package-${{ matrix.os }}-${{ matrix.python_version }}
           path: dist/
