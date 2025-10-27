@@ -118,6 +118,15 @@ github_archive(
     sha256 = "39c4aaebd8b94ccdc98191d51913a31cddd618cc0869d99f07a4b6da83ca6254",
 )
 
+# MIT | particle swarm optimization library
+github_archive(
+    name = "psocpp",
+    build_file = "//third_party:psocpp.BUILD.bazel",
+    commit = "c9c94ff4051a4b4e1713cd7e06e1c3ea6416f23b",
+    repository = "Rookfighter/pso-cpp",
+    sha256 = "ec58bd51f42b3f3193b19db2188430e4b2c54653a55f3cde3d5a48e2a4b2c426",
+)
+
 # MIT | fast fourier transform library
 github_archive(
     name = "pocketfft",
@@ -172,13 +181,22 @@ npm.npm_translate_lock(
 )
 use_repo(npm, "npm")
 
-PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+PYTHON_VERSIONS = [
+    "3.8",
+    "3.9",
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+]
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+
 [
     python.toolchain(python_version = v)
     for v in PYTHON_VERSIONS
 ]
+
 use_repo(
     python,
     "python_3_10",
@@ -191,6 +209,7 @@ use_repo(
 )
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+
 [
     pip.parse(
         hub_name = "pypi",
@@ -199,4 +218,5 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
     )
     for v in PYTHON_VERSIONS
 ]
+
 use_repo(pip, "pypi")

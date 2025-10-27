@@ -51,6 +51,14 @@ constexpr bool SOPLEX_BUILD =
     false;
 #endif
 
+/** Whether Lucid is built with the [pso-cpp](https://github.com/Rookfighter/pso-cpp/tree/master) library. */
+constexpr bool PSOCPP_BUILD =
+#ifdef LUCID_PSOCPP_BUILD
+    true;
+#else
+      false;
+#endif
+
 // NOLINTNEXTLINE: false positive
 /** Whether Lucid is built with the [Matplotlib](https://matplotlib.org/) library. */
 constexpr bool MATPLOTLIB_BUILD =

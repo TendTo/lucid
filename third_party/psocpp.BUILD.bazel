@@ -1,0 +1,14 @@
+"""psocpp library for Bazel"""
+
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+licenses(["notice"])  # MIT
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "psocpp",
+    hdrs = glob(["include/*.h"]),
+    includes = ["include"],
+    deps = ["@eigen"],
+)

@@ -10,6 +10,7 @@ from ._constants import (
     MATPLOTLIB_BUILD,
     OMP_BUILD,
     SOPLEX_BUILD,
+    PSOCPP_BUILD,
 )
 
 if GUROBI_BUILD:
@@ -45,6 +46,7 @@ CAPABILITIES = {
     "ALGLIB": ALGLIB_BUILD,
     "HIGHS": HIGHS_BUILD,
     "SOPLEX": SOPLEX_BUILD,
+    "PSOCPP": PSOCPP_BUILD,
     "MATPLOTLIB": MATPLOTLIB_BUILD,
     "PLOT": find_spec("plotly") is not None,
     "VERIFICATION": find_spec("dreal") is not None,

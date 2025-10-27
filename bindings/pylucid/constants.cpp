@@ -32,6 +32,7 @@ PYBIND11_MODULE(_constants, m) {
   m.attr("ALGLIB_BUILD") = lucid::constants::ALGLIB_BUILD;
   m.attr("HIGHS_BUILD") = lucid::constants::HIGHS_BUILD;
   m.attr("SOPLEX_BUILD") = lucid::constants::SOPLEX_BUILD;
+  m.attr("PSOCPP_BUILD") = lucid::constants::PSOCPP_BUILD;
   m.attr("OMP_BUILD") = lucid::constants::OMP_BUILD;
   m.attr("CUDA_BUILD") = lucid::constants::CUDA_BUILD;
 }

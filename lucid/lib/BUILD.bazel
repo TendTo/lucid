@@ -76,6 +76,15 @@ lucid_cc_library(
 )
 
 lucid_cc_library(
+    name = "psocpp",
+    hdrs = ["psocpp.h"],
+    deps = select({
+        "//tools:psocpp_build": ["@psocpp"],
+        "//conditions:default": [],
+    }),
+)
+
+lucid_cc_library(
     name = "highs",
     hdrs = ["highs.h"],
     deps = select({

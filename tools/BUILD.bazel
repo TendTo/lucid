@@ -94,6 +94,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "enable_psocpp_build",
+    build_setting_default = True,
+)
+
+bool_flag(
     name = "enable_verbose_eigen_build",
     build_setting_default = False,
 )
@@ -191,6 +196,11 @@ config_setting(
 config_setting(
     name = "soplex_build",
     flag_values = {":enable_soplex_build": "True"},
+)
+
+config_setting(
+    name = "psocpp_build",
+    flag_values = {":enable_psocpp_build": "True"},
 )
 
 config_setting(
