@@ -91,4 +91,25 @@ std::ostream& operator<<(std::ostream& os, const LinearTruncatedFourierFeatureMa
             << "weights( " << f.weights() << " ) )";
 }
 
+RectSet LinearTruncatedFourierFeatureMap::periodic_x_limits(const int num_frequencies, ConstVectorRef sigma_l, 
+                                                            const RectSet& x_limits) const {
+  LUCID_CHECK_ARGUMENT_EQ(sigma_l.size(), x_limits.dimension());
+  LUCID_CHECK_ARGUMENT_CMP(sigma_l.minCoeff(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
+
+  const double denom = 2.0 * static_cast<double>(num_frequencies) - 1.0;
+  Vector dilation = (3.0 * sigma_l.cwiseInverse() / denom).matrix();
+
+  const Vector lower = x_limits.lower_bound();
+  const Vector upper = x_limits.upper_bound();
+  LUCID_ASSERT(lower.size() == upper.size(), "lower and upper sizes match");
+  const Vector lengths = upper - lower;
+  LUCID_ASSERT((lengths.array() >= 0).all(), "upper >= lower");
+
+  Vector new_lower = lower;
+  Vector new_upper = lower + lengths.cwiseProduct(dilation);
+
+  return RectSet(new_lower, new_upper);
+}
+
 }  // namespace lucid

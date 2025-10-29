@@ -68,6 +68,15 @@ class LinearTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap
                                    bool);
   LinearTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits, bool);
 
+  /**
+   * Return the periodic input domain for this linear truncated Fourier map.
+   * This uses the per-dimension sigma_l passed to the constructor and computes a
+   * dilation factor per-dimension of 3*sigma_l^(-1)/(2*M+1) where M is the number of
+   * frequencies per dimension. The resulting RectSet is anchored at the original
+   * lower bound: new_lower = old_lower, new_upper = old_lower + (old_upper - old_lower) * factor.
+   */
+  [[nodiscard]] RectSet periodic_x_limits(const int num_frequencies, ConstVectorRef sigma_l, const RectSet& x_limits) const;
+
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 };
 
