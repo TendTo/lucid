@@ -57,6 +57,8 @@ class MultiSet final : public Set {
   /** @todo Improve the naive implementation that only concatenates the lattices from the internal sets (polytopes?) */
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
 
+  void change_size(ConstVectorRef delta_size) override;
+
  private:
 #ifndef NCHECK
   /** Utility function to validate the MultiSet. */

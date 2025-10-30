@@ -4,7 +4,10 @@ load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 
 lucid_cc_googletest(
     name = "test_rect_set",
-    deps = ["//lucid/model:set"],
+    deps = [
+        "//lucid/model:set",
+        "//lucid/util:exception",
+    ],
 )
 
 lucid_cc_googletest(

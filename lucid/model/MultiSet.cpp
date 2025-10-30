@@ -49,6 +49,9 @@ Matrix MultiSet::lattice(const VectorI& points_per_dim, const bool include_endpo
   }
   return rect_multiset_lattice;
 }
+void MultiSet::change_size(ConstVectorRef delta_size) {
+  for (const auto& set : sets_) set->change_size(delta_size);
+}
 #ifndef NCHECK
 void MultiSet::validate() {
   LUCID_CHECK_ARGUMENT_CMP(sets_.size(), >, 0);

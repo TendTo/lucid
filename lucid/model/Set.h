@@ -63,6 +63,41 @@ class Set {
   [[nodiscard]] virtual bool operator()(ConstVectorRef x) const = 0;
 
   /**
+   * Change the size of the set.
+   * The size change can be different for each dimension.
+   * For example, for a rectangular set, this would change the lower and upper bounds so that the original set sits in
+   * the center of the new set, which has its size changed by the specified amounts.
+   * @code{.unparsed}
+   * ┌───────────┐
+   * │    ┌─┐    │
+   * │    └─┘    │
+   * └───────────┘
+   * @endcode
+   * @pre The set must support size changes.
+   * @pre The new size must be non-negative in all dimensions.
+   * @param delta_size amount to change the size of the set
+   */
+  void change_size(double delta_size);
+
+  /**
+   * Change the size of the set.
+   * The size change can be different for each dimension.
+   * For example, for a rectangular set, this would change the lower and upper bounds so that the original set sits in
+   * the center of the new set, which has its size changed by the specified amounts.
+   * @code{.unparsed}
+   * ┌───────────┐
+   * │    ┌─┐    │
+   * │    └─┘    │
+   * └───────────┘
+   * @endcode
+   * @pre The set must support size changes.
+   * @pre The size of `delta_size` must be equal to the dimension of the set.
+   * @pre The new size must be non-negative in all dimensions.
+   * @param delta_size vector of amounts to change the size of the set for each dimension
+   */
+  virtual void change_size(ConstVectorRef delta_size);
+
+  /**
    * Generate a lattice of points in the set.
    * @param points_per_dim number of points per each dimension
    * @param include_endpoints whether to include the endpoints of the lattice

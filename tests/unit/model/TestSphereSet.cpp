@@ -458,3 +458,149 @@ TEST(TestSphereSet, HighDimensional) {
     EXPECT_LE(distance, radius + 1e-10);
   }
 }
+
+// Test change_size with uniform expansion
+TEST(TestSphereSet, ChangeSizeUniform) {
+  SphereSet sphere{Vector2{0, 0}, 2.0};
+  const Vector2 original_center = sphere.center();
+  const Scalar original_radius = sphere.radius();
+
+  // Expand by 4 units (2 per dimension)
+  sphere.change_size(Vector2{4.0, 4.0});
+
+  // Check that center is preserved
+  EXPECT_DOUBLE_EQ(sphere.center()(0), original_center(0));
+  EXPECT_DOUBLE_EQ(sphere.center()(1), original_center(1));
+
+  // Check that radius increased by 2 (half of delta_size)
+  EXPECT_DOUBLE_EQ(sphere.radius(), original_radius + 2.0);
+  EXPECT_DOUBLE_EQ(sphere.radius(), 4.0);
+}
+
+// Test change_size with uniform shrinking
+TEST(TestSphereSet, ChangeSizeUniformShrink) {
+  SphereSet sphere{Vector2{1, 1}, 3.0};
+  const Vector2 original_center = sphere.center();
+  const Scalar original_radius = sphere.radius();
+
+  // Shrink by 2 units (1 per dimension)
+  sphere.change_size(Vector2{-2.0, -2.0});
+
+  // Check that center is preserved
+  EXPECT_DOUBLE_EQ(sphere.center()(0), original_center(0));
+  EXPECT_DOUBLE_EQ(sphere.center()(1), original_center(1));
+
+  // Check that radius decreased by 1
+  EXPECT_DOUBLE_EQ(sphere.radius(), original_radius - 1.0);
+  EXPECT_DOUBLE_EQ(sphere.radius(), 2.0);
+}
+
+// Test change_size with zero delta (no-op)
+TEST(TestSphereSet, ChangeSizeZero) {
+  SphereSet sphere{Vector3{-1, 2, 3}, 1.5};
+  const Vector3 original_center = sphere.center();
+  const Scalar original_radius = sphere.radius();
+
+  sphere.change_size(Vector3{0.0, 0.0, 0.0});
+
+  EXPECT_DOUBLE_EQ(sphere.center()(0), original_center(0));
+  EXPECT_DOUBLE_EQ(sphere.center()(1), original_center(1));
+  EXPECT_DOUBLE_EQ(sphere.center()(2), original_center(2));
+  EXPECT_DOUBLE_EQ(sphere.radius(), original_radius);
+}
+
+// Test change_size preserves containment
+TEST(TestSphereSet, ChangeSizePointsStillContained) {
+  SphereSet sphere{Vector2{0, 0}, 1.0};
+  const Vector2 center{0, 0};
+  const Vector2 point1{0.5, 0};
+  const Vector2 point2{0, 0.5};
+
+  EXPECT_TRUE(sphere(center));
+  EXPECT_TRUE(sphere(point1));
+  EXPECT_TRUE(sphere(point2));
+
+  // Expand the sphere
+  sphere.change_size(Vector2{2.0, 2.0});
+
+  // Points should still be contained
+  EXPECT_TRUE(sphere(center));
+  EXPECT_TRUE(sphere(point1));
+  EXPECT_TRUE(sphere(point2));
+
+  // Points at old boundary should also be contained
+  EXPECT_TRUE(sphere(Vector2{1.0, 0}));
+  EXPECT_TRUE(sphere(Vector2{0, 1.0}));
+}
+
+// Test change_size with off-center sphere
+TEST(TestSphereSet, ChangeSizeOffCenter) {
+  SphereSet sphere{Vector3{5, -3, 2}, 2.5};
+  const Vector3 original_center = sphere.center();
+
+  sphere.change_size(Vector3{3.0, 3.0, 3.0});
+
+  // Center should be preserved
+  EXPECT_DOUBLE_EQ(sphere.center()(0), original_center(0));
+  EXPECT_DOUBLE_EQ(sphere.center()(1), original_center(1));
+  EXPECT_DOUBLE_EQ(sphere.center()(2), original_center(2));
+
+  // Radius should increase by 1.5 (half of 3.0)
+  EXPECT_DOUBLE_EQ(sphere.radius(), 4.0);
+}
+
+// Test change_size to zero radius
+TEST(TestSphereSet, ChangeSizeToZero) {
+  SphereSet sphere{Vector2{1, 1}, 1.0};
+
+  // Shrink to exactly zero radius
+  sphere.change_size(Vector2{-2.0, -2.0});
+
+  EXPECT_DOUBLE_EQ(sphere.radius(), 0.0);
+
+  // Only center should be contained
+  EXPECT_TRUE(sphere(Vector2{1, 1}));
+  EXPECT_FALSE(sphere(Vector2{1.001, 1}));
+}
+
+// Test change_size with non-uniform delta throws exception
+TEST(TestSphereSet, ChangeSizeNonUniform) {
+  SphereSet sphere{Vector2{0, 0}, 2.0};
+
+  // Non-uniform delta should throw
+  EXPECT_THROW(sphere.change_size(Vector2{2.0, 3.0}), lucid::exception::LucidInvalidArgumentException);
+}
+
+// Test change_size with dimension mismatch throws exception
+TEST(TestSphereSet, ChangeSizeDimensionMismatch) {
+  SphereSet sphere{Vector2{0, 0}, 2.0};
+
+  // Wrong dimension should throw
+  EXPECT_THROW(sphere.change_size(Vector3{2.0, 2.0, 2.0}), lucid::exception::LucidInvalidArgumentException);
+}
+
+// Test change_size that would make radius negative throws exception
+TEST(TestSphereSet, ChangeSizeTooNegative) {
+  SphereSet sphere{Vector2{0, 0}, 1.0};
+
+  // Shrinking more than twice the radius should throw
+  EXPECT_THROW(sphere.change_size(Vector2{-3.0, -3.0}), lucid::exception::LucidInvalidArgumentException);
+}
+
+// Test change_size with high-dimensional sphere
+TEST(TestSphereSet, ChangeSizeHighDimensional) {
+  const int dim = 5;
+  const Vector center = Vector::Ones(dim) * 3.0;
+  SphereSet sphere{center, 2.0};
+
+  const Vector delta = Vector::Constant(dim, 4.0);
+  sphere.change_size(delta);
+
+  // Check all dimensions of center preserved
+  for (int i = 0; i < dim; ++i) {
+    EXPECT_DOUBLE_EQ(sphere.center()(i), center(i));
+  }
+
+  // Radius should increase by 2.0 (half of 4.0)
+  EXPECT_DOUBLE_EQ(sphere.radius(), 4.0);
+}

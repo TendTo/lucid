@@ -36,6 +36,8 @@ class SphereSet final : public Set {
   /** @getter{radius, sphere set} */
   [[nodiscard]] Scalar radius() const { return radius_; }
 
+  void change_size(ConstVectorRef delta_size) override;
+
  private:
   Vector center_;  ///< Center of the sphere. Determines the dimension of the sphere set
   Scalar radius_;  ///< Radius of the sphere

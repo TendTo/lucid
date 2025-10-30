@@ -176,6 +176,7 @@ class PySet final : public Set {
  public:
   using Set::Set;
   [[nodiscard]] Dimension dimension() const override { PYBIND11_OVERRIDE_PURE(Dimension, Set, dimension); }
+  void change_size(ConstVectorRef delta_size) override { PYBIND11_OVERRIDE(void, Set, change_size, delta_size); }
   [[nodiscard]] Matrix sample(Index num_samples) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, sample, num_samples);
   }
@@ -307,6 +308,9 @@ void init_model(py::module_ &m) {
       .def_property_readonly("dimension", &Set::dimension, Set_dimension)
       .def("sample", py::overload_cast<Index>(&Set::sample, py::const_), py::arg("num_samples"), Set_sample)
       .def("sample", py::overload_cast<>(&Set::sample, py::const_), Set_sample)
+      .def("change_size", py::overload_cast<double>(&Set::change_size), py::arg("delta_size"), Set_change_size)
+      .def("change_size", py::overload_cast<ConstVectorRef>(&Set::change_size), ARG_NONCONVERT("delta_size"),
+           Set_change_size)
       .def("lattice", py::overload_cast<Index, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("include_endpoints") = false, Set_lattice)
       .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),

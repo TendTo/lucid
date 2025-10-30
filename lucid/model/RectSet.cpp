@@ -77,6 +77,24 @@ Matrix RectSet::lattice(const VectorI& points_per_dim, const bool include_endpoi
   return x_lattice;
 }
 
+void RectSet::change_size(ConstVectorRef delta_size) {
+  LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(delta_size));
+  LUCID_CHECK_ARGUMENT_EQ(delta_size.size(), dimension());
+
+  const Vector center = (lb_ + ub_) / 2.0;
+  const Vector half_size = (ub_ - lb_) / 2.0;
+
+  // Compute the new half-size (adding half of delta_size to each side)
+  const Vector new_half_size = half_size + delta_size / 2.0;
+  LUCID_CHECK_ARGUMENT_CMP(new_half_size.minCoeff(), >=, 0);
+
+  // Update bounds to maintain the center
+  lb_ = center - new_half_size;
+  ub_ = center + new_half_size;
+
+  LUCID_TRACE_FMT("=> {}", *this);
+}
+
 RectSet::operator Matrix() const {
   Matrix x_lim{2, lb_.size()};
   x_lim << lb_.transpose(), ub_.transpose();

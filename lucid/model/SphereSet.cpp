@@ -53,6 +53,18 @@ Matrix SphereSet::lattice(const VectorI& points_per_dim, const bool include_endp
   }
   return lattice(mask_rows, Eigen::all);
 }
+void SphereSet::change_size(ConstVectorRef delta_size) {
+  LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(delta_size));
+  LUCID_CHECK_ARGUMENT_EQ(delta_size.size(), dimension());
+  LUCID_CHECK_ARGUMENT((delta_size.array() == delta_size(0)).all(), "delta_size", "must be uniform for all dimensions");
+
+  const Scalar max_delta_size = delta_size(0);
+  LUCID_CHECK_ARGUMENT_CMP(radius_ + max_delta_size / 2.0, >=, 0);
+
+  radius_ += max_delta_size / 2.0;
+
+  LUCID_TRACE_FMT("=> {}", *this);
+}
 
 std::ostream& operator<<(std::ostream& os, const SphereSet& set) {
   return os << fmt::format("SphereSet( center( [{}] ) radius( {} ) )", set.center(), set.radius());

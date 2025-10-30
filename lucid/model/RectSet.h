@@ -20,6 +20,7 @@ namespace lucid {
  */
 class RectSet final : public Set {
  public:
+  using Set::change_size;
   using Set::lattice;
   /**
    * Construct a rectangular set from lower and upper bounds.
@@ -60,6 +61,8 @@ class RectSet final : public Set {
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
 
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
+
+  void change_size(ConstVectorRef delta_size) override;
 
   /**
    * Convert the rectangular set to a matrix representation.
