@@ -172,17 +172,6 @@ class PyFeatureMap : public FeatureMap {
   }
 };
 
-class PyTruncatedFourierFeatureMap : public TruncatedFourierFeatureMap {
- public:
-  using TruncatedFourierFeatureMap::TruncatedFourierFeatureMap;
-  [[nodiscard]] RectSet get_periodic_x_limits(int num_frequencies, ConstVectorRef sigma_l) const override {
-    PYBIND11_OVERRIDE_PURE(RectSet, TruncatedFourierFeatureMap, get_periodic_x_limits, num_frequencies, sigma_l);
-  }
-  [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override {
-    pybind11::pybind11_fail("Tried to call pure virtual function \"TruncatedFourierFeatureMap::clone\"");
-  }
-};
-
 class PySet final : public Set {
  public:
   using Set::Set;
@@ -478,15 +467,14 @@ void init_model(py::module_ &m) {
   py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap", FeatureMap_)
       .def("clone", &FeatureMap::clone, FeatureMap_clone)
       .def("__str__", STRING_LAMBDA(FeatureMap));
-  py::class_<TruncatedFourierFeatureMap, FeatureMap, PyTruncatedFourierFeatureMap>(m, "TruncatedFourierFeatureMap",
-                                                                                   TruncatedFourierFeatureMap_)
+  py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap", TruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"),
            py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("x_limits"))
       .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet, bool>(), py::arg("num_frequencies"),
            py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("x_limits"),
            py::arg("unused"))
-      .def("get_get_periodic_x_limits", &TruncatedFourierFeatureMap::get_periodic_x_limits, py::arg("num_frequencies"),
-           py::arg("sigma_l"), TruncatedFourierFeatureMap_get_periodic_x_limits)
+      .def("get_periodic_set", &TruncatedFourierFeatureMap::get_periodic_set, ARG_NONCONVERT("sigma_l"),
+           TruncatedFourierFeatureMap_get_periodic_set)
       .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"),
            TruncatedFourierFeatureMap_map_vector)
       .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"),

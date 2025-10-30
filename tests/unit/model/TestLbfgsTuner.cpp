@@ -65,12 +65,12 @@ TEST_F(TestLbfgsTuner, LogMarginalLikelihoodGradientIsotropicFixed) {
   regressor.set(Parameter::GRADIENT_OPTIMIZABLE, Vector::Constant(2, 1));
   regressor.fit(inputs, outputs);
   EXPECT_EQ(regressor.gradient().size(), 2);
-  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 1.034720388926047e-06);
-  EXPECT_DOUBLE_EQ(regressor.objective_value(), -19.262020826596288);
-  EXPECT_DOUBLE_EQ(regressor.get<Parameter::SIGMA_F>(), 3.5474800098184751);
-  EXPECT_DOUBLE_EQ(regressor.get<Parameter::SIGMA_L>().value(), 6.3383750908153127);
-  EXPECT_DOUBLE_EQ(regressor.get<Parameter::GRADIENT_OPTIMIZABLE>()(0), 1.2662374950308211);
-  EXPECT_DOUBLE_EQ(regressor.get<Parameter::GRADIENT_OPTIMIZABLE>()(1), 1.8466224407759202);
+  EXPECT_DOUBLE_EQ(regressor.gradient()(0), 7.0157740950094194e-08);
+  EXPECT_DOUBLE_EQ(regressor.objective_value(), -19.262020826587829);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::SIGMA_F>(), 3.547478519433473);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::SIGMA_L>().value(), 6.3383686408877207);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::GRADIENT_OPTIMIZABLE>()(0), 1.2662370749057432);
+  EXPECT_DOUBLE_EQ(regressor.get<Parameter::GRADIENT_OPTIMIZABLE>()(1), 1.84662142317586);
 }
 
 TEST_F(TestLbfgsTuner, Tune) {

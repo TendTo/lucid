@@ -127,3 +127,22 @@ TEST(TestTruncatedFourierFeatureMap, CorrectSpread) {
   EXPECT_TRUE(feature_map.omega().isApprox(expected_feature_map.omega()));
   EXPECT_TRUE(feature_map.weights().isApprox(expected_feature_map.weights()));
 }
+
+TEST(TestTruncatedFourierFeatureMap, PeriodicSpace) {
+  constexpr int num_freq = 4;
+  Vector vec_sigma_l(2);
+  vec_sigma_l << 1.0, 2.0;
+  const RectSet base_x_limits{{{-3, 2}, {-1, 5}}};
+  const LinearTruncatedFourierFeatureMap feature_map{num_freq, vec_sigma_l, sigma_f, base_x_limits};
+  const RectSet periodic_x_limits = feature_map.get_periodic_set(vec_sigma_l);
+  const Vector lb_values = feature_map.map_vector(periodic_x_limits.lower_bound());
+  const Vector ub_values = feature_map.map_vector(periodic_x_limits.upper_bound());
+
+  EXPECT_DOUBLE_EQ(lb_values[0], feature_map.weights()[0]);
+  for (Index i = 1; i < num_freq; ++i) {
+    EXPECT_DOUBLE_EQ(lb_values[2 * i - 1], feature_map.weights()[2 * i - 1]);
+    EXPECT_DOUBLE_EQ(lb_values[2 * i], 0);
+    EXPECT_DOUBLE_EQ(ub_values[2 * i - 1], feature_map.weights()[2 * i - 1]);
+    EXPECT_NEAR(ub_values[2 * i], 0, 1e-10);  // These values are extremely close to 0 but not exactly 0
+  }
+}

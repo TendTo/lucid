@@ -70,7 +70,7 @@ class LinearTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 
-  [[nodiscard]] RectSet get_periodic_x_limits(int num_frequencies, ConstVectorRef sigma_l) const override;
+  [[nodiscard]] RectSet get_periodic_set(ConstVectorRef sigma_l) const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const LinearTruncatedFourierFeatureMap& f);

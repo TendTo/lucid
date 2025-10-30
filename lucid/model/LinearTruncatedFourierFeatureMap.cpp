@@ -79,15 +79,16 @@ LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num
     : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                        x_limits, true} {}
 
-RectSet LinearTruncatedFourierFeatureMap::get_periodic_x_limits(const int num_frequencies, ConstVectorRef sigma_l) const {
+RectSet LinearTruncatedFourierFeatureMap::get_periodic_set(ConstVectorRef sigma_l) const {
   LUCID_CHECK_ARGUMENT_EQ(sigma_l.size(), x_limits_.dimension());
   LUCID_CHECK_ARGUMENT_CMP(sigma_l.minCoeff(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >, 0);
 
-  const double denom = 2.0 * static_cast<double>(num_frequencies) - 1.0;
+  // Divide the space of size 3 * sigma_l^{-1} into (2 * num_frequencies - 1) intervals.
+  // Each interval will be normalized by double the dilation factor, and then extended to be between [0, 2pi].
+  const double denom = static_cast<double>(num_frequencies_per_dimension_) - 0.5;
   const Vector dilation = (3.0 * sigma_l.cwiseInverse() / denom).matrix();
 
-  const Vector lengths = x_limits_.lower_bound() - x_limits_.upper_bound();
+  const Vector lengths = x_limits_.upper_bound() - x_limits_.lower_bound();
   LUCID_ASSERT(lengths.minCoeff() >= 0, "upper >= lower");
 
   const Vector new_upper = x_limits_.lower_bound() + 2 * std::numbers::pi * lengths.cwiseQuotient(dilation);

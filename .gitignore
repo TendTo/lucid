@@ -73,7 +73,6 @@ nosetests.xml
 coverage.xml
 *.cover
 /pylucid*/
-/examples/
 
 # Sensitive files
 /.pypirc

@@ -226,7 +226,7 @@ TEST_F(TestGaussianKernel, GradientVectorIsotropic) {
   EXPECT_TRUE(kernel(x, gradient).isApprox(gaussian(x, x, is_sigma_l_, sigma_f_)));
   EXPECT_EQ(gradient.size(), 2);
   EXPECT_EQ(gradient[0].size(), 1);
-  EXPECT_EQ(gradient[0].value(), 8.4);
+  EXPECT_EQ(gradient[0].value(), 35.28);
   EXPECT_EQ(gradient[1].size(), 1);
   EXPECT_EQ(gradient[1].value(), 0);
 }

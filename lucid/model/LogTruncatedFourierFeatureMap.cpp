@@ -60,8 +60,6 @@ LogTruncatedFourierFeatureMap::LogTruncatedFourierFeatureMap(const int num_frequ
     : LogTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                     x_limits} {}
 
-RectSet LogTruncatedFourierFeatureMap::get_periodic_x_limits(const int, ConstVectorRef) const { LUCID_NOT_IMPLEMENTED(); }
-
 std::unique_ptr<FeatureMap> LogTruncatedFourierFeatureMap::clone() const {
   LUCID_TRACE("Cloning");
   return std::make_unique<LogTruncatedFourierFeatureMap>(*this);

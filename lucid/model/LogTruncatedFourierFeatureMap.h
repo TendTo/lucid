@@ -32,8 +32,6 @@ class LogTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap {
   LogTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& x_limits);
   LogTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits);
 
-  [[nodiscard]] RectSet get_periodic_x_limits(int num_frequencies, ConstVectorRef sigma_l) const override;
-
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 };
 

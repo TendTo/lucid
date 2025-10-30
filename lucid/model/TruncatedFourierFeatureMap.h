@@ -106,37 +106,41 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] const Vector& periodic_coefficients() const { return periodic_coefficients_; }
 
   /**
-    * Return the periodic input domain for this linear truncated Fourier map.
-    * This uses the per-dimension @sigmal computes a dilation factor per-dimension of
-    * @f[
-    * \frac{3\sigma_l^{-1}}{2M-1}
-    * @f]
-    * where @f$ M @f$ is the number of frequencies per dimension (including the zero frequency).
-    * The resulting RectSet is anchored at the original lower bound.
-    * Graphically,
-    * @code{.unparsed}
-    *                 New w
-    *   ┌───────────────────────────────┐
-    *   │                               │
-    *   │                               │
-    *   │                               │
-    *   │                               │ N
-    *   │                               │ e
-    *   ├───────────────────────┐       │ w
-    *   │                       │       │
-    *   │                       │       │ h
-    * h │                       │       │
-    *   │                       │       │
-    *   │                       │       │
-    *   ●───────────────────────┴───────┘
-    *                w
-    * @endcode
-    * Notice how the lower bound remains fixed, while the upper bound is shifted to create the periodic domain.
-    * @param num_frequencies number of frequencies per dimension (including the zero frequency)
-    * @param sigma_l length-scale vector
-    * @return new RectSet representing the periodic input domain
-    */
-  [[nodiscard]] virtual RectSet get_periodic_x_limits(int num_frequencies, ConstVectorRef sigma_l) const = 0;
+   * Return the periodic input domain for this linear truncated Fourier map.
+   * This uses the per-dimension @sigmal computes a dilation factor per-dimension of
+   * @f[
+   * \frac{6\sigma_l^{-1}}{2M-1}
+   * @f]
+   * where @f$ M @f$ is the number of frequencies per dimension (including the zero frequency).
+   * Then, the input domain size is normalized by this factor and extended to be between @f$ [0, 2\pi] @f$.
+   * The resulting RectSet is anchored at the original lower bound.
+   * Graphically,
+   * @code{.unparsed}
+   *                 New w
+   *   ┌───────────────────────────────┐
+   *   │                               │
+   *   │                               │
+   *   │                               │ N
+   *   │                               │ e
+   *   ├───────────────────────┐       │ w
+   *   │                       │       │
+   *   │                       │       │ h
+   * h │                       │       │
+   *   │                       │       │
+   *   │                       │       │
+   *   ●───────────────────────┴───────┘
+   *                w
+   * @endcode
+   * Notice how the lower bound remains fixed, while the upper bound is shifted to create the periodic domain.
+   * @note The periodic domain could be smaller than the original domain, depending on the values of @f$ \sigma_l @f$.
+   * @pre @sigmal must have the same dimension as the input space.
+   * @pre All values in @sigmal must be greater than 0.
+   * @param sigma_l length-scale vector @sigmal
+   * @return new RectSet representing the periodic input domain
+   */
+  [[nodiscard]] virtual RectSet get_periodic_set(ConstVectorRef sigma_l) const;
+
+  [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 
  protected:
   int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension

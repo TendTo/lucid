@@ -127,4 +127,10 @@ Matrix TruncatedFourierFeatureMap::apply_impl(ConstMatrixRef x) const {
   return out;
 }
 
+RectSet TruncatedFourierFeatureMap::get_periodic_set(ConstVectorRef) const { LUCID_NOT_IMPLEMENTED(); }
+
+std::unique_ptr<FeatureMap> TruncatedFourierFeatureMap::clone() const {
+  return std::make_unique<TruncatedFourierFeatureMap>(*this);
+}
+
 }  // namespace lucid
