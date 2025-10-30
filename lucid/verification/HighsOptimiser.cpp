@@ -8,6 +8,7 @@
 #include "lucid/verification/HighsOptimiser.h"
 
 #include <limits>
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>

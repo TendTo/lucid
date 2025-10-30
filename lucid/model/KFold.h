@@ -6,7 +6,12 @@
  * KFold class.
  */
 #pragma once
-#include "CrossValidator.h"
+
+#include <iosfwd>
+#include <utility>
+
+#include "lucid/lib/eigen.h"
+#include "lucid/model/CrossValidator.h"
 
 namespace lucid {
 
@@ -55,6 +60,9 @@ class KFold final : public CrossValidator {
    * @return number of folds
    */
   [[nodiscard]] Dimension num_folds(ConstMatrixRef training_inputs) const override;
+
+  /** @getter{num_folds, the cross-validation} */
+  [[nodiscard]] Dimension num_folds() const { return num_folds_; }
   /** @checker{data, to be shuffled before being split into folds} */
   [[nodiscard]] bool shuffle() const { return shuffle_; }
 
@@ -65,4 +73,14 @@ class KFold final : public CrossValidator {
   bool shuffle_;         ///< Whether to shuffle the data before splitting into folds
 };
 
+std::ostream& operator<<(std::ostream& os, const KFold& kf);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::KFold)
+
+#endif  // LUCID_INCLUDE_FMT

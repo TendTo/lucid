@@ -6,6 +6,9 @@
  */
 #include "lucid/verification/SoplexOptimiser.h"
 
+#include <string>
+#include <vector>
+
 #include "lucid/lib/soplex.h"
 #include "lucid/util/error.h"
 

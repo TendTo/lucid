@@ -6,7 +6,9 @@
  * FourierBarrierCertificate class.
  */
 #pragma once
+
 #include <iosfwd>
+#include <memory>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"

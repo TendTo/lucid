@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstddef>
+#include <utility>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Set.h"

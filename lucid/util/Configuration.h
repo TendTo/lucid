@@ -28,7 +28,7 @@ extern const Matrix emptyMatrix;
   static constexpr const char *const help_##param_name{help};                              \
                                                                                            \
  private:                                                                                  \
-  type param_name##_{default_value}
+  type param_name##_{default_value}  // NOLINT(whitespace/braces): false positive
 
 #define LUCID_CONST_PARAMETER(param_name, type, default_value, help)                       \
  public:                                                                                   \
@@ -39,7 +39,7 @@ extern const Matrix emptyMatrix;
   static constexpr const char *const help_##param_name{help};                              \
                                                                                            \
  private:                                                                                  \
-  type param_name##_{default_value}
+  type param_name##_{default_value}  // NOLINT(whitespace/braces): false positive
 
 /**
  * Simple dataclass used to store the configuration of the program.

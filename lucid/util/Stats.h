@@ -25,6 +25,7 @@ struct Stats {
   Timer tuning_timer;                           ///< Metric measuring the time spent for hyperparameter tuning
   Timer kernel_timer;                           ///< Metric measuring the time spent for kernel evaluations
   Timer total_timer;                            ///< Metric measuring the total time spent in the whole pipeline
+  Timer cross_validation_timer_;                ///< Metric measuring the time spent in cross-validation
   std::size_t num_estimator_consolidations{0};  ///< Number of times an estimator was consolidated
   std::size_t num_kernel_applications{0};       ///< Number of times a kernel was applied
   std::size_t num_feature_map_applications{0};  ///< Number of times a feature map was applied

@@ -8,7 +8,10 @@
 #include "lucid/model/KFold.h"
 
 #include <numeric>
+#include <ostream>
 #include <span>
+#include <utility>
+#include <vector>
 
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
@@ -64,6 +67,10 @@ std::pair<CrossValidator::SliceSelector, CrossValidator::SliceSelector> KFold::c
 
   LUCID_TRACE_FMT("=> ({}, {})", training_folds, validation_folds);
   return {training_folds, validation_folds};
+}
+
+std::ostream& operator<<(std::ostream& os, const KFold& kf) {
+  return os << "KFold( num_folds( " << kf.num_folds() << " ), shuffle( " << (kf.shuffle() ? "true" : "false") << " ) )";
 }
 
 }  // namespace lucid

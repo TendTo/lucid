@@ -8,7 +8,13 @@
 #include "lucid/model/CrossValidator.h"
 
 #include <iostream>
+#include <memory>
+#include <vector>
 
+#include "lucid/model/KFold.h"
+#include "lucid/model/LeaveOneOut.h"
+#include "lucid/util/Stats.h"
+#include "lucid/util/Timer.h"
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
@@ -20,6 +26,7 @@ double CrossValidator::fit(Estimator& estimator, ConstMatrixRef training_inputs,
                   LUCID_FORMAT_MATRIX(training_outputs), tuner == nullptr ? "no_tuner" : "with_tuner",
                   scorer == nullptr ? "default_scorer" : "custom_scorer");
   LUCID_CHECK_ARGUMENT_EQ(training_inputs.rows(), training_outputs.rows());
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().cross_validation_timer_ : nullptr};
 
   std::unique_ptr<Estimator> best_estimator;
   double best_score = -std::numeric_limits<double>::infinity();
@@ -100,6 +107,12 @@ std::vector<double> CrossValidator::score(const Estimator& estimator, ConstMatri
 
   LUCID_TRACE_FMT("=> {}", scores);
   return scores;
+}
+
+std::ostream& operator<<(std::ostream& os, const CrossValidator& cv) {
+  if (const auto* casted = dynamic_cast<const KFold*>(&cv)) return os << *casted;
+  if (const auto* casted = dynamic_cast<const LeaveOneOut*>(&cv)) return os << *casted;
+  return os << "CrossValidator( )";
 }
 
 }  // namespace lucid

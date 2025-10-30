@@ -7,6 +7,11 @@
  */
 #pragma once
 
+#include <iosfwd>
+#include <utility>
+#include <vector>
+
+#include "lucid/lib/eigen.h"
 #include "lucid/model/Estimator.h"
 
 namespace lucid {
@@ -107,4 +112,14 @@ class CrossValidator {
   [[nodiscard]] virtual std::pair<SliceSelector, SliceSelector> compute_folds(ConstMatrixRef training_inputs) const = 0;
 };
 
+std::ostream& operator<<(std::ostream& os, const CrossValidator& cv);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::CrossValidator)
+
+#endif  // LUCID_INCLUDE_FMT

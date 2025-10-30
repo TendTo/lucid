@@ -6,6 +6,8 @@
  */
 #include "lucid/verification/FourierBarrierCertificate.h"
 
+#include <memory>
+
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 #include "lucid/util/Stats.h"
 #include "lucid/util/constants.h"

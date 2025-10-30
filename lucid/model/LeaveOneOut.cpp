@@ -7,6 +7,9 @@
  */
 #include "lucid/model/LeaveOneOut.h"
 
+#include <ostream>
+#include <utility>
+
 #include "lucid/util/logging.h"
 
 namespace lucid {
@@ -30,5 +33,7 @@ std::pair<LeaveOneOut::SliceSelector, LeaveOneOut::SliceSelector> LeaveOneOut::c
   LUCID_DEBUG_FMT("=> ({}, {})", train_folds, val_folds);
   return {train_folds, val_folds};
 }
+
+std::ostream& operator<<(std::ostream& os, const LeaveOneOut& /*lo*/) { return os << "LeaveOneOut( )"; }
 
 }  // namespace lucid

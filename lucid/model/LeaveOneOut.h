@@ -7,6 +7,10 @@
  */
 #pragma once
 
+#include <iosfwd>
+#include <utility>
+
+#include "lucid/lib/eigen.h"
 #include "lucid/model/CrossValidator.h"
 
 namespace lucid {
@@ -59,4 +63,14 @@ class LeaveOneOut final : public CrossValidator {
   [[nodiscard]] std::pair<SliceSelector, SliceSelector> compute_folds(ConstMatrixRef training_inputs) const override;
 };
 
+std::ostream& operator<<(std::ostream& os, const LeaveOneOut& lo);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::LeaveOneOut)
+
+#endif  // LUCID_INCLUDE_FMT

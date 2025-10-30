@@ -6,7 +6,9 @@
  */
 #include "lucid/verification/MontecarloSimulation.h"
 
+#include <algorithm>
 #include <ostream>
+#include <utility>
 
 #include "lucid/model/MultiSet.h"
 #include "lucid/util/error.h"

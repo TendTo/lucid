@@ -15,6 +15,8 @@ using lucid::GridSearchTuner;
 using lucid::Index;
 using lucid::InverseGramMatrix;
 using lucid::KernelRidgeRegressor;
+using lucid::KFold;
+using lucid::LeaveOneOut;
 using lucid::LinearTruncatedFourierFeatureMap;
 using lucid::LogTruncatedFourierFeatureMap;
 using lucid::Matrix;
@@ -208,3 +210,7 @@ TEST(TestPrint, GridSearchTuner) {
 TEST(TestPrint, MontecarloSimulation) {
   EXPECT_EQ(fmt::format("{}", MontecarloSimulation()), "MontecarloSimulation( )");
 }
+
+TEST(TestPrint, KFold) { EXPECT_EQ(fmt::format("{}", KFold(5, true)), "KFold( num_folds( 5 ), shuffle( true ) )"); }
+
+TEST(TestPrint, LeaveOneOut) { EXPECT_EQ(fmt::format("{}", LeaveOneOut()), "LeaveOneOut( )"); }

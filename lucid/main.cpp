@@ -7,6 +7,7 @@
  */
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <numbers>
 #include <span>
 #include <string>
@@ -387,10 +388,9 @@ int main(const int argc, char* argv[]) {
       solver = Solver::Alglib;
     } else if (std::string_view{argv[1]} == "gurobi") {  // NOLINT(whitespace/braces): standard initialisation
       solver = Solver::Gurobi;
-    } else if (std::string_view{argv[1]} == "highs") {
-      // NOLINT(whitespace/braces): standard initialisation
+    } else if (std::string_view{argv[1]} == "highs") {  // NOLINT(whitespace/braces): standard initialisation
       solver = Solver::HiGHS;
-    } else if (std::string_view{argv[1]} == "soplex") {
+    } else if (std::string_view{argv[1]} == "soplex") {  // NOLINT(whitespace/braces): standard initialisation
       solver = Solver::SOPLEX;
     } else {
       fmt::print("Usage: {} [gurobi|alglib|highs|soplex]\n", argv[0]);
