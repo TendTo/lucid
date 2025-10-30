@@ -23,7 +23,7 @@ GaussianKernel::GaussianKernel(Vector sigma_l, const double sigma_f)
       is_isotropic_{false} {
   LUCID_TRACE_FMT("({}, {})", sigma_l_, sigma_f);
   LUCID_CHECK_ARGUMENT_CMP(sigma_l_.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_EXPECTED((sigma_l_.array() > 0).all(), "sigma_l", sigma_l, "> 0.0");
+  LUCID_CHECK_ARGUMENT_CMP(sigma_l_.minCoeff(), >, 0);
   log_parameters_ << std::log(sigma_f_), sigma_l_.array().log().matrix();
 }
 GaussianKernel::GaussianKernel(const double sigma_l, const double sigma_f)

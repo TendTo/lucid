@@ -105,7 +105,38 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   /** @getter{periodic coefficients, truncated Fourier feature map} */
   [[nodiscard]] const Vector& periodic_coefficients() const { return periodic_coefficients_; }
 
-  [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
+  /**
+    * Return the periodic input domain for this linear truncated Fourier map.
+    * This uses the per-dimension @sigmal computes a dilation factor per-dimension of
+    * @f[
+    * \frac{3\sigma_l^{-1}}{2M-1}
+    * @f]
+    * where @f$ M @f$ is the number of frequencies per dimension (including the zero frequency).
+    * The resulting RectSet is anchored at the original lower bound.
+    * Graphically,
+    * @code{.unparsed}
+    *                 New w
+    *   ┌───────────────────────────────┐
+    *   │                               │
+    *   │                               │
+    *   │                               │
+    *   │                               │ N
+    *   │                               │ e
+    *   ├───────────────────────┐       │ w
+    *   │                       │       │
+    *   │                       │       │ h
+    * h │                       │       │
+    *   │                       │       │
+    *   │                       │       │
+    *   ●───────────────────────┴───────┘
+    *                w
+    * @endcode
+    * Notice how the lower bound remains fixed, while the upper bound is shifted to create the periodic domain.
+    * @param num_frequencies number of frequencies per dimension (including the zero frequency)
+    * @param sigma_l length-scale vector
+    * @return new RectSet representing the periodic input domain
+    */
+  [[nodiscard]] virtual RectSet get_periodic_x_limits(int num_frequencies, ConstVectorRef sigma_l) const = 0;
 
  protected:
   int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension

@@ -58,6 +58,8 @@ ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int
     : ConstantTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
                                          x_limits} {}
 
+RectSet ConstantTruncatedFourierFeatureMap::get_periodic_x_limits(const int, ConstVectorRef) const { return x_limits_; }
+
 std::unique_ptr<FeatureMap> ConstantTruncatedFourierFeatureMap::clone() const {
   LUCID_TRACE("Cloning");
   return std::make_unique<ConstantTruncatedFourierFeatureMap>(*this);

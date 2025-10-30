@@ -127,9 +127,4 @@ Matrix TruncatedFourierFeatureMap::apply_impl(ConstMatrixRef x) const {
   return out;
 }
 
-std::unique_ptr<FeatureMap> TruncatedFourierFeatureMap::clone() const {
-  LUCID_TRACE("Cloning");
-  return std::make_unique<TruncatedFourierFeatureMap>(*this);
-}
-
 }  // namespace lucid
