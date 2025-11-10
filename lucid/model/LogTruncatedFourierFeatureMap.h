@@ -25,6 +25,7 @@ namespace lucid {
  *  w_j^2 := \int_{(2\hat{\zeta}_j-1)\pi}^{(2\hat{\zeta}_j+1)\pi}\mathcal{N}(d\xi|0,\Sigma), 1 \le j \le M .
  * @f]
  * where @f$ \hat{\zeta}_j @f$ is a transformation of the original @f$ \zeta_j @f$.
+ * @important LogTruncatedFourierFeatureMap is deprecated. Use the LinearTruncatedFourierFeatureMap instead.
  * @see TruncatedFourierFeatureMap
  */
 class LogTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap {

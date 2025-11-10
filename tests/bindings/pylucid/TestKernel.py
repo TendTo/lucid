@@ -3,12 +3,36 @@ import sys
 import numpy as np
 import pytest
 
-from pylucid import GaussianKernel, Kernel, Parameter
+from pylucid import GaussianKernel, Kernel, Parameter, ValleePoussinKernel
 
 try:
     from sklearn.gaussian_process.kernels import RBF
 except ImportError:
     pass
+
+def vallee_poussin_kernel(z: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Vectorised Vallée–Poussin kernel.
+
+    z: array (N, dim)
+    returns array (N,)
+    """
+    z = np.atleast_2d(z)
+    N, dim = z.shape
+    coeff = 1.0 / ((b - a) ** dim)
+    print("Coeff:", coeff)
+    prod = np.ones(N)
+    for i in range(dim):
+        zi = z[:, i]
+        print("Itzi:", zi)
+        numerator = np.sin(((b + a) / 2) * zi) * np.sin(((b - a) / 2) * zi)
+        print("Numerator:", numerator)
+        denominator = np.sin(zi / 2) ** 2
+        print("Denominator:", denominator)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            fraction = np.where(denominator != 0, numerator / denominator, (b ** 2 - a ** 2))
+        prod *= fraction
+        print("Fraction:", fraction)
+    return coeff * prod
 
 
 class TestKernel:
@@ -116,3 +140,55 @@ class TestKernel:
         def test_str(self):
             k = GaussianKernel(sigma_f=2, sigma_l=[3, 4, 5])
             assert str(k).startswith("GaussianKernel")
+
+    class TestValleePoussinKernel:
+
+        def test_call_baseline(self):
+            z = np.array([[0.1, 0.2], [0.3, 0.4]])
+            a = 1.0
+            b = 2.0
+            k = ValleePoussinKernel(a=a, b=b)
+            result = k(z)
+            expected = vallee_poussin_kernel(z, a, b)
+            assert np.allclose(result, expected)
+
+        def test_singularity(self):
+            z = np.array([[0.0, 0.0], [0.0, 0.0]])
+            a = 1.0
+            b = 2.0
+            k = ValleePoussinKernel(a=a, b=b)
+            result = k(z)
+            expected = vallee_poussin_kernel(z, a, b)
+            assert np.allclose(result, expected)
+
+        def test_parameters(self):
+            k = ValleePoussinKernel(a=1.0, b=2.0)
+            assert k.get(Parameter.A) == 1.0
+            assert k.get(Parameter.B) == 2.0
+
+        def test_set_parameters(self):
+            k = ValleePoussinKernel(a=1.0, b=2.0)
+            k.set(Parameter.A, 1.5)
+            k.set(Parameter.B, 2.5)
+            assert k.get(Parameter.A) == 1.5
+            assert k.get(Parameter.B) == 2.5
+
+        def test_clone(self):
+            k = ValleePoussinKernel(a=1.0, b=2.0)
+            kc: ValleePoussinKernel = k.clone()
+            assert kc is not k
+            assert kc.get(Parameter.A) == k.get(Parameter.A)
+            assert kc.get(Parameter.B) == k.get(Parameter.B)
+
+        def test_has_parameters(self):
+            k = ValleePoussinKernel(a=1.0, b=2.0)
+            assert k.has(Parameter.A) and Parameter.A in k
+            assert k.has(Parameter.B) and Parameter.B in k
+
+        def test_parameters(self):
+            k = ValleePoussinKernel(a=1.0, b=2.0)
+            assert not (set(k.parameters) ^ {Parameter.A, Parameter.B})
+
+        def test_str(self):
+            k = ValleePoussinKernel(a=1.0, b=2.0)
+            assert str(k).startswith("ValleePoussinKernel")

@@ -249,6 +249,8 @@ void init_model(py::module_ &m) {
 
   /**************************** Parameters ****************************/
   py::enum_<Parameter>(m, "Parameter", _Parameter)
+      .value("A", Parameter::A, Parameter_A)
+      .value("B", Parameter::B, Parameter_B)
       .value("DEGREE", Parameter::DEGREE, Parameter_DEGREE)
       .value("SIGMA_L", Parameter::SIGMA_L, Parameter_SIGMA_L)
       .value("SIGMA_F", Parameter::SIGMA_F, Parameter_SIGMA_F)
@@ -464,6 +466,10 @@ void init_model(py::module_ &m) {
       .def_property_readonly("is_isotropic", &GaussianKernel::is_isotropic, GaussianKernel_is_isotropic)
       .def_property_readonly("sigma_f", &GaussianKernel::sigma_f, GaussianKernel_sigma_f)
       .def_property_readonly("sigma_l", &GaussianKernel::sigma_l, GaussianKernel_sigma_l);
+  py::class_<ValleePoussinKernel, Kernel>(m, "ValleePoussinKernel", ValleePoussinKernel_)
+      .def(py::init<double, double>(), py::arg("a") = 1.0, py::arg("b") = 1.0, ValleePoussinKernel_ValleePoussinKernel)
+      .def_property_readonly("a", &ValleePoussinKernel::a, ValleePoussinKernel_a)
+      .def_property_readonly("b", &ValleePoussinKernel::b, ValleePoussinKernel_b);
 
   /**************************** FeatureMap ****************************/
   py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap", FeatureMap_)

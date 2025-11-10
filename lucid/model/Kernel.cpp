@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "lucid/model/GaussianKernel.h"
+#include "lucid/model/ValleePoussinKernel.h"
 #include "lucid/util/Stats.h"
 #include "lucid/util/Timer.h"
 
@@ -24,6 +25,7 @@ Matrix Kernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matr
 
 std::ostream& operator<<(std::ostream& os, const Kernel& kernel) {
   if (const auto* casted = dynamic_cast<const GaussianKernel*>(&kernel)) return os << *casted;
+  if (const auto* casted = dynamic_cast<const ValleePoussinKernel*>(&kernel)) return os << *casted;
   return os << "Kernel( )";
 }
 

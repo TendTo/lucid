@@ -50,6 +50,7 @@ namespace lucid {
  *  ]
  * }
  * @endplot
+ * @important LogTruncatedFourierFeatureMap is deprecated. Use the LinearTruncatedFourierFeatureMap instead.
  * @see TruncatedFourierFeatureMap
  */
 class ConstantTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap {

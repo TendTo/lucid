@@ -30,6 +30,7 @@ using lucid::PolytopeSet;
 using lucid::RectSet;
 using lucid::Request;
 using lucid::SphereSet;
+using lucid::ValleePoussinKernel;
 using lucid::Vector;
 
 TEST(TestPrint, Request) {
@@ -146,6 +147,11 @@ TEST(TestPrint, GaussianKernelAnisotropic) {
   const GaussianKernel kernel{sigma_l, 2.01};
   EXPECT_EQ(fmt::format("{}", kernel),
             "GaussianKernel( sigma_l(  3.2  5.1  3.4 1.24 ) sigma_f( 2.01 ) isotropic( 0 ) )");
+}
+
+TEST(TestPrint, Valle) {
+  const ValleePoussinKernel kernel{10, 2.5};
+  EXPECT_EQ(fmt::format("{}", kernel), "ValleePoussinKernel( a( 10 ) b( 2.5 ) )");
 }
 
 TEST(TestPrint, GramMatrix) {

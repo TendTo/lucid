@@ -13,7 +13,7 @@ readonly regex_substitute_math='\2\\f$\3'
 readonly regex_match_slash_curly_math='([^\])\\(\{|\})'
 readonly regex_substitute_slash_curly_math='\1\\\\\2'
 
-readonly regex_match_code_block='```'
+readonly regex_match_code_block='^```'
 readonly regex_substitute_code_block='\d30'
 
 readonly regex_match_tab_tag='\[\/\/\]: # "@tab"'

@@ -90,3 +90,8 @@ lucid_cc_googletest(
     name = "test_gaussian_kernel",
     deps = ["//lucid/model:kernel"],
 )
+
+lucid_cc_googletest(
+    name = "test_vallee_poussin_kernel",
+    deps = ["//lucid/model:kernel"],
+)

@@ -52,7 +52,9 @@ ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int
                                                                        ConstVectorRef sigma_l, const Scalar sigma_f,
                                                                        const RectSet& X_bounds)
     : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l),
-                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, X_bounds} {}
+                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, X_bounds} {
+  LUCID_WARN("ConstantTruncatedFourierFeatureMap is deprecated. Use the LinearTruncatedFourierFeatureMap instead");
+}
 ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
                                                                        const Scalar sigma_f, const RectSet& X_bounds)
     : ConstantTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(X_bounds.dimension(), sigma_l), sigma_f,

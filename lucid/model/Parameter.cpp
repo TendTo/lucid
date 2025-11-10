@@ -25,6 +25,10 @@ std::ostream& operator<<(std::ostream& os, const Parameter name) {
       return os << "Parameter( Degree )";
     case Parameter::GRADIENT_OPTIMIZABLE:
       return os << "Parameter( GradientOptimizable )";
+    case Parameter::A:
+      return os << "Parameter( A )";
+    case Parameter::B:
+      return os << "Parameter( B )";
     default:
       LUCID_UNREACHABLE();
   }

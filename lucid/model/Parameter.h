@@ -41,6 +41,8 @@ enum class Parameter : std::uint16_t {
   REGULARIZATION_CONSTANT = 1 << 2,  ///< Regularization constant parameter
   DEGREE = 1 << 3,                   ///< Degree of the polynomial
   GRADIENT_OPTIMIZABLE = 1 << 4,     ///< Gradient optimizable parameter
+  A = 1 << 5,                        ///< 'a' parameter
+  B = 1 << 6,                        ///< 'b' parameter
 };
 
 using HP = Parameter;                                                       ///< Alias for HyperParameter
@@ -79,6 +81,10 @@ template <>
 struct ParameterType<Parameter::DEGREE> : ParameterTypeInt {};
 template <>
 struct ParameterType<Parameter::GRADIENT_OPTIMIZABLE> : ParameterTypeVector {};
+template <>
+struct ParameterType<Parameter::A> : ParameterTypeDouble {};
+template <>
+struct ParameterType<Parameter::B> : ParameterTypeDouble {};
 
 }  // namespace internal
 
@@ -119,6 +125,8 @@ R dispatch(const Parameter parameter, const std::function<R()>& fun_int, const s
   switch (parameter) {
     case Parameter::DEGREE:
       return dispatch<R, Parameter::DEGREE>(fun_int, fun_double, fun_vector);
+    case Parameter::A:
+    case Parameter::B:
     case Parameter::SIGMA_F:
     case Parameter::REGULARIZATION_CONSTANT:
       return dispatch<R, Parameter::SIGMA_F>(fun_int, fun_double, fun_vector);

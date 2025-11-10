@@ -35,3 +35,4 @@
 #include "lucid/model/SphereSet.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 #include "lucid/model/Tuner.h"
+#include "lucid/model/ValleePoussinKernel.h"

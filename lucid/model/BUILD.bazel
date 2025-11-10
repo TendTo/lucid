@@ -57,10 +57,12 @@ lucid_cc_library(
     srcs = [
         "GaussianKernel.cpp",
         "Kernel.cpp",
+        "ValleePoussinKernel.cpp",
     ],
     hdrs = [
         "GaussianKernel.h",
         "Kernel.h",
+        "ValleePoussinKernel.h",
     ],
     implementation_deps = [
         "//lucid/util:error",

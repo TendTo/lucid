@@ -28,6 +28,7 @@ doxygen(
         "X=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} @f$",
         "Xu=@f$ \\texttip{\\mathcal{X}}{Usafe set}_u @f$",
         "X0=@f$ \\texttip{\\mathcal{X}}{Initial set}_0 @f$",
+        "XsubRn=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^n @f$",
         "XsubRd=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^d @f$",
         "XsubRdx=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^{d_x} @f$",
         "YsubRdy=@f$ \\texttip{\\mathcal{Y}}{Polish sample vector space} \\subseteq \\mathbb{R}^{d_y} @f$",
