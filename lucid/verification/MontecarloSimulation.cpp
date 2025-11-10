@@ -7,6 +7,7 @@
 #include "lucid/verification/MontecarloSimulation.h"
 
 #include <algorithm>
+#include <execution>
 #include <ostream>
 #include <utility>
 
@@ -37,22 +38,23 @@ std::pair<double, double> MontecarloSimulation::safety_probability(
   }
 #endif
 
-  Matrix samples{X_init.sample(num_samples)};
-  // Start by assuming all points lead to a safe trajectory
-  Eigen::VectorX<bool> satisf{Eigen::VectorX<bool>::Constant(samples.rows(), true)};
-#pragma omp parallel for
-  for (Index i = 0; i < samples.rows(); ++i) {
-    Vector next_step = samples.row(i);
+  const Matrix samples{X_init.sample(num_samples)};
+  // Count the number of safe trajectories
+  std::size_t satisf_count = 0;
+  for (auto& row : samples.rowwise()) {
+    Vector state = row;
+    bool is_safe = true;
     for (std::size_t j = 0; j < time_horizon; ++j) {
-      next_step = system_dynamics(next_step);
-      if (X_unsafe.contains(next_step)) {
-        satisf(i) = false;  // unsafe trajectory, mark it as unsafe and exit
+      state = system_dynamics(state);
+      if (X_unsafe.contains(state)) {
+        is_safe = false;  // Unsafe trajectory detected
         break;
       }
-      if (!X_bounds.contains(next_step)) break;
+      if (!X_bounds.contains(state)) break;  // Out of bounds is safe
     }
+    satisf_count += is_safe ? 1 : 0;
   }
-  const double sat_prob_mc = static_cast<double>(satisf.count()) / static_cast<double>(num_samples);
+  const double sat_prob_mc = static_cast<double>(satisf_count) / static_cast<double>(num_samples);
   const double err = std::sqrt(1 / (4 * static_cast<double>(num_samples) * (1 - confidence_level)));
   return {std::max(sat_prob_mc - err, 0.0), std::min(sat_prob_mc + err, 1.0)};
 }
