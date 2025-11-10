@@ -15,6 +15,7 @@
 #include "lucid/verification/AlglibOptimiser.h"
 #include "lucid/verification/GurobiOptimiser.h"
 #include "lucid/verification/HighsOptimiser.h"
+#include "lucid/verification/SoplexOptimiser.h"
 
 namespace lucid {
 
@@ -23,20 +24,15 @@ bool FourierBarrierCertificate::synthesize(ConstMatrixRef fx_lattice, ConstMatri
                                            const TruncatedFourierFeatureMap& feature_map,
                                            const Dimension num_frequency_samples_per_dim, const double C_coeff,
                                            const double epsilon, const double target_norm, const double b_kappa) {
-  if constexpr (constants::GUROBI_BUILD) {
-    return synthesize(GurobiOptimiser{}, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, feature_map,
-                      num_frequency_samples_per_dim, C_coeff, epsilon, target_norm, b_kappa);
-  }
-  if constexpr (constants::HIGHS_BUILD) {
-    return synthesize(HighsOptimiser{}, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, feature_map,
-                      num_frequency_samples_per_dim, C_coeff, epsilon, target_norm, b_kappa);
-  }
-  if constexpr (constants::ALGLIB_BUILD) {
-    return synthesize(AlglibOptimiser{}, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, feature_map,
-                      num_frequency_samples_per_dim, C_coeff, epsilon, target_norm, b_kappa);
-  }
-  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("synthesize", "Gurobi, HiGHS or Alglib.");
+  using DefaultOptimiser =
+      std::conditional_t<constants::GUROBI_BUILD, GurobiOptimiser,                                        //
+                         std::conditional_t<constants::HIGHS_BUILD, HighsOptimiser,                       //
+                                            std::conditional_t<constants::ALGLIB_BUILD, AlglibOptimiser,  //
+                                                               SoplexOptimiser>>>;
+  return synthesize(DefaultOptimiser{}, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, feature_map,
+                    num_frequency_samples_per_dim, C_coeff, epsilon, target_norm, b_kappa);
 }
+
 bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatrixRef fx_lattice,
                                            ConstMatrixRef fxp_lattice, ConstMatrixRef fx0_lattice,
                                            ConstMatrixRef fxu_lattice, const TruncatedFourierFeatureMap& feature_map,
