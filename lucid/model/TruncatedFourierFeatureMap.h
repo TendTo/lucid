@@ -32,9 +32,7 @@ namespace lucid {
  * \sqrt{2}w_{M}\sin(\omega_{M}^{\top}P(x))
  * \end{bmatrix},
  * @f]
- * where @f$ \omega_j := 2\pi\zeta_{j}\ \in \mathbb{R}^d @f$, @f$ 1 \leq j \leq M @f$ with multi-index
- * @f$ \zeta_{j} \in \mathbb{N}_{\ge 0}^d @f$ and weights @f$ w_j \in \mathbb{R} @f$.
- * The way the weights are computed depends on the subclass.
+ * The way the weights and omegas are computed depends on the subclass.
  */
 class TruncatedFourierFeatureMap : public FeatureMap {
  public:
@@ -107,29 +105,28 @@ class TruncatedFourierFeatureMap : public FeatureMap {
 
   /**
    * Return the periodic input domain for this linear truncated Fourier map.
-   * This uses the per-dimension @sigmal computes a dilation factor per-dimension of
+   * We want to find a space such that the smallest frequency is able to complete a full period.
+   * Given that frequencies are defined as @f$ \omega P(x) @f$,
+   * where @f$ P(x) @f$ is the projection to the unit hypercube of the original domain,
+   * we want to find the upper bound of the periodic domain @f$ \bar{x} @f$ such that
    * @f[
-   * \frac{6\sigma_l^{-1}}{2M-1}
+   * \omega P(\bar{x}) = 2\pi
    * @f]
-   * where @f$ M @f$ is the number of frequencies per dimension (including the zero frequency).
-   * Then, the input domain size is normalized by this factor and extended to be between @f$ [0, 2\pi] @f$.
-   * The resulting RectSet is anchored at the original lower bound.
+   * for the smallest @f$ \omega @f$.
    * Graphically,
    * @code{.unparsed}
-   *                 New w
-   *   ┌───────────────────────────────┐
+   *                                New max (x̄)
+   *   ┌───────────────────────────────●
    *   │                               │
    *   │                               │
-   *   │                               │ N
-   *   │                               │ e
-   *   ├───────────────────────┐       │ w
-   *   │                       │       │
-   *   │                       │       │ h
-   * h │                       │       │
+   *   │                     Old max   │
+   *   ├───────────────────────●       │
    *   │                       │       │
    *   │                       │       │
+   *   │                       │       │
+   *   │                       │       │
+   *   │ Min                   │       │
    *   ●───────────────────────┴───────┘
-   *                w
    * @endcode
    * Notice how the lower bound remains fixed, while the upper bound is shifted to create the periodic domain.
    * @note The periodic domain could be smaller than the original domain, depending on the values of @f$ \sigma_l @f$.

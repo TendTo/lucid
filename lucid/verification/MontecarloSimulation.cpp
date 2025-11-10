@@ -7,7 +7,6 @@
 #include "lucid/verification/MontecarloSimulation.h"
 
 #include <algorithm>
-#include <execution>
 #include <ostream>
 #include <utility>
 

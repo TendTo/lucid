@@ -19,16 +19,22 @@ namespace lucid {
 /**
  * Truncated Fourier feature map using same-sized intervals between each interval of the normal distribution,
  * from the origin to 3 standard deviations on each side.
- * The weights are computed from the n-dimensional cumulative distribution function
+ * Recall the structure of the feature map
+ * @phiMx_extended
+ * After defining the quantity @f$ \vartheta = 6 \sigma_l^{-1} / (2M-1) @f$,
+ * we compute the the @f$ \omega_j @f$ as
+ * @f[
+ * \omega_j = \text{diag}(\zeta_j) \cdot \vartheta, \quad 1 \le j \le M ,
+ * @f]
+ * and the weights from the n-dimensional cumulative distribution function
  * of the normal distribution with standard deviation @f$ \sigma_l^{-1} @f$, i.e.
  * @f[
- *  w_j^2 := \int_{(2\hat{\zeta}_j-1)\pi}^{(2\hat{\zeta}_j+1)\pi}\mathcal{N}(d\xi|0,\Sigma), 1 \le j \le M .
+ *  w_j^2 = \int_{\omega_j - \vartheta/2}^{\omega_j + \vartheta/2}\mathcal{N}(d\xi|0,\Sigma^{-1}), \quad 0 \le j \le M .
  * @f]
- * where @f$ \hat{\zeta}_j @f$ is a linear transformation of the original @f$ \zeta_j @f$
- * and @f$ \Sigma = \text{diag}(\sigma_l^{-2}) @f$.
- * For example, with @f$ \sigma_l^{-1} = 3 @f$ and @f$ 4 @f$ frequencies, including the @f$ 0 @f$ frequency,
- * we split the normal distribution into 4 intervals on each side of the origin.
- * The plot only shows the positive side, as the negative side is symmetric.
+ * where @f$ \zeta_j \in \mathbb{N}^n_{\ge 0}@f$ is a multi-index vector and @f$ \Sigma = \text{diag}(\sigma_l)^2 @f$.
+ * For example, let @f$ \sigma_l^{-1} = 3 @f$ and @f$ M = 4 @f$ frequencies.
+ * We split the normal distribution into 4 intervals on each side of the origin, as shown in the plot below.
+ * We only highlight the positive side, as the negative side is symmetric.
  * Then, we sum each interval with its symmetric counterpart to get the weights.
  * @plot
  * {
@@ -70,6 +76,44 @@ class LinearTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 
+  /**
+   * Return the periodic input domain for this linear truncated Fourier map.
+   * Given a linear truncated feature map @phiMx, its smallest frequency is
+   * @f[
+   * \frac{6\sigma_l^{-1}}{2M-1} P(x) ,
+   * @f]
+   * where @f$ P(x) @f$ is the projection to the unit hypercube of the original domain and
+   * @f$ M @f$ is the number of frequencies per dimension (including the zero frequency).
+   * We want to find the upper bound of the periodic domain @f$ \bar{x} @f$ such that
+   * @f[
+   * \frac{6\sigma_l^{-1}}{2M-1} P(\bar{x}) = 2\pi .
+   * @f]
+   * Since @f$ P(x) = \frac{x - x_{min}}{x_{max} - x_{min}} @f$, we have that
+   * @f[
+   * \bar{x} = x_{min} + 2\pi \frac{2M-1}{6\sigma_l^{-1}} (x_{max} - x_{min}) .
+   * @f]
+   * Graphically,
+   * @code{.unparsed}
+   *                                New max (x̄)
+   *   ┌───────────────────────────────●
+   *   │                               │
+   *   │                               │
+   *   │                     Old max   │
+   *   ├───────────────────────●       │
+   *   │                       │       │
+   *   │                       │       │
+   *   │                       │       │
+   *   │                       │       │
+   *   │ Min                   │       │
+   *   ●───────────────────────┴───────┘
+   * @endcode
+   * Notice how the lower bound remains fixed, while the upper bound is shifted to create the periodic domain.
+   * @note The periodic domain could be smaller than the original domain, depending on the values of @f$ \sigma_l @f$.
+   * @pre @sigmal must have the same dimension as the input space.
+   * @pre All values in @sigmal must be greater than 0.
+   * @param sigma_l length-scale vector @sigmal
+   * @return new RectSet representing the periodic input domain
+   */
   [[nodiscard]] RectSet get_periodic_set(ConstVectorRef sigma_l) const override;
 };
 

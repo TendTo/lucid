@@ -86,9 +86,9 @@ RectSet LinearTruncatedFourierFeatureMap::get_periodic_set(ConstVectorRef sigma_
   // Divide the space of size 3 * sigma_l^{-1} into (2 * num_frequencies - 1) intervals.
   // Each interval will be normalized by double the dilation factor, and then extended to be between [0, 2pi].
   const double denom = static_cast<double>(num_frequencies_per_dimension_) - 0.5;
-  const Vector dilation = (3.0 * sigma_l.cwiseInverse() / denom).matrix();
+  const auto dilation = 3.0 * sigma_l.cwiseInverse() / denom;
 
-  const Vector lengths = X_bounds_.upper_bound() - X_bounds_.lower_bound();
+  const auto lengths = X_bounds_.upper_bound() - X_bounds_.lower_bound();
   LUCID_ASSERT(lengths.minCoeff() >= 0, "upper >= lower");
 
   const Vector new_upper = X_bounds_.lower_bound() + 2 * std::numbers::pi * lengths.cwiseQuotient(dilation);

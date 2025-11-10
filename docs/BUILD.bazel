@@ -59,6 +59,8 @@ doxygen(
         "theta=@f$ \\theta @f$",
         "eta=@f$ \\eta @f$",
         "epsilon=@f$ \\epsilon @f$",
+        "phiMx=@f$ \\texttip{\\phi_M(x)}{Feature map considering M frequencies, including the 0th frequency} @f$",
+        "phiMx_extended=@f[ \\phi_{M}(x) = \\sigma_{f}\\begin{bmatrix} w_{0}\\\\ \\sqrt{2}w_{1}\\cos(\\omega_{1}^{\\top}P(x))\\\\ \\sqrt{2}w_{1}\\sin(\\omega_{1}^{\\top}P(x))\\\\ \\vdots\\\\ \\sqrt{2}w_{M}\\cos(\\omega_{M}^{\\top}P(x))\\\\ \\sqrt{2}w_{M}\\sin(\\omega_{M}^{\\top}P(x)) \\end{bmatrix} @f]",
         # Method descriptors
         "constructor{1}=Construct a new \\1 object.^^",
         "getter{2}=Get read-only access to the \\1 of the \\2.^^@return \\1 of the \\2^^",
