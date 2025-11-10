@@ -31,9 +31,11 @@ class MontecarloSimulation {
 
   /**
    * Compute the safety probability with a confidence interval using Monte Carlo simulation.
-   * The method samples initial states from the initial set, simulates the system dynamics,
-   * and computes the fraction of samples that do not enter the unsafe set during the simulation.
-   * The confidence interval is computed using the Chebychev inequality.
+   * The method samples initial states from the initial set @X0, simulates the system dynamics up to the given
+   * `time_horizon` and computes the fraction of samples whose trajectories do not enter the unsafe set @Xu.
+   * Note that a trajectory leaving the bounds of the state space is immediately considered safe.
+   * The confidence interval is computed using
+   * the [Chebychev inequality](https://en.wikipedia.org/wiki/Chebyshev%27s_inequality).
    * Let @f$ X @f$ be a random variable drawn from a Bernoulli distribution with probability @f$ p @f$,
    * i.e., @f$ X \sim \text{Bernoulli}(p) @f$.
    * It follows that the expected value of @f$ X @f$ is @f$ \mathbb{E}[X] = p @f$.
@@ -47,15 +49,16 @@ class MontecarloSimulation {
    * @f]
    * where @f$ \hat{X} = \frac{1}{n} \sum_{i=1}^{n} X_i @f$ is the sample mean, @f$ n @f$ is the number of samples,
    * @f$ \varepsilon @f$ is the error, and @f$ \alpha @f$ is the confidence level.
-   * Hence, having fixed @f$ \alpha, n @f$ we can obtain the error bound
+   * Hence, having fixed @f$ \alpha @f$ and @f$ n @f$, we can obtain the error bound
    * @f[
    * \varepsilon = \sqrt{\frac{1}{4 n (1 - \alpha)}} ,
    * @f]
    * so that the interval @f$ [\hat{X} - \varepsilon, \hat{X} + \varepsilon] @f$ contains the true safety probability
    * with confidence level @f$ \alpha @f$.
-   * @pre `confidence_level` must be in the range [0, 1].
+   * @pre `confidence_level` must be in the range @f$ [0, 1) @f$.
    * @pre `num_samples` must be greater than 0.
    * @pre `X_bounds`, `X_init`, and `X_unsafe` must have the same dimension.
+   * @pre `time_horizon` must be greater than 0.
    * @note Trajectories that leave the bounds of the state space are considered safe.
    * @param X_bounds set representing the bounds of the state space
    * @param X_init set representing the initial states

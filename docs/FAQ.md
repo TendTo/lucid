@@ -13,6 +13,12 @@ Pylucid is a Python wrapper for the Lucid library, providing an easy-to-use comm
 
 ## Troubleshooting
 
+#### Getting `LucidInvalidArgumentException`
+
+This error indicates that one or more of the arguments provided to a Lucid function are invalid.
+The message accompanying the exception should provide more details about which argument is causing the problem and why.
+Also, try checking the documentation of the function being called and ensure the preconditions on the arguments are met.
+
 #### ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.35' not found
 
 This error occurs if the `libc` version on your Linux system is too old.

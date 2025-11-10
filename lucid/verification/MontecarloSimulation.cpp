@@ -22,8 +22,9 @@ std::pair<double, double> MontecarloSimulation::safety_probability(
   LUCID_TRACE_FMT("({}, {}, {}, <func>, {}, {}, {})", X_bounds, X_init, X_unsafe, time_horizon, confidence_level,
                   num_samples);
   LUCID_CHECK_ARGUMENT_CMP(confidence_level, >=, 0.0);
-  LUCID_CHECK_ARGUMENT_CMP(confidence_level, <=, 1.0);
+  LUCID_CHECK_ARGUMENT_CMP(confidence_level, <, 1.0);
   LUCID_CHECK_ARGUMENT_CMP(num_samples, >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(time_horizon, >, 0);
   LUCID_CHECK_ARGUMENT_CMP(X_bounds.dimension(), ==, X_init.dimension());
   LUCID_CHECK_ARGUMENT_CMP(X_bounds.dimension(), ==, X_unsafe.dimension());
 
@@ -42,7 +43,7 @@ std::pair<double, double> MontecarloSimulation::safety_probability(
 #pragma omp parallel for
   for (Index i = 0; i < samples.rows(); ++i) {
     Vector next_step = samples.row(i);
-    for (std::size_t j = 1; j < time_horizon; ++j) {
+    for (std::size_t j = 0; j < time_horizon; ++j) {
       next_step = system_dynamics(next_step);
       if (X_unsafe.contains(next_step)) {
         satisf(i) = false;  // unsafe trajectory, mark it as unsafe and exit

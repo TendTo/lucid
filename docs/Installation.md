@@ -127,14 +127,14 @@ bazel run //lucid -- [args]
 Lucid comes with a few predefined build configuration for the most common use cases.
 Just add the `--config` flag followed by the desired configuration when running Bazel.
 
-| Configuration | Optimized | Debug | Assertions | Input checks | Logging | Verbose Eigen | Parallelized (OMP) | Used for              |
-| ------------- | --------- | ----- | ---------- | ------------ | ------- | ------------- | ------------------ | --------------------- |
-| **default**   | ?         | ?     | Yes        | Yes          | Yes     | No            | No                 | Default build         |
-| `dbg`         | No        | Yes   | Yes        | Yes          | Yes     | Yes           | No                 | Testing and debugging |
-| `snt`         | No        | Yes   | Yes        | Yes          | Yes     | No            | No                 | Memory sanitization   |
-| `opt`         | Yes       | No    | No         | Yes          | Yes     | No            | Yes                | Production            |
-| `py`          | Yes       | No    | No         | Yes          | Yes     | No            | Yes                | Python bindings       |
-| `bench`       | Yes       | No    | No         | No           | No      | No            | Yes                | Benchmarking          |
+| Configuration | Type    | Assertions | Input checks | Logging | Verbose Eigen | Parallelized (OMP) | Used for              |
+| ------------- | ------- | ---------- | ------------ | ------- | ------------- | ------------------ | --------------------- |
+| **default**   | ?       | Yes        | Yes          | Yes     | No            | No                 | Default build         |
+| `dbg`         | Debug   | Yes        | Yes          | Yes     | Yes           | No                 | Testing and debugging |
+| `snt`         | Debug   | Yes        | Yes          | Yes     | No            | No                 | Memory sanitization   |
+| `opt`         | Release | No         | Yes          | Yes     | No            | Yes                | Production            |
+| `py`          | Release | No         | Yes          | Yes     | No            | Yes                | Python bindings       |
+| `bench`       | Release | No         | No           | No      | No            | Yes                | Benchmarking          |
 
 For example, to build Lucid with the `opt` configuration, you can run:
 
@@ -145,21 +145,23 @@ bazel build --config=opt //lucid
 
 If you want even more fine-grained control over the build, you can also use the following flags or even add more custom compiler flags.
 
-| Flag                                   | Description                                                 |
-|----------------------------------------|-------------------------------------------------------------|
-| `enable_static_build`                  | Build Lucid as a static library. Defaults to `False`.       |
-| `enable_dynamic_build`                 | Build Lucid as a dynamic library. Defaults to `False`.      |
-| `enable_python_build`                  | Build Lucid with Python bindings. Defaults to `False`.      |
-| `enable_omp_build`                     | Build Lucid with OpenMP support. Defaults to `False`.       |
-| `enable_benchmark_build`               | Build Lucid with benchmarking support. Defaults to `False`. |
-| `enable_matplotlib_build`              | Build Lucid with Matplotlib support. Defaults to `False`.   |
-| `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.        |
-| `enable_alglib_build`                  | Build Lucid with ALGLIB support. Defaults to `True`.        |
-| `enable_highs_build`                   | Build Lucid with HiGHS support. Defaults to `True`.         |
-| `enable_soplx_build`                   | Build Lucid with SoPlex support. Defaults to `True`.        |
-| `enable_verbose_eigen_build`           | Enable verbose logging for Eigen. Defaults to `False`.      |
-| `python_version`                       | Specify the Python version to use for the Python bindings.  |
-| `compilation_mode=[fastbuild,dbg,opt]` | Use Bazel's compilation modes. Default to `fastbuild`.      |
+| Flag                                   | Description                                                             |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `enable_static_build`                  | Build Lucid as a static library. Defaults to `False`.                   |
+| `enable_dynamic_build`                 | Build Lucid as a dynamic library. Defaults to `False`.                  |
+| `enable_python_build`                  | Build Lucid with Python bindings. Defaults to `False`.                  |
+| `enable_omp_build`                     | Build Lucid with OpenMP support. Defaults to `False`.                   |
+| `enable_benchmark_build`               | Build Lucid optimised for benchmarks. Defaults to `False`.              |
+| `enable_matplotlib_build`              | Build Lucid with Matplotlib support. Defaults to `False`.               |
+| `enable_gurobi_build`                  | Build Lucid with Gurobi support. Defaults to `True`.                    |
+| `enable_alglib_build`                  | Build Lucid with ALGLIB support. Defaults to `True`.                    |
+| `enable_highs_build`                   | Build Lucid with HiGHS support. Defaults to `True`.                     |
+| `enable_soplex_build`                  | Build Lucid with SoPlex support. Defaults to `True`.                    |
+| `enable_psocpp_build`                  | Build Lucid with PSOCPP support. Defaults to `True`.                    |
+| `enable_verbose_eigen_build`           | Enable verbose logging for Eigen. Defaults to `False`.                  |
+| `python_version`                       | Specify the Python version to use for the Python bindings.              |
+| `enable_cuda_build`                    | Build Lucid dependencies with CUDA support. Defaults to their defaults. |
+| `compilation_mode=[fastbuild,dbg,opt]` | Use Bazel's compilation modes. Default to `fastbuild`.                  |
 
 Example of a build command with custom flags.
 Some combination of these flags may not be compatible with each other.
