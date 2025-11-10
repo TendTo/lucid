@@ -59,28 +59,28 @@ Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
 }  // namespace
 
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, ConstVectorRef sigma_l,
-                                                                   const Scalar sigma_f, const RectSet& x_limits)
+                                                                   const Scalar sigma_f, const RectSet& X_bounds)
     : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l),
-                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, x_limits} {}
+                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, X_bounds} {}
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
-                                                                   const Scalar sigma_f, const RectSet& x_limits)
-    : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
-                                       x_limits} {}
+                                                                   const Scalar sigma_f, const RectSet& X_bounds)
+    : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(X_bounds.dimension(), sigma_l), sigma_f,
+                                       X_bounds} {}
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, ConstVectorRef sigma_l,
-                                                                   const Scalar sigma_f, const RectSet& x_limits, bool)
+                                                                   const Scalar sigma_f, const RectSet& X_bounds, bool)
     : TruncatedFourierFeatureMap{num_frequencies,
                                  get_prob_per_dim(num_frequencies, sigma_l),
                                  get_omega_per_dim(num_frequencies, sigma_l),
                                  sigma_f,
-                                 x_limits,
+                                 X_bounds,
                                  true} {}
 LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
-                                                                   const Scalar sigma_f, const RectSet& x_limits, bool)
-    : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(x_limits.dimension(), sigma_l), sigma_f,
-                                       x_limits, true} {}
+                                                                   const Scalar sigma_f, const RectSet& X_bounds, bool)
+    : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(X_bounds.dimension(), sigma_l), sigma_f,
+                                       X_bounds, true} {}
 
 RectSet LinearTruncatedFourierFeatureMap::get_periodic_set(ConstVectorRef sigma_l) const {
-  LUCID_CHECK_ARGUMENT_EQ(sigma_l.size(), x_limits_.dimension());
+  LUCID_CHECK_ARGUMENT_EQ(sigma_l.size(), X_bounds_.dimension());
   LUCID_CHECK_ARGUMENT_CMP(sigma_l.minCoeff(), >, 0);
 
   // Divide the space of size 3 * sigma_l^{-1} into (2 * num_frequencies - 1) intervals.
@@ -88,11 +88,11 @@ RectSet LinearTruncatedFourierFeatureMap::get_periodic_set(ConstVectorRef sigma_
   const double denom = static_cast<double>(num_frequencies_per_dimension_) - 0.5;
   const Vector dilation = (3.0 * sigma_l.cwiseInverse() / denom).matrix();
 
-  const Vector lengths = x_limits_.upper_bound() - x_limits_.lower_bound();
+  const Vector lengths = X_bounds_.upper_bound() - X_bounds_.lower_bound();
   LUCID_ASSERT(lengths.minCoeff() >= 0, "upper >= lower");
 
-  const Vector new_upper = x_limits_.lower_bound() + 2 * std::numbers::pi * lengths.cwiseQuotient(dilation);
-  return {x_limits_.lower_bound(), new_upper};
+  const Vector new_upper = X_bounds_.lower_bound() + 2 * std::numbers::pi * lengths.cwiseQuotient(dilation);
+  return {X_bounds_.lower_bound(), new_upper};
 }
 
 std::unique_ptr<FeatureMap> LinearTruncatedFourierFeatureMap::clone() const {

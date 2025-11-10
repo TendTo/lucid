@@ -26,7 +26,7 @@ namespace lucid {
 namespace {
 
 struct Null {};
-const RectSet x_limits_empty{{0}, {1}};  ///< Default empty limits for the input space
+const RectSet X_bounds_empty{{0}, {1}};  ///< Default empty limits for the input space
 
 /**
  * Utility class to perform grid search tuning on an Estimator in parallel.
@@ -53,13 +53,13 @@ class GridSearchTuning {
    * @param it index interator going over all combinations of parameter values
    * @param best_score current best score found
    * @param num_frequencies number of frequencies to use in the estimator
-   * @param x_limits limits of the input space for the estimator
+   * @param X_bounds limits of the input space for the estimator
    */
   GridSearchTuning(std::mutex& index_mutex, std::mutex& score_mutex, Estimator& estimator,
                    const std::vector<ParameterValues>& parameters, ConstMatrixRef training_inputs,
                    const OutputComputer& training_outputs, std::vector<Index>& best_parameters_indices,
                    IndexIterator<std::vector<Index>>& it, double& best_score, const int num_frequencies,
-                   const RectSet& x_limits)
+                   const RectSet& X_bounds)
       : index_mutex_{index_mutex},
         score_mutex_{score_mutex},
         estimator_{estimator},
@@ -71,7 +71,7 @@ class GridSearchTuning {
         best_score_{best_score},
         current_parameters_indices_{},
         num_frequencies_{num_frequencies},
-        x_limits_{x_limits} {}
+        X_bounds_{X_bounds} {}
 
   /**
    * Launch the tuning process.
@@ -102,7 +102,7 @@ class GridSearchTuning {
         score = estimator_.score(training_inputs_, training_outputs);
       } else {
         T feature_map{num_frequencies_, estimator_.get<Parameter::SIGMA_L>(), estimator_.get<Parameter::SIGMA_F>(),
-                      x_limits_};
+                      X_bounds_};
         Matrix training_outputs{feature_map(training_outputs_(estimator_, training_inputs_))};
         estimator_.consolidate(training_inputs_, training_outputs);
         score = estimator_.score(training_inputs_, training_outputs);
@@ -161,7 +161,7 @@ class GridSearchTuning {
   double& best_score_;  ///< Best score achieved during the tuning process, initialized to a very low value
   std::vector<Index> current_parameters_indices_;  ///< Current parameter indices being tested
   int num_frequencies_;                            ///< Number of frequencies for the estimator, if applicable
-  const RectSet& x_limits_;                        ///< Limits of the input space for the estimator, if applicable
+  const RectSet& X_bounds_;                        ///< Limits of the input space for the estimator, if applicable
 };
 
 }  // namespace
@@ -180,29 +180,29 @@ GridSearchTuner::GridSearchTuner(std::vector<ParameterValues> parameters, const 
 
 void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                 const OutputComputer& training_outputs) const {
-  tune_impl<Null>(estimator, training_inputs, training_outputs, 0, x_limits_empty);
+  tune_impl<Null>(estimator, training_inputs, training_outputs, 0, X_bounds_empty);
 }
 
 template <
     IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
 void GridSearchTuner::tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
-                           int num_frequencies, const RectSet& x_limits) const {
+                           int num_frequencies, const RectSet& X_bounds) const {
   tune_impl<T>(
       estimator, training_inputs, [training_outputs](const Estimator&, ConstMatrixRef) { return training_outputs; },
-      num_frequencies, x_limits);
+      num_frequencies, X_bounds);
 }
 template <
     IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
 void GridSearchTuner::tune_online(Estimator& estimator, ConstMatrixRef training_inputs,
                                   const OutputComputer& training_outputs, const int num_frequencies,
-                                  const RectSet& x_limits) const {
-  tune_impl<T>(estimator, training_inputs, training_outputs, num_frequencies, x_limits);
+                                  const RectSet& X_bounds) const {
+  tune_impl<T>(estimator, training_inputs, training_outputs, num_frequencies, X_bounds);
 }
 
 template <class T>
 void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                                 const OutputComputer& training_outputs, const int num_frequencies,
-                                const RectSet& x_limits) const {
+                                const RectSet& X_bounds) const {
   // Mutex to protect access to the best parameter indices during tuning
   std::mutex index_mutex, score_mutex;
   // Prepare the shared data: the best score and the best parameter indices and the index iterator
@@ -218,7 +218,7 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
   for (std::size_t i = 0; i < n_jobs_; ++i) {
     if (i > 0) estimators.emplace_back(estimator.clone());
     tuners.emplace_back(index_mutex, score_mutex, i == 0 ? estimator : *estimators.back(), parameters_, training_inputs,
-                        training_outputs, best_parameters_indices, it, best_score, num_frequencies, x_limits);
+                        training_outputs, best_parameters_indices, it, best_score, num_frequencies, X_bounds);
   }
 
   LUCID_ASSERT(tuners.size() == n_jobs_, "The number of tuners must match the number of jobs.");
@@ -242,7 +242,7 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
     // If no feature map is used, we can directly consolidate the estimator
     estimator.consolidate(training_inputs, training_outputs(estimator, training_inputs));
   } else {
-    T feature_map{num_frequencies, estimator.get<Parameter::SIGMA_L>(), estimator.get<Parameter::SIGMA_F>(), x_limits};
+    T feature_map{num_frequencies, estimator.get<Parameter::SIGMA_L>(), estimator.get<Parameter::SIGMA_F>(), X_bounds};
     estimator.consolidate(training_inputs, feature_map(training_outputs(estimator, training_inputs)));
   }
 }

@@ -55,8 +55,8 @@ namespace lucid {
 class ConstantTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap {
  public:
   ConstantTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f,
-                                     const RectSet& x_limits);
-  ConstantTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits);
+                                     const RectSet& X_bounds);
+  ConstantTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& X_bounds);
 
   [[nodiscard]] RectSet get_periodic_set(ConstVectorRef sigma_l) const override;
 

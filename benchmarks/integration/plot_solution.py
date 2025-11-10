@@ -448,7 +448,7 @@ def load_configuration(file_path: "str | Path") -> Configuration:
         num_frequencies=config.num_frequencies,
         sigma_l=config.sigma_l,
         sigma_f=config.sigma_f,
-        x_limits=config.X_bounds,
+        X_bounds=config.X_bounds,
     )
     config.estimator = config.estimator(
         kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),

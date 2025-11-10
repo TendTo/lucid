@@ -64,7 +64,7 @@ def scenario_config(
         num_frequencies=config.num_frequencies,
         sigma_l=config.sigma_l,
         sigma_f=config.sigma_f,
-        x_limits=X_bounds,
+        X_bounds=X_bounds,
     )
     # estimator = ModelEstimator(f=lambda x: feature_map(f_det(x)))  # Use the custom model estimator
 

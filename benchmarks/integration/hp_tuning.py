@@ -14,7 +14,7 @@ def score_estimator(config: Configuration):
         num_frequencies=config.num_frequencies,
         sigma_l=config.estimator.get(Parameter.SIGMA_L),
         sigma_f=config.estimator.get(Parameter.SIGMA_F),
-        x_limits=config.X_bounds,
+        X_bounds=config.X_bounds,
     )
     config.estimator.consolidate(config.x_samples, feature_map(config.xp_samples))
     log.info(f"Estimator {config.estimator}")

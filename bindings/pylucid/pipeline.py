@@ -123,7 +123,7 @@ def pipeline(
             num_frequencies=config.num_frequencies,
             sigma_l=sigma_l if len(sigma_l) > 1 else sigma_l[0],
             sigma_f=config.sigma_f,
-            x_limits=config.X_bounds,
+            X_bounds=config.X_bounds,
         )
     else:
         feature_map = config.feature_map

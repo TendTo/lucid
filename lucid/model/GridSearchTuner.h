@@ -47,11 +47,11 @@ class GridSearchTuner final : public Tuner {
   template <
       IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
   void tune(Estimator& estimator, ConstMatrixRef training_inputs, ConstMatrixRef training_outputs, int num_frequencies,
-            const RectSet& x_limits) const;
+            const RectSet& X_bounds) const;
   template <
       IsAnyOf<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap, LogTruncatedFourierFeatureMap> T>
   void tune_online(Estimator& estimator, ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
-                   int num_frequencies, const RectSet& x_limits) const;
+                   int num_frequencies, const RectSet& X_bounds) const;
 
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
@@ -59,7 +59,7 @@ class GridSearchTuner final : public Tuner {
 
   template <class T>
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
-                 int num_frequencies, const RectSet& x_limits) const;
+                 int num_frequencies, const RectSet& X_bounds) const;
 
   std::size_t n_jobs_;                         ///< Number of parallel jobs to run during tuning
   std::vector<ParameterValues> parameters_;    ///< List of parameter values to be tuned, with the values to be tested

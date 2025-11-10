@@ -55,7 +55,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatr
   const double fraction =
       static_cast<double>(feature_map.num_frequencies() - 1) / num_frequency_samples_per_dim_periodic;
   const double C =
-      std::pow(1 - C_coeff * 2.0 * fraction, -static_cast<double>(feature_map.x_limits().dimension()) / 2.0);
+      std::pow(1 - C_coeff * 2.0 * fraction, -static_cast<double>(feature_map.X_bounds().dimension()) / 2.0);
   const double fctr1 = 2 / (C + 1);
   const double fctr2 = (C - 1) / (C + 1);
   const double unsafe_rhs = fctr1 * gamma_;

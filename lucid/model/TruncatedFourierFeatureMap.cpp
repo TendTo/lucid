@@ -19,20 +19,20 @@ namespace lucid {
 
 TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_per_dim,
                                                        const Matrix& omega_per_dim, const Scalar sigma_f,
-                                                       const RectSet& x_limits)
+                                                       const RectSet& X_bounds)
     : num_frequencies_per_dimension_{num_frequencies},
       omega_{combvec(omega_per_dim).transpose()},
-      weights_{::lucid::pow(num_frequencies, x_limits.dimension()) * 2 - 1},
+      weights_{::lucid::pow(num_frequencies, X_bounds.dimension()) * 2 - 1},
       sigma_f_{sigma_f},
-      x_limits_{x_limits},
+      X_bounds_{X_bounds},
       periodic_coefficients_{2 * std::numbers::pi / omega_per_dim.col(1).array()} {
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 2);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
-  LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), x_limits.dimension());
+  LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), X_bounds.dimension());
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
-  LUCID_ASSERT(static_cast<std::size_t>(omega_.rows()) == ::lucid::pow(num_frequencies, x_limits.dimension()),
+  LUCID_ASSERT(static_cast<std::size_t>(omega_.rows()) == ::lucid::pow(num_frequencies, X_bounds.dimension()),
                "omega_.rows() == num_frequencies^dimension");
-  LUCID_ASSERT(omega_.cols() == x_limits.dimension(), "omega_.cols() == dimension");
+  LUCID_ASSERT(omega_.cols() == X_bounds.dimension(), "omega_.cols() == dimension");
 
   const Vector prod{combvec(prob_per_dim).colwise().prod()};
   if (captured_probability_ = prod.sum(); captured_probability_ > 0.94)
@@ -60,24 +60,24 @@ double get_prob(const Matrix& prob_per_dim, Index dim, Index tot_dims, Index fre
 
 TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim,
                                                        const Matrix& omega_per_dim, Scalar sigma_f,
-                                                       const RectSet& x_limits, const bool)
+                                                       const RectSet& X_bounds, const bool)
     : num_frequencies_per_dimension_{num_frequencies},
       omega_{combvec(omega_per_dim).transpose()},
-      weights_{(num_frequencies - 1) * x_limits.dimension() * 2 + 1},
+      weights_{(num_frequencies - 1) * X_bounds.dimension() * 2 + 1},
       sigma_f_{sigma_f},
-      x_limits_{x_limits} {
+      X_bounds_{X_bounds} {
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 0);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
-  LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), x_limits.dimension());
+  LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), X_bounds.dimension());
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
   LUCID_NOT_IMPLEMENTED();
 
-  Vector single_weights{(num_frequencies - 1) * x_limits.dimension() + 1};
+  Vector single_weights{(num_frequencies - 1) * X_bounds.dimension() + 1};
   Index row = 0;
-  single_weights(row++) = std::sqrt(get_prob(prob_per_dim, 0, x_limits_.dimension(), 0));
-  for (Index current_dim = 0; current_dim < x_limits.dimension(); current_dim++) {
+  single_weights(row++) = std::sqrt(get_prob(prob_per_dim, 0, X_bounds_.dimension(), 0));
+  for (Index current_dim = 0; current_dim < X_bounds.dimension(); current_dim++) {
     for (Index freq = 1; freq < num_frequencies_per_dimension_; freq++) {
-      single_weights(row++) = std::sqrt(get_prob(prob_per_dim, current_dim, x_limits_.dimension(), freq));
+      single_weights(row++) = std::sqrt(get_prob(prob_per_dim, current_dim, X_bounds_.dimension(), freq));
     }
   }
 
@@ -95,7 +95,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
 }
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
-  auto z = (x - x_limits_.lower_bound()).cwiseQuotient(x_limits_.upper_bound() - x_limits_.lower_bound());
+  auto z = (x - X_bounds_.lower_bound()).cwiseQuotient(X_bounds_.upper_bound() - X_bounds_.lower_bound());
   LUCID_ASSERT(z.size() == omega_.cols(), "z.size() == omega_.cols()");
   // TODO(tend): Does it become a problem if the input is outside the bounds?
   // LUCID_ASSERT((z.array() >= 0).all() && (z.array() <= 1).all(), "0 <= z <= 1");

@@ -29,8 +29,8 @@ namespace lucid {
  */
 class LogTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap {
  public:
-  LogTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& x_limits);
-  LogTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& x_limits);
+  LogTruncatedFourierFeatureMap(int num_frequencies, ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& X_bounds);
+  LogTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& X_bounds);
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 };

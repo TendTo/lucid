@@ -46,10 +46,10 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * @param prob_per_dim probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
    * @param omega_per_dim matrix omega where each row is a dimension and each column is a frequency coefficient
    * @param sigma_f scaling factor
-   * @param x_limits domain of the input space, @XsubRd
+   * @param X_bounds domain of the input space, @XsubRd
    */
   TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
-                             Scalar sigma_f, const RectSet& x_limits);
+                             Scalar sigma_f, const RectSet& X_bounds);
   /**
    * Construct a truncated Fourier feature map.
    * It will not compute the cross-frequencies of the basis, thus reducing the problem size significantly with
@@ -60,11 +60,11 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * @param prob_per_dim probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
    * @param omega_per_dim matrix omega where each row is a dimension and each column is a frequency coefficient
    * @param sigma_f scaling factor
-   * @param x_limits domain of the input space, @XsubRd
+   * @param X_bounds domain of the input space, @XsubRd
    * @param unused unused parameter to differentiate the constructor from the other one
    */
   TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
-                             Scalar sigma_f, const RectSet& x_limits, bool unused);
+                             Scalar sigma_f, const RectSet& X_bounds, bool unused);
 
   /**
    * Given a @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.
@@ -99,7 +99,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   /** @getter{probability captured by the Fourier expansion, truncated Fourier feature map, NaN if not computed} */
   [[nodiscard]] Scalar captured_probability() const { return captured_probability_; }
   /** @getter{limits, original input space} */
-  [[nodiscard]] const RectSet& x_limits() const { return x_limits_; }
+  [[nodiscard]] const RectSet& X_bounds() const { return X_bounds_; }
   /** @getter{sigma_f value, truncated Fourier feature map} */
   [[nodiscard]] double sigma_f() const { return sigma_f_; }
   /** @getter{periodic coefficients, truncated Fourier feature map} */
@@ -147,7 +147,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   Matrix omega_;                       ///< Frequencies matrix
   Vector weights_;                     ///< Weights matrix
   Scalar sigma_f_;                     ///< Sigma_f value
-  RectSet x_limits_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
+  RectSet X_bounds_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
   Scalar captured_probability_;        ///< Probability captured by the Fourier expansion. NaN if not computed
   Vector periodic_coefficients_;       ///< Coefficient to convert from the truncated Fourier basis to the periodic one
 };

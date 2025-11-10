@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 
 matplotlib.use("WebAgg")
 
-def feature_map_on_rectset(f: LinearTruncatedFourierFeatureMap, X_limits: RectSet, n_samples: int = 100):
-    x = np.linspace(X_limits.lower_bound[0], X_limits.upper_bound[0], n_samples)
-    y = np.linspace(X_limits.lower_bound[1], X_limits.upper_bound[1], n_samples)
+def feature_map_on_rectset(f: LinearTruncatedFourierFeatureMap, X_bounds: RectSet, n_samples: int = 100):
+    x = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], n_samples)
+    y = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], n_samples)
     X, Y = np.meshgrid(x, y)
     pos = np.vstack([X.ravel(), Y.ravel()]).T
     Z = f(pos)
@@ -18,10 +18,10 @@ def main():
     num_freq = 2
     sigma_f = 1.0
     sigma_l = np.array([0.1, 2.0])
-    X_limits = RectSet([[-3.0, 3.0], [-3.0, 3.0]])
+    X_bounds = RectSet([[-3.0, 3.0], [-3.0, 3.0]])
     plot_cols = 3
 
-    f = LinearTruncatedFourierFeatureMap(num_frequencies=num_freq, sigma_f=sigma_f, sigma_l=sigma_l, x_limits=X_limits)
+    f = LinearTruncatedFourierFeatureMap(num_frequencies=num_freq, sigma_f=sigma_f, sigma_l=sigma_l, X_bounds=X_bounds)
 
     # plot the feature map for each f.dimension such that there are at most 3 columns
     # Create 3D subplots for surface plotting
@@ -33,7 +33,7 @@ def main():
     )
 
     n_samples = 100
-    X, Y, Z = feature_map_on_rectset(f, X_limits, n_samples)
+    X, Y, Z = feature_map_on_rectset(f, X_bounds, n_samples)
     X_p, Y_p, Z_p = feature_map_on_rectset(f, f.get_periodic_set(sigma_l), n_samples)
 
     # Ensure axes is iterable (handle single-axis case)

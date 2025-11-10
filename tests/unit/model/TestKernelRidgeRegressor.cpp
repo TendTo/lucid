@@ -39,7 +39,7 @@ class TestKernelRidgeRegressor : public ::testing::Test {
   const double sigma_f_{1.0};                   //< Kernel amplitude
   const double sigma_l_{2.0};                   //< Kernel length scale
   const double regularization_constant_{1e-6};  //< Regularization constant for the kernel ridge regressor
-  const RectSet x_limits_{std::vector<std::pair<double, double>>(dim_, {-1.0, 1.0})};  //< Limits of the input space
+  const RectSet X_bounds_{std::vector<std::pair<double, double>>(dim_, {-1.0, 1.0})};  //< Limits of the input space
   KernelRidgeRegressor regressor_{std::make_unique<GaussianKernel>(sigma_l_, sigma_f_), regularization_constant_};
 
   [[nodiscard]] std::pair<KernelRidgeRegressor, ConstantTruncatedFourierFeatureMap> get_regression_and_feature_map(
@@ -48,7 +48,7 @@ class TestKernelRidgeRegressor : public ::testing::Test {
     const Matrix training_outputs{Matrix::Random(n_samples_, dim_)};
     KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(sigma_l, sigma_f_)};
     regressor.fit(training_inputs, training_outputs);
-    return {std::move(regressor), ConstantTruncatedFourierFeatureMap(num_frequencies, sigma_l, sigma_f_, x_limits_)};
+    return {std::move(regressor), ConstantTruncatedFourierFeatureMap(num_frequencies, sigma_l, sigma_f_, X_bounds_)};
   }
 
   [[nodiscard]] std::pair<Matrix, Matrix> getTrainingData() const {
@@ -160,7 +160,7 @@ TEST_F(TestKernelRidgeRegressor, FeatureMapPrediction) {
   const auto [inputs, outputs] = getTrainingData();
   regressor_.fit(inputs, outputs);
 
-  ConstantTruncatedFourierFeatureMap feature_map(10, sigma_l_, sigma_f_, x_limits_);
+  ConstantTruncatedFourierFeatureMap feature_map(10, sigma_l_, sigma_f_, X_bounds_);
   const Matrix predictions = regressor_.predict(inputs);
   const Matrix fm_predictions = regressor_.predict(inputs, feature_map);
 

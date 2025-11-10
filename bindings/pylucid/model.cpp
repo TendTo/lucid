@@ -425,23 +425,23 @@ void init_model(py::module_ &m) {
           "tune",
           [](const GridSearchTuner &self, Estimator &estimator_, ConstMatrixRef training_inputs,
              ConstMatrixRef training_outputs, const py::type &feature_map_type, const int num_frequencies,
-             const RectSet &x_limits) {
+             const RectSet &X_bounds) {
             if (feature_map_type.is(py::type::of<ConstantTruncatedFourierFeatureMap>())) {
               return self.tune<ConstantTruncatedFourierFeatureMap>(estimator_, training_inputs, training_outputs,
-                                                                   num_frequencies, x_limits);
+                                                                   num_frequencies, X_bounds);
             }
             if (feature_map_type.is(py::type::of<LinearTruncatedFourierFeatureMap>())) {
               return self.tune<LinearTruncatedFourierFeatureMap>(estimator_, training_inputs, training_outputs,
-                                                                 num_frequencies, x_limits);
+                                                                 num_frequencies, X_bounds);
             }
             if (feature_map_type.is(py::type::of<LogTruncatedFourierFeatureMap>())) {
               return self.tune<LogTruncatedFourierFeatureMap>(estimator_, training_inputs, training_outputs,
-                                                              num_frequencies, x_limits);
+                                                              num_frequencies, X_bounds);
             }
             throw std::runtime_error("Unsupported feature map type");
           },
           py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
-          py::arg("feature_map_type"), py::arg("num_frequencies"), py::arg("x_limits"))
+          py::arg("feature_map_type"), py::arg("num_frequencies"), py::arg("X_bounds"))
       .def_property_readonly("n_jobs", &GridSearchTuner::n_jobs, GridSearchTuner_n_jobs)
       .def_property_readonly("parameters", &GridSearchTuner::parameters, GridSearchTuner_parameters);
 
@@ -471,9 +471,9 @@ void init_model(py::module_ &m) {
       .def("__str__", STRING_LAMBDA(FeatureMap));
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap", TruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"),
-           py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("x_limits"))
+           py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("X_bounds"))
       .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet, bool>(), py::arg("num_frequencies"),
-           py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("x_limits"),
+           py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("X_bounds"),
            py::arg("unused"))
       .def("get_periodic_set", &TruncatedFourierFeatureMap::get_periodic_set, ARG_NONCONVERT("sigma_l"),
            TruncatedFourierFeatureMap_get_periodic_set)
@@ -485,7 +485,7 @@ void init_model(py::module_ &m) {
       .def_property_readonly("sigma_f", &TruncatedFourierFeatureMap::sigma_f, TruncatedFourierFeatureMap_sigma_f)
       .def_property_readonly("periodic_coefficients", &TruncatedFourierFeatureMap::periodic_coefficients,
                              TruncatedFourierFeatureMap_periodic_coefficients)
-      .def_property_readonly("x_limits", &TruncatedFourierFeatureMap::x_limits, TruncatedFourierFeatureMap_x_limits)
+      .def_property_readonly("X_bounds", &TruncatedFourierFeatureMap::X_bounds, TruncatedFourierFeatureMap_X_bounds)
       .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension, TruncatedFourierFeatureMap_dimension)
       .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega, TruncatedFourierFeatureMap_omega)
       .def_property_readonly("weights", &TruncatedFourierFeatureMap::weights, TruncatedFourierFeatureMap_weights)
@@ -494,25 +494,25 @@ void init_model(py::module_ &m) {
   py::class_<ConstantTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(
       m, "ConstantTruncatedFourierFeatureMap", ConstantTruncatedFourierFeatureMap_, py::is_final())
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"))
+           py::arg("sigma_f"), py::arg("X_bounds"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"));
+           py::arg("sigma_f"), py::arg("X_bounds"));
   py::class_<LinearTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(
       m, "LinearTruncatedFourierFeatureMap", py::is_final(), LinearTruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"))
+           py::arg("sigma_f"), py::arg("X_bounds"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"))
+           py::arg("sigma_f"), py::arg("X_bounds"))
       .def(py::init<long, Scalar, Scalar, RectSet, bool>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"), py::arg("unused"))
+           py::arg("sigma_f"), py::arg("X_bounds"), py::arg("unused"))
       .def(py::init<long, Scalar, Scalar, RectSet, bool>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"), py::arg("unused"));
+           py::arg("sigma_f"), py::arg("X_bounds"), py::arg("unused"));
   py::class_<LogTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LogTruncatedFourierFeatureMap",
                                                                         py::is_final(), LogTruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"))
+           py::arg("sigma_f"), py::arg("X_bounds"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("x_limits"));
+           py::arg("sigma_f"), py::arg("X_bounds"));
 
   /**************************** Estimator ****************************/
   estimator.def(py::init<>(), Estimator_Estimator)

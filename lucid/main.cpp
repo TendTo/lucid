@@ -141,10 +141,10 @@ Basis generate_basis(ConstMatrixRef omega_T, const Dimension dimension, Scalar s
     if (i != 0) weights(2 * i - 1) = temp(i);
   }
 
-  return [weights = std::move(weights), omega_T = omega_T.eval(), sigma_f](ConstVectorRef x, ConstMatrixRef x_limits) {
+  return [weights = std::move(weights), omega_T = omega_T.eval(), sigma_f](ConstVectorRef x, ConstMatrixRef X_bounds) {
     // TODO(tend): this only works for rectangles sets
     // Project the element onto the unit hypercube
-    auto z = (x.transpose() - x_limits.row(0)).cwiseQuotient(x_limits.row(1) - x_limits.row(0));
+    auto z = (x.transpose() - X_bounds.row(0)).cwiseQuotient(X_bounds.row(1) - X_bounds.row(0));
 
     Vector z_proj = omega_T * z.transpose();
     Vector trig{2 * z_proj.size() + 1};

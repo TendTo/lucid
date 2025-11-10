@@ -44,7 +44,7 @@ def plot_solution(args: Args, data: pd.DataFrame):
             num_frequencies=run.num_frequencies,
             sigma_l=run.sigma_l,
             sigma_f=run.sigma_f,
-            x_limits=config.X_bounds,
+            X_bounds=config.X_bounds,
         )
         estimator = config.estimator(
             kernel=config.kernel(sigma_l=run.sigma_l, sigma_f=run.sigma_f),
@@ -89,7 +89,7 @@ def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
             num_frequencies=run.num_frequencies,
             sigma_l=run.sigma_l,
             sigma_f=run.sigma_f,
-            x_limits=config.X_bounds,
+            X_bounds=config.X_bounds,
         )
         estimator = config.estimator(
             kernel=config.kernel(sigma_l=run.sigma_l, sigma_f=run.sigma_f),

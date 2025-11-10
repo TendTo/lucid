@@ -132,7 +132,7 @@ class TestGridSearchTuner : public ::testing::TestWithParam<std::size_t> {
       static_cast<Index>(parameters_[0].size()), static_cast<Index>(parameters_[1].size()),
       static_cast<Index>(parameters_[2].size()), static_cast<Index>(parameters_[3].size())};
   const int num_frequencies_{4};
-  const RectSet x_limits_{{-1, 1}, {-1, 1}, {-1, 1}};
+  const RectSet X_bounds_{{-1, 1}, {-1, 1}, {-1, 1}};
   const int num_iterations_ = static_cast<int>(std::accumulate(
       parameters_max_indices_.begin(), parameters_max_indices_.end(), Index{1}, std::multiplies<Index>()));
   const GridSearchTuner tuner_{parameters_, GetParam()};
@@ -207,7 +207,7 @@ TEST_P(TestGridSearchTuner, TuneOnline) {
 TEST_P(TestGridSearchTuner, TuneLinearTruncatedFourierFeatureMap) {
   for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
     LinearTruncatedFourierFeatureMap feature_map{num_frequencies_, sigma_l_values_.get<Vector>()[it[0]],
-                                                 sigma_f_values_.get<double>()[it[1]], x_limits_};
+                                                 sigma_f_values_.get<double>()[it[1]], X_bounds_};
     testing::NiceMock<MockEstimator_> estimator{
         feature_map(training_outputs_full_), sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
@@ -224,7 +224,7 @@ TEST_P(TestGridSearchTuner, TuneLinearTruncatedFourierFeatureMap) {
     }
 
     tuner_.tune<LinearTruncatedFourierFeatureMap>(estimator, training_inputs_, training_outputs_full_, num_frequencies_,
-                                                  x_limits_);
+                                                  X_bounds_);
 
     // Even with multiple threads, the estimator should be set with the best parameters
     ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
@@ -236,7 +236,7 @@ TEST_P(TestGridSearchTuner, TuneLinearTruncatedFourierFeatureMap) {
 TEST_P(TestGridSearchTuner, TuneConstantTruncatedFourierFeatureMap) {
   for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
     ConstantTruncatedFourierFeatureMap feature_map{num_frequencies_, sigma_l_values_.get<Vector>()[it[0]],
-                                                   sigma_f_values_.get<double>()[it[1]], x_limits_};
+                                                   sigma_f_values_.get<double>()[it[1]], X_bounds_};
     testing::NiceMock<MockEstimator_> estimator{
         feature_map(training_outputs_full_), sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
@@ -253,7 +253,7 @@ TEST_P(TestGridSearchTuner, TuneConstantTruncatedFourierFeatureMap) {
     }
 
     tuner_.tune<ConstantTruncatedFourierFeatureMap>(estimator, training_inputs_, training_outputs_full_,
-                                                    num_frequencies_, x_limits_);
+                                                    num_frequencies_, X_bounds_);
 
     // Even with multiple threads, the estimator should be set with the best parameters
     ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());
@@ -265,7 +265,7 @@ TEST_P(TestGridSearchTuner, TuneConstantTruncatedFourierFeatureMap) {
 TEST_P(TestGridSearchTuner, TuneLogTruncatedFourierFeatureMap) {
   for (lucid::IndexIterator it{parameters_max_indices_}; it; ++it) {
     LogTruncatedFourierFeatureMap feature_map{num_frequencies_, sigma_l_values_.get<Vector>()[it[0]],
-                                              sigma_f_values_.get<double>()[it[1]], x_limits_};
+                                              sigma_f_values_.get<double>()[it[1]], X_bounds_};
     testing::NiceMock<MockEstimator_> estimator{
         feature_map(training_outputs_full_), sigma_l_values_.get<Vector>()[it[0]], sigma_f_values_.get<double>()[it[1]],
         regularization_constant_values_.get<double>()[it[2]], degree_values_.get<int>()[it[3]]};
@@ -282,7 +282,7 @@ TEST_P(TestGridSearchTuner, TuneLogTruncatedFourierFeatureMap) {
     }
 
     tuner_.tune<LogTruncatedFourierFeatureMap>(estimator, training_inputs_, training_outputs_full_, num_frequencies_,
-                                               x_limits_);
+                                               X_bounds_);
 
     // Even with multiple threads, the estimator should be set with the best parameters
     ASSERT_EQ(estimator.get<Parameter::REGULARIZATION_CONSTANT>(), estimator.expected_regularization_constant());

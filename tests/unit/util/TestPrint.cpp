@@ -105,8 +105,8 @@ TEST(TestPrint, LinearTruncatedFourierFeatureMap) {
   Vector sigma_l{2};
   sigma_l << 3.2, 5.1;
   constexpr double sigma_f = 2.01;
-  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
-  const LinearTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  const RectSet X_bounds{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const LinearTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, X_bounds};
   EXPECT_EQ(fmt::format("{}", feature_map),
             "LinearTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
             "weights(  0.451494  0.463899  0.463899  0.176708  0.176708  0.463899  0.463899  0.476646  "
@@ -117,8 +117,8 @@ TEST(TestPrint, LogTruncatedFourierFeatureMap) {
   Vector sigma_l{2};
   sigma_l << 3.2, 5.1;
   constexpr double sigma_f = 2.01;
-  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
-  const LogTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  const RectSet X_bounds{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const LogTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, X_bounds};
   EXPECT_EQ(fmt::format("{}", feature_map),
             "LogTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
             "weights(  0.293604  0.327088  0.327088  0.149072  0.149072  0.306567  0.306567   0.34153   0.34153  "
@@ -129,8 +129,8 @@ TEST(TestPrint, ConstantTruncatedFourierFeatureMap) {
   Vector sigma_l{2};
   sigma_l << 3.2, 5.1;
   constexpr double sigma_f = 2.01;
-  const RectSet x_limits{Vector::Zero(2), Vector::Constant(2, 1.0)};
-  const ConstantTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, x_limits};
+  const RectSet X_bounds{Vector::Zero(2), Vector::Constant(2, 1.0)};
+  const ConstantTruncatedFourierFeatureMap feature_map{num_frequencies, sigma_l, sigma_f, X_bounds};
   EXPECT_EQ(fmt::format("{}", feature_map),
             "ConstantTruncatedFourierFeatureMap( num_frequencies( 3 ) dimension( 17 ) "
             "weights( 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ) )");  // TODO(tend): this does not seem right
