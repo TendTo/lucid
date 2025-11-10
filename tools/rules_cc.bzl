@@ -41,6 +41,7 @@ GCC_FLAGS = CXX_FLAGS + [
     "-Wnon-virtual-dtor",
     "-Wreturn-local-addr",
     "-Wunused-but-set-parameter",
+    "-Wno-unknown-pragmas",
 ]
 
 # The MSVC_CL_FLAGS will be enabled for all C++ rules in the project when

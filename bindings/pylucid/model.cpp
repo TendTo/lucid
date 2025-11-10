@@ -27,8 +27,6 @@
 namespace py = pybind11;
 using namespace lucid;
 
-#define COMMA ,
-
 #ifndef NCONVERT
 #define ARG_NONCONVERT(name) py::arg(name)
 #else
@@ -156,8 +154,8 @@ class PyCrossValidator final : public CrossValidator {
 
  private:
   [[nodiscard]] std::pair<SliceSelector, SliceSelector> compute_folds(ConstMatrixRef training_inputs) const override {
-    PYBIND11_OVERRIDE_PURE(std::pair<SliceSelector COMMA SliceSelector>, CrossValidator, compute_folds,
-                           training_inputs);
+    using SliceSelectorPair = std::pair<SliceSelector, SliceSelector>;
+    PYBIND11_OVERRIDE_PURE(SliceSelectorPair, CrossValidator, compute_folds, training_inputs);
   }
 };
 

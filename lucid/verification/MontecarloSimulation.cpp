@@ -36,19 +36,23 @@ std::pair<double, double> MontecarloSimulation::safety_probability(
   }
 #endif
 
-  const double err = std::sqrt(1 / (4 * static_cast<double>(num_samples) * (1 - confidence_level)));
   Matrix samples{X_init.sample(num_samples)};
-  const Eigen::VectorX<bool> satisf{Eigen::VectorX<bool>::NullaryExpr(
-      samples.rows(), [&samples, time_horizon, &system_dynamics, &X_unsafe, &X_bounds](const Index row) {
-        Vector next_step = samples.row(row);
-        for (std::size_t i = 1; i < time_horizon; ++i) {
-          next_step = system_dynamics(next_step);
-          if (X_unsafe.contains(next_step)) return false;
-          if (!X_bounds.contains(next_step)) return true;
-        }
-        return true;
-      })};
+  // Start by assuming all points lead to a safe trajectory
+  Eigen::VectorX<bool> satisf{Eigen::VectorX<bool>::Constant(samples.rows(), true)};
+#pragma omp parallel for
+  for (Index i = 0; i < samples.rows(); ++i) {
+    Vector next_step = samples.row(i);
+    for (std::size_t j = 1; j < time_horizon; ++j) {
+      next_step = system_dynamics(next_step);
+      if (X_unsafe.contains(next_step)) {
+        satisf(i) = false;  // unsafe trajectory, mark it as unsafe and exit
+        break;
+      }
+      if (!X_bounds.contains(next_step)) break;
+    }
+  }
   const double sat_prob_mc = static_cast<double>(satisf.count()) / static_cast<double>(num_samples);
+  const double err = std::sqrt(1 / (4 * static_cast<double>(num_samples) * (1 - confidence_level)));
   return {std::max(sat_prob_mc - err, 0.0), std::min(sat_prob_mc + err, 1.0)};
 }
 
