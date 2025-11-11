@@ -155,12 +155,12 @@ Matrix PolytopeSet::sample(const Index num_samples) const {
 #endif
 }
 
-Matrix PolytopeSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {
+Matrix PolytopeSet::lattice(const VectorI& points_per_dim, const bool endpoint) const {
   LUCID_CHECK_ARGUMENT_EQ(points_per_dim.size(), dimension());
 
   const auto& [lower, upper] = bounding_box();
 
-  const Matrix x_lattice{RectSet{lower, upper}.lattice(points_per_dim, include_endpoints)};
+  const Matrix x_lattice{RectSet{lower, upper}.lattice(points_per_dim, endpoint)};
 
   // Filter points that are actually in the polytope
   std::vector<Index> valid_indices;

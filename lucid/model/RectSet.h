@@ -55,14 +55,44 @@ class RectSet final : public Set {
   [[nodiscard]] const Vector& lower_bound() const { return lb_; }
   /** @getter{upper bound, rectangular set} */
   [[nodiscard]] const Vector& upper_bound() const { return ub_; }
+  /** @getter{size for each dimension, rectangular set} */
+  [[nodiscard]] Vector sizes() const { return ub_ - lb_; }
 
   [[nodiscard]] Matrix sample(Index num_samples) const override;
 
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
 
-  [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
+  [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool endpoint) const override;
 
   void change_size(ConstVectorRef delta_size) override;
+
+  /**
+   * Compute the rectangular set relative to another rectangular set.
+   * Instead of absolute coordinates, the new rectangular set will be expressed
+   * in coordinates relative to the lower bound of the other rectangular set.
+   * @pre The two rectangular sets must have the same dimension.
+   * @param set other rectangular set
+   * @return new rectangular set expressed in relative coordinates
+   */
+  [[nodiscard]] RectSet relative_to(const RectSet& set) const;
+  /**
+   * Compute the rectangular set relative a new origin point.
+   * Instead of absolute coordinates, the new rectangular set will be expressed
+   * in coordinates relative to the given point.
+   * @pre The point must have the same dimension as the rectangular set.
+   * @param point point representing the new origin
+   * @return new rectangular set expressed in relative coordinates
+   */
+  [[nodiscard]] RectSet relative_to(ConstVectorRef point) const;
+
+  RectSet& operator*=(ConstVectorRef scale);
+  RectSet& operator*=(Scalar scale);
+  [[nodiscard]] RectSet operator*(ConstVectorRef scale) const;
+  [[nodiscard]] RectSet operator*(Scalar scale) const;
+  RectSet& operator/=(ConstVectorRef scale);
+  RectSet& operator/=(Scalar scale);
+  [[nodiscard]] RectSet operator/(Scalar scale) const;
+  [[nodiscard]] RectSet operator/(ConstVectorRef scale) const;
 
   /**
    * Convert the rectangular set to a matrix representation.

@@ -56,22 +56,16 @@ bool RectSet::operator()(ConstVectorRef x) const {
   return (x.array() >= lb_.array()).all() && (x.array() <= ub_.array()).all();
 }
 
-Matrix RectSet::lattice(const VectorI& points_per_dim, const bool include_endpoints) const {
+Matrix RectSet::lattice(const VectorI& points_per_dim, const bool endpoint) const {
   if (points_per_dim.size() != lb_.size()) {
     LUCID_INVALID_ARGUMENT_EXPECTED("points_per_dim size", points_per_dim.size(), lb_.size());
   }
+  const int add_point = endpoint ? 0 : 1;
   Matrix x_lattice{1, points_per_dim(0)};
-  if (include_endpoints) {
-    x_lattice.row(0) = Vector::LinSpaced(points_per_dim(0), lb_(0), ub_(0));
-    for (Dimension i = 1; i < dimension(); ++i) {
-      x_lattice = combvec(x_lattice, Vector::LinSpaced(points_per_dim(i), lb_(i), ub_(i)));
-    }
-  } else {
-    const Vector delta_per_dim = (ub_ - lb_).cwiseQuotient(points_per_dim.cast<Scalar>());
-    x_lattice.row(0) = arange(lb_(0), ub_(0), delta_per_dim(0));
-    for (Dimension i = 1; i < dimension(); ++i) {
-      x_lattice = combvec(x_lattice, arange(lb_(i), ub_(i), delta_per_dim(i)));
-    }
+  x_lattice.row(0) = Vector::LinSpaced(points_per_dim(0) + add_point, lb_(0), ub_(0)).head(points_per_dim(0));
+  for (Dimension i = 1; i < dimension(); ++i) {
+    x_lattice =
+        combvec(x_lattice, Vector::LinSpaced(points_per_dim(i) + add_point, lb_(i), ub_(i)).head(points_per_dim(i)));
   }
   x_lattice.transposeInPlace();
   return x_lattice;
@@ -94,6 +88,42 @@ void RectSet::change_size(ConstVectorRef delta_size) {
 
   LUCID_TRACE_FMT("=> {}", *this);
 }
+RectSet RectSet::relative_to(const RectSet& set) const { return relative_to(set.lower_bound()); }
+RectSet RectSet::relative_to(ConstVectorRef point) const {
+  LUCID_CHECK_ARGUMENT_EQ(point.size(), dimension());
+  return RectSet{lb_ - point, ub_ - point};
+}
+
+RectSet& RectSet::operator*=(ConstVectorRef scale) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >=, 0);
+  lb_ = lb_.cwiseProduct(scale);
+  ub_ = ub_.cwiseProduct(scale);
+  return *this;
+}
+RectSet& RectSet::operator*=(Scalar scale) {
+  LUCID_CHECK_ARGUMENT_CMP(scale, >=, 0);
+  lb_ *= scale;
+  ub_ *= scale;
+  return *this;
+}
+RectSet RectSet::operator*(ConstVectorRef scale) const { return RectSet{*this} *= scale; }
+RectSet RectSet::operator*(Scalar scale) const { return RectSet{*this} *= scale; }
+RectSet& RectSet::operator/=(ConstVectorRef scale) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+  lb_ = lb_.cwiseQuotient(scale);
+  ub_ = ub_.cwiseQuotient(scale);
+  return *this;
+}
+RectSet& RectSet::operator/=(Scalar scale) {
+  LUCID_CHECK_ARGUMENT_CMP(scale, >, 0);
+  lb_ /= scale;
+  ub_ /= scale;
+  return *this;
+}
+RectSet RectSet::operator/(Scalar scale) const { return RectSet{*this} /= scale; }
+RectSet RectSet::operator/(ConstVectorRef scale) const { return RectSet{*this} /= scale; }
 
 RectSet::operator Matrix() const {
   Matrix x_lim{2, lb_.size()};

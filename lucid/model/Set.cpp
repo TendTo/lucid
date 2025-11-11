@@ -19,8 +19,8 @@ namespace lucid {
 Vector Set::sample() const { return sample(1l).row(0); }
 void Set::change_size(const double delta_size) { change_size(Vector::Constant(dimension(), delta_size)); }
 void Set::change_size(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
-Matrix Set::lattice(const Index points_per_dim, const bool include_endpoints) const {
-  return lattice(VectorI::Constant(dimension(), points_per_dim), include_endpoints);
+Matrix Set::lattice(const Index points_per_dim, const bool endpoint) const {
+  return lattice(VectorI::Constant(dimension(), points_per_dim), endpoint);
 }
 
 std::ostream& operator<<(std::ostream& os, const Set& set) {

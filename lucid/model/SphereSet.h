@@ -29,7 +29,7 @@ class SphereSet final : public Set {
   [[nodiscard]] Dimension dimension() const override { return center_.size(); }
   [[nodiscard]] Matrix sample(Index num_samples) const override;
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
-  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool include_endpoints) const override;
+  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool endpoint) const override;
 
   /** @getter{center, sphere set} */
   [[nodiscard]] const Vector &center() const { return center_; }

@@ -100,17 +100,17 @@ class Set {
   /**
    * Generate a lattice of points in the set.
    * @param points_per_dim number of points per each dimension
-   * @param include_endpoints whether to include the endpoints of the lattice
+   * @param endpoint whether to include the endpoints of the lattice
    * @return lattice of points in the set
    */
-  [[nodiscard]] Matrix lattice(Index points_per_dim, bool include_endpoints = false) const;
+  [[nodiscard]] Matrix lattice(Index points_per_dim, bool endpoint = false) const;
   /**
    * Generate a lattice of points in the set.
    * @param points_per_dim number of points per each dimension
-   * @param include_endpoints whether to include the endpoints of the lattice
+   * @param endpoint whether to include the endpoints of the lattice
    * @return lattice of points in the set
    */
-  [[nodiscard]] virtual Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const = 0;
+  [[nodiscard]] virtual Matrix lattice(const VectorI& points_per_dim, bool endpoint) const = 0;
 
   /**
    * Extract @N elements element from @X using some kind of random distribution, where @N is the number of rows in @x.

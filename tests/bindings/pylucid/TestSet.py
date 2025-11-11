@@ -2,6 +2,15 @@ import numpy as np
 
 from pylucid import MultiSet, RectSet, Set, SphereSet
 
+def build_lattice(lb: np.ndarray, ub: np.ndarray, per_dim: int, endpoint: bool) -> np.ndarray:
+    # per_dim: number of lattice points per dimension (scalar or 2-tuple)
+    per_dim = (per_dim,) * len(lb)
+    # For periodic lattices (e.g. [0, 2*pi))
+    grids = [np.linspace(l, u, n, endpoint=endpoint) for l, u, n in zip(lb, ub, per_dim)]
+    mesh = np.meshgrid(*grids, indexing="xy")
+    pts = np.vstack([m.ravel() for m in mesh]).T
+    return pts
+
 
 class TestSet:
     class TestRectSet:
@@ -18,6 +27,20 @@ class TestSet:
             assert [-1, -2] in s
             assert [1, 3] in s
             assert [2, 2] not in s
+
+        def test_lattice(self):
+            s = RectSet([-1, -2], [1, 3])
+            lattice = s.lattice(points_per_dim=3, endpoint=True)
+            expected_points = build_lattice(np.array([-1, -2]), np.array([1, 3]), per_dim=3, endpoint=True)
+            assert lattice.shape == expected_points.shape
+            assert np.allclose(lattice, expected_points)
+
+        def test_lattice_no_endpoint(self):
+            s = RectSet([-1, -2], [1, 3])
+            lattice = s.lattice(points_per_dim=3, endpoint=False)
+            expected_points = build_lattice(np.array([-1, -2]), np.array([1, 3]), per_dim=3, endpoint=False)
+            assert lattice.shape == expected_points.shape
+            assert np.allclose(lattice, expected_points)
 
         def test_print(self):
             s = RectSet([-1, -2], [1, 3])

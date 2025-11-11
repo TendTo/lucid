@@ -181,8 +181,8 @@ class PySet final : public Set {
   [[nodiscard]] bool operator()(ConstVectorRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(bool, Set, "__call__", operator(), x);
   }
-  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool include_endpoints) const override {
-    PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, include_endpoints);
+  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool endpoint) const override {
+    PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, endpoint);
   }
 };
 
@@ -312,9 +312,9 @@ void init_model(py::module_ &m) {
       .def("change_size", py::overload_cast<ConstVectorRef>(&Set::change_size), ARG_NONCONVERT("delta_size"),
            Set_change_size)
       .def("lattice", py::overload_cast<Index, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
-           py::arg("include_endpoints") = false, Set_lattice)
+           py::arg("endpoint") = false, Set_lattice)
       .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
-           py::arg("include_endpoints"), Set_lattice)
+           py::arg("endpoint"), Set_lattice)
       .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("__contains__", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("__call__", &Set::operator(), ARG_NONCONVERT("x"), Set_operator_apply)
@@ -322,6 +322,19 @@ void init_model(py::module_ &m) {
   py::class_<RectSet, Set>(m, "RectSet", RectSet_)
       .def(py::init<Vector, Vector>(), py::arg("lb"), py::arg("ub"), RectSet_RectSet)
       .def(py::init<std::vector<std::pair<Scalar, Scalar>>>(), py::arg("bounds"), RectSet_RectSet)
+      .def("relative_to", py::overload_cast<const RectSet &>(&RectSet::relative_to, py::const_), py::arg("set"),
+           RectSet_relative_to)
+      .def("relative_to", py::overload_cast<ConstVectorRef>(&RectSet::relative_to, py::const_), ARG_NONCONVERT("point"),
+           RectSet_relative_to)
+      .def(py::self *= double())
+      .def(py::self *= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
+      .def(py::self * ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
+      .def(py::self * double())
+      .def(py::self /= double())
+      .def(py::self /= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
+      .def(py::self / ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
+      .def(py::self / double())
+      .def_property_readonly("sizes", &RectSet::sizes, RectSet_sizes)
       .def_property_readonly("lower_bound", &RectSet::lower_bound, RectSet_lower_bound)
       .def_property_readonly("upper_bound", &RectSet::upper_bound, RectSet_upper_bound);
   py::class_<SphereSet, Set>(m, "SphereSet", SphereSet_)

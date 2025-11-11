@@ -55,7 +55,7 @@ class MultiSet final : public Set {
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
 
   /** @todo Improve the naive implementation that only concatenates the lattices from the internal sets (polytopes?) */
-  [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool include_endpoints) const override;
+  [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool endpoint) const override;
 
   void change_size(ConstVectorRef delta_size) override;
 
