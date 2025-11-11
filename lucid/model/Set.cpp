@@ -17,6 +17,26 @@
 namespace lucid {
 
 Vector Set::sample() const { return sample(1l).row(0); }
+
+Matrix Set::include(ConstMatrixRef xs) const {
+  LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
+  std::vector<Index> indices;
+  indices.reserve(xs.rows());
+  for (Index i = 0; i < xs.rows(); i++) {
+    if (contains(xs.row(i))) indices.push_back(i);
+  }
+  return xs(indices, Eigen::all);
+}
+Matrix Set::exclude(ConstMatrixRef xs) const {
+  LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
+  std::vector<Index> indices;
+  indices.reserve(xs.rows());
+  for (Index i = 0; i < xs.rows(); i++) {
+    if (!contains(xs.row(i))) indices.push_back(i);
+  }
+  return xs(indices, Eigen::all);
+}
+
 void Set::change_size(const double delta_size) { change_size(Vector::Constant(dimension(), delta_size)); }
 void Set::change_size(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
 Matrix Set::lattice(const Index points_per_dim, const bool endpoint) const {

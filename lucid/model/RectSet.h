@@ -85,6 +85,47 @@ class RectSet final : public Set {
    */
   [[nodiscard]] RectSet relative_to(ConstVectorRef point) const;
 
+  /**
+   * Scale the rectangular set by the given factor(s).
+   * The scaling is performed with respect to the center of the rectangular set.
+   * @param scale scaling factor(s) for each dimension
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] RectSet scale(ConstVectorRef scale) const;
+  /**
+   * Scale the rectangular set by the given factor.
+   * The scaling is performed with respect to the center of the rectangular set.
+   * @param scale scaling factor
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] RectSet scale(double scale) const;
+  /**
+   * Scale the rectangular set by the given factor(s) while keeping it inside the given bounds.
+   * The scaling is performed with respect to the center of the rectangular set.
+   * The scaling factor can be computed relative to either
+   * - the current size of the rectangular set;
+   * - the size of the bounding rectangular set.
+   * @param scale scaling factor(s) for each dimension
+   * @param bounds bounding rectangular set
+   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
+   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] RectSet scale(ConstVectorRef scale, const RectSet& bounds, bool relative_to_bounds = false) const;
+  /**
+   * Scale the rectangular set by the given factor while keeping it inside the given bounds.
+   * The scaling is performed with respect to the center of the rectangular set.
+   * The scaling factor can be computed relative to either
+   * - the current size of the rectangular set;
+   * - the size of the bounding rectangular set.
+   * @param scale scaling factor
+   * @param bounds bounding rectangular set
+   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
+   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] RectSet scale(double scale, const RectSet& bounds, bool relative_to_bounds = false) const;
+
   RectSet& operator*=(ConstVectorRef scale);
   RectSet& operator*=(Scalar scale);
   [[nodiscard]] RectSet operator*(ConstVectorRef scale) const;

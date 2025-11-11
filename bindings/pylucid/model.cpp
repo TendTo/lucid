@@ -308,6 +308,8 @@ void init_model(py::module_ &m) {
       .def_property_readonly("dimension", &Set::dimension, Set_dimension)
       .def("sample", py::overload_cast<Index>(&Set::sample, py::const_), py::arg("num_samples"), Set_sample)
       .def("sample", py::overload_cast<>(&Set::sample, py::const_), Set_sample)
+      .def("include", &Set::include, ARG_NONCONVERT("xs"), Set_include)
+      .def("exclude", &Set::exclude, ARG_NONCONVERT("xs"), Set_exclude)
       .def("change_size", py::overload_cast<double>(&Set::change_size), py::arg("delta_size"), Set_change_size)
       .def("change_size", py::overload_cast<ConstVectorRef>(&Set::change_size), ARG_NONCONVERT("delta_size"),
            Set_change_size)
@@ -326,6 +328,13 @@ void init_model(py::module_ &m) {
            RectSet_relative_to)
       .def("relative_to", py::overload_cast<ConstVectorRef>(&RectSet::relative_to, py::const_), ARG_NONCONVERT("point"),
            RectSet_relative_to)
+      .def("scale", py::overload_cast<ConstVectorRef>(&RectSet::scale, py::const_), ARG_NONCONVERT("scale"),
+           RectSet_scale)
+      .def("scale", py::overload_cast<double>(&RectSet::scale, py::const_), py::arg("scale"), RectSet_scale)
+      .def("scale", py::overload_cast<ConstVectorRef, const RectSet &, bool>(&RectSet::scale, py::const_),
+           ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
+      .def("scale", py::overload_cast<double, const RectSet &, bool>(&RectSet::scale, py::const_), py::arg("scale"),
+           py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
       .def(py::self *= double())
       .def(py::self *= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
       .def(py::self * ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))

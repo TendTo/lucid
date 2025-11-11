@@ -94,6 +94,29 @@ RectSet RectSet::relative_to(ConstVectorRef point) const {
   return RectSet{lb_ - point, ub_ - point};
 }
 
+RectSet RectSet::scale(ConstVectorRef scale, const RectSet& bounds, const bool relative_to_bounds) const {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+  RectSet result{*this};
+  const Vector size_change = (relative_to_bounds ? bounds.sizes() : sizes()).array() * scale.array() / 2.0;
+  result.lb_ = ((lb_ - size_change).array() < bounds.lb_.array()).select(bounds.lb_, lb_ - size_change);
+  result.ub_ = ((ub_ + size_change).array() > bounds.ub_.array()).select(bounds.ub_, ub_ + size_change);
+  return result;
+}
+
+RectSet RectSet::scale(const double scale, const RectSet& bounds, const bool relative_to_bounds) const {
+  return this->scale(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
+}
+
+RectSet RectSet::scale(ConstVectorRef scale) const {
+  RectSet result{*this};
+  const Vector size_change = sizes().array() * scale.array() / 2.0;
+  result.lb_ = lb_ - size_change;
+  result.ub_ = ub_ + size_change;
+  return result;
+}
+RectSet RectSet::scale(const double scale) const { return this->scale(Vector::Constant(dimension(), scale)); }
+
 RectSet& RectSet::operator*=(ConstVectorRef scale) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
   LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >=, 0);

@@ -54,6 +54,22 @@ class Set {
   [[nodiscard]] bool contains(ConstVectorRef x) const { return (*this)(x); }
 
   /**
+   * Filter a set `xs`, returning only the row vectors that are in @X.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @param xs @nxd matrix of row vectors to filter
+   * @return matrix of row vectors that are in the set
+   */
+  [[nodiscard]] Matrix include(ConstMatrixRef xs) const;
+
+  /**
+   * Filter `xs`, return only the row vectors that are NOT in @X
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @param xs @nxd matrix of row vectors to filter
+   * @return matrix of row vectors that are NOT in the set
+   */
+  [[nodiscard]] Matrix exclude(ConstMatrixRef xs) const;
+
+  /**
    * Check if a vector is in @X.
    * @pre @x must have the same dimension as the set
    * @param x vector to test
