@@ -25,7 +25,7 @@ Matrix Set::include(ConstMatrixRef xs) const {
   for (Index i = 0; i < xs.rows(); i++) {
     if (contains(xs.row(i))) indices.push_back(i);
   }
-  return xs(indices, Eigen::all);
+  return xs(indices, Eigen::placeholders::all);
 }
 Matrix Set::exclude(ConstMatrixRef xs) const {
   LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
@@ -34,7 +34,7 @@ Matrix Set::exclude(ConstMatrixRef xs) const {
   for (Index i = 0; i < xs.rows(); i++) {
     if (!contains(xs.row(i))) indices.push_back(i);
   }
-  return xs(indices, Eigen::all);
+  return xs(indices, Eigen::placeholders::all);
 }
 
 void Set::change_size(const double delta_size) { change_size(Vector::Constant(dimension(), delta_size)); }

@@ -168,7 +168,7 @@ Matrix PolytopeSet::lattice(const VectorI& points_per_dim, const bool endpoint) 
     if (contains(x_lattice.row(i))) valid_indices.push_back(i);
   }
 
-  return x_lattice(valid_indices, Eigen::all);
+  return x_lattice(valid_indices, Eigen::placeholders::all);
 }
 
 void PolytopeSet::scale(const Scalar factor) { b_ *= factor; }

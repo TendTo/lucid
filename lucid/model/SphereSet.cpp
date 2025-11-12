@@ -51,7 +51,7 @@ Matrix SphereSet::lattice(const VectorI& points_per_dim, const bool endpoint) co
   for (Index i = 0; i < lattice.rows(); ++i) {
     if (this->contains(lattice.row(i))) mask_rows.push_back(i);
   }
-  return lattice(mask_rows, Eigen::all);
+  return lattice(mask_rows, Eigen::placeholders::all);
 }
 void SphereSet::change_size(ConstVectorRef delta_size) {
   LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(delta_size));

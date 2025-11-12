@@ -36,10 +36,10 @@ double CrossValidator::fit(Estimator& estimator, ConstMatrixRef training_inputs,
     LUCID_DEBUG_FMT("Cross validation progress {}/{}", i + 1, train_folds.size());
     std::unique_ptr<Estimator> current_estimator{estimator.clone()};
 
-    auto train_inputs{training_inputs(train_folds[i], Eigen::all)};
-    auto train_outputs{training_outputs(train_folds[i], Eigen::all)};
-    auto val_inputs{training_inputs(val_folds[i], Eigen::all)};
-    auto val_outputs{training_outputs(val_folds[i], Eigen::all)};
+    auto train_inputs{training_inputs(train_folds[i], Eigen::placeholders::all)};
+    auto train_outputs{training_outputs(train_folds[i], Eigen::placeholders::all)};
+    auto val_inputs{training_inputs(val_folds[i], Eigen::placeholders::all)};
+    auto val_outputs{training_outputs(val_folds[i], Eigen::placeholders::all)};
 
     if (tuner) {
       try {
@@ -93,10 +93,10 @@ std::vector<double> CrossValidator::score(const Estimator& estimator, ConstMatri
   for (std::size_t i = 0; i < train_folds.size(); ++i) {
     LUCID_DEBUG_FMT("Cross validation scoring progress {}/{}", i + 1, train_folds.size());
 
-    auto train_inputs{inputs(train_folds[i], Eigen::all)};
-    auto train_outputs{outputs(train_folds[i], Eigen::all)};
-    auto val_inputs{inputs(val_folds[i], Eigen::all)};
-    auto val_outputs{outputs(val_folds[i], Eigen::all)};
+    auto train_inputs{inputs(train_folds[i], Eigen::placeholders::all)};
+    auto train_outputs{outputs(train_folds[i], Eigen::placeholders::all)};
+    auto val_inputs{inputs(val_folds[i], Eigen::placeholders::all)};
+    auto val_outputs{outputs(val_folds[i], Eigen::placeholders::all)};
 
     estimator_copy->consolidate(train_inputs, train_outputs);
 
