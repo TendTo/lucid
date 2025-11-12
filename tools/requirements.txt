@@ -37,3 +37,6 @@ gurobipy<=12.0.3
 cuda-pathfinder<=13.0.1
 zipp<=3.23.0
 cxxheaderparser==1.6.0
+pyswarms==1.3.0
+future==1.0.0
+tqdm==4.67.1

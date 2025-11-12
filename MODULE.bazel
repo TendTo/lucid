@@ -38,6 +38,13 @@ git_override(
     remote = "https://github.com/TendTo/HiGHS.git",
 )
 
+bazel_dep(name = "psocpp", version = "0.1.0")
+git_override(
+    module_name = "psocpp",
+    commit = "8899b80014d92b8c38b9e473691673cb1e76004e",
+    remote = "https://github.com/TendTo/pso-cpp.git",
+)
+
 # Apache License 2.0 | Linear programming solver
 bazel_dep(name = "soplex", version = "7.1.4.bcr.1")
 
@@ -116,15 +123,6 @@ github_archive(
     commit = "v0.4.0",
     repository = "yixuan/LBFGSpp",
     sha256 = "39c4aaebd8b94ccdc98191d51913a31cddd618cc0869d99f07a4b6da83ca6254",
-)
-
-# MIT | particle swarm optimization library
-github_archive(
-    name = "psocpp",
-    build_file = "//third_party:psocpp.BUILD.bazel",
-    commit = "c9c94ff4051a4b4e1713cd7e06e1c3ea6416f23b",
-    repository = "Rookfighter/pso-cpp",
-    sha256 = "ec58bd51f42b3f3193b19db2188430e4b2c54653a55f3cde3d5a48e2a4b2c426",
 )
 
 # MIT | fast fourier transform library

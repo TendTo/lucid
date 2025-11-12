@@ -13,6 +13,7 @@
 #include "lucid/lib/eigen.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 #include "lucid/verification/BarrierCertificate.h"
+#include "lucid/verification/PsoParameters.h"
 
 namespace lucid {
 
@@ -38,6 +39,43 @@ class Optimiser;
 class FourierBarrierCertificate final : public BarrierCertificate {
  public:
   using BarrierCertificate::BarrierCertificate;
+
+  /** TODO(tend): remove */
+  double compute(int n_tilde, double Q_tilde, int f_max, ConstMatrixRef x0_lattice_wo_init, ConstMatrixRef x) const;
+
+  /**
+   * Synthesize the barrier certificate.
+   * This is done in multiple steps.
+   *
+   * **Finding the bounds**
+   *
+   * First, we find some upper and lower bounds on the value the barrier certificate can assume over @X0 and @Xu.
+   * For simplicity, we only explain the process for finding the upper bound over @X0, but the same applies
+   * to the lower bound over @X0 and bounds over @Xu.
+   * We can obtain the lower bound on @X0 by using the following inequality:
+   * @f[
+   * B(x) \le \hat{B}^{\mathcal{X}_0}_{\tilde{N}}C_{\tilde{N}}
+   * + R^{\mathcal{\tilde{X}}\setminus\mathcal{X}_0}_{\tilde{N}}\underbrace{\frac{1}{\tilde{N}}
+   * \sum_{\bar{x} \in \Theta_{\tilde{N}}\setminus\mathcal{X}_0} D^n_{f_{\max}-\tilde{Q}-f_{\max}}(x - \bar{x})}
+   * _{A^{\mathcal{\tilde{X}\setminus\mathcal{X}_0}}_\tilde{N}}
+   * \quad \forall x \in \mathcal{X}_0 ,
+   * @f]
+   * where @f$ R^{\mathcal{\tilde{X}}\setminus\mathcal{X}_0}_{\tilde{N}} =
+   * \max_{x \in \Theta_\tilde{N} \setminus \mathcal{X}_0}\{\phi_M(x)^Tb\} @f$,
+   * @f$ \hat{B}_\tilde{N}^{\mathcal{X}_0} @f$ is the residual outside @X0,
+   * and @f$ C_{\tilde{N}} = \left( 1 - \frac{2 f_{\max}}{\tilde{Q}} \right)^{-\frac{n}{2}} @f$.
+   * Note that we can find the upper bound @f$ A^{\mathcal{\tilde{X}\setminus\mathcal{X}_0}}_\tilde{N} @f$
+   * by solving an optimisation problem before starting the synthesis, using, e.g.,
+   * [particle swarm optimisation (PSO)](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
+   * @param n_tilde numer of lattice points used for the synthesis
+   * @param Q_tilde
+   * @param f_max
+   * @param x0_lattice_wo_init
+   * @param parameters
+   * @return
+   */
+  bool full_synthesize(int n_tilde, double Q_tilde, int f_max, ConstMatrixRef x0_lattice_wo_init, const RectSet& bounds,
+                       const PsoParameters& parameters = {});
 
   /**
    * Synthesize the barrier certificate by solving a linear optimisation problem.
@@ -101,6 +139,10 @@ class FourierBarrierCertificate final : public BarrierCertificate {
                           double target_norm);
 
   Vector coefficients_;  ///< Coefficients of the Fourier basis
+  // TODO(tend): remove
+ public:
+  double last_pso_fval_ = 0;  ///< Last PSO objective value
+  Vector last_pso_xval_;      ///< Last PSO x
 };
 
 std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificate& obj);

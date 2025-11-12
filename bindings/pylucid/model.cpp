@@ -240,7 +240,8 @@ void init_model(py::module_ &m) {
       .def_readwrite("min_step", &LbfgsParameters::min_step, LbfgsParameters_min_step)
       .def_readwrite("max_step", &LbfgsParameters::max_step, LbfgsParameters_max_step)
       .def_readwrite("ftol", &LbfgsParameters::ftol, LbfgsParameters_ftol)
-      .def_readwrite("wolfe", &LbfgsParameters::wolfe, LbfgsParameters_wolfe);
+      .def_readwrite("wolfe", &LbfgsParameters::wolfe, LbfgsParameters_wolfe)
+      .def("__str__", STRING_LAMBDA(LbfgsParameters));
 
   /**************************** Requests ****************************/
   py::enum_<Request>(m, "Request", _Request)
@@ -620,7 +621,7 @@ void init_model(py::module_ &m) {
            py::arg("scorer"), CrossValidator_compute_folds);
   py::class_<LeaveOneOut, CrossValidator>(m, "LeaveOneOut", LeaveOneOut_).def(py::init<>());
   py::class_<KFold, CrossValidator>(m, "KFold", KFold_)
-      .def(py::init<int, bool>(), py::arg("num_folds") = 5, py::arg("shuffle"), KFold_KFold);
+      .def(py::init<int, bool>(), py::arg("num_folds") = 5, py::arg("shuffle") = true, KFold_KFold);
 
   /**************************** Misc ****************************/
   // TODO(tend): it would be nice to encapsulate this in a class

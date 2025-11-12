@@ -8,7 +8,9 @@
 
 #include <memory>
 
+#include "lucid/lib/psocpp.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"
+#include "lucid/model/ValleePoussinKernel.h"
 #include "lucid/util/Stats.h"
 #include "lucid/util/constants.h"
 #include "lucid/util/error.h"
@@ -18,6 +20,92 @@
 #include "lucid/verification/SoplexOptimiser.h"
 
 namespace lucid {
+
+namespace {
+
+class Objective {
+ public:
+  Objective(const int n_tilde, const double Q_tilde, const int f_max, ConstMatrixRef x0_lattice_wo_init)
+      : n_tilde_{n_tilde},
+        x0_lattice_wo_init_{x0_lattice_wo_init},
+        kernel_{ValleePoussinKernel{static_cast<double>(f_max), Q_tilde - static_cast<double>(f_max)}} {}
+
+  /**
+   * Wrap angle to [-Period/2, Period/2].
+   * @tparam Period period of the angle
+   * @param x angle in radians
+   * @return wrapped angle in radians
+   */
+  template <double Period>
+  static double wrap_angle(double x) {
+    x = std::fmod(x + Period / 2, Period);
+    if (x < 0) x += Period;
+    return x - Period / 2;
+  }
+
+  /**
+   * Objective function for PSO.
+   * @f[
+   * \frac{1}{\tilde{N}} \sum_{\bar{x} \in \Theta_{\tilde{N}} D^n_{f_{\max},\bar{Q}-f_{\max}}(x_i - \bar{x})
+   * @f]
+   * @tparam Derived type of the input matrix. Allows for Eigen expressions and improve performance
+   * @param x current position of the particle, expected to be a column vector, where the function is evaluated
+   * @return objective value at the given position `x`
+   */
+  template <class Derived>
+  double operator()(const Eigen::MatrixBase<Derived>& x) const {
+    LUCID_ASSERT(x.size() == x0_lattice_wo_init_.cols(), "The input dimension must be equal to the lattice dimension");
+    const auto diffs = -1 * (x0_lattice_wo_init_.rowwise() - x.col(0).transpose());
+    const auto wrapped_diffs = diffs.unaryExpr(&wrap_angle<2.0 * std::numbers::pi>);
+    const Matrix res = kernel_(wrapped_diffs);
+    LUCID_ASSERT(res.cols() == 1 && res.rows() == x0_lattice_wo_init_.rows(),
+                 "The output of the kernel must be a vector with the same number of rows as the input lattice");
+    // We want to maximise the objective value, but PSO minimises it, so we return the negative value
+    return -1 * res.sum() / static_cast<double>(n_tilde_);
+  }
+
+ private:
+  const int n_tilde_;
+  ConstMatrixRef x0_lattice_wo_init_;
+  const ValleePoussinKernel kernel_;
+};
+
+}  // namespace
+
+double FourierBarrierCertificate::compute(const int n_tilde, const double Q_tilde, const int f_max,
+                                          ConstMatrixRef x0_lattice_wo_init, ConstMatrixRef x) const {
+  return Objective(n_tilde, Q_tilde, f_max, x0_lattice_wo_init)(x);
+}
+bool FourierBarrierCertificate::full_synthesize(const int n_tilde, const double Q_tilde, const int f_max,
+                                                ConstMatrixRef x0_lattice_wo_init, const RectSet& bounds,
+                                                const PsoParameters& parameters) {
+  pso::ParticleSwarmOptimization<double, Objective> optimiser{n_tilde, Q_tilde, f_max, x0_lattice_wo_init};
+  Matrix matrix_bounds{2, bounds.dimension()};
+  matrix_bounds.row(0) = bounds.lower_bound().transpose();
+  matrix_bounds.row(1) = bounds.upper_bound().transpose();
+
+  optimiser.setPhiParticles(parameters.phi_local);
+  optimiser.setPhiGlobal(parameters.phi_global);
+  optimiser.setInertiaWeightStrategy(pso::ConstantWeight<double>(parameters.weight));
+  optimiser.setMaxIterations(parameters.max_iter);
+  optimiser.setThreads(parameters.threads);
+  optimiser.setMinParticleChange(parameters.xtol);
+  optimiser.setMinFunctionChange(parameters.ftol);
+  optimiser.setMaxVelocity(parameters.max_vel);
+  optimiser.setVerbosity(LUCID_TRACE_ENABLED ? 3 : LUCID_DEBUG_ENABLED ? 1 : 0);
+
+  auto [iterations, converged, fval, xval] = optimiser.minimize(matrix_bounds, parameters.num_particles);
+  if (!converged) {
+    LUCID_WARN("PSO did not converge");
+    return false;
+  }
+
+  LUCID_DEBUG_FMT("PSO converged in {} iterations with objective value {}", iterations, fval);
+  LUCID_DEBUG_FMT("Best position: {}", LUCID_FORMAT_MATRIX(xval));
+  last_pso_fval_ = -fval;
+  last_pso_xval_ = xval.transpose();
+  return true;
+}
 
 bool FourierBarrierCertificate::synthesize(ConstMatrixRef fx_lattice, ConstMatrixRef fxp_lattice,
                                            ConstMatrixRef fx0_lattice, ConstMatrixRef fxu_lattice,
