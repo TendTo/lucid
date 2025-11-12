@@ -107,6 +107,32 @@ RectSet RectSet::scale(ConstVectorRef scale, const RectSet& bounds, const bool r
 RectSet RectSet::scale(const double scale, const RectSet& bounds, const bool relative_to_bounds) const {
   return this->scale(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
 }
+RectSet& RectSet::operator+=(ConstVectorRef offset) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
+  lb_ += offset;
+  ub_ += offset;
+  return *this;
+}
+RectSet& RectSet::operator+=(const double offset) {
+  lb_.array() += offset;
+  ub_.array() += offset;
+  return *this;
+}
+RectSet RectSet::operator+(ConstVectorRef offset) const { return RectSet{*this} += offset; }
+RectSet RectSet::operator+(const double offset) const { return RectSet{*this} += offset; }
+RectSet& RectSet::operator-=(ConstVectorRef offset) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
+  lb_ -= offset;
+  ub_ -= offset;
+  return *this;
+}
+RectSet& RectSet::operator-=(const double offset) {
+  lb_.array() -= offset;
+  ub_.array() -= offset;
+  return *this;
+}
+RectSet RectSet::operator-(ConstVectorRef offset) const { return RectSet{*this} -= offset; }
+RectSet RectSet::operator-(const double offset) const { return RectSet{*this} -= offset; }
 
 RectSet RectSet::scale(ConstVectorRef scale) const {
   RectSet result{*this};

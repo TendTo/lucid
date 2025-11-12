@@ -62,6 +62,23 @@ class RectSet final : public Set {
 
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
 
+  /**
+   * Generate a lattice of points in the set.
+   * In python, this would be implemented as:
+   * @code{.py}
+   * import numpy as np
+   *
+   * def build_lattice(points_per_dim, endpoint):
+   *    # self.lb_ and self.ub_ are the lower and upper bounds of the rectangular set
+   *    grids = [np.linspace(l, u, n, endpoint) for l, u, n in zip(self.lb_, self.ub_, points_per_dim)]
+   *    mesh = np.meshgrid(*grids, indexing="xy")
+   *    pts = np.vstack([m.ravel() for m in mesh]).T
+   *    return pts
+   * @endcode
+   * @param points_per_dim number of points per each dimension
+   * @param endpoint whether to include the endpoints of the lattice
+   * @return lattice of points in the set
+   */
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool endpoint) const override;
 
   void change_size(ConstVectorRef delta_size) override;
@@ -126,6 +143,14 @@ class RectSet final : public Set {
    */
   [[nodiscard]] RectSet scale(double scale, const RectSet& bounds, bool relative_to_bounds = false) const;
 
+  RectSet& operator+=(ConstVectorRef offset);
+  RectSet& operator+=(Scalar offset);
+  [[nodiscard]] RectSet operator+(ConstVectorRef offset) const;
+  [[nodiscard]] RectSet operator+(Scalar offset) const;
+  RectSet& operator-=(ConstVectorRef offset);
+  RectSet& operator-=(Scalar offset);
+  [[nodiscard]] RectSet operator-(ConstVectorRef offset) const;
+  [[nodiscard]] RectSet operator-(Scalar offset) const;
   RectSet& operator*=(ConstVectorRef scale);
   RectSet& operator*=(Scalar scale);
   [[nodiscard]] RectSet operator*(ConstVectorRef scale) const;
