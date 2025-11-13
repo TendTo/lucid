@@ -63,7 +63,7 @@ class circulant_functor {
 template <class ArgType>
 struct shift_helper {
   using MatrixType = Eigen::Matrix<typename ArgType::Scalar, ArgType::RowsAtCompileTime, ArgType::ColsAtCompileTime,
-                                   Eigen::ColMajor, ArgType::MaxRowsAtCompileTime, ArgType::MaxColsAtCompileTime>;
+                                   Eigen::RowMajor, ArgType::MaxRowsAtCompileTime, ArgType::MaxColsAtCompileTime>;
 };
 
 /**
