@@ -120,6 +120,20 @@ class Configuration(Namespace):
 
     constant_lattice_points: bool = False
 
+    def populate_samples(self):
+        if len(self.x_samples) == 0:
+            # If x_samples is not provided, sample it from the bounds
+            self.x_samples = self.X_bounds.sample(self.num_samples)
+        if len(self.xp_samples) == 0:
+            assert_or_raise(
+                self.system_dynamics is not None,
+                "If no outputs are provided, 'system_dynamics' must be specified",
+            )
+            # If xp_samples is not provided, compute it using the system dynamics function
+            # Noisy system dynamics
+            f = lambda x: self.system_dynamics(x) + np.random.normal(scale=self.noise_scale)
+            self.xp_samples = f(self.x_samples)
+
     def to_safe_dict(self) -> dict:
         config_dict = self.__dict__.copy()
         config_dict["system_dynamics"] = []
