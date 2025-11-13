@@ -13,7 +13,7 @@ using lucid::Index;
 using lucid::Matrix;
 using lucid::Parameter;
 using lucid::ValleePoussinKernel;
-using lucid::Vector;
+using ColVector = Eigen::VectorXd;
 
 namespace {
 
@@ -33,16 +33,16 @@ namespace {
  * @param b parameter b
  * @return Vallee-Poussin kernel values
  */
-Vector vallee_poussin(ConstMatrixRef x, const double a, const double b) {
+ColVector vallee_poussin(ConstMatrixRef x, const double a, const double b) {
   const double coeff = 1.0 / std::pow(b - a, static_cast<double>(x.cols()));
-  Vector prod = Vector::Ones(x.rows());
+  ColVector prod = ColVector::Ones(x.rows());
 
   for (Index i = 0; i < x.cols(); ++i) {
     const auto& col = x.col(i);
     const auto numerator = (((b + a) / 2.0 * col.array()).sin() * ((b - a) / 2.0 * col.array()).sin()).matrix();
     const auto denominator = ((col.array() / 2.0).sin().square()).matrix();
 
-    Vector fraction{x.rows()};
+    ColVector fraction{x.rows()};
     for (Index j = 0; j < x.rows(); ++j) {
       if (denominator(j) != 0.0) {
         fraction(j) = numerator(j) / denominator(j);
@@ -122,8 +122,8 @@ TEST_F(TestValleePoussinKernel, Clone) {
 
 TEST_F(TestValleePoussinKernel, VectorCorrectness) {
   const Matrix x{Matrix::Random(5, 3)};
-  const Vector expected = vallee_poussin(x, a_, b_);
-  const Vector result = kernel_(x);
+  const ColVector expected = vallee_poussin(x, a_, b_);
+  const ColVector result = kernel_(x);
 
   ASSERT_EQ(result.size(), x.rows());
   EXPECT_TRUE(result.isApprox(expected));
@@ -134,7 +134,7 @@ TEST_F(TestValleePoussinKernel, ZeroHandling) {
   Matrix x{2, 2};
   x << 0.0, 0.0, 1.0, 2.0;
 
-  const Vector result = kernel(x);
+  const ColVector result = kernel(x);
 
   ASSERT_EQ(result.size(), 2);
   // When x_i = 0, the fraction should be b^2 - a^2
@@ -144,7 +144,7 @@ TEST_F(TestValleePoussinKernel, ZeroHandling) {
 
 TEST_F(TestValleePoussinKernel, LargeInputDimensions) {
   const Matrix x{Matrix::Random(10, 5)};
-  const Vector result = kernel_(x);
+  const ColVector result = kernel_(x);
 
   ASSERT_EQ(result.size(), 10);
   EXPECT_FALSE(result.hasNaN());
@@ -154,9 +154,9 @@ TEST_F(TestValleePoussinKernel, LargeInputDimensions) {
 TEST_F(TestValleePoussinKernel, ConsistencyAcrossMultipleCalls) {
   const Matrix x{Matrix::Random(4, 3)};
 
-  const Vector result1 = kernel_(x);
-  const Vector result2 = kernel_(x);
-  const Vector result3 = kernel_(x);
+  const ColVector result1 = kernel_(x);
+  const ColVector result2 = kernel_(x);
+  const ColVector result3 = kernel_(x);
 
   EXPECT_TRUE(result1.isApprox(result2));
   EXPECT_TRUE(result2.isApprox(result3));

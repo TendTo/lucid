@@ -55,7 +55,7 @@ Matrix ValleePoussinKernel::apply_impl(ConstMatrixRef x1, [[maybe_unused]] Const
   // Compute the Vallee-Poussin kernel
   // coeff = 1 / (b - a)^n
   const double coeff = 1.0 / std::pow(b_ - a_, static_cast<double>(x1.cols()));
-  Vector prod = Vector::Ones(x1.rows());
+  Matrix prod = Matrix::Ones(x1.rows(), 1);
   // For each dimension
   for (auto& col : x1.colwise()) {
     // num = sin( (b + a) / 2 * x_i ) * sin( (b - a) / 2 * x_i )
