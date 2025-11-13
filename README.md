@@ -10,6 +10,12 @@ _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical System
 > My integral is your table.  
 > -- _[Oliver Schön](https://oliverschon.com/)_
 
+
+> [!WARNING]  
+> This project is under active development.
+> Features and APIs may change without prior notice.
+> Please refer to the [changelog](docs/Changelog.md) for the latest updates.
+
 ## Quick installation
 
 For more details, see the [installation](docs/Installation.md) or the [Pylucid](docs/Pylucid.md) sections.
