@@ -34,7 +34,7 @@ def main():
 
     n_samples = 100
     X, Y, Z = feature_map_on_rectset(f, X_bounds, n_samples)
-    X_p, Y_p, Z_p = feature_map_on_rectset(f, f.get_periodic_set(sigma_l), n_samples)
+    X_p, Y_p, Z_p = feature_map_on_rectset(f, f.get_periodic_set(), n_samples)
 
     # Ensure axes is iterable (handle single-axis case)
     axes_list = axes.flatten() if hasattr(axes, "flatten") else np.array([axes])

@@ -507,12 +507,13 @@ void init_model(py::module_ &m) {
       .def("clone", &FeatureMap::clone, FeatureMap_clone)
       .def("__str__", STRING_LAMBDA(FeatureMap));
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap", TruncatedFourierFeatureMap_)
-      .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"),
-           py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("X_bounds"))
+      .def(py::init<long, ConstVectorRef, ConstVectorRef, ConstVectorRef, Scalar, RectSet>(),
+           py::arg("num_frequencies"), py::arg("prob_per_dim"), py::arg("omega_per_dim"), ARG_NONCONVERT("sigma_l"),
+           py::arg("sigma_f"), py::arg("X_bounds"))
       .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet, bool>(), py::arg("num_frequencies"),
            py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("X_bounds"),
            py::arg("unused"))
-      .def("get_periodic_set", &TruncatedFourierFeatureMap::get_periodic_set, ARG_NONCONVERT("sigma_l"),
+      .def("get_periodic_set", &TruncatedFourierFeatureMap::get_periodic_set,
            TruncatedFourierFeatureMap_get_periodic_set)
       .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"),
            TruncatedFourierFeatureMap_map_vector)
