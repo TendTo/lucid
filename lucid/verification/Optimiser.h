@@ -24,12 +24,40 @@ struct FourierBarrierSynthesisProblem {
   ConstMatrixRef fxu_lattice;  ///< Lattice obtained from the unsafe set after applying the feature map
   int T;                       ///< Time horizon
   double gamma;                ///< @gamma value
-  double C;                    ///< Conservative coefficient used to obtain guarantees on the whole state space
+  double C;                    ///< @f$ C = (1 - \frac{2 f_\max}{\tilde{Q}}^{\frac{-n}{2}} @f$
   double b_kappa;
+  // eta_coeff = 2 / (C - A_x0 + 1)
+  double eta_coeff;  ///< Coefficient for the eta constraint
+  // min_x0_coeff = (C - A_x0 - 1) / (C - A_x0 + 1)
+  double min_x0_coeff;  ///< Coefficient for the lower bound on B at x0
+  // diff_sx0_coeff = -A_x0 / (C - A_x0 + 1)
+  double diff_sx0_coeff;  ///< Coefficient for the difference in B at x0
+  // gamma_coeff = 2 / (C - A_xu + 1)
+  double gamma_coeff;  ///< Coefficient for the gamma constraint
+  // max_xu_coeff = (C - A_xu - 1) / (C - A_xu + 1)
+  double max_xu_coeff;  ///< Coefficient for the upper bound on B at xu
+  // diff_sxu_coeff = A_xu / (C - A_xu + 1)
+  // TODO(tend): check the missmatch with the paper => the denominator is A_xu or A_x0?
+  double diff_sxu_coeff;  ///< Coefficient for the difference in B at xu
+  // ebk = epsilon * target_norm * kappa
+  double ebk;  ///< Coefficient for the Kushner constraint
+  // c_ebk_coeff = 2 / (C - A_x + 1)
+  double c_ebk_coeff;  ///< Coefficient for the Kushner constraint
+  // min_d_coeff = (C - A_x - 1) / (C - A_x + 1)
+  double min_d_coeff;  ///< Coefficient for the lower bound on B at x
+  // diff_d_sx_coeff = -A_x / (C - A_x + 1)
+  double diff_d_sx_coeff;  ///< Coefficient for the difference in B at x
+  // max_x_coeff = (C - A_x - 1) / (C - A_x + 1)
+  double max_x_coeff;  ///< Coefficient for the upper bound on B at x
+  // diff_sx_coeff = A_x / (C - A_x + 1)
+  double diff_sx_coeff;
   double fctr1;
   double fctr2;
   double unsafe_rhs;
   double kushner_rhs;
+  double A_x;
+  double A_x0;
+  double A_xu;
 };
 
 /**

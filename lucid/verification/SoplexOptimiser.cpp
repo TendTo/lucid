@@ -32,7 +32,9 @@ namespace lucid {
 bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                            const SolutionCallback& cb) const {
   const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma_val, C, b_kappa,
-               fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
+               eta_coeff, min_x0_coeff, diff_sx0_coeff, gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff,
+               min_d_coeff, diff_d_sx_coeff, max_x_coeff, diff_sx_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs, A_x,
+               A_x0, A_xu] = params;
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability

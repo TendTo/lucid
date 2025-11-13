@@ -243,6 +243,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   return true;
 }
 
+#if 0
 bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                            const SolutionCallback& cb) const {
   const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma_val, C, b_kappa,
@@ -472,6 +473,84 @@ std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef A, ConstV
     }
   }
   return bounds;
+}
+#endif
+
+bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
+                                                           [[maybe_unused]] const SolutionCallback& cb) const {
+  static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
+  static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
+
+  const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma, C, b_kappa,
+               eta_coeff, min_x0_coeff, diff_sx0_coeff, gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff,
+               min_d_coeff, diff_d_sx_coeff, max_x_coeff, diff_sx_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs, A_x,
+               A_x0, A_xu] = params;
+
+  constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
+  constexpr double max_num = std::numeric_limits<double>::infinity();
+  constexpr double min_eta = 0;
+
+  GRBEnv env{true};
+  env.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
+  env.start();
+  GRBModel model{env};
+  model.set(GRB_DoubleParam_FeasibilityTol, 1e-9);
+  model.set(GRB_DoubleParam_TimeLimit, 10000);
+#ifdef LUCID_PYTHON_BUILD
+  PyInterruptCallback callback;
+  model.setCallback(&callback);
+#endif
+
+  // Specify constraints
+  // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
+  // Variables [b_1, ..., b_nBasis_x, c, eta, ...
+  // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
+  // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
+#ifndef NLOG
+  const bool should_log = should_log_problem();
+#else
+  constexpr bool should_log = false;
+#endif
+  const std::unique_ptr<GRBVar[]> vars_{model.addVars(static_cast<int>(num_vars))};
+  const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(num_vars)};
+  std::array<GRBVar, 10> special_vars;
+  for (std::size_t i = 0; i < special_vars.size(); ++i) {
+    special_vars[i] = vars[vars.size() - special_vars.size() + i];
+  }
+  auto& [c, eta, min_x0, min_sx0, max_sx0, max_xu, min_sxu, max_sxu, max_all, min_d] = special_vars;
+
+  if (should_log) {
+    c.set(GRB_StringAttr_VarName, "c");
+    eta.set(GRB_StringAttr_VarName, "eta");
+    min_x0.set(GRB_StringAttr_VarName, "min_X0");
+    min_sx0.set(GRB_StringAttr_VarName, "min_Xn/X0");
+    max_sx0.set(GRB_StringAttr_VarName, "max_Xn/X0");
+    max_xu.set(GRB_StringAttr_VarName, "max_XU");
+    min_sxu.set(GRB_StringAttr_VarName, "min_Xn/Xu");
+    max_sxu.set(GRB_StringAttr_VarName, "max_Xn/Xu");
+    max_all.set(GRB_StringAttr_VarName, "max_Xn");
+    min_d.set(GRB_StringAttr_VarName, "min_Delta");
+  }
+
+  // Variables related to the feature map
+  int idx = 0;
+  for (GRBVar& var : vars.subspan(0, fx_lattice.cols())) {
+    var.set(GRB_DoubleAttr_LB, -max_num);
+    var.set(GRB_DoubleAttr_UB, max_num);
+    if (should_log) var.set(GRB_StringAttr_VarName, fmt::format("b[{}]", idx++));
+  }
+  c.set(GRB_DoubleAttr_LB, 0);
+  c.set(GRB_DoubleAttr_UB, max_num);
+  eta.set(GRB_DoubleAttr_LB, min_eta);
+  eta.set(GRB_DoubleAttr_UB, gamma - min_num);  // To enforce a strict inequality, we sub a small number to the ub
+  min_d.set(GRB_DoubleAttr_LB, -max_num);
+  min_d.set(GRB_DoubleAttr_UB, max_num);
+  for (GRBVar& var : std::array{min_x0, max_xu, max_all}) {
+    var.set(GRB_DoubleAttr_LB, 0);
+    var.set(GRB_DoubleAttr_UB, max_num);
+  }
+
+  return true;
 }
 
 #else

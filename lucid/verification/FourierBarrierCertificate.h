@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "lucid/lib/eigen.h"
+#include "lucid/model/Estimator.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 #include "lucid/verification/BarrierCertificate.h"
 
@@ -21,16 +22,20 @@ class Optimiser;
 
 /** Parameters for the Fourier barrier certificate synthesis using PSO. */
 struct FourierBarrierCertificateParameters {
-  double increase = 0.1;    ///< Set size percentage increase factor on the periodic domain
-  int num_particles = 40;   ///< Number of particles in the swarm
-  double phi_local = 0.5;   ///< Cognitive coefficient
-  double phi_global = 0.3;  ///< Social coefficient
-  double weight = 0.9;      ///< Inertia weight
-  int max_iter = 150;       ///< Maximum number of iterations. 0 means no limit
-  double max_vel = 0.0;     ///< Maximum velocity for each particle. 0 means no limit
-  double ftol = 1e-8;       ///< Function value tolerance for convergence
-  double xtol = 1e-8;       ///< Position change tolerance for convergence
-  int threads = 0;          ///< Number of threads to use. 0 means automatic detection
+  double increase = 0.1;     ///< Set size percentage increase factor on the periodic domain
+  int num_particles = 40;    ///< Number of particles in the swarm
+  double phi_local = 0.5;    ///< Cognitive coefficient
+  double phi_global = 0.3;   ///< Social coefficient
+  double weight = 0.9;       ///< Inertia weight
+  int max_iter = 150;        ///< Maximum number of iterations. 0 means no limit
+  double max_vel = 0.0;      ///< Maximum velocity for each particle. 0 means no limit
+  double ftol = 1e-8;        ///< Function value tolerance for convergence
+  double xtol = 1e-8;        ///< Position change tolerance for convergence
+  double C_coeff = 1.0;      ///< Used to either strengthen (>1) or weaken (<1) the conservative coefficient C
+  double epsilon = 1.0;      ///< Epsilon parameter (?)
+  double target_norm = 0.0;  ///< Target norm for the barrier certificate
+  double kappa = 1.0;        ///< Kappa parameter (?)
+  int threads = 0;           ///< Number of threads to use. 0 means automatic detection
 };
 
 /**
@@ -63,11 +68,10 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * @param f_max maximum frequency index
    * @param X_tilde periodic set encapsulating from which to create the lattice @f$ \Theta_{\tilde{N}} @f$
    * @param X set @f$ \mathcal{X} @f$
-   * @param increase percentage increase factor for the periodic domain
    * @param parameters parameters for the PSO optimiser
    */
-  std::pair<double, Vector> compute_A_periodic_minus_x(
-      int Q_tilde, int f_max, const RectSet& X_tilde, const RectSet& X, double increase = 0.1,
+  [[nodiscard]] std::pair<double, Vector> compute_A_periodic_minus_x(
+      int Q_tilde, int f_max, const RectSet& X_tilde, const RectSet& X,
       const FourierBarrierCertificateParameters& parameters = {}) const;
 
   /**
@@ -100,9 +104,9 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * @param parameters
    * @return
    */
-  bool full_synthesize(int Q_tilde, const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
-                       const RectSet& X_init, const RectSet& X_unsafe,
-                       const FourierBarrierCertificateParameters& parameters = {});
+  bool synthesize(int Q_tilde, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
+                  const RectSet& X_bounds, const Set& X_init, const Set& X_unsafe,
+                  const FourierBarrierCertificateParameters& parameters = {});
 
   /**
    * Synthesize the barrier certificate by solving a linear optimisation problem.

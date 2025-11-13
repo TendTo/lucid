@@ -39,7 +39,7 @@ class GurobiOptimiser final : public Optimiser {
              Dimension original_dim, const SolutionCallback& cb) const;
 
   bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
-                                            const SolutionCallback& cb) const;
+                                            const SolutionCallback& cb) const override;
 
   /**
    * Compute the bounding box of a polytope defined by Ax <= b.
