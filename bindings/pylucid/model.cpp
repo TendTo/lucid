@@ -310,7 +310,9 @@ void init_model(py::module_ &m) {
       .def("sample", py::overload_cast<Index>(&Set::sample, py::const_), py::arg("num_samples"), Set_sample)
       .def("sample", py::overload_cast<>(&Set::sample, py::const_), Set_sample)
       .def("include", &Set::include, ARG_NONCONVERT("xs"), Set_include)
+      .def("include_mask", &Set::include_mask, ARG_NONCONVERT("xs"), Set_include_mask)
       .def("exclude", &Set::exclude, ARG_NONCONVERT("xs"), Set_exclude)
+      .def("exclude_mask", &Set::exclude_mask, ARG_NONCONVERT("xs"), Set_exclude_mask)
       .def("change_size", py::overload_cast<double>(&Set::change_size), py::arg("delta_size"), Set_change_size)
       .def("change_size", py::overload_cast<ConstVectorRef>(&Set::change_size), ARG_NONCONVERT("delta_size"),
            Set_change_size)
@@ -319,6 +321,7 @@ void init_model(py::module_ &m) {
       .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("endpoint"), Set_lattice)
       .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
+      .def("to_rect_set", &Set::to_rect_set, Set_to_rect_set)
       .def("__contains__", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("__call__", &Set::operator(), ARG_NONCONVERT("x"), Set_operator_apply)
       .def("__str__", STRING_LAMBDA(Set));

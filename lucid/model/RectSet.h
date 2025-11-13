@@ -83,6 +83,8 @@ class RectSet final : public Set {
 
   void change_size(ConstVectorRef delta_size) override;
 
+  [[nodiscard]] std::unique_ptr<RectSet> to_rect_set() const override;
+
   /**
    * Compute the rectangular set relative to another rectangular set.
    * Instead of absolute coordinates, the new rectangular set will be expressed

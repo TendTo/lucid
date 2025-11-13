@@ -107,6 +107,8 @@ RectSet RectSet::scale(ConstVectorRef scale, const RectSet& bounds, const bool r
 RectSet RectSet::scale(const double scale, const RectSet& bounds, const bool relative_to_bounds) const {
   return this->scale(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
 }
+std::unique_ptr<RectSet> RectSet::to_rect_set() const { return std::make_unique<RectSet>(*this); }
+
 RectSet& RectSet::operator+=(ConstVectorRef offset) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
   lb_ += offset;

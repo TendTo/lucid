@@ -38,6 +38,8 @@ class SphereSet final : public Set {
 
   void change_size(ConstVectorRef delta_size) override;
 
+  [[nodiscard]] std::unique_ptr<RectSet> to_rect_set() const override;
+
  private:
   Vector center_;  ///< Center of the sphere. Determines the dimension of the sphere set
   Scalar radius_;  ///< Radius of the sphere

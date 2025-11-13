@@ -14,6 +14,9 @@
 
 namespace lucid {
 
+// Forward declaration
+class RectSet;
+
 /**
  * Generic set over a @d dimensional vector space @XsubRd.
  * It can be used to test if a vector is in the set and to sample elements from the set.
@@ -62,12 +65,28 @@ class Set {
   [[nodiscard]] Matrix include(ConstMatrixRef xs) const;
 
   /**
+   * Filter a set `xs`, returning a mask containing the indices corresponding to the row vectors that are in @X.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @param xs @nxd matrix of row vectors to filter
+   * @return vector of indices corresponding to the vectors that are in the set
+   */
+  [[nodiscard]] std::vector<Index> include_mask(ConstMatrixRef xs) const;
+
+  /**
    * Filter `xs`, return only the row vectors that are NOT in @X
    * @pre `xs` must have the same number of columns as the dimension of the set, @d
    * @param xs @nxd matrix of row vectors to filter
    * @return matrix of row vectors that are NOT in the set
    */
   [[nodiscard]] Matrix exclude(ConstMatrixRef xs) const;
+
+  /**
+   * Filter a set `xs`, returning a mask containing the indices corresponding to the row vectors that are NOT in @X.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @param xs @nxd matrix of row vectors to filter
+   * @return vector of indices corresponding to the vectors that are NOT in the set
+   */
+  [[nodiscard]] std::vector<Index> exclude_mask(ConstMatrixRef xs) const;
 
   /**
    * Check if a vector is in @X.
@@ -127,6 +146,14 @@ class Set {
    * @return lattice of points in the set
    */
   [[nodiscard]] virtual Matrix lattice(const VectorI& points_per_dim, bool endpoint) const = 0;
+
+  /**
+   * Convert the set to a rectangular set.
+   * Not all sets can be converted to rectangular sets.
+   * If the set cannot be converted, an exception is thrown.
+   * @return unique pointer to the rectangular set
+   */
+  [[nodiscard]] virtual std::unique_ptr<RectSet> to_rect_set() const;
 
   /**
    * Extract @N elements element from @X using some kind of random distribution, where @N is the number of rows in @x.

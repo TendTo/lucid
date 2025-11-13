@@ -11,7 +11,7 @@
 #include <limits>
 #include <vector>
 
-#include "RectSet.h"
+#include "lucid/model/RectSet.h"
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
 
@@ -64,6 +64,9 @@ void SphereSet::change_size(ConstVectorRef delta_size) {
   radius_ += max_delta_size / 2.0;
 
   LUCID_TRACE_FMT("=> {}", *this);
+}
+std::unique_ptr<RectSet> SphereSet::to_rect_set() const {
+  return std::make_unique<RectSet>(center_.array() - radius_, center_.array() + radius_);
 }
 
 std::ostream& operator<<(std::ostream& os, const SphereSet& set) {
