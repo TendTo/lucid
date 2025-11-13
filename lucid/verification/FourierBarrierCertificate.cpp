@@ -14,6 +14,7 @@
 #include "lucid/util/Stats.h"
 #include "lucid/util/constants.h"
 #include "lucid/util/error.h"
+#include "lucid/util/math.h"
 #include "lucid/verification/AlglibOptimiser.h"
 #include "lucid/verification/GurobiOptimiser.h"
 #include "lucid/verification/HighsOptimiser.h"
@@ -25,9 +26,9 @@ namespace {
 
 class Objective {
  public:
-  Objective(const int n_tilde, const double Q_tilde, const int f_max, ConstMatrixRef x0_lattice_wo_init)
+  Objective(const int n_tilde, const double Q_tilde, const int f_max, const Matrix& lattice)
       : n_tilde_{n_tilde},
-        x0_lattice_wo_init_{x0_lattice_wo_init},
+        lattice_{lattice},
         kernel_{ValleePoussinKernel{static_cast<double>(f_max), Q_tilde - static_cast<double>(f_max)}} {}
 
   /**
@@ -54,11 +55,12 @@ class Objective {
    */
   template <class Derived>
   double operator()(const Eigen::MatrixBase<Derived>& x) const {
-    LUCID_ASSERT(x.size() == x0_lattice_wo_init_.cols(), "The input dimension must be equal to the lattice dimension");
-    const auto diffs = -1 * (x0_lattice_wo_init_.rowwise() - x.col(0).transpose());
+    LUCID_ASSERT(x.size() == lattice_.cols(), "The input dimension must be equal to the lattice dimension");
+    const auto diffs = -1 * (lattice_.rowwise() - x.col(0).transpose());
     const auto wrapped_diffs = diffs.unaryExpr(&wrap_angle<2.0 * std::numbers::pi>);
+    // std::cout << "wrapped_diffs " << LUCID_FORMAT_MATRIX(wrapped_diffs) << std::endl;
     const Matrix res = kernel_(wrapped_diffs);
-    LUCID_ASSERT(res.cols() == 1 && res.rows() == x0_lattice_wo_init_.rows(),
+    LUCID_ASSERT(res.cols() == 1 && res.rows() == lattice_.rows(),
                  "The output of the kernel must be a vector with the same number of rows as the input lattice");
     // We want to maximise the objective value, but PSO minimises it, so we return the negative value
     return -1 * res.sum() / static_cast<double>(n_tilde_);
@@ -66,23 +68,37 @@ class Objective {
 
  private:
   const int n_tilde_;
-  ConstMatrixRef x0_lattice_wo_init_;
+  const Matrix& lattice_;
   const ValleePoussinKernel kernel_;
 };
 
 }  // namespace
 
-double FourierBarrierCertificate::compute(const int n_tilde, const double Q_tilde, const int f_max,
-                                          ConstMatrixRef x0_lattice_wo_init, ConstMatrixRef x) const {
-  return Objective(n_tilde, Q_tilde, f_max, x0_lattice_wo_init)(x);
-}
-bool FourierBarrierCertificate::full_synthesize(const int n_tilde, const double Q_tilde, const int f_max,
-                                                ConstMatrixRef x0_lattice_wo_init, const RectSet& bounds,
-                                                const PsoParameters& parameters) {
-  pso::ParticleSwarmOptimization<double, Objective> optimiser{n_tilde, Q_tilde, f_max, x0_lattice_wo_init};
-  Matrix matrix_bounds{2, bounds.dimension()};
-  matrix_bounds.row(0) = bounds.lower_bound().transpose();
-  matrix_bounds.row(1) = bounds.upper_bound().transpose();
+std::pair<double, Vector> FourierBarrierCertificate::compute_A_periodic_minus_x(int Q_tilde, int f_max,
+                                                                                const RectSet& X_tilde,
+                                                                                const RectSet& X, const double increase,
+                                                                                const PsoParameters& parameters) const {
+  LUCID_TRACE_FMT("({}, {}, {}, {}, {}, {})", Q_tilde, f_max, X_tilde, X, increase, parameters);
+  const int n = static_cast<int>(X_tilde.dimension());
+  const int n_tilde = lucid::pow(Q_tilde, n);
+
+  // TODO(tend): check if this is necessary
+  static RectSet pi{Vector::Constant(n, 0), Vector::Constant(n, 2 * std::numbers::pi)};
+  const RectSet X_periodic = (X - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes();
+  const RectSet X_periodic_rescaled{X_periodic.scale(increase, pi, true)};
+
+  LUCID_TRACE_FMT("X_periodic: {}", X_periodic);
+  LUCID_TRACE_FMT("X_periodic scaled: {}", X_periodic_rescaled);
+
+  const Matrix lattice{pi.lattice(Q_tilde, false)};
+  const Matrix lattice_wo_x{X_periodic_rescaled.exclude(lattice)};
+
+  LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
+
+  pso::ParticleSwarmOptimization<double, Objective> optimiser{n_tilde, Q_tilde, f_max, lattice_wo_x};
+  Matrix matrix_bounds{2, n};
+  matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
+  matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
 
   optimiser.setPhiParticles(parameters.phi_local);
   optimiser.setPhiGlobal(parameters.phi_global);
@@ -95,15 +111,29 @@ bool FourierBarrierCertificate::full_synthesize(const int n_tilde, const double 
   optimiser.setVerbosity(LUCID_TRACE_ENABLED ? 3 : LUCID_DEBUG_ENABLED ? 1 : 0);
 
   auto [iterations, converged, fval, xval] = optimiser.minimize(matrix_bounds, parameters.num_particles);
+
   if (!converged) {
     LUCID_WARN("PSO did not converge");
-    return false;
+    return {};
   }
+
+  std::cout << "Computing A^{X_tilde - X} with PSO over " << n_tilde << " lattice points in " << n << " dimensions."
+            << std::endl;
 
   LUCID_DEBUG_FMT("PSO converged in {} iterations with objective value {}", iterations, fval);
   LUCID_DEBUG_FMT("Best position: {}", LUCID_FORMAT_MATRIX(xval));
-  last_pso_fval_ = -fval;
-  last_pso_xval_ = xval.transpose();
+  return {-fval, xval.transpose()};
+}
+
+bool FourierBarrierCertificate::full_synthesize(const int Q_tilde, const TruncatedFourierFeatureMap& feature_map,
+                                                const RectSet& X_bounds, const RectSet& X_init, const RectSet& X_unsafe,
+                                                const FourierBarrierCertificateParameters& parameters) {
+  const int n = static_cast<int>(X_bounds.dimension());
+  const int f_max = feature_map.num_frequencies() - 1;
+
+  const RectSet pi{Vector::Constant(n, 0), Vector::Constant(n, 2 * std::numbers::pi)};
+  const RectSet X_tilde{feature_map.get_periodic_set()};
+
   return true;
 }
 
@@ -156,7 +186,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatr
     Stats::Scoped::top()->value().num_constraints = num_constraints;
   }
   return optimiser.solve_fourier_barrier_synthesis(
-      FourierBarrierSynthesisParameters{
+      FourierBarrierSynthesisProblem{
           .num_vars = num_variables,
           .num_constraints = num_constraints,
           .fx_lattice = fx_lattice,
@@ -205,6 +235,20 @@ std::unique_ptr<BarrierCertificate> FourierBarrierCertificate::clone() const {
   return std::make_unique<FourierBarrierCertificate>(*this);
 }
 
+std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificateParameters& params) {
+  return os << "PsoParameters( "
+            << "increase( " << params.increase << " ) "
+            << "num_particles( " << params.num_particles << " ) "
+            << "phi_local( " << params.phi_local << " ) "
+            << "phi_global( " << params.phi_global << " ) "
+            << "weight( " << params.weight << " ) "
+            << "max_iter( " << params.max_iter << " ) "
+            << "max_vel( " << params.max_vel << " ) "
+            << "ftol( " << params.ftol << " ) "
+            << "xtol( " << params.xtol << " ) "
+            << "threads( " << params.threads << " ) "
+            << ")";
+}
 std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificate& obj) {
   if (!obj.is_synthesized()) return os << "FourierBarrierCertificate( )";
   return os << "FourierBarrierCertificate( eta( " << obj.eta() << " ) gamma( " << obj.gamma() << " ) c( " << obj.c()

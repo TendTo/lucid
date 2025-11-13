@@ -3,6 +3,13 @@
 load("//tools:rules_cc.bzl", "lucid_cc_googletest")
 
 lucid_cc_googletest(
+    name = "test_fourier_barrier_certificate",
+    deps = [
+        "//lucid/verification:barrier_certificate",
+    ],
+)
+
+lucid_cc_googletest(
     name = "test_gurobi_optimiser",
     deps = [
         "//lucid/lib:gurobi",

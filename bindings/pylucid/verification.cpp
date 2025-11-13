@@ -94,34 +94,44 @@ void init_verification(py::module_& m) {
   py::class_<SoplexOptimiser, Optimiser>(m, "SoplexOptimiser", SoplexOptimiser_)
       .def(py::init<std::string, std::string>(), py::arg("problem_log_file") = "", py::arg("iis_log_file") = "");
 
-  py::class_<PsoParameters>(m, "PsoParameters", PsoParameters_)
+  py::class_<FourierBarrierCertificateParameters>(m, "FourierBarrierCertificateParameters",
+                                                  FourierBarrierCertificateParameters_)
       .def(py::init<>())
-      .def(py::init([](const int num_particles, const double phi_local, const double phi_global, const double weight,
-                       const int max_iter, const double max_vel, const double ftol, const double xtol,
-                       const int threads) {
-             return PsoParameters{.num_particles = num_particles,
-                                  .phi_local = phi_local,
-                                  .phi_global = phi_global,
-                                  .weight = weight,
-                                  .max_iter = max_iter,
-                                  .max_vel = max_vel,
-                                  .ftol = ftol,
-                                  .xtol = xtol,
-                                  .threads = threads};
+      .def(py::init([](const double increase, const int num_particles, const double phi_local, const double phi_global,
+                       const double weight, const int max_iter, const double max_vel, const double ftol,
+                       const double xtol, const int threads) {
+             return FourierBarrierCertificateParameters{.increase = increase,
+                                                        .num_particles = num_particles,
+                                                        .phi_local = phi_local,
+                                                        .phi_global = phi_global,
+                                                        .weight = weight,
+                                                        .max_iter = max_iter,
+                                                        .max_vel = max_vel,
+                                                        .ftol = ftol,
+                                                        .xtol = xtol,
+                                                        .threads = threads};
            }),
-           py::arg("num_particles") = 40, py::arg("phi_local") = 0.5, py::arg("phi_global") = 0.3,
-           py::arg("weight") = 0.9, py::arg("max_iter") = 150, py::arg("max_vel") = 0.0, py::arg("ftol") = 1e-8,
-           py::arg("xtol") = 1e-8, py::arg("threads") = 0, py::doc(""))
-      .def_readwrite("num_particles", &PsoParameters::num_particles, PsoParameters_num_particles)
-      .def_readwrite("phi_local", &PsoParameters::phi_local, PsoParameters_phi_local)
-      .def_readwrite("phi_global", &PsoParameters::phi_global, PsoParameters_phi_global)
-      .def_readwrite("weight", &PsoParameters::weight, PsoParameters_weight)
-      .def_readwrite("max_iter", &PsoParameters::max_iter, PsoParameters_max_iter)
-      .def_readwrite("max_vel", &PsoParameters::max_vel, PsoParameters_max_vel)
-      .def_readwrite("ftol", &PsoParameters::ftol, PsoParameters_ftol)
-      .def_readwrite("xtol", &PsoParameters::xtol, PsoParameters_xtol)
-      .def_readwrite("threads", &PsoParameters::threads, PsoParameters_threads)
-      .def("__str__", STRING_LAMBDA(PsoParameters));
+           py::arg("increase") = 0.1, py::arg("num_particles") = 40, py::arg("phi_local") = 0.5,
+           py::arg("phi_global") = 0.3, py::arg("weight") = 0.9, py::arg("max_iter") = 150, py::arg("max_vel") = 0.0,
+           py::arg("ftol") = 1e-8, py::arg("xtol") = 1e-8, py::arg("threads") = 0, py::doc(""))
+      .def_readwrite("increase", &FourierBarrierCertificateParameters::increase,
+                     FourierBarrierCertificateParameters_increase)
+      .def_readwrite("num_particles", &FourierBarrierCertificateParameters::num_particles,
+                     FourierBarrierCertificateParameters_num_particles)
+      .def_readwrite("phi_local", &FourierBarrierCertificateParameters::phi_local,
+                     FourierBarrierCertificateParameters_phi_local)
+      .def_readwrite("phi_global", &FourierBarrierCertificateParameters::phi_global,
+                     FourierBarrierCertificateParameters_phi_global)
+      .def_readwrite("weight", &FourierBarrierCertificateParameters::weight, FourierBarrierCertificateParameters_weight)
+      .def_readwrite("max_iter", &FourierBarrierCertificateParameters::max_iter,
+                     FourierBarrierCertificateParameters_max_iter)
+      .def_readwrite("max_vel", &FourierBarrierCertificateParameters::max_vel,
+                     FourierBarrierCertificateParameters_max_vel)
+      .def_readwrite("ftol", &FourierBarrierCertificateParameters::ftol, FourierBarrierCertificateParameters_ftol)
+      .def_readwrite("xtol", &FourierBarrierCertificateParameters::xtol, FourierBarrierCertificateParameters_xtol)
+      .def_readwrite("threads", &FourierBarrierCertificateParameters::threads,
+                     FourierBarrierCertificateParameters_threads)
+      .def("__str__", STRING_LAMBDA(FourierBarrierCertificateParameters));
 
   /**************************** BarrierCertificate ****************************/
   py::class_<BarrierCertificate, PyBarrierCertificate>(m, "BarrierCertificate", BarrierCertificate_)
@@ -137,10 +147,12 @@ void init_verification(py::module_& m) {
   py::class_<FourierBarrierCertificate, BarrierCertificate>(m, "FourierBarrierCertificate", FourierBarrierCertificate_)
       .def(py::init<int, double, double, double>(), py::arg("T"), py::arg("gamma"), py::arg("eta") = 0.0,
            py::arg("c") = 0.0)
-      .def("compute", &FourierBarrierCertificate::compute, py::arg("n_tilde"), py::arg("Q_tilde"), py::arg("f_max"),
-           py::arg("x0_lattice_wo_init"), py::arg("x"))
-      .def("full_synthesize", &FourierBarrierCertificate::full_synthesize, py::arg("n_tilde"), py::arg("Q_tilde"),
-           py::arg("f_max"), py::arg("x0_lattice_wo_init"), py::arg("bounds"), py::arg("parameters") = PsoParameters{})
+      .def("compute_A_periodic_minus_x", &FourierBarrierCertificate::compute_A_periodic_minus_x, py::arg("Q_tilde"),
+           py::arg("f_max"), py::arg("X_tilde"), py::arg("X"), py::arg("increase") = 0.1,
+           py::arg("parameters") = FourierBarrierCertificateParameters{})
+      .def("full_synthesize", &FourierBarrierCertificate::full_synthesize, py::arg("Q_tilde"), py::arg("feature_map"),
+           py::arg("X_bounds"), py::arg("X_init"), py::arg("X_unsafe"),
+           py::arg("parameters") = FourierBarrierCertificateParameters{})
       .def("synthesize",
            py::overload_cast<ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef,
                              const TruncatedFourierFeatureMap&, Dimension, double, double, double, double>(
@@ -159,8 +171,6 @@ void init_verification(py::module_& m) {
            FourierBarrierCertificate_synthesize)
       .def_property_readonly("coefficients", &FourierBarrierCertificate::coefficients,
                              FourierBarrierCertificate_coefficients)
-      .def_property_readonly("last_pso_xval", [](const FourierBarrierCertificate& self) { return self.last_pso_xval_; })
-      .def_property_readonly("last_pso_fval", [](const FourierBarrierCertificate& self) { return self.last_pso_fval_; })
       .def("__str__", STRING_LAMBDA(FourierBarrierCertificate));
 
   /**************************** MontecarloSimulation ****************************/
