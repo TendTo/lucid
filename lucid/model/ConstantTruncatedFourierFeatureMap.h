@@ -59,7 +59,7 @@ class ConstantTruncatedFourierFeatureMap final : public TruncatedFourierFeatureM
                                      const RectSet& X_bounds);
   ConstantTruncatedFourierFeatureMap(int num_frequencies, double sigma_l, Scalar sigma_f, const RectSet& X_bounds);
 
-  [[nodiscard]] RectSet get_periodic_set(ConstVectorRef sigma_l) const override;
+  [[nodiscard]] RectSet get_periodic_set() const override;
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 };

@@ -43,11 +43,25 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * @param num_frequencies number of frequencies per dimension. Includes the zero frequency
    * @param prob_per_dim probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
    * @param omega_per_dim matrix omega where each row is a dimension and each column is a frequency coefficient
+   * @param sigma_l length scales per dimension
    * @param sigma_f scaling factor
    * @param X_bounds domain of the input space, @XsubRd
    */
   TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
-                             Scalar sigma_f, const RectSet& X_bounds);
+                             ConstVectorRef sigma_l, Scalar sigma_f, const RectSet& X_bounds);
+  /**
+   * Construct a truncated Fourier feature map.
+   * @pre `num_frequencies` must be greater than 0.
+   * @pre `sigma_f` must be greater than 0.
+   * @param num_frequencies number of frequencies per dimension. Includes the zero frequency
+   * @param prob_per_dim probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
+   * @param omega_per_dim matrix omega where each row is a dimension and each column is a frequency coefficient
+   * @param sigma_l length scales per dimension
+   * @param sigma_f scaling factor
+   * @param X_bounds domain of the input space, @XsubRd
+   */
+  TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
+                             double sigma_l, Scalar sigma_f, const RectSet& X_bounds);
   /**
    * Construct a truncated Fourier feature map.
    * It will not compute the cross-frequencies of the basis, thus reducing the problem size significantly with
@@ -132,10 +146,9 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    * @note The periodic domain could be smaller than the original domain, depending on the values of @f$ \sigma_l @f$.
    * @pre @sigmal must have the same dimension as the input space.
    * @pre All values in @sigmal must be greater than 0.
-   * @param sigma_l length-scale vector @sigmal
    * @return new RectSet representing the periodic input domain
    */
-  [[nodiscard]] virtual RectSet get_periodic_set(ConstVectorRef sigma_l) const;
+  [[nodiscard]] virtual RectSet get_periodic_set() const;
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 
@@ -143,7 +156,8 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
   Matrix omega_;                       ///< Frequencies matrix
   Vector weights_;                     ///< Weights matrix
-  Scalar sigma_f_;                     ///< Sigma_f value
+  Scalar sigma_f_;                     ///< @sigmaf value
+  Vector sigma_l_;                     ///< @sigmal vector
   RectSet X_bounds_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
   Scalar captured_probability_;        ///< Probability captured by the Fourier expansion. NaN if not computed
   Vector periodic_coefficients_;       ///< Coefficient to convert from the truncated Fourier basis to the periodic one

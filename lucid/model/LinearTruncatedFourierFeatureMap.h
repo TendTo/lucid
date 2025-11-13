@@ -111,10 +111,9 @@ class LinearTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap
    * @note The periodic domain could be smaller than the original domain, depending on the values of @f$ \sigma_l @f$.
    * @pre @sigmal must have the same dimension as the input space.
    * @pre All values in @sigmal must be greater than 0.
-   * @param sigma_l length-scale vector @sigmal
    * @return new RectSet representing the periodic input domain
    */
-  [[nodiscard]] RectSet get_periodic_set(ConstVectorRef sigma_l) const override;
+  [[nodiscard]] RectSet get_periodic_set() const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const LinearTruncatedFourierFeatureMap& f);

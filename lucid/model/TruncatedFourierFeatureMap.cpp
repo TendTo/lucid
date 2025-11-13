@@ -18,19 +18,20 @@
 namespace lucid {
 
 TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_per_dim,
-                                                       const Matrix& omega_per_dim, const Scalar sigma_f,
-                                                       const RectSet& X_bounds)
+                                                       const Matrix& omega_per_dim, ConstVectorRef sigma_l,
+                                                       const Scalar sigma_f, const RectSet& X_bounds)
     : num_frequencies_per_dimension_{num_frequencies},
       omega_{combvec(omega_per_dim).transpose()},
       weights_{::lucid::pow(num_frequencies, X_bounds.dimension()) * 2 - 1},
       sigma_f_{sigma_f},
+      sigma_l_{sigma_l},
       X_bounds_{X_bounds},
       periodic_coefficients_{2 * std::numbers::pi / omega_per_dim.col(1).array()} {
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 2);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
   LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), X_bounds.dimension());
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
-  LUCID_ASSERT(static_cast<std::size_t>(omega_.rows()) == ::lucid::pow(num_frequencies, X_bounds.dimension()),
+  LUCID_ASSERT(omega_.rows() == ::lucid::pow(num_frequencies, X_bounds.dimension()),
                "omega_.rows() == num_frequencies^dimension");
   LUCID_ASSERT(omega_.cols() == X_bounds.dimension(), "omega_.cols() == dimension");
 
@@ -49,8 +50,14 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
     weights_(2 * i - 1) = single_weights(i);
   }
 }
+TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_per_dim,
+                                                       const Matrix& omega_per_dim, const double sigma_l,
+                                                       const Scalar sigma_f, const RectSet& X_bounds)
+    : TruncatedFourierFeatureMap{num_frequencies, prob_per_dim,
+                                 omega_per_dim,   Vector::Constant(X_bounds.dimension(), sigma_l),
+                                 sigma_f,         X_bounds} {}
 
-double get_prob(const Matrix& prob_per_dim, Index dim, Index tot_dims, Index freq) {
+double get_prob(const Matrix& prob_per_dim, const Index dim, const Index tot_dims, const Index freq) {
   double prod = 1.0;
   for (Index other_dim = 0; other_dim < tot_dims; other_dim++) {
     prod *= other_dim == dim ? prob_per_dim(other_dim, freq) : prob_per_dim(other_dim, 0);
@@ -97,8 +104,6 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
   auto z = (x - X_bounds_.lower_bound()).cwiseQuotient(X_bounds_.upper_bound() - X_bounds_.lower_bound());
   LUCID_ASSERT(z.size() == omega_.cols(), "z.size() == omega_.cols()");
-  // TODO(tend): Does it become a problem if the input is outside the bounds?
-  // LUCID_ASSERT((z.array() >= 0).all() && (z.array() <= 1).all(), "0 <= z <= 1");
 
   Vector z_proj = omega_ * z.transpose();  // It is also computing the 0th frequency, although it is not used later
   Vector trig{2 * z_proj.size() - 1};
@@ -127,7 +132,7 @@ Matrix TruncatedFourierFeatureMap::apply_impl(ConstMatrixRef x) const {
   return out;
 }
 
-RectSet TruncatedFourierFeatureMap::get_periodic_set(ConstVectorRef) const { LUCID_NOT_IMPLEMENTED(); }
+RectSet TruncatedFourierFeatureMap::get_periodic_set() const { LUCID_NOT_IMPLEMENTED(); }
 
 std::unique_ptr<FeatureMap> TruncatedFourierFeatureMap::clone() const {
   return std::make_unique<TruncatedFourierFeatureMap>(*this);

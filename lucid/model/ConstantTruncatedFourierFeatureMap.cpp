@@ -51,8 +51,12 @@ Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
 ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int num_frequencies,
                                                                        ConstVectorRef sigma_l, const Scalar sigma_f,
                                                                        const RectSet& X_bounds)
-    : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l),
-                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, X_bounds} {
+    : TruncatedFourierFeatureMap{num_frequencies,
+                                 get_prob_per_dim(num_frequencies, sigma_l),
+                                 get_omega_per_dim(num_frequencies, sigma_l),
+                                 sigma_l,
+                                 sigma_f,
+                                 X_bounds} {
   LUCID_WARN("ConstantTruncatedFourierFeatureMap is deprecated. Use the LinearTruncatedFourierFeatureMap instead");
 }
 ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
@@ -60,7 +64,7 @@ ConstantTruncatedFourierFeatureMap::ConstantTruncatedFourierFeatureMap(const int
     : ConstantTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(X_bounds.dimension(), sigma_l), sigma_f,
                                          X_bounds} {}
 
-RectSet ConstantTruncatedFourierFeatureMap::get_periodic_set(ConstVectorRef) const { return X_bounds_; }
+RectSet ConstantTruncatedFourierFeatureMap::get_periodic_set() const { return X_bounds_; }
 
 std::unique_ptr<FeatureMap> ConstantTruncatedFourierFeatureMap::clone() const {
   LUCID_TRACE("Cloning");

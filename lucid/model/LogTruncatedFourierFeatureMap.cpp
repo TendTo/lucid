@@ -53,8 +53,12 @@ Matrix get_omega_per_dim(const int num_frequencies, ConstVectorRef sigma_l) {
 
 LogTruncatedFourierFeatureMap::LogTruncatedFourierFeatureMap(const int num_frequencies, ConstVectorRef sigma_l,
                                                              const Scalar sigma_f, const RectSet& X_bounds)
-    : TruncatedFourierFeatureMap{num_frequencies, get_prob_per_dim(num_frequencies, sigma_l),
-                                 get_omega_per_dim(num_frequencies, sigma_l), sigma_f, X_bounds} {
+    : TruncatedFourierFeatureMap{num_frequencies,
+                                 get_prob_per_dim(num_frequencies, sigma_l),
+                                 get_omega_per_dim(num_frequencies, sigma_l),
+                                 sigma_l,
+                                 sigma_f,
+                                 X_bounds} {
   LUCID_WARN("LogTruncatedFourierFeatureMap is deprecated. Use the LinearTruncatedFourierFeatureMap instead");
 }
 LogTruncatedFourierFeatureMap::LogTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,

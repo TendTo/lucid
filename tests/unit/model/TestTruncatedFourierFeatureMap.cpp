@@ -121,8 +121,8 @@ TEST(TestTruncatedFourierFeatureMap, CorrectSpread) {
     return offset_ * static_cast<double>(idx);
   })};
 
-  const TruncatedFourierFeatureMap expected_feature_map{exp_num_frequencies, expected_values, omega_values, 1.0,
-                                                        exp_X_bounds};
+  const TruncatedFourierFeatureMap expected_feature_map{
+      exp_num_frequencies, expected_values, omega_values, exp_sigma_l, 1.0, exp_X_bounds};
 
   EXPECT_TRUE(feature_map.omega().isApprox(expected_feature_map.omega()));
   EXPECT_TRUE(feature_map.weights().isApprox(expected_feature_map.weights()));
@@ -134,7 +134,7 @@ TEST(TestTruncatedFourierFeatureMap, PeriodicSpace) {
   vec_sigma_l << 1.0, 2.0;
   const RectSet base_X_bounds{{{-3, 2}, {-1, 5}}};
   const LinearTruncatedFourierFeatureMap feature_map{num_freq, vec_sigma_l, sigma_f, base_X_bounds};
-  const RectSet periodic_X_bounds = feature_map.get_periodic_set(vec_sigma_l);
+  const RectSet periodic_X_bounds = feature_map.get_periodic_set();
   const Vector lb_values = feature_map.map_vector(periodic_X_bounds.lower_bound());
   const Vector ub_values = feature_map.map_vector(periodic_X_bounds.upper_bound());
 
