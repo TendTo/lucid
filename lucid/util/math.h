@@ -55,4 +55,21 @@ inline std::size_t pow(std::size_t base, std::size_t exp) {
   return result;
 }
 
+/**
+ * Raise a base to the power of an exponent: @f$ b^e @f$.
+ * @param base @f$ b @f$ base
+ * @param exp @f$ e @f$ exponent
+ * @return base raised to the power of exp
+ */
+inline int pow(int base, int exp) {
+  int result = 1;
+  while (exp) {
+    if (exp & 1) result *= base;
+    exp >>= 1;
+    base *= base;
+  }
+  return result;
+}
+
+
 }  // namespace lucid
