@@ -29,7 +29,7 @@
 namespace lucid {
 
 #ifdef LUCID_SOPLEX_BUILD
-bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                            const SolutionCallback& cb) const {
   const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma_val, C, b_kappa,
                fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;

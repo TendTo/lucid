@@ -36,7 +36,7 @@ Optimiser::Optimiser(const int T, const double gamma, const double epsilon, cons
 Optimiser::Optimiser(std::string problem_log_file, std::string iis_log_file)
     : Optimiser(1, 1, 0, 1, 1, 1, 1, std::move(problem_log_file), std::move(iis_log_file)) {}
 
-bool Optimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters& params,
+bool Optimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisProblem& params,
                                                 const SolutionCallback& cb) const {
   TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().optimiser_timer : nullptr};
   return solve_fourier_barrier_synthesis_impl(params, cb);

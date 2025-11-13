@@ -14,8 +14,8 @@
 
 namespace lucid {
 
-/** Parameters required for Fourier barrier synthesis. */
-struct FourierBarrierSynthesisParameters {
+/** LP problem to solver to achieve the Fourier barrier synthesis. */
+struct FourierBarrierSynthesisProblem {
   Dimension num_vars;          ///< Number of variables in the LP
   Dimension num_constraints;   ///< Number of constraints in the LP
   ConstMatrixRef fx_lattice;   ///< Lattice obtained from the state space after applying the feature map
@@ -67,8 +67,7 @@ class Optimiser {
             std::string problem_log_file = "", std::string iis_log_file = "");
   explicit Optimiser(std::string problem_log_file = "", std::string iis_log_file = "");
 
-  bool solve_fourier_barrier_synthesis(const FourierBarrierSynthesisParameters& params,
-                                       const SolutionCallback& cb) const;
+  bool solve_fourier_barrier_synthesis(const FourierBarrierSynthesisProblem& params, const SolutionCallback& cb) const;
 
   /** @getter{problem log file, solver} */
   [[nodiscard]] const std::string& problem_log_file() const { return problem_log_file_; }
@@ -102,7 +101,7 @@ class Optimiser {
   [[nodiscard]] bool should_log_iis() const { return !iis_log_file_.empty(); }
 
  protected:
-  virtual bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+  virtual bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                     const SolutionCallback& cb) const = 0;
 
   const int T_;                   ///< Time horizon

@@ -243,7 +243,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
   return true;
 }
 
-bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                            const SolutionCallback& cb) const {
   const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma_val, C, b_kappa,
                fctr1, fctr2, unsafe_rhs, kushner_rhs] = params;
@@ -481,7 +481,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Cons
   return false;
 }
 bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
-                                                      const SolutionCallback&) const {
+                                                           const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve_fourier_barrier_synthesis_impl", "Gurobi");
   return false;
 }

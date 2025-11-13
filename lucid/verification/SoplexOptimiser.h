@@ -19,7 +19,7 @@ class SoplexOptimiser final : public Optimiser {
   using Optimiser::Optimiser;
 
  private:
-  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters& params,
+  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                             const SolutionCallback& cb) const override;
 };
 
