@@ -89,6 +89,18 @@ class Set {
   [[nodiscard]] std::vector<Index> exclude_mask(ConstMatrixRef xs) const;
 
   /**
+   * Filter a set `xs`, returning masks containing the indices corresponding to the row vectors that are in @X and
+   * NOT in @X.
+   * The union of the two sets of indices covers all the indices of `xs`.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @param xs @nxd matrix of row vectors to filter
+   * @return pair of vectors of indices where
+   * - the first vector contains the indices corresponding to the vectors that are in the set
+   * - the second vector contains the indices corresponding to the vectors that are NOT in the set
+   */
+  [[nodiscard]] std::pair<std::vector<Index>, std::vector<Index>> include_exclude_masks(ConstMatrixRef xs) const;
+
+  /**
    * Check if a vector is in @X.
    * @pre @x must have the same dimension as the set
    * @param x vector to test

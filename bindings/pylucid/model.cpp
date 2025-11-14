@@ -313,6 +313,7 @@ void init_model(py::module_ &m) {
       .def("include_mask", &Set::include_mask, ARG_NONCONVERT("xs"), Set_include_mask)
       .def("exclude", &Set::exclude, ARG_NONCONVERT("xs"), Set_exclude)
       .def("exclude_mask", &Set::exclude_mask, ARG_NONCONVERT("xs"), Set_exclude_mask)
+      .def("include_exclude_masks", &Set::include_exclude_masks, ARG_NONCONVERT("xs"), Set_include_exclude_masks)
       .def("change_size", py::overload_cast<double>(&Set::change_size), py::arg("delta_size"), Set_change_size)
       .def("change_size", py::overload_cast<ConstVectorRef>(&Set::change_size), ARG_NONCONVERT("delta_size"),
            Set_change_size)

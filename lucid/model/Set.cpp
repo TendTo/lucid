@@ -40,6 +40,20 @@ std::vector<Index> Set::exclude_mask(ConstMatrixRef xs) const {
   return indices;
 }
 
+std::pair<std::vector<Index>, std::vector<Index>> Set::include_exclude_masks(ConstMatrixRef xs) const {
+  LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
+  std::pair<std::vector<Index>, std::vector<Index>> masks;
+  masks.first.reserve(xs.rows());
+  masks.second.reserve(xs.rows());
+  for (Index i = 0; i < xs.rows(); i++) {
+    if (contains(xs.row(i)))
+      masks.first.push_back(i);
+    else
+      masks.second.push_back(i);
+  }
+  return masks;
+}
+
 void Set::change_size(const double delta_size) { change_size(Vector::Constant(dimension(), delta_size)); }
 void Set::change_size(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
 Matrix Set::lattice(const Index points_per_dim, const bool endpoint) const {
