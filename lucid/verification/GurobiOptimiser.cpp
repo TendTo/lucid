@@ -595,8 +595,9 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT(
       "X0 lattice constraints - {} constraints\n"
       "for all x_0: [ B(x_0) >= min_X0] AND [ B(x_0) <= hateta ]\n"
-      "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - diff_sx0_coeff * (max_sx0 - min_sx0)",
-      fx0_lattice.rows() * 2);
+      "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - diff_sx0_coeff * (max_sx0 - min_sx0)\n"
+      "hateta = {} * eta + {} * min_X0 - {} * (max_sx0 - min_sx0)",
+      fx0_lattice.rows() * 2, eta_coeff, min_x0_coeff, diff_sx0_coeff);
   for (Index row = 0; row < fx0_lattice.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(fx0_lattice.row(row).data(), bs.data(), static_cast<int>(fx0_lattice.cols()));
@@ -612,8 +613,9 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT(
       "Xu lattice constraints - {} constraints\n"
       "for all x_u: [ B(x_u) <= max_Xu ] AND [ B(x_u) >= hatgamma ] \n"
-      "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu + diff_sxu_coeff * (max_sxu - min_sxu)",
-      fxu_lattice.rows() * 2);
+      "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu + diff_sxu_coeff * (max_sxu - min_sxu)\n"
+      "hatgamma = {} + {} * max_Xu + {} * (max_sxu - min_sxu)",
+      fxu_lattice.rows() * 2, gamma_coeff * gamma, max_xu_coeff, diff_sxu_coeff);
   for (Index row = 0; row < fxu_lattice.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(fxu_lattice.row(row).data(), bs.data(), static_cast<int>(fxu_lattice.cols()));
@@ -630,8 +632,9 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT(
       "Positive barrier - {} constraints\n"
       "for all x: [ B(x) <= max_X ] AND [ B(x) >= hatxi ]\n"
-      "hatxi = max_x_coeff * max_X + diff_sx_coeff * (max_sx0 - min_sx0)",
-      fx_lattice.rows() * 2);
+      "hatxi = max_x_coeff * max_X + diff_sx_coeff * (max_sx0 - min_sx0)\n"
+      "hatxi = {} * max_X + {} * (max_sx0 - min_sx0)",
+      fx_lattice.rows() * 2, max_x_coeff, diff_sx_coeff);
   for (Index row = 0; row < fx_lattice.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(fx_lattice.row(row).data(), bs.data(), static_cast<int>(fx_lattice.cols()));
@@ -646,9 +649,10 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
 
   LUCID_DEBUG_FMT(
       "Kushner constraints (verification case) - {} constraints\n"
-      "for all x: [ B(x) >= min_d ] AND [ B(xp) - B(x) <= hatDelta ] AND \n"
-      "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d + diff_d_sx_coeff * (max_d_sx - min_d_sx)",
-      fx_lattice.rows() * 2);
+      "for all x: [ B(xp) - B(x) >= min_d ] AND [ B(xp) - B(x) <= hatDelta ] AND \n"
+      "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d + diff_d_sx_coeff * (max_d_sx - min_d_sx)\n"
+      "hatDelta = {} * (c - {}) + {} * min_d + {} * (max_d_sx - min_d_sx)",
+      d_lattice.rows() * 2, c_ebk_coeff, ebk, min_d_coeff, diff_d_sx_coeff);
   for (Index row = 0; row < d_lattice.rows(); ++row) {
     GRBLinExpr expr{};
     expr.addTerms(d_lattice.row(row).data(), bs.data(), static_cast<int>(d_lattice.cols()));
@@ -657,7 +661,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, '>', 0, fmt::format("B(xp)-B(x)>=minDelta[{}]", row), should_log);
     expr.remove(min_d);
 
-    expr -= c_ebk_coeff * c + min_d_coeff * min_d + diff_d_sx_coeff * (max_d_sx - min_d_sx);
+    expr -= c_ebk_coeff * c + min_d_coeff * min_d - diff_d_sx_coeff * (max_d_sx - min_d_sx);
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, '<', -c_ebk_coeff * ebk, fmt::format("B(xp)-B(x)<=hatDelta[{}]", row),
                                should_log);
   }
@@ -681,6 +685,22 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     cb(false, 0, Vector{}, 0, 0, 0);
     return false;
   }
+
+  // Print the value of each variable
+  LUCID_INFO_FMT("c: {}", c.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("eta: {}", eta.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("min_X0: {}", min_x0.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("min_sx0: {}", min_sx0.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("max_sx0: {}", max_sx0.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("max_xu: {}", max_xu.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("min_sxu: {}", min_sxu.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("max_sxu: {}", max_sxu.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("max_x: {}", max_x.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("min_sx: {}", min_sx.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("max_sx: {}", max_sx.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("min_d: {}", min_d.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("min_d_sx: {}", min_d_sx.get(GRB_DoubleAttr_X));
+  LUCID_INFO_FMT("max_d_sx: {}", max_d_sx.get(GRB_DoubleAttr_X));
 
   const Vector solution{
       Vector::NullaryExpr(fx_lattice.cols(), [&vars](const Index i) { return vars[i].get(GRB_DoubleAttr_X); })};

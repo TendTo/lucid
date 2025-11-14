@@ -90,6 +90,7 @@ std::pair<double, Vector> compute_A_periodic(int Q_tilde, int f_max, const RectS
   LUCID_TRACE_FMT("X_periodic: {}", X_periodic);
   LUCID_TRACE_FMT("X_periodic scaled: {}", X_periodic_rescaled);
 
+  // TODO(tend): reuse a filtered lattice that should be passed as argument
   const Matrix lattice_wo_x{X_periodic_rescaled.exclude(lattice)};
   LUCID_CHECK_ARGUMENT_CMP(lattice_wo_x.rows(), >, 0);  // Ensure there are points to evaluate
 
@@ -218,23 +219,20 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
 
   // Apply the feature map to all the lattice points
   const Matrix lattice = X_tilde.lattice(Q_tilde, false);
-  Matrix f_lattice{lattice.rows(), feature_map.dimension()};
+  Matrix f_lattice{feature_map(lattice)};
   Matrix fp_lattice{estimator(lattice)};
-  for (Index i = 0; i < lattice.rows(); ++i) {
-    f_lattice.row(i) = feature_map.map_vector(lattice.row(i));
-  }
 
   LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
   LUCID_DEBUG_FMT("X_bounds: {}", X_bounds);
   LUCID_DEBUG_FMT("X_init: {}", X_init);
   LUCID_DEBUG_FMT("X_unsafe: {}", X_unsafe);
 
-  // Only keep the points inside the sets
+  // Only keep the points inside/ouside the sets
   const auto [x_include_mask, x_exclude_mask] = X_bounds.include_exclude_masks(lattice);
   const auto [x0_include_mask, x0_exclude_mask] = X_init.include_exclude_masks(lattice);
   const auto [xu_include_mask, xu_exclude_mask] = X_unsafe.include_exclude_masks(lattice);
 
-  Matrix fx_lattice = f_lattice(X_bounds.include_mask(lattice), Eigen::placeholders::all);
+  Matrix fx_lattice = f_lattice(x_include_mask, Eigen::placeholders::all);
   // TODO(tend): is it correct to filter based on lattice? Or should we do it based on fp_lattice somehow?
   Matrix fxp_lattice = fp_lattice(x_include_mask, Eigen::placeholders::all);
   Matrix fx0_lattice = f_lattice(x0_include_mask, Eigen::placeholders::all);
@@ -244,11 +242,20 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   Matrix fsxu_lattice = f_lattice(xu_exclude_mask, Eigen::placeholders::all);
   Matrix d_lattice = fxp_lattice - fx_lattice;
   // TODO(tend): is it correct to filter based on lattice? Or should we do it based on d_lattice somehow?
-  Matrix dsx_lattice = d_lattice(x_include_mask, Eigen::placeholders::all);
+  Matrix dsx_lattice = d_lattice(x_exclude_mask, Eigen::placeholders::all);
   LUCID_DEBUG_FMT("fx_lattice size: {}", fx_lattice.rows());
   LUCID_DEBUG_FMT("fxp_lattice size: {}", fxp_lattice.rows());
   LUCID_DEBUG_FMT("fx0_lattice size: {}", fx0_lattice.rows());
   LUCID_DEBUG_FMT("fxu_lattice size: {}", fxu_lattice.rows());
+  LUCID_CHECK_ARGUMENT_CMP(fx_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(fxp_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(fx0_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(fxu_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(fsx_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(fsx0_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(fsxu_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(d_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(dsx_lattice.rows(), >, 0);
 
   // C = (1 - (2 f_max) / Q_tilde)^(-n/2)
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(Q_tilde), -n / 2.0);
@@ -285,6 +292,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_INFO_FMT("ebk: {} - c_ebk_coeff: {} - min_d_coeff: {} - diff_d_sx_coeff: {}", ebk, c_ebk_coeff, min_d_coeff,
                  diff_d_sx_coeff);
   LUCID_INFO_FMT("max_x_coeff: {} - diff_sx_coeff: {}", max_x_coeff, diff_sx_coeff);
+  LUCID_INFO_FMT("e b k: {} * {} * {} = {}", parameters.epsilon, parameters.target_norm, parameters.kappa, ebk);
 
   return optimiser.solve_fourier_barrier_synthesis(
       FourierBarrierSynthesisProblem{.num_vars = -1,
