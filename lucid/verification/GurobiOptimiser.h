@@ -38,7 +38,7 @@ class GurobiOptimiser final : public Optimiser {
              Dimension rkhs_dim, Dimension num_frequencies_per_dim, Dimension num_frequency_samples_per_dim,
              Dimension original_dim, const SolutionCallback& cb) const;
 
-  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
+  bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& problem,
                                             const SolutionCallback& cb) const override;
 
   /**

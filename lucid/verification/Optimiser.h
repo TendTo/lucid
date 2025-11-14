@@ -16,15 +16,21 @@ namespace lucid {
 
 /** LP problem to solver to achieve the Fourier barrier synthesis. */
 struct FourierBarrierSynthesisProblem {
-  Dimension num_vars;          ///< Number of variables in the LP
-  Dimension num_constraints;   ///< Number of constraints in the LP
-  ConstMatrixRef fx_lattice;   ///< Lattice obtained from the state space after applying the feature map
-  ConstMatrixRef fxp_lattice;  ///< Lattice obtained from the one-step reachable set after applying the feature map
-  ConstMatrixRef fx0_lattice;  ///< Lattice obtained from the initial set after applying the feature map
-  ConstMatrixRef fxu_lattice;  ///< Lattice obtained from the unsafe set after applying the feature map
-  int T;                       ///< Time horizon
-  double gamma;                ///< @gamma value
-  double C;                    ///< @f$ C = (1 - \frac{2 f_\max}{\tilde{Q}}^{\frac{-n}{2}} @f$
+  Dimension num_vars;               ///< Number of variables in the LP
+  Dimension num_constraints;        ///< Number of constraints in the LP
+  ConstMatrixRefCopy fx_lattice;    ///< Lattice obtained from the state space after applying the feature map
+  ConstMatrixRefCopy fxp_lattice;   ///< Lattice obtained from the one-step reachable set after applying the feature map
+  ConstMatrixRefCopy fx0_lattice;   ///< Lattice obtained from the initial set after applying the feature map
+  ConstMatrixRefCopy fxu_lattice;   ///< Lattice obtained from the unsafe set after applying the feature map
+  ConstMatrixRefCopy fxn_lattice;   ///< Lattice obtained from the periodic space
+  ConstMatrixRefCopy fsx_lattice;   ///< Lattice obtained from the periodic space / X_bounds
+  ConstMatrixRefCopy fsx0_lattice;  ///< Lattice obtained from the periodic space / X_init
+  ConstMatrixRefCopy fsxu_lattice;  ///< Lattice obtained from the periodic space / X_unsafe
+  ConstMatrixRefCopy d_lattice;     ///< Lattice obtained from the difference between feature map at x and xp
+  ConstMatrixRefCopy dsx_lattice;   ///< Lattice obtained from the difference between feature map at x and xp / X_bounds
+  int T;                            ///< Time horizon
+  double gamma;                     ///< @gamma value
+  double C;                         ///< @f$ C = (1 - \frac{2 f_\max}{\tilde{Q}}^{\frac{-n}{2}} @f$
   double b_kappa;
   // eta_coeff = 2 / (C - A_x0 + 1)
   double eta_coeff;  ///< Coefficient for the eta constraint

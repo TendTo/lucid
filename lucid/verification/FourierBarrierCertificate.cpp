@@ -196,15 +196,17 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   // Find the periodic set encapsulating the original set
   const RectSet X_tilde{feature_map.get_periodic_set()};
   // Create a lattice over the periodic set with no endpoints (since they would wrap around)
-  const Matrix lattice{pi.lattice(Q_tilde, false)};
+  const Matrix pi_lattice{pi.lattice(Q_tilde, false)};
 
   LUCID_ASSERT((X_tilde.lower_bound().array() <= X_bounds.lower_bound().array()).all() &&
                    (X_bounds.upper_bound().array() <= X_tilde.upper_bound().array()).all(),
                "X_bounds must be contained in X_tilde");
 
-  auto [A_x, A_x_sol] = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, X_bounds, lattice, parameters);
-  auto [A_x0, A_x0_sol] = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), lattice, parameters);
-  auto [A_xu, A_xu_sol] = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), lattice, parameters);
+  auto [A_x, A_x_sol] = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
+  auto [A_x0, A_x0_sol] =
+      compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
+  auto [A_xu, A_xu_sol] =
+      compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
 
   LUCID_INFO_FMT("A^{{X_tilde \\ X}}_{{N_tilde}}: {}", A_x);
   LUCID_INFO_FMT("A^{{X_tilde \\ X_init}}_{{N_tilde}}: {}", A_x0);
@@ -215,18 +217,34 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_CHECK_ARGUMENT_CMP(A_xu_sol.size(), !=, 0);
 
   // Apply the feature map to all the lattice points
+  const Matrix lattice = X_tilde.lattice(Q_tilde, false);
   Matrix f_lattice{lattice.rows(), feature_map.dimension()};
   Matrix fp_lattice{estimator(lattice)};
   for (Index i = 0; i < lattice.rows(); ++i) {
     f_lattice.row(i) = feature_map.map_vector(lattice.row(i));
   }
 
+  LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
+  LUCID_DEBUG_FMT("X_bounds: {}", X_bounds);
+  LUCID_DEBUG_FMT("X_init: {}", X_init);
+  LUCID_DEBUG_FMT("X_unsafe: {}", X_unsafe);
+
   // Only keep the points inside the sets
+  const auto [x_include_mask, x_exclude_mask] = X_bounds.include_exclude_masks(lattice);
+  const auto [x0_include_mask, x0_exclude_mask] = X_init.include_exclude_masks(lattice);
+  const auto [xu_include_mask, xu_exclude_mask] = X_unsafe.include_exclude_masks(lattice);
+
   Matrix fx_lattice = f_lattice(X_bounds.include_mask(lattice), Eigen::placeholders::all);
-  // TODO(tend): is it correct to filter based on lattice? Or should we do it based on p_lattice somehow?
-  Matrix fxp_lattice = fp_lattice(X_bounds.include_mask(lattice), Eigen::placeholders::all);
-  Matrix fx0_lattice = f_lattice(X_init.include_mask(lattice), Eigen::placeholders::all);
-  Matrix fxu_lattice = f_lattice(X_unsafe.include_mask(lattice), Eigen::placeholders::all);
+  // TODO(tend): is it correct to filter based on lattice? Or should we do it based on fp_lattice somehow?
+  Matrix fxp_lattice = fp_lattice(x_include_mask, Eigen::placeholders::all);
+  Matrix fx0_lattice = f_lattice(x0_include_mask, Eigen::placeholders::all);
+  Matrix fxu_lattice = f_lattice(xu_include_mask, Eigen::placeholders::all);
+  Matrix fsx_lattice = f_lattice(x_exclude_mask, Eigen::placeholders::all);
+  Matrix fsx0_lattice = f_lattice(x0_exclude_mask, Eigen::placeholders::all);
+  Matrix fsxu_lattice = f_lattice(xu_exclude_mask, Eigen::placeholders::all);
+  Matrix d_lattice = fxp_lattice - fx_lattice;
+  // TODO(tend): is it correct to filter based on lattice? Or should we do it based on d_lattice somehow?
+  Matrix dsx_lattice = d_lattice(x_include_mask, Eigen::placeholders::all);
   LUCID_DEBUG_FMT("fx_lattice size: {}", fx_lattice.rows());
   LUCID_DEBUG_FMT("fxp_lattice size: {}", fxp_lattice.rows());
   LUCID_DEBUG_FMT("fx0_lattice size: {}", fx0_lattice.rows());
@@ -275,6 +293,12 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
                                      .fxp_lattice = fxp_lattice,
                                      .fx0_lattice = fx0_lattice,
                                      .fxu_lattice = fxu_lattice,
+                                     .fxn_lattice = lattice,
+                                     .fsx_lattice = fsx_lattice,
+                                     .fsx0_lattice = fsx0_lattice,
+                                     .fsxu_lattice = fsxu_lattice,
+                                     .d_lattice = d_lattice,
+                                     .dsx_lattice = dsx_lattice,
                                      .T = T_,
                                      .gamma = gamma_,
                                      .C = C,
@@ -358,6 +382,12 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatr
                                      .fxp_lattice = fxp_lattice,
                                      .fx0_lattice = fx0_lattice,
                                      .fxu_lattice = fxu_lattice,
+                                     .fxn_lattice = Matrix{},
+                                     .fsx_lattice = Matrix{},
+                                     .fsx0_lattice = Matrix{},
+                                     .fsxu_lattice = Matrix{},
+                                     .d_lattice = Matrix{},
+                                     .dsx_lattice = Matrix{},
                                      .T = T_,
                                      .gamma = gamma_,
                                      .C = C,

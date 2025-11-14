@@ -31,10 +31,10 @@ namespace lucid {
 #ifdef LUCID_SOPLEX_BUILD
 bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                            const SolutionCallback& cb) const {
-  const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, T, gamma_val, C, b_kappa,
-               eta_coeff, min_x0_coeff, diff_sx0_coeff, gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff,
-               min_d_coeff, diff_d_sx_coeff, max_x_coeff, diff_sx_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs, A_x,
-               A_x0, A_xu] = params;
+  const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, fxn_lattice, fsx_lattice,
+               fsx0_lattice, fsxu_lattice, d_lattice, dsx_lattice, T, gamma, C, b_kappa, eta_coeff, min_x0_coeff, diff_sx0_coeff, gamma_coeff,
+               max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, diff_d_sx_coeff, max_x_coeff, diff_sx_coeff,
+               fctr1, fctr2, unsafe_rhs, kushner_rhs, A_x, A_x0, A_xu] = params;
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
   constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
@@ -84,7 +84,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   cols.add(soplex::LPColReal{static_cast<double>(T), soplex::DSVectorReal(), soplex::infinity, 0});
   // eta (Objective function (η + cT))
   const int eta = cols.num();
-  cols.add(soplex::LPColReal{1.0, soplex::DSVectorReal(), gamma_val - min_num, min_eta});
+  cols.add(soplex::LPColReal{1.0, soplex::DSVectorReal(), gamma - min_num, min_eta});
   // minDelta
   const int minDelta = cols.num();
   cols.add(soplex::LPColReal{0.0, soplex::DSVectorReal(), soplex::infinity, -soplex::infinity});
@@ -115,7 +115,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     soplex::DSVectorReal vec(2);
     vec.add(eta, 1.0);
     vec.add(c, static_cast<double>(T));
-    LUCID_MODEL_ADD_CONSTRAINT(rows, -soplex::infinity, vec, gamma_val, "eta+c*T<=gamma", constraint_names, should_log);
+    LUCID_MODEL_ADD_CONSTRAINT(rows, -soplex::infinity, vec, gamma, "eta+c*T<=gamma", constraint_names, should_log);
   }
 
   LUCID_DEBUG_FMT(
