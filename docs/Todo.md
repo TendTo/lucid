@@ -135,7 +135,7 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 - [ ] Use a [custom Plotly bundle](https://github.com/plotly/plotly.js/blob/master/CUSTOM_BUNDLE.md) to [reduce the final bundle size](https://github.com/plotly/react-plotly.js#customizing-the-plotlyjs-bundle)
 - [ ] Add timer
 
-- [x] Add simple Polytopic Sets 
+- [x] Add simple Polytopic Sets
 - [x] Add other sets
 - [x] tool paper aaai vs this different one
 - [ ] Make gurobi builds work on CI/CD
@@ -147,15 +147,15 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 
 ### How to do things right
 
-- [x] Create periodic domain 
-- [ ] Create a lattice on the periodic domain (user provided resolution)
-- [ ] Pass this to the barrier, along with all the other sets (Bounds, Initial, Unsafe)
-- [ ] Filter the points that fall in each set, possibly enlarged (strong suggestion, something like 10%)
+- [x] Create periodic domain
+- [x] Create a lattice on the periodic domain (user provided resolution)
+- [x] Pass this to the barrier, along with all the other sets (Bounds, Initial, Unsafe)
+- [x] Filter the points that fall in each set, possibly enlarged (strong suggestion, something like 10%)
   - [x] Add `change_size` method to sets
   - [ ] Should have a check to verify when some Initial and Usafe sets intersect
   - [ ] Notice that enlarging the sets may require handling the wrapping (pacman-stype)
-- [ ] These are the points that will go into the LP
+- [x] These are the points that will go into the LP
   - The feature map must be evaluated on all points
   - Possibly the estimator too!
-- [ ] The points that are NOT into any of the sets are used to compute additional coefficients via PSO-cpp. See the Python script
+- [x] The points that are NOT into any of the sets are used to compute additional coefficients via PSO-cpp. See the Python script
 - [ ] Use the H matrix!!!
