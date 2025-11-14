@@ -23,6 +23,7 @@
 #include "lucid/model/LinearTruncatedFourierFeatureMap.h"
 #include "lucid/model/LogTruncatedFourierFeatureMap.h"
 #include "lucid/model/MedianHeuristicTuner.h"
+#include "lucid/model/ModelEstimator.h"
 #include "lucid/model/MultiSet.h"
 #include "lucid/model/Parameter.h"
 #include "lucid/model/ParameterValue.h"
