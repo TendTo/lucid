@@ -169,8 +169,19 @@ std::pair<double, Vector> FourierBarrierCertificate::compute_A_periodic_minus_x(
   LUCID_DEBUG_FMT("Best position: {}", LUCID_FORMAT_MATRIX(xval));
   return {-fval, xval.transpose()};
 }
-
 bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& estimator,
+                                           const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
+                                           const Set& X_init, const Set& X_unsafe,
+                                           const FourierBarrierCertificateParameters& parameters) {
+  using DefaultOptimiser =
+      std::conditional_t<constants::GUROBI_BUILD, GurobiOptimiser,                                        //
+                         std::conditional_t<constants::HIGHS_BUILD, HighsOptimiser,                       //
+                                            std::conditional_t<constants::ALGLIB_BUILD, AlglibOptimiser,  //
+                                                               SoplexOptimiser>>>;
+  return synthesize(DefaultOptimiser{}, Q_tilde, estimator, feature_map, X_bounds, X_init, X_unsafe, parameters);
+}
+
+bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int Q_tilde, const Estimator& estimator,
                                            const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
                                            const Set& X_init, const Set& X_unsafe,
                                            const FourierBarrierCertificateParameters& parameters) {
@@ -221,12 +232,13 @@ bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& e
 
   // C = (1 - (2 f_max) / Q_tilde)^(-n/2)
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(Q_tilde), -n / 2.0);
+  LUCID_DEBUG_FMT("C = (1 - {} * 2.0 * {} / {})^(-{}/2) = {}", parameters.C_coeff, f_max, Q_tilde, n, C);
   // eta_coeff = 2 / (C - A_x0 + 1)
   const double eta_coeff = 2.0 / (C - A_x0 + 1.0);
   // min_x0_coeff = (C - A_x0 - 1) / (C - A_x0 + 1)
   const double min_x0_coeff = (C - A_x0 - 1.0) / (C - A_x0 + 1.0);
   // diff_sx0_coeff = -A_x0 / (C - A_x0 + 1)
-  const double diff_sx0_coeff = -A_x0 / (C - A_x0 + 1.0);
+  const double diff_sx0_coeff = A_x0 / (C - A_x0 + 1.0);
   // gamma_coeff = 2 / (C - A_xu + 1)
   const double gamma_coeff = 2.0 / (C - A_xu + 1.0);
   // max_xu_coeff = (C - A_xu - 1) / (C - A_xu + 1)
@@ -241,7 +253,7 @@ bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& e
   // min_d_coeff = (C - A_x - 1) / (C - A_x + 1)
   const double min_d_coeff = (C - A_x - 1.0) / (C - A_x + 1.0);
   // diff_d_sx_coeff = -A_x / (C - A_x + 1)
-  const double diff_d_sx_coeff = -A_x / (C - A_x + 1.0);
+  const double diff_d_sx_coeff = A_x / (C - A_x + 1.0);
   // max_x_coeff = (C - A_x - 1) / (C - A_x + 1)
   const double max_x_coeff = (C - A_x - 1.0) / (C - A_x + 1.0);
   // diff_sx_coeff = A_x / (C - A_x + 1)
@@ -254,16 +266,9 @@ bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& e
                  diff_d_sx_coeff);
   LUCID_INFO_FMT("max_x_coeff: {} - diff_sx_coeff: {}", max_x_coeff, diff_sx_coeff);
 
-  using DefaultOptimiser =
-      std::conditional_t<constants::GUROBI_BUILD, GurobiOptimiser,                                        //
-                         std::conditional_t<constants::HIGHS_BUILD, HighsOptimiser,                       //
-                                            std::conditional_t<constants::ALGLIB_BUILD, AlglibOptimiser,  //
-                                                               SoplexOptimiser>>>;
-
-  DefaultOptimiser optimiser{};
   return optimiser.solve_fourier_barrier_synthesis(
-      FourierBarrierSynthesisProblem{.num_vars = feature_map.num_frequencies() * 2 + 10,
-                                     .num_constraints = 10,
+      FourierBarrierSynthesisProblem{.num_vars = -1,
+                                     .num_constraints = -1,
                                      .fx_lattice = fx_lattice,
                                      .fxp_lattice = fxp_lattice,
                                      .fx0_lattice = fx0_lattice,

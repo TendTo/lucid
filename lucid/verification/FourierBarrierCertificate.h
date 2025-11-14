@@ -74,6 +74,10 @@ class FourierBarrierCertificate final : public BarrierCertificate {
       int Q_tilde, int f_max, const RectSet& X_tilde, const RectSet& X,
       const FourierBarrierCertificateParameters& parameters = {}) const;
 
+  bool synthesize(int Q_tilde, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
+                  const RectSet& X_bounds, const Set& X_init, const Set& X_unsafe,
+                  const FourierBarrierCertificateParameters& parameters = {});
+
   /**
    * Synthesize the barrier certificate.
    * This is done in multiple steps.
@@ -104,9 +108,9 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * @param parameters
    * @return
    */
-  bool synthesize(int Q_tilde, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
-                  const RectSet& X_bounds, const Set& X_init, const Set& X_unsafe,
-                  const FourierBarrierCertificateParameters& parameters = {});
+  bool synthesize(const Optimiser& optimiser, int Q_tilde, const Estimator& estimator,
+                  const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds, const Set& X_init,
+                  const Set& X_unsafe, const FourierBarrierCertificateParameters& parameters = {});
 
   /**
    * Synthesize the barrier certificate by solving a linear optimisation problem.
