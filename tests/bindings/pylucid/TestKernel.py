@@ -19,19 +19,14 @@ def vallee_poussin_kernel(z: np.ndarray, a: float, b: float) -> np.ndarray:
     z = np.atleast_2d(z)
     N, dim = z.shape
     coeff = 1.0 / ((b - a) ** dim)
-    print("Coeff:", coeff)
     prod = np.ones(N)
     for i in range(dim):
         zi = z[:, i]
-        print("Itzi:", zi)
         numerator = np.sin(((b + a) / 2) * zi) * np.sin(((b - a) / 2) * zi)
-        print("Numerator:", numerator)
         denominator = np.sin(zi / 2) ** 2
-        print("Denominator:", denominator)
         with np.errstate(divide="ignore", invalid="ignore"):
             fraction = np.where(denominator != 0, numerator / denominator, (b ** 2 - a ** 2))
         prod *= fraction
-        print("Fraction:", fraction)
     return coeff * prod
 
 

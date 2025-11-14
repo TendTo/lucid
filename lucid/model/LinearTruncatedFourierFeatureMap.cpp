@@ -7,6 +7,7 @@
 #include "lucid/model/LinearTruncatedFourierFeatureMap.h"
 
 #include <memory>
+#include <numbers>
 
 #include "lucid/util/error.h"
 

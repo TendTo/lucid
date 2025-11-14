@@ -7,6 +7,7 @@
 #include "lucid/verification/FourierBarrierCertificate.h"
 
 #include <memory>
+#include <numbers>
 
 #include "lucid/lib/psocpp.h"
 #include "lucid/model/Estimator.h"

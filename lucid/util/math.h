@@ -41,12 +41,15 @@ inline double normal_cdf(const double x, const double sigma_f, const double sigm
 
 /**
  * Raise a base to the power of an exponent: @f$ b^e @f$.
+ * @tparam T type of base and exponent. Must be an integral type.
  * @param base @f$ b @f$ base
  * @param exp @f$ e @f$ exponent
  * @return base raised to the power of exp
  */
-inline std::size_t pow(std::size_t base, std::size_t exp) {
-  std::size_t result = 1;
+template <class T>
+  requires(std::is_integral_v<T>)
+inline T pow(T base, T exp) {
+  T result = 1;
   while (exp) {
     if (exp & 1) result *= base;
     exp >>= 1;
@@ -54,22 +57,5 @@ inline std::size_t pow(std::size_t base, std::size_t exp) {
   }
   return result;
 }
-
-/**
- * Raise a base to the power of an exponent: @f$ b^e @f$.
- * @param base @f$ b @f$ base
- * @param exp @f$ e @f$ exponent
- * @return base raised to the power of exp
- */
-inline int pow(int base, int exp) {
-  int result = 1;
-  while (exp) {
-    if (exp & 1) result *= base;
-    exp >>= 1;
-    base *= base;
-  }
-  return result;
-}
-
 
 }  // namespace lucid
