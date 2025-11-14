@@ -33,6 +33,7 @@ lucid_cc_library(
         "//lucid/util:constants",
         "//lucid/util:error",
         "//lucid/util:math",
+        "//lucid/util:random",
         "//lucid/util:stats",
         "//lucid/util:timer",
     ],

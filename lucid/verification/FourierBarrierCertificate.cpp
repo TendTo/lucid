@@ -16,6 +16,7 @@
 #include "lucid/util/constants.h"
 #include "lucid/util/error.h"
 #include "lucid/util/math.h"
+#include "lucid/util/random.h"
 #include "lucid/verification/AlglibOptimiser.h"
 #include "lucid/verification/GurobiOptimiser.h"
 #include "lucid/verification/HighsOptimiser.h"
@@ -107,6 +108,7 @@ std::pair<double, Vector> compute_A_periodic(int Q_tilde, int f_max, const RectS
   optimiser.setMinParticleChange(parameters.xtol);
   optimiser.setMinFunctionChange(parameters.ftol);
   optimiser.setMaxVelocity(parameters.max_vel);
+  optimiser.setGen(random::gen);
   optimiser.setVerbosity(LUCID_TRACE_ENABLED ? 3 : LUCID_DEBUG_ENABLED ? 1 : 0);
 
   auto [iterations, converged, fval, xval] = optimiser.minimize(matrix_bounds, parameters.num_particles);

@@ -41,7 +41,7 @@ git_override(
 bazel_dep(name = "psocpp", version = "0.1.0")
 git_override(
     module_name = "psocpp",
-    commit = "3b5c223d1bd0f4549da809d6e72c5bc765260a3b",
+    commit = "f5e4e1eb12604bcc8504456887693337b3c4b8e8",
     remote = "https://github.com/TendTo/pso-cpp.git",
 )
 
