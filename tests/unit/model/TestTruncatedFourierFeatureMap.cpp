@@ -68,6 +68,22 @@ TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapApplyMatrix
   EXPECT_FALSE(std::isnan(features(0, 0)));
 }
 
+TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapInvertMatrix) {
+  constexpr Dimension samples = 15;
+
+  const Matrix x{Matrix::Random(samples, X_bounds.dimension())};
+  const Matrix features{this->feature_map_(x)};
+  const Matrix inverted_x{this->feature_map_.invert(features)};
+  EXPECT_EQ(inverted_x.rows(), samples);
+  EXPECT_EQ(inverted_x.cols(), X_bounds.dimension());
+
+  for (Dimension i = 0; i < samples; ++i) {
+    for (Dimension j = 0; j < X_bounds.dimension(); ++j) {
+      ASSERT_NEAR(inverted_x(i, j), x(i, j), 1e-5) << "at sample " << i << ", dimension " << j;
+    }
+  }
+}
+
 TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapApplyVector) {
   const Vector x{Vector::Random(X_bounds.dimension())};
   const Vector features{this->feature_map_.map_vector(x)};

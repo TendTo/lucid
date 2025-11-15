@@ -165,6 +165,9 @@ class PyFeatureMap : public FeatureMap {
   [[nodiscard]] Matrix apply_impl(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, FeatureMap, apply_impl, x);
   }
+  [[nodiscard]] Matrix invert_impl(ConstMatrixRef y) const override {
+    PYBIND11_OVERRIDE_PURE(Matrix, FeatureMap, invert_impl, y);
+  }
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override {
     pybind11::pybind11_fail("Tried to call pure virtual function \"FeatureMap::clone\"");
   }
@@ -509,6 +512,8 @@ void init_model(py::module_ &m) {
   /**************************** FeatureMap ****************************/
   py::class_<FeatureMap, PyFeatureMap>(m, "FeatureMap", FeatureMap_)
       .def("clone", &FeatureMap::clone, FeatureMap_clone)
+      .def("invert", &FeatureMap::invert, ARG_NONCONVERT("y"), FeatureMap_invert)
+      .def("__call__", &FeatureMap::operator(), ARG_NONCONVERT("x"), FeatureMap_operator_apply)
       .def("__str__", STRING_LAMBDA(FeatureMap));
   py::class_<TruncatedFourierFeatureMap, FeatureMap>(m, "TruncatedFourierFeatureMap", TruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, ConstVectorRef, ConstVectorRef, Scalar, RectSet>(),
@@ -523,7 +528,6 @@ void init_model(py::module_ &m) {
            TruncatedFourierFeatureMap_map_vector)
       .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"),
            TruncatedFourierFeatureMap_map_matrix)
-      .def("__call__", &TruncatedFourierFeatureMap::operator(), ARG_NONCONVERT("x"), FeatureMap_operator_apply)
       .def_property_readonly("sigma_f", &TruncatedFourierFeatureMap::sigma_f, TruncatedFourierFeatureMap_sigma_f)
       .def_property_readonly("periodic_coefficients", &TruncatedFourierFeatureMap::periodic_coefficients,
                              TruncatedFourierFeatureMap_periodic_coefficients)

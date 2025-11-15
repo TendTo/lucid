@@ -35,6 +35,13 @@ class FeatureMap {
   [[nodiscard]] Matrix operator()(ConstMatrixRef x) const;
 
   /**
+   * Apply the inverse feature map to a vector.
+   * @param y @f$ n \times M @f$ input vector in the feature space
+   * @return @nxd output in the original space
+   */
+  [[nodiscard]] Matrix invert(ConstMatrixRef y) const;
+
+  /**
    * Clone the feature map.
    * Create a new instance of the feature map with the same parameters.
    * @return new instance of the feature map
@@ -48,6 +55,12 @@ class FeatureMap {
    * @return @f$ n \times M @f$ output, where @f$ M @f$ is the dimension of the feature space
    */
   [[nodiscard]] virtual Matrix apply_impl(ConstMatrixRef x) const = 0;
+  /**
+   * Concrete implementation of @ref invert().
+   * @param y @f$ n \times M @f$ input vector in the feature space
+   * @return @nxd output in the original space
+   */
+  [[nodiscard]] virtual Matrix invert_impl(ConstMatrixRef y) const = 0;
 };
 
 std::ostream &operator<<(std::ostream &os, const FeatureMap &f);

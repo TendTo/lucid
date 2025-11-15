@@ -19,6 +19,11 @@ Matrix FeatureMap::operator()(ConstMatrixRef x) const {
   if (Stats::Scoped::top()) Stats::Scoped::top()->value().num_feature_map_applications++;
   return apply_impl(x);
 }
+Matrix FeatureMap::invert(ConstMatrixRef y) const {
+  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().feature_map_timer : nullptr};
+  if (Stats::Scoped::top()) Stats::Scoped::top()->value().num_feature_map_applications++;
+  return invert_impl(y);
+}
 std::ostream& operator<<(std::ostream& os, const FeatureMap& f) {
   if (const auto* casted = dynamic_cast<const ConstantTruncatedFourierFeatureMap*>(&f)) return os << *casted;
   if (const auto* casted = dynamic_cast<const LinearTruncatedFourierFeatureMap*>(&f)) return os << *casted;

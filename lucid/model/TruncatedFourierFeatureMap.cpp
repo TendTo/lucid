@@ -16,7 +16,6 @@
 #include "lucid/util/math.h"
 
 namespace lucid {
-
 TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_per_dim,
                                                        const Matrix& omega_per_dim, ConstVectorRef sigma_l,
                                                        const Scalar sigma_f, const RectSet& X_bounds)
@@ -102,6 +101,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, cons
 }
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
+  LUCID_CHECK_ARGUMENT_EQ(x.size(), X_bounds_.dimension());
   auto z = (x - X_bounds_.lower_bound()).cwiseQuotient(X_bounds_.upper_bound() - X_bounds_.lower_bound());
   LUCID_ASSERT(z.size() == omega_.cols(), "z.size() == omega_.cols()");
 
@@ -124,11 +124,47 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
 #endif
   return basis;
 }
+Vector TruncatedFourierFeatureMap::invert_vector(ConstVectorRef y) const {
+  LUCID_NOT_IMPLEMENTED();
+  LUCID_CHECK_ARGUMENT_EQ(y.size(), weights_.size());
+  // Step 1: Reverse the sigma_f and weights scaling
+  Vector trig = y.cwiseQuotient(weights_) / sigma_f_;
+
+  // Step 2: Extract z_proj from the trigonometric representation
+  // trig = [1, cos(z_proj[1]), sin(z_proj[1]), ..., cos(z_proj[n]), sin(z_proj[n])]
+  // We can recover z_proj[i] using atan2(sin, cos)
+  LUCID_ASSERT(trig.size() % 2 == 1, "trig.size() must be odd");
+  Vector z_proj{(trig.size() + 1) / 2};
+  z_proj(0) = 0;  // The 0th frequency doesn't contribute to z_proj
+  for (Index i = 1; i < z_proj.size(); i++) {
+    const Scalar cos_val = trig(2 * i - 1);
+    const Scalar sin_val = trig(2 * i);
+    z_proj(i) = std::atan2(sin_val, cos_val);
+  }
+
+  fmt::println("z_proj shape: {}", z_proj.size());
+  fmt::println("omega shape: {} x {}", omega_.rows(), omega_.cols());
+  // Step 3: Solve for z using the pseudo-inverse of omega
+  // z_proj = omega * z^T  =>  z^T = omega^+ * z_proj^T
+  // Use least-squares solution via normal equations: (omega^T * omega) * z^T = omega^T * z_proj^T
+  Vector z{(omega_.transpose() * omega_).ldlt().solve(omega_.transpose() * z_proj.transpose())};
+
+  fmt::println("z shape: {}", z.size());
+  fmt::println("X_bounds_.upper_bound(): {}", X_bounds_.upper_bound());
+
+  // Step 4: Denormalize from [0, 1] to the original bounds
+  return z.cwiseProduct(X_bounds_.upper_bound() - X_bounds_.lower_bound()) + X_bounds_.lower_bound();
+}
 Matrix TruncatedFourierFeatureMap::map_matrix(ConstMatrixRef x) const { return (*this)(x); }
 
 Matrix TruncatedFourierFeatureMap::apply_impl(ConstMatrixRef x) const {
   Matrix out{x.rows(), weights_.size()};
   for (Index row = 0; row < x.rows(); row++) out.row(row) = map_vector(x.row(row));
+  return out;
+}
+Matrix TruncatedFourierFeatureMap::invert_impl(ConstMatrixRef y) const {
+  Matrix out{y.rows(), X_bounds_.dimension()};
+  for (Index row = 0; row < y.rows(); row++) out.row(row) = invert_vector(y.row(row));
   return out;
 }
 

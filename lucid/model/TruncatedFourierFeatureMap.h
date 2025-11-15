@@ -85,20 +85,19 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    */
   [[nodiscard]] Vector map_vector(ConstVectorRef x) const;
   /**
-   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$,
-   * then compute the feature map.
-   * @param x input vector
-   * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
+   * Given a @2M+1 dimensional vector @y, invert the feature map to obtain the original input vector.
+   * @pre @y must have the same dimension as the feature map output.
+   * @param y input vector in the feature space
+   * @return @d dimensional output in the original space
    */
-  [[nodiscard]] Matrix map_matrix(ConstMatrixRef x) const;
-
+  [[nodiscard]] Vector invert_vector(ConstVectorRef y) const;
   /**
    * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$,
    * then compute the feature map.
    * @param x input vector
    * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
    */
-  [[nodiscard]] Matrix apply_impl(ConstMatrixRef x) const override;
+  [[nodiscard]] Matrix map_matrix(ConstMatrixRef x) const;
 
   /** @getter{dimension, the feature map space} */
   [[nodiscard]] Dimension dimension() const { return weights_.size(); }
@@ -153,6 +152,15 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
 
  protected:
+  /**
+   * Given an @nxd dimensional matrix @x, project each row vector to the unit hypercube @f$ [0, 1]^d @f$,
+   * then compute the feature map.
+   * @param x input vector
+   * @return @f$ n \times 2 M + 1 @f$ dimensional feature map
+   */
+  [[nodiscard]] Matrix apply_impl(ConstMatrixRef x) const override;
+  [[nodiscard]] Matrix invert_impl(ConstMatrixRef y) const override;
+
   int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
   Matrix omega_;                       ///< Frequencies matrix
   Vector weights_;                     ///< Weights matrix
