@@ -26,9 +26,17 @@ namespace lucid {
 
 namespace {
 
+/** Objective functor for PSO optimisation of the Fourier barrier certificate. */
 class Objective {
  public:
-  Objective(const int n_tilde, const double Q_tilde, const int f_max, const Matrix& lattice)
+  /**
+   * Construct the objective functor.
+   * @param n_tilde number of lattice points
+   * @param Q_tilde total number of frequencies
+   * @param f_max maximum frequency
+   * @param lattice lattice points
+   */
+  Objective(const int n_tilde, const double Q_tilde, const int f_max, const ConstMatrixRowIndexedView& lattice)
       : n_tilde_{n_tilde},
         lattice_{lattice},
         kernel_{ValleePoussinKernel{static_cast<double>(f_max), Q_tilde - static_cast<double>(f_max)}} {}
@@ -60,7 +68,7 @@ class Objective {
     LUCID_ASSERT(x.size() == lattice_.cols(), "The input dimension must be equal to the lattice dimension");
     // x - bar{x}
     const auto diffs = -1 * (lattice_.rowwise() - x.col(0).transpose());
-    // x - bar{x} wrapped between [-pi, pi]
+    // (x - bar{x}) wrapped between [-pi, pi]
     const auto wrapped_diffs = diffs.unaryExpr(&wrap_angle<2.0 * std::numbers::pi>);
     // Apply the Vallée-Poussin kernel to each row of the wrapped differences
     const Matrix res = kernel_(wrapped_diffs);
@@ -71,9 +79,9 @@ class Objective {
   }
 
  private:
-  const int n_tilde_;                 ///< Number of lattice points
-  const Matrix& lattice_;             ///< Lattice points
-  const ValleePoussinKernel kernel_;  ///< Vallée-Poussin kernel
+  const int n_tilde_;                         ///< Number of lattice points
+  const ConstMatrixRowIndexedView& lattice_;  ///< Lattice points
+  const ValleePoussinKernel kernel_;          ///< Vallée-Poussin kernel
 };
 
 std::pair<double, Vector> compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde,
@@ -88,14 +96,13 @@ std::pair<double, Vector> compute_A_periodic(int Q_tilde, int f_max, const RectS
   // to the corresponding set in the periodic space [0, 2pi]^n
   const RectSet X_periodic = (X - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes();
   // Rescale the newly created periodic set by the given increase factor, making sure it stays within [0, 2pi]^n
-  const RectSet X_periodic_rescaled{X_periodic.scale(parameters.increase, pi, true)};
+  const std::unique_ptr<Set> X_periodic_rescaled{X_periodic.scale_wrapped(parameters.increase, pi, true)};
 
   LUCID_TRACE_FMT("X_periodic: {}", X_periodic);
-  LUCID_TRACE_FMT("X_periodic scaled: {}", X_periodic_rescaled);
+  LUCID_TRACE_FMT("X_periodic scaled: {}", *X_periodic_rescaled);
 
-  // TODO(tend): reuse a filtered lattice that should be passed as argument
   // Only keep the lattice points that are not in X_periodic_rescaled
-  const Matrix lattice_wo_x{X_periodic_rescaled.exclude(lattice)};
+  auto lattice_wo_x{lattice(X_periodic_rescaled->exclude_mask(lattice), Eigen::placeholders::all)};
   LUCID_CHECK_ARGUMENT_CMP(lattice_wo_x.rows(), >, 0);  // Ensure there are points to evaluate
 
   LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
@@ -146,7 +153,7 @@ std::pair<double, Vector> FourierBarrierCertificate::compute_A_periodic_minus_x(
   LUCID_TRACE_FMT("X_periodic scaled: {}", X_periodic_rescaled);
 
   const Matrix lattice{pi.lattice(Q_tilde, false)};
-  const Matrix lattice_wo_x{X_periodic_rescaled.exclude(lattice)};
+  auto lattice_wo_x{lattice(X_periodic_rescaled.exclude_mask(lattice), Eigen::placeholders::all)};
 
   LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
 
@@ -223,31 +230,42 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
 
   // Apply the feature map to all the lattice points
   const Matrix lattice = X_tilde.lattice(Q_tilde, false);
-  Matrix f_lattice{feature_map(lattice)};
+  const Matrix f_lattice{feature_map(lattice)};
   Matrix fp_lattice{estimator(lattice)};
+  // We are fixing the zero frequency to the constant value we computed in the feature map
+  // The regressor has a hard time learning it on the extreme left and right points, because it tends to 0
+  fp_lattice.col(0) = Vector::Constant(fp_lattice.rows(), feature_map.weights()[0] * feature_map.sigma_f());
+  const Matrix full_d_lattice = f_lattice - fp_lattice;
 
   LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
   LUCID_DEBUG_FMT("X_bounds: {}", X_bounds);
   LUCID_DEBUG_FMT("X_init: {}", X_init);
   LUCID_DEBUG_FMT("X_unsafe: {}", X_unsafe);
 
+  const std::unique_ptr<Set> X_bounds_rescaled{X_bounds.scale_wrapped(parameters.increase, X_tilde, true)};
+  const std::unique_ptr<Set> X_init_rescaled{X_init.to_rect_set()->scale_wrapped(parameters.increase, X_tilde, true)};
+  const std::unique_ptr<Set> X_unsafe_rescaled{
+      X_unsafe.to_rect_set()->scale_wrapped(parameters.increase, X_tilde, true)};
+
+  LUCID_DEBUG_FMT("X_bounds rescaled: {}", *X_bounds_rescaled);
+  LUCID_DEBUG_FMT("X_init rescaled: {}", *X_init_rescaled);
+  LUCID_DEBUG_FMT("X_unsafe rescaled: {}", *X_unsafe_rescaled);
+
   // Only keep the points inside/ouside the sets
-  const auto [x_include_mask, x_exclude_mask] = X_bounds.include_exclude_masks(lattice);
-  const auto [x0_include_mask, x0_exclude_mask] = X_init.include_exclude_masks(lattice);
-  const auto [xu_include_mask, xu_exclude_mask] = X_unsafe.include_exclude_masks(lattice);
+  const auto [x_include_mask, x_exclude_mask] = X_bounds_rescaled->include_exclude_masks(lattice);
+  const auto [x0_include_mask, x0_exclude_mask] = X_init_rescaled->include_exclude_masks(lattice);
+  const auto [xu_include_mask, xu_exclude_mask] = X_unsafe_rescaled->include_exclude_masks(lattice);
 
   // TODO(tend): instead of being casted to matrices, effectively copying the lattice multiple times, use blocks
-  Matrix fx_lattice = f_lattice(x_include_mask, Eigen::placeholders::all);
-  // TODO(tend): is it correct to filter based on lattice? Or should we do it based on fp_lattice somehow?
-  Matrix fxp_lattice = fp_lattice(x_include_mask, Eigen::placeholders::all);
-  Matrix fx0_lattice = f_lattice(x0_include_mask, Eigen::placeholders::all);
-  Matrix fxu_lattice = f_lattice(xu_include_mask, Eigen::placeholders::all);
-  Matrix fsx_lattice = f_lattice(x_exclude_mask, Eigen::placeholders::all);
-  Matrix fsx0_lattice = f_lattice(x0_exclude_mask, Eigen::placeholders::all);
-  Matrix fsxu_lattice = f_lattice(xu_exclude_mask, Eigen::placeholders::all);
-  Matrix d_lattice = fxp_lattice - fx_lattice;
-  // TODO(tend): is it correct to filter based on lattice? Or should we do it based on d_lattice somehow?
-  Matrix dsx_lattice = d_lattice(x_exclude_mask, Eigen::placeholders::all);
+  const auto fx_lattice = f_lattice(x_include_mask, Eigen::placeholders::all);
+  const auto fxp_lattice = fp_lattice(x_include_mask, Eigen::placeholders::all);
+  const auto fx0_lattice = f_lattice(x0_include_mask, Eigen::placeholders::all);
+  const auto fxu_lattice = f_lattice(xu_include_mask, Eigen::placeholders::all);
+  const auto fsx_lattice = f_lattice(x_exclude_mask, Eigen::placeholders::all);
+  const auto fsx0_lattice = f_lattice(x0_exclude_mask, Eigen::placeholders::all);
+  const auto fsxu_lattice = f_lattice(xu_exclude_mask, Eigen::placeholders::all);
+  const auto d_lattice = full_d_lattice(x_include_mask, Eigen::placeholders::all);
+  const auto dsx_lattice = full_d_lattice(x_exclude_mask, Eigen::placeholders::all);
   LUCID_DEBUG_FMT("fx_lattice size: {}", fx_lattice.rows());
   LUCID_DEBUG_FMT("fxp_lattice size: {}", fxp_lattice.rows());
   LUCID_DEBUG_FMT("fx0_lattice size: {}", fx0_lattice.rows());

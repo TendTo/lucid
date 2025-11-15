@@ -55,6 +55,10 @@ using ConstMatrixRefCopy = Eigen::Ref<const Matrix>;
 using MatrixRef = Eigen::Ref<Matrix>;
 using ConstVectorRef = const Eigen::Ref<const Vector>&;
 using VectorRef = Eigen::Ref<Vector>;
+using ConstMatrixRowIndexedView =
+    decltype(std::declval<const Matrix>()(std::declval<std::vector<Index>>(), Eigen::indexing::all));
+using ConstMatrixColIndexedView =
+    decltype(std::declval<const Matrix>()(Eigen::indexing::all, std::declval<std::vector<Index>>()));
 template <class Derived>
 using MatrixBase = Eigen::MatrixBase<Derived>;
 
