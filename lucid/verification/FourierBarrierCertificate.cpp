@@ -84,13 +84,17 @@ std::pair<double, Vector> compute_A_periodic(int Q_tilde, int f_max, const RectS
   const int n_tilde = lucid::pow(Q_tilde, n);
 
   // TODO(tend): check if this is necessary
+  // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
+  // to the corresponding set in the periodic space [0, 2pi]^n
   const RectSet X_periodic = (X - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes();
+  // Rescale the newly created periodic set by the given increase factor, making sure it stays within [0, 2pi]^n
   const RectSet X_periodic_rescaled{X_periodic.scale(parameters.increase, pi, true)};
 
   LUCID_TRACE_FMT("X_periodic: {}", X_periodic);
   LUCID_TRACE_FMT("X_periodic scaled: {}", X_periodic_rescaled);
 
   // TODO(tend): reuse a filtered lattice that should be passed as argument
+  // Only keep the lattice points that are not in X_periodic_rescaled
   const Matrix lattice_wo_x{X_periodic_rescaled.exclude(lattice)};
   LUCID_CHECK_ARGUMENT_CMP(lattice_wo_x.rows(), >, 0);  // Ensure there are points to evaluate
 
@@ -232,6 +236,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const auto [x0_include_mask, x0_exclude_mask] = X_init.include_exclude_masks(lattice);
   const auto [xu_include_mask, xu_exclude_mask] = X_unsafe.include_exclude_masks(lattice);
 
+  // TODO(tend): instead of being casted to matrices, effectively copying the lattice multiple times, use blocks
   Matrix fx_lattice = f_lattice(x_include_mask, Eigen::placeholders::all);
   // TODO(tend): is it correct to filter based on lattice? Or should we do it based on fp_lattice somehow?
   Matrix fxp_lattice = fp_lattice(x_include_mask, Eigen::placeholders::all);
@@ -257,42 +262,42 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_CHECK_ARGUMENT_CMP(d_lattice.rows(), >, 0);
   LUCID_CHECK_ARGUMENT_CMP(dsx_lattice.rows(), >, 0);
 
-  // C = (1 - (2 f_max) / Q_tilde)^(-n/2)
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(Q_tilde), -n / 2.0);
-  LUCID_DEBUG_FMT("C = (1 - {} * 2.0 * {} / {})^(-{}/2) = {}", parameters.C_coeff, f_max, Q_tilde, n, C);
-  // eta_coeff = 2 / (C - A_x0 + 1)
+  LUCID_DEBUG_FMT("C = (1 - (2 f_max) / Q_tilde)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",
+                  parameters.C_coeff, f_max, Q_tilde, n, C);
   const double eta_coeff = 2.0 / (C - A_x0 + 1.0);
-  // min_x0_coeff = (C - A_x0 - 1) / (C - A_x0 + 1)
+  LUCID_DEBUG_FMT("eta_coeff: 2 / (C - A_x0 + 1) = 2 / ({:.3} - {:.3} + 1) = {:.3}", C, A_x0, eta_coeff);
   const double min_x0_coeff = (C - A_x0 - 1.0) / (C - A_x0 + 1.0);
-  // diff_sx0_coeff = -A_x0 / (C - A_x0 + 1)
+  LUCID_DEBUG_FMT("min_x0_coeff: (C - A_x0 - 1) / (C - A_x0 + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}",
+                  C, A_x0, C, A_x0, min_x0_coeff);
   const double diff_sx0_coeff = A_x0 / (C - A_x0 + 1.0);
-  // gamma_coeff = 2 / (C - A_xu + 1)
+  LUCID_DEBUG_FMT("diff_sx0_coeff: A_x0 / (C - A_x0 + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_x0, C, A_x0,
+                  diff_sx0_coeff);
   const double gamma_coeff = 2.0 / (C - A_xu + 1.0);
-  // max_xu_coeff = (C - A_xu - 1) / (C - A_xu + 1)
+  LUCID_DEBUG_FMT("gamma_coeff: 2 / (C - A_xu + 1) = 2 / ({:.3} - {:.3} + 1) = {:.3}", C, A_xu, gamma_coeff);
   const double max_xu_coeff = (C - A_xu - 1) / (C - A_xu + 1.0);
-  // diff_sxu_coeff = A_xu / (C - A_xu + 1)
-  // TODO(tend): check the missmatch with the paper => the denominator is A_xu or A_x0?
+  LUCID_DEBUG_FMT("max_xu_coeff: (C - A_xu - 1) / (C - A_xu + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}",
+                  C, A_xu, C, A_xu, max_xu_coeff);
   const double diff_sxu_coeff = A_xu / (C - A_xu + 1.0);
-  // ebk = epsilon * target_norm * kappa
+  LUCID_DEBUG_FMT("diff_sxu_coeff: A_xu / (C - A_xu + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_xu, C, A_xu,
+                  diff_sxu_coeff);
   const double ebk = parameters.epsilon * parameters.target_norm * parameters.kappa;
-  // c_ebk_coeff = 2 / (C - A_x + 1)
+  LUCID_DEBUG_FMT("ebk: epsilon * target_norm * kapp = {:.3} * {:.3} * {:.3} = {:.3}", parameters.epsilon,
+                  parameters.target_norm, parameters.kappa, ebk);
   const double c_ebk_coeff = 2.0 / (C - A_x + 1.0);
-  // min_d_coeff = (C - A_x - 1) / (C - A_x + 1)
+  LUCID_DEBUG_FMT("c_ebk_coeff: 2 / (C - A_x + 1) = 2 / ({:.3} - {:.3} + 1) = {:.3}", C, A_x, c_ebk_coeff);
   const double min_d_coeff = (C - A_x - 1.0) / (C - A_x + 1.0);
-  // diff_d_sx_coeff = -A_x / (C - A_x + 1)
+  LUCID_DEBUG_FMT("min_d_coeff: (C - A_x - 1) / (C - A_x + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}", C,
+                  A_x, C, A_x, min_d_coeff);
   const double diff_d_sx_coeff = A_x / (C - A_x + 1.0);
-  // max_x_coeff = (C - A_x - 1) / (C - A_x + 1)
+  LUCID_DEBUG_FMT("diff_d_sx_coeff: A_x / (C - A_x + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_x, C, A_x,
+                  diff_d_sx_coeff);
   const double max_x_coeff = (C - A_x - 1.0) / (C - A_x + 1.0);
-  // diff_sx_coeff = A_x / (C - A_x + 1)
+  LUCID_DEBUG_FMT("max_x_coeff: (C - A_x - 1) / (C - A_x + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}", C,
+                  A_x, C, A_x, max_x_coeff);
   const double diff_sx_coeff = A_x / (C - A_x + 1.0);
-
-  LUCID_INFO_FMT("C: {} - eta_coeff: {} - min_x0_coeff: {} - diff_sx0_coeff: {}", C, eta_coeff, min_x0_coeff,
-                 diff_sx0_coeff);
-  LUCID_INFO_FMT("gamma_coeff: {} - max_xu_coeff: {} - diff_sxu_coeff: {}", gamma_coeff, max_xu_coeff, diff_sxu_coeff);
-  LUCID_INFO_FMT("ebk: {} - c_ebk_coeff: {} - min_d_coeff: {} - diff_d_sx_coeff: {}", ebk, c_ebk_coeff, min_d_coeff,
-                 diff_d_sx_coeff);
-  LUCID_INFO_FMT("max_x_coeff: {} - diff_sx_coeff: {}", max_x_coeff, diff_sx_coeff);
-  LUCID_INFO_FMT("e b k: {} * {} * {} = {}", parameters.epsilon, parameters.target_norm, parameters.kappa, ebk);
+  LUCID_DEBUG_FMT("diff_sx_coeff: A_x / (C - A_x + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_x, C, A_x,
+                  diff_sx_coeff);
 
   return optimiser.solve_fourier_barrier_synthesis(
       FourierBarrierSynthesisProblem{.num_vars = -1,
@@ -332,7 +337,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
                                      .A_xu = A_xu},
       std::bind(&FourierBarrierCertificate::optimiser_callback, this, std::placeholders::_1, std::placeholders::_2,
                 std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
-                1.0 /* target_norm */));
+                parameters.target_norm));
 }
 
 bool FourierBarrierCertificate::synthesize(ConstMatrixRef fx_lattice, ConstMatrixRef fxp_lattice,

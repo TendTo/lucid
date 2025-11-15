@@ -48,11 +48,34 @@ class PyInterruptCallback final : public GRBCallback {
 };
 #endif
 
+/**
+ * Add lower and upper bounds to a Gurobi variable such that
+ * @f[
+ * \texttt{lb} \leq \texttt{var} \leq \texttt{ub} .
+ * @f]
+ * Setting `lb` to `-infinity` or `ub` to `infinity` removes the respective bound.
+ * @param lb lower bound
+ * @param var Gurobi variable
+ * @param ub  upper bound
+ */
 void set_var_bounds(const double lb, GRBVar& var, const double ub) {
   var.set(GRB_DoubleAttr_LB, lb);
   var.set(GRB_DoubleAttr_UB, ub);
 }
 
+/**
+ * Given a `lattice`, add constraints to the `model` such that
+ * @f[
+ * \texttt{min\_var} \leq x b^T \leq x \texttt{max\_var} .
+ * @f]
+ * @param model Gurobi model
+ * @param bs barrier coefficients we are looking for
+ * @param lattice lattice of points
+ * @param min_var variable representing the minimum bound
+ * @param max_var variable representing the maximum bound
+ * @param set_name name of the set for logging/debug purposes
+ * @param should_log whether to add names to the constraints for logging/debug purposes
+ */
 void add_min_max_bounds(GRBModel& model, const std::span<GRBVar>& bs, ConstMatrixRef lattice, const GRBVar& min_var,
                         const GRBVar& max_var, const std::string& set_name, const bool should_log) {
   LUCID_DEBUG_FMT(
@@ -574,7 +597,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   }
   // 0 <= c <= inf
   set_var_bounds(0, c, max_num);
-  // 0 <= eta < gamma | To enforce a strict inequality, we sub a small number to the ub
+  // 0 <= eta < gamma | To enforce a strict inequality, we sub a small number from gamma
   set_var_bounds(0, eta, gamma - tolerance);
   // -inf <= min_d <= inf
   set_var_bounds(-max_num, min_d, max_num);
