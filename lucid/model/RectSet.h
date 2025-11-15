@@ -145,6 +145,39 @@ class RectSet final : public Set {
    */
   [[nodiscard]] RectSet scale(double scale, const RectSet& bounds, bool relative_to_bounds = false) const;
 
+  /**
+   * Scale the rectangular set by the given factor while keeping it inside the given bounds.
+   * If any dimension exceeds the bounds after scaling, it is wrapped around to the other side,
+   * as another rectangular set.
+   * The scaling is performed with respect to the center of the rectangular set.
+   * The scaling factor can be computed relative to either
+   * - the current size of the rectangular set;
+   * - the size of the bounding rectangular set.
+   * @param scale scaling factor
+   * @param bounds bounding rectangular set
+   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
+   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] std::unique_ptr<Set> scale_wrapped(ConstVectorRef scale, const RectSet& bounds,
+                                                   bool relative_to_bounds = false) const;
+  /**
+   * Scale the rectangular set by the given factor while keeping it inside the given bounds.
+   * If any dimension exceeds the bounds after scaling, it is wrapped around to the other side,
+   * as another rectangular set.
+   * The scaling is performed with respect to the center of the rectangular set.
+   * The scaling factor can be computed relative to either
+   * - the current size of the rectangular set;
+   * - the size of the bounding rectangular set.
+   * @param scale scaling factor
+   * @param bounds bounding rectangular set
+   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
+   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] std::unique_ptr<Set> scale_wrapped(double scale, const RectSet& bounds,
+                                                   bool relative_to_bounds = false) const;
+
   RectSet& operator+=(ConstVectorRef offset);
   RectSet& operator+=(Scalar offset);
   [[nodiscard]] RectSet operator+(ConstVectorRef offset) const;
@@ -161,6 +194,8 @@ class RectSet final : public Set {
   RectSet& operator/=(Scalar scale);
   [[nodiscard]] RectSet operator/(Scalar scale) const;
   [[nodiscard]] RectSet operator/(ConstVectorRef scale) const;
+  bool operator==(const Set& other) const override;
+  bool operator==(const RectSet& other) const;
 
   /**
    * Convert the rectangular set to a matrix representation.

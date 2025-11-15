@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "lucid/model/MultiSet.h"
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
 
@@ -98,7 +99,8 @@ RectSet RectSet::scale(ConstVectorRef scale, const RectSet& bounds, const bool r
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
   LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
   RectSet result{*this};
-  const Vector size_change = (relative_to_bounds ? bounds.sizes() : sizes()).array() * scale.array() / 2.0;
+  const Vector size_change =
+      (relative_to_bounds ? bounds.sizes() : sizes()).array() * (scale.array() - (relative_to_bounds ? 0 : 1)) / 2.0;
   result.lb_ = ((lb_ - size_change).array() < bounds.lb_.array()).select(bounds.lb_, lb_ - size_change);
   result.ub_ = ((ub_ + size_change).array() > bounds.ub_.array()).select(bounds.ub_, ub_ + size_change);
   return result;
@@ -106,6 +108,46 @@ RectSet RectSet::scale(ConstVectorRef scale, const RectSet& bounds, const bool r
 
 RectSet RectSet::scale(const double scale, const RectSet& bounds, const bool relative_to_bounds) const {
   return this->scale(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
+}
+std::unique_ptr<Set> RectSet::scale_wrapped(ConstVectorRef scale, const RectSet& bounds,
+                                            const bool relative_to_bounds) const {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+
+  std::vector<std::unique_ptr<Set>> sets;
+  sets.emplace_back(std::make_unique<RectSet>(*this));
+
+  // First, add the original set, scaled but bounded
+  RectSet& bounded = *static_cast<RectSet*>(sets.back().get());
+  const Vector size_change =
+      (relative_to_bounds ? bounds.sizes() : sizes()).array() * (scale.array() - (relative_to_bounds ? 0 : 1)) / 2.0;
+  Vector new_lb{lb_ - size_change};
+  Vector new_ub{ub_ + size_change};
+  bounded.lb_ = (new_lb.array() < bounds.lb_.array()).select(bounds.lb_, new_lb);
+  bounded.ub_ = (new_ub.array() > bounds.ub_.array()).select(bounds.ub_, new_ub);
+
+  // Then, for each dimension, check if wrapping is needed
+  for (Dimension i = 0; i < dimension(); ++i) {
+    // Wrapping on lower bound. No point in doing it if there is no space
+    if (new_lb(i) < bounds.lb_(i) && bounded.ub_(i) < bounds.ub_(i)) {
+      sets.emplace_back(std::make_unique<RectSet>(bounded));
+      RectSet& wrap_set = *static_cast<RectSet*>(sets.back().get());
+      wrap_set.lb_(i) = std::max(bounds.ub_(i) - (bounds.lb_(i) - new_lb(i)), bounded.ub_(i));  // Avoid overlap
+      wrap_set.ub_(i) = bounds.ub_(i);
+    }
+    // Wrapping on upper bound. No point in doing it if there is no space
+    if (new_ub(i) > bounds.ub_(i) && bounded.lb_(i) > bounds.lb_(i)) {
+      sets.emplace_back(std::make_unique<RectSet>(bounded));
+      RectSet& wrap_set = *static_cast<RectSet*>(sets.back().get());
+      wrap_set.lb_(i) = bounds.lb_(i);
+      wrap_set.ub_(i) = std::min(bounds.lb_(i) + (new_ub(i) - bounds.ub_(i)), bounded.lb_(i));  // Avoid overlap
+    }
+  }
+  return std::make_unique<MultiSet>(std::move(sets));
+}
+std::unique_ptr<Set> RectSet::scale_wrapped(const double scale, const RectSet& bounds,
+                                            const bool relative_to_bounds) const {
+  return scale_wrapped(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
 }
 std::unique_ptr<RectSet> RectSet::to_rect_set() const { return std::make_unique<RectSet>(*this); }
 
@@ -175,6 +217,14 @@ RectSet& RectSet::operator/=(Scalar scale) {
 }
 RectSet RectSet::operator/(Scalar scale) const { return RectSet{*this} /= scale; }
 RectSet RectSet::operator/(ConstVectorRef scale) const { return RectSet{*this} /= scale; }
+bool RectSet::operator==(const Set& other) const {
+  if (Set::operator==(other)) return true;
+  if (const auto other_rect = dynamic_cast<const RectSet*>(&other)) {
+    return *this == *other_rect;
+  }
+  return false;
+}
+bool RectSet::operator==(const RectSet& other) const { return lb_.isApprox(other.lb_) && ub_.isApprox(other.ub_); }
 
 RectSet::operator Matrix() const {
   Matrix x_lim{2, lb_.size()};

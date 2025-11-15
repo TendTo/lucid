@@ -187,6 +187,9 @@ class PySet final : public Set {
   [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool endpoint) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, endpoint);
   }
+  [[nodiscard]] bool operator==(const Set &other) const override {
+    PYBIND11_OVERRIDE_NAME(bool, Set, "__eq__", operator==, other);
+  }
 };
 
 class MultiSetIterator {
@@ -326,6 +329,8 @@ void init_model(py::module_ &m) {
            py::arg("endpoint"), Set_lattice)
       .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("to_rect_set", &Set::to_rect_set, Set_to_rect_set)
+      .def("__eq__", &Set::operator==, py::arg("other"))
+      .def("__ne__", &Set::operator!=, py::arg("other"))
       .def("__contains__", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("__call__", &Set::operator(), ARG_NONCONVERT("x"), Set_operator_apply)
       .def("__str__", STRING_LAMBDA(Set));
@@ -343,6 +348,11 @@ void init_model(py::module_ &m) {
            ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
       .def("scale", py::overload_cast<double, const RectSet &, bool>(&RectSet::scale, py::const_), py::arg("scale"),
            py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
+      .def("scale_wrapped",
+           py::overload_cast<ConstVectorRef, const RectSet &, bool>(&RectSet::scale_wrapped, py::const_),
+           ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale_wrapped)
+      .def("scale_wrapped", py::overload_cast<double, const RectSet &, bool>(&RectSet::scale_wrapped, py::const_),
+           py::arg("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale_wrapped)
       .def(py::self += double())
       .def(py::self += ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
       .def(py::self + ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
@@ -394,9 +404,7 @@ void init_model(py::module_ &m) {
           },
           py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
       .def("__len__", [](const MultiSet &self) { return self.sets().size(); })
-      .def(
-          "__getitem__", [](const MultiSet &self, const Index index) -> const Set & { return *self.sets()[index]; },
-          py::return_value_policy::reference_internal);
+      .def("__getitem__", &MultiSet::operator[], py::arg("index"));
 
   /**************************** Forward declarations ****************************/
   py::class_<Estimator, PyEstimator, Parametrizable> estimator(m, "Estimator");

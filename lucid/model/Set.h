@@ -179,6 +179,9 @@ class Set {
     }
     return x = sample().transpose();
   }
+
+  virtual bool operator==(const Set& other) const;
+  bool operator!=(const Set& other) const = default;
 };
 
 std::ostream& operator<<(std::ostream& os, const Set& set);

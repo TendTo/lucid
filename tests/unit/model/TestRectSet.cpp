@@ -5,11 +5,13 @@
  */
 #include <gtest/gtest.h>
 
+#include "lucid/model/MultiSet.h"
 #include "lucid/model/RectSet.h"
 #include "lucid/util/exception.h"
 
 using lucid::Index;
 using lucid::Matrix;
+using lucid::MultiSet;
 using lucid::RectSet;
 using lucid::Scalar;
 using lucid::Vector;
@@ -256,4 +258,206 @@ TEST(TestRectSet, ChangeSizeDimensionMismatch) {
 
   // Should throw when dimensions don't match
   EXPECT_THROW(set.change_size(delta), lucid::exception::LucidInvalidArgumentException);
+}
+
+TEST(TestRectSet, TestScaledWrappedWrapNoDimensions) {
+  // Test that dimension mismatch throws exception
+  const RectSet bounds{Vector2{0, 0}, Vector2{5, 5}};
+  const RectSet set{Vector2{2, 2}, Vector2{3, 3}};
+  const auto scaled = set.scale_wrapped(2.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 1);
+  for (const auto& s : multi_set.sets()) ASSERT_NE(dynamic_cast<RectSet*>(s.get()), nullptr);
+
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({1.5, 1.5}, {3.5, 3.5}));
+}
+
+TEST(TestRectSet, TestScaledWrappedWrapOneDimensions) {
+  // Test that dimension mismatch throws exception
+  const RectSet bounds{Vector2{0, 0}, Vector2{5, 5}};
+  const RectSet set{Vector2{2, 0}, Vector2{3, 1}};
+  const auto scaled = set.scale_wrapped(2.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 2);
+  for (const auto& s : multi_set.sets()) ASSERT_NE(dynamic_cast<RectSet*>(s.get()), nullptr);
+
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({1.5, 0}, {3.5, 1.5}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[1]), RectSet({1.5, 4.5}, {3.5, 5}));
+}
+
+TEST(TestRectSet, TestScaledWrappedWrapBothDimensionsLb) {
+  // Test that dimension mismatch throws exception
+  const RectSet bounds{Vector2{0, 0}, Vector2{5, 5}};
+  const RectSet set{Vector2{0, 0}, Vector2{1, 1}};
+  const auto scaled = set.scale_wrapped(2.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 3);
+  for (const auto& s : multi_set.sets()) ASSERT_NE(dynamic_cast<RectSet*>(s.get()), nullptr);
+
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({0, 0}, {1.5, 1.5}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[1]), RectSet({4.5, 0}, {5, 1.5}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[2]), RectSet({0, 4.5}, {1.5, 5}));
+}
+
+TEST(TestRectSet, TestScaledWrappedWrapBothDimensionsUb) {
+  // Test that dimension mismatch throws exception
+  const RectSet bounds{Vector2{0, 0}, Vector2{5, 5}};
+  const RectSet set{Vector2{4, 4}, Vector2{5, 5}};
+  const auto scaled = set.scale_wrapped(2.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 3);
+  for (const auto& s : multi_set.sets()) ASSERT_NE(dynamic_cast<RectSet*>(s.get()), nullptr);
+
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({3.5, 3.5}, {5, 5}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[1]), RectSet({0, 3.5}, {0.5, 5}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[2]), RectSet({3.5, 0}, {5, 0.5}));
+}
+
+TEST(TestRectSet, TestScaledWrappedWrapAvoidOverlap) {
+  // Test that dimension mismatch throws exception
+  const RectSet bounds{Vector2{0, 0}, Vector2{5, 5}};
+  const RectSet set{Vector2{0, 0}, Vector2{4, 2}};
+  const auto scaled = set.scale_wrapped(2.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 2);
+  for (const auto& s : multi_set.sets()) ASSERT_NE(dynamic_cast<RectSet*>(s.get()), nullptr);
+
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({0, 0}, {5, 3}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[1]), RectSet({0, 4}, {5, 5}));
+}
+
+TEST(TestRectSet, TestScaledWrappedVectorScale) {
+  // Test scaling with different factors per dimension
+  const RectSet bounds{Vector2{0, 0}, Vector2{10, 10}};
+  const RectSet set{Vector2{4, 4}, Vector2{6, 6}};
+  const Vector2 scale_factors{2.0, 1.0};
+  const auto scaled = set.scale_wrapped(scale_factors, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 1);
+
+  // Original size: [2, 2], scaled by [2.0, 1.0] => new size [4, 2]
+  // Center at [5, 5], so bounds should be [3, 4] to [7, 6]
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({3, 4}, {7, 6}));
+}
+
+TEST(TestRectSet, TestScaledWrappedRelativeToBounds) {
+  // Test scaling relative to bounds size instead of current size
+  const RectSet bounds{Vector2{0, 0}, Vector2{10, 10}};
+  const RectSet set{Vector2{4, 4}, Vector2{6, 6}};
+  const auto scaled = set.scale_wrapped(0.5, bounds, true);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 1);
+
+  // Bounds size: [10, 10], scale 0.5 relative to bounds => new size [5, 5]
+  // Center at [5, 5], so bounds should be [2.5, 2.5] to [7.5, 7.5]
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({1.5, 1.5}, {8.5, 8.5}));
+}
+
+TEST(TestRectSet, TestScaledWrappedZeroScale) {
+  // Test scaling with zero factor (degenerate case)
+  const RectSet bounds{Vector2{0, 0}, Vector2{10, 10}};
+  const RectSet set{Vector2{4, 4}, Vector2{6, 6}};
+  EXPECT_THROW(static_cast<void>(set.scale_wrapped(0.0, bounds)), lucid::exception::LucidInvalidArgumentException);
+}
+
+TEST(TestRectSet, TestScaledWrappedNegativeScale) {
+  // Test scaling with negative factor (should still work, inverting the rectangle)
+  const RectSet bounds{Vector2{0, 0}, Vector2{10, 10}};
+  const RectSet set{Vector2{4, 4}, Vector2{6, 6}};
+  EXPECT_THROW(static_cast<void>(set.scale_wrapped(0.0, bounds)), lucid::exception::LucidInvalidArgumentException);
+}
+
+TEST(TestRectSet, TestScaledWrappedExceedsBoundsAllSides) {
+  // Test when scaling causes the set to exceed bounds on all sides
+  const RectSet bounds{Vector2{0, 0}, Vector2{10, 10}};
+  const RectSet set{Vector2{3, 3}, Vector2{7, 7}};
+  const auto scaled = set.scale_wrapped(3.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  // Since we fill the bounds completely, there should be no wrapping sets
+  EXPECT_EQ(multi_set.sets().size(), 1);
+}
+
+TEST(TestRectSet, TestScaledWrapped3D) {
+  // Test scale_wrapped in 3D
+  const Vector lb_bounds{{0, 0, 0}};
+  const Vector ub_bounds{{10, 10, 10}};
+  const RectSet bounds{lb_bounds, ub_bounds};
+
+  const Vector lb_set{{4, 4, 4}};
+  const Vector ub_set{{6, 6, 6}};
+  const RectSet set{lb_set, ub_set};
+
+  const auto scaled = set.scale_wrapped(2.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 1);
+
+  // Original size: [2, 2, 2], scaled by 1.0 => new size [4, 4, 4]
+  // Center at [5, 5, 5], so bounds should be [3, 3, 3] to [7, 7, 7]
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({3, 3, 3}, {7, 7, 7}));
+}
+
+TEST(TestRectSet, TestScaledWrapped3DWithWrapping) {
+  // Test scale_wrapped in 3D with wrapping in one dimension
+  const Vector lb_bounds{{0, 0, 0}};
+  const Vector ub_bounds{{10, 10, 10}};
+  const RectSet bounds{lb_bounds, ub_bounds};
+
+  const Vector lb_set{{8, 5, 5}};
+  const Vector ub_set{{9, 6, 6}};
+  const RectSet set{lb_set, ub_set};
+
+  const auto scaled = set.scale_wrapped(2.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 1);
+
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({7.5, 4.5, 4.5}, {9.5, 6.5, 6.5}));
+}
+
+TEST(TestRectSet, TestScaledWrappedNonSquareBounds) {
+  // Test with non-square bounds (different sizes in each dimension)
+  const RectSet bounds{Vector2{0, 0}, Vector2{20, 10}};
+  const RectSet set{Vector2{15, 4}, Vector2{18, 6}};
+  const auto scaled = set.scale_wrapped(3.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 2);
+
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({12.0, 2.0}, {20.0, 8.0}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[1]), RectSet({0.0, 2.0}, {1.0, 8.0}));
+}
+
+TEST(TestRectSet, TestScaledWrappedNegativeBounds) {
+  // Test with bounds that include negative coordinates
+  const RectSet bounds{Vector2{-5, -5}, Vector2{5, 5}};
+  const RectSet set{Vector2{3, 0}, Vector2{4, 1}};
+  const auto scaled = set.scale_wrapped(5.0, bounds);
+
+  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
+  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
+  ASSERT_EQ(multi_set.sets().size(), 2);
+
+  // Original size: [1, 1], scaled by 4.0 => new size [4, 4]
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({1.0, -2.0}, {5.0, 3.0}));
+  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[1]), RectSet({-5.0, -2.0}, {-4.0, 3.0}));
 }

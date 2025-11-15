@@ -62,6 +62,8 @@ Matrix Set::lattice(const Index points_per_dim, const bool endpoint) const {
 
 std::unique_ptr<RectSet> Set::to_rect_set() const { LUCID_NOT_IMPLEMENTED(); }
 
+bool Set::operator==(const Set& other) const { return this == &other; }
+
 std::ostream& operator<<(std::ostream& os, const Set& set) {
   if (const auto* casted_set = dynamic_cast<const RectSet*>(&set)) return os << *casted_set;
   if (const auto* casted_set = dynamic_cast<const MultiSet*>(&set)) return os << *casted_set;

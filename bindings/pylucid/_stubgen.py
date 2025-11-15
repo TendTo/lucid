@@ -82,6 +82,9 @@ def generate_stub_files(out_dir: str, _pylucid_pyi: str):
             .replace(
                 b"feature_map_type: type",
                 b"feature_map_type: type[TruncatedFourierFeatureMap]",
+            ).replace(
+                b"def to_rect_set(self: set) -> ...:",
+                b"def to_rect_set(self) -> RectSet:",
             )
         )
 
