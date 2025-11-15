@@ -84,9 +84,8 @@ class Objective {
   const ValleePoussinKernel kernel_;          ///< Vallée-Poussin kernel
 };
 
-std::pair<double, Vector> compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde,
-                                             const RectSet& X, const Matrix& lattice,
-                                             const FourierBarrierCertificateParameters& parameters) {
+double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const RectSet& X,
+                          const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
   LUCID_TRACE_FMT("({}, {}, {}, {}, {})", Q_tilde, f_max, X_tilde, X, parameters);
   const int n = static_cast<int>(X_tilde.dimension());
   const int n_tilde = lucid::pow(Q_tilde, n);
@@ -127,12 +126,12 @@ std::pair<double, Vector> compute_A_periodic(int Q_tilde, int f_max, const RectS
 
   if (!converged) {
     LUCID_WARN("PSO did not converge");
-    return {};
+    return 0;
   }
 
   LUCID_DEBUG_FMT("PSO converged in {} iterations with objective value {}", iterations, fval);
   LUCID_DEBUG_FMT("Best position: {}", LUCID_FORMAT_MATRIX(xval));
-  return {-fval, xval.transpose()};
+  return -fval;
 }
 
 }  // namespace
@@ -214,19 +213,17 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
                    (X_bounds.upper_bound().array() <= X_tilde.upper_bound().array()).all(),
                "X_bounds must be contained in X_tilde");
 
-  auto [A_x, A_x_sol] = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
-  auto [A_x0, A_x0_sol] =
-      compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
-  auto [A_xu, A_xu_sol] =
-      compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
+  const double A_x = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
+  const double A_x0 = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
+  const double A_xu = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
 
   LUCID_INFO_FMT("A^{{X_tilde \\ X}}_{{N_tilde}}: {}", A_x);
   LUCID_INFO_FMT("A^{{X_tilde \\ X_init}}_{{N_tilde}}: {}", A_x0);
   LUCID_INFO_FMT("A^{{X_tilde \\ X_unsafe}}_{{N_tilde}}: {}", A_xu);
 
-  LUCID_CHECK_ARGUMENT_CMP(A_x_sol.size(), !=, 0);
-  LUCID_CHECK_ARGUMENT_CMP(A_x0_sol.size(), !=, 0);
-  LUCID_CHECK_ARGUMENT_CMP(A_xu_sol.size(), !=, 0);
+  LUCID_CHECK_ARGUMENT_CMP(A_x, >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(A_x0, >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(A_xu, >, 0);
 
   // Apply the feature map to all the lattice points
   const Matrix lattice = X_tilde.lattice(Q_tilde, false);
@@ -235,7 +232,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   // We are fixing the zero frequency to the constant value we computed in the feature map
   // The regressor has a hard time learning it on the extreme left and right points, because it tends to 0
   fp_lattice.col(0) = Vector::Constant(fp_lattice.rows(), feature_map.weights()[0] * feature_map.sigma_f());
-  const Matrix full_d_lattice = f_lattice - fp_lattice;
+  const Matrix dn_lattice = f_lattice - fp_lattice;
 
   LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
   LUCID_DEBUG_FMT("X_bounds: {}", X_bounds);
@@ -251,34 +248,16 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_DEBUG_FMT("X_init rescaled: {}", *X_init_rescaled);
   LUCID_DEBUG_FMT("X_unsafe rescaled: {}", *X_unsafe_rescaled);
 
-  // Only keep the points inside/ouside the sets
+  // Only keep the points inside/outside the sets
   const auto [x_include_mask, x_exclude_mask] = X_bounds_rescaled->include_exclude_masks(lattice);
   const auto [x0_include_mask, x0_exclude_mask] = X_init_rescaled->include_exclude_masks(lattice);
   const auto [xu_include_mask, xu_exclude_mask] = X_unsafe_rescaled->include_exclude_masks(lattice);
-
-  // TODO(tend): instead of being casted to matrices, effectively copying the lattice multiple times, use blocks
-  const auto fx_lattice = f_lattice(x_include_mask, Eigen::placeholders::all);
-  const auto fxp_lattice = fp_lattice(x_include_mask, Eigen::placeholders::all);
-  const auto fx0_lattice = f_lattice(x0_include_mask, Eigen::placeholders::all);
-  const auto fxu_lattice = f_lattice(xu_include_mask, Eigen::placeholders::all);
-  const auto fsx_lattice = f_lattice(x_exclude_mask, Eigen::placeholders::all);
-  const auto fsx0_lattice = f_lattice(x0_exclude_mask, Eigen::placeholders::all);
-  const auto fsxu_lattice = f_lattice(xu_exclude_mask, Eigen::placeholders::all);
-  const auto d_lattice = full_d_lattice(x_include_mask, Eigen::placeholders::all);
-  const auto dsx_lattice = full_d_lattice(x_exclude_mask, Eigen::placeholders::all);
-  LUCID_DEBUG_FMT("fx_lattice size: {}", fx_lattice.rows());
-  LUCID_DEBUG_FMT("fxp_lattice size: {}", fxp_lattice.rows());
-  LUCID_DEBUG_FMT("fx0_lattice size: {}", fx0_lattice.rows());
-  LUCID_DEBUG_FMT("fxu_lattice size: {}", fxu_lattice.rows());
-  LUCID_CHECK_ARGUMENT_CMP(fx_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(fxp_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(fx0_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(fxu_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(fsx_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(fsx0_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(fsxu_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(d_lattice.rows(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(dsx_lattice.rows(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(x_include_mask.size(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(x_exclude_mask.size(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(x0_include_mask.size(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(x0_exclude_mask.size(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(xu_include_mask.size(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(xu_exclude_mask.size(), >, 0);
 
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(Q_tilde), -n / 2.0);
   LUCID_DEBUG_FMT("C = (1 - (2 f_max) / Q_tilde)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",
@@ -320,16 +299,14 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   return optimiser.solve_fourier_barrier_synthesis(
       FourierBarrierSynthesisProblem{.num_vars = -1,
                                      .num_constraints = -1,
-                                     .fx_lattice = fx_lattice,
-                                     .fxp_lattice = fxp_lattice,
-                                     .fx0_lattice = fx0_lattice,
-                                     .fxu_lattice = fxu_lattice,
-                                     .fxn_lattice = lattice,
-                                     .fsx_lattice = fsx_lattice,
-                                     .fsx0_lattice = fsx0_lattice,
-                                     .fsxu_lattice = fsxu_lattice,
-                                     .d_lattice = d_lattice,
-                                     .dsx_lattice = dsx_lattice,
+                                     .fxn_lattice = f_lattice,
+                                     .dn_lattice = dn_lattice,
+                                     .x_include_mask = x_include_mask,
+                                     .x_exclude_mask = x_exclude_mask,
+                                     .x0_include_mask = x0_include_mask,
+                                     .x0_exclude_mask = x0_exclude_mask,
+                                     .xu_include_mask = xu_include_mask,
+                                     .xu_exclude_mask = xu_exclude_mask,
                                      .T = T_,
                                      .gamma = gamma_,
                                      .C = C,
@@ -409,16 +386,14 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatr
   return optimiser.solve_fourier_barrier_synthesis(
       FourierBarrierSynthesisProblem{.num_vars = num_variables,
                                      .num_constraints = num_constraints,
-                                     .fx_lattice = fx_lattice,
-                                     .fxp_lattice = fxp_lattice,
-                                     .fx0_lattice = fx0_lattice,
-                                     .fxu_lattice = fxu_lattice,
                                      .fxn_lattice = Matrix{},
-                                     .fsx_lattice = Matrix{},
-                                     .fsx0_lattice = Matrix{},
-                                     .fsxu_lattice = Matrix{},
-                                     .d_lattice = Matrix{},
-                                     .dsx_lattice = Matrix{},
+                                     .dn_lattice = Matrix{},
+                                     .x_include_mask = {},
+                                     .x_exclude_mask = {},
+                                     .x0_include_mask = {},
+                                     .x0_exclude_mask = {},
+                                     .xu_include_mask = {},
+                                     .xu_exclude_mask = {},
                                      .T = T_,
                                      .gamma = gamma_,
                                      .C = C,

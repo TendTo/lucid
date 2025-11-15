@@ -324,8 +324,8 @@ std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstV
 }
 bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                            const SolutionCallback& cb) const {
-  const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, fxn_lattice, fsx_lattice,
-               fsx0_lattice, fsxu_lattice, d_lattice, dsx_lattice, T, gamma, C, b_kappa, eta_coeff, min_x0_coeff,
+  const auto& [num_vars, num_constraints, fxn_lattice, dn_lattice, x_include_mask, x_exclude_mask, x0_include_mask,
+               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, C, b_kappa, eta_coeff, min_x0_coeff,
                diff_sx0_coeff, gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff,
                diff_d_sx_coeff, max_x_coeff, diff_sx_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs, A_x, A_x0, A_xu] =
       params;
@@ -444,12 +444,12 @@ bool AlglibOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Cons
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve", "alglib");
   return false;
 }
-bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
+bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem&,
                                                            const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::solve_fourier_barrier_synthesis_impl", "alglib");
   return false;
 }
-std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef A, ConstVectorRef b) {
+std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef, ConstVectorRef) {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("AlglibOptimiser::bounding_box", "alglib");
   return {};
 }

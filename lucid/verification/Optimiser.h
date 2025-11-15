@@ -16,47 +16,32 @@ namespace lucid {
 
 /** LP problem to solver to achieve the Fourier barrier synthesis. */
 struct FourierBarrierSynthesisProblem {
-  Dimension num_vars;               ///< Number of variables in the LP
-  Dimension num_constraints;        ///< Number of constraints in the LP
-  ConstMatrixRefCopy fx_lattice;    ///< Lattice obtained from the state space after applying the feature map
-  ConstMatrixRefCopy fxp_lattice;   ///< Lattice obtained from the one-step reachable set after applying the feature map
-  ConstMatrixRefCopy fx0_lattice;   ///< Lattice obtained from the initial set after applying the feature map
-  ConstMatrixRefCopy fxu_lattice;   ///< Lattice obtained from the unsafe set after applying the feature map
-  ConstMatrixRefCopy fxn_lattice;   ///< Lattice obtained from the periodic space
-  ConstMatrixRefCopy fsx_lattice;   ///< Lattice obtained from the periodic space / X_bounds
-  ConstMatrixRefCopy fsx0_lattice;  ///< Lattice obtained from the periodic space / X_init
-  ConstMatrixRefCopy fsxu_lattice;  ///< Lattice obtained from the periodic space / X_unsafe
-  ConstMatrixRefCopy d_lattice;     ///< Lattice obtained from the difference between feature map at x and xp
-  ConstMatrixRefCopy dsx_lattice;   ///< Lattice obtained from the difference between feature map at x and xp / X_bounds
-  int T;                            ///< Time horizon
-  double gamma;                     ///< @gamma value
-  double C;                         ///< @f$ C = (1 - \frac{2 f_\max}{\tilde{Q}}^{\frac{-n}{2}} @f$
+  Dimension num_vars;              ///< Number of variables in the LP
+  Dimension num_constraints;       ///< Number of constraints in the LP
+  ConstMatrixRefCopy fxn_lattice;  ///< Lattice obtained from the periodic space
+  ConstMatrixRefCopy dn_lattice;   ///< Lattice with the differences between phi(xp) and phi(x) in the periodic space
+  const std::vector<Index>& x_include_mask;   ///< Lattice mask for the points in x
+  const std::vector<Index>& x_exclude_mask;   ///< Lattice mask for the points not in x
+  const std::vector<Index>& x0_include_mask;  ///< Lattice mask for the points in x0
+  const std::vector<Index>& x0_exclude_mask;  ///< Lattice mask for the points not in x0
+  const std::vector<Index>& xu_include_mask;  ///< Lattice mask for the points in xu
+  const std::vector<Index>& xu_exclude_mask;  ///< Lattice mask for the points not in xu
+  int T;                                      ///< Time horizon
+  double gamma;                               ///< @gamma value
+  double C;                                   ///< @f$ C = (1 - \frac{2 f_\max}{\tilde{Q}}^{\frac{-n}{2}} @f$
   double b_kappa;
-  // eta_coeff = 2 / (C - A_x0 + 1)
-  double eta_coeff;  ///< Coefficient for the eta constraint
-  // min_x0_coeff = (C - A_x0 - 1) / (C - A_x0 + 1)
-  double min_x0_coeff;  ///< Coefficient for the lower bound on B at x0
-  // diff_sx0_coeff = -A_x0 / (C - A_x0 + 1)
-  double diff_sx0_coeff;  ///< Coefficient for the difference in B at x0
-  // gamma_coeff = 2 / (C - A_xu + 1)
-  double gamma_coeff;  ///< Coefficient for the gamma constraint
-  // max_xu_coeff = (C - A_xu - 1) / (C - A_xu + 1)
-  double max_xu_coeff;  ///< Coefficient for the upper bound on B at xu
-  // diff_sxu_coeff = A_xu / (C - A_xu + 1)
-  // TODO(tend): check the missmatch with the paper => the denominator is A_xu or A_x0?
-  double diff_sxu_coeff;  ///< Coefficient for the difference in B at xu
-  // ebk = epsilon * target_norm * kappa
-  double ebk;  ///< Coefficient for the Kushner constraint
-  // c_ebk_coeff = 2 / (C - A_x + 1)
-  double c_ebk_coeff;  ///< Coefficient for the Kushner constraint
-  // min_d_coeff = (C - A_x - 1) / (C - A_x + 1)
-  double min_d_coeff;  ///< Coefficient for the lower bound on B at x
-  // diff_d_sx_coeff = -A_x / (C - A_x + 1)
-  double diff_d_sx_coeff;  ///< Coefficient for the difference in B at x
-  // max_x_coeff = (C - A_x - 1) / (C - A_x + 1)
-  double max_x_coeff;  ///< Coefficient for the upper bound on B at x
-  // diff_sx_coeff = A_x / (C - A_x + 1)
-  double diff_sx_coeff;
+  double eta_coeff;        ///< Coefficient for the eta constraint @f$ 2 / (C - A_x0 + 1) @f$
+  double min_x0_coeff;     ///< Coefficient for the lower bound on B at x0 @f$ (C - A_{x0} - 1) / (C - A_{x0} + 1) @f$
+  double diff_sx0_coeff;   ///< Coefficient for the difference in B at x0 @f$ A_{x0} / (C - A_{x0} + 1) @f$
+  double gamma_coeff;      ///< Coefficient for the gamma constraint @f$ 2 / (C - A_{xu} + 1) @f$
+  double max_xu_coeff;     ///< Coefficient for the upper bound on B at xu @f$ (C - A_{xu} - 1) / (C - A_{xu} + 1) @f$
+  double diff_sxu_coeff;   ///< Coefficient for the difference in B at xu @f$ A_{xu} / (C - A_{xu} + 1) @f$
+  double ebk;              ///< Coefficient for the Kushner constraint @f$ \epsilon * target\_norm * \kappa @f$
+  double c_ebk_coeff;      ///< Coefficient for the Kushner constraint @f$ 2 / (C - A_{x} + 1) @f$
+  double min_d_coeff;      ///< Coefficient for the lower bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
+  double diff_d_sx_coeff;  ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
+  double max_x_coeff;      ///< Coefficient for the upper bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
+  double diff_sx_coeff;    ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
   double fctr1;
   double fctr2;
   double unsafe_rhs;

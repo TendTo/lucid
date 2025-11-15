@@ -71,18 +71,20 @@ void set_var_bounds(const double lb, GRBVar& var, const double ub) {
  * @param model Gurobi model
  * @param bs barrier coefficients we are looking for
  * @param lattice lattice of points
+ * @param mask mask used to filter the lattice points
  * @param min_var variable representing the minimum bound
  * @param max_var variable representing the maximum bound
  * @param set_name name of the set for logging/debug purposes
  * @param should_log whether to add names to the constraints for logging/debug purposes
  */
-void add_min_max_bounds(GRBModel& model, const std::span<GRBVar>& bs, ConstMatrixRef lattice, const GRBVar& min_var,
-                        const GRBVar& max_var, const std::string& set_name, const bool should_log) {
+void add_min_max_bounds(GRBModel& model, const std::span<GRBVar>& bs, ConstMatrixRef lattice,
+                        const std::vector<Index>& mask, const GRBVar& min_var, const GRBVar& max_var,
+                        const std::string& set_name, const bool should_log) {
   LUCID_DEBUG_FMT(
       "Xn/{} lattice constraints - {} constraints\n"
       "for all x in Xn/{}: [ B(x) >= min_Xn/{} ] AND [ B(x) <= max_Xn/{} ]",
-      set_name, lattice.rows() * 2, set_name, set_name, set_name);
-  for (Index row = 0; row < lattice.rows(); ++row) {
+      set_name, mask.size() * 2, set_name, set_name, set_name);
+  for (Index row : mask) {
     GRBLinExpr expr{};
     expr.addTerms(lattice.row(row).data(), bs.data(), static_cast<int>(lattice.cols()));
 
@@ -530,8 +532,8 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
 
-  const auto& [num_vars, num_constraints, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, fxn_lattice, fsx_lattice,
-               fsx0_lattice, fsxu_lattice, d_lattice, dsx_lattice, T, gamma, C, b_kappa, eta_coeff, min_x0_coeff,
+  const auto& [num_vars, num_constraints, fxn_lattice, dn_lattice, x_include_mask, x_exclude_mask, x0_include_mask,
+               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, C, b_kappa, eta_coeff, min_x0_coeff,
                diff_sx0_coeff, gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff,
                diff_d_sx_coeff, max_x_coeff, diff_sx_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs, A_x, A_x0, A_xu] =
       problem;
@@ -561,9 +563,9 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
 #else
   constexpr bool should_log = false;
 #endif
-  const std::unique_ptr<GRBVar[]> vars_{model.addVars(static_cast<int>(fx_lattice.cols() + num_special_vars))};
-  const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(fx_lattice.cols() + num_special_vars)};
-  const std::span<GRBVar> bs{vars.subspan(0, fx_lattice.cols())};
+  const std::unique_ptr<GRBVar[]> vars_{model.addVars(static_cast<int>(fxn_lattice.cols() + num_special_vars))};
+  const std::span<GRBVar> vars{vars_.get(), static_cast<std::size_t>(fxn_lattice.cols() + num_special_vars)};
+  const std::span<GRBVar> bs{vars.subspan(0, fxn_lattice.cols())};
   std::array<GRBVar, num_special_vars> special_vars;
   LUCID_ASSERT(bs.size() + special_vars.size() == vars.size(), "Variable size mismatch");
   for (std::size_t i = 0; i < special_vars.size(); ++i) {
@@ -620,10 +622,10 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
       "for all x_0: [ B(x_0) >= min_X0] AND [ B(x_0) <= hateta ]\n"
       "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - diff_sx0_coeff * (max_sx0 - min_sx0)\n"
       "hateta = {} * eta + {} * min_X0 - {} * (max_sx0 - min_sx0)",
-      fx0_lattice.rows() * 2, eta_coeff, min_x0_coeff, diff_sx0_coeff);
-  for (Index row = 0; row < fx0_lattice.rows(); ++row) {
+      x0_include_mask.size() * 2, eta_coeff, min_x0_coeff, diff_sx0_coeff);
+  for (Index row : x0_include_mask) {
     GRBLinExpr expr{};
-    expr.addTerms(fx0_lattice.row(row).data(), bs.data(), static_cast<int>(fx0_lattice.cols()));
+    expr.addTerms(fxn_lattice.row(row).data(), bs.data(), static_cast<int>(fxn_lattice.cols()));
 
     expr -= min_x0;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, '>', 0, fmt::format("B(x_0)>=min_X0[{}]", row), should_log);
@@ -638,10 +640,10 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
       "for all x_u: [ B(x_u) <= max_Xu ] AND [ B(x_u) >= hatgamma ] \n"
       "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu + diff_sxu_coeff * (max_sxu - min_sxu)\n"
       "hatgamma = {} + {} * max_Xu + {} * (max_sxu - min_sxu)",
-      fxu_lattice.rows() * 2, gamma_coeff * gamma, max_xu_coeff, diff_sxu_coeff);
-  for (Index row = 0; row < fxu_lattice.rows(); ++row) {
+      xu_include_mask.size() * 2, gamma_coeff * gamma, max_xu_coeff, diff_sxu_coeff);
+  for (Index row : xu_include_mask) {
     GRBLinExpr expr{};
-    expr.addTerms(fxu_lattice.row(row).data(), bs.data(), static_cast<int>(fxu_lattice.cols()));
+    expr.addTerms(fxn_lattice.row(row).data(), bs.data(), static_cast<int>(fxn_lattice.cols()));
 
     expr -= max_xu;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, '<', 0, fmt::format("B(x_u)<=max_Xu[{}]", row), should_log);
@@ -657,10 +659,10 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
       "for all x: [ B(x) <= max_X ] AND [ B(x) >= hatxi ]\n"
       "hatxi = max_x_coeff * max_X + diff_sx_coeff * (max_sx0 - min_sx0)\n"
       "hatxi = {} * max_X + {} * (max_sx0 - min_sx0)",
-      fx_lattice.rows() * 2, max_x_coeff, diff_sx_coeff);
-  for (Index row = 0; row < fx_lattice.rows(); ++row) {
+      x_include_mask.size() * 2, max_x_coeff, diff_sx_coeff);
+  for (Index row : x_include_mask) {
     GRBLinExpr expr{};
-    expr.addTerms(fx_lattice.row(row).data(), bs.data(), static_cast<int>(fx_lattice.cols()));
+    expr.addTerms(fxn_lattice.row(row).data(), bs.data(), static_cast<int>(fxn_lattice.cols()));
 
     expr -= max_x;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, '<', 0, fmt::format("B(x)<=max_x[{}]", row), should_log);
@@ -675,10 +677,10 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
       "for all x: [ B(xp) - B(x) >= min_d ] AND [ B(xp) - B(x) <= hatDelta ] AND \n"
       "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d + diff_d_sx_coeff * (max_d_sx - min_d_sx)\n"
       "hatDelta = {} * (c - {}) + {} * min_d + {} * (max_d_sx - min_d_sx)",
-      d_lattice.rows() * 2, c_ebk_coeff, ebk, min_d_coeff, diff_d_sx_coeff);
-  for (Index row = 0; row < d_lattice.rows(); ++row) {
+      x_include_mask.size() * 2, c_ebk_coeff, ebk, min_d_coeff, diff_d_sx_coeff);
+  for (Index row : x_include_mask) {
     GRBLinExpr expr{};
-    expr.addTerms(d_lattice.row(row).data(), bs.data(), static_cast<int>(d_lattice.cols()));
+    expr.addTerms(dn_lattice.row(row).data(), bs.data(), static_cast<int>(dn_lattice.cols()));
 
     expr -= min_d;
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, '>', 0, fmt::format("B(xp)-B(x)>=minDelta[{}]", row), should_log);
@@ -689,10 +691,10 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
                                should_log);
   }
 
-  add_min_max_bounds(model, bs, fsx0_lattice, min_sx0, max_sx0, "X0", should_log);
-  add_min_max_bounds(model, bs, fsxu_lattice, min_sxu, max_sxu, "Xu", should_log);
-  add_min_max_bounds(model, bs, fsx_lattice, min_sx, max_sx, "X", should_log);
-  add_min_max_bounds(model, bs, dsx_lattice, min_d_sx, max_d_sx, "dX", should_log);
+  add_min_max_bounds(model, bs, fxn_lattice, x_exclude_mask, min_sx, max_sx, "X", should_log);
+  add_min_max_bounds(model, bs, fxn_lattice, x0_exclude_mask, min_sx0, max_sx0, "X0", should_log);
+  add_min_max_bounds(model, bs, fxn_lattice, xu_exclude_mask, min_sxu, max_sxu, "Xu", should_log);
+  add_min_max_bounds(model, bs, dn_lattice, x_exclude_mask, min_d_sx, max_d_sx, "dX", should_log);
 
   // Objective function (η + cT)
   model.setObjective(GRBLinExpr{(eta + c * T) / gamma}, GRB_MINIMIZE);
@@ -726,7 +728,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_INFO_FMT("max_d_sx: {}", max_d_sx.get(GRB_DoubleAttr_X));
 
   const Vector solution{
-      Vector::NullaryExpr(fx_lattice.cols(), [&vars](const Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
+      Vector::NullaryExpr(fxn_lattice.cols(), [&vars](const Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
   cb(true, model.get(GRB_DoubleAttr_ObjVal), solution, eta.get(GRB_DoubleAttr_X), c.get(GRB_DoubleAttr_X),
      solution.norm());
   return true;
@@ -738,7 +740,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Cons
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve", "Gurobi");
   return false;
 }
-bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisParameters&,
+bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem&,
                                                            const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("GurobiOptimiser::solve_fourier_barrier_synthesis_impl", "Gurobi");
   return false;
