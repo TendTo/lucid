@@ -116,3 +116,8 @@ kill -9 <server_pid>
 ```
 
 Any other command will restart the bazel server automatically.
+
+#### What is the relationship between integrals and tables?
+
+> My integral is your table.  
+> -- _[Oliver Schön](https://oliverschon.com/)_

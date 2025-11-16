@@ -7,10 +7,6 @@ _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical System
 [![Docker CI](https://github.com/TendTo/lucid/actions/workflows/docker.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docker.yml)
 [![Docs CI](https://github.com/TendTo/lucid/actions/workflows/docs.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docs.yml)
 
-> My integral is your table.  
-> -- _[Oliver Schön](https://oliverschon.com/)_
-
-
 > [!WARNING]  
 > This project is under active development.
 > Features and APIs may change without prior notice.
