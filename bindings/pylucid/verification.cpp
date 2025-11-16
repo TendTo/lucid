@@ -162,9 +162,6 @@ void init_verification(py::module_& m) {
   py::class_<FourierBarrierCertificate, BarrierCertificate>(m, "FourierBarrierCertificate", FourierBarrierCertificate_)
       .def(py::init<int, double, double, double>(), py::arg("T"), py::arg("gamma"), py::arg("eta") = 0.0,
            py::arg("c") = 0.0)
-      .def("compute_A_periodic_minus_x", &FourierBarrierCertificate::compute_A_periodic_minus_x, py::arg("Q_tilde"),
-           py::arg("f_max"), py::arg("X_tilde"), py::arg("X"),
-           py::arg("parameters") = FourierBarrierCertificateParameters{})
       .def("synthesize",
            py::overload_cast<int, const Estimator&, const TruncatedFourierFeatureMap&, const RectSet&, const Set&,
                              const Set&, const FourierBarrierCertificateParameters&>(

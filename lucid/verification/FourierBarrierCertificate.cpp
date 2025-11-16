@@ -11,6 +11,7 @@
 
 #include "lucid/lib/psocpp.h"
 #include "lucid/model/Estimator.h"
+#include "lucid/model/MultiSet.h"
 #include "lucid/model/TruncatedFourierFeatureMap.h"
 #include "lucid/model/ValleePoussinKernel.h"
 #include "lucid/util/Stats.h"
@@ -135,54 +136,30 @@ double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectS
   return -fval;
 }
 
-}  // namespace
-
-std::pair<double, Vector> FourierBarrierCertificate::compute_A_periodic_minus_x(
-    int Q_tilde, int f_max, const RectSet& X_tilde, const RectSet& X,
-    const FourierBarrierCertificateParameters& parameters) const {
-  LUCID_TRACE_FMT("({}, {}, {}, {}, {})", Q_tilde, f_max, X_tilde, X, parameters);
-  const int n = static_cast<int>(X_tilde.dimension());
-  const int n_tilde = lucid::pow(Q_tilde, n);
-
-  // TODO(tend): check if this is necessary
-  static RectSet pi{Vector::Constant(n, 0), Vector::Constant(n, 2 * std::numbers::pi)};
-  const RectSet X_periodic = (X - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes();
-  const RectSet X_periodic_rescaled{X_periodic.scale(parameters.increase, pi, true)};
-
-  LUCID_TRACE_FMT("X_periodic: {}", X_periodic);
-  LUCID_TRACE_FMT("X_periodic scaled: {}", X_periodic_rescaled);
-
-  const Matrix lattice{pi.lattice(Q_tilde, false)};
-  auto lattice_wo_x{lattice(X_periodic_rescaled.exclude_mask(lattice), Eigen::placeholders::all)};
-
-  LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
-
-  pso::ParticleSwarmOptimization<double, Objective> optimiser{n_tilde, Q_tilde, f_max, lattice_wo_x};
-  Matrix matrix_bounds{2, n};
-  matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
-  matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
-
-  optimiser.setPhiParticles(parameters.phi_local);
-  optimiser.setPhiGlobal(parameters.phi_global);
-  optimiser.setInertiaWeightStrategy(pso::ConstantWeight<double>(parameters.weight));
-  optimiser.setMaxIterations(parameters.max_iter);
-  optimiser.setThreads(parameters.threads);
-  optimiser.setMinParticleChange(parameters.xtol);
-  optimiser.setMinFunctionChange(parameters.ftol);
-  optimiser.setMaxVelocity(parameters.max_vel);
-  optimiser.setVerbosity(LUCID_TRACE_ENABLED ? 3 : LUCID_DEBUG_ENABLED ? 1 : 0);
-
-  auto [iterations, converged, fval, xval] = optimiser.minimize(matrix_bounds, parameters.num_particles);
-
-  if (!converged) {
-    LUCID_WARN("PSO did not converge");
-    return {};
+double compute_A_periodic(const int Q_tilde, const int f_max, const RectSet& pi, const RectSet& X_tilde, const Set& X,
+                          const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
+  if (const auto* X_rect = dynamic_cast<const RectSet*>(&X)) {
+    return compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_rect, lattice, parameters);
   }
 
-  LUCID_DEBUG_FMT("PSO converged in {} iterations with objective value {}", iterations, fval);
-  LUCID_DEBUG_FMT("Best position: {}", LUCID_FORMAT_MATRIX(xval));
-  return {-fval, xval.transpose()};
+  // TODO(tend): this is a manual way of supporting MultiSet for X. There may be a more direct way.
+  if (const auto* X_multi = dynamic_cast<const MultiSet*>(&X)) {
+    std::vector<double> As;
+    As.reserve(X_multi->sets().size());
+    for (const auto& subset : static_cast<const MultiSet&>(X).sets()) {
+      auto subset_to_rect = subset->to_rect_set();
+      const RectSet* subset_rect = dynamic_cast<const RectSet*>(subset_to_rect.get());
+      LUCID_CHECK_ARGUMENT(subset_rect != nullptr, "multi-set", "nested multi-sets are not supported");
+      As.push_back(compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *subset_rect, lattice, parameters));
+    }
+    return *std::ranges::max_element(As);
+  }
+
+  LUCID_UNREACHABLE();
 }
+
+}  // namespace
+
 bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& estimator,
                                            const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
                                            const Set& X_init, const Set& X_unsafe,
