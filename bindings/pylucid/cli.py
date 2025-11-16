@@ -99,6 +99,7 @@ class Configuration(Namespace):
     lambda_: float = 1e-6
     sigma_f: float = 1.0
     sigma_l: "NVector | float" = 1.0
+    feature_sigma_l: "NVector | float" = 1.0
 
     # Barrier certificate parameters
     num_frequencies: int = 10
@@ -110,6 +111,7 @@ class Configuration(Namespace):
     epsilon: float = 0
     b_norm: float = 1.0
     b_kappa: float = 1.0
+    set_scaling: float = 0.01  # Percentage increase for scaling the initial set during synthesis
 
     # Classes to use for the pipeline
     estimator: "type[Estimator]" = KernelRidgeRegressor
@@ -266,6 +268,7 @@ class ConfigAction(Action):
         args.epsilon = float(config_dict.get("epsilon", args.epsilon))
         args.b_norm = float(config_dict.get("b_norm", args.b_norm))
         args.b_kappa = float(config_dict.get("b_kappa", args.b_kappa))
+        args.set_scaling = float(config_dict.get("set_scaling", args.set_scaling))
 
         # Process system dynamics first
         system_dynamics = config_dict.get("system_dynamics", args.system_dynamics)
@@ -293,6 +296,9 @@ class ConfigAction(Action):
 
         # Process kernel regression parameters
         FloatOrNVectorAction(option_strings=None, dest="sigma_l")(None, args, config_dict.get("sigma_l", args.sigma_l))
+        FloatOrNVectorAction(option_strings=None, dest="feature_sigma_l")(
+            None, args, config_dict.get("feature_sigma_l", args.feature_sigma_l)
+        )
 
         # Process classes for the pipeline
         EstimatorAction(option_strings=None, dest="estimator")(None, args, config_dict.get("estimator", args.estimator))
@@ -660,6 +666,13 @@ def arg_parser() -> "ArgumentParser":
         action=FloatOrNVectorAction,
         help="variance parameter for the kernel, can be a single float (isotropic) or an array of floats (anisotropic)",
     )
+    parser.add_argument(
+        "--feature_sigma_l",
+        default=config.feature_sigma_l,
+        type=float,
+        action=FloatOrNVectorAction,
+        help="variance parameter for the kernel, can be a single float (isotropic) or an array of floats (anisotropic)",
+    )
 
     # Barrier certificate parameters arguments
     parser.add_argument(
@@ -758,6 +771,12 @@ def arg_parser() -> "ArgumentParser":
             "SoplexOptimiser",
         ],
         help="optimiser class to use for the optimization",
+    )
+    parser.add_argument(
+        "--set-scaling",
+        type=float,
+        default=config.set_scaling,
+        help="percentage increase for scaling the initial set during synthesis",
     )
 
     # Deprecated arguments

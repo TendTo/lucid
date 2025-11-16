@@ -166,6 +166,11 @@
       "type": "number",
       "default": 1.0
     },
+    "set_scaling": {
+      "description": "Scaling factor for sets in the periodic space.",
+      "type": "number",
+      "default": 0.01
+    },
     "b_norm": {
       "description": "Norm of the barrier function.",
       "type": "number",
@@ -196,6 +201,20 @@
       "type": "number"
     },
     "sigma_l": {
+      "description": "Length scale for the estimator, can be a single value or a list.",
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      ]
+    },
+    "feature_sigma_l": {
       "description": "Length scale for the feature map, can be a single value or a list.",
       "oneOf": [
         {
