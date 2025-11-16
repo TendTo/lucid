@@ -196,6 +196,7 @@ lucid_cc_library(
 lucid_cc_library(
     name = "set",
     srcs = [
+        "EllipseSet.cpp",
         "MultiSet.cpp",
         "PolytopeSet.cpp",
         "RectSet.cpp",
@@ -203,6 +204,7 @@ lucid_cc_library(
         "SphereSet.cpp",
     ],
     hdrs = [
+        "EllipseSet.h",
         "MultiSet.h",
         "PolytopeSet.h",
         "RectSet.h",

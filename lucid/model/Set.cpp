@@ -8,6 +8,7 @@
 
 #include <ostream>
 
+#include "lucid/model/EllipseSet.h"
 #include "lucid/model/MultiSet.h"
 #include "lucid/model/PolytopeSet.h"
 #include "lucid/model/RectSet.h"
@@ -54,21 +55,35 @@ std::pair<std::vector<Index>, std::vector<Index>> Set::include_exclude_masks(Con
   return masks;
 }
 
+std::unique_ptr<Set> Set::scale_wrapped(const double scale, const RectSet& bounds,
+                                        const bool relative_to_bounds) const {
+  return scale_wrapped(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
+}
+std::unique_ptr<Set> Set::scale_wrapped(ConstVectorRef scale, const RectSet& bounds,
+                                        const bool relative_to_bounds) const {
+  return scale_wrapped_impl(scale, bounds, relative_to_bounds);
+}
+
 void Set::change_size(const double delta_size) { change_size(Vector::Constant(dimension(), delta_size)); }
 void Set::change_size(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
 Matrix Set::lattice(const Index points_per_dim, const bool endpoint) const {
   return lattice(VectorI::Constant(dimension(), points_per_dim), endpoint);
 }
 
-std::unique_ptr<RectSet> Set::to_rect_set() const { LUCID_NOT_IMPLEMENTED(); }
+std::unique_ptr<Set> Set::to_rect_set() const { LUCID_NOT_IMPLEMENTED(); }
+Vector Set::general_lower_bound() const { LUCID_NOT_IMPLEMENTED(); }
+Vector Set::general_upper_bound() const { LUCID_NOT_IMPLEMENTED(); }
 
 bool Set::operator==(const Set& other) const { return this == &other; }
+
+std::unique_ptr<Set> Set::scale_wrapped_impl(ConstVectorRef, const RectSet&, bool) const { LUCID_NOT_IMPLEMENTED(); }
 
 std::ostream& operator<<(std::ostream& os, const Set& set) {
   if (const auto* casted_set = dynamic_cast<const RectSet*>(&set)) return os << *casted_set;
   if (const auto* casted_set = dynamic_cast<const MultiSet*>(&set)) return os << *casted_set;
   if (const auto* casted_set = dynamic_cast<const SphereSet*>(&set)) return os << *casted_set;
   if (const auto* casted_set = dynamic_cast<const PolytopeSet*>(&set)) return os << *casted_set;
+  if (const auto* casted_set = dynamic_cast<const EllipseSet*>(&set)) return os << *casted_set;
   return os << "Set( )";
 }
 

@@ -20,6 +20,15 @@ lucid_cc_googletest(
 )
 
 lucid_cc_googletest(
+    name = "test_ellipse_set",
+    deps = [
+        "//lucid/model:set",
+        "//lucid/util:exception",
+        "//lucid/util:random",
+    ],
+)
+
+lucid_cc_googletest(
     name = "test_polytope_set",
     deps = [
         "//lucid/model:set",
