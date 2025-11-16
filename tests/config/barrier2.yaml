@@ -24,11 +24,13 @@ optimiser: HighsOptimiser
 oversample_factor: 1
 plot: false
 seed: 42
-sigma_f: 1
-sigma_l: [25, 25]
+sigma_f: 50.53319805949062
+sigma_l: [0.4094601978990589, 0.6633910155255223]
+feature_sigma_l: [0.1, 0.1]
 system_dynamics:
   - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
   - "x2 + 0.1 * (-(sin(x1)**2))"
 time_horizon: 5
 verbose: 3
 verify: false
+set_scaling: 0.03
