@@ -53,8 +53,10 @@ class RectSet final : public Set {
   [[nodiscard]] Dimension dimension() const override { return lb_.size(); }
   /** @getter{lower bound, rectangular set} */
   [[nodiscard]] const Vector& lower_bound() const { return lb_; }
+  [[nodiscard]] Vector general_lower_bound() const override { return lb_; }
   /** @getter{upper bound, rectangular set} */
   [[nodiscard]] const Vector& upper_bound() const { return ub_; }
+  [[nodiscard]] Vector general_upper_bound() const override { return ub_; }
   /** @getter{size for each dimension, rectangular set} */
   [[nodiscard]] Vector sizes() const { return ub_ - lb_; }
 
@@ -83,7 +85,7 @@ class RectSet final : public Set {
 
   void change_size(ConstVectorRef delta_size) override;
 
-  [[nodiscard]] std::unique_ptr<RectSet> to_rect_set() const override;
+  [[nodiscard]] std::unique_ptr<Set> to_rect_set() const override;
 
   /**
    * Compute the rectangular set relative to another rectangular set.
@@ -145,39 +147,6 @@ class RectSet final : public Set {
    */
   [[nodiscard]] RectSet scale(double scale, const RectSet& bounds, bool relative_to_bounds = false) const;
 
-  /**
-   * Scale the rectangular set by the given factor while keeping it inside the given bounds.
-   * If any dimension exceeds the bounds after scaling, it is wrapped around to the other side,
-   * as another rectangular set.
-   * The scaling is performed with respect to the center of the rectangular set.
-   * The scaling factor can be computed relative to either
-   * - the current size of the rectangular set;
-   * - the size of the bounding rectangular set.
-   * @param scale scaling factor
-   * @param bounds bounding rectangular set
-   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
-   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
-   * @return new scaled rectangular set
-   */
-  [[nodiscard]] std::unique_ptr<Set> scale_wrapped(ConstVectorRef scale, const RectSet& bounds,
-                                                   bool relative_to_bounds = false) const;
-  /**
-   * Scale the rectangular set by the given factor while keeping it inside the given bounds.
-   * If any dimension exceeds the bounds after scaling, it is wrapped around to the other side,
-   * as another rectangular set.
-   * The scaling is performed with respect to the center of the rectangular set.
-   * The scaling factor can be computed relative to either
-   * - the current size of the rectangular set;
-   * - the size of the bounding rectangular set.
-   * @param scale scaling factor
-   * @param bounds bounding rectangular set
-   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
-   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
-   * @return new scaled rectangular set
-   */
-  [[nodiscard]] std::unique_ptr<Set> scale_wrapped(double scale, const RectSet& bounds,
-                                                   bool relative_to_bounds = false) const;
-
   RectSet& operator+=(ConstVectorRef offset);
   RectSet& operator+=(Scalar offset);
   [[nodiscard]] RectSet operator+(ConstVectorRef offset) const;
@@ -204,6 +173,9 @@ class RectSet final : public Set {
   operator Matrix() const;
 
  private:
+  [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
+                                                        bool relative_to_bounds) const override;
+
   Vector lb_;  ///< Lower bound vector
   Vector ub_;  ///< Upper bound vector
 };

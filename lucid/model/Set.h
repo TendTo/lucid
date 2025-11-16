@@ -57,6 +57,58 @@ class Set {
   [[nodiscard]] bool contains(ConstVectorRef x) const { return (*this)(x); }
 
   /**
+   * Check if a vector is in @X, having the vector wrapped around a given period.
+   * Graphically, given a point `x`, we assume that the space is tiled every `period` units in each dimension,
+   * and we check if any of the tiled copies of `x` is in the set.
+   * @code{.unparsed}
+   *  ▲
+   * ┌┤
+   * ││ x     x
+   * ││
+   * ├┤
+   * ││ x     x
+   * ││
+   * ├┤┌────┐
+   * │││x   │ x
+   * ││└────┘
+   * └┼──────┬──────┬─►
+   *  └──────┴──────┘
+   * @endcode
+   * @pre @x must have the same dimension as the set
+   * @param x vector to test
+   * @param origin origin point for the
+   * @param period period for wrapping around
+   * @return
+   */
+  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef origin, ConstVectorRef period) const;
+  /**
+   * Check if a vector is in @X, having the vector wrapped around a given period.
+   * Graphically, given a point `x`, we assume that the space is tiled every `period` units in each dimension,
+   * and we check if any of the tiled copies of `x` is in the set.
+   * @code{.unparsed}
+   *  ▲
+   * ┌┤
+   * ││ x     x
+   * ││
+   * ├┤
+   * ││ x     x
+   * ││
+   * ├┤┌────┐
+   * │││x   │ x
+   * ││└────┘
+   * └┼──────┬──────┬─►
+   *  └──────┴──────┘
+   * @endcode
+   * @pre @x must have the same dimension as the set
+   * @param x vector to test
+   * @param origin origin point for the
+   * @param period period for wrapping around
+   * @return
+   */
+  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef origin, ConstVectorRef period,
+                                      ConstVectorRef min_point, ConstVectorRef max_point) const;
+
+  /**
    * Filter a set `xs`, returning only the row vectors that are in @X.
    * @pre `xs` must have the same number of columns as the dimension of the set, @d
    * @param xs @nxd matrix of row vectors to filter
@@ -108,6 +160,39 @@ class Set {
    * @return false if @x is not in the set
    */
   [[nodiscard]] virtual bool operator()(ConstVectorRef x) const = 0;
+
+  /**
+   * Scale the set by the given factor while keeping it inside the given bounds.
+   * If any dimension exceeds the bounds after scaling, it is wrapped around to the other side,
+   * as another set.
+   * The scaling is performed with respect to the center of the set.
+   * The scaling factor can be computed relative to either
+   * - the current size of the set;
+   * - the size of the bounding rectangular set.
+   * @param scale scaling factor
+   * @param bounds bounding rectangular set
+   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
+   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] std::unique_ptr<Set> scale_wrapped(double scale, const RectSet& bounds,
+                                                   bool relative_to_bounds = false) const;
+  /**
+   * Scale the set by the given factor while keeping it inside the given bounds.
+   * If any dimension exceeds the bounds after scaling, it is wrapped around to the other side,
+   * as another set.
+   * The scaling is performed with respect to the center of the set.
+   * The scaling factor can be computed relative to either
+   * - the current size of the set;
+   * - the size of the bounding rectangular set.
+   * @param scale scaling factor per dimension
+   * @param bounds bounding rectangular set
+   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
+   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] std::unique_ptr<Set> scale_wrapped(ConstVectorRef scale, const RectSet& bounds,
+                                                   bool relative_to_bounds = false) const;
 
   /**
    * Change the size of the set.
@@ -165,7 +250,12 @@ class Set {
    * If the set cannot be converted, an exception is thrown.
    * @return unique pointer to the rectangular set
    */
-  [[nodiscard]] virtual std::unique_ptr<RectSet> to_rect_set() const;
+  [[nodiscard]] virtual std::unique_ptr<Set> to_rect_set() const;
+
+  /** @getter{lower bound, rectangular set} */
+  [[nodiscard]] virtual Vector general_lower_bound() const;
+  /** @getter{upper bound, rectangular set} */
+  [[nodiscard]] virtual Vector general_upper_bound() const;
 
   /**
    * Extract @N elements element from @X using some kind of random distribution, where @N is the number of rows in @x.
@@ -182,6 +272,24 @@ class Set {
 
   virtual bool operator==(const Set& other) const;
   bool operator!=(const Set& other) const = default;
+
+ protected:
+  /**
+   * Scale the rectangular set by the given factor while keeping it inside the given bounds.
+   * If any dimension exceeds the bounds after scaling, it is wrapped around to the other side,
+   * as another rectangular set.
+   * The scaling is performed with respect to the center of the rectangular set.
+   * The scaling factor can be computed relative to either
+   * - the current size of the rectangular set;
+   * - the size of the bounding rectangular set.
+   * @param scale scaling factor
+   * @param bounds bounding rectangular set
+   * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
+   * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
+   * @return new scaled rectangular set
+   */
+  [[nodiscard]] virtual std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
+                                                                bool relative_to_bounds) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Set& set);

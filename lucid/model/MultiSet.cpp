@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 
+#include "lucid/model/RectSet.h"
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
 
@@ -52,15 +53,48 @@ Matrix MultiSet::lattice(const VectorI& points_per_dim, const bool endpoint) con
 void MultiSet::change_size(ConstVectorRef delta_size) {
   for (const auto& set : sets_) set->change_size(delta_size);
 }
-#ifndef NCHECK
+Vector MultiSet::general_lower_bound() const {
+  LUCID_ASSERT(!sets_.empty(), "MultiSet must contain at least one set to get the general lower bound");
+  Vector lower_bound = sets_.front()->general_lower_bound();
+  for (const auto& set : sets_) {
+    lower_bound = lower_bound.cwiseMin(set->general_lower_bound());
+  }
+  return lower_bound;
+}
+Vector MultiSet::general_upper_bound() const {
+  LUCID_ASSERT(!sets_.empty(), "MultiSet must contain at least one set to get the general upper bound");
+  Vector upper_bound = sets_.front()->general_upper_bound();
+  for (const auto& set : sets_) {
+    upper_bound = upper_bound.cwiseMax(set->general_upper_bound());
+  }
+  return upper_bound;
+}
+std::unique_ptr<Set> MultiSet::to_rect_set() const {
+  std::vector<std::unique_ptr<Set>> rect_sets;
+  rect_sets.reserve(sets_.size());
+  for (const auto& set : sets_) {
+    rect_sets.emplace_back(set->to_rect_set());
+  }
+  return std::make_unique<MultiSet>(std::move(rect_sets));
+}
+std::unique_ptr<Set> MultiSet::scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
+                                                  const bool relative_to_bounds) const {
+  std::vector<std::unique_ptr<Set>> scaled_sets;
+  scaled_sets.reserve(sets_.size());
+  for (const auto& set : sets_) {
+    scaled_sets.emplace_back(set->scale_wrapped(scale, bounds, relative_to_bounds));
+  }
+  return std::make_unique<MultiSet>(std::move(scaled_sets));
+}
 void MultiSet::validate() {
+#ifndef NCHECK
   LUCID_CHECK_ARGUMENT_CMP(sets_.size(), >, 0);
   [[maybe_unused]] const Dimension dim = sets_.front()->dimension();
   LUCID_CHECK_ARGUMENT(
       std::ranges::all_of(sets_, [dim](const std::unique_ptr<Set>& set) { return set->dimension() == dim; }), "sets",
       "all sets must have the same dimension");
-}
 #endif
+}
 std::ostream& operator<<(std::ostream& os, const MultiSet& set) {
   os << "MultiSet( ";
   for (const std::unique_ptr<Set>& s : set.sets()) os << *s << " ";

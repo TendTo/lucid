@@ -327,6 +327,10 @@ void init_model(py::module_ &m) {
            py::arg("endpoint") = false, Set_lattice)
       .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("endpoint"), Set_lattice)
+      .def("scale_wrapped", py::overload_cast<ConstVectorRef, const RectSet &, bool>(&Set::scale_wrapped, py::const_),
+           ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, Set_scale_wrapped)
+      .def("scale_wrapped", py::overload_cast<double, const RectSet &, bool>(&Set::scale_wrapped, py::const_),
+           py::arg("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, Set_scale_wrapped)
       .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("to_rect_set", &Set::to_rect_set, Set_to_rect_set)
       .def("__eq__", &Set::operator==, py::arg("other"))
@@ -348,11 +352,6 @@ void init_model(py::module_ &m) {
            ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
       .def("scale", py::overload_cast<double, const RectSet &, bool>(&RectSet::scale, py::const_), py::arg("scale"),
            py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
-      .def("scale_wrapped",
-           py::overload_cast<ConstVectorRef, const RectSet &, bool>(&RectSet::scale_wrapped, py::const_),
-           ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale_wrapped)
-      .def("scale_wrapped", py::overload_cast<double, const RectSet &, bool>(&RectSet::scale_wrapped, py::const_),
-           py::arg("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale_wrapped)
       .def(py::self += double())
       .def(py::self += ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
       .def(py::self + ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))

@@ -65,8 +65,11 @@ void SphereSet::change_size(ConstVectorRef delta_size) {
 
   LUCID_TRACE_FMT("=> {}", *this);
 }
-std::unique_ptr<RectSet> SphereSet::to_rect_set() const {
-  return std::make_unique<RectSet>(center_.array() - radius_, center_.array() + radius_);
+Vector SphereSet::general_lower_bound() const { return center_.array() - radius_; }
+Vector SphereSet::general_upper_bound() const { return center_.array() + radius_; }
+
+std::unique_ptr<Set> SphereSet::to_rect_set() const {
+  return std::make_unique<RectSet>(general_lower_bound(), general_upper_bound());
 }
 
 std::ostream& operator<<(std::ostream& os, const SphereSet& set) {

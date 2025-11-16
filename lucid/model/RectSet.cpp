@@ -109,10 +109,10 @@ RectSet RectSet::scale(ConstVectorRef scale, const RectSet& bounds, const bool r
 RectSet RectSet::scale(const double scale, const RectSet& bounds, const bool relative_to_bounds) const {
   return this->scale(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
 }
-std::unique_ptr<Set> RectSet::scale_wrapped(ConstVectorRef scale, const RectSet& bounds,
-                                            const bool relative_to_bounds) const {
+std::unique_ptr<Set> RectSet::scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
+                                                 const bool relative_to_bounds) const {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
-  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >=, 0);
 
   std::vector<std::unique_ptr<Set>> sets;
   sets.emplace_back(std::make_unique<RectSet>(*this));
@@ -123,6 +123,8 @@ std::unique_ptr<Set> RectSet::scale_wrapped(ConstVectorRef scale, const RectSet&
       (relative_to_bounds ? bounds.sizes() : sizes()).array() * (scale.array() - (relative_to_bounds ? 0 : 1)) / 2.0;
   Vector new_lb{lb_ - size_change};
   Vector new_ub{ub_ + size_change};
+  // Ensure we haven't removed or inverted any dimensions
+  LUCID_CHECK_ARGUMENT_CMP((new_ub - new_lb).minCoeff(), >, 0);
   bounded.lb_ = (new_lb.array() < bounds.lb_.array()).select(bounds.lb_, new_lb);
   bounded.ub_ = (new_ub.array() > bounds.ub_.array()).select(bounds.ub_, new_ub);
 
@@ -143,13 +145,11 @@ std::unique_ptr<Set> RectSet::scale_wrapped(ConstVectorRef scale, const RectSet&
       wrap_set.ub_(i) = std::min(bounds.lb_(i) + (new_ub(i) - bounds.ub_(i)), bounded.lb_(i));  // Avoid overlap
     }
   }
+  if (sets.size() == 1) return std::move(sets.back());
   return std::make_unique<MultiSet>(std::move(sets));
 }
-std::unique_ptr<Set> RectSet::scale_wrapped(const double scale, const RectSet& bounds,
-                                            const bool relative_to_bounds) const {
-  return scale_wrapped(Vector::Constant(dimension(), scale), bounds, relative_to_bounds);
-}
-std::unique_ptr<RectSet> RectSet::to_rect_set() const { return std::make_unique<RectSet>(*this); }
+
+std::unique_ptr<Set> RectSet::to_rect_set() const { return std::make_unique<RectSet>(*this); }
 
 RectSet& RectSet::operator+=(ConstVectorRef offset) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
@@ -219,9 +219,7 @@ RectSet RectSet::operator/(Scalar scale) const { return RectSet{*this} /= scale;
 RectSet RectSet::operator/(ConstVectorRef scale) const { return RectSet{*this} /= scale; }
 bool RectSet::operator==(const Set& other) const {
   if (Set::operator==(other)) return true;
-  if (const auto other_rect = dynamic_cast<const RectSet*>(&other)) {
-    return *this == *other_rect;
-  }
+  if (const auto other_rect = dynamic_cast<const RectSet*>(&other)) return *this == *other_rect;
   return false;
 }
 bool RectSet::operator==(const RectSet& other) const { return lb_.isApprox(other.lb_) && ub_.isApprox(other.ub_); }

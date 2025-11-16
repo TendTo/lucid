@@ -18,6 +18,9 @@
 
 namespace lucid {
 
+// Forward declaration
+class RectSet;
+
 /**
  * Set composed of the union of multiple sets.
  * Checking whether a vector is in the set is equivalent to checking if it is in any of the sets.
@@ -32,18 +35,14 @@ class MultiSet final : public Set {
   explicit MultiSet(S&&... sets) : sets_{} {
     sets_.reserve(sizeof...(S));
     (sets_.emplace_back(std::make_unique<S>(std::forward<S>(sets))), ...);
-#ifndef NCHECK
     validate();
-#endif
   }
   template <class... S>
     requires(std::derived_from<S, Set> && ...)
   explicit MultiSet(std::unique_ptr<S>&&... sets) : sets_{} {
     sets_.reserve(sizeof...(S));
     (sets_.emplace_back(std::forward<S>(sets)), ...);
-#ifndef NCHECK
     validate();
-#endif
   }
   explicit MultiSet(std::vector<std::unique_ptr<Set>> sets);
 
@@ -60,11 +59,17 @@ class MultiSet final : public Set {
 
   void change_size(ConstVectorRef delta_size) override;
 
+  [[nodiscard]] Vector general_lower_bound() const override;
+  [[nodiscard]] Vector general_upper_bound() const override;
+
+  [[nodiscard]] std::unique_ptr<Set> to_rect_set() const override;
+
  private:
-#ifndef NCHECK
+  [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
+                                                        bool relative_to_bounds) const override;
   /** Utility function to validate the MultiSet. */
   void validate();
-#endif
+
   std::vector<std::unique_ptr<Set>> sets_;  ///< Sets in the union
 };
 
