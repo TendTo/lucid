@@ -61,9 +61,10 @@ def plot_set(
     if fig is None:
         fig = go.Figure()
     if isinstance(x_set, MultiSet):
-        for i, rect in enumerate(x_set):
-            plt_fun(rect, color, label if i == 0 else "", fig)
-    plt_fun(x_set, color, label, fig)
+        for i, subset in enumerate(x_set):
+            plot_set(plt_fun, subset, color, label if i == 0 else "", fig)
+    else:
+        plt_fun(x_set, color, label, fig)
 
     return fig
 
