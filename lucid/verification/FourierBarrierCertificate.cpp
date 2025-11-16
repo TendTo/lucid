@@ -86,13 +86,45 @@ class Objective {
   const ValleePoussinKernel kernel_;          ///< Vallée-Poussin kernel
 };
 
+double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMatrixRowIndexedView& filtered_lattice,
+               const FourierBarrierCertificateParameters& parameters) {
+  const int n = static_cast<int>(X_periodic.dimension());
+  const int n_tilde = lucid::pow(Q_tilde, n);
+
+  pso::ParticleSwarmOptimization<double, Objective> optimiser{n_tilde, Q_tilde, f_max, filtered_lattice};
+  Matrix matrix_bounds{2, n};
+  matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
+  matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
+
+  optimiser.setPhiParticles(parameters.phi_local);
+  optimiser.setPhiGlobal(parameters.phi_global);
+  optimiser.setInertiaWeightStrategy(pso::ConstantWeight<double>(parameters.weight));
+  optimiser.setMaxIterations(parameters.max_iter);
+  optimiser.setThreads(parameters.threads);
+  optimiser.setMinParticleChange(parameters.xtol);
+  optimiser.setMinFunctionChange(parameters.ftol);
+  optimiser.setMaxVelocity(parameters.max_vel);
+  optimiser.setGen(random::gen);
+  optimiser.setVerbosity(LUCID_TRACE_ENABLED ? 3 : 0);
+
+  auto [iterations, converged, fval, xval] = optimiser.minimize(matrix_bounds, parameters.num_particles);
+
+  if (!converged) {
+    LUCID_WARN("PSO did not converge");
+    return 0;
+  }
+
+  if (fval < -0.5) LUCID_WARN_FMT("PSO value is large: {}", -fval);
+
+  LUCID_DEBUG_FMT("PSO converged in {} iterations with objective value {}", iterations, fval);
+  LUCID_DEBUG_FMT("Best position: {}", LUCID_FORMAT_MATRIX(xval));
+  return -fval;
+}
+
 double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const RectSet& X,
                           const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
   LUCID_TRACE_FMT("({}, {}, {}, {}, {})", Q_tilde, f_max, X_tilde, X, parameters);
-  const int n = static_cast<int>(X_tilde.dimension());
-  const int n_tilde = lucid::pow(Q_tilde, n);
 
-  // TODO(tend): check if this is necessary
   // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
   // to the corresponding set in the periodic space [0, 2pi]^n
   const RectSet X_periodic = (X - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes();
@@ -108,32 +140,32 @@ double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectS
 
   LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
 
-  pso::ParticleSwarmOptimization<double, Objective> optimiser{n_tilde, Q_tilde, f_max, lattice_wo_x};
-  Matrix matrix_bounds{2, n};
-  matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
-  matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
+  return run_pso(Q_tilde, f_max, X_periodic, lattice_wo_x, parameters);
+}
 
-  optimiser.setPhiParticles(parameters.phi_local);
-  optimiser.setPhiGlobal(parameters.phi_global);
-  optimiser.setInertiaWeightStrategy(pso::ConstantWeight<double>(parameters.weight));
-  optimiser.setMaxIterations(parameters.max_iter);
-  optimiser.setThreads(parameters.threads);
-  optimiser.setMinParticleChange(parameters.xtol);
-  optimiser.setMinFunctionChange(parameters.ftol);
-  optimiser.setMaxVelocity(parameters.max_vel);
-  optimiser.setGen(random::gen);
-  optimiser.setVerbosity(LUCID_TRACE_ENABLED ? 3 : LUCID_DEBUG_ENABLED ? 1 : 0);
+double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const MultiSet& X,
+                          const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
+  std::vector<double> As;
+  As.reserve(X.sets().size());
+  std::vector<std::unique_ptr<Set>> pi_sets;
+  std::vector<std::unique_ptr<Set>> rescaled_pi_sets;
+  for (const auto& subset : X.sets()) {
+    auto subset_to_rect = subset->to_rect_set();
+    const RectSet& subset_rect = *dynamic_cast<const RectSet*>(subset_to_rect.get());
 
-  auto [iterations, converged, fval, xval] = optimiser.minimize(matrix_bounds, parameters.num_particles);
-
-  if (!converged) {
-    LUCID_WARN("PSO did not converge");
-    return 0;
+    // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
+    // to the corresponding set in the periodic space [0, 2pi]^n
+    pi_sets.emplace_back(
+        std::make_unique<RectSet>((subset_rect - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes()));
+    // Rescale the newly created periodic set by the given increase factor, making sure it stays within [0, 2pi]^n
+    rescaled_pi_sets.emplace_back(pi_sets.back()->scale_wrapped(parameters.increase, pi, true));
   }
-
-  LUCID_DEBUG_FMT("PSO converged in {} iterations with objective value {}", iterations, fval);
-  LUCID_DEBUG_FMT("Best position: {}", LUCID_FORMAT_MATRIX(xval));
-  return -fval;
+  const auto filtered_lattice =
+      lattice(MultiSet(std::move(rescaled_pi_sets)).exclude_mask(lattice), Eigen::placeholders::all);
+  for (const auto& rescaled_set : pi_sets) {
+    As.push_back(run_pso(Q_tilde, f_max, static_cast<RectSet&>(*rescaled_set.get()), filtered_lattice, parameters));
+  }
+  return *std::ranges::max_element(As);
 }
 
 double compute_A_periodic(const int Q_tilde, const int f_max, const RectSet& pi, const RectSet& X_tilde, const Set& X,
@@ -144,15 +176,7 @@ double compute_A_periodic(const int Q_tilde, const int f_max, const RectSet& pi,
 
   // TODO(tend): this is a manual way of supporting MultiSet for X. There may be a more direct way.
   if (const auto* X_multi = dynamic_cast<const MultiSet*>(&X)) {
-    std::vector<double> As;
-    As.reserve(X_multi->sets().size());
-    for (const auto& subset : static_cast<const MultiSet&>(X).sets()) {
-      auto subset_to_rect = subset->to_rect_set();
-      const RectSet* subset_rect = dynamic_cast<const RectSet*>(subset_to_rect.get());
-      LUCID_CHECK_ARGUMENT(subset_rect != nullptr, "multi-set", "nested multi-sets are not supported");
-      As.push_back(compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *subset_rect, lattice, parameters));
-    }
-    return *std::ranges::max_element(As);
+    return compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_multi, lattice, parameters);
   }
 
   LUCID_UNREACHABLE();
