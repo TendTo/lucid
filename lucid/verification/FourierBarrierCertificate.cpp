@@ -234,7 +234,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   // We are fixing the zero frequency to the constant value we computed in the feature map
   // The regressor has a hard time learning it on the extreme left and right points, because it tends to 0
   fp_lattice.col(0) = Vector::Constant(fp_lattice.rows(), feature_map.weights()[0] * feature_map.sigma_f());
-  const Matrix dn_lattice = f_lattice - fp_lattice;
+  const Matrix dn_lattice = fp_lattice - f_lattice;
 
   LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
   LUCID_DEBUG_FMT("X_bounds: {}", X_bounds);
