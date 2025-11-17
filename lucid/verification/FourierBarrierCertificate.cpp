@@ -108,11 +108,11 @@ using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective>;
 
 double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMatrixRowIndexedView& filtered_lattice,
                const FourierBarrierCertificateParameters& parameters) {
-  const int n = static_cast<int>(X_periodic.dimension());
-  const int n_tilde = lucid::pow(Q_tilde, n);
+  const int d = static_cast<int>(X_periodic.dimension());
+  const int n_tilde = lucid::pow(Q_tilde, d);
 
   PsoOptimiser optimiser{n_tilde, Q_tilde, f_max, filtered_lattice};
-  Matrix matrix_bounds{2, n};
+  Matrix matrix_bounds{2, d};
   matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
   matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
 
@@ -155,7 +155,7 @@ double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectS
   LUCID_TRACE_FMT("X_periodic scaled: {}", *X_periodic_rescaled);
 
   // Only keep the lattice points that are not in X_periodic_rescaled
-  auto lattice_wo_x{lattice(X_periodic_rescaled->exclude_mask(lattice), Eigen::placeholders::all)};
+  const auto lattice_wo_x{lattice(X_periodic_rescaled->exclude_mask(lattice), Eigen::placeholders::all)};
   LUCID_CHECK_ARGUMENT_CMP(lattice_wo_x.rows(), >, 0);  // Ensure there are points to evaluate
 
   LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
@@ -163,8 +163,9 @@ double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectS
   return run_pso(Q_tilde, f_max, X_periodic, lattice_wo_x, parameters);
 }
 
-double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const MultiSet& X,
-                          const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
+double compute_A_periodic(const int Q_tilde, const int f_max, const RectSet& pi, const RectSet& X_tilde,
+                          const MultiSet& X, const Matrix& lattice,
+                          const FourierBarrierCertificateParameters& parameters) {
   std::vector<double> As;
   As.reserve(X.sets().size());
   std::vector<std::unique_ptr<Set>> pi_sets;
