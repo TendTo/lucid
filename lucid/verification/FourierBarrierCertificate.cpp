@@ -24,6 +24,10 @@
 #include "lucid/verification/HighsOptimiser.h"
 #include "lucid/verification/SoplexOptimiser.h"
 
+#ifdef LUCID_PYTHON_BUILD
+#include "bindings/pylucid/interrupt.h"
+#endif
+
 namespace lucid {
 
 namespace {
@@ -86,12 +90,28 @@ class Objective {
   const ValleePoussinKernel kernel_;          ///< Vallée-Poussin kernel
 };
 
+#ifdef LUCID_PYTHON_BUILD
+class PyCallback {
+ public:
+  using PsoIndex = pso::Index;
+  using PsoMatrix = pso::NoCallback<Scalar>::Matrix;
+  using PsoVector = pso::NoCallback<Scalar>::Vector;
+  bool operator()(const PsoIndex, const PsoMatrix&, const PsoVector&, const PsoIndex) const {
+    py_check_signals();
+    return true;
+  }
+};
+using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective, pso::ConstantWeight<Scalar>, PyCallback>;
+#else
+using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective>;
+#endif
+
 double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMatrixRowIndexedView& filtered_lattice,
                const FourierBarrierCertificateParameters& parameters) {
   const int n = static_cast<int>(X_periodic.dimension());
   const int n_tilde = lucid::pow(Q_tilde, n);
 
-  pso::ParticleSwarmOptimization<double, Objective> optimiser{n_tilde, Q_tilde, f_max, filtered_lattice};
+  PsoOptimiser optimiser{n_tilde, Q_tilde, f_max, filtered_lattice};
   Matrix matrix_bounds{2, n};
   matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
   matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
