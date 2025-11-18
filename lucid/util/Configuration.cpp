@@ -40,7 +40,7 @@ std::ostream &operator<<(std::ostream &os, const Configuration &config) {
              "oversample_factor( {} ) "
              "num_oversample( {} ) "
              "gamma( {} ) "
-             "c_coefficient( {} ) "
+             "C_coeff( {} ) "
              "time_horizon( {} ) "
              "epsilon( {} ) "
              "b_norm( {} ) "
@@ -57,7 +57,7 @@ std::ostream &operator<<(std::ostream &os, const Configuration &config) {
              config.X_unsafe() == nullptr ? "-" : fmt::format("{}", *config.X_unsafe()), config.x_samples(),
              config.xp_samples(), config.f_xp_samples(), config.num_samples(), config.noise_scale(), config.lambda(),
              config.sigma_f(), config.sigma_l(), config.num_frequencies(), config.oversample_factor(),
-             config.num_oversample(), config.gamma(), config.c_coefficient(), config.time_horizon(), config.epsilon(),
+             config.num_oversample(), config.gamma(), config.C_coeff(), config.time_horizon(), config.epsilon(),
              config.b_norm(), config.b_kappa(), config.estimator(), config.kernel(), config.feature_map(),
              config.optimiser());
 }

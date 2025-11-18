@@ -141,8 +141,7 @@ void init_verification(py::module_& m) {
                      FourierBarrierCertificateParameters_C_coeff)
       .def_readwrite("epsilon", &FourierBarrierCertificateParameters::epsilon,
                      FourierBarrierCertificateParameters_epsilon)
-      .def_readwrite("b_norm", &FourierBarrierCertificateParameters::b_norm,
-                     FourierBarrierCertificateParameters_target_norm)
+      .def_readwrite("b_norm", &FourierBarrierCertificateParameters::b_norm, FourierBarrierCertificateParameters_b_norm)
       .def_readwrite("kappa", &FourierBarrierCertificateParameters::kappa, FourierBarrierCertificateParameters_kappa)
       .def_readwrite("threads", &FourierBarrierCertificateParameters::threads,
                      FourierBarrierCertificateParameters_threads)

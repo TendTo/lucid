@@ -56,7 +56,7 @@ export default function Header({ reset, methods }: HeaderProps) {
     return [
       "verbose",
       "gamma",
-      "c_coefficient",
+      "C_coeff",
       "lambda",
       "num_samples",
       "time_horizon",

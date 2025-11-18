@@ -14,7 +14,7 @@ from plot_solution import (
 
 from lucid import MultiSet, RectSet
 
-FILTER = 'params.c_coefficient = "1.0" and metrics.run.obj_val > 0 and metrics.run.obj_val < 1 and params.constant_lattice_points = "False" and metrics.run.success = 1 and T = "5"'
+FILTER = 'params.C_coeff = "1.0" and metrics.run.obj_val > 0 and metrics.run.obj_val < 1 and params.constant_lattice_points = "False" and metrics.run.success = 1 and T = "5"'
 
 
 @dataclass

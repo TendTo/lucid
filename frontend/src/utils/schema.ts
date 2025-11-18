@@ -118,7 +118,7 @@ export const configurationSchema = z
     epsilon: z.number().gte(0),
     b_kappa: z.number().gte(0),
     b_norm: z.number().gte(0),
-    c_coefficient: z.number().gte(0),
+    C_coeff: z.number().gte(0),
     lambda: z.number(),
     num_samples: z
       .number()

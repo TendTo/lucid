@@ -58,7 +58,7 @@ class TestCli:
             assert args.verbose == log.LOG_INFO
             assert args.seed == -1
             assert args.gamma == 1.0
-            assert args.c_coefficient == 1.0
+            assert args.C_coeff == 1.0
             assert args.lambda_ == 1e-6
             assert args.num_samples == 1000
             assert args.time_horizon == 5
@@ -84,7 +84,7 @@ class TestCli:
                     "42",
                     "--gamma",
                     "0.9",
-                    "--c_coefficient",
+                    "--C_coeff",
                     "1.2",
                     "--lambda",
                     "0.001",
@@ -121,7 +121,7 @@ class TestCli:
             assert args.verbose == 5
             assert args.seed == 42
             assert args.gamma == 0.9
-            assert args.c_coefficient == 1.2
+            assert args.C_coeff == 1.2
             assert args.lambda_ == 0.001
             assert args.num_samples == 500
             assert args.time_horizon == 20
@@ -517,7 +517,7 @@ class TestCli:
                         {"RectSet": {"lower": [0.9], "upper": [1]}},
                     ],
                     "gamma": 1.0,
-                    "c_coefficient": 1.0,
+                    "C_coeff": 1.0,
                     "lambda": 0.001,
                     "num_samples": 1000,
                     "time_horizon": 5,
@@ -555,7 +555,7 @@ class TestCli:
                     "b_kappa": 7.0,
                     "b_norm": 8.0,
                     "gamma": 0.12,
-                    "c_coefficient": 0.5,
+                    "C_coeff": 0.5,
                     "lambda": 0.131,
                     "sigma_f": 10555.0,
                     "sigma_l": [71.0, 2.0],
@@ -583,7 +583,7 @@ class TestCli:
             assert isinstance(namespace.X_unsafe, MultiSet)
             assert namespace.gamma == yaml_dict["gamma"]
 
-            assert namespace.c_coefficient == yaml_dict["c_coefficient"]
+            assert namespace.C_coeff == yaml_dict["C_coeff"]
             assert namespace.lambda_ == yaml_dict["lambda"]
             assert namespace.num_samples == yaml_dict["num_samples"]
             assert namespace.time_horizon == yaml_dict["time_horizon"]
@@ -617,7 +617,7 @@ class TestCli:
             assert isinstance(namespace.X_init, RectSet)
             assert isinstance(namespace.X_unsafe, RectSet)
             assert namespace.gamma == json_dict["gamma"]
-            assert namespace.c_coefficient == json_dict["c_coefficient"]
+            assert namespace.C_coeff == json_dict["C_coeff"]
             assert namespace.epsilon == json_dict["epsilon"]
             assert namespace.b_kappa == json_dict["b_kappa"]
             assert namespace.b_norm == json_dict["b_norm"]

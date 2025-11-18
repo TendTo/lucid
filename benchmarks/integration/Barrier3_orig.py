@@ -48,7 +48,7 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        "c_coefficient": [1.0],
+        "C_coeff": [1.0],
         # "num_frequencies": [15],
         # "num_frequencies": [4],
         # "time_horizon": [5],

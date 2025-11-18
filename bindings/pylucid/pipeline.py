@@ -207,7 +207,7 @@ def pipeline(
         fxu_lattice=f_xu_lattice,
         feature_map=feature_map,
         num_frequency_samples_per_dim=num_oversample,
-        c_coeff=config.c_coefficient,
+        c_coeff=config.C_coeff,
         epsilon=config.epsilon,
         b_norm=config.b_norm,
         b_kappa=config.b_kappa,

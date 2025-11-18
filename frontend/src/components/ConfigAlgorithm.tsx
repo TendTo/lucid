@@ -6,7 +6,7 @@ export function algorithmFormErrors(errors: FieldErrors<FieldValues>): boolean {
   return Boolean(
     errors.verbose ||
       errors.gamma ||
-      errors.c_coefficient ||
+      errors.C_coeff ||
       errors.lambda ||
       errors.num_samples ||
       errors.time_horizon ||
@@ -41,7 +41,7 @@ export default function ConfigAlgorithm() {
         />
 
         <FormTextInput
-          name="c_coefficient"
+          name="C_coeff"
           label="C Coefficient"
           placeholder="C Coefficient value"
           type="number"

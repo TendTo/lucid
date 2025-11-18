@@ -136,7 +136,7 @@ class Configuration {
                             "If negative, it is computed based on the oversample_factor");
   LUCID_CONSTEXPR_PARAMETER(gamma, double, 1.0,
                             "Constant such that the barrier value over the unsafe set is at least gamma");
-  LUCID_CONSTEXPR_PARAMETER(c_coefficient, double, 1.0,
+  LUCID_CONSTEXPR_PARAMETER(C_coeff, double, 1.0,
                             "Coefficient that makes the optimization more (> 1) or less (< 1) conservative");
   LUCID_CONSTEXPR_PARAMETER(time_horizon, int, 5,
                             "The number of time steps for which the barrier certificate is computed");

@@ -254,7 +254,7 @@ def benchmark_pipeline(config: Configuration):
             epsilon=config.epsilon,
             b_norm=config.b_norm,
             b_kappa=config.b_kappa,
-            C_coeff=config.c_coefficient,
+            C_coeff=config.C_coeff,
             sigma_f=config.sigma_f,
             problem_log_file=config.problem_log_file,
             iis_log_file=config.iis_log_file,

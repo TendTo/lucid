@@ -26,7 +26,7 @@ lucid --verbose 3 \
   --X_init "MultiSet([RectSet([0.1, 0.2], [0.1, 0.2], [0.1, 0.2]), SphereSet([0.7, -0.7], 0.3)])" \
   --X_unsafe "RectSet([0.4, 0.1, 1], [0.8, 0.3, 0])" \
   --gamma 10.0 \
-  --c_coefficient 1.0 \
+  --C_coeff 1.0 \
   --lambda 0.0001 \
   --num_samples 1000 \
   --time_horizon 10 \
@@ -88,7 +88,7 @@ X_unsafe: "RectSet([0.4, 0.1, 1], [0.8, 0.3, 0])" # - As a string
 
 # Algorithm parameters
 gamma: 10.0
-c_coefficient: 1.0
+C_coeff: 1.0
 lambda: 0.0001
 num_samples: 1000
 time_horizon: 10
@@ -177,7 +177,7 @@ You can use the following example as a template:
   // - As a string
   "X_unsafe": "RectSet([0.4, 0.1, 1], [0.8, 0.3, 0])",
   "gamma": 10.0,
-  "c_coefficient": 1.0,
+  "C_coeff": 1.0,
   "lambda": 0.0001,
   "num_samples": 1000,
   "time_horizon": 10,

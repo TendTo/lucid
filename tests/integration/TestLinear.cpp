@@ -22,7 +22,7 @@ constexpr double b_kappa = 1.0;
 constexpr double gmma = 1.0;
 constexpr double lambda = 1e-3;
 constexpr double epsilon = 0;
-constexpr double c_coefficient = 1.0;
+constexpr double C_coeff = 1.0;
 constexpr double oversample_factor = 32.0;
 constexpr double noise_scale = 0.01;
 const RectSet X_bounds{{{-1, 1}}};
@@ -32,7 +32,7 @@ const MultiSet X_unsafe{RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}};
 template <class T>
 class TestLinear : public testing::Test {
  public:
-  TestLinear() : optimiser_{time_horizon, gmma, epsilon, b_norm, b_kappa, sigma_f, c_coefficient} { random::seed(42); }
+  TestLinear() : optimiser_{time_horizon, gmma, epsilon, b_norm, b_kappa, sigma_f, C_coeff} { random::seed(42); }
 
   // Linear function: f(x) = 0.5 * x
   static Matrix f_det(const Matrix& x) { return 0.5 * x; }

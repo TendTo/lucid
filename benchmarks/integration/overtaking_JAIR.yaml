@@ -11,7 +11,7 @@ X_unsafe:
   - RectSet: [[40, 45], [-6, 6], [-3.14159265358979, 3.14159265358979]]
 num_frequencies: 8
 gamma: 0.5
-c_coefficient: .01
+C_coeff: .01
 lambda: 1.0e-05
 sigma_f: 7
 # sigma_l: [3.59381, 0.278256, 0.278256]

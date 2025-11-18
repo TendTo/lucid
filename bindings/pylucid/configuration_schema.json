@@ -179,7 +179,7 @@
     "gamma": {
       "type": "number"
     },
-    "c_coefficient": {
+    "C_coeff": {
       "type": "number"
     },
     "lambda": {

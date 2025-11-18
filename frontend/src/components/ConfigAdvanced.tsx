@@ -52,7 +52,7 @@ export default function ConfigAdvanced() {
         />
 
         <FormTextInput
-          name="c_coefficient"
+          name="C_coeff"
           label="C coefficient"
           placeholder="C coefficient value"
           type="number"
