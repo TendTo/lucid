@@ -14,7 +14,7 @@ export function algorithmFormErrors(errors: FieldErrors<FieldValues>): boolean {
       errors.sigma_l ||
       errors.num_frequencies ||
       errors.oversample_factor ||
-      errors.num_oversample ||
+      errors.lattice_resolution ||
       errors.noise_scale ||
       errors.estimator ||
       errors.kernel ||
@@ -123,9 +123,9 @@ export default function ConfigAlgorithm() {
         />
 
         <FormTextInput
-          name="num_oversample"
-          label="Number of Oversamples"
-          placeholder="Enter number of oversamples"
+          name="lattice_resolution"
+          label="Lattice resolution"
+          placeholder="Enter number of lattice points per dimension"
           type="number"
           min={-1}
           description="Number of oversamples to use, -1 for no oversampling"

@@ -240,8 +240,8 @@
       "minimum": 1,
       "default": 2
     },
-    "num_oversample": {
-      "description": "Number of oversamples to use, -1 for no oversampling.",
+    "lattice_resolution": {
+      "description": "Number of points of the lattice in each dimension. Must be greater than the Nyquist frequency. If negative, oversample_factor will be used instead.",
       "type": "integer",
       "minimum": -1,
       "default": -1

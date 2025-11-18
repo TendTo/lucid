@@ -64,7 +64,7 @@ export default function Header({ reset, methods }: HeaderProps) {
       "sigma_l",
       "num_frequencies",
       "oversample_factor",
-      "num_oversample",
+      "lattice_resolution",
       "noise_scale",
       "estimator",
       "kernel",

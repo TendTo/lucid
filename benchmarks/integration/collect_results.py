@@ -141,10 +141,10 @@ def get_data_from_mlflow(args: Args):
             "sigma_l": np.array(eval(run.data.params["sigma_l"])),
             "lambda_": float(run.data.params["lambda_"]),
             "num_frequencies": int(run.data.params["num_frequencies"]),
-            "num_oversample": int(
+            "lattice_resolution": int(
                 (
-                    run.data.params["num_oversample"]
-                    if run.data.params["num_oversample"] != "-1"
+                    run.data.params["lattice_resolution"]
+                    if run.data.params["lattice_resolution"] != "-1"
                     else np.ceil(
                         (2 * int(run.data.params["num_frequencies"]) + 1) * float(run.data.params["oversample_factor"])
                     )
@@ -186,7 +186,7 @@ def get_data_from_pickle(args: Args):
 
 LATEX_KEEPS = {
     "num_frequencies": "Freq.",
-    "num_oversample": "Lattice Size",
+    "lattice_resolution": "Lattice Size",
     "eta": r"$\eta$",
     "gamma": r"$\gamma$",
     "c": r"$c$",
@@ -209,7 +209,7 @@ def main(args: Args):
     )
     for i, row in enumerate(data.itertuples()):
         print(
-            f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, num_oversample {row.num_oversample}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"
+            f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, lattice_resolution {row.lattice_resolution}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"
         )
         if args.output:
             data = export_solution(args, data)
@@ -221,12 +221,11 @@ def main(args: Args):
                 plot_solution(args, row)
         print("---" * 20)
     plot_contour_benchmarks(
-        args.experiment, x=data["num_frequencies"].values, y=data["num_oversample"].values, z=data["obj_val"].values
+        args.experiment, x=data["num_frequencies"].values, y=data["lattice_resolution"].values, z=data["obj_val"].values
     )
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="Collect results from MLflow and plot them.",
     )

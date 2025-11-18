@@ -21,7 +21,7 @@ sigma_l: [10.0, 7.0, 5.0]
 time_horizon: 5
 plot: true
 verify: false
-num_oversample: 77
+lattice_resolution: 77
 estimator: KernelRidgeRegressor
 kernel: GaussianKernel
 feature_map: LinearTruncatedFourierFeatureMap

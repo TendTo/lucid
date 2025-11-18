@@ -138,9 +138,9 @@ export default function ConfigAdvanced() {
         />
 
         <FormTextInput
-          name="num_oversample"
-          label="Number oversample"
-          placeholder="Number oversample"
+          name="lattice_resolution"
+          label="Lattice resolution"
+          placeholder="Lattice resolution"
           type="number"
           min={-1}
           description="Lattice points for each dimension"

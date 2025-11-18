@@ -129,8 +129,8 @@ class Configuration {
   LUCID_CONSTEXPR_PARAMETER(oversample_factor, double, 2.0,
                             "Factor by which to oversample the frequency space with respect to the nyquist frequency "
                             "(i.e., if set to 1 is the nyquist frequency). "
-                            "It is ignored if num_oversample is a positive number");
-  LUCID_CONSTEXPR_PARAMETER(num_oversample, int, -1,
+                            "It is ignored if lattice_resolution is a positive number");
+  LUCID_CONSTEXPR_PARAMETER(lattice_resolution, int, -1,
                             "Number of lattice points for each dimension. "
                             "Must be greater than the nyquist frequency. "
                             "If negative, it is computed based on the oversample_factor");

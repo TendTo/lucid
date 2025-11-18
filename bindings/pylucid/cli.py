@@ -53,8 +53,8 @@ class Configuration(Namespace):
         sigma_l: Variance parameter for the kernel, can be a single float (isotropic) or an array of floats (anisotropic)
 
         num_frequencies: Number of frequencies per dimension for the feature map. Includes the constant frequency (0)
-        oversample_factor: Factor by which to oversample the frequency space with respect to the nyquist frequency (i.e., if set to 1 is the nyquist frequency). It is ignored if num_oversample is a positive number
-        num_oversample: Number of lattice points for each dimension. Must be greater than the nyquist frequency. If negative, it is computed based on the oversample_factor
+        oversample_factor: Factor by which to oversample the frequency space with respect to the nyquist frequency (i.e., if set to 1 is the nyquist frequency). It is ignored if lattice_resolution is a positive number
+        lattice_resolution: Number of lattice points for each dimension. Must be greater than the nyquist frequency. If negative, it is computed based on the oversample_factor
         gamma: Constant such that the barrier value over the unsafe set is at least gamma
         C_coeff: coefficient that makes the optimization more (> 1) or less (< 1) conservative
         time_horizon: The number of time steps for which the barrier certificate is computed
@@ -104,7 +104,7 @@ class Configuration(Namespace):
     # Barrier certificate parameters
     num_frequencies: int = 10
     oversample_factor: float = 2.0
-    num_oversample: int = -1
+    lattice_resolution: int = -1
     gamma: float = 1.0
     C_coeff: float = 1.0
     time_horizon: int = 5
@@ -261,7 +261,7 @@ class ConfigAction(Action):
         # Barrier certificate parameters
         args.num_frequencies = int(config_dict.get("num_frequencies", args.num_frequencies))
         args.oversample_factor = float(config_dict.get("oversample_factor", args.oversample_factor))
-        args.num_oversample = int(config_dict.get("num_oversample", args.num_oversample))
+        args.lattice_resolution = int(config_dict.get("lattice_resolution", args.lattice_resolution))
         args.gamma = float(config_dict.get("gamma", args.gamma))
         args.C_coeff = float(config_dict.get("C_coeff", args.C_coeff))
         args.time_horizon = int(config_dict.get("time_horizon", args.time_horizon))
@@ -686,12 +686,12 @@ def arg_parser() -> "ArgumentParser":
         "--oversample_factor",
         type=float,
         default=config.oversample_factor,
-        help="factor by which to oversample the frequency space with respect to the nyquist frequency (i.e., if set to 1 is the nyquist frequency). It is ignored if num_oversample is a positive number",
+        help="factor by which to oversample the frequency space with respect to the nyquist frequency (i.e., if set to 1 is the nyquist frequency). It is ignored if lattice_resolution is a positive number",
     )
     parser.add_argument(
-        "--num_oversample",
+        "--lattice_resolution",
         type=int,
-        default=config.num_oversample,
+        default=config.lattice_resolution,
         help="number of lattice points for each dimension. Must be greater than the nyquist frequency. If negative, it is computed based on the oversample_factor",
     )
     parser.add_argument(

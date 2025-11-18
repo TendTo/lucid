@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     grid = {
         "num_frequencies": [5, 6],
-        "num_oversample": [100, 110],
+        "lattice_resolution": [100, 110],
     }
 
     param_combinations = list(itertools.product(*grid.values()))

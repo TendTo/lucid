@@ -147,7 +147,7 @@ export const configurationSchema = z
     oversample_factor: z
       .number()
       .describe("Factor by which to oversample the feature map."),
-    num_oversample: z
+    lattice_resolution: z
       .number()
       .int()
       .describe("Number of oversamples to use, -1 for no oversampling."),

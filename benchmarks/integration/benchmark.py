@@ -139,16 +139,16 @@ def benchmark_pipeline(config: Configuration):
                 mlflow.log_param(key, value)
 
         assert (
-            config.x_samples.shape[0] == config.xp_samples.shape[0]
+                config.x_samples.shape[0] == config.xp_samples.shape[0]
         ), "x_samples and xp_samples must have the same number of samples"
         assert isinstance(config.sigma_f, float) and config.sigma_f > 0, "sigma_f must be a positive float"
         assert (
-            not isinstance(config.feature_map, FeatureMap) or config.num_frequencies <= 0
+                not isinstance(config.feature_map, FeatureMap) or config.num_frequencies <= 0
         ), "num_frequencies and feature_map are mutually exclusive"
         assert (
-            config.f_xp_samples is not None
-            or config.feature_map is None
-            or isinstance(config.feature_map, (FeatureMap, type))
+                config.f_xp_samples is not None
+                or config.feature_map is None
+                or isinstance(config.feature_map, (FeatureMap, type))
         ), "f_xp_samples must be provided when feature_map is a callback"
 
         if isinstance(config.estimator, type):
@@ -172,14 +172,14 @@ def benchmark_pipeline(config: Configuration):
             feature_map = config.feature_map
 
         num_frequencies = feature_map.num_frequencies if config.num_frequencies < 0 else config.num_frequencies
-        num_oversample = (
+        lattice_resolution = (
             np.ceil((2 * num_frequencies + 1) * config.oversample_factor)
-            if config.num_oversample < 0
-            else config.num_oversample
+            if config.lattice_resolution < 0
+            else config.lattice_resolution
         )
-        num_oversample = int(num_oversample)
-        log.debug(f"Number of samples per dimension: {num_oversample}")
-        assert num_oversample > 2 * num_frequencies, "n_per_dim must be greater than nyquist (2 * num_frequencies + 1)"
+        lattice_resolution = int(lattice_resolution)
+        log.debug(f"Number of samples per dimension: {lattice_resolution}")
+        assert lattice_resolution > 2 * num_frequencies, "n_per_dim must be greater than nyquist (2 * num_frequencies + 1)"
 
         if config.f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
             assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
@@ -206,7 +206,7 @@ def benchmark_pipeline(config: Configuration):
             mlflow.log_metric("f_xp_evaluation.score", estimator.score(x_evaluation, f_xp_evaluation))
 
         log.debug(f"Feature map: {feature_map}")
-        x_lattice = config.X_bounds.lattice(num_oversample, True)
+        x_lattice = config.X_bounds.lattice(lattice_resolution, True)
         u_f_x_lattice = feature_map(x_lattice)
         u_f_xp_lattice_via_regressor = estimator(x_lattice)
         # We are fixing the zero frequency to the constant value we computed in the feature map
@@ -216,8 +216,8 @@ def benchmark_pipeline(config: Configuration):
         mlflow.log_metric("u_f_x_lattice.shape.1", u_f_x_lattice.shape[1])
 
         if config.constant_lattice_points:
-            x0_lattice = config.X_init.lattice(num_oversample, True)
-            xu_lattice = config.X_unsafe.lattice(num_oversample, True)
+            x0_lattice = config.X_init.lattice(lattice_resolution, True)
+            xu_lattice = config.X_unsafe.lattice(lattice_resolution, True)
         else:
             # TODO: implement this more efficiently in lucid (C++)
             # Extreme points are always included in the lattice,
@@ -265,16 +265,15 @@ def benchmark_pipeline(config: Configuration):
             w_mat=u_f_xp_lattice_via_regressor,
             rkhs_dim=feature_map.dimension,
             num_frequencies_per_dim=config.num_frequencies - 1,
-            num_frequency_samples_per_dim=num_oversample,
+            num_frequency_samples_per_dim=lattice_resolution,
             original_dim=config.X_bounds.dimension,
             callback=check_cb_factory(
-                config=config, num_oversample=num_oversample, feature_map=feature_map, estimator=estimator
+                config=config, lattice_resolution=lattice_resolution, feature_map=feature_map, estimator=estimator
             ),
         )
 
 
-def check_cb_factory(config: Configuration, num_oversample: int, feature_map: FeatureMap, estimator: Estimator):
-
+def check_cb_factory(config: Configuration, lattice_resolution: int, feature_map: FeatureMap, estimator: Estimator):
     def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
         mlflow.log_metrics(
             {
@@ -298,7 +297,7 @@ def check_cb_factory(config: Configuration, num_oversample: int, feature_map: Fe
                 sol=sol if success else None,
                 f=config.system_dynamics,
                 estimator=estimator,
-                num_samples=num_oversample,
+                num_samples=lattice_resolution,
                 c=c if success else None,
                 show=False,
             )

@@ -129,14 +129,14 @@ def pipeline(
         feature_map = config.feature_map
 
     num_frequencies = feature_map.num_frequencies if config.num_frequencies < 0 else config.num_frequencies
-    num_oversample = (
+    lattice_resolution = (
         np.ceil((2 * num_frequencies + 1) * config.oversample_factor)
-        if config.num_oversample < 0
-        else config.num_oversample
+        if config.lattice_resolution < 0
+        else config.lattice_resolution
     )
-    num_oversample = int(num_oversample)
-    log.debug(f"Number of samples per dimension: {num_oversample}")
-    assert num_oversample > 2 * num_frequencies, f"n_per_dim must be greater than nyquist ({2 * num_frequencies + 1})"
+    lattice_resolution = int(lattice_resolution)
+    log.debug(f"Number of samples per dimension: {lattice_resolution}")
+    assert lattice_resolution > 2 * num_frequencies, f"n_per_dim must be greater than nyquist ({2 * num_frequencies + 1})"
 
     if config.f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
         assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
@@ -160,7 +160,7 @@ def pipeline(
         log.debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
     log.debug(f"Feature map: {feature_map}")
-    x_lattice = config.X_bounds.lattice(num_oversample, True)
+    x_lattice = config.X_bounds.lattice(lattice_resolution, True)
     u_f_x_lattice = feature_map(x_lattice)
     u_f_xp_lattice_via_regressor = estimator(x_lattice)
     # We are fixing the zero frequency to the constant value we computed in the feature map
@@ -169,8 +169,8 @@ def pipeline(
     log.debug(f"x_lattice: {x_lattice.shape}, u_f_x_lattice: {u_f_x_lattice.shape}")
 
     if config.constant_lattice_points:
-        x0_lattice = config.X_init.lattice(num_oversample, True)
-        xu_lattice = config.X_unsafe.lattice(num_oversample, True)
+        x0_lattice = config.X_init.lattice(lattice_resolution, True)
+        xu_lattice = config.X_unsafe.lattice(lattice_resolution, True)
     else:
         # TODO: implement this more efficiently in lucid (C++)
         # Extreme points are always included in the lattice,
@@ -206,7 +206,7 @@ def pipeline(
         fx0_lattice=f_x0_lattice,
         fxu_lattice=f_xu_lattice,
         feature_map=feature_map,
-        num_frequency_samples_per_dim=num_oversample,
+        num_frequency_samples_per_dim=lattice_resolution,
         c_coeff=config.C_coeff,
         epsilon=config.epsilon,
         b_norm=config.b_norm,
@@ -249,7 +249,7 @@ def pipeline(
             sol=sol if success else None,
             f=config.system_dynamics,
             estimator=estimator,
-            num_samples=num_oversample,
+            num_samples=lattice_resolution,
             c=c if success else None,
             show=show,
         )

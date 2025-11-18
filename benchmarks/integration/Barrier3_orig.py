@@ -52,7 +52,7 @@ if __name__ == "__main__":
         # "num_frequencies": [15],
         # "num_frequencies": [4],
         # "time_horizon": [5],
-        # "num_oversample": [800],  #  , 20.0 , 30.0
+        # "lattice_resolution": [800],  #  , 20.0 , 30.0
         # "oversample_factor": [10.0],
     }
 

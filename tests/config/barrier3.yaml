@@ -9,7 +9,7 @@ feature_sigma_l: [0.06, 0.06]
 num_frequencies: 10
 plot: false
 verify: True
-num_oversample: 150
+lattice_resolution: 150
 C_coeff: 1.0
 system_dynamics:
   - "x1 + 0.1 * x2"

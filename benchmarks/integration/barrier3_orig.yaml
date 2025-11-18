@@ -54,7 +54,7 @@ sigma_f: 1
 sigma_l: [2.50304, 3.77779] # LB
 # sigma_l: [0.0215443, 0.0215443] # GRID
 num_frequencies: 15
-num_oversample: 800
+lattice_resolution: 800
 noise_scale: 0.01
 plot: true
 verify: false

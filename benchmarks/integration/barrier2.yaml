@@ -19,7 +19,7 @@ kernel: GaussianKernel
 lambda: 1.0e-06
 noise_scale: 0.01
 num_frequencies: 15
-num_oversample: 400
+lattice_resolution: 400
 num_samples: 1000
 optimiser: GurobiOptimiser
 oversample_factor: 1

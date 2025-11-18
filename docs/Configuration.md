@@ -34,7 +34,7 @@ lucid --verbose 3 \
   --sigma_l 1.1 2.0 3.0 \
   --num_frequencies 4 \
   --oversample_factor 2.1 \
-  --num_oversample -1 \
+  --lattice_resolution -1 \
   --noise_scale 0.01 \
   --plot true \
   --verify true \
@@ -98,7 +98,7 @@ sigma_f: 15.1
 sigma_l: [1.1, 2.0, 3.0] # Can be a single float or a list
 num_frequencies: 4
 oversample_factor: 2.1
-num_oversample: -1
+lattice_resolution: -1
 
 # Execution options
 noise_scale: 0.01
@@ -185,7 +185,7 @@ You can use the following example as a template:
   "sigma_l": [1.1, 2.0, 3.0],
   "num_frequencies": 4,
   "oversample_factor": 2.1,
-  "num_oversample": -1,
+  "lattice_resolution": -1,
   "noise_scale": 0.01,
   "plot": true,
   "verify": true,

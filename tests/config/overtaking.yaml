@@ -17,7 +17,7 @@ time_horizon: 5
 plot: false
 verify: false
 oversample_factor: 2.0
-num_oversample: -1
+lattice_resolution: -1
 estimator: KernelRidgeRegressor
 kernel: GaussianKernel
 feature_map: LinearTruncatedFourierFeatureMap
