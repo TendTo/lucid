@@ -285,39 +285,47 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(Q_tilde), -n / 2.0);
   LUCID_DEBUG_FMT("C = (1 - (2 f_max) / Q_tilde)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",
                   parameters.C_coeff, f_max, Q_tilde, n, C);
-  const double eta_coeff = 2.0 / (C - A_x0 + 1.0);
-  LUCID_DEBUG_FMT("eta_coeff: 2 / (C - A_x0 + 1) = 2 / ({:.3} - {:.3} + 1) = {:.3}", C, A_x0, eta_coeff);
-  const double min_x0_coeff = (C - A_x0 - 1.0) / (C - A_x0 + 1.0);
-  LUCID_DEBUG_FMT("min_x0_coeff: (C - A_x0 - 1) / (C - A_x0 + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}",
-                  C, A_x0, C, A_x0, min_x0_coeff);
-  const double diff_sx0_coeff = A_x0 / (C - A_x0 + 1.0);
-  LUCID_DEBUG_FMT("diff_sx0_coeff: A_x0 / (C - A_x0 + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_x0, C, A_x0,
-                  diff_sx0_coeff);
-  const double gamma_coeff = 2.0 / (C - A_xu + 1.0);
-  LUCID_DEBUG_FMT("gamma_coeff: 2 / (C - A_xu + 1) = 2 / ({:.3} - {:.3} + 1) = {:.3}", C, A_xu, gamma_coeff);
-  const double max_xu_coeff = (C - A_xu - 1) / (C - A_xu + 1.0);
-  LUCID_DEBUG_FMT("max_xu_coeff: (C - A_xu - 1) / (C - A_xu + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}",
-                  C, A_xu, C, A_xu, max_xu_coeff);
-  const double diff_sxu_coeff = A_xu / (C - A_xu + 1.0);
-  LUCID_DEBUG_FMT("diff_sxu_coeff: A_xu / (C - A_xu + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_xu, C, A_xu,
-                  diff_sxu_coeff);
+
+  const double x0_denom = C - 2.0 * A_x0 + 1.0;
+  LUCID_DEBUG_FMT("x0_denom: C - 2 * A_x0 + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_x0, x0_denom);
+  LUCID_ASSERT(x0_denom != 0.0, "Denominator for sx0_coeff cannot be zero");
+  const double eta_coeff = 2.0 / x0_denom;
+  LUCID_DEBUG_FMT("eta_coeff: 2 / x0_denom = 2 / {:.3} = {:.3}", x0_denom, eta_coeff);
+  const double min_x0_coeff = (C - 1.0) / x0_denom;
+  LUCID_DEBUG_FMT("min_x0_coeff: (C - 1) / x0_denom = ({:.3} - 1) / {:.3} = {:.3}", C, x0_denom, min_x0_coeff);
+  const double diff_sx0_coeff = 2.0 * A_x0 / x0_denom;
+  LUCID_DEBUG_FMT("diff_sx0_coeff: 2 * A_x0 / x0_denom = 2 * {:.3} / {:.3} = {:.3}", A_x0, x0_denom, diff_sx0_coeff);
+
+  const double xu_denom = C - 2.0 * A_xu + 1.0;
+  LUCID_DEBUG_FMT("xu_denom: C - 2 * A_xu + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_xu, xu_denom);
+  LUCID_ASSERT(xu_denom != 0.0, "Denominator for gamma_coeff cannot be zero");
+  const double gamma_coeff = 2.0 / xu_denom;
+  LUCID_DEBUG_FMT("gamma_coeff: 2 / xu_denom = 2 / {:.3} = {:.3}", xu_denom, gamma_coeff);
+  const double max_xu_coeff = (C - 1.0) / xu_denom;
+  LUCID_DEBUG_FMT("max_xu_coeff: (C - 1) / xu_denom = ({:.3} - 1) / {:.3} = {:.3}", C, xu_denom, max_xu_coeff);
+  const double diff_sxu_coeff = 2.0 * A_xu / xu_denom;
+  LUCID_DEBUG_FMT("diff_sxu_coeff: 2 * A_xu / xu_denom = 2 * {:.3} / {:.3} = {:.3}", A_xu, xu_denom, diff_sxu_coeff);
+
   const double ebk = parameters.epsilon * parameters.target_norm * parameters.kappa;
   LUCID_DEBUG_FMT("ebk: epsilon * target_norm * kapp = {:.3} * {:.3} * {:.3} = {:.3}", parameters.epsilon,
                   parameters.target_norm, parameters.kappa, ebk);
-  const double c_ebk_coeff = 2.0 / (C - A_x + 1.0);
-  LUCID_DEBUG_FMT("c_ebk_coeff: 2 / (C - A_x + 1) = 2 / ({:.3} - {:.3} + 1) = {:.3}", C, A_x, c_ebk_coeff);
-  const double min_d_coeff = (C - A_x - 1.0) / (C - A_x + 1.0);
-  LUCID_DEBUG_FMT("min_d_coeff: (C - A_x - 1) / (C - A_x + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}", C,
-                  A_x, C, A_x, min_d_coeff);
-  const double diff_d_sx_coeff = A_x / (C - A_x + 1.0);
-  LUCID_DEBUG_FMT("diff_d_sx_coeff: A_x / (C - A_x + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_x, C, A_x,
-                  diff_d_sx_coeff);
-  const double max_x_coeff = (C - A_x - 1.0) / (C - A_x + 1.0);
-  LUCID_DEBUG_FMT("max_x_coeff: (C - A_x - 1) / (C - A_x + 1) = ({:.3} - {:.3} - 1) / ({:.3} - {:.3} + 1) = {:.3}", C,
-                  A_x, C, A_x, max_x_coeff);
-  const double diff_sx_coeff = A_x / (C - A_x + 1.0);
-  LUCID_DEBUG_FMT("diff_sx_coeff: A_x / (C - A_x + 1) = {:.3} / ({:.3} - {:.3} + 1) = {:.3}", A_x, C, A_x,
-                  diff_sx_coeff);
+  const double d_denom = C - 2.0 * A_x + 1.0;
+  LUCID_DEBUG_FMT("d_denom: C - 2 * A_x + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_x, d_denom);
+  LUCID_ASSERT(d_denom != 0.0, "Denominator for d_coeff cannot be zero");
+  const double c_ebk_coeff = 2.0 / d_denom;
+  LUCID_DEBUG_FMT("c_ebk_coeff: 2 / d_denom = 2 / {:.3} = {:.3}", d_denom, c_ebk_coeff);
+  const double min_d_coeff = (C - 1.0) / d_denom;
+  LUCID_DEBUG_FMT("min_d_coeff: (C - 1) / d_denom = ({:.3} - 1) / {:.3} = {:.3}", C, d_denom, min_d_coeff);
+  const double diff_d_sx_coeff = 2.0 * A_x / d_denom;
+  LUCID_DEBUG_FMT("diff_d_sx_coeff: 2 * A_x / d_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, d_denom, diff_d_sx_coeff);
+
+  const double x_denom = C - 2.0 * A_x + 1.0;
+  LUCID_DEBUG_FMT("x_denom: C - 2 * A_x + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_x, x_denom);
+  LUCID_ASSERT(x_denom != 0.0, "Denominator for x_coeff cannot be zero");
+  const double max_x_coeff = (C - 1.0) / x_denom;
+  LUCID_DEBUG_FMT("max_x_coeff: (C - 1) / x_denom = ({:.3} - 1) / {:.3} = {:.3}", C, x_denom, max_x_coeff);
+  const double diff_sx_coeff = 2.0 * A_x / x_denom;
+  LUCID_DEBUG_FMT("diff_sx_coeff: 2 * A_x / x_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, x_denom, diff_sx_coeff);
 
   return optimiser.solve_fourier_barrier_synthesis(
       FourierBarrierSynthesisProblem{.num_vars = -1,

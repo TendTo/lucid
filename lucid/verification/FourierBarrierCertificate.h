@@ -74,6 +74,7 @@ class FourierBarrierCertificate final : public BarrierCertificate {
       int Q_tilde, int f_max, const RectSet& X_tilde, const RectSet& X,
       const FourierBarrierCertificateParameters& parameters = {}) const;
 
+  /** @overload **/
   bool synthesize(int Q_tilde, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
                   const RectSet& X_bounds, const Set& X_init, const Set& X_unsafe,
                   const FourierBarrierCertificateParameters& parameters = {});
@@ -102,11 +103,16 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * Note that we can find the upper bound @f$ A^{\mathcal{\tilde{X}\setminus\mathcal{X}_0}}_\tilde{N} @f$
    * by solving an optimisation problem before starting the synthesis, using, e.g.,
    * [particle swarm optimisation (PSO)](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
-   * @param Q_tilde
-   * @param f_max
-   * @param x0_lattice_wo_init
-   * @param parameters
-   * @return
+   * @param optimiser LP optimiser to use for the synthesis
+   * @param Q_tilde number of lattice points on periodic domain per dimension
+   * @param estimator estimator model to compute the value of the feature map on @xp
+   * @param feature_map feature map to apply to the lattice points
+   * @param X_bounds bounds of the set @X
+   * @param X_init initial set @X0
+   * @param X_unsafe unsafe set @Xu
+   * @param parameters parameters for barrier synthesis
+   * @return true if the synthesis was successful
+   * @return false if no solution was found
    */
   bool synthesize(const Optimiser& optimiser, int Q_tilde, const Estimator& estimator,
                   const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds, const Set& X_init,

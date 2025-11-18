@@ -36,7 +36,10 @@ lucid_cc_library(
         "//lucid/util:random",
         "//lucid/util:stats",
         "//lucid/util:timer",
-    ],
+    ] + select({
+        "//tools:python_build": ["//bindings/pylucid:interrupt"],
+        "//conditions:default": [],
+    }),
     deps = [
         "//lucid/lib:eigen",
         "//lucid/model:estimator",
