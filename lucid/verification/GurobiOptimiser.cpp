@@ -66,35 +66,34 @@ void set_var_bounds(const double lb, GRBVar& var, const double ub) {
 /**
  * Given a `lattice`, add constraints to the `model` such that
  * @f[
- * \texttt{min\_var} \leq x b^T \leq x \texttt{max\_var} .
+ * x b^T \leq x \texttt{var} \quad \forall x \in \texttt{lattice(mask)} .
  * @f]
+ * The verse of the inequality is determined by the template parameter `Op`.
+ * @tparam Op comparison operator, either '<' or '>'
  * @param model Gurobi model
  * @param bs barrier coefficients we are looking for
  * @param lattice lattice of points
  * @param mask mask used to filter the lattice points
- * @param min_var variable representing the minimum bound
- * @param max_var variable representing the maximum bound
+ * @param var variable representing the minimum/maximum value of the barrier over the set
  * @param set_name name of the set for logging/debug purposes
  * @param should_log whether to add names to the constraints for logging/debug purposes
  */
+template <char Op>
+  requires(Op == '<' || Op == '>')
 void add_min_max_bounds(GRBModel& model, const std::span<GRBVar>& bs, ConstMatrixRef lattice,
-                        const std::vector<Index>& mask, const GRBVar& min_var, const GRBVar& max_var,
-                        const std::string& set_name, const bool should_log) {
+                        const std::vector<Index>& mask, const GRBVar& var, [[maybe_unused]] const std::string& set_name,
+                        [[maybe_unused]] const bool should_log) {
   LUCID_DEBUG_FMT(
       "Xn/{} lattice constraints - {} constraints\n"
-      "for all x in Xn/{}: [ B(x) >= min_Xn/{} ] AND [ B(x) <= max_Xn/{} ]",
-      set_name, mask.size() * 2, set_name, set_name, set_name);
+      "for all x in Xn/{}: [ B(x) {}= {}_Xn/{} ]",
+      set_name, mask.size(), set_name, Op, Op == '<' ? "max" : "min", set_name);
   for (Index row : mask) {
     GRBLinExpr expr{};
     expr.addTerms(lattice.row(row).data(), bs.data(), static_cast<int>(lattice.cols()));
 
-    expr -= min_var;
-    LUCID_MODEL_ADD_CONSTRAINT(model, expr, '>', 0, fmt::format("B(Xn/{0})>=min_Xn/{0}[{1}]", set_name, row),
-                               should_log);
-    expr.remove(min_var);
-
-    expr -= max_var;
-    LUCID_MODEL_ADD_CONSTRAINT(model, expr, '<', 0, fmt::format("B(Xn/{0})<=max_Xn/{0}[{1}]", set_name, row),
+    expr -= var;
+    LUCID_MODEL_ADD_CONSTRAINT(model, expr, Op, 0,
+                               fmt::format("B(Xn/{0})>={1}_Xn/{0}[{2}]", set_name, Op == '<' ? "max" : "min", row),
                                should_log);
   }
 }
@@ -295,7 +294,7 @@ bool GurobiOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice
 }
 
 bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& problem,
-                                                           [[maybe_unused]] const SolutionCallback& cb) const {
+                                                           const SolutionCallback& cb) const {
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
 
@@ -307,7 +306,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
 
   constexpr double tolerance = 1e-8;  // Minimum variable value for numerical stability
   constexpr double max_num = std::numeric_limits<double>::infinity();
-  constexpr Dimension num_special_vars = 14;
+  constexpr Dimension num_special_vars = 10;
 
   GRBEnv env{true};
   env.set(GRB_IntParam_OutputFlag, LUCID_DEBUG_ENABLED);
@@ -338,23 +337,18 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   for (std::size_t i = 0; i < special_vars.size(); ++i) {
     special_vars[i] = vars[vars.size() - special_vars.size() + i];
   }
-  auto& [c, eta, min_x0, min_sx0, max_sx0, max_xu, min_sxu, max_sxu, max_x, min_sx, max_sx, min_d, min_d_sx, max_d_sx] =
-      special_vars;
+  auto& [c, eta, min_x0, max_sx0, max_xu, min_sxu, max_x, min_sx, min_d, max_d_sx] = special_vars;
 
   if (should_log) {
     c.set(GRB_StringAttr_VarName, "c");
     eta.set(GRB_StringAttr_VarName, "eta");
     min_x0.set(GRB_StringAttr_VarName, "min_X0");
-    min_sx0.set(GRB_StringAttr_VarName, "min_Xn/X0");
     max_sx0.set(GRB_StringAttr_VarName, "max_Xn/X0");
     max_xu.set(GRB_StringAttr_VarName, "max_Xu");
     min_sxu.set(GRB_StringAttr_VarName, "min_Xn/Xu");
-    max_sxu.set(GRB_StringAttr_VarName, "max_Xn/Xu");
     max_x.set(GRB_StringAttr_VarName, "max_X");
     min_sx.set(GRB_StringAttr_VarName, "min_Xn/X");
-    max_sx.set(GRB_StringAttr_VarName, "max_Xn/X");
     min_d.set(GRB_StringAttr_VarName, "min_Delta");
-    min_d_sx.set(GRB_StringAttr_VarName, "min_Delta_sX");
     max_d_sx.set(GRB_StringAttr_VarName, "max_Delta_sX");
   }
 
@@ -373,7 +367,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   // 0 <= var <= inf
   for (GRBVar& var : std::array{min_x0, max_xu, max_x}) set_var_bounds(0, var, max_num);
   // -inf <= var <= inf
-  for (GRBVar& var : std::array{min_sx0, max_sx0, min_sxu, max_sxu, min_sx, max_sx, min_d_sx, max_d_sx}) {
+  for (GRBVar& var : std::array{max_sx0, min_sxu, min_sx, max_d_sx}) {
     set_var_bounds(-max_num, var, max_num);
   }
 
@@ -458,10 +452,10 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     LUCID_MODEL_ADD_CONSTRAINT(model, expr, '>', 0, fmt::format("B(x)>=hatxi[{}]", row), should_log);
   }
 
-  add_min_max_bounds(model, bs, fxn_lattice, x_exclude_mask, min_sx, max_sx, "X", should_log);
-  add_min_max_bounds(model, bs, fxn_lattice, x0_exclude_mask, min_sx0, max_sx0, "X0", should_log);
-  add_min_max_bounds(model, bs, fxn_lattice, xu_exclude_mask, min_sxu, max_sxu, "Xu", should_log);
-  add_min_max_bounds(model, bs, dn_lattice, x_exclude_mask, min_d_sx, max_d_sx, "dX", should_log);
+  add_min_max_bounds<'<'>(model, bs, fxn_lattice, x0_exclude_mask, max_sx0, "X0", should_log);
+  add_min_max_bounds<'>'>(model, bs, fxn_lattice, xu_exclude_mask, min_sxu, "Xu", should_log);
+  add_min_max_bounds<'>'>(model, bs, fxn_lattice, x_exclude_mask, min_sx, "X", should_log);
+  add_min_max_bounds<'<'>(model, bs, dn_lattice, x_exclude_mask, max_d_sx, "dX", should_log);
 
   // Objective function (η + cT)
   model.setObjective(GRBLinExpr{(eta + c * T) / gamma}, GRB_MINIMIZE);
@@ -479,20 +473,16 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   }
 
   // Print the value of each variable
-  LUCID_INFO_FMT("c: {}", c.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("eta: {}", eta.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("min_X0: {}", min_x0.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("min_sx0: {}", min_sx0.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("max_sx0: {}", max_sx0.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("max_xu: {}", max_xu.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("min_sxu: {}", min_sxu.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("max_sxu: {}", max_sxu.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("max_x: {}", max_x.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("min_sx: {}", min_sx.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("max_sx: {}", max_sx.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("min_d: {}", min_d.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("min_d_sx: {}", min_d_sx.get(GRB_DoubleAttr_X));
-  LUCID_INFO_FMT("max_d_sx: {}", max_d_sx.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("c: {}", c.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("eta: {}", eta.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("min_X0: {}", min_x0.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("max_sx0: {}", max_sx0.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("max_xu: {}", max_xu.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("min_sxu: {}", min_sxu.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("max_x: {}", max_x.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("min_sx: {}", min_sx.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("min_d: {}", min_d.get(GRB_DoubleAttr_X));
+  LUCID_DEBUG_FMT("max_d_sx: {}", max_d_sx.get(GRB_DoubleAttr_X));
 
   const Vector solution{
       Vector::NullaryExpr(fxn_lattice.cols(), [&vars](const Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
