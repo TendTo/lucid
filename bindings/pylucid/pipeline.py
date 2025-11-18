@@ -209,7 +209,7 @@ def pipeline(
         num_frequency_samples_per_dim=num_oversample,
         c_coeff=config.c_coefficient,
         epsilon=config.epsilon,
-        target_norm=config.b_norm,
+        b_norm=config.b_norm,
         b_kappa=config.b_kappa,
         optimiser=config.optimiser(config.problem_log_file, config.iis_log_file),
     )

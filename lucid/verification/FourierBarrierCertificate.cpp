@@ -306,9 +306,9 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const double diff_sxu_coeff = 2.0 * A_xu / xu_denom;
   LUCID_DEBUG_FMT("diff_sxu_coeff: 2 * A_xu / xu_denom = 2 * {:.3} / {:.3} = {:.3}", A_xu, xu_denom, diff_sxu_coeff);
 
-  const double ebk = parameters.epsilon * parameters.target_norm * parameters.kappa;
-  LUCID_DEBUG_FMT("ebk: epsilon * target_norm * kapp = {:.3} * {:.3} * {:.3} = {:.3}", parameters.epsilon,
-                  parameters.target_norm, parameters.kappa, ebk);
+  const double ebk = parameters.epsilon * parameters.b_norm * parameters.kappa;
+  LUCID_DEBUG_FMT("ebk: epsilon * b_norm * kappa = {:.3} * {:.3} * {:.3} = {:.3}", parameters.epsilon,
+                  parameters.b_norm, parameters.kappa, ebk);
   const double d_denom = C - 2.0 * A_x + 1.0;
   LUCID_DEBUG_FMT("d_denom: C - 2 * A_x + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_x, d_denom);
   LUCID_ASSERT(d_denom != 0.0, "Denominator for d_coeff cannot be zero");
@@ -363,94 +363,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
                                      .A_xu = A_xu},
       std::bind(&FourierBarrierCertificate::optimiser_callback, this, std::placeholders::_1, std::placeholders::_2,
                 std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
-                parameters.target_norm));
-}
-
-bool FourierBarrierCertificate::synthesize(ConstMatrixRef fx_lattice, ConstMatrixRef fxp_lattice,
-                                           ConstMatrixRef fx0_lattice, ConstMatrixRef fxu_lattice,
-                                           const TruncatedFourierFeatureMap& feature_map,
-                                           const Dimension num_frequency_samples_per_dim, const double C_coeff,
-                                           const double epsilon, const double target_norm, const double b_kappa) {
-  using DefaultOptimiser =
-      std::conditional_t<constants::GUROBI_BUILD, GurobiOptimiser,                                        //
-                         std::conditional_t<constants::HIGHS_BUILD, HighsOptimiser,                       //
-                                            std::conditional_t<constants::ALGLIB_BUILD, AlglibOptimiser,  //
-                                                               SoplexOptimiser>>>;
-  return synthesize(DefaultOptimiser{}, fx_lattice, fxp_lattice, fx0_lattice, fxu_lattice, feature_map,
-                    num_frequency_samples_per_dim, C_coeff, epsilon, target_norm, b_kappa);
-}
-
-bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, ConstMatrixRef fx_lattice,
-                                           ConstMatrixRef fxp_lattice, ConstMatrixRef fx0_lattice,
-                                           ConstMatrixRef fxu_lattice, const TruncatedFourierFeatureMap& feature_map,
-                                           const Dimension num_frequency_samples_per_dim, const double C_coeff,
-                                           const double epsilon, const double target_norm, const double b_kappa) {
-  LUCID_CHECK_ARGUMENT_CMP(num_frequency_samples_per_dim, >, 0);
-  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().barrier_timer : nullptr};
-  const Dimension rkhs_dim = fx_lattice.cols();
-  const Dimension num_variables = rkhs_dim + 2 + 4;
-  const Dimension num_constraints =
-      1 + 2 * (fx_lattice.rows() + fx0_lattice.rows() + fxu_lattice.rows() + fxp_lattice.rows());
-  // Determine number of samples per dimension required in the associated lattice on the periodic space
-  const double num_frequency_samples_per_dim_periodic =
-      (num_frequency_samples_per_dim * feature_map.periodic_coefficients().array()).minCoeff();
-  // Determines the most sparse sampled dimension
-  const double fraction =
-      static_cast<double>(feature_map.num_frequencies() - 1) / num_frequency_samples_per_dim_periodic;
-  const double C =
-      std::pow(1 - C_coeff * 2.0 * fraction, -static_cast<double>(feature_map.X_bounds().dimension()) / 2.0);
-  const double fctr1 = 2 / (C + 1);
-  const double fctr2 = (C - 1) / (C + 1);
-  const double unsafe_rhs = fctr1 * gamma_;
-  const double kushner_rhs = -fctr1 * epsilon * target_norm * std::abs(feature_map.sigma_f());
-
-  LUCID_DEBUG_FMT("rkhs_dim: {}, num_variables: {}, num_constraints: {}", rkhs_dim, num_variables, num_constraints);
-  LUCID_DEBUG_FMT("num_frequencies_per_dim: {}, num_frequency_samples_per_dim_periodic {}",
-                  feature_map.num_frequencies(), num_frequency_samples_per_dim_periodic);
-  LUCID_DEBUG_FMT("fraction: {}, C_coeff: {}, C: {}", fraction, C_coeff, C);
-  LUCID_DEBUG_FMT("fctr1: {}, fctr2: {}, unsafe_rhs: {}, kushner_rhs: {}", fctr1, fctr2, unsafe_rhs, kushner_rhs);
-
-  if (Stats::Scoped::top()) {
-    Stats::Scoped::top()->value().num_variables = num_variables;
-    Stats::Scoped::top()->value().num_constraints = num_constraints;
-  }
-  return optimiser.solve_fourier_barrier_synthesis(
-      FourierBarrierSynthesisProblem{.num_vars = num_variables,
-                                     .num_constraints = num_constraints,
-                                     .fxn_lattice = Matrix{},
-                                     .dn_lattice = Matrix{},
-                                     .x_include_mask = {},
-                                     .x_exclude_mask = {},
-                                     .x0_include_mask = {},
-                                     .x0_exclude_mask = {},
-                                     .xu_include_mask = {},
-                                     .xu_exclude_mask = {},
-                                     .T = T_,
-                                     .gamma = gamma_,
-                                     .C = C,
-                                     .b_kappa = b_kappa,
-                                     .eta_coeff = 0.0,
-                                     .min_x0_coeff = .0,
-                                     .diff_sx0_coeff = .0,
-                                     .gamma_coeff = .0,
-                                     .max_xu_coeff = .0,
-                                     .diff_sxu_coeff = .0,
-                                     .ebk = .0,
-                                     .c_ebk_coeff = .0,
-                                     .min_d_coeff = .0,
-                                     .diff_d_sx_coeff = .0,
-                                     .max_x_coeff = .0,
-                                     .diff_sx_coeff = .0,
-                                     .fctr1 = fctr1,
-                                     .fctr2 = fctr2,
-                                     .unsafe_rhs = unsafe_rhs,
-                                     .kushner_rhs = kushner_rhs,
-                                     .A_x = 0,
-                                     .A_x0 = 0,
-                                     .A_xu = 0},
-      std::bind(&FourierBarrierCertificate::optimiser_callback, this, std::placeholders::_1, std::placeholders::_2,
-                std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
-                target_norm));
+                parameters.b_norm));
 }
 
 double FourierBarrierCertificate::apply_impl(ConstVectorRef x) const {
@@ -460,7 +373,7 @@ double FourierBarrierCertificate::apply_impl(ConstVectorRef x) const {
 }
 
 void FourierBarrierCertificate::optimiser_callback(bool success, double obj_val, const Vector& coefficients, double eta,
-                                                   double c, double norm, double target_norm) {
+                                                   double c, double norm, double b_norm) {
   if (!success) return;
   coefficients_ = coefficients;
   eta_ = eta;
@@ -472,8 +385,8 @@ void FourierBarrierCertificate::optimiser_callback(bool success, double obj_val,
   LUCID_DEBUG_FMT("coefficients: {}", LUCID_FORMAT_VECTOR(coefficients_));
   LUCID_INFO_FMT("Solution found, objective = {}", obj_val);
   LUCID_INFO_FMT("Satisfaction probability is {:.6f}%", safety_ * 100);
-  if (norm > target_norm) {
-    LUCID_WARN_FMT("Actual norm exceeds bound: {} > {} (diff: {})", norm, target_norm, norm - target_norm);
+  if (norm > b_norm) {
+    LUCID_WARN_FMT("Actual norm exceeds bound: {} > {} (diff: {})", norm, b_norm, norm - b_norm);
   }
 }
 

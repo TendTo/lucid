@@ -100,7 +100,7 @@ void init_verification(py::module_& m) {
 
       .def(py::init([](const double increase, const int num_particles, const double phi_local, const double phi_global,
                        const double weight, const int max_iter, const double max_vel, const double ftol,
-                       const double xtol, const double C_coeff, const double epsilon, const double target_norm,
+                       const double xtol, const double C_coeff, const double epsilon, const double b_norm,
                        const double kappa, const int threads) {
              return FourierBarrierCertificateParameters{.increase = increase,
                                                         .num_particles = num_particles,
@@ -113,14 +113,14 @@ void init_verification(py::module_& m) {
                                                         .xtol = xtol,
                                                         .C_coeff = C_coeff,
                                                         .epsilon = epsilon,
-                                                        .target_norm = target_norm,
+                                                        .b_norm = b_norm,
                                                         .kappa = kappa,
                                                         .threads = threads};
            }),
            py::arg("increase") = 0.1, py::arg("num_particles") = 40, py::arg("phi_local") = 0.5,
            py::arg("phi_global") = 0.3, py::arg("weight") = 0.9, py::arg("max_iter") = 150, py::arg("max_vel") = 0.0,
            py::arg("ftol") = 1e-8, py::arg("xtol") = 1e-8, py::arg("C_coeff") = 1.0, py::arg("epsilon") = 1.0,
-           py::arg("target_norm") = 0.0, py::arg("kappa") = 1.0, py::arg("threads") = 0,
+           py::arg("b_norm") = 0.0, py::arg("kappa") = 1.0, py::arg("threads") = 0,
            FourierBarrierCertificateParameters_)
       .def_readwrite("increase", &FourierBarrierCertificateParameters::increase,
                      FourierBarrierCertificateParameters_increase)
@@ -141,7 +141,7 @@ void init_verification(py::module_& m) {
                      FourierBarrierCertificateParameters_C_coeff)
       .def_readwrite("epsilon", &FourierBarrierCertificateParameters::epsilon,
                      FourierBarrierCertificateParameters_epsilon)
-      .def_readwrite("target_norm", &FourierBarrierCertificateParameters::target_norm,
+      .def_readwrite("b_norm", &FourierBarrierCertificateParameters::b_norm,
                      FourierBarrierCertificateParameters_target_norm)
       .def_readwrite("kappa", &FourierBarrierCertificateParameters::kappa, FourierBarrierCertificateParameters_kappa)
       .def_readwrite("threads", &FourierBarrierCertificateParameters::threads,
@@ -175,22 +175,6 @@ void init_verification(py::module_& m) {
                &FourierBarrierCertificate::synthesize),
            py::arg("optimiser"), py::arg("Q_tilde"), py::arg("estimator"), py::arg("feature_map"), py::arg("X_bounds"),
            py::arg("X_init"), py::arg("X_unsafe"), py::arg("parameters") = FourierBarrierCertificateParameters{},
-           FourierBarrierCertificate_synthesize)
-      .def("synthesize",
-           py::overload_cast<ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef,
-                             const TruncatedFourierFeatureMap&, Dimension, double, double, double, double>(
-               &FourierBarrierCertificate::synthesize),
-           py::arg("fx_lattice"), py::arg("fxp_lattice"), py::arg("fx0_lattice"), py::arg("fxu_lattice"),
-           py::arg("feature_map"), py::arg("num_frequency_samples_per_dim"), py::arg("c_coeff") = 1.0,
-           py::arg("epsilon") = 0.0, py::arg("target_norm") = 1.0, py::arg("b_kappa") = 1.0,
-           FourierBarrierCertificate_synthesize)
-      .def("synthesize",
-           py::overload_cast<const Optimiser&, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef,
-                             const TruncatedFourierFeatureMap&, Dimension, double, double, double, double>(
-               &FourierBarrierCertificate::synthesize),
-           py::arg("optimiser"), py::arg("fx_lattice"), py::arg("fxp_lattice"), py::arg("fx0_lattice"),
-           py::arg("fxu_lattice"), py::arg("feature_map"), py::arg("num_frequency_samples_per_dim"),
-           py::arg("c_coeff") = 1.0, py::arg("epsilon") = 0.0, py::arg("target_norm") = 1.0, py::arg("b_kappa") = 1.0,
            FourierBarrierCertificate_synthesize)
       .def_property_readonly("coefficients", &FourierBarrierCertificate::coefficients,
                              FourierBarrierCertificate_coefficients)

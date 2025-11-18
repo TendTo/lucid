@@ -22,20 +22,20 @@ class Optimiser;
 
 /** Parameters for the Fourier barrier certificate synthesis using PSO. */
 struct FourierBarrierCertificateParameters {
-  double increase = 0.1;     ///< Set size percentage increase factor on the periodic domain
-  int num_particles = 40;    ///< Number of particles in the swarm
-  double phi_local = 0.5;    ///< Cognitive coefficient
-  double phi_global = 0.3;   ///< Social coefficient
-  double weight = 0.9;       ///< Inertia weight
-  int max_iter = 150;        ///< Maximum number of iterations. 0 means no limit
-  double max_vel = 0.0;      ///< Maximum velocity for each particle. 0 means no limit
-  double ftol = 1e-8;        ///< Function value tolerance for convergence
-  double xtol = 1e-8;        ///< Position change tolerance for convergence
-  double C_coeff = 1.0;      ///< Used to either strengthen (>1) or weaken (<1) the conservative coefficient C
-  double epsilon = 1.0;      ///< Epsilon parameter (?)
-  double target_norm = 0.0;  ///< Target norm for the barrier certificate
-  double kappa = 1.0;        ///< Kappa parameter (?)
-  int threads = 0;           ///< Number of threads to use. 0 means automatic detection
+  double increase = 0.1;    ///< Set size percentage increase factor on the periodic domain
+  int num_particles = 40;   ///< Number of particles in the swarm
+  double phi_local = 0.5;   ///< Cognitive coefficient
+  double phi_global = 0.3;  ///< Social coefficient
+  double weight = 0.9;      ///< Inertia weight
+  int max_iter = 150;       ///< Maximum number of iterations. 0 means no limit
+  double max_vel = 0.0;     ///< Maximum velocity for each particle. 0 means no limit
+  double ftol = 1e-8;       ///< Function value tolerance for convergence
+  double xtol = 1e-8;       ///< Position change tolerance for convergence
+  double C_coeff = 1.0;     ///< Used to either strengthen (>1) or weaken (<1) the conservative coefficient C
+  double epsilon = 1.0;     ///< Epsilon parameter (?)
+  double b_norm = 0.0;      ///< Target norm for the barrier certificate
+  double kappa = 1.0;       ///< Kappa parameter (?)
+  int threads = 0;          ///< Number of threads to use. 0 means automatic detection
 };
 
 /**
@@ -57,22 +57,6 @@ struct FourierBarrierCertificateParameters {
 class FourierBarrierCertificate final : public BarrierCertificate {
  public:
   using BarrierCertificate::BarrierCertificate;
-
-  /**
-   * Compute the quantity @f$ A^{\mathcal{\tilde{X}} \setminus \mathcal{X}}_{\tilde{N}} @f$ defined as
-   * @f[
-   *  A^{\mathcal{\tilde{X}} \setminus \mathcal{X}}_{\tilde{N}} \ge \frac{1}{\tilde{N}}
-   * \sum_{\bar{x} \in \Theta_{\tilde{N}}\setminus\mathcal{X}_0} D^n_{f_{\max}-\tilde{Q}-f_{\max}}(x - \bar{x})
-   * @f]
-   * @param Q_tilde number of lattice points on periodic domain per dimension
-   * @param f_max maximum frequency index
-   * @param X_tilde periodic set encapsulating from which to create the lattice @f$ \Theta_{\tilde{N}} @f$
-   * @param X set @f$ \mathcal{X} @f$
-   * @param parameters parameters for the PSO optimiser
-   */
-  [[nodiscard]] std::pair<double, Vector> compute_A_periodic_minus_x(
-      int Q_tilde, int f_max, const RectSet& X_tilde, const RectSet& X,
-      const FourierBarrierCertificateParameters& parameters = {}) const;
 
   /** @overload **/
   bool synthesize(int Q_tilde, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
@@ -118,46 +102,6 @@ class FourierBarrierCertificate final : public BarrierCertificate {
                   const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds, const Set& X_init,
                   const Set& X_unsafe, const FourierBarrierCertificateParameters& parameters = {});
 
-  /**
-   * Synthesize the barrier certificate by solving a linear optimisation problem.
-   * @param fx_lattice lattice obtained from the initial set after applying the feature map
-   * @param fxp_lattice lattice obtained from the successor of the initial set after applying the feature map
-   * @param fx0_lattice lattice obtained from the initial set after applying the feature map
-   * @param fxu_lattice lattice obtained from the unsafe set after applying the feature map
-   * @param feature_map feature map used to obtain the lattices
-   * @param num_frequency_samples_per_dim number of frequency samples per dimension
-   * @param C_coeff coefficient used in the conservative term of the optimisation problem
-   * @param epsilon tolerance for the optimisation problem
-   * @param target_norm target norm for the coefficients of the basis
-   * @param b_kappa bound on the RKHS norm of the barrier certificate
-   * @return true if the synthesis was successful
-   * @return false if no solution was found
-   */
-  bool synthesize(ConstMatrixRef fx_lattice, ConstMatrixRef fxp_lattice, ConstMatrixRef fx0_lattice,
-                  ConstMatrixRef fxu_lattice, const TruncatedFourierFeatureMap& feature_map,
-                  Dimension num_frequency_samples_per_dim, double C_coeff = 1, double epsilon = 0,
-                  double target_norm = 1, double b_kappa = 1);
-  /**
-   * Synthesize the barrier certificate by solving a linear optimisation problem.
-   * @param optimiser optimiser to use for the synthesis
-   * @param fx_lattice lattice obtained from the initial set after applying the feature map
-   * @param fxp_lattice lattice obtained from the successor of the initial set after applying the feature map
-   * @param fx0_lattice lattice obtained from the initial set after applying the feature map
-   * @param fxu_lattice lattice obtained from the unsafe set after applying the feature map
-   * @param feature_map feature map used to obtain the lattices
-   * @param num_frequency_samples_per_dim number of frequency samples per dimension
-   * @param C_coeff coefficient used in the conservative term of the optimisation problem
-   * @param epsilon tolerance for the optimisation problem
-   * @param target_norm target norm for the coefficients of the basis
-   * @param b_kappa bound on the RKHS norm of the barrier certificate
-   * @return true if the synthesis was successful
-   * @return false if no solution was found
-   */
-  bool synthesize(const Optimiser& optimiser, ConstMatrixRef fx_lattice, ConstMatrixRef fxp_lattice,
-                  ConstMatrixRef fx0_lattice, ConstMatrixRef fxu_lattice, const TruncatedFourierFeatureMap& feature_map,
-                  Dimension num_frequency_samples_per_dim, double C_coeff = 1, double epsilon = 0,
-                  double target_norm = 1, double b_kappa = 1);
-
   /** @getter{coefficients of the basis, Fourier barrier certificate} */
   [[nodiscard]] const Vector& coefficients() const { return coefficients_; }
 
@@ -168,16 +112,18 @@ class FourierBarrierCertificate final : public BarrierCertificate {
 
   /**
    * Utility function called by the optimiser when the synthesis is done.
+   * Used to store the results of the synthesis into the barrier certificate object.
+   * If the synthesis was unsuccessful, the barrier is left unchanged.
    * @param success true if the synthesis was successful
    * @param obj_val objective value
    * @param coefficients coefficients of the basis
    * @param eta @eta value
    * @param c @f$ c @f$ value
    * @param norm actual norm of the barrier function
-   * @param target_norm target norm for the coefficients of the basis
+   * @param b_norm target norm for the coefficients of the basis
    */
   void optimiser_callback(bool success, double obj_val, const Vector& coefficients, double eta, double c, double norm,
-                          double target_norm);
+                          double b_norm);
 
   Vector coefficients_;  ///< Coefficients of the Fourier basis
 };
