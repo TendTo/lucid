@@ -1,7 +1,7 @@
 import itertools
 import multiprocessing
 from datetime import datetime
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import mlflow
 import mlflow.data
@@ -9,6 +9,9 @@ import mlflow.entities
 
 from pylucid import *
 from pylucid.plot import plot_solution
+
+if TYPE_CHECKING:
+    from pylucid._pylucid import NMatrix
 
 
 def rmse(x: "NMatrix", y: "NMatrix", ax=0) -> "np.ndarray":
@@ -70,6 +73,9 @@ def single_benchmark(name: str, config: Configuration):
         mlflow.set_tag("scenario", name)
         try:
             benchmark_pipeline(config=config)
+            with Stats() as stats:
+                stats.collect_peak_rss_memory_usage()
+                mlflow.log_metric("peak_rss_memory_usage_bytes", stats.peak_rss_memory_usage)
             status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FINISHED)
         except Exception as ex:
             log.error(f"Error in benchmark {name} with configuration {config.to_safe_dict()}: {ex}")
@@ -139,16 +145,16 @@ def benchmark_pipeline(config: Configuration):
                 mlflow.log_param(key, value)
 
         assert (
-                config.x_samples.shape[0] == config.xp_samples.shape[0]
+            config.x_samples.shape[0] == config.xp_samples.shape[0]
         ), "x_samples and xp_samples must have the same number of samples"
         assert isinstance(config.sigma_f, float) and config.sigma_f > 0, "sigma_f must be a positive float"
         assert (
-                not isinstance(config.feature_map, FeatureMap) or config.num_frequencies <= 0
+            not isinstance(config.feature_map, FeatureMap) or config.num_frequencies <= 0
         ), "num_frequencies and feature_map are mutually exclusive"
         assert (
-                config.f_xp_samples is not None
-                or config.feature_map is None
-                or isinstance(config.feature_map, (FeatureMap, type))
+            config.f_xp_samples is not None
+            or config.feature_map is None
+            or isinstance(config.feature_map, (FeatureMap, type))
         ), "f_xp_samples must be provided when feature_map is a callback"
 
         if isinstance(config.estimator, type):
@@ -161,10 +167,9 @@ def benchmark_pipeline(config: Configuration):
             estimator = config.estimator
         if isinstance(config.feature_map, type) and issubclass(config.feature_map, FeatureMap):
             assert config.num_frequencies > 0, "num_frequencies must be set and positive if feature_map is a class"
-            sigma_l = estimator.get(Parameter.SIGMA_L)
             feature_map = config.feature_map(
                 num_frequencies=config.num_frequencies,
-                sigma_l=sigma_l if len(sigma_l) > 1 else sigma_l[0],
+                sigma_l=config.feature_sigma_l,
                 sigma_f=config.sigma_f,
                 X_bounds=config.X_bounds,
             )
@@ -179,7 +184,9 @@ def benchmark_pipeline(config: Configuration):
         )
         lattice_resolution = int(lattice_resolution)
         log.debug(f"Number of samples per dimension: {lattice_resolution}")
-        assert lattice_resolution > 2 * num_frequencies, "n_per_dim must be greater than nyquist (2 * num_frequencies + 1)"
+        assert (
+            lattice_resolution > 2 * num_frequencies
+        ), "n_per_dim must be greater than nyquist (2 * num_frequencies + 1)"
 
         if config.f_xp_samples is None:  # If no precomputed f_xp_samples are provided, compute them
             assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
@@ -190,7 +197,7 @@ def benchmark_pipeline(config: Configuration):
         estimator.fit(x=config.x_samples, y=config.f_xp_samples)  # Actual fitting of the regressor
         log.info(f"Estimator post-fit: {estimator}")
 
-    with TimeLogger("predict"):
+    with TimeLogger("evaluate"):
         if callable(feature_map) and not isinstance(feature_map, FeatureMap):
             feature_map = feature_map(estimator)  # Compute the feature map if it is a callable
         assert isinstance(feature_map, FeatureMap), "feature_map must return a FeatureMap instance"
@@ -201,104 +208,72 @@ def benchmark_pipeline(config: Configuration):
             # Sample some other points (half of the x_samples) to evaluate the regressor against overfitting
             x_evaluation = config.X_bounds.sample(config.x_samples.shape[0] // 2)
             f_xp_evaluation = feature_map(config.system_dynamics(x_evaluation))
-            for i, val in enumerate(rmse(estimator(x_evaluation), f_xp_evaluation)):
-                mlflow.log_metric(f"f_xp_evaluation.rmse.{i}", val)
+            # for i, val in enumerate(rmse(estimator(x_evaluation), f_xp_evaluation)):
+            #     mlflow.log_metric(f"f_xp_evaluation.rmse.{i}", val)
             mlflow.log_metric("f_xp_evaluation.score", estimator.score(x_evaluation, f_xp_evaluation))
 
-        log.debug(f"Feature map: {feature_map}")
-        x_lattice = config.X_bounds.lattice(lattice_resolution, True)
-        u_f_x_lattice = feature_map(x_lattice)
-        u_f_xp_lattice_via_regressor = estimator(x_lattice)
-        # We are fixing the zero frequency to the constant value we computed in the feature map
-        # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
-        u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * config.sigma_f
-        mlflow.log_metric("x_lattice.shape.0", x_lattice.shape[0])
-        mlflow.log_metric("u_f_x_lattice.shape.1", u_f_x_lattice.shape[1])
-
-        if config.constant_lattice_points:
-            x0_lattice = config.X_init.lattice(lattice_resolution, True)
-            xu_lattice = config.X_unsafe.lattice(lattice_resolution, True)
-        else:
-            # TODO: implement this more efficiently in lucid (C++)
-            # Extreme points are always included in the lattice,
-            # to make sure gamma and eta conditions are satisfied on the boundaries
-            x0_extreme_points = config.X_init.lattice(2, True)
-            x0_lattice = np.concatenate([x0_extreme_points, np.empty_like(x_lattice)], axis=0)
-            count = x0_extreme_points.shape[0]
-            for point in x_lattice:
-                if point in config.X_init:
-                    x0_lattice[count] = point
-                    count += 1
-            x0_lattice.resize((count, config.X_bounds.dimension))
-
-            # Extreme points are always included in the lattice,
-            # to make sure gamma and eta conditions are satisfied on the boundaries
-            xu_extreme_points = config.X_unsafe.lattice(2, True)
-            xu_lattice = np.concatenate([xu_extreme_points, np.empty_like(x_lattice)], axis=0)
-            count = xu_extreme_points.shape[0]
-            for point in x_lattice:
-                if point in config.X_unsafe:
-                    xu_lattice[count] = point
-                    count += 1
-            xu_lattice.resize((count, config.X_bounds.dimension))
-        mlflow.log_metric("x0_lattice.shape.0", x0_lattice.shape[0])
-        mlflow.log_metric("xu_lattice.shape.0", xu_lattice.shape[0])
-
-        f_x0_lattice = feature_map(x0_lattice)
-        f_xu_lattice = feature_map(xu_lattice)
-
     with TimeLogger("solve"):
-        return config.optimiser(
-            config.time_horizon,
-            config.gamma,
-            epsilon=config.epsilon,
-            b_norm=config.b_norm,
-            b_kappa=config.b_kappa,
-            C_coeff=config.C_coeff,
-            sigma_f=config.sigma_f,
+        optimiser: Optimiser = config.optimiser(
             problem_log_file=config.problem_log_file,
             iis_log_file=config.iis_log_file,
-        ).solve(
-            f0_lattice=f_x0_lattice,
-            fu_lattice=f_xu_lattice,
-            phi_mat=u_f_x_lattice,
-            w_mat=u_f_xp_lattice_via_regressor,
-            rkhs_dim=feature_map.dimension,
-            num_frequencies_per_dim=config.num_frequencies - 1,
-            num_frequency_samples_per_dim=lattice_resolution,
-            original_dim=config.X_bounds.dimension,
-            callback=check_cb_factory(
-                config=config, lattice_resolution=lattice_resolution, feature_map=feature_map, estimator=estimator
+        )
+        b = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
+        success = b.synthesize(
+            optimiser=optimiser,
+            Q_tilde=config.lattice_resolution,
+            estimator=estimator,
+            feature_map=feature_map,
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            parameters=FourierBarrierCertificateParameters(
+                increase=config.set_scaling,
+                b_norm=config.b_norm,
+                epsilon=config.epsilon,
+                kappa=config.b_kappa,
+                C_coeff=config.C_coeff,
             ),
         )
+    check_cb_factory(
+        success=success,
+        config=config,
+        lattice_resolution=lattice_resolution,
+        feature_map=feature_map,
+        estimator=estimator,
+    )(b)
+    return success
 
 
-def check_cb_factory(config: Configuration, lattice_resolution: int, feature_map: FeatureMap, estimator: Estimator):
-    def check_cb(success: bool, obj_val: float, sol: "NVector", eta: float, c: float, norm: float):
+def check_cb_factory(
+    success: bool, config: Configuration, lattice_resolution: int, feature_map: FeatureMap, estimator: Estimator
+):
+
+    def check_cb(b: FourierBarrierCertificate):
         mlflow.log_metrics(
             {
                 "run.success": success,
-                "run.obj_val": obj_val,
-                "run.eta": eta,
-                "run.c": c,
-                "run.norm": norm,
+                "run.safety": b.safety,
+                "run.eta": b.eta,
+                "run.c": b.c,
+                "run.norm": b.norm,
             }
         )
+        b.coefficients.shape
         if success:
-            mlflow.log_table({"solution": sol.tolist()}, "solution.json")
+            mlflow.log_table({"solution": b.coefficients.tolist()}, "solution.json")
         if config.plot and config.X_bounds.dimension <= 2:
             fig = plot_solution(
                 X_bounds=config.X_bounds,
                 X_init=config.X_init,
                 X_unsafe=config.X_unsafe,
                 feature_map=feature_map,
-                eta=eta if success else None,
+                eta=b.eta if success else None,
                 gamma=config.gamma,
-                sol=sol if success else None,
+                sol=b.coefficients if success else None,
                 f=config.system_dynamics,
                 estimator=estimator,
                 num_samples=lattice_resolution,
-                c=c if success else None,
+                c=b.c if success else None,
                 show=False,
             )
             mlflow.log_figure(
@@ -321,13 +296,13 @@ def check_cb_factory(config: Configuration, lattice_resolution: int, feature_map
                     X_init=config.X_init,
                     X_unsafe=config.X_unsafe,
                     sigma_f=config.sigma_f,
-                    eta=eta,
-                    c=c,
+                    eta=b.eta,
+                    c=b.c,
                     f_det=config.system_dynamics,
                     gamma=config.gamma,
                     estimator=estimator,
                     tffm=feature_map,
-                    sol=sol,
+                    sol=b.coefficients,
                 ),
             )
 
