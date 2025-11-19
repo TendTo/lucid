@@ -227,7 +227,7 @@ def benchmark_pipeline(config: Configuration):
             X_init=config.X_init,
             X_unsafe=config.X_unsafe,
             parameters=FourierBarrierCertificateParameters(
-                increase=config.set_scaling,
+                set_scaling=config.set_scaling,
                 b_norm=config.b_norm,
                 epsilon=config.epsilon,
                 kappa=config.b_kappa,

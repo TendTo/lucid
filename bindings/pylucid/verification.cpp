@@ -115,11 +115,11 @@ void init_verification(py::module_& m) {
                                                   FourierBarrierCertificateParameters_)
       .def(py::init<>())
 
-      .def(py::init([](const double increase, const int num_particles, const double phi_local, const double phi_global,
-                       const double weight, const int max_iter, const double max_vel, const double ftol,
-                       const double xtol, const double C_coeff, const double epsilon, const double b_norm,
-                       const double kappa, const int threads) {
-             return FourierBarrierCertificateParameters{.increase = increase,
+      .def(py::init([](const double set_scaling, const int num_particles, const double phi_local,
+                       const double phi_global, const double weight, const int max_iter, const double max_vel,
+                       const double ftol, const double xtol, const double C_coeff, const double epsilon,
+                       const double b_norm, const double kappa, const int threads) {
+             return FourierBarrierCertificateParameters{.set_scaling = set_scaling,
                                                         .num_particles = num_particles,
                                                         .phi_local = phi_local,
                                                         .phi_global = phi_global,
@@ -134,12 +134,12 @@ void init_verification(py::module_& m) {
                                                         .kappa = kappa,
                                                         .threads = threads};
            }),
-           py::arg("increase") = 0.1, py::arg("num_particles") = 40, py::arg("phi_local") = 0.5,
+           py::arg("set_scaling") = 0.1, py::arg("num_particles") = 40, py::arg("phi_local") = 0.5,
            py::arg("phi_global") = 0.3, py::arg("weight") = 0.9, py::arg("max_iter") = 150, py::arg("max_vel") = 0.0,
            py::arg("ftol") = 1e-8, py::arg("xtol") = 1e-8, py::arg("C_coeff") = 1.0, py::arg("epsilon") = 1.0,
            py::arg("b_norm") = 0.0, py::arg("kappa") = 1.0, py::arg("threads") = 0,
            FourierBarrierCertificateParameters_)
-      .def_readwrite("increase", &FourierBarrierCertificateParameters::increase,
+      .def_readwrite("set_scaling", &FourierBarrierCertificateParameters::set_scaling,
                      FourierBarrierCertificateParameters_increase)
       .def_readwrite("num_particles", &FourierBarrierCertificateParameters::num_particles,
                      FourierBarrierCertificateParameters_num_particles)

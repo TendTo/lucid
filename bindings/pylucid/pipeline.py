@@ -183,7 +183,7 @@ def pipeline(
             b_norm=config.b_norm,
             epsilon=config.epsilon,
             C_coeff=config.C_coeff,
-            increase=config.set_scaling,
+            set_scaling=config.set_scaling,
             kappa=config.b_kappa,
         ),
         optimiser=config.optimiser(config.problem_log_file, config.iis_log_file),

@@ -30,7 +30,7 @@ enum class Solver { Gurobi, Alglib, HiGHS, SOPLEX };
 
 struct CliArgs {
   int seed{-1};
-  double increase{0.1};
+  double set_scaling{0.1};
   double gamma{1.0};
   int time_horizon{5};
   int num_samples{1000};
@@ -102,7 +102,7 @@ bool pipeline(const CliArgs& args) {
   const bool res = barrier.synthesize(*get_optimiser(args.solver, args), args.lattice_resolution, model_estimator,
                                       feature_map, *args.X_bounds, *args.X_init, *args.X_unsafe,
                                       {
-                                          .increase = args.increase,
+                                          .set_scaling = args.set_scaling,
                                           .ftol = 1e-10,
                                           .xtol = 1e-10,
                                           .C_coeff = args.C_coeff,
@@ -161,7 +161,7 @@ CliArgs barrier2{.seed = 42,
                    });
                  }};
 CliArgs barrier3{.seed = 42,
-                 .increase = 0.03,
+                 .set_scaling = 0.03,
                  .gamma = 2.0,
                  .time_horizon = 5,
                  .num_samples = 1000,

@@ -156,8 +156,8 @@ double compute_A_impl(int lattice_resolution, int f_max, const RectSet& pi, cons
   // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
   // to the corresponding set in the periodic space [0, 2pi]^n
   const RectSet X_periodic = (X - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes();
-  // Rescale the newly created periodic set by the given increase factor, making sure it stays within [0, 2pi]^n
-  const std::unique_ptr<Set> X_periodic_rescaled{X_periodic.scale_wrapped(parameters.increase, pi, true)};
+  // Rescale the newly created periodic set by the given factor, making sure it stays within [0, 2pi]^n
+  const std::unique_ptr<Set> X_periodic_rescaled{X_periodic.scale_wrapped(parameters.set_scaling, pi, true)};
 
   LUCID_TRACE_FMT("X_periodic: {}", X_periodic);
   LUCID_TRACE_FMT("X_periodic scaled: {}", *X_periodic_rescaled);
@@ -184,8 +184,8 @@ double compute_A_impl(const int lattice_resolution, const int f_max, const RectS
     // to the corresponding set in the periodic space [0, 2pi]^n
     pi_sets.emplace_back(
         std::make_unique<RectSet>((subset_rect - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes()));
-    // Rescale the newly created periodic set by the given increase factor, making sure it stays within [0, 2pi]^n
-    rescaled_pi_sets.emplace_back(pi_sets.back()->scale_wrapped(parameters.increase, pi, true));
+    // Rescale the newly created periodic set by the given factor, making sure it stays within [0, 2pi]^n
+    rescaled_pi_sets.emplace_back(pi_sets.back()->scale_wrapped(parameters.set_scaling, pi, true));
   }
   const auto filtered_lattice =
       lattice(MultiSet(std::move(rescaled_pi_sets)).exclude_mask(lattice), Eigen::placeholders::all);
@@ -200,9 +200,9 @@ double compute_A_impl(const int lattice_resolution, const int f_max, const RectS
 
 std::string FourierBarrierCertificateParameters::to_string() const {
   return fmt::format(
-      "FourierBarrierCertificateParameters( increase( {} ) max_iter( {} ) num_particles( {} ) threads( {} ) "
+      "FourierBarrierCertificateParameters( set_scaling( {} ) max_iter( {} ) num_particles( {} ) threads( {} ) "
       "weight( {} ) phi_local( {} ) phi_global( {} ) xtol( {} ) ftol( {} ) max_vel( {} ) )",
-      increase, max_iter, num_particles, threads, weight, phi_local, phi_global, xtol, ftol, max_vel);
+      set_scaling, max_iter, num_particles, threads, weight, phi_local, phi_global, xtol, ftol, max_vel);
 }
 double FourierBarrierCertificate::compute_A(const int lattice_resolution, const int f_max, const RectSet& pi,
                                             const RectSet& X_tilde, const Set& X, const Matrix& lattice,
@@ -279,10 +279,11 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
 
   LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
 
-  const std::unique_ptr<Set> X_bounds_rescaled{X_bounds.scale_wrapped(parameters.increase, X_tilde, true)};
-  const std::unique_ptr<Set> X_init_rescaled{X_init.to_rect_set()->scale_wrapped(parameters.increase, X_tilde, true)};
+  const std::unique_ptr<Set> X_bounds_rescaled{X_bounds.scale_wrapped(parameters.set_scaling, X_tilde, true)};
+  const std::unique_ptr<Set> X_init_rescaled{
+      X_init.to_rect_set()->scale_wrapped(parameters.set_scaling, X_tilde, true)};
   const std::unique_ptr<Set> X_unsafe_rescaled{
-      X_unsafe.to_rect_set()->scale_wrapped(parameters.increase, X_tilde, true)};
+      X_unsafe.to_rect_set()->scale_wrapped(parameters.set_scaling, X_tilde, true)};
 
   LUCID_DEBUG_FMT("X_bounds rescaled: {}", *X_bounds_rescaled);
   LUCID_DEBUG_FMT("X_init rescaled: {}", *X_init_rescaled);

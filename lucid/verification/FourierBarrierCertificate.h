@@ -22,20 +22,20 @@ class Optimiser;
 
 /** Parameters for the Fourier barrier certificate synthesis using PSO. */
 struct FourierBarrierCertificateParameters {
-  double increase = 0.1;    ///< Set size percentage increase factor on the periodic domain
-  int num_particles = 40;   ///< Number of particles in the swarm
-  double phi_local = 0.5;   ///< Cognitive coefficient
-  double phi_global = 0.3;  ///< Social coefficient
-  double weight = 0.9;      ///< Inertia weight
-  int max_iter = 150;       ///< Maximum number of iterations. 0 means no limit
-  double max_vel = 0.0;     ///< Maximum velocity for each particle. 0 means no limit
-  double ftol = 1e-8;       ///< Function value tolerance for convergence
-  double xtol = 1e-8;       ///< Position change tolerance for convergence
-  double C_coeff = 1.0;     ///< Used to either strengthen (>1) or weaken (<1) the conservative coefficient C
-  double epsilon = 1.0;     ///< Epsilon parameter (?)
-  double b_norm = 0.0;      ///< Target norm for the barrier certificate
-  double kappa = 1.0;       ///< Kappa parameter (?)
-  int threads = 0;          ///< Number of threads to use. 0 means automatic detection
+  double set_scaling = 0.1;  ///< Set size percentage set_scaling factor on the periodic domain
+  int num_particles = 40;    ///< Number of particles in the swarm
+  double phi_local = 0.5;    ///< Cognitive coefficient
+  double phi_global = 0.3;   ///< Social coefficient
+  double weight = 0.9;       ///< Inertia weight
+  int max_iter = 150;        ///< Maximum number of iterations. 0 means no limit
+  double max_vel = 0.0;      ///< Maximum velocity for each particle. 0 means no limit
+  double ftol = 1e-8;        ///< Function value tolerance for convergence
+  double xtol = 1e-8;        ///< Position change tolerance for convergence
+  double C_coeff = 1.0;      ///< Used to either strengthen (>1) or weaken (<1) the conservative coefficient C
+  double epsilon = 1.0;      ///< Epsilon parameter (?)
+  double b_norm = 0.0;       ///< Target norm for the barrier certificate
+  double kappa = 1.0;        ///< Kappa parameter (?)
+  int threads = 0;           ///< Number of threads to use. 0 means automatic detection
 
   [[nodiscard]] std::string to_string() const;
 };

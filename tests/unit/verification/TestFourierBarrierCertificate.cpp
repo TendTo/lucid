@@ -52,11 +52,11 @@ TEST_F(TestFourierBarrierCertificate, IsNotSynthesizedByDefault) { EXPECT_FALSE(
 TEST_F(TestFourierBarrierCertificate, ComputeObjective) {
   const RectSet& X_tilde{{-1.0, 1.0}, {-1.0, 1.0}};
   const RectSet& X{{-0.5, 0.5}, {-0.5, 0.5}};
-  constexpr double increase = 0.1;
+  constexpr double set_scaling = 0.1;
   constexpr int lattice_resolution = 25;
   constexpr int f_max = 3;
 
   double result = 0.0;
-  EXPECT_NO_THROW(result = barrier_.compute_A(lattice_resolution, f_max, X_tilde, X, {.increase = increase}));
+  EXPECT_NO_THROW(result = barrier_.compute_A(lattice_resolution, f_max, X_tilde, X, {.set_scaling = set_scaling}));
   EXPECT_GT(result, 0);
 }
