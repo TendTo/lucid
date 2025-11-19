@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <iosfwd>
+
 #include "lucid/verification/Optimiser.h"
 
 namespace lucid {
@@ -23,4 +25,14 @@ class SoplexOptimiser final : public Optimiser {
                                             const SolutionCallback& cb) const override;
 };
 
+std::ostream& operator<<(std::ostream& os, const SoplexOptimiser& optimiser);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::SoplexOptimiser)
+
+#endif

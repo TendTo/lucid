@@ -3,7 +3,6 @@
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  * @file
- * Optimiser class.
  */
 #include "lucid/verification/Optimiser.h"
 
@@ -12,6 +11,10 @@
 
 #include "lucid/util/Stats.h"
 #include "lucid/util/error.h"
+#include "lucid/verification/AlglibOptimiser.h"
+#include "lucid/verification/GurobiOptimiser.h"
+#include "lucid/verification/HighsOptimiser.h"
+#include "lucid/verification/SoplexOptimiser.h"
 
 namespace lucid {
 
@@ -40,6 +43,15 @@ bool Optimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisPro
                                                 const SolutionCallback& cb) const {
   TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().optimiser_timer : nullptr};
   return solve_fourier_barrier_synthesis_impl(params, cb);
+}
+
+std::ostream& operator<<(std::ostream& os, const Optimiser& optimiser) {
+  if (const auto* casted_set = dynamic_cast<const GurobiOptimiser*>(&optimiser)) return os << *casted_set;
+  if (const auto* casted_set = dynamic_cast<const AlglibOptimiser*>(&optimiser)) return os << *casted_set;
+  if (const auto* casted_set = dynamic_cast<const HighsOptimiser*>(&optimiser)) return os << *casted_set;
+  if (const auto* casted_set = dynamic_cast<const SoplexOptimiser*>(&optimiser)) return os << *casted_set;
+  return os << "Optimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
+            << optimiser.iis_log_file() << " ) )";
 }
 
 }  // namespace lucid

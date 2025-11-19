@@ -9,6 +9,7 @@
 #include <array>
 #include <limits>
 #include <memory>
+#include <ostream>
 #include <span>
 #include <string>
 #include <utility>
@@ -454,5 +455,10 @@ std::pair<Vector, Vector> AlglibOptimiser::bounding_box(ConstMatrixRef, ConstVec
   return {};
 }
 #endif  // LUCID_ALGLIB_BUILD
+
+std::ostream& operator<<(std::ostream& os, const AlglibOptimiser& optimiser) {
+  return os << "AlglibOptimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
+            << optimiser.iis_log_file() << " ) )";
+}
 
 }  // namespace lucid

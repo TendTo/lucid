@@ -8,6 +8,7 @@
 #pragma once
 
 #include <functional>
+#include <iosfwd>
 #include <string>
 
 #include "lucid/lib/eigen.h"
@@ -134,4 +135,14 @@ class Optimiser {
   std::string iis_log_file_;      ///< File to log the IIS (Irreducible Inconsistent Subsystem) to, if found
 };
 
+std::ostream& operator<<(std::ostream& os, const Optimiser& optimiser);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::Optimiser)
+
+#endif

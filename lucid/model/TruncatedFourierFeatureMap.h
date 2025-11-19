@@ -172,3 +172,11 @@ class TruncatedFourierFeatureMap : public FeatureMap {
 };
 
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::TruncatedFourierFeatureMap)
+
+#endif

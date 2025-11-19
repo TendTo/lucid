@@ -6,6 +6,7 @@
  */
 #include "lucid/verification/SoplexOptimiser.h"
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -249,5 +250,10 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   return false;
 }
 #endif  // LUCID_SOPLEX_BUILD
+
+std::ostream& operator<<(std::ostream& os, const SoplexOptimiser& optimiser) {
+  return os << "SoplexOptimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
+            << optimiser.iis_log_file() << " ) )";
+}
 
 }  // namespace lucid

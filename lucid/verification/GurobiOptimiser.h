@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <iosfwd>
 #include <utility>
 
 #include "lucid/lib/eigen.h"
@@ -51,4 +52,14 @@ class GurobiOptimiser final : public Optimiser {
   static std::pair<Vector, Vector> bounding_box(ConstMatrixRef A, ConstVectorRef b);
 };
 
+std::ostream& operator<<(std::ostream& os, const GurobiOptimiser& optimiser);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::GurobiOptimiser)
+
+#endif

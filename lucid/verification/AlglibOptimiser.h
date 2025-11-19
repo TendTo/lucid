@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <iosfwd>
 #include <utility>
 
 #include "lucid/lib/eigen.h"
@@ -46,4 +47,14 @@ class AlglibOptimiser final : public Optimiser {
                                             const SolutionCallback& cb) const override;
 };
 
+std::ostream& operator<<(std::ostream& os, const AlglibOptimiser& optimiser);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::AlglibOptimiser)
+
+#endif

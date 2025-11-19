@@ -8,6 +8,7 @@
 
 #include <limits>
 #include <memory>
+#include <ostream>
 #include <span>
 #include <string>
 #include <utility>
@@ -507,5 +508,10 @@ std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef, ConstVec
   return {Vector{}, Vector{}};
 }
 #endif  // LUCID_GUROBI_BUILD
+
+std::ostream& operator<<(std::ostream& os, const GurobiOptimiser& optimiser) {
+  return os << "GurobiOptimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
+            << optimiser.iis_log_file() << " ) )";
+}
 
 }  // namespace lucid

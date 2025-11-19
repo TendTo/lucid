@@ -82,7 +82,6 @@ lucid_cc_library(
         "//lucid/lib:highs",
         "//lucid/lib:soplex",
         "//lucid/util:error",
-        "//lucid/util:logging",
         "//lucid/util:stats",
         "//lucid/util:timer",
     ] + select({
@@ -91,6 +90,7 @@ lucid_cc_library(
     }),
     deps = [
         "//lucid/lib:eigen",
+        "//lucid/util:logging",
     ],
 )
 

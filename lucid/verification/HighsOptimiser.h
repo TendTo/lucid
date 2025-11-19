@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <iosfwd>
 #include <map>
 #include <string>
 
@@ -55,4 +56,14 @@ class HighsOptimiser final : public Optimiser {
   std::map<std::string, std::string> options_;  ///< Map of options to set in the HiGHS solver
 };
 
+std::ostream& operator<<(std::ostream& os, const HighsOptimiser& optimiser);
+
 }  // namespace lucid
+
+#ifdef LUCID_INCLUDE_FMT
+
+#include "lucid/util/logging.h"
+
+OSTREAM_FORMATTER(lucid::HighsOptimiser)
+
+#endif
