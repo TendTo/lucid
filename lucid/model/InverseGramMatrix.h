@@ -48,6 +48,8 @@ class InverseGramMatrix {
 
   operator Matrix() const;
 
+  [[nodiscard]] std::string to_string() const;
+
  private:
   const GramMatrix& gram_matrix_;  ///< Gram matrix to use for the inversion
 };

@@ -68,6 +68,8 @@ class GaussianKernel final : public Kernel {
   void set(Parameter parameter, double value) override;
   void set(Parameter parameter, const Vector& value) override;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   Matrix apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const override;
   [[nodiscard]] double get_d(Parameter parameter) const override;

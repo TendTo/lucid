@@ -509,9 +509,10 @@ std::pair<Vector, Vector> GurobiOptimiser::bounding_box(ConstMatrixRef, ConstVec
 }
 #endif  // LUCID_GUROBI_BUILD
 
-std::ostream& operator<<(std::ostream& os, const GurobiOptimiser& optimiser) {
-  return os << "GurobiOptimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
-            << optimiser.iis_log_file() << " ) )";
+std::string GurobiOptimiser::to_string() const {
+  return fmt::format("GurobiOptimiser( problem_log_file( {} ) iis_log_file( {} ) )", problem_log_file_, iis_log_file_);
 }
+
+std::ostream& operator<<(std::ostream& os, const GurobiOptimiser& optimiser) { return os << optimiser.to_string(); }
 
 }  // namespace lucid

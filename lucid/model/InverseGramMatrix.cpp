@@ -14,8 +14,10 @@ InverseGramMatrix::operator Matrix() const {
   return gram_matrix_.inverse_mult(Matrix::Identity(gram_matrix_.rows(), gram_matrix_.cols()));
 }
 
+std::string InverseGramMatrix::to_string() const { return fmt::format("{}^-1", gram_matrix_.to_string()); }
+
 std::ostream& operator<<(std::ostream& os, const InverseGramMatrix& inverse_gram_matrix) {
-  return os << inverse_gram_matrix.gram_matrix() << "^-1";
+  return os << inverse_gram_matrix.to_string();
 }
 
 }  // namespace lucid

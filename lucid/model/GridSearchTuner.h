@@ -53,6 +53,8 @@ class GridSearchTuner final : public Tuner {
   void tune_online(Estimator& estimator, ConstMatrixRef training_inputs, const OutputComputer& training_outputs,
                    int num_frequencies, const RectSet& X_bounds) const;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                  const OutputComputer& training_outputs) const override;

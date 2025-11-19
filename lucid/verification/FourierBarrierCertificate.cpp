@@ -387,24 +387,25 @@ std::unique_ptr<BarrierCertificate> FourierBarrierCertificate::clone() const {
   return std::make_unique<FourierBarrierCertificate>(*this);
 }
 
-std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificateParameters& params) {
-  return os << "FourierBarrierCertificateParameters( "
-            << "increase( " << params.increase << " ) "
-            << "num_particles( " << params.num_particles << " ) "
-            << "phi_local( " << params.phi_local << " ) "
-            << "phi_global( " << params.phi_global << " ) "
-            << "weight( " << params.weight << " ) "
-            << "max_iter( " << params.max_iter << " ) "
-            << "max_vel( " << params.max_vel << " ) "
-            << "ftol( " << params.ftol << " ) "
-            << "xtol( " << params.xtol << " ) "
-            << "threads( " << params.threads << " ) "
-            << ")";
+std::string FourierBarrierCertificateParameters::to_string() const {
+  return fmt::format(
+      "FourierBarrierCertificateParameters( increase( {} ) num_particles( {} ) phi_local( {} ) phi_global( {} ) "
+      "weight( {} ) max_iter( {} ) max_vel( {} ) ftol( {} ) xtol( {} ) threads( {} ) )",
+      increase, num_particles, phi_local, phi_global, weight, max_iter, max_vel, ftol, xtol, threads);
 }
+
+std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificateParameters& params) {
+  return os << params.to_string();
+}
+
+std::string FourierBarrierCertificate::to_string() const {
+  if (!is_synthesized()) return "FourierBarrierCertificate( )";
+  return fmt::format("FourierBarrierCertificate( eta( {} ) gamma( {} ) c( {} ) norm( {} ) T( {} ) safety( {} ) )", eta_,
+                     gamma_, c_, norm_, T_, safety_);
+}
+
 std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificate& obj) {
-  if (!obj.is_synthesized()) return os << "FourierBarrierCertificate( )";
-  return os << "FourierBarrierCertificate( eta( " << obj.eta() << " ) gamma( " << obj.gamma() << " ) c( " << obj.c()
-            << " ) norm( " << obj.norm() << " ) T( " << obj.T() << " ) safety( " << obj.safety() << " ) )";
+  return os << obj.to_string();
 }
 
 }  // namespace lucid

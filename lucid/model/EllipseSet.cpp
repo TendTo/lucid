@@ -7,8 +7,8 @@
  */
 #include "lucid/model/EllipseSet.h"
 
-#include <iostream>
 #include <limits>
+#include <ostream>
 #include <vector>
 
 #include "lucid/model/RectSet.h"
@@ -106,8 +106,10 @@ bool EllipseSet::operator==(const Set& other) const {
   return false;
 }
 
-std::ostream& operator<<(std::ostream& os, const EllipseSet& set) {
-  return os << fmt::format("EllipseSet( center( [{}] ) radii( [{}] ) )", set.center(), set.radii());
+std::string EllipseSet::to_string() const {
+  return fmt::format("EllipseSet( center( [{}] ) radii( [{}] ) )", center_, radii_);
 }
+
+std::ostream& operator<<(std::ostream& os, const EllipseSet& set) { return os << set.to_string(); }
 
 }  // namespace lucid

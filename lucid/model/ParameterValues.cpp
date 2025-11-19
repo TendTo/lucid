@@ -20,14 +20,17 @@ bool ParameterValues::operator==(const ParameterValues& o) const {
       [this, &o]() -> bool { return get<double>() == o.get<double>(); },
       [this, &o]() -> bool { return get<Vector>() == o.get<Vector>(); });
 }
+
+std::string ParameterValues::to_string() const {
+  std::string values_str = dispatch<std::string>(
+      parameter_, [this]() -> std::string { return fmt::format("{}", get<int>()); },
+      [this]() -> std::string { return fmt::format("{}", get<double>()); },
+      [this]() -> std::string { return fmt::format("{}", get<Vector>()); });
+  return fmt::format("ParameterValues( {} values( {} )", parameter_, values_str);
+}
+
 std::ostream& operator<<(std::ostream& os, const ParameterValues& parameter_values) {
-  os << "ParameterValues( " << parameter_values.parameter() << " values( ";
-  dispatch<std::ostream&>(
-      parameter_values.parameter(),
-      [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<int>()); },
-      [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<double>()); },
-      [&os, &parameter_values]() -> std::ostream& { return os << fmt::format("{}", parameter_values.get<Vector>()); });
-  return os << " )";
+  return os << parameter_values.to_string();
 }
 
 }  // namespace lucid

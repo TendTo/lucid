@@ -95,9 +95,13 @@ void MultiSet::validate() {
       "all sets must have the same dimension");
 #endif
 }
-std::ostream& operator<<(std::ostream& os, const MultiSet& set) {
-  os << "MultiSet( ";
-  for (const std::unique_ptr<Set>& s : set.sets()) os << *s << " ";
-  return os << ")";
+std::string MultiSet::to_string() const {
+  std::string result = "MultiSet( ";
+  for (const std::unique_ptr<Set>& s : sets_) result += s->to_string() + " ";
+  result += ")";
+  return result;
 }
+
+std::ostream& operator<<(std::ostream& os, const MultiSet& set) { return os << set.to_string(); }
+
 }  // namespace lucid

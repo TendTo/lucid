@@ -10,6 +10,7 @@
 #include <limits>
 #include <map>
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -539,9 +540,10 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
 }
 #endif  // LUCID_HIGHS_BUILD
 
-std::ostream& operator<<(std::ostream& os, const HighsOptimiser& optimiser) {
-  return os << "HighsOptimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
-            << optimiser.iis_log_file() << " ) )";
+std::string HighsOptimiser::to_string() const {
+  return fmt::format("HighsOptimiser(problem_log_file( {} ) iis_log_file( {} ) )", problem_log_file_, iis_log_file_);
 }
+
+std::ostream& operator<<(std::ostream& os, const HighsOptimiser& optimiser) { return os << optimiser.to_string(); }
 
 }  // namespace lucid

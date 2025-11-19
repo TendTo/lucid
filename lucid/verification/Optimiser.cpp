@@ -45,13 +45,10 @@ bool Optimiser::solve_fourier_barrier_synthesis(const FourierBarrierSynthesisPro
   return solve_fourier_barrier_synthesis_impl(params, cb);
 }
 
-std::ostream& operator<<(std::ostream& os, const Optimiser& optimiser) {
-  if (const auto* casted_set = dynamic_cast<const GurobiOptimiser*>(&optimiser)) return os << *casted_set;
-  if (const auto* casted_set = dynamic_cast<const AlglibOptimiser*>(&optimiser)) return os << *casted_set;
-  if (const auto* casted_set = dynamic_cast<const HighsOptimiser*>(&optimiser)) return os << *casted_set;
-  if (const auto* casted_set = dynamic_cast<const SoplexOptimiser*>(&optimiser)) return os << *casted_set;
-  return os << "Optimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
-            << optimiser.iis_log_file() << " ) )";
+std::string Optimiser::to_string() const {
+  return fmt::format("Optimiser(problem_log_file( {} ) iis_log_file( {} ) )", problem_log_file_, iis_log_file_);
 }
+
+std::ostream& operator<<(std::ostream& os, const Optimiser& optimiser) { return os << optimiser.to_string(); }
 
 }  // namespace lucid

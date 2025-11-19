@@ -7,8 +7,8 @@
  */
 #include "lucid/model/CrossValidator.h"
 
-#include <iostream>
 #include <memory>
+#include <ostream>
 #include <vector>
 
 #include "lucid/model/KFold.h"
@@ -109,10 +109,8 @@ std::vector<double> CrossValidator::score(const Estimator& estimator, ConstMatri
   return scores;
 }
 
-std::ostream& operator<<(std::ostream& os, const CrossValidator& cv) {
-  if (const auto* casted = dynamic_cast<const KFold*>(&cv)) return os << *casted;
-  if (const auto* casted = dynamic_cast<const LeaveOneOut*>(&cv)) return os << *casted;
-  return os << "CrossValidator( )";
-}
+std::string CrossValidator::to_string() const { return "CrossValidator( )"; }
+
+std::ostream& operator<<(std::ostream& os, const CrossValidator& cv) { return os << cv.to_string(); }
 
 }  // namespace lucid

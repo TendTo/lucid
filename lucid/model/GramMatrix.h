@@ -136,6 +136,8 @@ class GramMatrix {
   /** @getter{number of columns, Gramm matrix} */
   [[nodiscard]] Dimension cols() const { return gram_matrix_.cols(); }
 
+  [[nodiscard]] std::string to_string() const;
+
  private:
   void compute_decomposition() const;
 

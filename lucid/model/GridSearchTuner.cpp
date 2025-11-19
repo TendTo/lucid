@@ -8,9 +8,9 @@
 #include "lucid/model/GridSearchTuner.h"
 
 #include <future>
-#include <iostream>
 #include <limits>
 #include <numeric>
+#include <ostream>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -247,10 +247,11 @@ void GridSearchTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_in
   }
 }
 
-std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner) {
-  return os << "GridSearchTuner( parameters( " << fmt::format("{}", tuner.parameters()) << " ) n_jobs( "
-            << tuner.n_jobs() << " )";
+std::string GridSearchTuner::to_string() const {
+  return fmt::format("GridSearchTuner( parameters( {} ) n_jobs( {} )", fmt::format("{}", parameters_), n_jobs_);
 }
+
+std::ostream& operator<<(std::ostream& os, const GridSearchTuner& tuner) { return os << tuner.to_string(); }
 
 template void GridSearchTuner::tune<ConstantTruncatedFourierFeatureMap>(Estimator&, ConstMatrixRef, ConstMatrixRef, int,
                                                                         const RectSet&) const;

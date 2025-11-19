@@ -128,6 +128,8 @@ class KernelRidgeRegressor final : public GradientOptimizable {
 
   [[nodiscard]] std::unique_ptr<Estimator> clone() const override;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   [[nodiscard]] int get_i(Parameter parameter) const override;
   [[nodiscard]] double get_d(Parameter parameter) const override;

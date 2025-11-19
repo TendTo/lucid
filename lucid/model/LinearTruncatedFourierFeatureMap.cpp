@@ -102,11 +102,11 @@ std::unique_ptr<FeatureMap> LinearTruncatedFourierFeatureMap::clone() const {
   return std::make_unique<LinearTruncatedFourierFeatureMap>(*this);
 }
 
-std::ostream& operator<<(std::ostream& os, const LinearTruncatedFourierFeatureMap& f) {
-  return os << "LinearTruncatedFourierFeatureMap( "
-            << "num_frequencies( " << f.num_frequencies() << " ) "
-            << "dimension( " << f.dimension() << " ) "
-            << "weights( " << f.weights() << " ) )";
+std::string LinearTruncatedFourierFeatureMap::to_string() const {
+  return fmt::format("LinearTruncatedFourierFeatureMap( num_frequencies( {} ) dimension( {} ) weights( {} ) )",
+                     num_frequencies(), dimension(), weights_);
 }
+
+std::ostream& operator<<(std::ostream& os, const LinearTruncatedFourierFeatureMap& f) { return os << f.to_string(); }
 
 }  // namespace lucid

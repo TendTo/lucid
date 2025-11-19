@@ -24,11 +24,9 @@ Matrix FeatureMap::invert(ConstMatrixRef y) const {
   if (Stats::Scoped::top()) Stats::Scoped::top()->value().num_feature_map_applications++;
   return invert_impl(y);
 }
-std::ostream& operator<<(std::ostream& os, const FeatureMap& f) {
-  if (const auto* casted = dynamic_cast<const ConstantTruncatedFourierFeatureMap*>(&f)) return os << *casted;
-  if (const auto* casted = dynamic_cast<const LinearTruncatedFourierFeatureMap*>(&f)) return os << *casted;
-  if (const auto* casted = dynamic_cast<const LogTruncatedFourierFeatureMap*>(&f)) return os << *casted;
-  return os << "FeatureMap( )";
-}
+
+std::string FeatureMap::to_string() const { return "FeatureMap( )"; }
+
+std::ostream& operator<<(std::ostream& os, const FeatureMap& f) { return os << f.to_string(); }
 
 }  // namespace lucid

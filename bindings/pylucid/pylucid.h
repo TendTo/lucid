@@ -17,8 +17,8 @@
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
-#define REPR_LAMBDA(class_name) [](const class_name &o) { return (std::stringstream{} << o).str(); }
-#define STRING_LAMBDA(class_name) [](const class_name &o) { return (std::stringstream{} << o).str(); }
+#define REPR_LAMBDA(class_name) &o::to_string
+#define STRING_LAMBDA(class_name) &o::to_string
 
 void init_model(pybind11::module_ &);
 void init_util(pybind11::module_ &);

@@ -21,10 +21,10 @@ namespace lucid {
 class FeatureMap {
  public:
   explicit FeatureMap() = default;
-  FeatureMap(const FeatureMap &) = default;
-  FeatureMap(FeatureMap &&) = default;
-  FeatureMap &operator=(const FeatureMap &) = default;
-  FeatureMap &operator=(FeatureMap &&) = default;
+  FeatureMap(const FeatureMap&) = default;
+  FeatureMap(FeatureMap&&) = default;
+  FeatureMap& operator=(const FeatureMap&) = default;
+  FeatureMap& operator=(FeatureMap&&) = default;
   virtual ~FeatureMap() = default;
 
   /**
@@ -48,6 +48,9 @@ class FeatureMap {
    */
   [[nodiscard]] virtual std::unique_ptr<FeatureMap> clone() const = 0;
 
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   /**
    * Concrete implementation of @ref operator()().
@@ -63,7 +66,7 @@ class FeatureMap {
   [[nodiscard]] virtual Matrix invert_impl(ConstMatrixRef y) const = 0;
 };
 
-std::ostream &operator<<(std::ostream &os, const FeatureMap &f);
+std::ostream& operator<<(std::ostream& os, const FeatureMap& f);
 
 }  // namespace lucid
 

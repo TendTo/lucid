@@ -23,9 +23,8 @@ BarrierCertificate::BarrierCertificate(const int T, const double gamma, const do
 
 double BarrierCertificate::operator()(ConstVectorRef x) const { return apply_impl(x); }
 
-std::ostream& operator<<(std::ostream& os, const BarrierCertificate& barrier) {
-  if (const auto* casted = dynamic_cast<const FourierBarrierCertificate*>(&barrier)) return os << *casted;
-  return os << "BarrierCertificate( )";
-}
+std::string BarrierCertificate::to_string() const { return "BarrierCertificate( )"; }
+
+std::ostream& operator<<(std::ostream& os, const BarrierCertificate& barrier) { return os << barrier.to_string(); }
 
 }  // namespace lucid

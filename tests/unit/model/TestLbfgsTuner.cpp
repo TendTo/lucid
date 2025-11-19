@@ -109,7 +109,6 @@ TEST_F(TestLbfgsTuner, OptimizationImprovesFit) {
     inputs.row(i).setLinSpaced(i * dim_, i * dim_ + dim_);
     outputs.row(i) = (inputs.row(i).array().square() + 1).matrix();  // Simple quadratic function
   }
-  std::cout << "Inputs:\n" << inputs << "\nOutputs:\n" << outputs << std::endl;
 
   // Create a copy without tuner
   KernelRidgeRegressor untuned_regressor{std::make_unique<GaussianKernel>(), regularization_constant_};

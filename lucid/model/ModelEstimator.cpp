@@ -23,8 +23,11 @@ Matrix ModelEstimator::predict(ConstMatrixRef x) const { return model_function_(
 double ModelEstimator::score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const {
   return scorer::r2_score(*this, evaluation_inputs, evaluation_outputs);
 }
+
 Estimator& ModelEstimator::consolidate_impl(ConstMatrixRef, ConstMatrixRef, Requests) { return *this; }
 
-std::ostream& operator<<(std::ostream& out, const ModelEstimator&) { return out << "ModelEstimator( )"; }
+std::string ModelEstimator::to_string() const { return "ModelEstimator( )"; }
+
+std::ostream& operator<<(std::ostream& out, const ModelEstimator& model) { return out << model.to_string(); }
 
 }  // namespace lucid

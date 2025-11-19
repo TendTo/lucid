@@ -114,6 +114,8 @@ class LinearTruncatedFourierFeatureMap final : public TruncatedFourierFeatureMap
    * @return new RectSet representing the periodic input domain
    */
   [[nodiscard]] RectSet get_periodic_set() const override;
+
+  [[nodiscard]] std::string to_string() const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const LinearTruncatedFourierFeatureMap& f);

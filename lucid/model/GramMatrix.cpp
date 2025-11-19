@@ -22,8 +22,9 @@ void GramMatrix::compute_decomposition() const {
   }
   LUCID_ASSERT(decomposition_.rows() > 0, "The decomposition is not initialized");
 }
-std::ostream& operator<<(std::ostream& os, const GramMatrix& gram_matrix) {
-  return os << "GramMatrix(\n" << gram_matrix.gram_matrix() << "\n)";
-}
+
+std::string GramMatrix::to_string() const { return fmt::format("GramMatrix(\n{}\n)", gram_matrix_); }
+
+std::ostream& operator<<(std::ostream& os, const GramMatrix& gram_matrix) { return os << gram_matrix.to_string(); }
 
 }  // namespace lucid

@@ -36,6 +36,8 @@ struct FourierBarrierCertificateParameters {
   double b_norm = 0.0;      ///< Target norm for the barrier certificate
   double kappa = 1.0;       ///< Kappa parameter (?)
   int threads = 0;          ///< Number of threads to use. 0 means automatic detection
+
+  [[nodiscard]] std::string to_string() const;
 };
 
 /**
@@ -106,6 +108,8 @@ class FourierBarrierCertificate final : public BarrierCertificate {
   [[nodiscard]] const Vector& coefficients() const { return coefficients_; }
 
   [[nodiscard]] std::unique_ptr<BarrierCertificate> clone() const override;
+
+  [[nodiscard]] std::string to_string() const override;
 
  private:
   [[nodiscard]] double apply_impl(ConstVectorRef x) const override;

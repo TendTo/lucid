@@ -66,6 +66,8 @@ class KFold final : public CrossValidator {
   /** @checker{data, to be shuffled before being split into folds} */
   [[nodiscard]] bool shuffle() const { return shuffle_; }
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   [[nodiscard]] std::pair<SliceSelector, SliceSelector> compute_folds(ConstMatrixRef training_inputs) const override;
 

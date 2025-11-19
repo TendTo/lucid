@@ -134,17 +134,22 @@ void LbfgsTuner::tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
   gradient_estimator.set(Parameter::GRADIENT_OPTIMIZABLE, static_cast<Vector>(x_out));
 }
 
-std::ostream& operator<<(std::ostream& os, const LbfgsParameters& lbgs_parameters) {
-  return os << "LbfgsParameters( m( " << lbgs_parameters.m << " ) epsilon( " << lbgs_parameters.epsilon
-            << " ) epsilon_rel( " << lbgs_parameters.epsilon_rel << " ) past( " << lbgs_parameters.past << " ) delta( "
-            << lbgs_parameters.delta << " ) max_iterations( " << lbgs_parameters.max_iterations << " ) max_submin( "
-            << lbgs_parameters.max_submin << " ) max_linesearch( " << lbgs_parameters.max_linesearch << " ) min_step( "
-            << lbgs_parameters.min_step << " ) max_step( " << lbgs_parameters.max_step << " ) ftol( "
-            << lbgs_parameters.ftol << " ) wolfe( " << lbgs_parameters.wolfe << " ) )";
+std::string LbfgsParameters::to_string() const {
+  return fmt::format(
+      "LbfgsParameters( m( {} ) epsilon( {} ) epsilon_rel( {} ) past( {} ) delta( {} ) max_iterations( {} ) "
+      "max_submin( {} ) max_linesearch( {} ) min_step( {} ) max_step( {} ) ftol( {} ) wolfe( {} ) )",
+      m, epsilon, epsilon_rel, past, delta, max_iterations, max_submin, max_linesearch, min_step, max_step, ftol,
+      wolfe);
 }
 
-std::ostream& operator<<(std::ostream& os, const LbfgsTuner& tuner) {
-  return os << "LbfgsTuner( bounded( " << tuner.is_bounded() << " ) parameters( " << tuner.parameters() << " )";
+std::ostream& operator<<(std::ostream& os, const LbfgsParameters& lbgs_parameters) {
+  return os << lbgs_parameters.to_string();
 }
+
+std::string LbfgsTuner::to_string() const {
+  return fmt::format("LbfgsTuner( bounded( {} ) parameters( {} )", is_bounded(), parameters_.to_string());
+}
+
+std::ostream& operator<<(std::ostream& os, const LbfgsTuner& tuner) { return os << tuner.to_string(); }
 
 }  // namespace lucid

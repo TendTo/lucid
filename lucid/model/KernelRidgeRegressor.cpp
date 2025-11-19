@@ -200,10 +200,14 @@ double KernelRidgeRegressor::get_d(const Parameter parameter) const {
 const Vector& KernelRidgeRegressor::get_v(const Parameter parameter) const {
   return kernel_->get<const Vector&>(parameter);
 }
+
+std::string KernelRidgeRegressor::to_string() const {
+  return fmt::format("KernelRidgeRegressor( kernel( {} ) regularization_constant( {} ) )", kernel_->to_string(),
+                     regularization_constant_);
+}
+
 std::ostream& operator<<(std::ostream& os, const KernelRidgeRegressor& regressor) {
-  return os << "KernelRidgeRegressor( "
-            << "kernel( " << *regressor.kernel() << " ) "
-            << "regularization_constant( " << regressor.regularization_constant() << " ) )";
+  return os << regressor.to_string();
 }
 
 }  // namespace lucid

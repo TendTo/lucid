@@ -84,6 +84,9 @@ class CrossValidator {
    */
   [[nodiscard]] virtual Dimension num_folds(ConstMatrixRef training_inputs) const = 0;
 
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   /**
    * Fit the `estimator` using cross-validation on the provided `training_inputs` and `training_outputs` using the

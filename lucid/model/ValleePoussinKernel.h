@@ -49,6 +49,8 @@ class ValleePoussinKernel final : public Kernel {
 
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   Matrix apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const override;
 

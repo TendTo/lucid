@@ -184,6 +184,9 @@ class Estimator : public Parametrizable {
    */
   [[nodiscard]] virtual std::unique_ptr<Estimator> clone() const = 0;
 
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   /**
    * Concrete implementation of the @ref consolidate method.

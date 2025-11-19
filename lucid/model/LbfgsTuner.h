@@ -119,6 +119,8 @@ struct LbfgsParameters {
    * the \ref ftol parameter and smaller than \c 1.0.
    */
   Scalar wolfe{0.9};
+
+  [[nodiscard]] std::string to_string() const;
 };
 
 /**
@@ -160,6 +162,8 @@ class LbfgsTuner final : public Tuner {
   [[nodiscard]] bool is_bounded() const;
   /** @getter{parameters, L-BGS optimisation} */
   [[nodiscard]] const LbfgsParameters& parameters() const { return parameters_; }
+
+  [[nodiscard]] std::string to_string() const override;
 
  private:
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,

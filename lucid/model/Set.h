@@ -273,6 +273,13 @@ class Set {
   virtual bool operator==(const Set& other) const;
   bool operator!=(const Set& other) const = default;
 
+  /**
+   * Get string representation of the set.
+   * @return string representation
+   */
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   /**
    * Scale the rectangular set by the given factor while keeping it inside the given bounds.

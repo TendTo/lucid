@@ -120,6 +120,13 @@ class Optimiser {
   /** @checker{configured to log the iis, solver} */
   [[nodiscard]] bool should_log_iis() const { return !iis_log_file_.empty(); }
 
+  /**
+   * Get string representation of the optimiser.
+   * @return string representation
+   */
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   virtual bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                                     const SolutionCallback& cb) const = 0;

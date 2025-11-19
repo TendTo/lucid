@@ -15,8 +15,6 @@
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 
-#include <iostream>
-
 #include "bindings/pylucid/doxygen_docstrings.h"
 #include "bindings/pylucid/pylucid.h"
 #include "lucid/util/error.h"

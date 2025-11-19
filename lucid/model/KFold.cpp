@@ -69,8 +69,10 @@ std::pair<CrossValidator::SliceSelector, CrossValidator::SliceSelector> KFold::c
   return {training_folds, validation_folds};
 }
 
-std::ostream& operator<<(std::ostream& os, const KFold& kf) {
-  return os << "KFold( num_folds( " << kf.num_folds() << " ), shuffle( " << (kf.shuffle() ? "true" : "false") << " ) )";
+std::string KFold::to_string() const {
+  return fmt::format("KFold( num_folds( {} ), shuffle( {} ) )", num_folds_, shuffle_ ? "true" : "false");
 }
+
+std::ostream& operator<<(std::ostream& os, const KFold& kf) { return os << kf.to_string(); }
 
 }  // namespace lucid

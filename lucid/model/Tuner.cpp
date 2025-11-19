@@ -30,11 +30,9 @@ void Tuner::tune_online(Estimator& estimator, ConstMatrixRef training_inputs,
   if (Stats::Scoped::top()) Stats::Scoped::top()->value().num_tuning++;
   tune_impl(estimator, training_inputs, training_outputs);
 }
-std::ostream& operator<<(std::ostream& os, const Tuner& tuner) {
-  if (const auto* casted = dynamic_cast<const MedianHeuristicTuner*>(&tuner)) return os << *casted;
-  if (const auto* casted = dynamic_cast<const GridSearchTuner*>(&tuner)) return os << *casted;
-  if (const auto* casted = dynamic_cast<const LbfgsTuner*>(&tuner)) return os << *casted;
-  return os << "Tuner( )";
-}
+
+std::string Tuner::to_string() const { return "Tuner( )"; }
+
+std::ostream& operator<<(std::ostream& os, const Tuner& tuner) { return os << tuner.to_string(); }
 
 }  // namespace lucid

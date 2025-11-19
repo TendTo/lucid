@@ -76,6 +76,8 @@ class ParameterValues {
   /** @equal_to{parameter values objects} */
   [[nodiscard]] bool operator==(const ParameterValues &o) const;
 
+  [[nodiscard]] std::string to_string() const;
+
  private:
   Parameter parameter_;         ///< Parameter the values are assigned to
   std::size_t size_;            ///< Number of values assigned to the parameter

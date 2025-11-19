@@ -189,7 +189,7 @@ struct CliArgs {
   std::string problem_log_file{""};
   std::string iis_log_file{""};
   double oversample_factor{2.0};
-  int num_oversample{-1};
+  int lattice_resolution{-1};
   double noise_scale{0.01};
   Solver solver{Solver::Gurobi};
   std::unique_ptr<RectSet> X_bounds;
@@ -216,9 +216,9 @@ bool test_overtaking(const CliArgs& args) {
 
   const Matrix f_xp_samples{feature_map(xp_samples)};
 
-  const int n_per_dim = args.num_oversample < 0
+  const int n_per_dim = args.lattice_resolution < 0
                             ? static_cast<int>(std::ceil((2 * args.num_frequencies + 1) * args.oversample_factor))
-                            : args.num_oversample;
+                            : args.lattice_resolution;
   LUCID_DEBUG_FMT("Number of samples per dimension: {}", n_per_dim);
   LUCID_ASSERT(n_per_dim > 2 * args.num_frequencies,
                "n_per_dim must be greater than nyquist (2 * num_freq_per_dim + 1)");
@@ -331,9 +331,9 @@ bool pipeline(const CliArgs& args) {
 
   const Matrix f_xp_samples{feature_map(xp_samples)};
 
-  const int n_per_dim = args.num_oversample < 0
+  const int n_per_dim = args.lattice_resolution < 0
                             ? static_cast<int>(std::ceil((2 * args.num_frequencies + 1) * args.oversample_factor))
-                            : args.num_oversample;
+                            : args.lattice_resolution;
   LUCID_DEBUG_FMT("Number of samples per dimension: {}", n_per_dim);
   LUCID_ASSERT(n_per_dim > 2 * args.num_frequencies,
                "n_per_dim must be greater than nyquist (2 * num_freq_per_dim + 1)");
@@ -417,7 +417,7 @@ int main(const int argc, char* argv[]) {
             .verify = true,
             .problem_log_file = log_file,
             .iis_log_file = "iis.ilp",
-            .num_oversample = 704,
+            .lattice_resolution = 704,
             .noise_scale = 0.01,
             .solver = solver,
             .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-1, 1}}),
@@ -441,7 +441,7 @@ int main(const int argc, char* argv[]) {
                    .problem_log_file = log_file,
                    .iis_log_file = "iis.ilp",
                    .oversample_factor = 2.0,
-                   .num_oversample = 150,
+                   .lattice_resolution = 150,
                    .noise_scale = 0.01,
                    .solver = solver,
                    .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-2, 2}, {-2, 2}}),

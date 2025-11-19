@@ -64,6 +64,8 @@ class MultiSet final : public Set {
 
   [[nodiscard]] std::unique_ptr<Set> to_rect_set() const override;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
                                                         bool relative_to_bounds) const override;

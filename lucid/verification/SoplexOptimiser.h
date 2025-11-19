@@ -20,6 +20,8 @@ class SoplexOptimiser final : public Optimiser {
  public:
   using Optimiser::Optimiser;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                             const SolutionCallback& cb) const override;

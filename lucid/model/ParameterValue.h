@@ -47,26 +47,28 @@ class ParameterValue {
   /** @getter{parameter, parameter value} */
   [[nodiscard]] Parameter parameter() const { return parameter_; }
   /** @getter{value, parameter value} */
-  [[nodiscard]] const ParameterValueType &value() const { return value_; }
+  [[nodiscard]] const ParameterValueType& value() const { return value_; }
   /**
    * Get the value of this parameter.
    * @tparam T type of the value to retrieve
    * @return value of the parameter
    */
   template <IsAnyOf<int, double, Vector> T>
-  [[nodiscard]] const T &get() const {
+  [[nodiscard]] const T& get() const {
     return std::get<T>(value_);
   }
 
   /** @equal_to{parameter value objects} */
-  [[nodiscard]] bool operator==(const ParameterValue &o) const;
+  [[nodiscard]] bool operator==(const ParameterValue& o) const;
+
+  [[nodiscard]] std::string to_string() const;
 
  private:
   Parameter parameter_;       ///< Parameter associated with the value
   ParameterValueType value_;  ///< Value assigned to the parameter
 };
 
-std::ostream &operator<<(std::ostream &os, const ParameterValue &parameter_value);
+std::ostream& operator<<(std::ostream& os, const ParameterValue& parameter_value);
 
 }  // namespace lucid
 

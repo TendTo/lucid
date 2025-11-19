@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <numbers>
+#include <ostream>
 #include <utility>
 
 #include "lucid/util/IndexIterator.h"
@@ -173,5 +174,7 @@ RectSet TruncatedFourierFeatureMap::get_periodic_set() const { LUCID_NOT_IMPLEME
 std::unique_ptr<FeatureMap> TruncatedFourierFeatureMap::clone() const {
   return std::make_unique<TruncatedFourierFeatureMap>(*this);
 }
+
+std::ostream& operator<<(std::ostream& os, const TruncatedFourierFeatureMap& map) { return os << map.to_string(); }
 
 }  // namespace lucid

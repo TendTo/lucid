@@ -73,6 +73,8 @@ class MontecarloSimulation {
       const Set& X_bounds, const Set& X_init, const Set& X_unsafe,
       const std::function<Vector(ConstVectorRef)>& system_dynamics, std::size_t time_horizon,
       double confidence_level = 0.9, Dimension num_samples = 1000) const;
+
+  [[nodiscard]] std::string to_string() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const MontecarloSimulation& sim);

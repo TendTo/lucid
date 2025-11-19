@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <iosfwd>
 #include <memory>
 
 #include "lucid/lib/eigen.h"
@@ -170,6 +171,8 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   Scalar captured_probability_;        ///< Probability captured by the Fourier expansion. NaN if not computed
   Vector periodic_coefficients_;       ///< Coefficient to convert from the truncated Fourier basis to the periodic one
 };
+
+std::ostream& operator<<(std::ostream& os, const TruncatedFourierFeatureMap& map);
 
 }  // namespace lucid
 

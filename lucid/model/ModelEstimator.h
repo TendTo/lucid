@@ -31,6 +31,8 @@ class ModelEstimator final : public Estimator {
 
   [[nodiscard]] double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   Estimator& consolidate_impl(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
                               Requests requests) override;

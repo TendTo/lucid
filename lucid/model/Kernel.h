@@ -90,6 +90,13 @@ class Kernel : public Parametrizable {
    */
   [[nodiscard]] virtual std::unique_ptr<Kernel> clone() const = 0;
 
+  /**
+   * Get string representation of the kernel.
+   * @return string representation
+   */
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   /**
    * Compute the kernel function on @x1 and @x2, both being matrices of row vectors in @XsubRd,

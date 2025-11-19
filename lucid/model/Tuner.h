@@ -49,6 +49,9 @@ class Tuner {
    */
   void tune_online(Estimator &estimator, ConstMatrixRef training_inputs, const OutputComputer &training_outputs) const;
 
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   /**
    * Optimise the kernel hyperparameters.

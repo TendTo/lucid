@@ -50,6 +50,8 @@ class GurobiOptimiser final : public Optimiser {
    * @return pair of vectors (lower_bounds, upper_bounds) for each dimension
    */
   static std::pair<Vector, Vector> bounding_box(ConstMatrixRef A, ConstVectorRef b);
+
+  [[nodiscard]] std::string to_string() const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const GurobiOptimiser& optimiser);

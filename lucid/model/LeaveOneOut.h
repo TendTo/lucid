@@ -59,6 +59,8 @@ class LeaveOneOut final : public CrossValidator {
    */
   [[nodiscard]] Dimension num_folds(ConstMatrixRef training_inputs) const override { return training_inputs.rows(); }
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   [[nodiscard]] std::pair<SliceSelector, SliceSelector> compute_folds(ConstMatrixRef training_inputs) const override;
 };

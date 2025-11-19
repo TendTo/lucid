@@ -42,6 +42,8 @@ class AlglibOptimiser final : public Optimiser {
 
   static std::pair<Vector, Vector> bounding_box(ConstMatrixRef A, ConstVectorRef b);
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                             const SolutionCallback& cb) const override;

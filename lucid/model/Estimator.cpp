@@ -45,9 +45,8 @@ Estimator& Estimator::fit_online(ConstMatrixRef training_inputs, const OutputCom
   return *this;
 }
 
-std::ostream& operator<<(std::ostream& os, const Estimator& estimator) {
-  if (const auto* casted = dynamic_cast<const KernelRidgeRegressor*>(&estimator)) return os << *casted;
-  return os << "Estimator( )";
-}
+std::string Estimator::to_string() const { return "Estimator( )"; }
+
+std::ostream& operator<<(std::ostream& os, const Estimator& estimator) { return os << estimator.to_string(); }
 
 }  // namespace lucid

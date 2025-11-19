@@ -78,13 +78,8 @@ bool Set::operator==(const Set& other) const { return this == &other; }
 
 std::unique_ptr<Set> Set::scale_wrapped_impl(ConstVectorRef, const RectSet&, bool) const { LUCID_NOT_IMPLEMENTED(); }
 
-std::ostream& operator<<(std::ostream& os, const Set& set) {
-  if (const auto* casted_set = dynamic_cast<const RectSet*>(&set)) return os << *casted_set;
-  if (const auto* casted_set = dynamic_cast<const MultiSet*>(&set)) return os << *casted_set;
-  if (const auto* casted_set = dynamic_cast<const SphereSet*>(&set)) return os << *casted_set;
-  if (const auto* casted_set = dynamic_cast<const PolytopeSet*>(&set)) return os << *casted_set;
-  if (const auto* casted_set = dynamic_cast<const EllipseSet*>(&set)) return os << *casted_set;
-  return os << "Set( )";
-}
+std::string Set::to_string() const { return "Set( )"; }
+
+std::ostream& operator<<(std::ostream& os, const Set& set) { return os << set.to_string(); }
 
 }  // namespace lucid

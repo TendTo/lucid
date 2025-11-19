@@ -173,8 +173,8 @@ Matrix PolytopeSet::lattice(const VectorI& points_per_dim, const bool endpoint) 
 
 void PolytopeSet::scale(const Scalar factor) { b_ *= factor; }
 
-std::ostream& operator<<(std::ostream& os, const PolytopeSet& set) {
-  return os << fmt::format("PolytopeSet( A( {} ) b( {} ) )", set.A(), set.b());
-}
+std::string PolytopeSet::to_string() const { return fmt::format("PolytopeSet( A( {} ) b( {} ) )", A_, b_); }
+
+std::ostream& operator<<(std::ostream& os, const PolytopeSet& set) { return os << set.to_string(); }
 
 }  // namespace lucid

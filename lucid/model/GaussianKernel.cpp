@@ -134,11 +134,11 @@ const Vector& GaussianKernel::get_v(const Parameter parameter) const {
   }
 }
 
-std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel) {
-  return os << "GaussianKernel( "
-            << "sigma_l( " << (kernel.is_isotropic() ? Vector{kernel.sigma_l().head<1>()} : kernel.sigma_l()) << " ) "
-            << "sigma_f( " << kernel.sigma_f() << " ) "
-            << "isotropic( " << kernel.is_isotropic() << " ) )";
+std::string GaussianKernel::to_string() const {
+  return fmt::format("GaussianKernel( sigma_l( {} ) sigma_f( {} ) isotropic( {} ) )",
+                     is_isotropic_ ? Vector{sigma_l_.head<1>()} : sigma_l_, sigma_f_, is_isotropic_);
 }
+
+std::ostream& operator<<(std::ostream& os, const GaussianKernel& kernel) { return os << kernel.to_string(); }
 
 }  // namespace lucid

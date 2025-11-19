@@ -241,8 +241,10 @@ Matrix RectSet::sample(const Index num_samples) const {
   return samples;
 }
 
-std::ostream& operator<<(std::ostream& os, const RectSet& set) {
-  return os << fmt::format("RectSet( lb( [{}] ) ub( [{}] ) )", set.lower_bound(), set.upper_bound());
+std::string RectSet::to_string() const {
+  return fmt::format("RectSet( lb( [{}] ) ub( [{}] ) )", lb_, ub_);
 }
+
+std::ostream& operator<<(std::ostream& os, const RectSet& set) { return os << set.to_string(); }
 
 }  // namespace lucid

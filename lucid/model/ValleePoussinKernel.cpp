@@ -7,7 +7,6 @@
  */
 #include "lucid/model/ValleePoussinKernel.h"
 
-#include <iostream>
 #include <ostream>
 
 #include "lucid/util/error.h"
@@ -70,10 +69,10 @@ Matrix ValleePoussinKernel::apply_impl(ConstMatrixRef x1, [[maybe_unused]] Const
   return coeff * prod;
 }
 
-std::ostream& operator<<(std::ostream& os, const ValleePoussinKernel& kernel) {
-  return os << "ValleePoussinKernel( "
-            << "a( " << kernel.a() << " ) "
-            << "b( " << kernel.b() << " ) )";
+std::string ValleePoussinKernel::to_string() const {
+  return fmt::format("ValleePoussinKernel( a( {} ) b( {} ) )", a_, b_);
 }
+
+std::ostream& operator<<(std::ostream& os, const ValleePoussinKernel& kernel) { return os << kernel.to_string(); }
 
 }  // namespace lucid

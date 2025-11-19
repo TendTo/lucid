@@ -71,11 +71,11 @@ std::unique_ptr<FeatureMap> LogTruncatedFourierFeatureMap::clone() const {
   return std::make_unique<LogTruncatedFourierFeatureMap>(*this);
 }
 
-std::ostream& operator<<(std::ostream& os, const LogTruncatedFourierFeatureMap& f) {
-  return os << "LogTruncatedFourierFeatureMap( "
-            << "num_frequencies( " << f.num_frequencies() << " ) "
-            << "dimension( " << f.dimension() << " ) "
-            << "weights( " << f.weights() << " ) )";
+std::string LogTruncatedFourierFeatureMap::to_string() const {
+  return fmt::format("LogTruncatedFourierFeatureMap( num_frequencies( {} ) dimension( {} ) weights( {} ) )",
+                     num_frequencies(), dimension(), weights_);
 }
+
+std::ostream& operator<<(std::ostream& os, const LogTruncatedFourierFeatureMap& f) { return os << f.to_string(); }
 
 }  // namespace lucid

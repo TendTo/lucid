@@ -49,6 +49,8 @@ class HighsOptimiser final : public Optimiser {
                            Dimension num_frequency_samples_per_dim, Dimension original_dim,
                            const SolutionCallback& cb) const;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
                                             const SolutionCallback& cb) const override;

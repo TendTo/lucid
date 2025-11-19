@@ -83,6 +83,9 @@ class BarrierCertificate {
    */
   [[nodiscard]] virtual std::unique_ptr<BarrierCertificate> clone() const = 0;
 
+  /** @to_string */
+  [[nodiscard]] virtual std::string to_string() const;
+
  protected:
   /**
    * Concrete implementation of @ref operator()().

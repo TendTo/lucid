@@ -58,6 +58,8 @@ std::pair<double, double> MontecarloSimulation::safety_probability(
   return {std::max(sat_prob_mc - err, 0.0), std::min(sat_prob_mc + err, 1.0)};
 }
 
-std::ostream& operator<<(std::ostream& os, const MontecarloSimulation&) { return os << "MontecarloSimulation( )"; }
+std::string MontecarloSimulation::to_string() const { return "MontecarloSimulation( )"; }
+
+std::ostream& operator<<(std::ostream& os, const MontecarloSimulation& sim) { return os << sim.to_string(); }
 
 }  // namespace lucid

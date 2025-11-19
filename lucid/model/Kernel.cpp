@@ -23,10 +23,8 @@ Matrix Kernel::operator()(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matr
   return apply_impl(x1, x2, gradient);
 }
 
-std::ostream& operator<<(std::ostream& os, const Kernel& kernel) {
-  if (const auto* casted = dynamic_cast<const GaussianKernel*>(&kernel)) return os << *casted;
-  if (const auto* casted = dynamic_cast<const ValleePoussinKernel*>(&kernel)) return os << *casted;
-  return os << "Kernel( )";
-}
+std::string Kernel::to_string() const { return "Kernel( )"; }
+
+std::ostream& operator<<(std::ostream& os, const Kernel& kernel) { return os << kernel.to_string(); }
 
 }  // namespace lucid

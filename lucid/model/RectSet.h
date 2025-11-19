@@ -172,6 +172,8 @@ class RectSet final : public Set {
    */
   operator Matrix() const;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
                                                         bool relative_to_bounds) const override;

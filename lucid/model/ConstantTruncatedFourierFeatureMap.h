@@ -62,6 +62,8 @@ class ConstantTruncatedFourierFeatureMap final : public TruncatedFourierFeatureM
   [[nodiscard]] RectSet get_periodic_set() const override;
 
   [[nodiscard]] std::unique_ptr<FeatureMap> clone() const override;
+
+  [[nodiscard]] std::string to_string() const override;
 };
 
 std::ostream& operator<<(std::ostream& os, const ConstantTruncatedFourierFeatureMap& f);

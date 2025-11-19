@@ -63,6 +63,8 @@ class PolytopeSet final : public Set {
   [[nodiscard]] const Vector& b() const { return b_; }
   [[nodiscard]] const std::pair<Vector, Vector>& bounding_box() const;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   /**
    * Compute bounding box of the polytope using linear programming.

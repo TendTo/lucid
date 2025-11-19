@@ -251,9 +251,10 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
 }
 #endif  // LUCID_SOPLEX_BUILD
 
-std::ostream& operator<<(std::ostream& os, const SoplexOptimiser& optimiser) {
-  return os << "SoplexOptimiser( problem_log_file( " << optimiser.problem_log_file() << " ) iis_log_file( "
-            << optimiser.iis_log_file() << " ) )";
+std::string SoplexOptimiser::to_string() const {
+  return fmt::format("SoplexOptimiser(problem_log_file( {} ) iis_log_file( {} ) )", problem_log_file_, iis_log_file_);
 }
+
+std::ostream& operator<<(std::ostream& os, const SoplexOptimiser& optimiser) { return os << optimiser.to_string(); }
 
 }  // namespace lucid

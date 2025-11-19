@@ -7,8 +7,8 @@
  */
 #include "lucid/model/SphereSet.h"
 
-#include <iostream>
 #include <limits>
+#include <ostream>
 #include <vector>
 
 #include "lucid/model/RectSet.h"
@@ -72,8 +72,10 @@ std::unique_ptr<Set> SphereSet::to_rect_set() const {
   return std::make_unique<RectSet>(general_lower_bound(), general_upper_bound());
 }
 
-std::ostream& operator<<(std::ostream& os, const SphereSet& set) {
-  return os << fmt::format("SphereSet( center( [{}] ) radius( {} ) )", set.center(), set.radius());
+std::string SphereSet::to_string() const {
+  return fmt::format("SphereSet( center( [{}] ) radius( {} ) )", center_, radius_);
 }
+
+std::ostream& operator<<(std::ostream& os, const SphereSet& set) { return os << set.to_string(); }
 
 }  // namespace lucid

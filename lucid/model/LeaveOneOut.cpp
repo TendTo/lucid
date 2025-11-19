@@ -34,6 +34,8 @@ std::pair<LeaveOneOut::SliceSelector, LeaveOneOut::SliceSelector> LeaveOneOut::c
   return {train_folds, val_folds};
 }
 
-std::ostream& operator<<(std::ostream& os, const LeaveOneOut& /*lo*/) { return os << "LeaveOneOut( )"; }
+std::string LeaveOneOut::to_string() const { return "LeaveOneOut( )"; }
+
+std::ostream& operator<<(std::ostream& os, const LeaveOneOut& lo) { return os << lo.to_string(); }
 
 }  // namespace lucid

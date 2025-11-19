@@ -56,6 +56,8 @@ class EllipseSet final : public Set {
 
   [[nodiscard]] std::unique_ptr<Set> to_rect_set() const override;
 
+  [[nodiscard]] std::string to_string() const override;
+
  private:
   Vector center_;  ///< Center of the ellipsoid. Determines the dimension of the ellipsoid set
   Vector radii_;   ///< Semi-axes (radii) for each dimension
