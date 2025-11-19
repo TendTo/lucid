@@ -82,10 +82,16 @@ def generate_stub_files(out_dir: str, _pylucid_pyi: str):
             .replace(
                 b"feature_map_type: type",
                 b"feature_map_type: type[TruncatedFourierFeatureMap]",
-            ).replace(
+            )
+            .replace(
                 b"def to_rect_set(self: set) -> ...:",
                 b"def to_rect_set(self) -> RectSet:",
             )
+            .replace(
+                b'typing.Annotated[numpy.typing.NDArray[numpy.float64], "[m, n]", "flags.c_contiguous"]', b"NMatrix"
+            )
+            .replace(b'typing.Annotated[numpy.typing.NDArray[numpy.float64], "[m, n]"]', b"NMatrix")
+            .replace(b'typing.Annotated[numpy.typing.NDArray[numpy.float64], "[1, n]"]', b"NVector")
         )
 
     with open(_pylucid_pyi, "wb") as f:
