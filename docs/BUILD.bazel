@@ -83,6 +83,7 @@ doxygen(
         "hash{2}=Compute the hash of this \\1.^^^^\\2^^",
         "addref{1}=Method called by an intrusive_ptr every time a new pointer to this \\1 is created.^^^^It increases the number of references.^^",
         "release{1}=Method called by an intrusive_ptr every time a pointer to this \\1 is deleted.^^^^It decreases the number of references and deletes this object if the reference counter reaches 0.^^",
+        "to_string=Obtain the string representation of this object.^^@return string representation of this object^^",
         # Mermaid support in docstrings
         "mermaid=^^<pre class='mermaid'>",
         "endmermaid=</pre>^^",
