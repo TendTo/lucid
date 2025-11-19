@@ -48,7 +48,7 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        "num_oversample": [704],
+        "lattice_resolution": [704],
     }
 
     param_combinations = list(itertools.product(*grid.values()))
