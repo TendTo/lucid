@@ -111,6 +111,11 @@ double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMat
   const int d = static_cast<int>(X_periodic.dimension());
   const int n_tilde = lucid::pow(Q_tilde, d);
 
+  if (filtered_lattice.rows() == 0) {
+    LUCID_WARN("No lattice points to evaluate in PSO");
+    return 0;
+  }
+
   PsoOptimiser optimiser{n_tilde, Q_tilde, f_max, filtered_lattice};
   Matrix matrix_bounds{2, d};
   matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
@@ -156,7 +161,6 @@ double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectS
 
   // Only keep the lattice points that are not in X_periodic_rescaled
   const auto lattice_wo_x{lattice(X_periodic_rescaled->exclude_mask(lattice), Eigen::placeholders::all)};
-  LUCID_CHECK_ARGUMENT_CMP(lattice_wo_x.rows(), >, 0);  // Ensure there are points to evaluate
 
   LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
 
@@ -221,6 +225,8 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
                                            const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
                                            const Set& X_init, const Set& X_unsafe,
                                            const FourierBarrierCertificateParameters& parameters) {
+  LUCID_TRACE_FMT("({}, {}, {}, {}, {}, {}, {})", optimiser, Q_tilde, feature_map, X_bounds, X_init, X_unsafe,
+                  parameters);
   const int n = static_cast<int>(X_bounds.dimension());
   const int f_max = feature_map.num_frequencies() - 1;
   LUCID_CHECK_ARGUMENT_CMP(f_max, <=, 2 * Q_tilde + 1);
@@ -240,13 +246,9 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const double A_x0 = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
   const double A_xu = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
 
-  LUCID_INFO_FMT("A^{{X_tilde \\ X}}_{{N_tilde}}: {}", A_x);
-  LUCID_INFO_FMT("A^{{X_tilde \\ X_init}}_{{N_tilde}}: {}", A_x0);
-  LUCID_INFO_FMT("A^{{X_tilde \\ X_unsafe}}_{{N_tilde}}: {}", A_xu);
-
-  LUCID_CHECK_ARGUMENT_CMP(A_x, >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(A_x0, >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(A_xu, >, 0);
+  LUCID_DEBUG_FMT("A_x: {}", A_x);
+  LUCID_DEBUG_FMT("A_x0: {}", A_x0);
+  LUCID_DEBUG_FMT("A_xu: {}", A_xu);
 
   // Apply the feature map to all the lattice points
   const Matrix lattice = X_tilde.lattice(Q_tilde, false);
@@ -258,9 +260,6 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const Matrix dn_lattice = fp_lattice - f_lattice;
 
   LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
-  LUCID_DEBUG_FMT("X_bounds: {}", X_bounds);
-  LUCID_DEBUG_FMT("X_init: {}", X_init);
-  LUCID_DEBUG_FMT("X_unsafe: {}", X_unsafe);
 
   const std::unique_ptr<Set> X_bounds_rescaled{X_bounds.scale_wrapped(parameters.increase, X_tilde, true)};
   const std::unique_ptr<Set> X_init_rescaled{X_init.to_rect_set()->scale_wrapped(parameters.increase, X_tilde, true)};
@@ -275,12 +274,6 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const auto [x_include_mask, x_exclude_mask] = X_bounds_rescaled->include_exclude_masks(lattice);
   const auto [x0_include_mask, x0_exclude_mask] = X_init_rescaled->include_exclude_masks(lattice);
   const auto [xu_include_mask, xu_exclude_mask] = X_unsafe_rescaled->include_exclude_masks(lattice);
-  LUCID_CHECK_ARGUMENT_CMP(x_include_mask.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(x_exclude_mask.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(x0_include_mask.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(x0_exclude_mask.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(xu_include_mask.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_CMP(xu_exclude_mask.size(), >, 0);
 
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(Q_tilde), -n / 2.0);
   LUCID_DEBUG_FMT("C = (1 - (2 f_max) / Q_tilde)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",
