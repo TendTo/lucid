@@ -403,7 +403,7 @@ void init_model(py::module_ &m) {
           },
           py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
       .def("__len__", [](const MultiSet &self) { return self.sets().size(); })
-      .def("__getitem__", &MultiSet::operator[], py::arg("index"));
+      .def("__getitem__", &MultiSet::operator[], py::arg("index"), py::return_value_policy::reference_internal);
 
   /**************************** Forward declarations ****************************/
   py::class_<Estimator, PyEstimator, Parametrizable> estimator(m, "Estimator");

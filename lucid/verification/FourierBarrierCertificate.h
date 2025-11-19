@@ -60,6 +60,11 @@ class FourierBarrierCertificate final : public BarrierCertificate {
  public:
   using BarrierCertificate::BarrierCertificate;
 
+  static double compute_A(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const Set& X,
+                          const Matrix& lattice, const FourierBarrierCertificateParameters& parameters);
+  static double compute_A(int Q_tilde, int f_max, const RectSet& X_tilde, const Set& X,
+                          const FourierBarrierCertificateParameters& parameters);
+
   /** @overload **/
   bool synthesize(int Q_tilde, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
                   const RectSet& X_bounds, const Set& X_init, const Set& X_unsafe,

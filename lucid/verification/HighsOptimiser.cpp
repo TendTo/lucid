@@ -82,7 +82,7 @@ class HighsLpProblem {
     requires(Op == '<' || Op == '>' || Op == '=')
   void add_constraint(std::span<const double> coeffs, const std::array<Dimension, N>& additional_vars,
                       const std::array<double, N>& additional_coeffs, const double rhs, std::string name = "") {
-    LUCID_ASSERT(coeffs.size() == model_.lp_.col_cost_.size() - 6,
+    LUCID_ASSERT(coeffs.size() == model_.lp_.col_cost_.size() - FourierBarrierSynthesisProblem::num_extra_vars,
                  "The number of coeffs must match the number of variables.");
     LUCID_ASSERT(coeffs.size() + additional_coeffs.size() <= model_.lp_.col_cost_.size(),
                  "The number of coeffs and additional coeffs must not exceed the tot number of variables.");
@@ -90,7 +90,7 @@ class HighsLpProblem {
                  "The number of coeffs and additional coeffs must not exceed the tot number of coefficients.");
 
     // Make sure the vars contain the original rkhs variables and the additional variables
-    const Dimension new_row_idx = model_.lp_.row_lower_.size();
+    const Dimension new_row_idx = static_cast<Dimension>(model_.lp_.row_lower_.size());
     LUCID_ASSERT(new_row_idx < A_.rows(),
                  "The number of constraints must not exceed the number of rows in the matrix.");
     for (std::size_t i = 0; i < coeffs.size(); i++) {
@@ -108,7 +108,7 @@ class HighsLpProblem {
     if (should_log_) model_.lp_.row_names_.emplace_back(std::move(name));
 #endif
 
-    const Dimension new_row_idx = model_.lp_.row_lower_.size();
+    const Dimension new_row_idx = static_cast<Dimension>(model_.lp_.row_lower_.size());
     LUCID_ASSERT(new_row_idx < A_.rows(),
                  "The number of constraints must not exceed the number of rows in the matrix.");
 
@@ -128,8 +128,9 @@ class HighsLpProblem {
     requires(Op == '<' || Op == '>' || Op == '=')
   void add_constraint(const double* obj_coeffs_ptr, std::array<Dimension, N> additional_vars,
                       std::array<double, N> additional_coeffs, const double rhs, std::string name = "") {
-    return add_constraint<Op>(std::span(obj_coeffs_ptr, model_.lp_.col_cost_.size() - 6), additional_vars,
-                              additional_coeffs, rhs, std::move(name));
+    return add_constraint<Op>(
+        std::span(obj_coeffs_ptr, model_.lp_.col_cost_.size() - FourierBarrierSynthesisProblem::num_extra_vars),
+        additional_vars, additional_coeffs, rhs, std::move(name));
   }
 
   void set_bounds(const Dimension var, const double lb = neg_infinity, const double ub = infinity) {
@@ -141,6 +142,21 @@ class HighsLpProblem {
     LUCID_ASSERT(lb <= ub, "Lower bound must be less than or equal to upper bound.");
     model_.lp_.col_lower_[var] = lb;
     model_.lp_.col_upper_[var] = ub;
+  }
+
+  template <char Op>
+    requires(Op == '<' || Op == '>')
+  void add_min_max_bounds(ConstMatrixRef lattice, const std::vector<Index>& mask, const Dimension var,
+                          [[maybe_unused]] const std::string& set_name) {
+    LUCID_DEBUG_FMT(
+        "Xn/{} lattice constraints - {} constraints\n"
+        "for all x in Xn/{}: [ B(x) {}= {}_Xn/{} ]",
+        set_name, mask.size(), set_name, Op, Op == '<' ? "max" : "min", set_name);
+    for (Index row : mask) {
+      add_constraint<Op>(
+          lattice.row(row).data(), std::array{var}, std::array{-1.0}, 0.0,
+          should_log_ ? fmt::format("B(Xn/{0})>={1}_Xn/{0}[{2}]", set_name, Op == '<' ? "max" : "min", row) : "");
+    }
   }
 
   template <std::size_t N>
@@ -180,239 +196,60 @@ class HighsLpProblem {
   Eigen::SparseMatrix<double, Eigen::ColMajor> A_;
   HighsModel model_;
   const bool should_log_ = true;
-};  // namespace
+};
 }  // namespace
 
-bool HighsOptimiser::solve(ConstMatrixRef f0_lattice, ConstMatrixRef fu_lattice, ConstMatrixRef phi_mat,
-                           ConstMatrixRef w_mat, const Dimension rkhs_dim, const Dimension num_frequencies_per_dim,
-                           const Dimension num_frequency_samples_per_dim, const Dimension original_dim,
-                           const SolutionCallback& cb) const {
-  TimerGuard tg{Stats::Scoped::top() ? &Stats::Scoped::top()->value().optimiser_timer : nullptr};
-  static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
-  static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
-  LUCID_CHECK_ARGUMENT_CMP(num_frequency_samples_per_dim, >, 0);
-  constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
-  constexpr double max_num = std::numeric_limits<double>::infinity();
-  constexpr double min_eta = 0;
-  const double C =
-      std::pow(1 - C_coeff_ * 2.0 * num_frequencies_per_dim / num_frequency_samples_per_dim, -original_dim / 2.0);
-  const Dimension num_vars = rkhs_dim + 2 + 4;  // b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta
-  const Dimension num_constraints = 1 + 2 * (phi_mat.rows() + f0_lattice.rows() + fu_lattice.rows() + phi_mat.rows());
-  // What if we make C as big as it can be?
-  // const double C = pow((1 - 2.0 * num_freq_per_dim / (2.0 * num_freq_per_dim + 1)), -original_dim / 2.0);
-  LUCID_DEBUG_FMT("C: {}", C);
-
-  if (Stats::Scoped::top()) {
-    Stats::Scoped::top()->value().num_variables = num_vars;
-    Stats::Scoped::top()->value().num_constraints = num_constraints;
-  }
-
-  HighsLpProblem lp_problem{num_vars, num_constraints, should_log_problem()};
-
-  // Specify constraints
-  // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
-  // Variables [b_1, ..., b_nBasis_x, c, eta, ...
-  // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
-  // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
-  const Dimension c = num_vars - 6;         // Index of the c variable
-  const Dimension eta = num_vars - 5;       // Index of the eta variable
-  const Dimension minX0 = num_vars - 4;     // Index of the minX0 variable
-  const Dimension maxXU = num_vars - 3;     // Index of the maxXU variable
-  const Dimension maxXX = num_vars - 2;     // Index of the maxXX variable
-  const Dimension minDelta = num_vars - 1;  // Index of the minDelta variable
-
-#ifndef NLOG
-  if (should_log_problem()) {
-    lp_problem.set_var_name(c, "c");
-    lp_problem.set_var_name(eta, "eta");
-    lp_problem.set_var_name(minX0, "minX0");
-    lp_problem.set_var_name(maxXU, "maxXU");
-    lp_problem.set_var_name(maxXX, "maxXX");
-    lp_problem.set_var_name(minDelta, "minDelta");
-  }
-#endif
-
-  // Variables related to the feature map
-  for (int var = 0; var < rkhs_dim; ++var) lp_problem.set_bounds(var);
-  lp_problem.set_bounds(c, 0, max_num);
-  lp_problem.set_bounds(eta, min_eta, gamma_ - min_num);  // To enforce a strict inequality
-  lp_problem.set_bounds(minDelta);
-  for (const Dimension var : std::array{minX0, maxXU, maxXX}) {
-    lp_problem.set_bounds(var, 0, max_num);
-  }
-
-  const double fctr1 = 2 / (C + 1);
-  const double fctr2 = (C - 1) / (C + 1);
-  const double unsafe_rhs = fctr1 * gamma_;
-  const double kushner_rhs = -fctr1 * epsilon_ * b_norm_ * std::abs(sigma_f_);
-
-  // To obtain only positive safety probabilities, restrict
-  // eta + c*T in [0, gamma]
-  // 1) eta + c*T >= 0 by design
-  // 2) eta + c*T <= gamma
-  LUCID_DEBUG("Restricting safety probabilities to be positive");
-  lp_problem.add_constraint<'<'>(std::array{eta, c}, std::array{1.0, static_cast<double>(T_)}, gamma_,
-                                 "eta+c*T<=gamma");
-
-  LUCID_DEBUG_FMT(
-      "Positive barrier - {} constraints\n"
-      "for all x: [ B(x) >= hatxi ] AND [ B(x) <= maxXX ]\n"
-      "hatxi = (C - 1) / (C + 1) * maxXX",
-      phi_mat.rows() * 2);
-  for (Index row = 0; row < phi_mat.rows(); ++row) {
-    // B(x) >= hatxi
-    lp_problem.add_constraint<'>'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{-fctr2}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)>=hatxi[{}]", row));
-    // B(x) <= maxXX
-    lp_problem.add_constraint<'<'>(phi_mat.row(row).data(), std::array{maxXX}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)<=maxXX[{}]", row));
-  }
-
-  LUCID_DEBUG_FMT(
-      "Initial constraints - {} constraints\n"
-      "for all x_0: [ B(x_0) <= hateta ] AND [ B(x_0) >= minX0 ]\n"
-      "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0",
-      f0_lattice.rows() * 2);
-  for (Index row = 0; row < f0_lattice.rows(); ++row) {
-    // B(x_0) <= hateta
-    lp_problem.add_constraint<'<'>(f0_lattice.row(row).data(), std::array{eta, minX0}, std::array{-fctr1, -fctr2}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)<=hateta[{}]", row));
-    // B(x_0) >= minX0
-    lp_problem.add_constraint<'>'>(f0_lattice.row(row).data(), std::array{minX0}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)>=minX0[{}]", row));
-  }
-
-  LUCID_DEBUG_FMT(
-      "Unsafe constraints - {} constraints\n"
-      "for all x_u: [ B(x_u) >= hatgamma ] AND [ B(x_u) <= maxXU ]\n"
-      "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU",
-      fu_lattice.rows() * 2);
-  for (Index row = 0; row < fu_lattice.rows(); ++row) {
-    // B(x_u) >= hatgamma
-    lp_problem.add_constraint<'>'>(fu_lattice.row(row).data(), std::array{maxXU}, std::array{-fctr2}, unsafe_rhs,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)>=hatgamma[{}]", row));
-    // B(x_u) <= maxXU
-    lp_problem.add_constraint<'<'>(fu_lattice.row(row).data(), std::array{maxXU}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)<=maxXU[{}]", row));
-  }
-
-  LUCID_DEBUG_FMT(
-      "Kushner constraints (verification case) - {} constraints\n"
-      "for all x: [ B(xp) - B(x) <= hatDelta ] AND [ B(x) >= minDelta ]\n"
-      "hatDelta = 2 / (C + 1) * (c - epsilon*Bnorm*kappa_x) + (C - 1) / (C + 1) * minDelta",
-      phi_mat.rows() * 2);
-  const Matrix mult{w_mat - b_kappa_ * phi_mat};
-  for (Index row = 0; row < mult.rows(); ++row) {
-    // B(xp) - B(x) <= hatDelta
-    lp_problem.add_constraint<'<'>(mult.row(row).data(), std::array{c, minDelta}, std::array{-fctr1, -fctr2},
-                                   kushner_rhs,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)<=hatDelta[{}]", row));
-    // B(x) >= minDelta
-    lp_problem.add_constraint<'>'>(mult.row(row).data(), std::array{minDelta}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)>=minDelta[{}]", row));
-  }
-
-  // Objective function (cT + n)
-  lp_problem.set_min_objective(std::array{c, eta}, std::array{static_cast<double>(T_) / gamma_, 1.0 / gamma_});
-  lp_problem.consolidate();
-  LUCID_INFO("Optimizing");
-
-  Highs highs{};
-#ifdef LUCID_PYTHON_BUILD
-  highs.setCallback(interrupt_callback);
-  highs.startCallback(HighsCallbackType::kCallbackSimplexInterrupt);
-#endif
-  [[maybe_unused]] HighsStatus ret = highs.passModel(lp_problem.model());
-  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to pass the model to HiGHS");
-  ret = highs.setOptionValue("time_limit", 10000);
-  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the time limit option in HiGHS");
-  ret = highs.setOptionValue("primal_feasibility_tolerance", 1e-9);
-  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the primal feasibility tolerance option in HiGHS");
-  ret = highs.setOptionValue("log_to_console", LUCID_DEBUG_ENABLED);
-  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to set the log to console option in HiGHS");
-  for (const auto& [key, value] : options_) highs.setOptionValue(key, value);
-
-  if (!problem_log_file_.empty()) highs.writeModel(problem_log_file_);
-
-  // Solve the model
-  ret = highs.run();
-  LUCID_ASSERT(ret != HighsStatus::kError, "Failed to run the HiGHS model");
-
-  // Get the model status
-  const HighsModelStatus& model_status = highs.getModelStatus();
-  if (model_status != HighsModelStatus::kOptimal) {
-    LUCID_INFO_FMT("No solution found, optimization status = {}",
-                   static_cast<std::underlying_type_t<HighsModelStatus>>(model_status));
-    if (!iis_log_file_.empty()) {
-      HighsIis iis;
-      highs.getIis(iis);
-      iis.report(iis_log_file_, highs.getLp());
-    }
-    cb(false, 0, Vector{}, 0, 0, 0);
-    return false;
-  }
-
-  const HighsInfo& info = highs.getInfo();
-  LUCID_INFO_FMT("Solution found, objective = {}", info.objective_function_value);
-  LUCID_INFO_FMT("Satisfaction probability is {:.6f}%", (1 - info.objective_function_value) * 100);
-
-  const HighsSolution& sol = highs.getSolution();
-  const Vector solution{Vector::NullaryExpr(rkhs_dim, [&sol](const Index i) { return sol.col_value[i]; })};
-  double actual_norm = solution.norm();
-  LUCID_INFO_FMT("Actual norm: {}", actual_norm);
-  if (actual_norm > b_norm_) {
-    LUCID_WARN_FMT("Actual norm exceeds bound: {} > {} (diff: {})", actual_norm, b_norm_, actual_norm - b_norm_);
-  }
-
-  cb(true, info.objective_function_value, solution, sol.col_value[eta], sol.col_value[c], actual_norm);
-  return true;
-}
-
-bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
+bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& problem,
                                                           const SolutionCallback& cb) const {
   static_assert(Matrix::IsRowMajor, "Row major order is expected to avoid copy/eval");
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
-  const auto& [num_vars, num_constraints, fxn_lattice, dn_lattice, x_include_mask, x_exclude_mask, x0_include_mask,
-               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, C, b_kappa, eta_coeff, min_x0_coeff,
-               diff_sx0_coeff, gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff,
-               diff_d_sx_coeff, max_x_coeff, diff_sx_coeff, fctr1, fctr2, unsafe_rhs, kushner_rhs, A_x, A_x0, A_xu] =
-      params;
-  constexpr double min_num = 1e-8;  // Minimum variable value for numerical stability
+
   constexpr double max_num = std::numeric_limits<double>::infinity();
-  constexpr double min_eta = 0;
-
-  HighsLpProblem lp_problem{num_vars, num_constraints, should_log_problem()};
-
-  // Specify constraints
-  // Variables [b_1, ..., b_nBasis_x, c, eta, minX0, maxXU, maxXX, minDelta] in the verification case
-  // Variables [b_1, ..., b_nBasis_x, c, eta, ...
-  // SAT(x_1,u_1), ..., SAT(x_n_X,u1), SAT(x_1,u_n_USUpp), ..., SAT(x_n_X,u_n_USUpp), ...
-  // SATOR(x_1), ..., SATOR(x_n_X)] in the control case
-  const Dimension c = num_vars - 6;         // Index of the c variable
-  const Dimension eta = num_vars - 5;       // Index of the eta variable
-  const Dimension minX0 = num_vars - 4;     // Index of the minX0 variable
-  const Dimension maxXU = num_vars - 3;     // Index of the maxXU variable
-  const Dimension maxXX = num_vars - 2;     // Index of the maxXX variable
-  const Dimension minDelta = num_vars - 1;  // Index of the minDelta variable
+  constexpr Dimension num_special_vars = 10;  // Additional variables, e.g., c, eta, minX0, maxXU, maxXX, minDelta
+  const auto& [num_constraints, fxn_lattice, dn_lattice, x_include_mask, x_exclude_mask, x0_include_mask,
+               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, eta_coeff, min_x0_coeff, diff_sx0_coeff,
+               gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, diff_d_sx_coeff, max_x_coeff,
+               diff_sx_coeff] = problem;
 
 #ifndef NLOG
-  if (should_log_problem()) {
-    lp_problem.set_var_name(c, "c");
-    lp_problem.set_var_name(eta, "eta");
-    lp_problem.set_var_name(minX0, "minX0");
-    lp_problem.set_var_name(maxXU, "maxXU");
-    lp_problem.set_var_name(maxXX, "maxXX");
-    lp_problem.set_var_name(minDelta, "minDelta");
-  }
+  const bool should_log = should_log_problem();
+#else
+  constexpr bool should_log = false;
 #endif
 
+  HighsLpProblem lp_problem{static_cast<int>(fxn_lattice.cols() + num_special_vars), num_constraints,
+                            should_log_problem()};
+  std::array<Dimension, FourierBarrierSynthesisProblem::num_extra_vars> special_vars;
+  for (std::size_t i = 0; i < special_vars.size(); ++i) {
+    special_vars[i] = static_cast<Dimension>(fxn_lattice.cols() + i);
+  }
+  const auto [c, eta, min_x0, max_sx0, max_xu, min_sxu, max_x, min_sx, min_d, max_d_sx] = special_vars;
+
+  if (should_log) {
+    lp_problem.set_var_name(c, "c");
+    lp_problem.set_var_name(eta, "eta");
+    lp_problem.set_var_name(min_x0, "minX0");
+    lp_problem.set_var_name(max_sx0, "maxSX0");
+    lp_problem.set_var_name(max_xu, "maxXu");
+    lp_problem.set_var_name(min_sxu, "minSXu");
+    lp_problem.set_var_name(max_x, "maxX");
+    lp_problem.set_var_name(min_sx, "minSX");
+    lp_problem.set_var_name(min_d, "minDelta");
+    lp_problem.set_var_name(max_d_sx, "maxDelta_sX");
+  }
+
   // Variables related to the feature map
-  for (int var = 0; var < fx_lattice.cols(); ++var) lp_problem.set_bounds(var);
+  // -inf <= b_i <= inf
+  for (int var = 0; var < fxn_lattice.cols(); ++var) lp_problem.set_bounds(var);
+  // 0 <= c <= inf
   lp_problem.set_bounds(c, 0, max_num);
-  lp_problem.set_bounds(eta, min_eta, gamma - min_num);  // To enforce a strict inequality
-  lp_problem.set_bounds(minDelta);
-  for (const Dimension var : std::array{minX0, maxXU, maxXX}) {
-    lp_problem.set_bounds(var, 0, max_num);
+  // 0 <= eta < gamma | To enforce a strict inequality, we sub a small number from gamma
+  lp_problem.set_bounds(eta, 0, gamma - FourierBarrierSynthesisProblem::tolerance);  // To enforce a strict inequality
+  // 0 <= var <= inf
+  for (Dimension var : std::array{min_x0, max_xu, max_x}) lp_problem.set_bounds(var, 0, max_num);
+  // -inf <= var <= inf
+  for (Dimension var : std::array{min_d, max_sx0, min_sxu, min_sx, max_d_sx}) {
+    lp_problem.set_bounds(var);
   }
 
   // To obtain only positive safety probabilities, restrict
@@ -423,62 +260,73 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
   lp_problem.add_constraint<'<'>(std::array{eta, c}, std::array{1.0, static_cast<double>(T)}, gamma, "eta+c*T<=gamma");
 
   LUCID_DEBUG_FMT(
-      "Positive barrier - {} constraints\n"
-      "for all x: [ B(x) >= hatxi ] AND [ B(x) <= maxXX ]\n"
-      "hatxi = (C - 1) / (C + 1) * maxXX",
-      fx_lattice.rows() * 2);
-  for (Index row = 0; row < fx_lattice.rows(); ++row) {
-    // B(x) >= hatxi
-    lp_problem.add_constraint<'>'>(fx_lattice.row(row).data(), std::array{maxXX}, std::array{-fctr2}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)>=hatxi[{}]", row));
-    // B(x) <= maxXX
-    lp_problem.add_constraint<'<'>(fx_lattice.row(row).data(), std::array{maxXX}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)<=maxXX[{}]", row));
-  }
-
-  LUCID_DEBUG_FMT(
-      "Initial constraints - {} constraints\n"
-      "for all x_0: [ B(x_0) <= hateta ] AND [ B(x_0) >= minX0 ]\n"
-      "hateta = 2 / (C + 1) * eta + (C - 1) / (C + 1) * minX0",
-      fx0_lattice.rows() * 2);
-  for (Index row = 0; row < fx0_lattice.rows(); ++row) {
-    // B(x_0) <= hateta
-    lp_problem.add_constraint<'<'>(fx0_lattice.row(row).data(), std::array{eta, minX0}, std::array{-fctr1, -fctr2}, 0.0,
+      "X0 lattice constraints - {} constraints\n"
+      "for all x_0: [ B(x_0) >= min_X0] AND [ B(x_0) <= hateta ]\n"
+      "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - diff_sx0_coeff * max_sx0\n"
+      "hateta = {} * eta + {} * min_X0 - {} * max_sx0",
+      x0_include_mask.size() * 2, eta_coeff, min_x0_coeff, diff_sx0_coeff);
+  for (Index row : x0_include_mask) {
+    // B(x) >= min_x0
+    lp_problem.add_constraint<'>'>(fxn_lattice.row(row).data(), std::array{min_x0}, std::array{-1.0}, 0.0,
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)>=min_X0[{}]", row));
+    // B(x) <= hateta
+    lp_problem.add_constraint<'<'>(fxn_lattice.row(row).data(), std::array{eta, min_x0, max_sx0},
+                                   std::array{-eta_coeff, -min_x0_coeff, diff_sx0_coeff}, 0.0,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)<=hateta[{}]", row));
-    // B(x_0) >= minX0
-    lp_problem.add_constraint<'>'>(fx0_lattice.row(row).data(), std::array{minX0}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)>=minX0[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
-      "Unsafe constraints - {} constraints\n"
-      "for all x_u: [ B(x_u) >= hatgamma ] AND [ B(x_u) <= maxXU ]\n"
-      "hatgamma = 2 / (C + 1) * gamma + (C - 1) / (C + 1) * maxXU",
-      fxu_lattice.rows() * 2);
-  for (Index row = 0; row < fxu_lattice.rows(); ++row) {
+      "Xu lattice constraints - {} constraints\n"
+      "for all x_u: [ B(x_u) <= max_Xu ] AND [ B(x_u) >= hatgamma ] \n"
+      "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu - diff_sxu_coeff * min_sxu\n"
+      "hatgamma = {} + {} * max_Xu - {} * min_sxu",
+      xu_include_mask.size() * 2, gamma_coeff * gamma, max_xu_coeff, diff_sxu_coeff);
+  for (Index row : xu_include_mask) {
+    // B(x_u) <= max_Xu
+    lp_problem.add_constraint<'<'>(fxn_lattice.row(row).data(), std::array{max_xu}, std::array{-1.0}, 0.0,
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)<=max_Xu[{}]", row));
     // B(x_u) >= hatgamma
-    lp_problem.add_constraint<'>'>(fxu_lattice.row(row).data(), std::array{maxXU}, std::array{-fctr2}, unsafe_rhs,
+    lp_problem.add_constraint<'>'>(fxn_lattice.row(row).data(), std::array{max_xu, min_sxu},
+                                   std::array{-max_xu_coeff, diff_sxu_coeff}, gamma_coeff * gamma,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)>=hatgamma[{}]", row));
-    // B(x_u) <= maxXU
-    lp_problem.add_constraint<'<'>(fxu_lattice.row(row).data(), std::array{maxXU}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)<=maxXU[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
       "Kushner constraints (verification case) - {} constraints\n"
-      "for all x: [ B(xp) - B(x) <= hatDelta ] AND [ B(x) >= minDelta ]\n"
-      "hatDelta = 2 / (C + 1) * (c - epsilon*Bnorm*kappa_x) + (C - 1) / (C + 1) * minDelta",
-      fx_lattice.rows() * 2);
-  const Matrix mult{fxp_lattice - b_kappa * fx_lattice};
-  for (Index row = 0; row < mult.rows(); ++row) {
+      "for all x: [ B(xp) - B(x) >= min_d ] AND [ B(xp) - B(x) <= hatDelta ] AND \n"
+      "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d - diff_d_sx_coeff * max_d_sx\n"
+      "hatDelta = {} * (c - {}) + {} * min_d - {} * max_d_sx",
+      x_include_mask.size() * 2, c_ebk_coeff, ebk, min_d_coeff, diff_d_sx_coeff);
+  for (Index row : x_include_mask) {
+    // B(x) >= min_d
+    lp_problem.add_constraint<'>'>(dn_lattice.row(row).data(), std::array{min_d}, std::array{-1.0}, 0.0,
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)>=min_d[{}]", row));
     // B(xp) - B(x) <= hatDelta
-    lp_problem.add_constraint<'<'>(mult.row(row).data(), std::array{c, minDelta}, std::array{-fctr1, -fctr2},
-                                   kushner_rhs,
+    lp_problem.add_constraint<'<'>(dn_lattice.row(row).data(), std::array{c, min_d, max_d_sx},
+                                   std::array{-c_ebk_coeff, -min_d_coeff, diff_d_sx_coeff}, -c_ebk_coeff * ebk,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)<=hatDelta[{}]", row));
-    // B(x) >= minDelta
-    lp_problem.add_constraint<'>'>(mult.row(row).data(), std::array{minDelta}, std::array{-1.0}, 0.0,
-                                   LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)>=minDelta[{}]", row));
   }
+
+  LUCID_DEBUG_FMT(
+      "Positive barrier - {} constraints\n"
+      "for all x: [ B(x) <= max_X ] AND [ B(x) >= hatxi ]\n"
+      "hatxi = max_x_coeff * max_X - diff_sx_coeff * min_sx\n"
+      "hatxi = {} * max_X - {} * min_sx",
+      x_include_mask.size() * 2, max_x_coeff, diff_sx_coeff);
+  for (Index row : x_include_mask) {
+    // B(x) <= max_x
+    lp_problem.add_constraint<'<'>(fxn_lattice.row(row).data(), std::array{max_x}, std::array{-1.0}, 0.0,
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)<=max_x[{}]", row));
+    // B(x) >= hatxi
+    lp_problem.add_constraint<'>'>(fxn_lattice.row(row).data(), std::array{max_x, min_sx},
+                                   std::array{-max_x_coeff, diff_sx_coeff}, 0.0,
+                                   LUCID_FORMAT_NAME(should_log_problem(), "B(x)>=hatxi[{}]", row));
+  }
+
+  lp_problem.add_min_max_bounds<'<'>(fxn_lattice, x0_exclude_mask, max_sx0, "X0");
+  lp_problem.add_min_max_bounds<'>'>(fxn_lattice, xu_exclude_mask, min_sxu, "Xu");
+  lp_problem.add_min_max_bounds<'>'>(fxn_lattice, x_exclude_mask, min_sx, "X");
+  lp_problem.add_min_max_bounds<'<'>(dn_lattice, x_exclude_mask, max_d_sx, "dX");
 
   // Objective function (cT + n)
   lp_problem.set_min_objective(std::array{c, eta}, std::array{static_cast<double>(T) / gamma, 1.0 / gamma});
@@ -522,21 +370,14 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
 
   const HighsInfo& info = highs.getInfo();
   const HighsSolution& sol = highs.getSolution();
-  const Vector solution{Vector::NullaryExpr(fx_lattice.cols(), [&sol](const Index i) { return sol.col_value[i]; })};
+  const Vector solution{Vector::NullaryExpr(fxn_lattice.cols(), [&sol](const Index i) { return sol.col_value[i]; })};
   cb(true, info.objective_function_value, solution, sol.col_value[eta], sol.col_value[c], solution.norm());
   return true;
 }
 #else
-bool HighsOptimiser::solve(ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, ConstMatrixRef, Dimension, Dimension,
-
-                           Dimension, Dimension, const SolutionCallback&) const {
-  LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve", "HiGHS");
-  return false;
-}
 bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem&,
                                                           const SolutionCallback&) const {
   LUCID_NOT_SUPPORTED_MISSING_BUILD_DEPENDENCY("HighsOptimiser::solve_fourier_barrier_synthesis_impl", "HiGHS");
-  return false;
 }
 #endif  // LUCID_HIGHS_BUILD
 

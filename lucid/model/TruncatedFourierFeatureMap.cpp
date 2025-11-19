@@ -31,7 +31,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
   LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), X_bounds.dimension());
   LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
-  LUCID_ASSERT(omega_.rows() == ::lucid::pow(num_frequencies, X_bounds.dimension()),
+  LUCID_ASSERT(omega_.rows() == ::lucid::pow<Dimension>(num_frequencies, X_bounds.dimension()),
                "omega_.rows() == num_frequencies^dimension");
   LUCID_ASSERT(omega_.cols() == X_bounds.dimension(), "omega_.cols() == dimension");
 

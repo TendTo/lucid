@@ -117,10 +117,11 @@ double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMat
   }
 
   PsoOptimiser optimiser{n_tilde, Q_tilde, f_max, filtered_lattice};
+  // Bounds of the optimization. They ensure the particles stay within the X_periodic set
   Matrix matrix_bounds{2, d};
   matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
   matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
-
+  // Configure optimiser
   optimiser.setPhiParticles(parameters.phi_local);
   optimiser.setPhiGlobal(parameters.phi_global);
   optimiser.setInertiaWeightStrategy(pso::ConstantWeight<double>(parameters.weight));
@@ -135,7 +136,7 @@ double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMat
   auto [iterations, converged, fval, xval] = optimiser.minimize(matrix_bounds, parameters.num_particles);
 
   if (!converged) {
-    LUCID_WARN("PSO did not converge");
+    LUCID_ERROR("PSO did not converge");
     return 0;
   }
 
@@ -146,8 +147,8 @@ double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMat
   return -fval;
 }
 
-double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const RectSet& X,
-                          const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
+double compute_A_impl(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const RectSet& X,
+                      const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
   LUCID_TRACE_FMT("({}, {}, {}, {}, {})", Q_tilde, f_max, X_tilde, X, parameters);
 
   // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
@@ -167,9 +168,8 @@ double compute_A_periodic(int Q_tilde, int f_max, const RectSet& pi, const RectS
   return run_pso(Q_tilde, f_max, X_periodic, lattice_wo_x, parameters);
 }
 
-double compute_A_periodic(const int Q_tilde, const int f_max, const RectSet& pi, const RectSet& X_tilde,
-                          const MultiSet& X, const Matrix& lattice,
-                          const FourierBarrierCertificateParameters& parameters) {
+double compute_A_impl(const int Q_tilde, const int f_max, const RectSet& pi, const RectSet& X_tilde, const MultiSet& X,
+                      const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
   std::vector<double> As;
   As.reserve(X.sets().size());
   std::vector<std::unique_ptr<Set>> pi_sets;
@@ -188,26 +188,39 @@ double compute_A_periodic(const int Q_tilde, const int f_max, const RectSet& pi,
   const auto filtered_lattice =
       lattice(MultiSet(std::move(rescaled_pi_sets)).exclude_mask(lattice), Eigen::placeholders::all);
   for (const auto& rescaled_set : pi_sets) {
-    As.push_back(run_pso(Q_tilde, f_max, static_cast<RectSet&>(*rescaled_set.get()), filtered_lattice, parameters));
+    As.push_back(run_pso(Q_tilde, f_max, static_cast<RectSet&>(*rescaled_set), filtered_lattice, parameters));
   }
   return *std::ranges::max_element(As);
 }
 
-double compute_A_periodic(const int Q_tilde, const int f_max, const RectSet& pi, const RectSet& X_tilde, const Set& X,
-                          const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
+}  // namespace
+
+std::string FourierBarrierCertificateParameters::to_string() const {
+  return fmt::format(
+      "FourierBarrierCertificateParameters( increase( {} ) max_iter( {} ) num_particles( {} ) threads( {} ) "
+      "weight( {} ) phi_local( {} ) phi_global( {} ) xtol( {} ) ftol( {} ) max_vel( {} ) )",
+      increase, max_iter, num_particles, threads, weight, phi_local, phi_global, xtol, ftol, max_vel);
+}
+double FourierBarrierCertificate::compute_A(const int Q_tilde, const int f_max, const RectSet& pi,
+                                            const RectSet& X_tilde, const Set& X, const Matrix& lattice,
+                                            const FourierBarrierCertificateParameters& parameters) {
   if (const auto* X_rect = dynamic_cast<const RectSet*>(&X)) {
-    return compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_rect, lattice, parameters);
+    return compute_A_impl(Q_tilde, f_max, pi, X_tilde, *X_rect, lattice, parameters);
   }
 
   // TODO(tend): this is a manual way of supporting MultiSet for X. There may be a more direct way.
   if (const auto* X_multi = dynamic_cast<const MultiSet*>(&X)) {
-    return compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_multi, lattice, parameters);
+    return compute_A_impl(Q_tilde, f_max, pi, X_tilde, *X_multi, lattice, parameters);
   }
 
   LUCID_UNREACHABLE();
 }
-
-}  // namespace
+double FourierBarrierCertificate::compute_A(const int Q_tilde, const int f_max, const RectSet& X_tilde, const Set& X,
+                                            const FourierBarrierCertificateParameters& parameters) {
+  const RectSet pi{Vector::Constant(X_tilde.dimension(), 0),
+                   Vector::Constant(X_tilde.dimension(), 2 * std::numbers::pi)};
+  return compute_A(Q_tilde, f_max, pi, X_tilde, X, pi.lattice(Q_tilde, false), parameters);
+}
 
 bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& estimator,
                                            const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
@@ -242,9 +255,9 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
                    (X_bounds.upper_bound().array() <= X_tilde.upper_bound().array()).all(),
                "X_bounds must be contained in X_tilde");
 
-  const double A_x = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
-  const double A_x0 = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
-  const double A_xu = compute_A_periodic(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
+  const double A_x = compute_A(Q_tilde, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
+  const double A_x0 = compute_A(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
+  const double A_xu = compute_A(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
 
   LUCID_DEBUG_FMT("A_x: {}", A_x);
   LUCID_DEBUG_FMT("A_x0: {}", A_x0);
@@ -321,42 +334,46 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_DEBUG_FMT("diff_sx_coeff: 2 * A_x / x_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, x_denom, diff_sx_coeff);
 
   return optimiser.solve_fourier_barrier_synthesis(
-      FourierBarrierSynthesisProblem{.num_vars = -1,
-                                     .num_constraints = -1,
-                                     .fxn_lattice = f_lattice,
-                                     .dn_lattice = dn_lattice,
-                                     .x_include_mask = x_include_mask,
-                                     .x_exclude_mask = x_exclude_mask,
-                                     .x0_include_mask = x0_include_mask,
-                                     .x0_exclude_mask = x0_exclude_mask,
-                                     .xu_include_mask = xu_include_mask,
-                                     .xu_exclude_mask = xu_exclude_mask,
-                                     .T = T_,
-                                     .gamma = gamma_,
-                                     .C = C,
-                                     .b_kappa = parameters.kappa,
-                                     .eta_coeff = eta_coeff,
-                                     .min_x0_coeff = min_x0_coeff,
-                                     .diff_sx0_coeff = diff_sx0_coeff,
-                                     .gamma_coeff = gamma_coeff,
-                                     .max_xu_coeff = max_xu_coeff,
-                                     .diff_sxu_coeff = diff_sxu_coeff,
-                                     .ebk = ebk,
-                                     .c_ebk_coeff = c_ebk_coeff,
-                                     .min_d_coeff = min_d_coeff,
-                                     .diff_d_sx_coeff = diff_d_sx_coeff,
-                                     .max_x_coeff = max_x_coeff,
-                                     .diff_sx_coeff = diff_sx_coeff,
-                                     .fctr1 = .0,
-                                     .fctr2 = .0,
-                                     .unsafe_rhs = .0,
-                                     .kushner_rhs = .0,
-                                     .A_x = A_x,
-                                     .A_x0 = A_x0,
-                                     .A_xu = A_xu},
+      FourierBarrierSynthesisProblem{
+          .num_constraints =
+              static_cast<int>(1 + x0_include_mask.size() * 2 + xu_include_mask.size() * 2 + x_include_mask.size() * 4 +
+                               x0_exclude_mask.size() + xu_exclude_mask.size() + x_exclude_mask.size() * 2),
+          .fxn_lattice = f_lattice,
+          .dn_lattice = dn_lattice,
+          .x_include_mask = x_include_mask,
+          .x_exclude_mask = x_exclude_mask,
+          .x0_include_mask = x0_include_mask,
+          .x0_exclude_mask = x0_exclude_mask,
+          .xu_include_mask = xu_include_mask,
+          .xu_exclude_mask = xu_exclude_mask,
+          .T = T_,
+          .gamma = gamma_,
+          .eta_coeff = eta_coeff,
+          .min_x0_coeff = min_x0_coeff,
+          .diff_sx0_coeff = diff_sx0_coeff,
+          .gamma_coeff = gamma_coeff,
+          .max_xu_coeff = max_xu_coeff,
+          .diff_sxu_coeff = diff_sxu_coeff,
+          .ebk = ebk,
+          .c_ebk_coeff = c_ebk_coeff,
+          .min_d_coeff = min_d_coeff,
+          .diff_d_sx_coeff = diff_d_sx_coeff,
+          .max_x_coeff = max_x_coeff,
+          .diff_sx_coeff = diff_sx_coeff,
+      },
       std::bind(&FourierBarrierCertificate::optimiser_callback, this, std::placeholders::_1, std::placeholders::_2,
                 std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
                 parameters.b_norm));
+}
+
+std::unique_ptr<BarrierCertificate> FourierBarrierCertificate::clone() const {
+  return std::make_unique<FourierBarrierCertificate>(*this);
+}
+
+std::string FourierBarrierCertificate::to_string() const {
+  if (!is_synthesized()) return "FourierBarrierCertificate( )";
+  return fmt::format("FourierBarrierCertificate( eta( {} ) gamma( {} ) c( {} ) norm( {} ) T( {} ) safety( {} ) )", eta_,
+                     gamma_, c_, norm_, T_, safety_);
 }
 
 double FourierBarrierCertificate::apply_impl(ConstVectorRef x) const {
@@ -383,29 +400,10 @@ void FourierBarrierCertificate::optimiser_callback(bool success, double obj_val,
   }
 }
 
-std::unique_ptr<BarrierCertificate> FourierBarrierCertificate::clone() const {
-  return std::make_unique<FourierBarrierCertificate>(*this);
-}
-
-std::string FourierBarrierCertificateParameters::to_string() const {
-  return fmt::format(
-      "FourierBarrierCertificateParameters( increase( {} ) num_particles( {} ) phi_local( {} ) phi_global( {} ) "
-      "weight( {} ) max_iter( {} ) max_vel( {} ) ftol( {} ) xtol( {} ) threads( {} ) )",
-      increase, num_particles, phi_local, phi_global, weight, max_iter, max_vel, ftol, xtol, threads);
-}
-
 std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificateParameters& params) {
   return os << params.to_string();
 }
 
-std::string FourierBarrierCertificate::to_string() const {
-  if (!is_synthesized()) return "FourierBarrierCertificate( )";
-  return fmt::format("FourierBarrierCertificate( eta( {} ) gamma( {} ) c( {} ) norm( {} ) T( {} ) safety( {} ) )", eta_,
-                     gamma_, c_, norm_, T_, safety_);
-}
-
-std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificate& obj) {
-  return os << obj.to_string();
-}
+std::ostream& operator<<(std::ostream& os, const FourierBarrierCertificate& obj) { return os << obj.to_string(); }
 
 }  // namespace lucid

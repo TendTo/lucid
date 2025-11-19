@@ -67,8 +67,6 @@ class Configuration(Namespace):
         feature_map: Feature map class to use for transformation or a callable that returns a feature map
         optimiser: Optimiser class to use for the optimization
         tuner: Tuner for the estimator, if any
-
-        constant_lattice_points: Flag to indicate whether to use a constant number of lattice points. Deprecated
     """
 
     # Global generic configuration
@@ -119,8 +117,6 @@ class Configuration(Namespace):
     feature_map: "type[FeatureMap] | FeatureMap | Callable[[Estimator], FeatureMap]" = LinearTruncatedFourierFeatureMap
     optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD and GurobiOptimiser is not None else SoplexOptimiser
     tuner: "Tuner | None" = None
-
-    constant_lattice_points: bool = False
 
     def populate_samples(self):
         if len(self.x_samples) == 0:

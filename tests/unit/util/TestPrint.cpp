@@ -139,14 +139,14 @@ TEST(TestPrint, ConstantTruncatedFourierFeatureMap) {
 
 TEST(TestPrint, GaussianKernelIsotropic) {
   const GaussianKernel kernel{5.2, 2.01};
-  EXPECT_EQ(fmt::format("{}", kernel), "GaussianKernel( sigma_l( 5.2 ) sigma_f( 2.01 ) isotropic( 1 ) )");
+  EXPECT_EQ(fmt::format("{}", kernel), "GaussianKernel( sigma_l( 5.2 ) sigma_f( 2.01 ) isotropic( true ) )");
 }
 TEST(TestPrint, GaussianKernelAnisotropic) {
   Vector sigma_l{4};
   sigma_l << 3.2, 5.1, 3.4, 1.24;
   const GaussianKernel kernel{sigma_l, 2.01};
   EXPECT_EQ(fmt::format("{}", kernel),
-            "GaussianKernel( sigma_l(  3.2  5.1  3.4 1.24 ) sigma_f( 2.01 ) isotropic( 0 ) )");
+            "GaussianKernel( sigma_l(  3.2  5.1  3.4 1.24 ) sigma_f( 2.01 ) isotropic( false ) )");
 }
 
 TEST(TestPrint, Valle) {
@@ -183,15 +183,16 @@ TEST(TestPrint, InverseGramMatrix) {
 TEST(TestPrint, KernelRidgeRegressorIsotropic) {
   KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(3.2, 5.1), 1e-6};
   EXPECT_EQ(fmt::format("{}", regressor),
-            "KernelRidgeRegressor( kernel( GaussianKernel( sigma_l( 3.2 ) sigma_f( 5.1 ) isotropic( 1 ) ) ) "
+            "KernelRidgeRegressor( kernel( GaussianKernel( sigma_l( 3.2 ) sigma_f( 5.1 ) isotropic( true ) ) ) "
             "regularization_constant( 1e-06 ) )");
 }
 
 TEST(TestPrint, KernelRidgeRegressorAnisotropic) {
   KernelRidgeRegressor regressor{std::make_unique<GaussianKernel>(Vector::Constant(3, 1.1), 5.1), 1e-6};
-  EXPECT_EQ(fmt::format("{}", regressor),
-            "KernelRidgeRegressor( kernel( GaussianKernel( sigma_l( 1.1 1.1 1.1 ) sigma_f( 5.1 ) isotropic( 0 ) ) ) "
-            "regularization_constant( 1e-06 ) )");
+  EXPECT_EQ(
+      fmt::format("{}", regressor),
+      "KernelRidgeRegressor( kernel( GaussianKernel( sigma_l( 1.1 1.1 1.1 ) sigma_f( 5.1 ) isotropic( false ) ) ) "
+      "regularization_constant( 1e-06 ) )");
 }
 
 TEST(TestPrint, MedianHeuristicTuner) {

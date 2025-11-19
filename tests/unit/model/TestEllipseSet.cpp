@@ -71,9 +71,9 @@ TEST(TestEllipseSet, Contains2DEllipse) {
   const EllipseSet ellipse{center, radii};
 
   // Points inside the ellipse
-  EXPECT_TRUE(ellipse(Vector2{0, 0}));    // Center
-  EXPECT_TRUE(ellipse(Vector2{1.0, 0}));  // Inside
-  EXPECT_TRUE(ellipse(Vector2{0, 0.5}));  // Inside
+  EXPECT_TRUE(ellipse(Vector2{0, 0}));      // Center
+  EXPECT_TRUE(ellipse(Vector2{1.0, 0}));    // Inside
+  EXPECT_TRUE(ellipse(Vector2{0, 0.5}));    // Inside
   EXPECT_TRUE(ellipse(Vector2{1.5, 0.5}));  // Inside
 
   // Points on the boundary
@@ -83,10 +83,10 @@ TEST(TestEllipseSet, Contains2DEllipse) {
   EXPECT_TRUE(ellipse(Vector2{0, -1}));  // Boundary along minor axis
 
   // Points outside the ellipse
-  EXPECT_FALSE(ellipse(Vector2{2.1, 0}));   // Outside major axis
-  EXPECT_FALSE(ellipse(Vector2{0, 1.1}));   // Outside minor axis
-  EXPECT_FALSE(ellipse(Vector2{2, 1}));     // Outside (both coordinates at max)
-  EXPECT_FALSE(ellipse(Vector2{1.5, 1}));   // Outside
+  EXPECT_FALSE(ellipse(Vector2{2.1, 0}));  // Outside major axis
+  EXPECT_FALSE(ellipse(Vector2{0, 1.1}));  // Outside minor axis
+  EXPECT_FALSE(ellipse(Vector2{2, 1}));    // Outside (both coordinates at max)
+  EXPECT_FALSE(ellipse(Vector2{1.5, 1}));  // Outside
 }
 
 TEST(TestEllipseSet, Contains3DEllipsoid) {
@@ -95,9 +95,9 @@ TEST(TestEllipseSet, Contains3DEllipsoid) {
   const EllipseSet ellipse{center, radii};
 
   // Points inside the ellipsoid
-  EXPECT_TRUE(ellipse(Vector3{1, 2, 3}));  // Center
-  EXPECT_TRUE(ellipse(Vector3{2, 2, 3}));  // Inside (1 unit in x direction)
-  EXPECT_TRUE(ellipse(Vector3{1, 3, 3}));  // Inside (1 unit in y direction)
+  EXPECT_TRUE(ellipse(Vector3{1, 2, 3}));    // Center
+  EXPECT_TRUE(ellipse(Vector3{2, 2, 3}));    // Inside (1 unit in x direction)
+  EXPECT_TRUE(ellipse(Vector3{1, 3, 3}));    // Inside (1 unit in y direction)
   EXPECT_TRUE(ellipse(Vector3{1, 2, 3.5}));  // Inside (0.5 units in z direction)
 
   // Points on the boundary
@@ -109,10 +109,10 @@ TEST(TestEllipseSet, Contains3DEllipsoid) {
   EXPECT_TRUE(ellipse(Vector3{1, 2, 2}));   // Boundary (-1 unit in z)
 
   // Points outside the ellipsoid
-  EXPECT_FALSE(ellipse(Vector3{5, 2, 3}));   // Outside (4 units in x)
-  EXPECT_FALSE(ellipse(Vector3{1, 5, 3}));   // Outside (3 units in y)
-  EXPECT_FALSE(ellipse(Vector3{1, 2, 5}));   // Outside (2 units in z)
-  EXPECT_FALSE(ellipse(Vector3{4, 4, 4}));   // Far outside
+  EXPECT_FALSE(ellipse(Vector3{5, 2, 3}));  // Outside (4 units in x)
+  EXPECT_FALSE(ellipse(Vector3{1, 5, 3}));  // Outside (3 units in y)
+  EXPECT_FALSE(ellipse(Vector3{1, 2, 5}));  // Outside (2 units in z)
+  EXPECT_FALSE(ellipse(Vector3{4, 4, 4}));  // Far outside
 }
 
 TEST(TestEllipseSet, ContainsOffCenter) {
@@ -121,19 +121,19 @@ TEST(TestEllipseSet, ContainsOffCenter) {
   const EllipseSet ellipse{center, radii};
 
   // Points inside the ellipse
-  EXPECT_TRUE(ellipse(Vector2{-2, 3}));      // Center
-  EXPECT_TRUE(ellipse(Vector2{-1, 3}));      // Inside
-  EXPECT_TRUE(ellipse(Vector2{-2, 3.5}));    // Inside
+  EXPECT_TRUE(ellipse(Vector2{-2, 3}));    // Center
+  EXPECT_TRUE(ellipse(Vector2{-1, 3}));    // Inside
+  EXPECT_TRUE(ellipse(Vector2{-2, 3.5}));  // Inside
 
   // Points on the boundary
-  EXPECT_TRUE(ellipse(Vector2{0, 3}));       // Boundary (2 units in x)
-  EXPECT_TRUE(ellipse(Vector2{-4, 3}));      // Boundary (-2 units in x)
-  EXPECT_TRUE(ellipse(Vector2{-2, 4.5}));    // Boundary (1.5 units in y)
-  EXPECT_TRUE(ellipse(Vector2{-2, 1.5}));    // Boundary (-1.5 units in y)
+  EXPECT_TRUE(ellipse(Vector2{0, 3}));     // Boundary (2 units in x)
+  EXPECT_TRUE(ellipse(Vector2{-4, 3}));    // Boundary (-2 units in x)
+  EXPECT_TRUE(ellipse(Vector2{-2, 4.5}));  // Boundary (1.5 units in y)
+  EXPECT_TRUE(ellipse(Vector2{-2, 1.5}));  // Boundary (-1.5 units in y)
 
   // Points outside the ellipse
-  EXPECT_FALSE(ellipse(Vector2{1, 3}));      // Outside (3 units in x)
-  EXPECT_FALSE(ellipse(Vector2{-2, 5}));     // Outside (2 units in y)
+  EXPECT_FALSE(ellipse(Vector2{1, 3}));   // Outside (3 units in x)
+  EXPECT_FALSE(ellipse(Vector2{-2, 5}));  // Outside (2 units in y)
 }
 
 TEST(TestEllipseSet, ZeroRadii) {
@@ -247,13 +247,13 @@ TEST(TestEllipseSet, ChangeSize) {
   ellipse.change_size(Vector2{2.0, 2.0});
   EXPECT_DOUBLE_EQ(ellipse.radii()(0), 3.0);  // 2.0 + 2.0/2
   EXPECT_DOUBLE_EQ(ellipse.radii()(1), 2.0);  // 1.0 + 2.0/2
-  EXPECT_EQ(ellipse.center(), center);  // Center should not change
+  EXPECT_EQ(ellipse.center(), center);        // Center should not change
 
   // Test shrinking the ellipse
   ellipse.change_size(Vector2{-2.0, -2.0});
   EXPECT_DOUBLE_EQ(ellipse.radii()(0), 2.0);  // 3.0 - 2.0/2
   EXPECT_DOUBLE_EQ(ellipse.radii()(1), 1.0);  // 2.0 - 2.0/2
-  EXPECT_EQ(ellipse.center(), center);  // Center should not change
+  EXPECT_EQ(ellipse.center(), center);        // Center should not change
 }
 
 TEST(TestEllipseSet, ChangeSizeUniform) {
@@ -265,7 +265,7 @@ TEST(TestEllipseSet, ChangeSizeUniform) {
   ellipse.change_size(4.0);
   EXPECT_DOUBLE_EQ(ellipse.radii()(0), 4.0);  // 2.0 + 4.0/2
   EXPECT_DOUBLE_EQ(ellipse.radii()(1), 5.0);  // 3.0 + 4.0/2
-  EXPECT_EQ(ellipse.center(), center);  // Center should not change
+  EXPECT_EQ(ellipse.center(), center);        // Center should not change
 }
 
 TEST(TestEllipseSet, ChangeSizeNonUniform) {
@@ -295,8 +295,8 @@ TEST(TestEllipseSet, ToRectSet) {
 
   auto rect_set = ellipse.to_rect_set();
   EXPECT_EQ(rect_set->dimension(), 2);
-  EXPECT_EQ(rect_set->lower_bound(), center - radii);
-  EXPECT_EQ(rect_set->upper_bound(), center + radii);
+  EXPECT_EQ(rect_set->general_lower_bound(), center - radii);
+  EXPECT_EQ(rect_set->general_upper_bound(), center + radii);
 }
 
 TEST(TestEllipseSet, Equality) {
@@ -345,7 +345,7 @@ TEST(TestEllipseSet, Lattice3D) {
   const Vector3 radii{1.0, 1.0, 1.0};
   const EllipseSet ellipse{center, radii};
 
-  const VectorI points_per_dim{3, 3, 3};
+  const VectorI points_per_dim{{3, 3, 3}};
   const Matrix lattice = ellipse.lattice(points_per_dim, true);
 
   // All lattice points should be inside the ellipse
@@ -371,4 +371,3 @@ TEST(TestEllipseSet, InvalidConstruction) {
   const Vector empty_radii{};
   EXPECT_THROW(EllipseSet(empty_center, empty_radii), lucid::exception::LucidInvalidArgumentException);
 }
-

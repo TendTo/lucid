@@ -7,14 +7,16 @@ class TestOptimiser:
     class TestGurobiOptimiser:
 
         def test_init(self):
-            T = 10
-            gamma = 0.1
-            epsilon = 0.01
-            b_norm = 0.5
-            b_kappa = 0.3
-            sigma_f = 0.3
-            o = GurobiOptimiser(T, gamma, epsilon, b_norm, b_kappa, sigma_f)
+            o = GurobiOptimiser()
             assert o is not None
+            assert o.problem_log_file == ""
+            assert o.iis_log_file == ""
+
+        def test_init(self):
+            o = GurobiOptimiser(problem_log_file="test_log.lp", iis_log_file="test_iis.ilp")
+            assert o is not None
+            assert o.problem_log_file == "test_log.lp"
+            assert o.iis_log_file == "test_iis.ilp"
 
         @pytest.mark.skip("Requires Gurobi installation")
         def test_run(self):
@@ -45,13 +47,6 @@ class TestOptimiser:
 
             o = GurobiOptimiser(T, gamma, epsilon, b_norm, b_kappa, sigma_f)
             o.solve(
-                f0_lattice=f_x0_lattice,
-                fu_lattice=f_xu_lattice,
-                phi_mat=u_f_x_lattice,
-                w_mat=u_f_xp_lattice,
-                rkhs_dim=feature_map.dimension,
-                num_frequencies_per_dim=num_frequencies - 1,
-                num_frequency_samples_per_dim=n_per_dim,
-                original_dim=X_bounds.dimension,
+                problem=None,
                 callback=lambda *args, **kwargs: None,
             )

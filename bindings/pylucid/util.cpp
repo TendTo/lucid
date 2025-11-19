@@ -70,15 +70,16 @@ class ScopedStats {
     stats_.value()->peak_rss_memory_usage = metrics::get_peak_rss();
   }
 
+  /** @to_string */
+  [[nodiscard]] std::string to_string() const {
+    if (!stats_.has_value())
+      return "No stats available. Make sure the object is within the 'with' block it was defined in";
+    return fmt::format("{}", *stats_.value());
+  }
+
  private:
   std::optional<Stats::Scoped> stats_;  ///< Stack of Stats instances. Can contain at most one element.
 };
-
-std::ostream& operator<<(std::ostream& os, const ScopedStats& stats) {
-  return os << (stats.has_stats()
-                    ? fmt::format("{}", stats.stats())
-                    : "No stats available. Make sure the object is within the 'with' block it was defined in");
-}
 
 void init_util(py::module_& m) {
   py::module_ r = m.def_submodule("random");

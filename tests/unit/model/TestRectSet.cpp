@@ -266,12 +266,9 @@ TEST(TestRectSet, TestScaledWrappedWrapNoDimensions) {
   const RectSet set{Vector2{2, 2}, Vector2{3, 3}};
   const auto scaled = set.scale_wrapped(2.0, bounds);
 
-  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
-  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
-  ASSERT_EQ(multi_set.sets().size(), 1);
-  for (const auto& s : multi_set.sets()) ASSERT_NE(dynamic_cast<RectSet*>(s.get()), nullptr);
-
-  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({1.5, 1.5}, {3.5, 3.5}));
+  ASSERT_NE(dynamic_cast<RectSet*>(scaled.get()), nullptr);
+  const RectSet& rect_set = *static_cast<RectSet*>(scaled.get());
+  EXPECT_EQ(rect_set, RectSet({1.5, 1.5}, {3.5, 3.5}));
 }
 
 TEST(TestRectSet, TestScaledWrappedWrapOneDimensions) {
@@ -343,13 +340,12 @@ TEST(TestRectSet, TestScaledWrappedVectorScale) {
   const Vector2 scale_factors{2.0, 1.0};
   const auto scaled = set.scale_wrapped(scale_factors, bounds);
 
-  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
-  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
-  ASSERT_EQ(multi_set.sets().size(), 1);
+  ASSERT_NE(dynamic_cast<RectSet*>(scaled.get()), nullptr);
+  const RectSet& rect_set = *static_cast<RectSet*>(scaled.get());
 
   // Original size: [2, 2], scaled by [2.0, 1.0] => new size [4, 2]
   // Center at [5, 5], so bounds should be [3, 4] to [7, 6]
-  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({3, 4}, {7, 6}));
+  EXPECT_EQ(rect_set, RectSet({3, 4}, {7, 6}));
 }
 
 TEST(TestRectSet, TestScaledWrappedRelativeToBounds) {
@@ -358,13 +354,12 @@ TEST(TestRectSet, TestScaledWrappedRelativeToBounds) {
   const RectSet set{Vector2{4, 4}, Vector2{6, 6}};
   const auto scaled = set.scale_wrapped(0.5, bounds, true);
 
-  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
-  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
-  ASSERT_EQ(multi_set.sets().size(), 1);
+  ASSERT_NE(dynamic_cast<RectSet*>(scaled.get()), nullptr);
+  const RectSet& rect_set = *static_cast<RectSet*>(scaled.get());
 
   // Bounds size: [10, 10], scale 0.5 relative to bounds => new size [5, 5]
   // Center at [5, 5], so bounds should be [2.5, 2.5] to [7.5, 7.5]
-  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({1.5, 1.5}, {8.5, 8.5}));
+  EXPECT_EQ(rect_set, RectSet({1.5, 1.5}, {8.5, 8.5}));
 }
 
 TEST(TestRectSet, TestScaledWrappedZeroScale) {
@@ -387,10 +382,7 @@ TEST(TestRectSet, TestScaledWrappedExceedsBoundsAllSides) {
   const RectSet set{Vector2{3, 3}, Vector2{7, 7}};
   const auto scaled = set.scale_wrapped(3.0, bounds);
 
-  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
-  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
-  // Since we fill the bounds completely, there should be no wrapping sets
-  EXPECT_EQ(multi_set.sets().size(), 1);
+  ASSERT_NE(dynamic_cast<RectSet*>(scaled.get()), nullptr);
 }
 
 TEST(TestRectSet, TestScaledWrapped3D) {
@@ -405,13 +397,12 @@ TEST(TestRectSet, TestScaledWrapped3D) {
 
   const auto scaled = set.scale_wrapped(2.0, bounds);
 
-  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
-  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
-  ASSERT_EQ(multi_set.sets().size(), 1);
+  ASSERT_NE(dynamic_cast<RectSet*>(scaled.get()), nullptr);
+  const RectSet& rect_set = *static_cast<RectSet*>(scaled.get());
 
   // Original size: [2, 2, 2], scaled by 1.0 => new size [4, 4, 4]
   // Center at [5, 5, 5], so bounds should be [3, 3, 3] to [7, 7, 7]
-  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({3, 3, 3}, {7, 7, 7}));
+  EXPECT_EQ(rect_set, RectSet({3, 3, 3}, {7, 7, 7}));
 }
 
 TEST(TestRectSet, TestScaledWrapped3DWithWrapping) {
@@ -426,11 +417,10 @@ TEST(TestRectSet, TestScaledWrapped3DWithWrapping) {
 
   const auto scaled = set.scale_wrapped(2.0, bounds);
 
-  ASSERT_NE(dynamic_cast<MultiSet*>(scaled.get()), nullptr);
-  const MultiSet& multi_set = *static_cast<MultiSet*>(scaled.get());
-  ASSERT_EQ(multi_set.sets().size(), 1);
+  ASSERT_NE(dynamic_cast<RectSet*>(scaled.get()), nullptr);
+  const RectSet& rect_set = *static_cast<RectSet*>(scaled.get());
 
-  EXPECT_EQ(dynamic_cast<const RectSet&>(multi_set[0]), RectSet({7.5, 4.5, 4.5}, {9.5, 6.5, 6.5}));
+  EXPECT_EQ(rect_set, RectSet({7.5, 4.5, 4.5}, {9.5, 6.5, 6.5}));
 }
 
 TEST(TestRectSet, TestScaledWrappedNonSquareBounds) {

@@ -56,8 +56,7 @@ TEST_F(TestFourierBarrierCertificate, ComputeObjective) {
   constexpr int Q_tilde = 25;
   constexpr int f_max = 3;
 
-  std::pair<double, Vector> result = {};
-  EXPECT_NO_THROW(result = barrier_.compute_A_periodic_minus_x(Q_tilde, f_max, X_tilde, X, {.increase = increase}));
-  EXPECT_GT(result.first, 0);
-  EXPECT_GT(result.second.size(), 0);
+  double result = 0.0;
+  EXPECT_NO_THROW(result = barrier_.compute_A(Q_tilde, f_max, X_tilde, X, {.increase = increase}));
+  EXPECT_GT(result, 0);
 }

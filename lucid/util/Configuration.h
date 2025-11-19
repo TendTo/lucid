@@ -151,10 +151,6 @@ class Configuration {
   LUCID_CONSTEXPR_PARAMETER(feature_map, FeatureMap, FeatureMap::LINEAR_TRUNCATED_FOURIER_FEATURE_MAP,
                             "Feature map class to use for transformation or a callable that returns a feature map");
   LUCID_CONSTEXPR_PARAMETER(optimiser, Optimiser, Optimiser::GUROBI, "Optimiser class to use for the optimization");
-
-  // Deprecated
-  LUCID_CONSTEXPR_PARAMETER(constant_lattice_points, bool, false,
-                            "Flag to indicate whether to use a constant number of lattice points. Deprecated");
 };
 
 std::ostream &operator<<(std::ostream &os, const Configuration &config);

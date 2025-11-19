@@ -27,7 +27,7 @@ def vallee_poussin_kernel(z: np.ndarray, a: float, b: float) -> np.ndarray:
         with np.errstate(divide="ignore", invalid="ignore"):
             fraction = np.where(denominator != 0, numerator / denominator, (b ** 2 - a ** 2))
         prod *= fraction
-    return coeff * prod
+    return (coeff * prod).reshape(-1, 1)
 
 
 class TestKernel:

@@ -2,16 +2,16 @@ import numpy as np
 import pytest
 
 from pylucid import (
-    AlglibOptimiser,
+    HighsOptimiser,
     GaussianKernel,
     GridSearchTuner,
     KernelRidgeRegressor,
     LinearTruncatedFourierFeatureMap,
-    MultiSet,
     Parameter,
     ParameterValues,
     RectSet,
     Stats,
+    FourierBarrierSynthesisProblem,
 )
 
 SIGMA_L = np.ones((4,))
@@ -113,32 +113,28 @@ class TestStats:
             n_per_dim = 32
             sigma_f = 15.0
             X_bounds = RectSet([(-1, 1)])
-            X_init = RectSet([(-0.5, 0.5)])
-            X_unsafe = MultiSet(RectSet([(-1, -0.9)]), RectSet([(0.9, 1)]))
 
             feature_map = LinearTruncatedFourierFeatureMap(4, 1.75555556, sigma_f, X_bounds)
 
             x_lattice = X_bounds.lattice(n_per_dim, True)
-            u_f_x_lattice = feature_map(x_lattice)
-            u_f_xp_lattice = feature_map(x_lattice / 2.0)
+            f_x_lattice = feature_map(x_lattice)
 
-            x0_lattice = X_init.lattice(n_per_dim, True)
-            f_x0_lattice = feature_map(x0_lattice)
-
-            xu_lattice = X_unsafe.lattice(n_per_dim, True)
-            f_xu_lattice = feature_map(xu_lattice)
-
-            o = AlglibOptimiser(5, 1.0, 0, 1.0, 1.0, sigma_f)
-            o.solve(
-                f0_lattice=f_x0_lattice,
-                fu_lattice=f_xu_lattice,
-                phi_mat=u_f_x_lattice,
-                w_mat=u_f_xp_lattice,
-                rkhs_dim=feature_map.dimension,
-                num_frequencies_per_dim=4 - 1,
-                num_frequency_samples_per_dim=n_per_dim,
-                original_dim=X_bounds.dimension,
-                callback=lambda *args, **kwargs: None,
+            emtpy_list = []
+            o = HighsOptimiser()
+            o.solve_fourier_barrier_synthesis(
+                problem=FourierBarrierSynthesisProblem(
+                    num_constraints=100,
+                    fxn_lattice=f_x_lattice,
+                    dn_lattice=f_x_lattice,
+                    x_include_mask=emtpy_list,
+                    x_exclude_mask=emtpy_list,
+                    x0_include_mask=emtpy_list,
+                    x0_exclude_mask=emtpy_list,
+                    xu_include_mask=emtpy_list,
+                    xu_exclude_mask=emtpy_list,
+                    T=5,
+                ),
+                cb=lambda *args, **kwargs: None,
             )
 
             assert stats.num_constraints == 321

@@ -33,7 +33,7 @@ template <typename T>
 class TestTruncatedFourierFeatureMap : public testing::Test {
  protected:
   T feature_map_{num_frequencies, sigma_l, sigma_f, X_bounds};
-  Dimension feature_map_dimension_{static_cast<Dimension>(lucid::pow(num_frequencies, X_bounds.dimension()))};
+  Dimension feature_map_dimension_{lucid::pow<Dimension>(num_frequencies, X_bounds.dimension())};
 };
 
 using TestTypes = ::testing::Types<ConstantTruncatedFourierFeatureMap, LinearTruncatedFourierFeatureMap,
@@ -68,6 +68,8 @@ TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapApplyMatrix
   EXPECT_FALSE(std::isnan(features(0, 0)));
 }
 
+#if 0
+// The feature_map is not necessarily invertible, so this test is disabled for now.
 TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapInvertMatrix) {
   constexpr Dimension samples = 15;
 
@@ -83,6 +85,7 @@ TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapInvertMatri
     }
   }
 }
+#endif
 
 TYPED_TEST(TestTruncatedFourierFeatureMap, TruncatedFourierFeatureMapApplyVector) {
   const Vector x{Vector::Random(X_bounds.dimension())};

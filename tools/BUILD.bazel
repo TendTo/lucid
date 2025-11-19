@@ -80,17 +80,17 @@ bool_flag(
 
 bool_flag(
     name = "enable_alglib_build",
-    build_setting_default = False,  # True
+    build_setting_default = True,
 )
 
 bool_flag(
     name = "enable_highs_build",
-    build_setting_default = False,  # True
+    build_setting_default = True,
 )
 
 bool_flag(
     name = "enable_soplex_build",
-    build_setting_default = False,  # True
+    build_setting_default = True,
 )
 
 bool_flag(

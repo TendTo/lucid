@@ -20,6 +20,8 @@ namespace lucid {
  */
 class EllipseSet final : public Set {
  public:
+  using Set::change_size;
+
   /**
    * Construct an ellipsoid set from a `center` and a vector of `radii`.
    * The dimension of the space the ellipsoid set lives in is determined by the size of the `center` vector.
