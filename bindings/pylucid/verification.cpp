@@ -140,7 +140,7 @@ void init_verification(py::module_& m) {
            py::arg("b_norm") = 0.0, py::arg("kappa") = 1.0, py::arg("threads") = 0,
            FourierBarrierCertificateParameters_)
       .def_readwrite("set_scaling", &FourierBarrierCertificateParameters::set_scaling,
-                     FourierBarrierCertificateParameters_increase)
+                     FourierBarrierCertificateParameters_set_scaling)
       .def_readwrite("num_particles", &FourierBarrierCertificateParameters::num_particles,
                      FourierBarrierCertificateParameters_num_particles)
       .def_readwrite("phi_local", &FourierBarrierCertificateParameters::phi_local,

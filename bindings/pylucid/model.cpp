@@ -526,9 +526,6 @@ void init_model(py::module_ &m) {
       .def(py::init<long, ConstVectorRef, ConstVectorRef, ConstVectorRef, Scalar, RectSet>(),
            py::arg("num_frequencies"), py::arg("prob_per_dim"), py::arg("omega_per_dim"), ARG_NONCONVERT("sigma_l"),
            py::arg("sigma_f"), py::arg("X_bounds"))
-      .def(py::init<long, ConstVectorRef, ConstVectorRef, Scalar, RectSet, bool>(), py::arg("num_frequencies"),
-           py::arg("prob_per_dim"), py::arg("omega_per_dim"), py::arg("sigma_f"), py::arg("X_bounds"),
-           py::arg("unused"))
       .def("get_periodic_set", &TruncatedFourierFeatureMap::get_periodic_set,
            TruncatedFourierFeatureMap_get_periodic_set)
       .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"),
@@ -536,8 +533,6 @@ void init_model(py::module_ &m) {
       .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"),
            TruncatedFourierFeatureMap_map_matrix)
       .def_property_readonly("sigma_f", &TruncatedFourierFeatureMap::sigma_f, TruncatedFourierFeatureMap_sigma_f)
-      .def_property_readonly("periodic_coefficients", &TruncatedFourierFeatureMap::periodic_coefficients,
-                             TruncatedFourierFeatureMap_periodic_coefficients)
       .def_property_readonly("X_bounds", &TruncatedFourierFeatureMap::X_bounds, TruncatedFourierFeatureMap_X_bounds)
       .def_property_readonly("dimension", &TruncatedFourierFeatureMap::dimension, TruncatedFourierFeatureMap_dimension)
       .def_property_readonly("omega", &TruncatedFourierFeatureMap::omega, TruncatedFourierFeatureMap_omega)
@@ -555,11 +550,7 @@ void init_model(py::module_ &m) {
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
            py::arg("sigma_f"), py::arg("X_bounds"))
       .def(py::init<long, Scalar, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("X_bounds"))
-      .def(py::init<long, Scalar, Scalar, RectSet, bool>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("X_bounds"), py::arg("unused"))
-      .def(py::init<long, Scalar, Scalar, RectSet, bool>(), py::arg("num_frequencies"), py::arg("sigma_l"),
-           py::arg("sigma_f"), py::arg("X_bounds"), py::arg("unused"));
+           py::arg("sigma_f"), py::arg("X_bounds"));
   py::class_<LogTruncatedFourierFeatureMap, TruncatedFourierFeatureMap>(m, "LogTruncatedFourierFeatureMap",
                                                                         py::is_final(), LogTruncatedFourierFeatureMap_)
       .def(py::init<long, ConstVectorRef, Scalar, RectSet>(), py::arg("num_frequencies"), py::arg("sigma_l"),

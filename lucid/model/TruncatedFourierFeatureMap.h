@@ -63,21 +63,6 @@ class TruncatedFourierFeatureMap : public FeatureMap {
    */
   TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
                              double sigma_l, Scalar sigma_f, const RectSet& X_bounds);
-  /**
-   * Construct a truncated Fourier feature map.
-   * It will not compute the cross-frequencies of the basis, thus reducing the problem size significantly with
-   * respect to the other constructor.
-   * @pre `num_frequencies` must be greater than 0.
-   * @pre `sigma_f` must be greater than 0.
-   * @param num_frequencies number of frequencies per dimension. Includes the zero frequency
-   * @param prob_per_dim probability distribution of frequencies per dimension, @f$ \mathbb{P}(\zeta_j) @f$
-   * @param omega_per_dim matrix omega where each row is a dimension and each column is a frequency coefficient
-   * @param sigma_f scaling factor
-   * @param X_bounds domain of the input space, @XsubRd
-   * @param unused unused parameter to differentiate the constructor from the other one
-   */
-  TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim, const Matrix& omega_per_dim,
-                             Scalar sigma_f, const RectSet& X_bounds, bool unused);
 
   /**
    * Given a @d dimensional vector @x, project it to the unit hypercube @f$ [0, 1]^d @f$, then compute the feature map.
@@ -114,8 +99,6 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] const RectSet& X_bounds() const { return X_bounds_; }
   /** @getter{sigma_f value, truncated Fourier feature map} */
   [[nodiscard]] double sigma_f() const { return sigma_f_; }
-  /** @getter{periodic coefficients, truncated Fourier feature map} */
-  [[nodiscard]] const Vector& periodic_coefficients() const { return periodic_coefficients_; }
 
   /**
    * Return the periodic input domain for this linear truncated Fourier map.
@@ -169,7 +152,6 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   Vector sigma_l_;                     ///< @sigmal vector
   RectSet X_bounds_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
   Scalar captured_probability_;        ///< Probability captured by the Fourier expansion. NaN if not computed
-  Vector periodic_coefficients_;       ///< Coefficient to convert from the truncated Fourier basis to the periodic one
 };
 
 std::ostream& operator<<(std::ostream& os, const TruncatedFourierFeatureMap& map);

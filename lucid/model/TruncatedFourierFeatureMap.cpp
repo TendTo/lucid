@@ -25,8 +25,7 @@ TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies
       weights_{::lucid::pow<Index>(num_frequencies, X_bounds.dimension()) * 2 - 1},
       sigma_f_{sigma_f},
       sigma_l_{sigma_l},
-      X_bounds_{X_bounds},
-      periodic_coefficients_{2 * std::numbers::pi / omega_per_dim.col(1).array()} {
+      X_bounds_{X_bounds} {
   LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 2);
   LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
   LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), X_bounds.dimension());
@@ -63,42 +62,6 @@ double get_prob(const Matrix& prob_per_dim, const Index dim, const Index tot_dim
     prod *= other_dim == dim ? prob_per_dim(other_dim, freq) : prob_per_dim(other_dim, 0);
   }
   return prod;
-}
-
-TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(int num_frequencies, const Matrix& prob_per_dim,
-                                                       const Matrix& omega_per_dim, Scalar sigma_f,
-                                                       const RectSet& X_bounds, const bool)
-    : num_frequencies_per_dimension_{num_frequencies},
-      omega_{combvec(omega_per_dim).transpose()},
-      weights_{(num_frequencies - 1) * X_bounds.dimension() * 2 + 1},
-      sigma_f_{sigma_f},
-      X_bounds_{X_bounds} {
-  LUCID_CHECK_ARGUMENT_CMP(num_frequencies, >=, 0);
-  LUCID_CHECK_ARGUMENT_CMP(sigma_f, >, 0);
-  LUCID_CHECK_ARGUMENT_EQ(prob_per_dim.rows(), X_bounds.dimension());
-  LUCID_ASSERT((omega_.array() >= 0).all(), "single_weights >= 0");
-  LUCID_NOT_IMPLEMENTED();
-
-  Vector single_weights{(num_frequencies - 1) * X_bounds.dimension() + 1};
-  Index row = 0;
-  single_weights(row++) = std::sqrt(get_prob(prob_per_dim, 0, X_bounds_.dimension(), 0));
-  for (Index current_dim = 0; current_dim < X_bounds.dimension(); current_dim++) {
-    for (Index freq = 1; freq < num_frequencies_per_dimension_; freq++) {
-      single_weights(row++) = std::sqrt(get_prob(prob_per_dim, current_dim, X_bounds_.dimension(), freq));
-    }
-  }
-
-  if (captured_probability_ = single_weights.cwiseProduct(single_weights).sum(); captured_probability_ > 0.94)
-    LUCID_DEBUG_FMT("Probability captured by Fourier expansion is {:.3f} percent", captured_probability_);
-  else
-    LUCID_WARN_FMT("Probability captured by Fourier expansion is only {:.3f} percent", captured_probability_);
-
-  // TODO(tend): Repeat each column twice, except the first one, or repeat all?
-  weights_(0) = single_weights(0);  // The 0th frequency does not need to be repeated
-  for (Index i = 1; i < single_weights.size(); i++) {
-    weights_(2 * i) = single_weights(i);
-    weights_(2 * i - 1) = single_weights(i);
-  }
 }
 
 Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {

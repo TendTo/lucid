@@ -71,18 +71,6 @@ LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num
                                                                    const Scalar sigma_f, const RectSet& X_bounds)
     : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(X_bounds.dimension(), sigma_l), sigma_f,
                                        X_bounds} {}
-LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, ConstVectorRef sigma_l,
-                                                                   const Scalar sigma_f, const RectSet& X_bounds, bool)
-    : TruncatedFourierFeatureMap{num_frequencies,
-                                 get_prob_per_dim(num_frequencies, sigma_l),
-                                 get_omega_per_dim(num_frequencies, sigma_l),
-                                 sigma_f,
-                                 X_bounds,
-                                 true} {}
-LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num_frequencies, const double sigma_l,
-                                                                   const Scalar sigma_f, const RectSet& X_bounds, bool)
-    : LinearTruncatedFourierFeatureMap{num_frequencies, Vector::Constant(X_bounds.dimension(), sigma_l), sigma_f,
-                                       X_bounds, true} {}
 
 RectSet LinearTruncatedFourierFeatureMap::get_periodic_set() const {
   // Divide the space of size 3 * sigma_l^{-1} into (2 * num_frequencies - 1) intervals.
