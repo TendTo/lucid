@@ -220,7 +220,7 @@ def benchmark_pipeline(config: Configuration):
         b = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
         success = b.synthesize(
             optimiser=optimiser,
-            Q_tilde=config.lattice_resolution,
+            lattice_resolution=config.lattice_resolution,
             estimator=estimator,
             feature_map=feature_map,
             X_bounds=config.X_bounds,

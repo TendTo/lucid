@@ -173,7 +173,7 @@ def pipeline(
 
     barrier = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
     success = barrier.synthesize(
-        Q_tilde=config.lattice_resolution,
+        lattice_resolution=config.lattice_resolution,
         estimator=estimator,
         X_bounds=config.X_bounds,
         X_init=config.X_init,

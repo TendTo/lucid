@@ -182,16 +182,16 @@ void init_verification(py::module_& m) {
            py::overload_cast<int, const Estimator&, const TruncatedFourierFeatureMap&, const RectSet&, const Set&,
                              const Set&, const FourierBarrierCertificateParameters&>(
                &FourierBarrierCertificate::synthesize),
-           py::arg("Q_tilde"), py::arg("estimator"), py::arg("feature_map"), py::arg("X_bounds"), py::arg("X_init"),
-           py::arg("X_unsafe"), py::arg("parameters") = FourierBarrierCertificateParameters{},
+           py::arg("lattice_resolution"), py::arg("estimator"), py::arg("feature_map"), py::arg("X_bounds"),
+           py::arg("X_init"), py::arg("X_unsafe"), py::arg("parameters") = FourierBarrierCertificateParameters{},
            FourierBarrierCertificate_synthesize)
       .def("synthesize",
            py::overload_cast<const Optimiser&, int, const Estimator&, const TruncatedFourierFeatureMap&, const RectSet&,
                              const Set&, const Set&, const FourierBarrierCertificateParameters&>(
                &FourierBarrierCertificate::synthesize),
-           py::arg("optimiser"), py::arg("Q_tilde"), py::arg("estimator"), py::arg("feature_map"), py::arg("X_bounds"),
-           py::arg("X_init"), py::arg("X_unsafe"), py::arg("parameters") = FourierBarrierCertificateParameters{},
-           FourierBarrierCertificate_synthesize)
+           py::arg("optimiser"), py::arg("lattice_resolution"), py::arg("estimator"), py::arg("feature_map"),
+           py::arg("X_bounds"), py::arg("X_init"), py::arg("X_unsafe"),
+           py::arg("parameters") = FourierBarrierCertificateParameters{}, FourierBarrierCertificate_synthesize)
       .def_property_readonly("coefficients", &FourierBarrierCertificate::coefficients,
                              FourierBarrierCertificate_coefficients)
       .def("__str__", STRING_LAMBDA(FourierBarrierCertificate));

@@ -38,14 +38,15 @@ class Objective {
   /**
    * Construct the objective functor.
    * @param n_tilde number of lattice points
-   * @param Q_tilde total number of frequencies
+   * @param lattice_resolution total number of frequencies
    * @param f_max maximum frequency
    * @param lattice lattice points
    */
-  Objective(const int n_tilde, const double Q_tilde, const int f_max, const ConstMatrixRowIndexedView& lattice)
+  Objective(const int n_tilde, const double lattice_resolution, const int f_max,
+            const ConstMatrixRowIndexedView& lattice)
       : n_tilde_{n_tilde},
         lattice_{lattice},
-        kernel_{ValleePoussinKernel{static_cast<double>(f_max), Q_tilde - static_cast<double>(f_max)}} {}
+        kernel_{ValleePoussinKernel{static_cast<double>(f_max), lattice_resolution - static_cast<double>(f_max)}} {}
 
   /**
    * Wrap angle to [-Period/2, Period/2].
@@ -106,17 +107,18 @@ using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective, pso::Cons
 using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective>;
 #endif
 
-double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMatrixRowIndexedView& filtered_lattice,
+double run_pso(int lattice_resolution, int f_max, const RectSet& X_periodic,
+               const ConstMatrixRowIndexedView& filtered_lattice,
                const FourierBarrierCertificateParameters& parameters) {
   const int d = static_cast<int>(X_periodic.dimension());
-  const int n_tilde = lucid::pow(Q_tilde, d);
+  const int n_tilde = lucid::pow(lattice_resolution, d);
 
   if (filtered_lattice.rows() == 0) {
     LUCID_WARN("No lattice points to evaluate in PSO");
     return 0;
   }
 
-  PsoOptimiser optimiser{n_tilde, Q_tilde, f_max, filtered_lattice};
+  PsoOptimiser optimiser{n_tilde, lattice_resolution, f_max, filtered_lattice};
   // Bounds of the optimization. They ensure the particles stay within the X_periodic set
   Matrix matrix_bounds{2, d};
   matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
@@ -147,9 +149,9 @@ double run_pso(int Q_tilde, int f_max, const RectSet& X_periodic, const ConstMat
   return -fval;
 }
 
-double compute_A_impl(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const RectSet& X,
+double compute_A_impl(int lattice_resolution, int f_max, const RectSet& pi, const RectSet& X_tilde, const RectSet& X,
                       const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
-  LUCID_TRACE_FMT("({}, {}, {}, {}, {})", Q_tilde, f_max, X_tilde, X, parameters);
+  LUCID_TRACE_FMT("({}, {}, {}, {}, {})", lattice_resolution, f_max, X_tilde, X, parameters);
 
   // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
   // to the corresponding set in the periodic space [0, 2pi]^n
@@ -165,11 +167,11 @@ double compute_A_impl(int Q_tilde, int f_max, const RectSet& pi, const RectSet& 
 
   LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
 
-  return run_pso(Q_tilde, f_max, X_periodic, lattice_wo_x, parameters);
+  return run_pso(lattice_resolution, f_max, X_periodic, lattice_wo_x, parameters);
 }
 
-double compute_A_impl(const int Q_tilde, const int f_max, const RectSet& pi, const RectSet& X_tilde, const MultiSet& X,
-                      const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
+double compute_A_impl(const int lattice_resolution, const int f_max, const RectSet& pi, const RectSet& X_tilde,
+                      const MultiSet& X, const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
   std::vector<double> As;
   As.reserve(X.sets().size());
   std::vector<std::unique_ptr<Set>> pi_sets;
@@ -188,7 +190,8 @@ double compute_A_impl(const int Q_tilde, const int f_max, const RectSet& pi, con
   const auto filtered_lattice =
       lattice(MultiSet(std::move(rescaled_pi_sets)).exclude_mask(lattice), Eigen::placeholders::all);
   for (const auto& rescaled_set : pi_sets) {
-    As.push_back(run_pso(Q_tilde, f_max, static_cast<RectSet&>(*rescaled_set), filtered_lattice, parameters));
+    As.push_back(
+        run_pso(lattice_resolution, f_max, static_cast<RectSet&>(*rescaled_set), filtered_lattice, parameters));
   }
   return *std::ranges::max_element(As);
 }
@@ -201,28 +204,28 @@ std::string FourierBarrierCertificateParameters::to_string() const {
       "weight( {} ) phi_local( {} ) phi_global( {} ) xtol( {} ) ftol( {} ) max_vel( {} ) )",
       increase, max_iter, num_particles, threads, weight, phi_local, phi_global, xtol, ftol, max_vel);
 }
-double FourierBarrierCertificate::compute_A(const int Q_tilde, const int f_max, const RectSet& pi,
+double FourierBarrierCertificate::compute_A(const int lattice_resolution, const int f_max, const RectSet& pi,
                                             const RectSet& X_tilde, const Set& X, const Matrix& lattice,
                                             const FourierBarrierCertificateParameters& parameters) {
   if (const auto* X_rect = dynamic_cast<const RectSet*>(&X)) {
-    return compute_A_impl(Q_tilde, f_max, pi, X_tilde, *X_rect, lattice, parameters);
+    return compute_A_impl(lattice_resolution, f_max, pi, X_tilde, *X_rect, lattice, parameters);
   }
 
   // TODO(tend): this is a manual way of supporting MultiSet for X. There may be a more direct way.
   if (const auto* X_multi = dynamic_cast<const MultiSet*>(&X)) {
-    return compute_A_impl(Q_tilde, f_max, pi, X_tilde, *X_multi, lattice, parameters);
+    return compute_A_impl(lattice_resolution, f_max, pi, X_tilde, *X_multi, lattice, parameters);
   }
 
   LUCID_UNREACHABLE();
 }
-double FourierBarrierCertificate::compute_A(const int Q_tilde, const int f_max, const RectSet& X_tilde, const Set& X,
-                                            const FourierBarrierCertificateParameters& parameters) {
+double FourierBarrierCertificate::compute_A(const int lattice_resolution, const int f_max, const RectSet& X_tilde,
+                                            const Set& X, const FourierBarrierCertificateParameters& parameters) {
   const RectSet pi{Vector::Constant(X_tilde.dimension(), 0),
                    Vector::Constant(X_tilde.dimension(), 2 * std::numbers::pi)};
-  return compute_A(Q_tilde, f_max, pi, X_tilde, X, pi.lattice(Q_tilde, false), parameters);
+  return compute_A(lattice_resolution, f_max, pi, X_tilde, X, pi.lattice(lattice_resolution, false), parameters);
 }
 
-bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& estimator,
+bool FourierBarrierCertificate::synthesize(const int lattice_resolution, const Estimator& estimator,
                                            const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
                                            const Set& X_init, const Set& X_unsafe,
                                            const FourierBarrierCertificateParameters& parameters) {
@@ -231,40 +234,42 @@ bool FourierBarrierCertificate::synthesize(const int Q_tilde, const Estimator& e
                          std::conditional_t<constants::HIGHS_BUILD, HighsOptimiser,                       //
                                             std::conditional_t<constants::ALGLIB_BUILD, AlglibOptimiser,  //
                                                                SoplexOptimiser>>>;
-  return synthesize(DefaultOptimiser{}, Q_tilde, estimator, feature_map, X_bounds, X_init, X_unsafe, parameters);
+  return synthesize(DefaultOptimiser{}, lattice_resolution, estimator, feature_map, X_bounds, X_init, X_unsafe,
+                    parameters);
 }
 
-bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int Q_tilde, const Estimator& estimator,
-                                           const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds,
-                                           const Set& X_init, const Set& X_unsafe,
+bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int lattice_resolution,
+                                           const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
+                                           const RectSet& X_bounds, const Set& X_init, const Set& X_unsafe,
                                            const FourierBarrierCertificateParameters& parameters) {
-  LUCID_TRACE_FMT("({}, {}, {}, {}, {}, {}, {})", optimiser, Q_tilde, feature_map, X_bounds, X_init, X_unsafe,
-                  parameters);
+  LUCID_TRACE_FMT("({}, {}, {}, {}, {}, {}, {})", optimiser, lattice_resolution, feature_map, X_bounds, X_init,
+                  X_unsafe, parameters);
   const int n = static_cast<int>(X_bounds.dimension());
   const int f_max = feature_map.num_frequencies() - 1;
-  LUCID_CHECK_ARGUMENT_CMP(f_max, <=, 2 * Q_tilde + 1);
+  LUCID_CHECK_ARGUMENT_CMP(f_max, <=, 2 * lattice_resolution + 1);
 
   // Base periodic set between [0, 2pi] in each dimension
   const RectSet pi{Vector::Constant(n, 0), Vector::Constant(n, 2 * std::numbers::pi)};
   // Find the periodic set encapsulating the original set
   const RectSet X_tilde{feature_map.get_periodic_set()};
   // Create a lattice over the periodic set with no endpoints (since they would wrap around)
-  const Matrix pi_lattice{pi.lattice(Q_tilde, false)};
+  const Matrix pi_lattice{pi.lattice(lattice_resolution, false)};
 
   LUCID_ASSERT((X_tilde.lower_bound().array() <= X_bounds.lower_bound().array()).all() &&
                    (X_bounds.upper_bound().array() <= X_tilde.upper_bound().array()).all(),
                "X_bounds must be contained in X_tilde");
 
-  const double A_x = compute_A(Q_tilde, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
-  const double A_x0 = compute_A(Q_tilde, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
-  const double A_xu = compute_A(Q_tilde, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
+  const double A_x = compute_A(lattice_resolution, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
+  const double A_x0 = compute_A(lattice_resolution, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
+  const double A_xu =
+      compute_A(lattice_resolution, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
 
   LUCID_DEBUG_FMT("A_x: {}", A_x);
   LUCID_DEBUG_FMT("A_x0: {}", A_x0);
   LUCID_DEBUG_FMT("A_xu: {}", A_xu);
 
   // Apply the feature map to all the lattice points
-  const Matrix lattice = X_tilde.lattice(Q_tilde, false);
+  const Matrix lattice = X_tilde.lattice(lattice_resolution, false);
   const Matrix f_lattice{feature_map(lattice)};
   Matrix fp_lattice{estimator(lattice)};
   // We are fixing the zero frequency to the constant value we computed in the feature map
@@ -288,9 +293,9 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const auto [x0_include_mask, x0_exclude_mask] = X_init_rescaled->include_exclude_masks(lattice);
   const auto [xu_include_mask, xu_exclude_mask] = X_unsafe_rescaled->include_exclude_masks(lattice);
 
-  const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(Q_tilde), -n / 2.0);
-  LUCID_DEBUG_FMT("C = (1 - (2 f_max) / Q_tilde)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",
-                  parameters.C_coeff, f_max, Q_tilde, n, C);
+  const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(lattice_resolution), -n / 2.0);
+  LUCID_DEBUG_FMT("C = (1 - (2 f_max) / lattice_resolution)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",
+                  parameters.C_coeff, f_max, lattice_resolution, n, C);
 
   const double x0_denom = C - 2.0 * A_x0 + 1.0;
   LUCID_DEBUG_FMT("x0_denom: C - 2 * A_x0 + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_x0, x0_denom);

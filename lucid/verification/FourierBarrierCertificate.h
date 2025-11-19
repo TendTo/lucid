@@ -60,13 +60,13 @@ class FourierBarrierCertificate final : public BarrierCertificate {
  public:
   using BarrierCertificate::BarrierCertificate;
 
-  static double compute_A(int Q_tilde, int f_max, const RectSet& pi, const RectSet& X_tilde, const Set& X,
+  static double compute_A(int lattice_resolution, int f_max, const RectSet& pi, const RectSet& X_tilde, const Set& X,
                           const Matrix& lattice, const FourierBarrierCertificateParameters& parameters);
-  static double compute_A(int Q_tilde, int f_max, const RectSet& X_tilde, const Set& X,
+  static double compute_A(int lattice_resolution, int f_max, const RectSet& X_tilde, const Set& X,
                           const FourierBarrierCertificateParameters& parameters);
 
   /** @overload **/
-  bool synthesize(int Q_tilde, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
+  bool synthesize(int lattice_resolution, const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
                   const RectSet& X_bounds, const Set& X_init, const Set& X_unsafe,
                   const FourierBarrierCertificateParameters& parameters = {});
 
@@ -95,7 +95,7 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * by solving an optimisation problem before starting the synthesis, using, e.g.,
    * [particle swarm optimisation (PSO)](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
    * @param optimiser LP optimiser to use for the synthesis
-   * @param Q_tilde number of lattice points on periodic domain per dimension
+   * @param lattice_resolution number of lattice points on periodic domain per dimension
    * @param estimator estimator model to compute the value of the feature map on @xp
    * @param feature_map feature map to apply to the lattice points
    * @param X_bounds bounds of the set @X
@@ -105,7 +105,7 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * @return true if the synthesis was successful
    * @return false if no solution was found
    */
-  bool synthesize(const Optimiser& optimiser, int Q_tilde, const Estimator& estimator,
+  bool synthesize(const Optimiser& optimiser, int lattice_resolution, const Estimator& estimator,
                   const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds, const Set& X_init,
                   const Set& X_unsafe, const FourierBarrierCertificateParameters& parameters = {});
 
