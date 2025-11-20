@@ -20,6 +20,7 @@ except ImportError:
 
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 
 from pylucid import random
 
@@ -545,10 +546,12 @@ def plot_set_1d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
             ax.plot([s.lower_bound[0], s.upper_bound[0]], [0, 0], color=color, linewidth=3, label=label)
         elif isinstance(s, SphereSet):
             ax.plot([s.center[0] - s.radius, s.center[0] + s.radius], [0, 0], color=color, linewidth=3, label=label)
+        elif isinstance(s, EllipseSet):
+            ax.plot([s.center[0] - s.semi_axes[0], s.center[0] + s.semi_axes[0]], [0, 0], color=color, linewidth=3, label=label)
 
     if isinstance(X_set, MultiSet):
         for i, subset in enumerate(X_set):
-            plot_rect_1d_helper(subset, color, label if i == 0 else "")
+            plot_set_1d_matplotlib(subset, color, label if i == 0 else "")
     else:
         plot_rect_1d_helper(X_set, color, label)
 
@@ -568,10 +571,13 @@ def plot_set_2d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
         elif isinstance(s, SphereSet):
             circle = plt.Circle((s.center[0], s.center[1]), s.radius, color=color, fill=False, linewidth=2, label=label)
             ax.add_patch(circle)
+        elif isinstance(s, EllipseSet):
+            ellipse = Ellipse((s.center[0], s.center[1]), 2 * s.semi_axes[0], 2 * s.semi_axes[1], color=color, fill=False, linewidth=2, label=label)
+            ax.add_patch(ellipse)
 
     if isinstance(X_set, MultiSet):
         for i, subset in enumerate(X_set):
-            plot_rect_2d_helper(subset, color, label if i == 0 else "")
+            plot_set_2d_matplotlib(subset, color, label if i == 0 else "")
     else:
         plot_rect_2d_helper(X_set, color, label)
 
@@ -865,20 +871,21 @@ def plot_set_3d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
             for i, (x_coords, y_coords, z_coords) in enumerate(edges):
                 ax.plot(x_coords, y_coords, z_coords, color=color, linewidth=2, label=label if i == 0 else "")
 
-        elif isinstance(s, SphereSet):
+        elif isinstance(s, (SphereSet, EllipseSet)):
             # Create a sphere using spherical coordinates
+            radius = [s.radius] * 3 if isinstance(s, SphereSet) else s.semi_axes
             u = np.linspace(0, 2 * np.pi, 20)
             v = np.linspace(0, np.pi, 20)
-            x_sphere = s.center[0] + s.radius * np.outer(np.cos(u), np.sin(v))
-            y_sphere = s.center[1] + s.radius * np.outer(np.sin(u), np.sin(v))
-            z_sphere = s.center[2] + s.radius * np.outer(np.ones(np.size(u)), np.cos(v))
+            x_sphere = s.center[0] + radius[0] * np.outer(np.cos(u), np.sin(v))
+            y_sphere = s.center[1] + radius[1] * np.outer(np.sin(u), np.sin(v))
+            z_sphere = s.center[2] + radius[2] * np.outer(np.ones(np.size(u)), np.cos(v))
 
             # Plot wireframe sphere
             ax.plot_wireframe(x_sphere, y_sphere, z_sphere, color=color, alpha=0.3, label=label)
 
     if isinstance(X_set, MultiSet):
         for i, subset in enumerate(X_set):
-            plot_rect_3d_helper(subset, color, label if i == 0 else "")
+            plot_set_3d_matplotlib(subset, color, label if i == 0 else "")
     else:
         plot_rect_3d_helper(X_set, color, label)
 

@@ -18,23 +18,26 @@ namespace lucid {
 /**
  * Multidimensional ellipsoid set.
  * A vector @x is in the set if @f$ \sum_{i=1}^{d} \left(\frac{x_i - c_i}{r_i}\right)^2 \le 1 @f$,
- * where @f$ c @f$ is the center and @f$ r @f$ is the vector of semi-axes (radii).
+ * where @f$ c @f$ is the center and @f$ r @f$ is the vector of semi-axes.
+ * The sampling is uniform over the volume of the ellipse.
+ * The samples are generated using an adapted version of the
+ * [Muller method](https://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/).
  */
 class EllipseSet final : public Set {
  public:
   using Set::change_size;
 
   /**
-   * Construct an ellipsoid set from a `center` and a vector of `radii`.
+   * Construct an ellipsoid set from a `center` and a vector of `semi_axes`.
    * The dimension of the space the ellipsoid set lives in is determined by the size of the `center` vector.
    * @param center vector representing the center of the ellipsoid
-   * @param radii vector of semi-axes (radii) for each dimension
+   * @param semi_axes vector of semi-axes for each dimension
    */
-  EllipseSet(ConstVectorRef center, ConstVectorRef radii);
+  EllipseSet(ConstVectorRef center, ConstVectorRef semi_axes);
 
   /**
    * Construct an ellipsoid set from a `center` and a uniform `radius`.
-   * This creates a sphere (all radii are equal).
+   * This creates a sphere (all semi-axes are equal).
    * The dimension of the space the ellipsoid set lives in is determined by the size of the `center` vector.
    * @param center vector representing the center of the ellipsoid
    * @param radius uniform radius for all dimensions
@@ -50,8 +53,8 @@ class EllipseSet final : public Set {
 
   /** @getter{center, ellipsoid set} */
   [[nodiscard]] const Vector& center() const { return center_; }
-  /** @getter{radii, ellipsoid set} */
-  [[nodiscard]] const Vector& radii() const { return radii_; }
+  /** @getter{semi-axes, ellipsoid set} */
+  [[nodiscard]] const Vector& semi_axes() const { return semi_axes_; }
 
   [[nodiscard]] Vector general_lower_bound() const override;
   [[nodiscard]] Vector general_upper_bound() const override;
@@ -63,8 +66,8 @@ class EllipseSet final : public Set {
   [[nodiscard]] std::string to_string() const override;
 
  private:
-  Vector center_;  ///< Center of the ellipsoid. Determines the dimension of the ellipsoid set
-  Vector radii_;   ///< Semi-axes (radii) for each dimension
+  Vector center_;     ///< Center of the ellipsoid. Determines the dimension of the ellipsoid set
+  Vector semi_axes_;  ///< Semi-axes for each dimension
 };
 
 std::ostream& operator<<(std::ostream& os, const EllipseSet& set);

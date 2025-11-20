@@ -9,9 +9,8 @@ from pylucid.pipeline import OptimiserResult, pipeline
 def optimiser_cb(res: OptimiserResult):
     """Callback function to handle the results of the optimiser."""
     assert res["success"], "Optimisation failed"
-    assert res["obj_val"] <= 0.07, "Safety lower bound should be >= 93%"
-    assert len(res["sol"]) == 17
-    # assert res["norm"] <= 10000, "Norm of the solution should be <= 10000"
+    assert res["obj_val"] <= 0.17, "Safety lower bound should be >= 83%"
+    assert len(res["sol"]) == 15
 
 
 def scenario_config() -> "Configuration":

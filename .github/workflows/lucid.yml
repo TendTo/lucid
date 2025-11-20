@@ -56,7 +56,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     needs: build
-    if: false # Temporarily disabled due to performace
+    if: false # Temporarily disabled due to performance
 
     steps:
       - uses: actions/checkout@v4

@@ -5,6 +5,7 @@ import numpy as np
 from ._pylucid import (
     Estimator,
     FeatureMap,
+    EllipseSet,
     MultiSet,
     RectSet,
     Set,
@@ -81,32 +82,25 @@ def plot_set_1d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None
     """
 
     def plot_rect_1d(s: Set, color: str, label: str, fig: go.Figure):
+        x0, x1 = 0.0, 0.0
         if isinstance(s, RectSet):
-            fig.add_shape(
-                type="line",
-                xref="x",
-                yref="y",
-                x0=s.lower_bound[0],
-                y0=0,
-                x1=s.upper_bound[0],
-                y1=0,
-                line=dict(color=color, width=3),
-                name=label,
-                showlegend=bool(label),
-            )
+            x0, x1 = s.lower_bound[0], s.upper_bound[0]
         elif isinstance(s, SphereSet):
-            fig.add_shape(
-                type="line",
-                xref="x",
-                yref="y",
-                x0=s.center[0] - s.radius,
-                y0=0,
-                x1=s.center[0] + s.radius,
-                y1=0,
-                line=dict(color=color, width=3),
-                name=label,
-                showlegend=bool(label),
-            )
+            x0, x1 = s.center[0] - s.radius, s.center[0] + s.radius
+        elif isinstance(s, EllipseSet):
+            x0, x1 = s.center[0] - s.semi_axes[0], s.center[0] + s.semi_axes[0]
+        fig.add_shape(
+            type="line",
+            xref="x",
+            yref="y",
+            x0=x0,
+            y0=0,
+            x1=x1,
+            y1=0,
+            line=dict(color=color, width=3),
+            name=label,
+            showlegend=bool(label),
+        )
 
     return plot_set(plot_rect_1d, X_set, color, label, fig)
 
@@ -123,24 +117,26 @@ def plot_set_2d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None
     """
 
     def plot_rect_2d(s: Set, color: str, label: str, fig: go.Figure):
+        x, y, z = [], [], []
         if isinstance(s, RectSet):
             x = [s.lower_bound[0], s.upper_bound[0], s.upper_bound[0], s.lower_bound[0], s.lower_bound[0]]
             y = [s.lower_bound[1], s.lower_bound[1], s.upper_bound[1], s.upper_bound[1], s.lower_bound[1]]
             z = [0, 0, 0, 0, 0]
-
-            fig.add_scatter3d(
-                x=x, y=y, z=z, mode="lines", line=dict(color=color, width=5), name=label, showlegend=bool(label)
-            )
         elif isinstance(s, SphereSet):
             theta = np.linspace(0, 2 * np.pi, 100)
             x = s.center[0] + s.radius * np.cos(theta)
             y = s.center[1] + s.radius * np.sin(theta)
             z = np.zeros_like(x)
-
-            fig.add_scatter3d(
-                x=x, y=y, z=z, mode="lines", line=dict(color=color, width=5), name=label, showlegend=bool(label)
-            )
             # TODO: fix
+        elif isinstance(s, EllipseSet):
+            theta = np.linspace(0, 2 * np.pi, 100)
+            x = s.center[0] + s.semi_axes[0] * np.cos(theta)
+            y = s.center[1] + s.semi_axes[1] * np.sin(theta)
+            z = np.zeros_like(x)
+
+        fig.add_scatter3d(
+            x=x, y=y, z=z, mode="lines", line=dict(color=color, width=5), name=label, showlegend=bool(label)
+        )
 
     return plot_set(plot_rect_2d, X_set, color, label, fig)
 
@@ -181,8 +177,73 @@ def plot_set_2d_plane(X_set: "Set", color: str, label: str = "", fig: go.Figure 
                 name=label,
                 showlegend=bool(label),
             )
+        elif isinstance(s, EllipseSet):
+            fig.add_shape(
+                type="circle",
+                xref="x",
+                yref="y",
+                x0=s.center[0] - s.semi_axes[0],
+                y0=s.center[1] - s.semi_axes[1],
+                x1=s.center[0] + s.semi_axes[0],
+                y1=s.center[1] + s.semi_axes[1],
+                line=dict(color=color),
+                name=label,
+                showlegend=bool(label),
+            )
 
     return plot_set(plot_rect_2d, X_set, color, label, fig)
+
+
+def plot_set_3d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None):
+    """
+    Plot the given set in 3D.
+
+    Args:
+        X_set: A Set representing the set to be plotted.
+        color: The color to use for plotting the set.
+        label: Label for the set.
+        fig: Existing figure to add to.
+    """
+
+    def plot_rect_3d(s: Set, color: str, label: str, fig: go.Figure):
+        if isinstance(s, RectSet):
+            x_l, x_u = s.lower_bound[0], s.upper_bound[0]
+            y_l, y_u = s.lower_bound[1], s.upper_bound[1]
+            z_l, z_u = s.lower_bound[2], s.upper_bound[2]
+            # Draw a cube for the rectangle
+            # TODO: I'm sure there is a more elegant way to do this
+            x = [x_l, x_u, x_u, x_l, x_l, None, x_l, x_u, x_u, x_l, x_l, None]
+            y = [y_l, y_l, y_u, y_u, y_l, None, y_l, y_l, y_u, y_u, y_l, None]
+            z = [z_l, z_l, z_l, z_l, z_l, None, z_u, z_u, z_u, z_u, z_u, None]
+            x += [x_l, x_l, None, x_u, x_u, None, x_l, x_l, None, x_u, x_u, None]
+            y += [y_l, y_l, None, y_l, y_l, None, y_u, y_u, None, y_u, y_u, None]
+            z += [z_l, z_u, None, z_l, z_u, None, z_l, z_u, None, z_l, z_u, None]
+
+            fig.add_scatter3d(x=x, y=y, z=z, mode="lines", line_color=color, name=label, showlegend=bool(label))
+        elif isinstance(s, (SphereSet, EllipseSet)):
+            radius = [s.radius] * 3 if isinstance(s, SphereSet) else s.semi_axes
+            # Adapted from https://community.plotly.com/t/adding-wireframe-around-a-sphere/37661/2
+            theta = np.linspace(0, 2 * np.pi, 120)
+            phi = np.linspace(0, np.pi, 60)
+            x = []
+            y = []
+            z = []
+            for t in [theta[10 * k] for k in range(12)]:  # meridians:
+                x.extend(
+                    list(s.center[0] + radius[0] * np.cos(t) * np.sin(phi)) + [None]
+                )  # None is inserted to mark the end of a meridian line
+                y.extend(list(s.center[1] + radius[1] * np.sin(t) * np.sin(phi)) + [None])
+                z.extend(list(s.center[2] + radius[2] * np.cos(phi)) + [None])
+            for p in [phi[6 * k] for k in range(10)]:  # parallels
+                x.extend(
+                    list(s.center[0] + radius[0] * np.cos(theta) * np.sin(p)) + [None]
+                )  # None is inserted to mark the end of a parallel line
+                y.extend(list(s.center[1] + radius[1] * np.sin(theta) * np.sin(p)) + [None])
+                z.extend([s.center[2] + radius[2] * np.cos(p)] * 120 + [None])
+
+            fig.add_scatter3d(x=x, y=y, z=z, mode="lines", line_color=color, name=label, showlegend=bool(label))
+
+    return plot_set(plot_rect_3d, X_set, color, label, fig)
 
 
 def plot_solution_1d(
@@ -289,65 +350,6 @@ def plot_solution_1d(
     if show:
         fig.show()
     return fig
-
-
-def plot_set_3d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None):
-    """
-    Plot the given set in 3D.
-
-    Args:
-        X_set: A Set representing the set to be plotted.
-        color: The color to use for plotting the set.
-        label: Label for the set.
-        fig: Existing figure to add to.
-    """
-
-    def plot_rect_3d(s: Set, color: str, label: str, fig: go.Figure):
-        if isinstance(s, RectSet):
-            x_l, x_u = s.lower_bound[0], s.upper_bound[0]
-            y_l, y_u = s.lower_bound[1], s.upper_bound[1]
-            z_l, z_u = s.lower_bound[2], s.upper_bound[2]
-            # Draw a cube for the rectangle
-            # TODO: I'm sure there is a more elegant way to do this
-            x = [x_l, x_u, x_u, x_l, x_l, None, x_l, x_u, x_u, x_l, x_l, None]
-            y = [y_l, y_l, y_u, y_u, y_l, None, y_l, y_l, y_u, y_u, y_l, None]
-            z = [z_l, z_l, z_l, z_l, z_l, None, z_u, z_u, z_u, z_u, z_u, None]
-            x += [x_l, x_l, None, x_u, x_u, None, x_l, x_l, None, x_u, x_u, None]
-            y += [y_l, y_l, None, y_l, y_l, None, y_u, y_u, None, y_u, y_u, None]
-            z += [z_l, z_u, None, z_l, z_u, None, z_l, z_u, None, z_l, z_u, None]
-
-            fig.add_scatter3d(
-                x=x,
-                y=y,
-                z=z,
-                mode="lines",
-                line=dict(color=color),
-                name=label,
-                showlegend=bool(label),
-            )
-        elif isinstance(s, SphereSet):
-            # Adapted from https://community.plotly.com/t/adding-wireframe-around-a-sphere/37661/2
-            theta = np.linspace(0, 2 * np.pi, 120)
-            phi = np.linspace(0, np.pi, 60)
-            x = []
-            y = []
-            z = []
-            for t in [theta[10 * k] for k in range(12)]:  # meridians:
-                x.extend(
-                    list(s.center[0] + s.radius * np.cos(t) * np.sin(phi)) + [None]
-                )  # None is inserted to mark the end of a meridian line
-                y.extend(list(s.center[1] + s.radius * np.sin(t) * np.sin(phi)) + [None])
-                z.extend(list(s.center[2] + s.radius * np.cos(phi)) + [None])
-            for p in [phi[6 * k] for k in range(10)]:  # parallels
-                x.extend(
-                    list(s.center[0] + s.radius * np.cos(theta) * np.sin(p)) + [None]
-                )  # None is inserted to mark the end of a parallel line
-                y.extend(list(s.center[1] + s.radius * np.sin(theta) * np.sin(p)) + [None])
-                z.extend([s.center[2] + s.radius * np.cos(p)] * 120 + [None])
-
-            fig.add_scatter3d(x=x, y=y, z=z, mode="lines", line_color=color, name=label, showlegend=bool(label))
-
-    return plot_set(plot_rect_3d, X_set, color, label, fig)
 
 
 def plot_solution_2d(

@@ -20,14 +20,12 @@ using lucid::Vector3;
 using lucid::VectorI;
 
 // Test basic construction and contains functionality
-TEST(TestEllipseSet, ConstructionWithRadiiVector) {
-  const Vector2 center{1.5, -2.5};
-  const Vector2 radii{3.0, 2.0};
-  const EllipseSet ellipse{center, radii};
+TEST(TestEllipseSet, ConstructionWithSemiAxesVector) {
+  const EllipseSet ellipse{Vector2{1.5, -2.5}, Vector2{3.0, 2.0}};
 
   EXPECT_EQ(ellipse.dimension(), 2);
-  EXPECT_EQ(ellipse.center(), center);
-  EXPECT_EQ(ellipse.radii(), radii);
+  EXPECT_EQ(ellipse.center(), Vector2(1.5, -2.5));
+  EXPECT_EQ(ellipse.semi_axes(), Vector2(3.0, 2.0));
 }
 
 TEST(TestEllipseSet, ConstructionWithUniformRadius) {
@@ -37,14 +35,12 @@ TEST(TestEllipseSet, ConstructionWithUniformRadius) {
 
   EXPECT_EQ(ellipse.dimension(), 2);
   EXPECT_EQ(ellipse.center(), center);
-  EXPECT_EQ(ellipse.radii(), Vector2::Constant(radius));
+  EXPECT_EQ(ellipse.semi_axes(), Vector2::Constant(radius));
 }
 
 TEST(TestEllipseSet, Contains2DCircle) {
-  // Test with equal radii (circle)
-  const Vector2 center{0, 0};
-  const Vector2 radii{1.0, 1.0};
-  const EllipseSet ellipse{center, radii};
+  // Test with equal semi_axes (circle)
+  const EllipseSet ellipse{Vector2{0, 0}, Vector2{1.0, 1.0}};
 
   // Points inside the ellipse
   EXPECT_TRUE(ellipse(Vector2{0, 0}));      // Center
@@ -65,10 +61,10 @@ TEST(TestEllipseSet, Contains2DCircle) {
 }
 
 TEST(TestEllipseSet, Contains2DEllipse) {
-  // Test with different radii (actual ellipse)
+  // Test with different semi_axes (actual ellipse)
   const Vector2 center{0, 0};
-  const Vector2 radii{2.0, 1.0};  // Wider in x, narrower in y
-  const EllipseSet ellipse{center, radii};
+  const Vector2 semi_axes{2.0, 1.0};  // Wider in x, narrower in y
+  const EllipseSet ellipse{center, semi_axes};
 
   // Points inside the ellipse
   EXPECT_TRUE(ellipse(Vector2{0, 0}));      // Center
@@ -90,9 +86,7 @@ TEST(TestEllipseSet, Contains2DEllipse) {
 }
 
 TEST(TestEllipseSet, Contains3DEllipsoid) {
-  const Vector3 center{1, 2, 3};
-  const Vector3 radii{3.0, 2.0, 1.0};
-  const EllipseSet ellipse{center, radii};
+  const EllipseSet ellipse{Vector3{1, 2, 3}, Vector3{3.0, 2.0, 1.0}};
 
   // Points inside the ellipsoid
   EXPECT_TRUE(ellipse(Vector3{1, 2, 3}));    // Center
@@ -116,9 +110,7 @@ TEST(TestEllipseSet, Contains3DEllipsoid) {
 }
 
 TEST(TestEllipseSet, ContainsOffCenter) {
-  const Vector2 center{-2, 3};
-  const Vector2 radii{2.0, 1.5};
-  const EllipseSet ellipse{center, radii};
+  const EllipseSet ellipse{Vector2{-2, 3}, Vector2{2.0, 1.5}};
 
   // Points inside the ellipse
   EXPECT_TRUE(ellipse(Vector2{-2, 3}));    // Center
@@ -136,34 +128,12 @@ TEST(TestEllipseSet, ContainsOffCenter) {
   EXPECT_FALSE(ellipse(Vector2{-2, 5}));  // Outside (2 units in y)
 }
 
-TEST(TestEllipseSet, ZeroRadii) {
-  // Test with zero radius in all dimensions (point set)
-  const Vector2 center{1, 1};
-  const Vector2 radii{0.0, 0.0};
-  const EllipseSet ellipse{center, radii};
-
-  // Only the center point should be contained
-  EXPECT_TRUE(ellipse(Vector2{1, 1}));
-
-  // Any other point should not be contained
-  EXPECT_FALSE(ellipse(Vector2{1.001, 1}));
-  EXPECT_FALSE(ellipse(Vector2{1, 1.001}));
+TEST(TestEllipseSet, ZeroSemiAxes) {
+  EXPECT_THROW(EllipseSet(Vector2{1, 1}, Vector2{0.0, 0.0}), lucid::exception::LucidInvalidArgumentException);
 }
 
 TEST(TestEllipseSet, ZeroRadiusInOneDimension) {
-  // Test with zero radius in one dimension (line segment in 2D)
-  const Vector2 center{0, 0};
-  const Vector2 radii{2.0, 0.0};
-  const EllipseSet ellipse{center, radii};
-
-  // Points on the line segment
-  EXPECT_TRUE(ellipse(Vector2{0, 0}));   // Center
-  EXPECT_TRUE(ellipse(Vector2{1, 0}));   // On the line
-  EXPECT_TRUE(ellipse(Vector2{-1, 0}));  // On the line
-
-  // Points off the line
-  EXPECT_FALSE(ellipse(Vector2{0, 0.001}));
-  EXPECT_FALSE(ellipse(Vector2{1, 0.001}));
+  EXPECT_THROW(EllipseSet(Vector2{0, 0}, Vector2{2.0, 0.0}), lucid::exception::LucidInvalidArgumentException);
 }
 
 TEST(TestEllipseSet, Dimension) {
@@ -177,17 +147,15 @@ TEST(TestEllipseSet, Dimension) {
   EXPECT_EQ(ellipse3d.dimension(), 3);
 
   const Vector highDim = Vector::Zero(10);
-  const Vector highDimRadii = Vector::Constant(10, 1.5);
-  const EllipseSet ellipseHighDim{highDim, highDimRadii};
+  const Vector highDimSemiAxes = Vector::Constant(10, 1.5);
+  const EllipseSet ellipseHighDim{highDim, highDimSemiAxes};
   EXPECT_EQ(ellipseHighDim.dimension(), 10);
 }
 
 TEST(TestEllipseSet, Sampling) {
   lucid::random::seed(42);  // Set a fixed seed for reproducibility
   constexpr int n_samples = 100;
-  const Vector2 center{0, 0};
-  const Vector2 radii{3.0, 2.0};
-  const EllipseSet ellipse{center, radii};
+  const EllipseSet ellipse{Vector2{0, 0}, Vector2{3.0, 2.0}};
 
   // Test that all sampled points are within the ellipse
   const Matrix samples = ellipse.sample(n_samples);
@@ -203,9 +171,7 @@ TEST(TestEllipseSet, Sampling) {
 TEST(TestEllipseSet, Sampling3D) {
   lucid::random::seed(123);
   constexpr int n_samples = 50;
-  const Vector3 center{1, 2, 3};
-  const Vector3 radii{2.0, 1.5, 1.0};
-  const EllipseSet ellipse{center, radii};
+  const EllipseSet ellipse{Vector3{1, 2, 3}, Vector3{2.0, 1.5, 1.0}};
 
   const Matrix samples = ellipse.sample(n_samples);
   EXPECT_EQ(samples.rows(), n_samples);
@@ -239,71 +205,58 @@ TEST(TestEllipseSet, SamplingUniformRadius) {
 }
 
 TEST(TestEllipseSet, ChangeSize) {
-  Vector2 center{0, 0};
-  Vector2 radii{2.0, 1.0};
-  EllipseSet ellipse{center, radii};
+  EllipseSet ellipse{Vector2{0, 0}, Vector2{2.0, 1.0}};
 
-  // Test expanding the ellipse
   ellipse.change_size(Vector2{2.0, 2.0});
-  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 3.0);  // 2.0 + 2.0/2
-  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 2.0);  // 1.0 + 2.0/2
-  EXPECT_EQ(ellipse.center(), center);        // Center should not change
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 3.0);  // 2.0 + 2.0/2
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 2.0);  // 1.0 + 2.0/2
+  EXPECT_EQ(ellipse.center(), Vector2(0, 0));     // Center should not change
 
-  // Test shrinking the ellipse
   ellipse.change_size(Vector2{-2.0, -2.0});
-  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 2.0);  // 3.0 - 2.0/2
-  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 1.0);  // 2.0 - 2.0/2
-  EXPECT_EQ(ellipse.center(), center);        // Center should not change
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 2.0);  // 3.0 - 2.0/2
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 1.0);  // 2.0 - 2.0/2
+  EXPECT_EQ(ellipse.center(), Vector2(0, 0));     // Center should not change
 }
 
 TEST(TestEllipseSet, ChangeSizeUniform) {
-  Vector2 center{1, 1};
-  Vector2 radii{2.0, 3.0};
-  EllipseSet ellipse{center, radii};
+  EllipseSet ellipse{Vector2{1, 1}, Vector2{2.0, 3.0}};
 
-  // Test expanding uniformly using double
   ellipse.change_size(4.0);
-  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 4.0);  // 2.0 + 4.0/2
-  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 5.0);  // 3.0 + 4.0/2
-  EXPECT_EQ(ellipse.center(), center);        // Center should not change
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 4.0);  // 2.0 + 4.0/2
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 5.0);  // 3.0 + 4.0/2
+  EXPECT_EQ(ellipse.center(), Vector2(1, 1));     // Center should not change
 }
 
 TEST(TestEllipseSet, ChangeSizeNonUniform) {
-  Vector2 center{0, 0};
-  Vector2 radii{2.0, 1.0};
-  EllipseSet ellipse{center, radii};
+  EllipseSet ellipse{Vector2{0, 0}, Vector2{2.0, 1.0}};
 
   // Test changing size differently in each dimension
   ellipse.change_size(Vector2{2.0, 0.0});
-  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 3.0);  // 2.0 + 2.0/2
-  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 1.0);  // 1.0 + 0.0/2
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 3.0);  // 2.0 + 2.0/2
+  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 1.0);  // 1.0 + 0.0/2
 }
 
 TEST(TestEllipseSet, ChangeSizeInvalid) {
-  Vector2 center{0, 0};
-  Vector2 radii{1.0, 1.0};
-  EllipseSet ellipse{center, radii};
+  EllipseSet ellipse{Vector2{0, 0}, Vector2{1.0, 1.0}};
 
   // Test that shrinking too much throws an exception
   EXPECT_THROW(ellipse.change_size(Vector2{-5.0, -5.0}), lucid::exception::LucidInvalidArgumentException);
 }
 
 TEST(TestEllipseSet, ToRectSet) {
-  const Vector2 center{1, 2};
-  const Vector2 radii{3.0, 2.0};
-  const EllipseSet ellipse{center, radii};
+  const EllipseSet ellipse{Vector2{1, 2}, Vector2{3.0, 2.0}};
 
   auto rect_set = ellipse.to_rect_set();
   EXPECT_EQ(rect_set->dimension(), 2);
-  EXPECT_EQ(rect_set->general_lower_bound(), center - radii);
-  EXPECT_EQ(rect_set->general_upper_bound(), center + radii);
+  EXPECT_EQ(rect_set->general_lower_bound(), Vector2(1, 2) - Vector2(3.0, 2.0));
+  EXPECT_EQ(rect_set->general_upper_bound(), Vector2(1, 2) + Vector2(3.0, 2.0));
 }
 
 TEST(TestEllipseSet, Equality) {
   const Vector2 center1{1, 2};
-  const Vector2 radii1{3.0, 2.0};
-  const EllipseSet ellipse1{center1, radii1};
-  const EllipseSet ellipse2{center1, radii1};
+  const Vector2 axes1{3.0, 2.0};
+  const EllipseSet ellipse1{center1, axes1};
+  const EllipseSet ellipse2{center1, axes1};
   const EllipseSet ellipse3{Vector2{1, 2}, Vector2{3.0, 2.1}};
 
   EXPECT_TRUE(ellipse1 == ellipse2);
@@ -312,9 +265,9 @@ TEST(TestEllipseSet, Equality) {
 
 TEST(TestEllipseSet, EqualityWithSet) {
   const Vector2 center{1, 2};
-  const Vector2 radii{3.0, 2.0};
-  const EllipseSet ellipse1{center, radii};
-  const EllipseSet ellipse2{center, radii};
+  const Vector2 semi_axes{3.0, 2.0};
+  const EllipseSet ellipse1{center, semi_axes};
+  const EllipseSet ellipse2{center, semi_axes};
 
   const Set& set1 = ellipse1;
   const Set& set2 = ellipse2;
@@ -323,11 +276,9 @@ TEST(TestEllipseSet, EqualityWithSet) {
 }
 
 TEST(TestEllipseSet, Lattice2D) {
-  const Vector2 center{0, 0};
-  const Vector2 radii{2.0, 1.0};
-  const EllipseSet ellipse{center, radii};
+  const EllipseSet ellipse{Vector2{0, 0}, Vector2{2.0, 1.0}};
 
-  const VectorI points_per_dim{5, 5};
+  const VectorI points_per_dim{{5, 5}};
   const Matrix lattice = ellipse.lattice(points_per_dim, false);
 
   // All lattice points should be inside the ellipse
@@ -341,33 +292,21 @@ TEST(TestEllipseSet, Lattice2D) {
 }
 
 TEST(TestEllipseSet, Lattice3D) {
-  const Vector3 center{0, 0, 0};
-  const Vector3 radii{1.0, 1.0, 1.0};
-  const EllipseSet ellipse{center, radii};
+  const EllipseSet ellipse{Vector3{0, 0, 0}, Vector3{1.0, 1.0, 1.0}};
+  const Matrix lattice = ellipse.lattice(VectorI{{3, 3, 3}}, true);
 
-  const VectorI points_per_dim{{3, 3, 3}};
-  const Matrix lattice = ellipse.lattice(points_per_dim, true);
-
-  // All lattice points should be inside the ellipse
-  for (Index i = 0; i < lattice.rows(); ++i) {
-    EXPECT_TRUE(ellipse(lattice.row(i)));
-  }
-
+  for (Index i = 0; i < lattice.rows(); ++i) EXPECT_TRUE(ellipse(lattice.row(i)));
   EXPECT_GT(lattice.rows(), 0);
 }
 
-TEST(TestEllipseSet, InvalidConstruction) {
-  // Test with mismatched dimensions
-  const Vector2 center{0, 0};
-  const Vector3 radii{1, 1, 1};
-  EXPECT_THROW(EllipseSet(center, radii), lucid::exception::LucidInvalidArgumentException);
+TEST(TestEllipseSet, DimensionMissmatch) {
+  EXPECT_THROW(EllipseSet(Vector2{0, 0}, Vector3{1, 1, 1}), lucid::exception::LucidInvalidArgumentException);
+}
 
-  // Test with negative radius
-  const Vector2 negative_radii{1.0, -1.0};
-  EXPECT_THROW(EllipseSet(center, negative_radii), lucid::exception::LucidInvalidArgumentException);
+TEST(TestEllipseSet, NegativeRadius) {
+  EXPECT_THROW(EllipseSet(Vector2{0, 0}, Vector2{1.0, -1.0}), lucid::exception::LucidInvalidArgumentException);
+}
 
-  // Test with empty center
-  const Vector empty_center{};
-  const Vector empty_radii{};
-  EXPECT_THROW(EllipseSet(empty_center, empty_radii), lucid::exception::LucidInvalidArgumentException);
+TEST(TestEllipseSet, EmptyVectors) {
+  EXPECT_THROW(EllipseSet(Vector{}, Vector{}), lucid::exception::LucidInvalidArgumentException);
 }

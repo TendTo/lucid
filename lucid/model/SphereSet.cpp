@@ -40,7 +40,6 @@ Matrix SphereSet::sample(const Index num_samples) const {
 bool SphereSet::operator()(ConstVectorRef x) const {
   // Check if the vector is in the sphere set
   LUCID_CHECK_ARGUMENT_CMP(x.size(), ==, center_.size());
-  [[maybe_unused]] const auto a = (x - center_).squaredNorm();
   return (x - center_).squaredNorm() <= radius_ * radius_ + std::numeric_limits<Scalar>::epsilon();
 }
 Matrix SphereSet::lattice(const VectorI& points_per_dim, const bool endpoint) const {

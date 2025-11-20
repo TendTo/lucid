@@ -18,6 +18,10 @@ namespace lucid {
 /**
  * Multidimensional sphere set.
  * A vector @x is in the set if @f$ ||x - c||_2 \le r @f$,
+ * where @f$ c @f$ is the center and @f$ r @f$ is the radius.
+ * The sampling is uniform over the volume of the sphere.
+ * The samples are generated using the
+ * [Muller method](https://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/).
  */
 class SphereSet final : public Set {
  public:

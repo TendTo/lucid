@@ -18,6 +18,7 @@
 
 #include "bindings/pylucid/doxygen_docstrings.h"
 #include "bindings/pylucid/pylucid.h"
+#include "lucid/model/EllipseSet.h"
 #include "lucid/model/Scorer.h"
 #include "lucid/model/SphereSet.h"
 #include "lucid/util/Tensor.h"
@@ -43,15 +44,15 @@ using namespace lucid;
  * @param parameter The parameter to retrieve
  * @return The value of the parameter as a Python object
  */
-py::object get_parametrizable(const Parametrizable &self, const Parameter parameter) {
+py::object get_parametrizable(const Parametrizable& self, const Parameter parameter) {
   return dispatch<py::object>(
       parameter, [&self, parameter]() { return py::int_{self.get<int>(parameter)}; },
       [&self, parameter]() { return py::float_{self.get<double>(parameter)}; },
       [&self, parameter]() {
-        const Vector &v = self.get<const Vector &>(parameter);
+        const Vector& v = self.get<const Vector&>(parameter);
         py::array array{v.size(), v.data(), py::none{}};
         // https://github.com/pybind/pybind11/issues/481
-        reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &= ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
+        reinterpret_cast<py::detail::PyArray_Proxy*>(array.ptr())->flags &= ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
         return array;
       });
 }
@@ -64,15 +65,15 @@ py::object get_parametrizable(const Parametrizable &self, const Parameter parame
  * @param self The ParameterValue object
  * @return The value of the parameter as a Python object
  */
-py::object get_parameter_value(const ParameterValue &self) {
+py::object get_parameter_value(const ParameterValue& self) {
   return dispatch<py::object>(
       self.parameter(), [&self]() { return py::int_{self.get<int>()}; },
       [&self]() { return py::float_{self.get<double>()}; },
       [&self]() {
-        const Vector &v = self.get<Vector>();
+        const Vector& v = self.get<Vector>();
         py::array array{v.size(), v.data(), py::none{}};
         // https://github.com/pybind/pybind11/issues/481
-        reinterpret_cast<py::detail::PyArray_Proxy *>(array.ptr())->flags &= ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
+        reinterpret_cast<py::detail::PyArray_Proxy*>(array.ptr())->flags &= ~py::detail::npy_api::NPY_ARRAY_WRITEABLE_;
         return array;
       });
 }
@@ -85,7 +86,7 @@ py::object get_parameter_value(const ParameterValue &self) {
  * @param self The ParameterValue object
  * @return The value of the parameter as a Python object
  */
-py::object get_parameter_values(const ParameterValues &self) {
+py::object get_parameter_values(const ParameterValues& self) {
   return dispatch<py::object>(
       self.parameter(), [&self]() { return py::tuple{py::cast(self.get<int>())}; },
       [&self]() { return py::tuple{py::cast(self.get<double>())}; },
@@ -107,7 +108,7 @@ py::object get_parameter_values(const ParameterValues &self) {
 class PyKernel final : public Kernel {
  public:
   using Kernel::Kernel;
-  Matrix apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix> *gradient) const override {
+  Matrix apply_impl(ConstMatrixRef x1, ConstMatrixRef x2, std::vector<Matrix>* gradient) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Kernel, apply_impl, x1, x2, gradient);
   }
   [[nodiscard]] std::unique_ptr<Kernel> clone() const override {
@@ -122,9 +123,9 @@ class PyEstimator final : public Estimator {
   [[nodiscard]] Matrix predict(ConstMatrixRef x) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Estimator, predict, x);
   }
-  Estimator &consolidate_impl(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
+  Estimator& consolidate_impl(ConstMatrixRef training_inputs, ConstMatrixRef training_outputs,
                               Requests requests) override {
-    PYBIND11_OVERRIDE_PURE(Estimator &, Estimator, consolidate, training_inputs, training_outputs, requests);
+    PYBIND11_OVERRIDE_PURE(Estimator&, Estimator, consolidate, training_inputs, training_outputs, requests);
   }
   [[nodiscard]] double score(ConstMatrixRef evaluation_inputs, ConstMatrixRef evaluation_outputs) const override {
     PYBIND11_OVERRIDE_PURE(double, Estimator, score, evaluation_inputs, evaluation_outputs);
@@ -138,8 +139,8 @@ class PyTuner final : public Tuner {
  public:
   using Tuner::Tuner;
 
-  void tune_impl(Estimator &estimator, ConstMatrixRef training_inputs,
-                 const OutputComputer &training_outputs) const override {
+  void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
+                 const OutputComputer& training_outputs) const override {
     PYBIND11_OVERRIDE_PURE(void, Tuner, tune_impl, estimator, training_inputs, training_outputs);
   }
 };
@@ -184,31 +185,31 @@ class PySet final : public Set {
   [[nodiscard]] bool operator()(ConstVectorRef x) const override {
     PYBIND11_OVERRIDE_PURE_NAME(bool, Set, "__call__", operator(), x);
   }
-  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool endpoint) const override {
+  [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool endpoint) const override {
     PYBIND11_OVERRIDE_PURE(Matrix, Set, lattice, points_per_dim, endpoint);
   }
-  [[nodiscard]] bool operator==(const Set &other) const override {
+  [[nodiscard]] bool operator==(const Set& other) const override {
     PYBIND11_OVERRIDE_NAME(bool, Set, "__eq__", operator==, other);
   }
 };
 
 class MultiSetIterator {
  public:
-  explicit MultiSetIterator(const MultiSet &multi_set, std::size_t index = 0) : multi_set_{multi_set}, index_{index} {}
-  const Set &operator*() const { return *multi_set_.sets().at(index_); }
-  MultiSetIterator &operator++() {
+  explicit MultiSetIterator(const MultiSet& multi_set, std::size_t index = 0) : multi_set_{multi_set}, index_{index} {}
+  const Set& operator*() const { return *multi_set_.sets().at(index_); }
+  MultiSetIterator& operator++() {
     ++index_;
     return *this;
   }
-  bool operator==(const MultiSetIterator &o) const { return &multi_set_ == &o.multi_set_ && index_ == o.index_; }
+  bool operator==(const MultiSetIterator& o) const { return &multi_set_ == &o.multi_set_ && index_ == o.index_; }
   operator bool() const { return index_ < multi_set_.sets().size(); }
 
  private:
-  const MultiSet &multi_set_;
+  const MultiSet& multi_set_;
   std::size_t index_;
 };
 
-void init_model(py::module_ &m) {
+void init_model(py::module_& m) {
   /**************************** Parameters ****************************/
   py::class_<LbfgsParameters>(m, "LbfgsParameters", LbfgsParameters_)
       .def(py::init<>())
@@ -266,7 +267,7 @@ void init_model(py::module_ &m) {
   py::class_<ParameterValue>(m, "ParameterValue", ParameterValue_)
       .def(py::init<Parameter, int>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
       .def(py::init<Parameter, double>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
-      .def(py::init<Parameter, const Vector &>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
+      .def(py::init<Parameter, const Vector&>(), py::arg("parameter"), py::arg("value"), ParameterValue_ParameterValue)
       .def(py::self == py::self)
       .def(py::self != py::self)
       .def("__str__", STRING_LAMBDA(ParameterValue))
@@ -291,17 +292,17 @@ void init_model(py::module_ &m) {
            Parametrizable_get)
       .def(
           "set",
-          [](Parametrizable &self, const Parameter parameter, const int value) { return self.set(parameter, value); },
+          [](Parametrizable& self, const Parameter parameter, const int value) { return self.set(parameter, value); },
           py::arg("parameter"), py::arg("value"), Parametrizable_set)
       .def(
           "set",
-          [](Parametrizable &self, const Parameter parameter, const double value) {
+          [](Parametrizable& self, const Parameter parameter, const double value) {
             return self.set(parameter, value);
           },
           py::arg("parameter"), py::arg("value"), Parametrizable_set)
       .def(
           "set",
-          [](Parametrizable &self, const Parameter parameter, const Vector &value) {
+          [](Parametrizable& self, const Parameter parameter, const Vector& value) {
             return self.set(parameter, value);
           },
           py::arg("parameter"), py::arg("value"), Parametrizable_set)
@@ -325,11 +326,11 @@ void init_model(py::module_ &m) {
            Set_change_size)
       .def("lattice", py::overload_cast<Index, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("endpoint") = false, Set_lattice)
-      .def("lattice", py::overload_cast<const VectorI &, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
+      .def("lattice", py::overload_cast<const VectorI&, bool>(&Set::lattice, py::const_), py::arg("points_per_dim"),
            py::arg("endpoint"), Set_lattice)
-      .def("scale_wrapped", py::overload_cast<ConstVectorRef, const RectSet &, bool>(&Set::scale_wrapped, py::const_),
+      .def("scale_wrapped", py::overload_cast<ConstVectorRef, const RectSet&, bool>(&Set::scale_wrapped, py::const_),
            ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, Set_scale_wrapped)
-      .def("scale_wrapped", py::overload_cast<double, const RectSet &, bool>(&Set::scale_wrapped, py::const_),
+      .def("scale_wrapped", py::overload_cast<double, const RectSet&, bool>(&Set::scale_wrapped, py::const_),
            py::arg("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, Set_scale_wrapped)
       .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("to_rect_set", &Set::to_rect_set, Set_to_rect_set)
@@ -341,16 +342,16 @@ void init_model(py::module_ &m) {
   py::class_<RectSet, Set>(m, "RectSet", RectSet_)
       .def(py::init<Vector, Vector>(), py::arg("lb"), py::arg("ub"), RectSet_RectSet)
       .def(py::init<std::vector<std::pair<Scalar, Scalar>>>(), py::arg("bounds"), RectSet_RectSet)
-      .def("relative_to", py::overload_cast<const RectSet &>(&RectSet::relative_to, py::const_), py::arg("set"),
+      .def("relative_to", py::overload_cast<const RectSet&>(&RectSet::relative_to, py::const_), py::arg("set"),
            RectSet_relative_to)
       .def("relative_to", py::overload_cast<ConstVectorRef>(&RectSet::relative_to, py::const_), ARG_NONCONVERT("point"),
            RectSet_relative_to)
       .def("scale", py::overload_cast<ConstVectorRef>(&RectSet::scale, py::const_), ARG_NONCONVERT("scale"),
            RectSet_scale)
       .def("scale", py::overload_cast<double>(&RectSet::scale, py::const_), py::arg("scale"), RectSet_scale)
-      .def("scale", py::overload_cast<ConstVectorRef, const RectSet &, bool>(&RectSet::scale, py::const_),
+      .def("scale", py::overload_cast<ConstVectorRef, const RectSet&, bool>(&RectSet::scale, py::const_),
            ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
-      .def("scale", py::overload_cast<double, const RectSet &, bool>(&RectSet::scale, py::const_), py::arg("scale"),
+      .def("scale", py::overload_cast<double, const RectSet&, bool>(&RectSet::scale, py::const_), py::arg("scale"),
            py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
       .def(py::self += double())
       .def(py::self += ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
@@ -375,6 +376,11 @@ void init_model(py::module_ &m) {
       .def(py::init<Vector, double>(), py::arg("center"), py::arg("radius"), SphereSet_SphereSet)
       .def_property_readonly("center", &SphereSet::center, SphereSet_center)
       .def_property_readonly("radius", &SphereSet::radius, SphereSet_radius);
+  py::class_<EllipseSet, Set>(m, "EllipseSet", EllipseSet_)
+      .def(py::init<Vector, double>(), py::arg("center"), py::arg("semi_axes"), EllipseSet_EllipseSet)
+      .def(py::init<Vector, ConstVectorRef>(), py::arg("center"), py::arg("semi_axes"), EllipseSet_EllipseSet)
+      .def_property_readonly("center", &EllipseSet::center, EllipseSet_center)
+      .def_property_readonly("semi_axes", &EllipseSet::semi_axes, EllipseSet_semi_axes);
   py::class_<PolytopeSet, Set>(m, "PolytopeSet", PolytopeSet_)
       .def(py::init<Matrix, Vector>(), py::arg("A"), py::arg("b"), PolytopeSet_PolytopeSet)
       .def("scale", &PolytopeSet::scale, py::arg("factor"), PolytopeSet_scale)
@@ -382,10 +388,10 @@ void init_model(py::module_ &m) {
       .def_property_readonly("b", &PolytopeSet::b, PolytopeSet_b)
       .def_property_readonly("bounding_box", &PolytopeSet::bounding_box);
   py::class_<MultiSet, Set>(m, "MultiSet", MultiSet_)
-      .def(py::init([](const py::args &sets) {
+      .def(py::init([](const py::args& sets) {
         std::vector<std::unique_ptr<Set>> unique_sets;
         unique_sets.reserve(sets.size());
-        for (const auto &set : sets) {
+        for (const auto& set : sets) {
           if (py::isinstance<RectSet>(set)) {
             unique_sets.emplace_back(std::make_unique<RectSet>(set.cast<RectSet>()));
           } else if (py::isinstance<SphereSet>(set)) {
@@ -398,30 +404,30 @@ void init_model(py::module_ &m) {
       }))
       .def(
           "__iter__",
-          [](const MultiSet &self) {
+          [](const MultiSet& self) {
             return py::make_iterator(MultiSetIterator{self}, MultiSetIterator{self, self.sets().size()});
           },
           py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
-      .def("__len__", [](const MultiSet &self) { return self.sets().size(); })
+      .def("__len__", [](const MultiSet& self) { return self.sets().size(); })
       .def("__getitem__", &MultiSet::operator[], py::arg("index"), py::return_value_policy::reference_internal);
 
   /**************************** Forward declarations ****************************/
   py::class_<Estimator, PyEstimator, Parametrizable> estimator(m, "Estimator");
 
   /**************************** Scorer ****************************/
-  m.def("r2_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::r2_score),
+  m.def("r2_score", py::overload_cast<const Estimator&, ConstMatrixRef, ConstMatrixRef>(&scorer::r2_score),
         py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _r2_score);
   m.def("r2_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::r2_score), ARG_NONCONVERT("x"),
         ARG_NONCONVERT("y"), _r2_score);
-  m.def("mse_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::mse_score),
+  m.def("mse_score", py::overload_cast<const Estimator&, ConstMatrixRef, ConstMatrixRef>(&scorer::mse_score),
         py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _mse_score);
   m.def("mse_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::mse_score), ARG_NONCONVERT("x"),
         ARG_NONCONVERT("y"), _mse_score);
-  m.def("rmse_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score),
+  m.def("rmse_score", py::overload_cast<const Estimator&, ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score),
         py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _rmse_score);
   m.def("rmse_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::rmse_score), ARG_NONCONVERT("x"),
         ARG_NONCONVERT("y"), _rmse_score);
-  m.def("mape_score", py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef>(&scorer::mape_score),
+  m.def("mape_score", py::overload_cast<const Estimator&, ConstMatrixRef, ConstMatrixRef>(&scorer::mape_score),
         py::arg("estimator"), ARG_NONCONVERT("evaluation_inputs"), ARG_NONCONVERT("evaluation_outputs"), _mape_score);
   m.def("mape_score", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&scorer::mape_score), ARG_NONCONVERT("x"),
         ARG_NONCONVERT("y"), _mape_score);
@@ -436,19 +442,19 @@ void init_model(py::module_ &m) {
                                                                                  MedianHeuristicTuner_, py::is_final())
       .def(py::init<>());
   py::class_<LbfgsTuner, Tuner, std::shared_ptr<LbfgsTuner>>(m, "LbfgsTuner", LbfgsTuner_, py::is_final())
-      .def(py::init<const LbfgsParameters &>(), py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner)
-      .def(py::init<const Eigen::VectorXd &, const Eigen::VectorXd &, const LbfgsParameters &>(), py::arg("lb"),
+      .def(py::init<const LbfgsParameters&>(), py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner)
+      .def(py::init<const Eigen::VectorXd&, const Eigen::VectorXd&, const LbfgsParameters&>(), py::arg("lb"),
            py::arg("ub"), py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner)
-      .def(py::init<std::vector<std::pair<Scalar, Scalar>>, const LbfgsParameters &>(), py::arg("bounds"),
+      .def(py::init<std::vector<std::pair<Scalar, Scalar>>, const LbfgsParameters&>(), py::arg("bounds"),
            py::arg("parameters") = LbfgsParameters{}, LbfgsTuner_LbfgsTuner);
   py::class_<GridSearchTuner, Tuner, std::shared_ptr<GridSearchTuner>>(m, "GridSearchTuner", GridSearchTuner_,
                                                                        py::is_final())
-      .def(py::init<const std::vector<ParameterValues> &, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0,
+      .def(py::init<const std::vector<ParameterValues>&, std::size_t>(), py::arg("parameters"), py::arg("n_jobs") = 0,
            GridSearchTuner_GridSearchTuner)
-      .def(py::init([](const py::dict &parameters, const std::size_t n_jobs) {
+      .def(py::init([](const py::dict& parameters, const std::size_t n_jobs) {
              std::vector<ParameterValues> parameter_values;
              parameter_values.reserve(parameters.size());
-             for (const auto &[key, value] : parameters) {
+             for (const auto& [key, value] : parameters) {
                const Parameter parameter = key.cast<Parameter>();
                parameter_values.emplace_back(dispatch<ParameterValues>(
                    parameter,
@@ -459,20 +465,20 @@ void init_model(py::module_ &m) {
              return GridSearchTuner(std::move(parameter_values), n_jobs);
            }),
            py::arg("parameters"), py::arg("n_jobs") = 0, GridSearchTuner_GridSearchTuner)
-      .def(py::init([](const py::args &parameters, const std::size_t n_jobs) {
+      .def(py::init([](const py::args& parameters, const std::size_t n_jobs) {
              std::vector<ParameterValues> parameter_values;
              parameter_values.reserve(parameters.size());
-             for (const auto &param : parameters) parameter_values.emplace_back(param.cast<ParameterValues>());
+             for (const auto& param : parameters) parameter_values.emplace_back(param.cast<ParameterValues>());
              return GridSearchTuner(std::move(parameter_values), n_jobs);
            }),
            py::kw_only(), py::arg("n_jobs") = 0, GridSearchTuner_GridSearchTuner)
-      .def("tune", py::overload_cast<Estimator &, ConstMatrixRef, ConstMatrixRef>(&Tuner::tune, py::const_),
+      .def("tune", py::overload_cast<Estimator&, ConstMatrixRef, ConstMatrixRef>(&Tuner::tune, py::const_),
            py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"))
       .def(
           "tune",
-          [](const GridSearchTuner &self, Estimator &estimator_, ConstMatrixRef training_inputs,
-             ConstMatrixRef training_outputs, const py::type &feature_map_type, const int num_frequencies,
-             const RectSet &X_bounds) {
+          [](const GridSearchTuner& self, Estimator& estimator_, ConstMatrixRef training_inputs,
+             ConstMatrixRef training_outputs, const py::type& feature_map_type, const int num_frequencies,
+             const RectSet& X_bounds) {
             if (feature_map_type.is(py::type::of<ConstantTruncatedFourierFeatureMap>())) {
               return self.tune<ConstantTruncatedFourierFeatureMap>(estimator_, training_inputs, training_outputs,
                                                                    num_frequencies, X_bounds);
@@ -495,16 +501,16 @@ void init_model(py::module_ &m) {
   /**************************** Kernel ****************************/
   py::class_<Kernel, PyKernel, Parametrizable>(m, "Kernel", Kernel_)
       .def(
-          "__call__", [](const Kernel &self, ConstMatrixRef x1, ConstMatrixRef x2) { return self(x1, x2); },
+          "__call__", [](const Kernel& self, ConstMatrixRef x1, ConstMatrixRef x2) { return self(x1, x2); },
           ARG_NONCONVERT("x1"), ARG_NONCONVERT("x2"), Kernel_operator_apply)
       .def(
-          "__call__", [](const Kernel &self, ConstMatrixRef x1) { return self(x1, x1); }, ARG_NONCONVERT("x1"),
+          "__call__", [](const Kernel& self, ConstMatrixRef x1) { return self(x1, x1); }, ARG_NONCONVERT("x1"),
           Kernel_operator_apply)
       .def("clone", &Kernel::clone, Kernel_clone)
       .def_property_readonly("is_stationary", &Kernel::is_stationary, Kernel_is_stationary)
       .def("__str__", STRING_LAMBDA(Kernel));
   py::class_<GaussianKernel, Kernel>(m, "GaussianKernel", GaussianKernel_)
-      .def(py::init<const Vector &, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0,
+      .def(py::init<const Vector&, double>(), py::arg("sigma_l"), py::arg("sigma_f") = 1.0,
            GaussianKernel_GaussianKernel)
       .def(py::init<double, double>(), py::arg("sigma_l") = 1.0, py::arg("sigma_f") = 1.0,
            GaussianKernel_GaussianKernel)
@@ -563,16 +569,16 @@ void init_model(py::module_ &m) {
       .def("predict", &Estimator::predict, ARG_NONCONVERT("x"), Estimator_predict)
       .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef>(&Estimator::fit), ARG_NONCONVERT("x"),
            ARG_NONCONVERT("y"), Estimator_fit)
-      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner &>(&Estimator::fit),
-           ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("tuner"), Estimator_fit)
-      .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer &>(&Estimator::fit_online),
-           ARG_NONCONVERT("x"), py::arg("y"), Estimator_fit_online)
-      .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer &, const Tuner &>(&Estimator::fit_online),
+      .def("fit", py::overload_cast<ConstMatrixRef, ConstMatrixRef, const Tuner&>(&Estimator::fit), ARG_NONCONVERT("x"),
+           ARG_NONCONVERT("y"), py::arg("tuner"), Estimator_fit)
+      .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer&>(&Estimator::fit_online), ARG_NONCONVERT("x"),
+           py::arg("y"), Estimator_fit_online)
+      .def("fit", py::overload_cast<ConstMatrixRef, const OutputComputer&, const Tuner&>(&Estimator::fit_online),
            ARG_NONCONVERT("x"), py::arg("y"), py::arg("tuner"), Estimator_fit_online)
       .def("score", &Estimator::score, py::arg("x"), py::arg("y"), Estimator_score)
       .def_property(
           "tuner", &Estimator::tuner,
-          [](Estimator &self, const std::shared_ptr<Tuner> &tuner) { self.m_tuner() = tuner; }, Estimator_tuner)
+          [](Estimator& self, const std::shared_ptr<Tuner>& tuner) { self.m_tuner() = tuner; }, Estimator_tuner)
       .def("consolidate", py::overload_cast<ConstMatrixRef, ConstMatrixRef, Requests>(&Estimator::consolidate),
            ARG_NONCONVERT("x"), ARG_NONCONVERT("y"), py::arg("requests") = NoRequests, Estimator_consolidate)
       .def("clone", &Estimator::clone)
@@ -580,29 +586,29 @@ void init_model(py::module_ &m) {
            Estimator_operator_apply)
       .def("__str__", STRING_LAMBDA(Estimator));
   py::class_<ModelEstimator, Estimator>(m, "ModelEstimator", ModelEstimator_)
-      .def(py::init<const std::function<Matrix(ConstMatrixRef)> &>(), py::arg("model_function"),
+      .def(py::init<const std::function<Matrix(ConstMatrixRef)>&>(), py::arg("model_function"),
            ModelEstimator_ModelEstimator);
   py::class_<KernelRidgeRegressor, Estimator>(m, "KernelRidgeRegressor", KernelRidgeRegressor_)
-      .def(py::init([](double regularization_constant, const std::shared_ptr<Tuner> &tuner) {
+      .def(py::init([](double regularization_constant, const std::shared_ptr<Tuner>& tuner) {
              return KernelRidgeRegressor{std::make_unique<GaussianKernel>(), regularization_constant, tuner};
            }),
            py::arg("regularization_constant") = 1.0, py::arg("tuner") = nullptr)
-      .def(py::init<const Kernel &, double, const std::shared_ptr<Tuner> &>(), py::arg("kernel"),
+      .def(py::init<const Kernel&, double, const std::shared_ptr<Tuner>&>(), py::arg("kernel"),
            py::arg("regularization_constant") = 1.0, py::arg("tuner") = nullptr)
       .def(
           "predict",
-          [](const KernelRidgeRegressor &self, ConstMatrixRef x, const FeatureMap *const feature_map) {
+          [](const KernelRidgeRegressor& self, ConstMatrixRef x, const FeatureMap* const feature_map) {
             return feature_map == nullptr ? self.predict(x) : self.predict(x, *feature_map);
           },
           ARG_NONCONVERT("x"), py::arg("feature_map").none(true) = nullptr)
       .def(
           "__call__",
-          [](const KernelRidgeRegressor &self, ConstMatrixRef x, const FeatureMap *const feature_map) {
+          [](const KernelRidgeRegressor& self, ConstMatrixRef x, const FeatureMap* const feature_map) {
             return feature_map == nullptr ? self.predict(x) : self.predict(x, *feature_map);
           },
           ARG_NONCONVERT("x"), py::arg("feature_map").none(true) = nullptr)
       .def_property_readonly(
-          "kernel", [](const KernelRidgeRegressor &self) -> const Kernel & { return *self.kernel(); },
+          "kernel", [](const KernelRidgeRegressor& self) -> const Kernel& { return *self.kernel(); },
           KernelRidgeRegressor_kernel)
       .def_property_readonly("training_inputs", &KernelRidgeRegressor::training_inputs,
                              KernelRidgeRegressor_training_inputs)
@@ -615,17 +621,17 @@ void init_model(py::module_ &m) {
       .def(py::init<>())
       .def("num_folds", &CrossValidator::num_folds, ARG_NONCONVERT("training_inputs"), CrossValidator_num_folds)
       .def("fit",
-           py::overload_cast<Estimator &, ConstMatrixRef, ConstMatrixRef, const scorer::Scorer &>(&CrossValidator::fit,
-                                                                                                  py::const_),
+           py::overload_cast<Estimator&, ConstMatrixRef, ConstMatrixRef, const scorer::Scorer&>(&CrossValidator::fit,
+                                                                                                py::const_),
            py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
            py::arg("scorer"), CrossValidator_compute_folds)
       .def("fit",
-           py::overload_cast<Estimator &, ConstMatrixRef, ConstMatrixRef, const Tuner &, const scorer::Scorer &>(
+           py::overload_cast<Estimator&, ConstMatrixRef, ConstMatrixRef, const Tuner&, const scorer::Scorer&>(
                &CrossValidator::fit, py::const_),
            py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
            py::arg("tuner"), py::arg("scorer") = nullptr, CrossValidator_compute_folds)
       .def("score",
-           py::overload_cast<const Estimator &, ConstMatrixRef, ConstMatrixRef, const scorer::Scorer &>(
+           py::overload_cast<const Estimator&, ConstMatrixRef, ConstMatrixRef, const scorer::Scorer&>(
                &CrossValidator::score, py::const_),
            py::arg("estimator"), ARG_NONCONVERT("training_inputs"), ARG_NONCONVERT("training_outputs"),
            py::arg("scorer"), CrossValidator_compute_folds);

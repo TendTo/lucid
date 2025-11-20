@@ -24,48 +24,34 @@ std::uniform_real_distribution<> uniform(0.0, 1.0);
 std::normal_distribution<> normal(0.0, 1.0);
 }  // namespace
 
-EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef radii) : center_(center), radii_(radii) {
+EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef semi_axes) : center_(center), semi_axes_(semi_axes) {
   LUCID_CHECK_ARGUMENT_CMP(center.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_EQ(center.size(), radii.size());
-  LUCID_CHECK_ARGUMENT_CMP(radii.minCoeff(), >=, 0);
+  LUCID_CHECK_ARGUMENT_EQ(center.size(), semi_axes.size());
+  LUCID_CHECK_ARGUMENT_CMP(semi_axes.minCoeff(), >, 0);
 }
 
 EllipseSet::EllipseSet(ConstVectorRef center, const Scalar radius)
     : EllipseSet{center, Vector::Constant(center.size(), radius)} {}
 
 Matrix EllipseSet::sample(const Index num_samples) const {
-  // Generate samples uniformly within the ellipsoid using the method:
-  // 1. Generate points uniformly in a unit sphere
-  // 2. Scale each dimension by the corresponding radius
-  // 3. Translate to the center
-
   Matrix u{Matrix::NullaryExpr(num_samples, dimension(), [](const Index, const Index) { return normal(random::gen); })};
   const Vector norm{u.rowwise().norm()};
-
-  // Generate random radii using the d-th root to ensure uniform distribution
-  const Matrix r{Matrix::NullaryExpr(num_samples, 1, [](const Index, const Index) { return uniform(random::gen); })
-                     .array()
-                     .pow(1.0 / dimension())};
-
-  // Normalize to unit sphere, scale by random radius, then scale by ellipsoid radii
-  Matrix samples = (u.array().colwise() / norm.transpose().array()).rowwise() * radii_.array();
-  samples = (samples.array().colwise() * r.col(0).array()).rowwise() + center_.array();
-
-  return samples;
+  const Matrix r{
+      Matrix::NullaryExpr(num_samples, dimension(), [](const Index, const Index) { return uniform(random::gen); })
+          .array()
+          .pow(1.0 / dimension())};
+  return ((r * semi_axes_.asDiagonal()).cwiseProduct(u).array().colwise() / norm.transpose().array()).rowwise() +
+         center_.array();
 }
 
 bool EllipseSet::operator()(ConstVectorRef x) const {
   LUCID_CHECK_ARGUMENT_EQ(x.size(), center_.size());
-
-  // Check if the vector is in the ellipsoid set
-  // Sum of squared normalized distances should be <= 1
-  const Vector normalized = (x - center_).cwiseQuotient(radii_);
-  return normalized.squaredNorm() <= 1.0 + std::numeric_limits<Scalar>::epsilon();
+  return (x - center_).cwiseQuotient(semi_axes_).squaredNorm() <= 1.0 + std::numeric_limits<Scalar>::epsilon();
 }
 
 Matrix EllipseSet::lattice(const VectorI& points_per_dim, const bool endpoint) const {
   // Generate a lattice by creating a bounding box and filtering points
-  const RectSet rect_set{center_ - radii_, center_ + radii_};
+  const RectSet rect_set{center_ - semi_axes_, center_ + semi_axes_};
   const Matrix lattice{rect_set.lattice(points_per_dim, endpoint)};
 
   std::vector<Index> mask_rows;
@@ -77,29 +63,25 @@ Matrix EllipseSet::lattice(const VectorI& points_per_dim, const bool endpoint) c
   return lattice(mask_rows, Eigen::placeholders::all);
 }
 
-Vector EllipseSet::general_lower_bound() const { return center_ - radii_; }
-Vector EllipseSet::general_upper_bound() const { return center_ + radii_; }
+Vector EllipseSet::general_lower_bound() const { return center_ - semi_axes_; }
+Vector EllipseSet::general_upper_bound() const { return center_ + semi_axes_; }
 
 void EllipseSet::change_size(ConstVectorRef delta_size) {
   LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(delta_size));
   LUCID_CHECK_ARGUMENT_EQ(delta_size.size(), dimension());
-
   // Update each radius by half of the delta (since delta affects diameter)
-  const Vector new_radii = radii_ + delta_size / 2.0;
-  LUCID_CHECK_ARGUMENT_CMP(new_radii.minCoeff(), >=, 0);
-
-  radii_ = new_radii;
-
+  const Vector new_semi_axes = semi_axes_ + delta_size / 2.0;
+  LUCID_CHECK_ARGUMENT_CMP(new_semi_axes.minCoeff(), >, 0);
+  semi_axes_ = new_semi_axes;
   LUCID_TRACE_FMT("=> {}", *this);
 }
 
 std::unique_ptr<Set> EllipseSet::to_rect_set() const {
-  // Convert to the smallest axis-aligned bounding box
-  return std::make_unique<RectSet>(center_ - radii_, center_ + radii_);
+  return std::make_unique<RectSet>(center_ - semi_axes_, center_ + semi_axes_);
 }
 
 bool EllipseSet::operator==(const EllipseSet& other) const {
-  return center_.isApprox(other.center_) && radii_.isApprox(other.radii_);
+  return center_.isApprox(other.center_) && semi_axes_.isApprox(other.semi_axes_);
 }
 
 bool EllipseSet::operator==(const Set& other) const {
@@ -109,7 +91,7 @@ bool EllipseSet::operator==(const Set& other) const {
 }
 
 std::string EllipseSet::to_string() const {
-  return fmt::format("EllipseSet( center( [{}] ) radii( [{}] ) )", center_, radii_);
+  return fmt::format("EllipseSet( center( [{}] ) semi_axes( [{}] ) )", center_, semi_axes_);
 }
 
 std::ostream& operator<<(std::ostream& os, const EllipseSet& set) { return os << set.to_string(); }
