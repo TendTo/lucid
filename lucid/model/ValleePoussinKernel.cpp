@@ -7,7 +7,10 @@
  */
 #include "lucid/model/ValleePoussinKernel.h"
 
+#include <memory>
 #include <ostream>
+#include <string>
+#include <vector>
 
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"

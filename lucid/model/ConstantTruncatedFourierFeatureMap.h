@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <string>
 
 #include "TruncatedFourierFeatureMap.h"
 #include "lucid/lib/eigen.h"

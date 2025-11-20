@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include "lucid/lib/eigen.h"

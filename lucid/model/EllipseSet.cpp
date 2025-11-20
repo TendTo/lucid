@@ -8,7 +8,9 @@
 #include "lucid/model/EllipseSet.h"
 
 #include <limits>
+#include <memory>
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include "lucid/model/RectSet.h"

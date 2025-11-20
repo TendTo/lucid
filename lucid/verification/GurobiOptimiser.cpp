@@ -12,6 +12,7 @@
 #include <span>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "lucid/lib/gurobi.h"
 #include "lucid/util/Stats.h"

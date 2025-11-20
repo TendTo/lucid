@@ -6,6 +6,8 @@
  */
 #include "lucid/model/FeatureMap.h"
 
+#include <string>
+
 #include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
 #include "lucid/model/LinearTruncatedFourierFeatureMap.h"
 #include "lucid/model/LogTruncatedFourierFeatureMap.h"

@@ -6,6 +6,8 @@
  */
 #include "lucid/model/RectSet.h"
 
+#include <algorithm>
+#include <memory>
 #include <ostream>
 #include <random>
 #include <string>
@@ -162,8 +164,12 @@ RectSet& RectSet::operator+=(const double offset) {
   ub_.array() += offset;
   return *this;
 }
-RectSet RectSet::operator+(ConstVectorRef offset) const { return RectSet{*this} += offset; }
-RectSet RectSet::operator+(const double offset) const { return RectSet{*this} += offset; }
+RectSet RectSet::operator+(ConstVectorRef offset) const {
+  return RectSet{*this} += offset;  // NOLINT(whitespace/braces): standard initialisation
+}
+RectSet RectSet::operator+(const double offset) const {
+  return RectSet{*this} += offset;  // NOLINT(whitespace/braces): standard initialisation
+}
 RectSet& RectSet::operator-=(ConstVectorRef offset) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
   lb_ -= offset;
@@ -175,8 +181,12 @@ RectSet& RectSet::operator-=(const double offset) {
   ub_.array() -= offset;
   return *this;
 }
-RectSet RectSet::operator-(ConstVectorRef offset) const { return RectSet{*this} -= offset; }
-RectSet RectSet::operator-(const double offset) const { return RectSet{*this} -= offset; }
+RectSet RectSet::operator-(ConstVectorRef offset) const {
+  return RectSet{*this} -= offset;  // NOLINT(whitespace/braces): standard initialisation
+}
+RectSet RectSet::operator-(const double offset) const {
+  return RectSet{*this} -= offset;  // NOLINT(whitespace/braces): standard initialisation
+}
 
 RectSet RectSet::scale(ConstVectorRef scale) const {
   RectSet result{*this};
@@ -194,14 +204,18 @@ RectSet& RectSet::operator*=(ConstVectorRef scale) {
   ub_ = ub_.cwiseProduct(scale);
   return *this;
 }
-RectSet& RectSet::operator*=(Scalar scale) {
+RectSet& RectSet::operator*=(const Scalar scale) {
   LUCID_CHECK_ARGUMENT_CMP(scale, >=, 0);
   lb_ *= scale;
   ub_ *= scale;
   return *this;
 }
-RectSet RectSet::operator*(ConstVectorRef scale) const { return RectSet{*this} *= scale; }
-RectSet RectSet::operator*(Scalar scale) const { return RectSet{*this} *= scale; }
+RectSet RectSet::operator*(ConstVectorRef scale) const {
+  return RectSet{*this} *= scale;  // NOLINT(whitespace/braces): standard initialisation
+}
+RectSet RectSet::operator*(const Scalar scale) const {
+  return RectSet{*this} *= scale;  // NOLINT(whitespace/braces): standard initialisation
+}
 RectSet& RectSet::operator/=(ConstVectorRef scale) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
   LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
@@ -215,8 +229,12 @@ RectSet& RectSet::operator/=(Scalar scale) {
   ub_ /= scale;
   return *this;
 }
-RectSet RectSet::operator/(Scalar scale) const { return RectSet{*this} /= scale; }
-RectSet RectSet::operator/(ConstVectorRef scale) const { return RectSet{*this} /= scale; }
+RectSet RectSet::operator/(const Scalar scale) const {
+  return RectSet{*this} /= scale;  // NOLINT(whitespace/braces): standard initialisation
+}
+RectSet RectSet::operator/(ConstVectorRef scale) const {
+  return RectSet{*this} /= scale;  // NOLINT(whitespace/braces): standard initialisation
+}
 bool RectSet::operator==(const Set& other) const {
   if (Set::operator==(other)) return true;
   if (const auto other_rect = dynamic_cast<const RectSet*>(&other)) return *this == *other_rect;
@@ -241,9 +259,7 @@ Matrix RectSet::sample(const Index num_samples) const {
   return samples;
 }
 
-std::string RectSet::to_string() const {
-  return fmt::format("RectSet( lb( [{}] ) ub( [{}] ) )", lb_, ub_);
-}
+std::string RectSet::to_string() const { return fmt::format("RectSet( lb( [{}] ) ub( [{}] ) )", lb_, ub_); }
 
 std::ostream& operator<<(std::ostream& os, const RectSet& set) { return os << set.to_string(); }
 

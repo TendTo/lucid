@@ -9,6 +9,7 @@
 #include <memory>
 #include <numbers>
 #include <ostream>
+#include <string>
 #include <utility>
 
 #include "lucid/util/IndexIterator.h"

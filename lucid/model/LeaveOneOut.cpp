@@ -8,6 +8,7 @@
 #include "lucid/model/LeaveOneOut.h"
 
 #include <ostream>
+#include <string>
 #include <utility>
 
 #include "lucid/util/logging.h"

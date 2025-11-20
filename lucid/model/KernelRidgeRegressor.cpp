@@ -9,6 +9,7 @@
 #include <memory>
 #include <numbers>  // NOLINT(build/include_order) fake positive C header
 #include <numeric>
+#include <string>
 #include <utility>
 #include <vector>
 

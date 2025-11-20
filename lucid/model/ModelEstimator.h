@@ -8,6 +8,8 @@
 #pragma once
 
 #include <iosfwd>
+#include <memory>
+#include <string>
 
 #include "lucid/model/Estimator.h"
 

@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <string>
+
 #include "lucid/model/Tuner.h"
 
 namespace lucid {

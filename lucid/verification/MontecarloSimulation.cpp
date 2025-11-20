@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <ostream>
+#include <string>
 #include <utility>
 
 #include "lucid/model/MultiSet.h"

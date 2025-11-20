@@ -9,10 +9,9 @@
 
 #include <memory>
 #include <ostream>
+#include <string>
 #include <vector>
 
-#include "lucid/model/KFold.h"
-#include "lucid/model/LeaveOneOut.h"
 #include "lucid/util/Stats.h"
 #include "lucid/util/Timer.h"
 #include "lucid/util/error.h"

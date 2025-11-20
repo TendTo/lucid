@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "lucid/model/RectSet.h"
 #include "lucid/util/error.h"

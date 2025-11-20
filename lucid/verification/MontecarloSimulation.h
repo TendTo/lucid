@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstddef>
+#include <string>
 #include <utility>
 
 #include "lucid/lib/eigen.h"

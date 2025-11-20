@@ -8,6 +8,9 @@
 #pragma once
 
 #include <iosfwd>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "lucid/model/Kernel.h"
 

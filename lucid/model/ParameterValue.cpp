@@ -7,6 +7,8 @@
  */
 #include "lucid/model/ParameterValue.h"
 
+#include <string>
+
 namespace lucid {
 
 bool ParameterValue::operator==(const ParameterValue& o) const {

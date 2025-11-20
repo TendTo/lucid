@@ -7,10 +7,9 @@
 #include "lucid/model/Kernel.h"
 
 #include <ostream>
+#include <string>
 #include <vector>
 
-#include "lucid/model/GaussianKernel.h"
-#include "lucid/model/ValleePoussinKernel.h"
 #include "lucid/util/Stats.h"
 #include "lucid/util/Timer.h"
 

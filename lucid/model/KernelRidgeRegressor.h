@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <string>
 
 #include "lucid/model/Estimator.h"
 #include "lucid/model/FeatureMap.h"

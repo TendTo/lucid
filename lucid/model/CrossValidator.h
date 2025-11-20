@@ -10,6 +10,7 @@
 #include <iosfwd>
 #include <utility>
 #include <vector>
+#include <string>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Estimator.h"

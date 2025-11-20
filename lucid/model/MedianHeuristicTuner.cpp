@@ -6,6 +6,8 @@
  */
 #include "MedianHeuristicTuner.h"
 
+#include <string>
+
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Estimator.h"
 #include "lucid/util/error.h"

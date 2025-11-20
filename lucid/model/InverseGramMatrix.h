@@ -8,6 +8,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <string>
 
 #include "lucid/lib/eigen.h"
 

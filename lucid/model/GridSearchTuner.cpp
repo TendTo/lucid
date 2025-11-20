@@ -11,6 +11,7 @@
 #include <limits>
 #include <numeric>
 #include <ostream>
+#include <string>
 #include <thread>
 #include <utility>
 #include <vector>

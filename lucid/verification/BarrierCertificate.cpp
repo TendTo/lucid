@@ -6,6 +6,8 @@
  */
 #include "lucid/verification/BarrierCertificate.h"
 
+#include <string>
+
 #include "lucid/util/Stats.h"
 #include "lucid/util/Timer.h"
 #include "lucid/util/error.h"

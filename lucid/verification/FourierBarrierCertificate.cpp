@@ -8,6 +8,9 @@
 
 #include <memory>
 #include <numbers>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "lucid/lib/psocpp.h"
 #include "lucid/model/Estimator.h"

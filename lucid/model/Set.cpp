@@ -6,13 +6,12 @@
  */
 #include "lucid/model/Set.h"
 
+#include <memory>
 #include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "lucid/model/EllipseSet.h"
-#include "lucid/model/MultiSet.h"
-#include "lucid/model/PolytopeSet.h"
-#include "lucid/model/RectSet.h"
-#include "lucid/model/SphereSet.h"
 #include "lucid/util/error.h"
 
 namespace lucid {

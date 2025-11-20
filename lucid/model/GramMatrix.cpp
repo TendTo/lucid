@@ -6,6 +6,8 @@
  */
 #include "lucid/model/GramMatrix.h"
 
+#include <string>
+
 #include "lucid/model/InverseGramMatrix.h"
 #include "lucid/util/error.h"
 

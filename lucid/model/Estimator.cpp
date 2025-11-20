@@ -8,8 +8,8 @@
 
 #include <memory>
 #include <ostream>
+#include <string>
 
-#include "lucid/model/KernelRidgeRegressor.h"
 #include "lucid/model/Tuner.h"
 #include "lucid/util/Stats.h"
 #include "lucid/util/Timer.h"

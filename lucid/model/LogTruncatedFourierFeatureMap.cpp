@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <numbers>
+#include <string>
 
 #include "lucid/util/error.h"
 #include "lucid/util/math.h"

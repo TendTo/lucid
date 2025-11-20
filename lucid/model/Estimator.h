@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <string>
 
 #include "lucid/lib/eigen.h"
 #include "lucid/model/Parametrizable.h"

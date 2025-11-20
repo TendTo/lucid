@@ -12,6 +12,7 @@
 #include <limits>
 #include <ostream>
 #include <random>
+#include <string>
 #include <utility>
 #include <vector>
 

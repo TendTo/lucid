@@ -8,6 +8,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <string>
 #include <vector>
 
 #include "lucid/model/Kernel.h"
@@ -169,8 +170,8 @@ class LbfgsTuner final : public Tuner {
   void tune_impl(Estimator& estimator, ConstMatrixRef training_inputs,
                  const OutputComputer& training_outputs) const override;
 
-  Eigen::VectorXd lb_;         ///< Lower bounds for the parameters. If empty, no bounds are applied
-  Eigen::VectorXd ub_;         ///< Upper bounds for the parameters. If empty, no bounds are applied
+  Eigen::VectorXd lb_;          ///< Lower bounds for the parameters. If empty, no bounds are applied
+  Eigen::VectorXd ub_;          ///< Upper bounds for the parameters. If empty, no bounds are applied
   LbfgsParameters parameters_;  ///< Optimization parameters for the L-BFGS algorithm
 };
 

@@ -7,10 +7,8 @@
 #include "lucid/model/Tuner.h"
 
 #include <memory>
+#include <string>
 
-#include "LbfgsTuner.h"
-#include "lucid/model/GridSearchTuner.h"
-#include "lucid/model/MedianHeuristicTuner.h"
 #include "lucid/util/ScopedValue.h"
 #include "lucid/util/Stats.h"
 #include "lucid/util/Timer.h"

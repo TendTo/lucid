@@ -7,7 +7,10 @@
  */
 #include "lucid/model/ModelEstimator.h"
 
+#include <memory>
 #include <ostream>
+#include <string>
+#include <utility>
 
 #include "Scorer.h"
 #include "lucid/util/error.h"

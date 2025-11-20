@@ -6,6 +6,8 @@
  */
 #include "lucid/model/InverseGramMatrix.h"
 
+#include <string>
+
 #include "lucid/model/GramMatrix.h"
 
 namespace lucid {

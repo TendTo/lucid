@@ -8,6 +8,7 @@
 #include "lucid/model/ParameterValues.h"
 
 #include <ranges>
+#include <string>
 
 #include "lucid/util/logging.h"
 

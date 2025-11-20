@@ -8,6 +8,7 @@
 #pragma once
 
 #include <concepts>
+#include <string>
 #include <vector>
 
 #include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
