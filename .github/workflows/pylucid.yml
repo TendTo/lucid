@@ -87,7 +87,7 @@ jobs:
       #     export CXX=/usr/local/opt/llvm/bin/clang++
 
       - name: Install python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ matrix.python_version }}"
           cache: "pip"
