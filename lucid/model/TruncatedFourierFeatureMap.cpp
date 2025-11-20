@@ -20,7 +20,7 @@ namespace lucid {
 TruncatedFourierFeatureMap::TruncatedFourierFeatureMap(const int num_frequencies, const Matrix& prob_per_dim,
                                                        const Matrix& omega_per_dim, ConstVectorRef sigma_l,
                                                        const Scalar sigma_f, const RectSet& X_bounds)
-    : num_frequencies_per_dimension_{num_frequencies},
+    : num_frequencies_{num_frequencies},
       omega_{combvec(omega_per_dim).transpose()},
       weights_{::lucid::pow<Index>(num_frequencies, X_bounds.dimension()) * 2 - 1},
       sigma_f_{sigma_f},

@@ -92,7 +92,7 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   /** @getter{weights matrix, truncated Fourier feature map} */
   [[nodiscard]] const Vector& weights() const { return weights_; }
   /** @getter{number of frequencies per dimension, truncated Fourier feature map} */
-  [[nodiscard]] int num_frequencies() const { return num_frequencies_per_dimension_; }
+  [[nodiscard]] int num_frequencies() const { return num_frequencies_; }
   /** @getter{probability captured by the Fourier expansion, truncated Fourier feature map, NaN if not computed} */
   [[nodiscard]] Scalar captured_probability() const { return captured_probability_; }
   /** @getter{limits, original input space} */
@@ -145,13 +145,13 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] Matrix apply_impl(ConstMatrixRef x) const override;
   [[nodiscard]] Matrix invert_impl(ConstMatrixRef y) const override;
 
-  int num_frequencies_per_dimension_;  ///< Number of frequencies per dimension
-  Matrix omega_;                       ///< Frequencies matrix
-  Vector weights_;                     ///< Weights matrix
-  Scalar sigma_f_;                     ///< @sigmaf value
-  Vector sigma_l_;                     ///< @sigmal vector
-  RectSet X_bounds_;                   ///< Limits of the input space expressed as a matrix. The set is a rectangle
-  Scalar captured_probability_;        ///< Probability captured by the Fourier expansion. NaN if not computed
+  int num_frequencies_;          ///< Number of frequencies per dimension
+  Matrix omega_;                 ///< Frequencies matrix
+  Vector weights_;               ///< Weights matrix
+  Scalar sigma_f_;               ///< @sigmaf value
+  Vector sigma_l_;               ///< @sigmal vector
+  RectSet X_bounds_;             ///< Limits of the input space expressed as a matrix. The set is a rectangle
+  Scalar captured_probability_;  ///< Probability captured by the Fourier expansion. NaN if not computed
 };
 
 std::ostream& operator<<(std::ostream& os, const TruncatedFourierFeatureMap& map);

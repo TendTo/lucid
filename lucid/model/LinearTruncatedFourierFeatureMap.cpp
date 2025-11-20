@@ -75,7 +75,7 @@ LinearTruncatedFourierFeatureMap::LinearTruncatedFourierFeatureMap(const int num
 RectSet LinearTruncatedFourierFeatureMap::get_periodic_set() const {
   // Divide the space of size 3 * sigma_l^{-1} into (2 * num_frequencies - 1) intervals.
   // Each interval will be normalized by double the dilation factor, and then extended to be between [0, 2pi].
-  const double denom = static_cast<double>(num_frequencies_per_dimension_) - 0.5;
+  const double denom = static_cast<double>(num_frequencies_) - 0.5;
   const auto dilation = 3.0 * sigma_l_.cwiseInverse() / denom;
 
   const auto lengths = X_bounds_.upper_bound() - X_bounds_.lower_bound();
