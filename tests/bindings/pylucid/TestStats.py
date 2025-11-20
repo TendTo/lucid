@@ -11,7 +11,6 @@ from pylucid import (
     ParameterValues,
     RectSet,
     Stats,
-    FourierBarrierSynthesisProblem,
 )
 
 SIGMA_L = np.ones((4,))
@@ -119,25 +118,14 @@ class TestStats:
             x_lattice = X_bounds.lattice(n_per_dim, True)
             f_x_lattice = feature_map(x_lattice)
 
-            emtpy_list = []
             o = HighsOptimiser()
             o.solve_fourier_barrier_synthesis(
-                problem=FourierBarrierSynthesisProblem(
-                    num_constraints=100,
-                    fxn_lattice=f_x_lattice,
-                    dn_lattice=f_x_lattice,
-                    x_include_mask=emtpy_list,
-                    x_exclude_mask=emtpy_list,
-                    x0_include_mask=emtpy_list,
-                    x0_exclude_mask=emtpy_list,
-                    xu_include_mask=emtpy_list,
-                    xu_exclude_mask=emtpy_list,
-                    T=5,
-                ),
-                cb=lambda *args, **kwargs: None,
+                num_constraints=1,
+                fxn_lattice=f_x_lattice,
+                cb=lambda a, b, c, d, e, f: print("Callback called"),
             )
 
-            assert stats.num_constraints == 321
-            assert stats.num_variables == 13
+            assert stats.num_constraints == 1
+            assert stats.num_variables == f_x_lattice.shape[1] + 10
             assert stats.optimiser_time > 0
             assert str(stats).startswith("Stats:")

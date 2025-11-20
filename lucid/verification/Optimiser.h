@@ -20,29 +20,32 @@ struct FourierBarrierSynthesisProblem {
   static constexpr int num_extra_vars = 10;  ///< Number of extra variables in the Fourier barrier synthesis problem
   static constexpr double tolerance = 1e-8;  ///< Tolerance for strict inequalities
 
-  int num_constraints;             ///< Number of constraints in the LP
-  ConstMatrixRefCopy fxn_lattice;  ///< Lattice obtained from the periodic space
-  ConstMatrixRefCopy dn_lattice;   ///< Lattice with the differences between phi(xp) and phi(x) in the periodic space
-  const std::vector<Index>& x_include_mask;   ///< Lattice mask for the points in x
-  const std::vector<Index>& x_exclude_mask;   ///< Lattice mask for the points not in x
-  const std::vector<Index>& x0_include_mask;  ///< Lattice mask for the points in x0
-  const std::vector<Index>& x0_exclude_mask;  ///< Lattice mask for the points not in x0
-  const std::vector<Index>& xu_include_mask;  ///< Lattice mask for the points in xu
-  const std::vector<Index>& xu_exclude_mask;  ///< Lattice mask for the points not in xu
-  int T;                                      ///< Time horizon
-  double gamma;                               ///< @gamma value
-  double eta_coeff;                           ///< Coefficient for the eta constraint @f$ 2 / (C - A_x0 + 1) @f$
-  double min_x0_coeff;     ///< Coefficient for the lower bound on B at x0 @f$ (C - A_{x0} - 1) / (C - A_{x0} + 1) @f$
-  double diff_sx0_coeff;   ///< Coefficient for the difference in B at x0 @f$ A_{x0} / (C - A_{x0} + 1) @f$
-  double gamma_coeff;      ///< Coefficient for the gamma constraint @f$ 2 / (C - A_{xu} + 1) @f$
-  double max_xu_coeff;     ///< Coefficient for the upper bound on B at xu @f$ (C - A_{xu} - 1) / (C - A_{xu} + 1) @f$
-  double diff_sxu_coeff;   ///< Coefficient for the difference in B at xu @f$ A_{xu} / (C - A_{xu} + 1) @f$
-  double ebk;              ///< Coefficient for the Kushner constraint @f$ \epsilon * target\_norm * \kappa @f$
-  double c_ebk_coeff;      ///< Coefficient for the Kushner constraint @f$ 2 / (C - A_{x} + 1) @f$
-  double min_d_coeff;      ///< Coefficient for the lower bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
-  double diff_d_sx_coeff;  ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
-  double max_x_coeff;      ///< Coefficient for the upper bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
-  double diff_sx_coeff;    ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
+  int num_constraints{1};                    ///< Number of constraints in the LP
+  ConstMatrixRefCopy fxn_lattice{Matrix{}};  ///< Lattice obtained from the periodic space
+  ConstMatrixRefCopy dn_lattice{
+      Matrix{}};  ///< Lattice with the differences between phi(xp) and phi(x) in the periodic space
+  const std::vector<Index>& x_include_mask{};   ///< Lattice mask for the points in x
+  const std::vector<Index>& x_exclude_mask{};   ///< Lattice mask for the points not in x
+  const std::vector<Index>& x0_include_mask{};  ///< Lattice mask for the points in x0
+  const std::vector<Index>& x0_exclude_mask{};  ///< Lattice mask for the points not in x0
+  const std::vector<Index>& xu_include_mask{};  ///< Lattice mask for the points in xu
+  const std::vector<Index>& xu_exclude_mask{};  ///< Lattice mask for the points not in xu
+  int T{1};                                     ///< Time horizon
+  double gamma{1};                              ///< @gamma value
+  double eta_coeff{0};                          ///< Coefficient for the eta constraint @f$ 2 / (C - A_x0 + 1) @f$
+  double min_x0_coeff{0};    ///< Coefficient for the lower bound on B at x0 @f$ (C - A_{x0} - 1) / (C - A_{x0} + 1) @f$
+  double diff_sx0_coeff{0};  ///< Coefficient for the difference in B at x0 @f$ A_{x0} / (C - A_{x0} + 1) @f$
+  double gamma_coeff{0};     ///< Coefficient for the gamma constraint @f$ 2 / (C - A_{xu} + 1) @f$
+  double max_xu_coeff{0};    ///< Coefficient for the upper bound on B at xu @f$ (C - A_{xu} - 1) / (C - A_{xu} + 1) @f$
+  double diff_sxu_coeff{0};  ///< Coefficient for the difference in B at xu @f$ A_{xu} / (C - A_{xu} + 1) @f$
+  double ebk{0};             ///< Coefficient for the Kushner constraint @f$ \epsilon * target\_norm * \kappa @f$
+  double c_ebk_coeff{0};     ///< Coefficient for the Kushner constraint @f$ 2 / (C - A_{x} + 1) @f$
+  double min_d_coeff{0};     ///< Coefficient for the lower bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
+  double diff_d_sx_coeff{0};  ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
+  double max_x_coeff{0};      ///< Coefficient for the upper bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
+  double diff_sx_coeff{0};    ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
+
+  std::string to_string() const;
 };
 
 /**
@@ -106,6 +109,7 @@ class Optimiser {
   std::string iis_log_file_;      ///< File to log the IIS (Irreducible Inconsistent Subsystem) to, if found
 };
 
+std::ostream& operator<<(std::ostream& os, const FourierBarrierSynthesisProblem& problem);
 std::ostream& operator<<(std::ostream& os, const Optimiser& optimiser);
 
 }  // namespace lucid

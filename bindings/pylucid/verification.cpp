@@ -35,67 +35,57 @@ class PyBarrierCertificate : public BarrierCertificate {
   }
 };
 
-void init_verification(py::module_& m) {
-  /**************************** Problems ****************************/
-  py::class_<FourierBarrierSynthesisProblem>(m, "FourierBarrierSynthesisProblem", FourierBarrierSynthesisProblem_)
-      .def(py::init<int, ConstMatrixRefCopy, ConstMatrixRefCopy, const std::vector<Index>&, const std::vector<Index>&,
-                    const std::vector<Index>&, const std::vector<Index>&, const std::vector<Index>&,
-                    const std::vector<Index>&, int, double, double, double, double, double, double, double, double,
-                    double, double, double, double, double>(),
-           py::arg("num_constraints"), py::arg("fxn_lattice"), py::arg("dn_lattice"), py::arg("x_include_mask"),
-           py::arg("x_exclude_mask"), py::arg("x0_include_mask"), py::arg("x0_exclude_mask"),
-           py::arg("xu_include_mask"), py::arg("xu_exclude_mask"), py::arg("T") = 1, py::arg("gamma") = 1.0,
-           py::arg("eta_coeff") = 0.0, py::arg("min_x0_coeff") = 0.0, py::arg("diff_sx0_coeff") = 0.0,
-           py::arg("gamma_coeff") = 0.0, py::arg("max_xu_coeff") = 0.0, py::arg("diff_sxu_coeff") = 0.0,
-           py::arg("ebk") = 0.0, py::arg("c_ebk_coeff") = 0.0, py::arg("min_d_coeff") = 0.0,
-           py::arg("diff_d_sx_coeff") = 0.0, py::arg("max_x_coeff") = 0.0, py::arg("diff_sx_coeff") = 0.0)
-      .def_readwrite("num_constraints", &FourierBarrierSynthesisProblem::num_constraints,
-                     FourierBarrierSynthesisProblem_num_constraints)
-      .def_property_readonly("fxn_lattice", GETTER(FourierBarrierSynthesisProblem, fxn_lattice),
-                             FourierBarrierSynthesisProblem_fxn_lattice)
-      .def_property_readonly("dn_lattice", GETTER(FourierBarrierSynthesisProblem, dn_lattice),
-                             FourierBarrierSynthesisProblem_dn_lattice)
-      .def_property_readonly("x_include_mask", GETTER(FourierBarrierSynthesisProblem, x_include_mask),
-                             FourierBarrierSynthesisProblem_x_include_mask)
-      .def_property_readonly("x_exclude_mask", GETTER(FourierBarrierSynthesisProblem, x_exclude_mask),
-                             FourierBarrierSynthesisProblem_x_exclude_mask)
-      .def_property_readonly("x0_include_mask", GETTER(FourierBarrierSynthesisProblem, x0_include_mask),
-                             FourierBarrierSynthesisProblem_x0_include_mask)
-      .def_property_readonly("x0_exclude_mask", GETTER(FourierBarrierSynthesisProblem, x0_exclude_mask),
-                             FourierBarrierSynthesisProblem_x0_exclude_mask)
-      .def_property_readonly("xu_include_mask", GETTER(FourierBarrierSynthesisProblem, xu_include_mask),
-                             FourierBarrierSynthesisProblem_xu_include_mask)
-      .def_property_readonly("xu_exclude_mask", GETTER(FourierBarrierSynthesisProblem, xu_exclude_mask),
-                             FourierBarrierSynthesisProblem_xu_exclude_mask)
-      .def_readwrite("T", &FourierBarrierSynthesisProblem::T, FourierBarrierSynthesisProblem_T)
-      .def_readwrite("gamma", &FourierBarrierSynthesisProblem::gamma, FourierBarrierSynthesisProblem_gamma)
-      .def_readwrite("eta_coeff", &FourierBarrierSynthesisProblem::eta_coeff, FourierBarrierSynthesisProblem_eta_coeff)
-      .def_readwrite("min_x0_coeff", &FourierBarrierSynthesisProblem::min_x0_coeff,
-                     FourierBarrierSynthesisProblem_min_x0_coeff)
-      .def_readwrite("diff_sx0_coeff", &FourierBarrierSynthesisProblem::diff_sx0_coeff,
-                     FourierBarrierSynthesisProblem_diff_sx0_coeff)
-      .def_readwrite("gamma_coeff", &FourierBarrierSynthesisProblem::gamma_coeff,
-                     FourierBarrierSynthesisProblem_gamma_coeff)
-      .def_readwrite("max_xu_coeff", &FourierBarrierSynthesisProblem::max_xu_coeff,
-                     FourierBarrierSynthesisProblem_max_xu_coeff)
-      .def_readwrite("diff_sxu_coeff", &FourierBarrierSynthesisProblem::diff_sxu_coeff,
-                     FourierBarrierSynthesisProblem_diff_sxu_coeff)
-      .def_readwrite("ebk", &FourierBarrierSynthesisProblem::ebk, FourierBarrierSynthesisProblem_ebk)
-      .def_readwrite("c_ebk_coeff", &FourierBarrierSynthesisProblem::c_ebk_coeff,
-                     FourierBarrierSynthesisProblem_c_ebk_coeff)
-      .def_readwrite("min_d_coeff", &FourierBarrierSynthesisProblem::min_d_coeff,
-                     FourierBarrierSynthesisProblem_min_d_coeff)
-      .def_readwrite("diff_d_sx_coeff", &FourierBarrierSynthesisProblem::diff_d_sx_coeff,
-                     FourierBarrierSynthesisProblem_diff_d_sx_coeff)
-      .def_readwrite("max_x_coeff", &FourierBarrierSynthesisProblem::max_x_coeff,
-                     FourierBarrierSynthesisProblem_max_x_coeff)
-      .def_readwrite("diff_sx_coeff", &FourierBarrierSynthesisProblem::diff_sx_coeff,
-                     FourierBarrierSynthesisProblem_diff_sx_coeff);
+const auto default_optimiser_cb = [](bool, double, const Vector&, double, double, double) {};
 
+void init_verification(py::module_& m) {
   /**************************** Optimiser ****************************/
   py::class_<Optimiser>(m, "Optimiser", Optimiser_)
-      .def("solve_fourier_barrier_synthesis", &Optimiser::solve_fourier_barrier_synthesis, py::arg("problem"),
-           py::arg("cb"), Optimiser_solve_fourier_barrier_synthesis)
+      .def(
+          "solve_fourier_barrier_synthesis",
+          [](const Optimiser& o, const int num_constraints, const ConstMatrixRefCopy& fxn_lattice,
+             const ConstMatrixRefCopy& dn_lattice, const std::vector<Index>& x_include_mask,
+             const std::vector<Index>& x_exclude_mask, const std::vector<Index>& x0_include_mask,
+             const std::vector<Index>& x0_exclude_mask, const std::vector<Index>& xu_include_mask,
+             const std::vector<Index>& xu_exclude_mask, const int T, const double gamma, const double eta_coeff,
+             const double min_x0_coeff, const double diff_sx0_coeff, const double gamma_coeff,
+             const double max_xu_coeff, const double diff_sxu_coeff, const double ebk, const double c_ebk_coeff,
+             const double min_d_coeff, const double diff_d_sx_coeff, const double max_x_coeff,
+             const double diff_sx_coeff, const std::optional<Optimiser::SolutionCallback>& cb) {
+            // Check cb if none
+            return o.solve_fourier_barrier_synthesis(FourierBarrierSynthesisProblem{.num_constraints = num_constraints,
+                                                                                    .fxn_lattice = fxn_lattice,
+                                                                                    .dn_lattice = dn_lattice,
+                                                                                    .x_include_mask = x_include_mask,
+                                                                                    .x_exclude_mask = x_exclude_mask,
+                                                                                    .x0_include_mask = x0_include_mask,
+                                                                                    .x0_exclude_mask = x0_exclude_mask,
+                                                                                    .xu_include_mask = xu_include_mask,
+                                                                                    .xu_exclude_mask = xu_exclude_mask,
+                                                                                    .T = T,
+                                                                                    .gamma = gamma,
+                                                                                    .eta_coeff = eta_coeff,
+                                                                                    .min_x0_coeff = min_x0_coeff,
+                                                                                    .diff_sx0_coeff = diff_sx0_coeff,
+                                                                                    .gamma_coeff = gamma_coeff,
+                                                                                    .max_xu_coeff = max_xu_coeff,
+                                                                                    .diff_sxu_coeff = diff_sxu_coeff,
+                                                                                    .ebk = ebk,
+                                                                                    .c_ebk_coeff = c_ebk_coeff,
+                                                                                    .min_d_coeff = min_d_coeff,
+                                                                                    .diff_d_sx_coeff = diff_d_sx_coeff,
+                                                                                    .max_x_coeff = max_x_coeff,
+                                                                                    .diff_sx_coeff = diff_sx_coeff},
+                                                     cb.value_or(default_optimiser_cb));
+          },
+          py::arg("num_constraints") = 1, py::arg("fxn_lattice") = Matrix{}, py::arg("dn_lattice") = Matrix{},
+          py::arg("x_include_mask") = std::vector<Index>{}, py::arg("x_exclude_mask") = std::vector<Index>{},
+          py::arg("x0_include_mask") = std::vector<Index>{}, py::arg("x0_exclude_mask") = std::vector<Index>{},
+          py::arg("xu_include_mask") = std::vector<Index>{}, py::arg("xu_exclude_mask") = std::vector<Index>{},
+          py::arg("T") = 1, py::arg("gamma") = 1.0, py::arg("eta_coeff") = 0.0, py::arg("min_x0_coeff") = 0.0,
+          py::arg("diff_sx0_coeff") = 0.0, py::arg("gamma_coeff") = 0.0, py::arg("max_xu_coeff") = 0.0,
+          py::arg("diff_sxu_coeff") = 0.0, py::arg("ebk") = 0.0, py::arg("c_ebk_coeff") = 0.0,
+          py::arg("min_d_coeff") = 0.0, py::arg("diff_d_sx_coeff") = 0.0, py::arg("max_x_coeff") = 0.0,
+          py::arg("diff_sx_coeff") = 0.0, py::arg("cb") = py::none{}, Optimiser_solve_fourier_barrier_synthesis)
       .def_property("problem_log_file", &Optimiser::problem_log_file,
                     SETTER(Optimiser, std::string, m_problem_log_file), Optimiser_problem_log_file)
       .def_property("iis_log_file", &Optimiser::iis_log_file, SETTER(Optimiser, std::string, m_iis_log_file),
