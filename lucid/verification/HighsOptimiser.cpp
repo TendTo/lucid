@@ -355,13 +355,13 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
   LUCID_ASSERT(ret != HighsStatus::kError, "Failed to run the HiGHS model");
 
   // Get the model status
-  const HighsModelStatus& model_status = highs.getModelStatus();
-  if (model_status != HighsModelStatus::kOptimal) {
+  if (const HighsModelStatus& model_status = highs.getModelStatus(); model_status != HighsModelStatus::kOptimal) {
     LUCID_INFO_FMT("No solution found, optimization status = {}",
                    static_cast<std::underlying_type_t<HighsModelStatus>>(model_status));
     if (!iis_log_file_.empty()) {
       HighsIis iis;
-      highs.getIis(iis);
+      ret = highs.getIis(iis);
+      LUCID_ASSERT(ret != HighsStatus::kError, "Failed to get the IIS from HiGHS");
       iis.report(iis_log_file_, highs.getLp());
     }
     cb(false, 0, Vector{}, 0, 0, 0);
