@@ -280,7 +280,7 @@ class Set {
    * @param bounds bounding rectangular set
    * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
    * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
-   * @return new scaled rectangular set
+   * @return new scaled set
    */
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped(double scale, const RectSet& bounds,
                                                    bool relative_to_bounds = false) const;
@@ -296,22 +296,29 @@ class Set {
    * @param bounds bounding rectangular set
    * @param relative_to_bounds if true, the scaling factor is computed relative to the size of the bounding
    * rectangular set; if false, the scaling factor is computed relative to the current size of the rectangular
-   * @return new scaled rectangular set
+   * @return new scaled set
    */
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped(ConstVectorRef scale, const RectSet& bounds,
                                                    bool relative_to_bounds = false) const;
+
+  /**
+   * Increase the size of the set.
+   * The size increase can be different for each dimension.
+   * The increase is applied symmetrically around the center of the set such that
+   * the total size after the increase is equal to the original size plus `size_increase`.
+   * @pre The set must support size changes.
+   * @pre The size of `scale` must be equal to the dimension of the set.
+   * @pre The new size must be non-negative in all dimensions.
+   * @param size_increase amount to increase the size of the set for each dimension
+   * @return new set with increased size
+   */
+  [[nodiscard]] std::unique_ptr<Set> increase_size(ConstVectorRef size_increase) const;
 
   /**
    * Change the size of the set.
    * The size change can be different for each dimension.
    * For example, for a rectangular set, this would change the lower and upper bounds so that the original set sits in
    * the center of the new set, which has its size changed by the specified amounts.
-   * @code{.unparsed}
-   * ┌───────────┐
-   * │    ┌─┐    │
-   * │    └─┘    │
-   * └───────────┘
-   * @endcode
    * @pre The set must support size changes.
    * @pre The new size must be non-negative in all dimensions.
    * @param delta_size amount to change the size of the set
@@ -323,12 +330,6 @@ class Set {
    * The size change can be different for each dimension.
    * For example, for a rectangular set, this would change the lower and upper bounds so that the original set sits in
    * the center of the new set, which has its size changed by the specified amounts.
-   * @code{.unparsed}
-   * ┌───────────┐
-   * │    ┌─┐    │
-   * │    └─┘    │
-   * └───────────┘
-   * @endcode
    * @pre The set must support size changes.
    * @pre The size of `delta_size` must be equal to the dimension of the set.
    * @pre The new size must be non-negative in all dimensions.
@@ -359,9 +360,9 @@ class Set {
    */
   [[nodiscard]] virtual std::unique_ptr<Set> to_rect_set() const;
 
-  /** @getter{lower bound, rectangular set} */
+  /** @getter{lower bound, smallest rectangular set including the whole set} */
   [[nodiscard]] virtual Vector general_lower_bound() const;
-  /** @getter{upper bound, rectangular set} */
+  /** @getter{upper bound, smallest rectangular set including the whole set} */
   [[nodiscard]] virtual Vector general_upper_bound() const;
 
   /**
@@ -378,12 +379,7 @@ class Set {
   }
 
   virtual bool operator==(const Set& other) const;
-  bool operator!=(const Set& other) const = default;
 
-  /**
-   * Get string representation of the set.
-   * @return string representation
-   */
   /** @to_string */
   [[nodiscard]] virtual std::string to_string() const;
 
@@ -404,6 +400,19 @@ class Set {
    */
   [[nodiscard]] virtual std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
                                                                 bool relative_to_bounds) const;
+
+  /**
+   * Increase the size of the set.
+   * The size increase can be different for each dimension.
+   * The increase is applied symmetrically around the center of the set such that
+   * the total size after the increase is equal to the original size plus `size_increase`.
+   * @pre The set must support size changes.
+   * @pre The size of `scale` must be equal to the dimension of the set.
+   * @pre The new size must be non-negative in all dimensions.
+   * @param size_increase amount to increase the size of the set for each dimension
+   * @return new set with increased size
+   */
+  [[nodiscard]] virtual std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Set& set);

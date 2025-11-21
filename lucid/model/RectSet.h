@@ -178,6 +178,7 @@ class RectSet final : public Set {
  private:
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
                                                         bool relative_to_bounds) const override;
+  [[nodiscard]] std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const override;
 
   Vector lb_;  ///< Lower bound vector
   Vector ub_;  ///< Upper bound vector

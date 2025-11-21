@@ -41,6 +41,20 @@ Matrix MultiSet::sample(const Index num_samples) const {
 bool MultiSet::operator()(ConstVectorRef x) const {
   return std::ranges::any_of(sets_, [&x](const std::unique_ptr<Set>& set) { return set->contains(x); });
 }
+bool MultiSet::operator==(const MultiSet& other) const {
+  return dimension() == other.dimension() && sets_.size() == other.sets_.size() &&
+         std::ranges::all_of(sets_, [&other](const std::unique_ptr<Set>& set) {
+           return std::ranges::any_of(other.sets_,
+                                      [&set](const std::unique_ptr<Set>& other_set) { return *set == *other_set; });
+         });
+}
+
+bool MultiSet::operator==(const Set& other) const {
+  if (Set::operator==(other)) return true;
+  if (const auto* other_ellipse = dynamic_cast<const MultiSet*>(&other)) return *this == *other_ellipse;
+  return false;
+}
+
 Matrix MultiSet::lattice(const VectorI& points_per_dim, const bool endpoint) const {
   Matrix rect_multiset_lattice{0, dimension()};
   for (const auto& set : sets_) {
@@ -86,6 +100,14 @@ std::unique_ptr<Set> MultiSet::scale_wrapped_impl(ConstVectorRef scale, const Re
     scaled_sets.emplace_back(set->scale_wrapped(scale, bounds, relative_to_bounds));
   }
   return std::make_unique<MultiSet>(std::move(scaled_sets));
+}
+std::unique_ptr<Set> MultiSet::increase_size_impl(ConstVectorRef size_increase) const {
+  std::vector<std::unique_ptr<Set>> increased_size_sets;
+  increased_size_sets.reserve(sets_.size());
+  for (const auto& set : sets_) {
+    increased_size_sets.emplace_back(set->increase_size(size_increase));
+  }
+  return std::make_unique<MultiSet>(std::move(increased_size_sets));
 }
 void MultiSet::validate() {
 #ifndef NCHECK

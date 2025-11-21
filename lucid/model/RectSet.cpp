@@ -151,6 +151,10 @@ std::unique_ptr<Set> RectSet::scale_wrapped_impl(ConstVectorRef scale, const Rec
   return std::make_unique<MultiSet>(std::move(sets));
 }
 
+std::unique_ptr<Set> RectSet::increase_size_impl(ConstVectorRef size_increase) const {
+  return std::make_unique<RectSet>(lb_ - size_increase / 2.0, ub_ + size_increase / 2.0);
+}
+
 std::unique_ptr<Set> RectSet::to_rect_set() const { return std::make_unique<RectSet>(*this); }
 
 RectSet& RectSet::operator+=(ConstVectorRef offset) {
@@ -240,7 +244,9 @@ bool RectSet::operator==(const Set& other) const {
   if (const auto other_rect = dynamic_cast<const RectSet*>(&other)) return *this == *other_rect;
   return false;
 }
-bool RectSet::operator==(const RectSet& other) const { return lb_.isApprox(other.lb_) && ub_.isApprox(other.ub_); }
+bool RectSet::operator==(const RectSet& other) const {
+  return dimension() == other.dimension() && lb_ == other.lb_ && ub_ == other.ub_;
+}
 
 RectSet::operator Matrix() const {
   Matrix x_lim{2, lb_.size()};

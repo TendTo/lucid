@@ -53,6 +53,8 @@ class MultiSet final : public Set {
   [[nodiscard]] Matrix sample(Index num_samples) const override;
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
   [[nodiscard]] const Set& operator[](const std::size_t index) const { return *sets_.at(index); }
+  [[nodiscard]] bool operator==(const MultiSet& other) const;
+  [[nodiscard]] bool operator==(const Set& other) const override;
 
   /** @todo Improve the naive implementation that only concatenates the lattices from the internal sets (polytopes?) */
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool endpoint) const override;
@@ -69,6 +71,8 @@ class MultiSet final : public Set {
  private:
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
                                                         bool relative_to_bounds) const override;
+  [[nodiscard]] std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const override;
+
   /** Utility function to validate the MultiSet. */
   void validate();
 

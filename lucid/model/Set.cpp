@@ -207,6 +207,11 @@ std::unique_ptr<Set> Set::scale_wrapped(ConstVectorRef scale, const RectSet& bou
                                         const bool relative_to_bounds) const {
   return scale_wrapped_impl(scale, bounds, relative_to_bounds);
 }
+std::unique_ptr<Set> Set::increase_size(ConstVectorRef size_increase) const {
+  LUCID_CHECK_ARGUMENT_EQ(size_increase.size(), dimension());
+  LUCID_CHECK_ARGUMENT_CMP(size_increase.minCoeff(), >=, 0);
+  return increase_size_impl(size_increase);
+}
 
 void Set::change_size(const double delta_size) { change_size(Vector::Constant(dimension(), delta_size)); }
 void Set::change_size(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
@@ -221,6 +226,7 @@ Vector Set::general_upper_bound() const { LUCID_NOT_IMPLEMENTED(); }
 bool Set::operator==(const Set& other) const { return this == &other; }
 
 std::unique_ptr<Set> Set::scale_wrapped_impl(ConstVectorRef, const RectSet&, bool) const { LUCID_NOT_IMPLEMENTED(); }
+std::unique_ptr<Set> Set::increase_size_impl(ConstVectorRef) const { LUCID_NOT_IMPLEMENTED(); }
 
 std::string Set::to_string() const { return "Set( )"; }
 

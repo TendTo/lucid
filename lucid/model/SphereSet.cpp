@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "lucid/model/EllipseSet.h"
 #include "lucid/model/RectSet.h"
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
@@ -75,6 +76,23 @@ std::unique_ptr<Set> SphereSet::to_rect_set() const {
 
 std::string SphereSet::to_string() const {
   return fmt::format("SphereSet( center( [{}] ) radius( {} ) )", center_, radius_);
+}
+bool SphereSet::operator==(const Set& other) const {
+  if (Set::operator==(other)) return true;
+  if (const auto other_rect = dynamic_cast<const SphereSet*>(&other)) return *this == *other_rect;
+  return false;
+}
+
+bool SphereSet::operator==(const SphereSet& other) const {
+  return dimension() == other.dimension() && center_ == other.center_ && radius_ == other.radius_;
+}
+
+std::unique_ptr<Set> SphereSet::increase_size_impl(ConstVectorRef size_increase) const {
+  if (const double size_increase_0 = size_increase(0);
+      std::ranges::all_of(size_increase, [size_increase_0](const double val) { return val == size_increase_0; })) {
+    return std::make_unique<SphereSet>(center_, radius_ + size_increase_0 / 2.0);
+  }
+  return std::make_unique<EllipseSet>(center_, Vector::Constant(center().size(), radius_) + size_increase / 2.0);
 }
 
 std::ostream& operator<<(std::ostream& os, const SphereSet& set) { return os << set.to_string(); }

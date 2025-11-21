@@ -51,7 +51,12 @@ class SphereSet final : public Set {
 
   [[nodiscard]] std::string to_string() const override;
 
+  bool operator==(const Set &other) const override;
+  bool operator==(const SphereSet &other) const;
+
  private:
+  [[nodiscard]] std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const override;
+
   Vector center_;  ///< Center of the sphere. Determines the dimension of the sphere set
   Scalar radius_;  ///< Radius of the sphere
 };

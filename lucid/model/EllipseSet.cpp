@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "lucid/model/RectSet.h"
+#include "lucid/model/SphereSet.h"
 #include "lucid/util/error.h"
 #include "lucid/util/random.h"
 
@@ -81,7 +82,7 @@ std::unique_ptr<Set> EllipseSet::to_rect_set() const {
 }
 
 bool EllipseSet::operator==(const EllipseSet& other) const {
-  return center_.isApprox(other.center_) && semi_axes_.isApprox(other.semi_axes_);
+  return dimension() == other.dimension() && center_ == other.center_ && semi_axes_ == other.semi_axes_;
 }
 
 bool EllipseSet::operator==(const Set& other) const {
@@ -92,6 +93,14 @@ bool EllipseSet::operator==(const Set& other) const {
 
 std::string EllipseSet::to_string() const {
   return fmt::format("EllipseSet( center( [{}] ) semi_axes( [{}] ) )", center_, semi_axes_);
+}
+std::unique_ptr<Set> EllipseSet::increase_size_impl(ConstVectorRef size_increase) const {
+  const Vector new_semi_axes = semi_axes_ + size_increase / 2.0;
+  const double new_semi_axes_0 = new_semi_axes(0);
+  if (std::ranges::all_of(new_semi_axes, [new_semi_axes_0](auto x) { return x == new_semi_axes_0; })) {
+    return std::make_unique<SphereSet>(center_, new_semi_axes_0);
+  }
+  return std::make_unique<SphereSet>(center_, new_semi_axes_0);
 }
 
 std::ostream& operator<<(std::ostream& os, const EllipseSet& set) { return os << set.to_string(); }
