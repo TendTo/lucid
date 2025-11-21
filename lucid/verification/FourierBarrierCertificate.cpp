@@ -110,10 +110,9 @@ using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective, pso::Cons
 using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective>;
 #endif
 
-double run_pso(int lattice_resolution, int f_max, const RectSet& X_periodic,
-               const ConstMatrixRowIndexedView& filtered_lattice,
+double run_pso(int lattice_resolution, int f_max, const Set& X, const ConstMatrixRowIndexedView& filtered_lattice,
                const FourierBarrierCertificateParameters& parameters) {
-  const int d = static_cast<int>(X_periodic.dimension());
+  const int d = static_cast<int>(X.dimension());
   const int n_tilde = lucid::pow(lattice_resolution, d);
 
   if (filtered_lattice.rows() == 0) {
@@ -124,8 +123,9 @@ double run_pso(int lattice_resolution, int f_max, const RectSet& X_periodic,
   PsoOptimiser optimiser{n_tilde, lattice_resolution, f_max, filtered_lattice};
   // Bounds of the optimization. They ensure the particles stay within the X_periodic set
   Matrix matrix_bounds{2, d};
-  matrix_bounds.row(0) = X_periodic.lower_bound().transpose();
-  matrix_bounds.row(1) = X_periodic.upper_bound().transpose();
+  // TODO(tend): in case of ellipse, these bounds are not enough. We are currently getting a way more conservative estimate.
+  matrix_bounds.row(0) = X.general_lower_bound().transpose();
+  matrix_bounds.row(1) = X.general_upper_bound().transpose();
   // Configure optimiser
   optimiser.setPhiParticles(parameters.phi_local);
   optimiser.setPhiGlobal(parameters.phi_global);
@@ -152,49 +152,48 @@ double run_pso(int lattice_resolution, int f_max, const RectSet& X_periodic,
   return -fval;
 }
 
-double compute_A_impl(int lattice_resolution, int f_max, const RectSet& pi, const RectSet& X_tilde, const RectSet& X,
+double compute_A_impl(int lattice_resolution, int f_max, const RectSet& pi, const RectSet& X_tilde, const Set& X,
                       const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
   LUCID_TRACE_FMT("({}, {}, {}, {}, {})", lattice_resolution, f_max, X_tilde, X, parameters);
 
   // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
   // to the corresponding set in the periodic space [0, 2pi]^n
-  const RectSet X_periodic = (X - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes();
-  // Rescale the newly created periodic set by the given factor, making sure it stays within [0, 2pi]^n
-  const std::unique_ptr<Set> X_periodic_rescaled{X_periodic.scale_wrapped(parameters.set_scaling, pi, true)};
+  const std::unique_ptr<Set> X_periodic{X.to_anisotropic()};
+  *X_periodic -= X_tilde.lower_bound();
+  *X_periodic *= 2.0 * std::numbers::pi;
+  *X_periodic /= X_tilde.sizes();
+  // Rescale the newly created periodic set by the given factor in terms of the size of pi
+  const std::unique_ptr<Set> X_periodic_rescaled{X_periodic->increase_size(parameters.set_scaling * pi.sizes())};
 
-  LUCID_TRACE_FMT("X_periodic: {}", X_periodic);
-  LUCID_TRACE_FMT("X_periodic scaled: {}", *X_periodic_rescaled);
+  LUCID_TRACE_FMT("X_periodic: {}", *X_periodic);
 
-  // Only keep the lattice points that are not in X_periodic_rescaled
-  const auto lattice_wo_x{lattice(X_periodic_rescaled->exclude_mask(lattice), Eigen::placeholders::all)};
+  // Only keep the lattice points that are not in X_periodic, accounting for wrapping
+  const auto lattice_wo_x{
+      lattice(X_periodic_rescaled->exclude_mask_wrapped(lattice, pi.upper_bound()), Eigen::placeholders::all)};
 
   LUCID_TRACE_FMT("Original lattice size: {}, Lattice without X size: {}", lattice.rows(), lattice_wo_x.rows());
 
-  return run_pso(lattice_resolution, f_max, X_periodic, lattice_wo_x, parameters);
+  return run_pso(lattice_resolution, f_max, *X_periodic, lattice_wo_x, parameters);
 }
 
 double compute_A_impl(const int lattice_resolution, const int f_max, const RectSet& pi, const RectSet& X_tilde,
                       const MultiSet& X, const Matrix& lattice, const FourierBarrierCertificateParameters& parameters) {
   std::vector<double> As;
   As.reserve(X.sets().size());
-  std::vector<std::unique_ptr<Set>> pi_sets;
-  std::vector<std::unique_ptr<Set>> rescaled_pi_sets;
-  for (const auto& subset : X.sets()) {
-    auto subset_to_rect = subset->to_rect_set();
-    const RectSet& subset_rect = *dynamic_cast<const RectSet*>(subset_to_rect.get());
-
-    // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
-    // to the corresponding set in the periodic space [0, 2pi]^n
-    pi_sets.emplace_back(
-        std::make_unique<RectSet>((subset_rect - X_tilde.lower_bound()) * (2.0 * std::numbers::pi) / X_tilde.sizes()));
-    // Rescale the newly created periodic set by the given factor, making sure it stays within [0, 2pi]^n
-    rescaled_pi_sets.emplace_back(pi_sets.back()->scale_wrapped(parameters.set_scaling, pi, true));
-  }
+  // We map the original set X (which corresponds to X_bounds, X_init or X_unsafe)
+  // to the corresponding set in the periodic space [0, 2pi]^n
+  const std::unique_ptr<Set> X_periodic{X.to_anisotropic()};
+  *X_periodic -= X_tilde.lower_bound();
+  *X_periodic *= 2.0 * std::numbers::pi;
+  *X_periodic /= X_tilde.sizes();
+  // Rescale the newly created periodic set by the given factor in terms of the size of pi
+  const std::unique_ptr<Set> X_periodic_rescaled{X_periodic->increase_size(parameters.set_scaling * pi.sizes())};
+  // Only keep the lattice points that are not in X_periodic, accounting for wrapping
   const auto filtered_lattice =
-      lattice(MultiSet(std::move(rescaled_pi_sets)).exclude_mask(lattice), Eigen::placeholders::all);
-  for (const auto& rescaled_set : pi_sets) {
-    As.push_back(
-        run_pso(lattice_resolution, f_max, static_cast<RectSet&>(*rescaled_set), filtered_lattice, parameters));
+      lattice(X_periodic_rescaled->exclude_mask_wrapped(lattice, pi.upper_bound()), Eigen::placeholders::all);
+  // Compute A for each set in the MultiSet and take the maximum (worst-case)
+  for (const auto& rescaled_set : static_cast<MultiSet&>(*X_periodic).sets()) {
+    As.push_back(run_pso(lattice_resolution, f_max, *rescaled_set, filtered_lattice, parameters));
   }
   return *std::ranges::max_element(As);
 }
@@ -210,16 +209,12 @@ std::string FourierBarrierCertificateParameters::to_string() const {
 double FourierBarrierCertificate::compute_A(const int lattice_resolution, const int f_max, const RectSet& pi,
                                             const RectSet& X_tilde, const Set& X, const Matrix& lattice,
                                             const FourierBarrierCertificateParameters& parameters) {
-  if (const auto* X_rect = dynamic_cast<const RectSet*>(&X)) {
-    return compute_A_impl(lattice_resolution, f_max, pi, X_tilde, *X_rect, lattice, parameters);
-  }
-
   // TODO(tend): this is a manual way of supporting MultiSet for X. There may be a more direct way.
   if (const auto* X_multi = dynamic_cast<const MultiSet*>(&X)) {
     return compute_A_impl(lattice_resolution, f_max, pi, X_tilde, *X_multi, lattice, parameters);
   }
 
-  LUCID_UNREACHABLE();
+  return compute_A_impl(lattice_resolution, f_max, pi, X_tilde, X, lattice, parameters);
 }
 double FourierBarrierCertificate::compute_A(const int lattice_resolution, const int f_max, const RectSet& X_tilde,
                                             const Set& X, const FourierBarrierCertificateParameters& parameters) {
@@ -263,9 +258,8 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
                "X_bounds must be contained in X_tilde");
 
   const double A_x = compute_A(lattice_resolution, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
-  const double A_x0 = compute_A(lattice_resolution, f_max, pi, X_tilde, *X_init.to_rect_set(), pi_lattice, parameters);
-  const double A_xu =
-      compute_A(lattice_resolution, f_max, pi, X_tilde, *X_unsafe.to_rect_set(), pi_lattice, parameters);
+  const double A_x0 = compute_A(lattice_resolution, f_max, pi, X_tilde, X_init, pi_lattice, parameters);
+  const double A_xu = compute_A(lattice_resolution, f_max, pi, X_tilde, X_unsafe, pi_lattice, parameters);
 
   LUCID_DEBUG_FMT("A_x: {}", A_x);
   LUCID_DEBUG_FMT("A_x0: {}", A_x0);
@@ -282,20 +276,20 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
 
   LUCID_DEBUG_FMT("X_tilde: {}", X_tilde);
 
-  const std::unique_ptr<Set> X_bounds_rescaled{X_bounds.scale_wrapped(parameters.set_scaling, X_tilde, true)};
-  const std::unique_ptr<Set> X_init_rescaled{
-      X_init.to_rect_set()->scale_wrapped(parameters.set_scaling, X_tilde, true)};
-  const std::unique_ptr<Set> X_unsafe_rescaled{
-      X_unsafe.to_rect_set()->scale_wrapped(parameters.set_scaling, X_tilde, true)};
+  // Increase the size of the sets according to the scaling parameter with respect to X_tilde
+  const Vector size_increase{parameters.set_scaling * X_tilde.sizes()};
+  const std::unique_ptr<Set> X_bounds_rescaled{X_bounds.increase_size(size_increase)};
+  const std::unique_ptr<Set> X_init_rescaled{X_init.increase_size(size_increase)};
+  const std::unique_ptr<Set> X_unsafe_rescaled{X_unsafe.increase_size(size_increase)};
 
   LUCID_DEBUG_FMT("X_bounds rescaled: {}", *X_bounds_rescaled);
   LUCID_DEBUG_FMT("X_init rescaled: {}", *X_init_rescaled);
   LUCID_DEBUG_FMT("X_unsafe rescaled: {}", *X_unsafe_rescaled);
 
   // Only keep the points inside/outside the sets
-  const auto [x_include_mask, x_exclude_mask] = X_bounds_rescaled->include_exclude_masks(lattice);
-  const auto [x0_include_mask, x0_exclude_mask] = X_init_rescaled->include_exclude_masks(lattice);
-  const auto [xu_include_mask, xu_exclude_mask] = X_unsafe_rescaled->include_exclude_masks(lattice);
+  const auto [x_include_mask, x_exclude_mask] = X_bounds_rescaled->include_exclude_masks_wrapped(lattice, X_tilde);
+  const auto [x0_include_mask, x0_exclude_mask] = X_init_rescaled->include_exclude_masks_wrapped(lattice, X_tilde);
+  const auto [xu_include_mask, xu_exclude_mask] = X_unsafe_rescaled->include_exclude_masks_wrapped(lattice, X_tilde);
 
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(lattice_resolution), -n / 2.0);
   LUCID_DEBUG_FMT("C = (1 - (2 f_max) / lattice_resolution)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",

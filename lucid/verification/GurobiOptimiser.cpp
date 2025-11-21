@@ -265,6 +265,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_INFO("Optimizing");
   model.optimize();
 
+  // TODO(tend): remove, and only keep the assertions
   LUCID_CHECK_ARGUMENT_EQ(num_vars, static_cast<Dimension>(model.get(GRB_IntAttr_NumVars)));
   LUCID_CHECK_ARGUMENT_EQ(num_constraints, static_cast<Dimension>(model.get(GRB_IntAttr_NumConstrs)));
   LUCID_ASSERT(num_vars == model.get(GRB_IntAttr_NumVars), "Number of variables mismatch");
