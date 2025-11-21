@@ -100,6 +100,20 @@ inline Vector arange(const Scalar low, Scalar high, const Scalar step = 1, const
   return Vector::LinSpaced(N, low, high);
 }
 
+template <class Derived>
+bool all_equal(const Eigen::MatrixBase<Derived>& m, const Scalar value) {
+  for (Index i = 0; i < m.size(); ++i) {
+    if (m.derived().data()[i] != value) return false;
+  }
+  return true;
+}
+
+template <class Derived>
+bool all_equal(const Eigen::MatrixBase<Derived>& m) {
+  if (m.size() == 0) return true;
+  return all_equal(m, m.derived().data()[0]);
+}
+
 /**
  * Peaks function defined over a pair of vectors.
  * Useful for demonstrating graphics functions, such as contour, mesh, pcolor, and surf.
