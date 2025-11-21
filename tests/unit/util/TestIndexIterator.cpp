@@ -115,6 +115,52 @@ TEST(IndexIterator, DifferentSizeMinMaxElementsVector) {
   EXPECT_EQ(result, expected);
 }
 
+TEST(IndexIterator, TestReset) {
+  IndexIterator<Index> it(2, 0, 2);
+  ++it;
+  EXPECT_EQ(it.reset(), IndexIterator<Index>(2, 0, 2));
+  for (; it; ++it) {
+  }
+  EXPECT_EQ(it.reset(), IndexIterator<Index>(2, 0, 2));
+}
+
+TEST(IndexIterator, TestResetIterations) {
+  IndexIterator<Index> it(2, -5, 2);
+  std::vector<std::vector<Index>> result_first;
+  for (; it; ++it) {
+    result_first.push_back({it[0], it[1]});
+  }
+  it.reset();
+  std::vector<std::vector<Index>> result_second;
+  for (; it; ++it) {
+    result_second.push_back({it[0], it[1]});
+  }
+  EXPECT_EQ(result_first, result_second);
+}
+
+TEST(IndexIterator, TestResetVector) {
+  IndexIterator it(std::vector<Index>{0, 0}, std::vector<Index>{2, 2});
+  ++it;
+  EXPECT_EQ(it.reset(), IndexIterator(std::vector<Index>{0, 0}, std::vector<Index>{2, 2}));
+  for (; it; ++it) {
+  }
+  EXPECT_EQ(it.reset(), IndexIterator(std::vector<Index>{0, 0}, std::vector<Index>{2, 2}));
+}
+
+TEST(IndexIterator, TestResetVectorIterations) {
+  IndexIterator it(std::vector<Index>{-10, 4}, std::vector<Index>{2, 6});
+  std::vector<std::vector<Index>> result_first;
+  for (; it; ++it) {
+    result_first.push_back({it[0], it[1]});
+  }
+  it.reset();
+  std::vector<std::vector<Index>> result_second;
+  for (; it; ++it) {
+    result_second.push_back({it[0], it[1]});
+  }
+  EXPECT_EQ(result_first, result_second);
+}
+
 TEST(IndexIterator, EmptyRangeVector) {
   EXPECT_THROW(IndexIterator<std::vector<Index>> it(std::vector<Index>{}, std::vector<Index>{}),
                LucidInvalidArgumentException);

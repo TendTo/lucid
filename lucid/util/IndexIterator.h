@@ -73,6 +73,12 @@ class IndexIterator {
     requires std::is_same_v<T, Index>;
 
   /**
+   * Reset the iterator to the initial state.
+   * @return reference to the iterator
+   */
+  IndexIterator& reset();
+
+  /**
    * Increment the iterator.
    * Go to the next index.
    * @return reference to the iterator
@@ -86,6 +92,7 @@ class IndexIterator {
   /** @checker{done iterating\, having gone over all valid indexes, index iterator} */
   operator bool() const;
   operator std::span<const Index>() const;
+  bool operator==(const IndexIterator<T>& other) const = default;
 
  private:
   T min_value_;                 ///< Minimum value for each index. Inclusive
