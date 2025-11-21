@@ -318,9 +318,15 @@ void init_model(py::module_& m) {
       .def("sample", py::overload_cast<>(&Set::sample, py::const_), Set_sample)
       .def("include", &Set::include, ARG_NONCONVERT("xs"), Set_include)
       .def("include_mask", &Set::include_mask, ARG_NONCONVERT("xs"), Set_include_mask)
+      .def("include_mask_wrapped", &Set::include_mask_wrapped, ARG_NONCONVERT("xs"), ARG_NONCONVERT("period"),
+           Set_include_mask_wrapped)
       .def("exclude", &Set::exclude, ARG_NONCONVERT("xs"), Set_exclude)
       .def("exclude_mask", &Set::exclude_mask, ARG_NONCONVERT("xs"), Set_exclude_mask)
+      .def("exclude_mask_wrapped", &Set::exclude_mask_wrapped, ARG_NONCONVERT("xs"), ARG_NONCONVERT("period"),
+           Set_exclude_mask_wrapped)
       .def("include_exclude_masks", &Set::include_exclude_masks, ARG_NONCONVERT("xs"), Set_include_exclude_masks)
+      .def("include_exclude_masks_wrapped", &Set::include_exclude_masks_wrapped, ARG_NONCONVERT("xs"),
+           ARG_NONCONVERT("period"), Set_include_exclude_masks_wrapped)
       .def("change_size", py::overload_cast<double>(&Set::change_size), py::arg("delta_size"), Set_change_size)
       .def("change_size", py::overload_cast<ConstVectorRef>(&Set::change_size), ARG_NONCONVERT("delta_size"),
            Set_change_size)
@@ -333,6 +339,20 @@ void init_model(py::module_& m) {
       .def("scale_wrapped", py::overload_cast<double, const RectSet&, bool>(&Set::scale_wrapped, py::const_),
            py::arg("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, Set_scale_wrapped)
       .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
+      .def("contains_wrapped", py::overload_cast<ConstVectorRef, ConstVectorRef>(&Set::contains_wrapped, py::const_),
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("period"), Set_contains_wrapped)
+      .def("contains_wrapped",
+           py::overload_cast<ConstVectorRef, ConstVectorRef, Dimension>(&Set::contains_wrapped, py::const_),
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("period"), py::arg("num_periods"), Set_contains_wrapped)
+      .def("contains_wrapped",
+           py::overload_cast<ConstVectorRef, ConstVectorRef, const std::vector<Dimension>&>(&Set::contains_wrapped,
+                                                                                            py::const_),
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("period"), py::arg("num_periods"), Set_contains_wrapped)
+      .def("contains_wrapped",
+           py::overload_cast<ConstVectorRef, ConstVectorRef, const std::vector<Dimension>&,
+                             const std::vector<Dimension>&>(&Set::contains_wrapped, py::const_),
+           ARG_NONCONVERT("x"), ARG_NONCONVERT("period"), py::arg("num_periods_below"), py::arg("num_periods_above"),
+           Set_contains_wrapped)
       .def("to_rect_set", &Set::to_rect_set, Set_to_rect_set)
       .def("__eq__", &Set::operator==, py::arg("other"))
       .def("__ne__", &Set::operator!=, py::arg("other"))

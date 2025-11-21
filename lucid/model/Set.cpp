@@ -17,6 +17,35 @@
 
 namespace lucid {
 
+namespace {
+
+bool contains_wrapped_batch(const Set& set, IndexIterator<std::vector<Index>>& it, ConstMatrixRef xs,
+                            ConstVectorRef period, const Index i) {
+  bool contained = false;
+  for (it.reset(); it && !contained; ++it) {  // Check all wrapped copies of that point to see if any is in the set
+    Vector wrapped_x = xs.row(i);
+    for (Index d = 0; d < set.dimension(); d++) {
+      wrapped_x(d) += static_cast<double>(it[d]) * period(d);
+    }
+    if (set.contains(wrapped_x)) contained = true;  // If any wrapped copy is in the set, mark it as contained
+  }
+  return contained;
+}
+
+IndexIterator<std::vector<Index>> period_wrapping_index_iterator(const Set& set, ConstVectorRef period) {
+  std::vector<Index> num_periods_below(set.dimension());
+  std::vector<Index> num_periods_above(set.dimension());
+  const Vector glb{set.general_lower_bound().cwiseQuotient(period)};
+  const Vector gub{set.general_upper_bound().cwiseQuotient(period)};
+  for (Index d = 0; d < set.dimension(); d++) {
+    num_periods_below[d] = static_cast<Index>(std::floor(glb(d)));
+    num_periods_above[d] = static_cast<Index>(std::ceil(gub(d)));
+  }
+  return {num_periods_below, num_periods_above};
+}
+
+}  // namespace
+
 Vector Set::sample() const { return sample(1l).row(0); }
 
 bool Set::contains_wrapped(ConstVectorRef x, ConstVectorRef period, const Dimension num_periods) const {
@@ -92,6 +121,21 @@ std::vector<Index> Set::include_mask(ConstMatrixRef xs) const {
   }
   return indices;
 }
+std::vector<Index> Set::include_mask_wrapped(ConstMatrixRef xs, ConstVectorRef period) const {
+  LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
+  LUCID_CHECK_ARGUMENT_EQ(period.size(), dimension());  // period must have the same dimension as the set
+  LUCID_CHECK_ARGUMENT_CMP(period.minCoeff(), >, 0.0);  // period must be positive
+  LUCID_CHECK_ARGUMENT_CMP(xs.minCoeff(), >=, 0.0);     // x must be in [0, period)
+  LUCID_CHECK_ARGUMENT_CMP((xs.rowwise() - period).maxCoeff(), <, 0.0);  // x must be in [0, period)
+
+  std::vector<Index> indices;
+  indices.reserve(xs.rows());
+  IndexIterator it{period_wrapping_index_iterator(*this, period)};
+  for (Index i = 0; i < xs.rows(); i++) {
+    if (contains_wrapped_batch(*this, it, xs, period, i)) indices.push_back(i);
+  }
+  return indices;
+}
 
 Matrix Set::exclude(ConstMatrixRef xs) const { return xs(exclude_mask(xs), Eigen::placeholders::all); }
 std::vector<Index> Set::exclude_mask(ConstMatrixRef xs) const {
@@ -104,15 +148,52 @@ std::vector<Index> Set::exclude_mask(ConstMatrixRef xs) const {
   return indices;
 }
 
+std::vector<Index> Set::exclude_mask_wrapped(ConstMatrixRef xs, ConstVectorRef period) const {
+  LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
+  LUCID_CHECK_ARGUMENT_EQ(period.size(), dimension());  // period must have the same dimension as the set
+  LUCID_CHECK_ARGUMENT_CMP(period.minCoeff(), >, 0.0);  // period must be positive
+  LUCID_CHECK_ARGUMENT_CMP(xs.minCoeff(), >=, 0.0);     // x must be in [0, period)
+  LUCID_CHECK_ARGUMENT_CMP((xs.rowwise() - period).maxCoeff(), <, 0.0);  // x must be in [0, period)
+
+  std::vector<Index> indices;
+  indices.reserve(xs.rows());
+  IndexIterator it{period_wrapping_index_iterator(*this, period)};
+  for (Index i = 0; i < xs.rows(); i++) {
+    if (!contains_wrapped_batch(*this, it, xs, period, i)) indices.push_back(i);
+  }
+  return indices;
+}
+
 std::pair<std::vector<Index>, std::vector<Index>> Set::include_exclude_masks(ConstMatrixRef xs) const {
   LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
   std::pair<std::vector<Index>, std::vector<Index>> masks;
   masks.first.reserve(xs.rows());
   masks.second.reserve(xs.rows());
-  for (Index i = 0; i < xs.rows(); i++) {
-    if (contains(xs.row(i)))
+  for (Index i = 0; i < xs.rows(); i++) {  // For each point in xs
+    if (contains(xs.row(i)))               // If contained, add to include mask
       masks.first.push_back(i);
-    else
+    else  // If not contained, add to exclude mask
+      masks.second.push_back(i);
+  }
+  return masks;
+}
+std::pair<std::vector<Index>, std::vector<Index>> Set::include_exclude_masks_wrapped(ConstMatrixRef xs,
+                                                                                     ConstVectorRef period) const {
+  LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
+  LUCID_CHECK_ARGUMENT_EQ(period.size(), dimension());  // period must have the same dimension as the set
+  LUCID_CHECK_ARGUMENT_CMP(period.minCoeff(), >, 0.0);  // period must be positive
+  LUCID_CHECK_ARGUMENT_CMP(xs.minCoeff(), >=, 0.0);     // x must be in [0, period)
+  LUCID_CHECK_ARGUMENT_CMP((xs.rowwise() - period).maxCoeff(), <, 0.0);  // x must be in [0, period)
+
+  std::pair<std::vector<Index>, std::vector<Index>> masks;
+  masks.first.reserve(xs.rows());
+  masks.second.reserve(xs.rows());
+
+  IndexIterator it{period_wrapping_index_iterator(*this, period)};
+  for (Index i = 0; i < xs.rows(); i++) {                  // For each point in xs
+    if (contains_wrapped_batch(*this, it, xs, period, i))  // If contained, add to include mask
+      masks.first.push_back(i);
+    else  // If not contained, add to exclude mask
       masks.second.push_back(i);
   }
   return masks;

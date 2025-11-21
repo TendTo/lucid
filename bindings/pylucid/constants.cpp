@@ -35,4 +35,9 @@ PYBIND11_MODULE(_constants, m) {
   m.attr("PSOCPP_BUILD") = lucid::constants::PSOCPP_BUILD;
   m.attr("OMP_BUILD") = lucid::constants::OMP_BUILD;
   m.attr("CUDA_BUILD") = lucid::constants::CUDA_BUILD;
+  m.attr("DEBUG_BUILD") = lucid::constants::DEBUG_BUILD;
+  m.attr("RELEASE_BUILD") = lucid::constants::RELEASE_BUILD;
+  m.attr("ASSERT_CHECKS_ENABLED") = lucid::constants::ASSERT_CHECKS_ENABLED;
+  m.attr("RUNTIME_CHECKS_ENABLED") = lucid::constants::RUNTIME_CHECKS_ENABLED;
+  m.attr("LOG_ENABLED") = lucid::constants::LOG_ENABLED;
 }

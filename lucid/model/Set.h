@@ -189,6 +189,19 @@ class Set {
   [[nodiscard]] std::vector<Index> include_mask(ConstMatrixRef xs) const;
 
   /**
+   * Filter a set `xs`, returning a mask containing the indices corresponding to the row vectors that are in @X,
+   * accounting for wrapping around a given period.
+   * This method is a variation of @ref include_mask that uses @ref contains_wrapped to test membership.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @pre All vectors in `xs` must fall in the range defined by `[0, period)` in all dimensions
+   * @pre `period` must be strictly positive in all dimensions.
+   * @param xs @nxd matrix of row vectors to filter
+   * @param period period for wrapping around
+   * @return vector of indices corresponding to the vectors that are in the set
+   */
+  [[nodiscard]] std::vector<Index> include_mask_wrapped(ConstMatrixRef xs, ConstVectorRef period) const;
+
+  /**
    * Filter `xs`, return only the row vectors that are NOT in @X
    * @pre `xs` must have the same number of columns as the dimension of the set, @d
    * @param xs @nxd matrix of row vectors to filter
@@ -205,6 +218,19 @@ class Set {
   [[nodiscard]] std::vector<Index> exclude_mask(ConstMatrixRef xs) const;
 
   /**
+   * Filter a set `xs`, returning a mask containing the indices corresponding to the row vectors that are NOT in @X,
+   * accounting for wrapping around a given period.
+   * This method is a variation of @ref exclude_mask that uses @ref contains_wrapped to test membership.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @pre All vectors in `xs` must fall in the range defined by `[0, period)` in all dimensions
+   * @pre `period` must be strictly positive in all dimensions.
+   * @param xs @nxd matrix of row vectors to filter
+   * @param period period for wrapping around
+   * @return vector of indices corresponding to the vectors that are in the set
+   */
+  [[nodiscard]] std::vector<Index> exclude_mask_wrapped(ConstMatrixRef xs, ConstVectorRef period) const;
+
+  /**
    * Filter a set `xs`, returning masks containing the indices corresponding to the row vectors that are in @X and
    * NOT in @X.
    * The union of the two sets of indices covers all the indices of `xs`.
@@ -215,6 +241,23 @@ class Set {
    * - the second vector contains the indices corresponding to the vectors that are NOT in the set
    */
   [[nodiscard]] std::pair<std::vector<Index>, std::vector<Index>> include_exclude_masks(ConstMatrixRef xs) const;
+
+  /**
+   * Filter a set `xs`, returning masks containing the indices corresponding to the row vectors that are in @X and
+   * NOT in @X, accounting for wrapping around a given period.
+   * The union of the two sets of indices covers all the indices of `xs`.
+   * This method is a variation of @ref include_exclude_masks that uses @ref contains_wrapped to test membership.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @pre All vectors in `xs` must fall in the range defined by `[0, period)` in all dimensions
+   * @pre `period` must be strictly positive in all dimensions.
+   * @param xs @nxd matrix of row vectors to filter
+   * @param period period for wrapping around
+   * @return pair of vectors of indices where
+   * - the first vector contains the indices corresponding to the vectors that are in the set (wrapped)
+   * - the second vector contains the indices corresponding to the vectors that are NOT in the set (wrapped)
+   */
+  [[nodiscard]] std::pair<std::vector<Index>, std::vector<Index>> include_exclude_masks_wrapped(
+      ConstMatrixRef xs, ConstVectorRef period) const;
 
   /**
    * Check if a vector is in @X.
