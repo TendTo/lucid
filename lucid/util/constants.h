@@ -87,4 +87,55 @@ constexpr bool OMP_BUILD =
     false;
 #endif
 
+// NOLINTNEXTLINE: false positive
+/** Whether Lucid is built in debug mode. */
+constexpr bool DEBUG_BUILD =
+#ifndef NDEBUG
+    true;
+#else
+    false;
+#endif
+
+// NOLINTNEXTLINE: false positive
+/** Whether Lucid is built in relase mode. */
+constexpr bool RELEASE_BUILD =
+#ifdef NDEBUG
+    true;
+#else
+    false;
+#endif
+
+// NOLINTNEXTLINE: false positive
+/**
+ * Whether runtime checks are enabled.
+ * Runtime checks are responsible for throwing a LucidInvalidArgumentException when function preconditions are violated.
+ */
+constexpr bool RUNTIME_CHECKS_ENABLED =
+#ifndef NCHECK
+    true;
+#else
+    false;
+#endif
+
+// NOLINTNEXTLINE: false positive
+/**
+ * Whether runtime assertions are enabled.
+ * Assertions are possibly expensive internal consistency checks used to verify the correctness of the code.
+ */
+constexpr bool ASSERT_CHECKS_ENABLED =
+#ifndef NDEBUG
+    true;
+#else
+    false;
+#endif
+
+// NOLINTNEXTLINE: false positive
+/** Whether logging is enabled. */
+constexpr bool LOG_ENABLED =
+#ifndef NLOG
+    true;
+#else
+    false;
+#endif
+
 }  // namespace lucid::constants
