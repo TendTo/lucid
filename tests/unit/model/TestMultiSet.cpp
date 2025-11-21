@@ -184,3 +184,111 @@ TEST(TestMultiSet, ChangeSizeMultipleSets) {
     EXPECT_DOUBLE_EQ(new_center(1), original_centers[i](1));
   }
 }
+
+TEST(TestMultiSet, ContainsWrappedUniformPeriods) {
+  const MultiSet set{RectSet{Vector2{-0.5, -0.5}, Vector2{0.0, 0.0}},  //
+                     RectSet{Vector2{-0.5, 0.0}, Vector2{0.0, 0.5}},   //
+                     RectSet{Vector2{0.0, -0.5}, Vector2{0.5, 0.0}},   //
+                     RectSet{Vector2{0.0, 0.0}, Vector2{0.5, 0.5}}};
+  const Vector2 period{2.0, 2.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 1.4}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.6, 1.6}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 1.4}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 1.6}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.6, 0}, period, 0));
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 1.4}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 1.6}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 1.4}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 1.6}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period, 1));
+}
+
+TEST(TestMultiSet, ContainsWrappedVectorPeriods) {
+  const MultiSet set{RectSet{Vector2{-0.5, -0.5}, Vector2{0.0, 0.0}},  //
+                     RectSet{Vector2{-0.5, 0.0}, Vector2{0.0, 0.5}},   //
+                     RectSet{Vector2{0.0, -0.5}, Vector2{0.5, 0.0}},   //
+                     RectSet{Vector2{0.0, 0.0}, Vector2{0.5, 0.5}}};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 2.4}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.6, 2.6}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.6}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.6, 0}, period, 0));
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 2.4}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 2.6}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period, 1));
+}
+
+TEST(TestMultiSet, ContainsWrappedAutoBelow) {
+  const MultiSet set{RectSet{Vector2{-4.5, -6.5}, Vector2{-4.0, -6.0}},  //
+                     RectSet{Vector2{-4.5, -6.0}, Vector2{-4.0, -5.5}},  //
+                     RectSet{Vector2{-4.0, -6.5}, Vector2{-3.5, -6.0}},  //
+                     RectSet{Vector2{-4.0, -6.0}, Vector2{-3.5, -5.5}}};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.4}, period));
+
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period));
+}
+
+TEST(TestMultiSet, ContainsWrappedAutoAbove) {
+  const MultiSet set{RectSet{Vector2{3.5, 5.5}, Vector2{4.0, 6.0}},  //
+                     RectSet{Vector2{3.5, 6.0}, Vector2{4.0, 6.5}},  //
+                     RectSet{Vector2{4.0, 5.5}, Vector2{4.5, 6.0}},  //
+                     RectSet{Vector2{4.0, 6.0}, Vector2{4.5, 6.5}}};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.4}, period));
+
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period));
+}
+
+TEST(TestMultiSet, ContainsWrappedMixed) {
+  const MultiSet set{RectSet{Vector2{-0.5, -0.5}, Vector2{0.0, 0.0}},  //
+                     RectSet{Vector2{-0.5, 0.0}, Vector2{0.0, 0.5}},   //
+                     RectSet{Vector2{0.0, -0.5}, Vector2{0.5, 0.0}},   //
+                     RectSet{Vector2{0.0, 0.0}, Vector2{0.5, 0.5}}};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.4}, period));
+
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period));
+}

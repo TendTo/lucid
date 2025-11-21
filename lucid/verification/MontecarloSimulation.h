@@ -56,11 +56,11 @@ class MontecarloSimulation {
    * @f]
    * so that the interval @f$ [\hat{X} - \varepsilon, \hat{X} + \varepsilon] @f$ contains the true safety probability
    * with confidence level @f$ \alpha @f$.
+   * @note Trajectories that leave the bounds of the state space are considered safe.
    * @pre `confidence_level` must be in the range @f$ [0, 1) @f$.
    * @pre `num_samples` must be greater than 0.
    * @pre `X_bounds`, `X_init`, and `X_unsafe` must have the same dimension.
    * @pre `time_horizon` must be greater than 0.
-   * @note Trajectories that leave the bounds of the state space are considered safe.
    * @param X_bounds set representing the bounds of the state space
    * @param X_init set representing the initial states
    * @param X_unsafe set representing the unsafe states

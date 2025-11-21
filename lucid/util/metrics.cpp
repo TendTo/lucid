@@ -123,7 +123,7 @@ MemoryUnit get_suggested_memory_unit(const std::size_t size_in_bytes) {
   return MemoryUnit::GB;
 }
 
-double time_to(double duration_in_seconds, TimeUnit unit) {
+double time_to(const double duration_in_seconds, const TimeUnit unit) {
   switch (unit) {
     case TimeUnit::MS:
       return time_to<TimeUnit::MS>(duration_in_seconds);
@@ -140,7 +140,7 @@ double time_to(double duration_in_seconds, TimeUnit unit) {
   }
 }
 
-TimeUnit get_suggested_time_unit(double duration_in_seconds) {
+TimeUnit get_suggested_time_unit(const double duration_in_seconds) {
   if (duration_in_seconds < 1e-2) return TimeUnit::MS;
   if (duration_in_seconds < 60) return TimeUnit::S;
   if (duration_in_seconds < 60 * 60) return TimeUnit::M;
@@ -148,7 +148,7 @@ TimeUnit get_suggested_time_unit(double duration_in_seconds) {
   return TimeUnit::D;
 }
 
-std::ostream& operator<<(std::ostream& os, MemoryUnit unit) {
+std::ostream& operator<<(std::ostream& os, const MemoryUnit unit) {
   switch (unit) {
     case MemoryUnit::B:
       return os << "B";
@@ -163,7 +163,7 @@ std::ostream& operator<<(std::ostream& os, MemoryUnit unit) {
   }
 }
 
-std::ostream& operator<<(std::ostream& os, TimeUnit unit) {
+std::ostream& operator<<(std::ostream& os, const TimeUnit unit) {
   switch (unit) {
     case TimeUnit::MS:
       return os << "ms";

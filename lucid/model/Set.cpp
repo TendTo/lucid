@@ -12,11 +12,75 @@
 #include <utility>
 #include <vector>
 
+#include "lucid/util/IndexIterator.h"
 #include "lucid/util/error.h"
 
 namespace lucid {
 
 Vector Set::sample() const { return sample(1l).row(0); }
+
+bool Set::contains_wrapped(ConstVectorRef x, ConstVectorRef period, const Dimension num_periods) const {
+  return contains_wrapped(x, period, std::vector<Dimension>(dimension(), num_periods));
+}
+bool Set::contains_wrapped(ConstVectorRef x, ConstVectorRef period, const std::vector<Dimension>& num_periods) const {
+  return contains_wrapped(x, period, num_periods, num_periods);
+}
+bool Set::contains_wrapped(ConstVectorRef x, ConstVectorRef period, const Dimension num_periods_below,
+                           const Dimension num_periods_above) const {
+  return contains_wrapped(x, period, std::vector<Dimension>(dimension(), num_periods_below),
+                          std::vector<Dimension>(dimension(), num_periods_above));
+}
+bool Set::contains_wrapped(ConstVectorRef x, ConstVectorRef period, const std::vector<Dimension>& num_periods_below,
+                           const std::vector<Dimension>& num_periods_above) const {
+  LUCID_CHECK_ARGUMENT_EQ(x.size(), dimension());             // x must have the same dimension as the set
+  LUCID_CHECK_ARGUMENT_EQ(period.size(), dimension());        // period must have the same dimension as the set
+  LUCID_CHECK_ARGUMENT_CMP(period.minCoeff(), >, 0.0);        // period must be positive
+  LUCID_CHECK_ARGUMENT_CMP(x.minCoeff(), >=, 0.0);            // x must be in [0, period)
+  LUCID_CHECK_ARGUMENT_CMP((x - period).maxCoeff(), <, 0.0);  // x must be in [0, period)
+  LUCID_CHECK_ARGUMENT_EQ(num_periods_below.size(), static_cast<std::size_t>(dimension()));
+  LUCID_CHECK_ARGUMENT_EQ(num_periods_above.size(), static_cast<std::size_t>(dimension()));
+  LUCID_CHECK_ARGUMENT_CMP(std::ranges::min(num_periods_above), >=, 0);  // num_periods_above must be non-negative
+  LUCID_CHECK_ARGUMENT_CMP(std::ranges::min(num_periods_below), >=, 0);  // num_periods_below must be non-negative
+
+  std::vector<Index> max_values(dimension());
+  for (Index d = 0; d < dimension(); d++) {
+    max_values[d] = num_periods_below[d] + num_periods_above[d] + 1;  // +1 to include 0 wrapping
+  }
+  for (IndexIterator it{max_values}; it; ++it) {
+    Vector wrapped_x = x;
+    for (Index d = 0; d < dimension(); d++) {
+      // Determine the wrapping coefficient: <num_periods => -period, =num_periods => no wrap, ><num_periods >= +period
+      const double coeff = static_cast<double>(it[d] - num_periods_below[d]);
+      wrapped_x(d) += coeff * period(d);
+    }
+    if (contains(wrapped_x)) return true;
+  }
+  return false;
+}
+bool Set::contains_wrapped(ConstVectorRef x, ConstVectorRef period) const {
+  LUCID_CHECK_ARGUMENT_EQ(x.size(), dimension());             // x must have the same dimension as the set
+  LUCID_CHECK_ARGUMENT_EQ(period.size(), dimension());        // period must have the same dimension as the set
+  LUCID_CHECK_ARGUMENT_CMP(period.minCoeff(), >, 0.0);        // period must be positive
+  LUCID_CHECK_ARGUMENT_CMP(x.minCoeff(), >=, 0.0);            // x must be in [0, period)
+  LUCID_CHECK_ARGUMENT_CMP((x - period).maxCoeff(), <, 0.0);  // x must be in [0, period)
+
+  std::vector<Index> num_periods_below(dimension());
+  std::vector<Index> num_periods_above(dimension());
+  const Vector glb{general_lower_bound().cwiseQuotient(period)};
+  const Vector gub{general_upper_bound().cwiseQuotient(period)};
+  for (Index d = 0; d < dimension(); d++) {
+    num_periods_below[d] = static_cast<Index>(std::floor(glb(d)));
+    num_periods_above[d] = static_cast<Index>(std::ceil(gub(d)));
+  }
+  for (IndexIterator it{num_periods_below, num_periods_above}; it; ++it) {
+    Vector wrapped_x = x;
+    for (Index d = 0; d < dimension(); d++) {
+      wrapped_x(d) += static_cast<double>(it[d]) * period(d);
+    }
+    if (contains(wrapped_x)) return true;
+  }
+  return false;
+}
 
 Matrix Set::include(ConstMatrixRef xs) const { return xs(include_mask(xs), Eigen::placeholders::all); }
 std::vector<Index> Set::include_mask(ConstMatrixRef xs) const {

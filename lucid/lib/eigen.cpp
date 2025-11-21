@@ -33,7 +33,7 @@ struct normal_random_variable {
   mutable std::normal_distribution<> dist_;
 
   Vector operator()() const {
-    return mean_ + transform_ * Vector{mean_.size()}.unaryExpr([&](auto) { return dist_(random::gen); });
+    return mean_ + transform_ * Vector::NullaryExpr(mean_.size(), [&](Index) { return dist_(random::gen); });
   }
 };
 }  // namespace

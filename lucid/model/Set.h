@@ -37,8 +37,8 @@ class Set {
   [[nodiscard]] virtual Dimension dimension() const = 0;
   /**
    * Extract @N elements from @X using some kind of random distribution.
-   * @pre `num_samples` must be greater than 0
    * @note The seed for the random number generator can be set using @ref random::seed.
+   * @pre `num_samples` must be greater than 0
    * @param num_samples number of samples to generate @N
    * @return @nxd matrix of samples, where @d is the dimension of @X.
    * In other words, the samples are stored as rows vectors in the matrix
@@ -59,57 +59,118 @@ class Set {
    */
   [[nodiscard]] bool contains(ConstVectorRef x) const { return (*this)(x); }
 
+  /** @overload */
+  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef period, Dimension num_periods) const;
   /**
    * Check if a vector is in @X, having the vector wrapped around a given period.
-   * Graphically, given a point `x`, we assume that the space is tiled every `period` units in each dimension,
+   * Given a point `x`, we assume that the space is tiled every `period` units in each dimension,
    * and we check if any of the tiled copies of `x` is in the set.
+   * Graphically,
    * @code{.unparsed}
-   *  ▲
-   * ┌┤
-   * ││ x     x
-   * ││
-   * ├┤
-   * ││ x     x
-   * ││
-   * ├┤┌────┐
-   * │││x   │ x
-   * ││└────┘
-   * └┼──────┬──────┬─►
-   *  └──────┴──────┘
+   *        ▲
+   *  ┌-----┼-----------┐
+   *  |x    │x     x    |
+   *  |     │           |
+   *  |     ├─────┐     |
+   *  |x    │x    │x    |
+   * ─┼─────┼─────┴─────┼►
+   *  |     │           |
+   *  |x    │x     x    |
+   *  └-----┼-----------┘
    * @endcode
-   * @pre @x must have the same dimension as the set
+   * where the continuous rectangular area in the middle represents the periodic space.
+   * The original point is indicated by the x in the middle,
+   * while all other `xs` represent the additional points that will be checked for membership in the set,
+   * given that `num_periods` is set to 1.
+   * The wrapping is done by shifting `x` by integer multiples of `period` in each dimension, up to the specified
+   * `num_periods`.
+   * @note The periodic set starts at the origin.
+   * @pre @x must have the same dimension as the set.
+   * @pre @x must fall in the range defined by `[0, period)` in all dimensions.
+   * @pre `period` must be strictly positive in all dimensions.
+   * @pre The set must fit inside the box defined by [-num_periods * period, num_periods * period] in all dimensions.
    * @param x vector to test
-   * @param origin origin point for the
    * @param period period for wrapping around
-   * @return
+   * @param num_periods number of periods to consider in each direction
+   * @return true if any of the wrapped copies of @x is in the set
+   * @return false if none of the wrapped copies of @x is in the set
    */
-  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef origin, ConstVectorRef period) const;
+  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef period,
+                                      const std::vector<Dimension>& num_periods) const;
+  /** @overload */
+  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef period, Dimension num_periods_below,
+                                      Dimension num_periods_above) const;
   /**
    * Check if a vector is in @X, having the vector wrapped around a given period.
-   * Graphically, given a point `x`, we assume that the space is tiled every `period` units in each dimension,
+   * Given a point `x`, we assume that the space is tiled every `period` units in each dimension,
    * and we check if any of the tiled copies of `x` is in the set.
+   * Graphically,
    * @code{.unparsed}
-   *  ▲
-   * ┌┤
-   * ││ x     x
-   * ││
-   * ├┤
-   * ││ x     x
-   * ││
-   * ├┤┌────┐
-   * │││x   │ x
-   * ││└────┘
-   * └┼──────┬──────┬─►
-   *  └──────┴──────┘
+   *        ▲
+   *  ┼-----------┐
+   *  │x     x    |
+   *  │           |
+   *  ├─────┐     |
+   *  │x    │x    |
+   * ─┼─────┴─────┼►
    * @endcode
-   * @pre @x must have the same dimension as the set
+   * where the continuous rectangular area in the middle represents the periodic space.
+   * The original point is indicated by the x in the middle,
+   * while all other `xs` represent the additional points that will be checked for membership in the set,
+   * given that `num_periods_below` is set to 0 and `num_periods_above` is set to 1 (for all dimensions).
+   * The wrapping is done by shifting `x` by integer multiples of `period` in each dimension, up to the specified
+   * `num_periods`.
+   * @note The periodic set starts at the origin.
+   * @pre @x must have the same dimension as the set.
+   * @pre @x must fall in the range defined by `[0, period)` in all dimensions.
+   * @pre `period` must be strictly positive in all dimensions.
+   * @pre `num_periods_below` and `num_periods_above` must have the same size as the dimension of the set.
+   * @pre `num_periods_below` and `num_periods_above` must be non-negative in all dimensions.
+   * @pre The set must fit inside the box defined by [-num_periods_below * period, num_periods_above * period]
+   * in all dimensions.
    * @param x vector to test
-   * @param origin origin point for the
    * @param period period for wrapping around
-   * @return
+   * @param num_periods_below number of periods below the original periodic set to consider in each direction
+   * @param num_periods_above number of periods above the original periodic set to consider in each direction
+   * @return true if any of the wrapped copies of @x is in the set
+   * @return false if none of the wrapped copies of @x is in the set
    */
-  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef origin, ConstVectorRef period,
-                                      ConstVectorRef min_point, ConstVectorRef max_point) const;
+  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef period,
+                                      const std::vector<Dimension>& num_periods_below,
+                                      const std::vector<Dimension>& num_periods_above) const;
+
+  /**
+   * Check if a vector is in @X, having the vector wrapped around a given period.
+   * Given a point `x`, we assume that the space is tiled every `period` units in each dimension,
+   * and we check if any of the tiled copies of `x` is in the set.
+   * Graphically,
+   * @code{.unparsed}
+   *        ▲
+   *  ┌-----┼-----------┐
+   *  |x    │x     x    |
+   *  |     │           |
+   *  |     ├─────┐     |
+   *  |x    │x    │x    |
+   * ─┼─────┼─────┴─────┼►
+   *  |     │           |
+   *  |x    │x     x    |
+   *  └-----┼-----------┘
+   * @endcode
+   * where the continuous rectangular area in the middle represents the periodic space.
+   * The original point is indicated by the x in the middle,
+   * while all other `xs` represent the additional points that will be checked for membership in the set.
+   * The number of `xs` in each direction is determined using @ref general_lower_bound and @ref general_upper_bound
+   * with respect to the given `period`.
+   * @note The periodic set starts at the origin.
+   * @pre @x must have the same dimension as the set
+   * @pre @x must fall in the range defined by `[0, period)` in all dimensions
+   * @pre `period` must be strictly positive in all dimensions.
+   * @param x vector to test
+   * @param period period for wrapping around
+   * @return true if any of the wrapped copies of @x is in the set
+   * @return false if none of the wrapped copies of @x is in the set
+   */
+  [[nodiscard]] bool contains_wrapped(ConstVectorRef x, ConstVectorRef period) const;
 
   /**
    * Filter a set `xs`, returning only the row vectors that are in @X.

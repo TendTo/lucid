@@ -37,9 +37,9 @@ class GaussianKernel final : public Kernel {
   using Kernel::operator();
   /**
    * Construct a new anisotropic GaussianKernel object with the given parameters.
-   * @pre `sigma_l` must contain at least one element all elements must be greater than 0
    * @note Even if all the elements of `sigma_l` are equal, the kernel will be anisotropic.
    * This may play a role during hyperparameter optimization.
+   * @pre `sigma_l` must contain at least one element all elements must be greater than 0
    * @param sigma_l @sigmal value
    * @param sigma_f @sigmaf value
    */

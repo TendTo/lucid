@@ -118,7 +118,6 @@ double time_to(double duration_in_seconds, TimeUnit unit);
  * The function selects the largest time unit such that the converted duration is around 1
  * and less than the next larger unit,
  * provided the duration in the range of known time units.
- * @note Seconds has a larger range to capture ranges over a 1/100th of a second up to a minute.
  * @code
  * get_suggested_time_unit(0.002);        // Returns TimeUnit::MS  -> 2 ms
  * get_suggested_time_unit(0.5);          // Returns TimeUnit::S   -> 0.5 s
@@ -127,6 +126,7 @@ double time_to(double duration_in_seconds, TimeUnit unit);
  * get_suggested_time_unit(7200);         // Returns TimeUnit::H   -> 2 h
  * get_suggested_time_unit(172800);      // Returns TimeUnit::D    -> 2 d
  * @endcode
+ * @note Seconds has a larger range to capture ranges over a 1/100th of a second up to a minute.
  * @param duration_in_seconds duration in seconds
  * @return suggested time unit for the given duration in seconds
  */

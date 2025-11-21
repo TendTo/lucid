@@ -18,8 +18,9 @@ using lucid::Vector;
 using lucid::Vector2;
 using lucid::Vector3;
 using lucid::VectorI;
+constexpr double d = 0.35355339059;
+constexpr double e = 0.00001;
 
-// Test basic construction and contains functionality
 TEST(TestEllipseSet, ConstructionWithSemiAxesVector) {
   const EllipseSet ellipse{Vector2{1.5, -2.5}, Vector2{3.0, 2.0}};
 
@@ -309,4 +310,97 @@ TEST(TestEllipseSet, NegativeRadius) {
 
 TEST(TestEllipseSet, EmptyVectors) {
   EXPECT_THROW(EllipseSet(Vector{}, Vector{}), lucid::exception::LucidInvalidArgumentException);
+}
+
+TEST(TestEllipseSet, ContainsWrappedUniformPeriods) {
+  const EllipseSet set{Vector2{0.0, 0.0}, 0.5};
+  const Vector2 period{2.0, 2.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{2.0 - d - e, 2.0 - d - e}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{2.0 - d + e, 2.0 - d + e}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 1.4}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 1.6}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.6, 0}, period, 0));
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{2.0 - d - e, 2.0 - d - e}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{2.0 - d + e, 2.0 - d + e}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 1.4}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 1.6}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period, 1));
+}
+
+TEST(TestEllipseSet, ContainsWrappedVectorPeriods) {
+  const EllipseSet set{Vector2{0.0, 0.0}, 0.5};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 2.4}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.6, 2.6}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.6}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 0));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.6, 0}, period, 0));
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{2.0 - d - e, 3.0 - d - e}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{2.0 - d + e, 3.0 - d + e}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period, 1));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period, 1));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period, 1));
+}
+
+TEST(TestEllipseSet, ContainsWrappedAutoBelow) {
+  const EllipseSet set{Vector2{-4.0, -6.0}, 0.5};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{d - e, d - e}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.4}, period));
+
+  EXPECT_FALSE(set.contains_wrapped(Vector2{2.0 - d - e, 3.0 - d - e}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{2.0 - d + e, 3.0 - d + e}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period));
+}
+
+TEST(TestEllipseSet, ContainsWrappedAutoAbove) {
+  const EllipseSet set{Vector2{4.0, 6.0}, 0.5};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{d - e, d - e}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.4}, period));
+
+  EXPECT_FALSE(set.contains_wrapped(Vector2{2.0 - d - e, 3.0 - d - e}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{2.0 - d + e, 3.0 - d + e}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period));
+}
+
+TEST(TestEllipseSet, ContainsWrappedMixed) {
+  const EllipseSet set{Vector2{0.0, 0.0}, 0.5};
+  const Vector2 period{2.0, 3.0};
+
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{d - e, d - e}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.4, 0.0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0.0, 0.4}, period));
+
+  EXPECT_FALSE(set.contains_wrapped(Vector2{2.0 - d - e, 3.0 - d - e}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{2.0 - d + e, 3.0 - d + e}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{0, 2.4}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{0, 2.6}, period));
+  EXPECT_FALSE(set.contains_wrapped(Vector2{1.4, 0}, period));
+  EXPECT_TRUE(set.contains_wrapped(Vector2{1.6, 0}, period));
 }
