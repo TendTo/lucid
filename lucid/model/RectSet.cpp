@@ -151,8 +151,9 @@ std::unique_ptr<Set> RectSet::scale_wrapped_impl(ConstVectorRef scale, const Rec
   return std::make_unique<MultiSet>(std::move(sets));
 }
 
-std::unique_ptr<Set> RectSet::increase_size_impl(ConstVectorRef size_increase) const {
-  return std::make_unique<RectSet>(lb_ - size_increase / 2.0, ub_ + size_increase / 2.0);
+void RectSet::increase_size_impl(ConstVectorRef size_increase) {
+  lb_ -= size_increase / 2.0;
+  ub_ += size_increase / 2.0;
 }
 
 std::unique_ptr<Set> RectSet::to_rect_set() const { return std::make_unique<RectSet>(*this); }
@@ -163,35 +164,12 @@ RectSet& RectSet::operator+=(ConstVectorRef offset) {
   ub_ += offset;
   return *this;
 }
-RectSet& RectSet::operator+=(const double offset) {
-  lb_.array() += offset;
-  ub_.array() += offset;
-  return *this;
-}
-RectSet RectSet::operator+(ConstVectorRef offset) const {
-  return RectSet{*this} += offset;  // NOLINT(whitespace/braces): standard initialisation
-}
-RectSet RectSet::operator+(const double offset) const {
-  return RectSet{*this} += offset;  // NOLINT(whitespace/braces): standard initialisation
-}
 RectSet& RectSet::operator-=(ConstVectorRef offset) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
   lb_ -= offset;
   ub_ -= offset;
   return *this;
 }
-RectSet& RectSet::operator-=(const double offset) {
-  lb_.array() -= offset;
-  ub_.array() -= offset;
-  return *this;
-}
-RectSet RectSet::operator-(ConstVectorRef offset) const {
-  return RectSet{*this} -= offset;  // NOLINT(whitespace/braces): standard initialisation
-}
-RectSet RectSet::operator-(const double offset) const {
-  return RectSet{*this} -= offset;  // NOLINT(whitespace/braces): standard initialisation
-}
-
 RectSet RectSet::scale(ConstVectorRef scale) const {
   RectSet result{*this};
   const Vector size_change = sizes().array() * scale.array() / 2.0;
@@ -203,22 +181,10 @@ RectSet RectSet::scale(const double scale) const { return this->scale(Vector::Co
 
 RectSet& RectSet::operator*=(ConstVectorRef scale) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
-  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >=, 0);
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
   lb_ = lb_.cwiseProduct(scale);
   ub_ = ub_.cwiseProduct(scale);
   return *this;
-}
-RectSet& RectSet::operator*=(const Scalar scale) {
-  LUCID_CHECK_ARGUMENT_CMP(scale, >=, 0);
-  lb_ *= scale;
-  ub_ *= scale;
-  return *this;
-}
-RectSet RectSet::operator*(ConstVectorRef scale) const {
-  return RectSet{*this} *= scale;  // NOLINT(whitespace/braces): standard initialisation
-}
-RectSet RectSet::operator*(const Scalar scale) const {
-  return RectSet{*this} *= scale;  // NOLINT(whitespace/braces): standard initialisation
 }
 RectSet& RectSet::operator/=(ConstVectorRef scale) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
@@ -226,18 +192,6 @@ RectSet& RectSet::operator/=(ConstVectorRef scale) {
   lb_ = lb_.cwiseQuotient(scale);
   ub_ = ub_.cwiseQuotient(scale);
   return *this;
-}
-RectSet& RectSet::operator/=(Scalar scale) {
-  LUCID_CHECK_ARGUMENT_CMP(scale, >, 0);
-  lb_ /= scale;
-  ub_ /= scale;
-  return *this;
-}
-RectSet RectSet::operator/(const Scalar scale) const {
-  return RectSet{*this} /= scale;  // NOLINT(whitespace/braces): standard initialisation
-}
-RectSet RectSet::operator/(ConstVectorRef scale) const {
-  return RectSet{*this} /= scale;  // NOLINT(whitespace/braces): standard initialisation
 }
 bool RectSet::operator==(const Set& other) const {
   if (Set::operator==(other)) return true;
@@ -266,6 +220,8 @@ Matrix RectSet::sample(const Index num_samples) const {
 }
 
 std::string RectSet::to_string() const { return fmt::format("RectSet( lb( [{}] ) ub( [{}] ) )", lb_, ub_); }
+
+std::unique_ptr<Set> RectSet::clone() const { return std::make_unique<RectSet>(*this); }
 
 std::ostream& operator<<(std::ostream& os, const RectSet& set) { return os << set.to_string(); }
 

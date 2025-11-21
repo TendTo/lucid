@@ -191,6 +191,12 @@ class PySet final : public Set {
   [[nodiscard]] bool operator==(const Set& other) const override {
     PYBIND11_OVERRIDE_NAME(bool, Set, "__eq__", operator==, other);
   }
+  [[nodiscard]] std::unique_ptr<Set> clone() const override {
+    pybind11::pybind11_fail("Tried to call pure virtual function \"Set::clone\"");
+  }
+  [[nodiscard]] std::unique_ptr<Set> to_anisotropic() const override {
+    pybind11::pybind11_fail("Tried to call pure virtual function \"Set::to_anisotropic\"");
+  }
 };
 
 class MultiSetIterator {
@@ -325,8 +331,12 @@ void init_model(py::module_& m) {
       .def("exclude_mask_wrapped", &Set::exclude_mask_wrapped, ARG_NONCONVERT("xs"), ARG_NONCONVERT("period"),
            Set_exclude_mask_wrapped)
       .def("include_exclude_masks", &Set::include_exclude_masks, ARG_NONCONVERT("xs"), Set_include_exclude_masks)
-      .def("include_exclude_masks_wrapped", &Set::include_exclude_masks_wrapped, ARG_NONCONVERT("xs"),
-           ARG_NONCONVERT("period"), Set_include_exclude_masks_wrapped)
+      .def("include_exclude_masks_wrapped",
+           py::overload_cast<ConstMatrixRef, ConstVectorRef>(&Set::include_exclude_masks_wrapped, py::const_),
+           ARG_NONCONVERT("xs"), ARG_NONCONVERT("period"), Set_include_exclude_masks_wrapped)
+      .def("include_exclude_masks_wrapped",
+           py::overload_cast<ConstMatrixRef, const RectSet&>(&Set::include_exclude_masks_wrapped, py::const_),
+           ARG_NONCONVERT("xs"), ARG_NONCONVERT("period"), Set_include_exclude_masks_wrapped)
       .def("change_size", py::overload_cast<double>(&Set::change_size), py::arg("delta_size"), Set_change_size)
       .def("change_size", py::overload_cast<ConstVectorRef>(&Set::change_size), ARG_NONCONVERT("delta_size"),
            Set_change_size)
@@ -338,6 +348,7 @@ void init_model(py::module_& m) {
            ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, Set_scale_wrapped)
       .def("scale_wrapped", py::overload_cast<double, const RectSet&, bool>(&Set::scale_wrapped, py::const_),
            py::arg("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, Set_scale_wrapped)
+      .def("increase_size", &Set::increase_size<false>, ARG_NONCONVERT("size_increase"), Set_increase_size)
       .def("contains", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
       .def("contains_wrapped", py::overload_cast<ConstVectorRef, ConstVectorRef>(&Set::contains_wrapped, py::const_),
            ARG_NONCONVERT("x"), ARG_NONCONVERT("period"), Set_contains_wrapped)
@@ -354,6 +365,15 @@ void init_model(py::module_& m) {
            ARG_NONCONVERT("x"), ARG_NONCONVERT("period"), py::arg("num_periods_below"), py::arg("num_periods_above"),
            Set_contains_wrapped)
       .def("to_rect_set", &Set::to_rect_set, Set_to_rect_set)
+      .def("to_anisotropic", &Set::to_anisotropic, Set_to_anisotropic)
+      .def(py::self += double())
+      .def(py::self += ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
+      .def(py::self -= double())
+      .def(py::self -= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
+      .def(py::self *= double())
+      .def(py::self *= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
+      .def(py::self /= double())
+      .def(py::self /= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
       .def("__eq__", &Set::operator==, py::arg("other"))
       .def("__ne__", &Set::operator!=, py::arg("other"))
       .def("__contains__", &Set::contains, ARG_NONCONVERT("x"), Set_contains)
@@ -373,22 +393,6 @@ void init_model(py::module_& m) {
            ARG_NONCONVERT("scale"), py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
       .def("scale", py::overload_cast<double, const RectSet&, bool>(&RectSet::scale, py::const_), py::arg("scale"),
            py::arg("bounds"), py::arg("relative_to_bounds") = false, RectSet_scale)
-      .def(py::self += double())
-      .def(py::self += ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
-      .def(py::self + ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
-      .def(py::self + double())
-      .def(py::self -= double())
-      .def(py::self -= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
-      .def(py::self - ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("offset"))
-      .def(py::self - double())
-      .def(py::self *= double())
-      .def(py::self *= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
-      .def(py::self * ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
-      .def(py::self * double())
-      .def(py::self /= double())
-      .def(py::self /= ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
-      .def(py::self / ConstMatrixRefCopy(Matrix()), ARG_NONCONVERT("scale"))
-      .def(py::self / double())
       .def_property_readonly("sizes", &RectSet::sizes, RectSet_sizes)
       .def_property_readonly("lower_bound", &RectSet::lower_bound, RectSet_lower_bound)
       .def_property_readonly("upper_bound", &RectSet::upper_bound, RectSet_upper_bound);

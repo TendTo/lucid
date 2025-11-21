@@ -53,6 +53,10 @@ class MultiSet final : public Set {
   [[nodiscard]] Matrix sample(Index num_samples) const override;
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
   [[nodiscard]] const Set& operator[](const std::size_t index) const { return *sets_.at(index); }
+  MultiSet& operator+=(ConstVectorRef offset) override;
+  MultiSet& operator-=(ConstVectorRef offset) override;
+  MultiSet& operator*=(ConstVectorRef scale) override;
+  MultiSet& operator/=(ConstVectorRef scale) override;
   [[nodiscard]] bool operator==(const MultiSet& other) const;
   [[nodiscard]] bool operator==(const Set& other) const override;
 
@@ -68,10 +72,14 @@ class MultiSet final : public Set {
 
   [[nodiscard]] std::string to_string() const override;
 
+  [[nodiscard]] std::unique_ptr<Set> clone() const override;
+
+  [[nodiscard]] std::unique_ptr<Set> to_anisotropic() const override;
+
  private:
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
                                                         bool relative_to_bounds) const override;
-  [[nodiscard]] std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const override;
+  void increase_size_impl(ConstVectorRef size_increase) override;
 
   /** Utility function to validate the MultiSet. */
   void validate();

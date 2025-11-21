@@ -101,13 +101,10 @@ std::unique_ptr<Set> MultiSet::scale_wrapped_impl(ConstVectorRef scale, const Re
   }
   return std::make_unique<MultiSet>(std::move(scaled_sets));
 }
-std::unique_ptr<Set> MultiSet::increase_size_impl(ConstVectorRef size_increase) const {
-  std::vector<std::unique_ptr<Set>> increased_size_sets;
-  increased_size_sets.reserve(sets_.size());
-  for (const auto& set : sets_) {
-    increased_size_sets.emplace_back(set->increase_size(size_increase));
+void MultiSet::increase_size_impl(ConstVectorRef size_increase) {
+  for (auto& set : sets_) {
+    set->increase_size<true>(size_increase);
   }
-  return std::make_unique<MultiSet>(std::move(increased_size_sets));
 }
 void MultiSet::validate() {
 #ifndef NCHECK
@@ -124,6 +121,42 @@ std::string MultiSet::to_string() const {
   result += ")";
   return result;
 }
+
+std::unique_ptr<Set> MultiSet::clone() const {
+  std::vector<std::unique_ptr<Set>> cloned_sets;
+  cloned_sets.reserve(sets_.size());
+  for (const auto& set : sets_) {
+    cloned_sets.emplace_back(set->clone());
+  }
+  return std::make_unique<MultiSet>(std::move(cloned_sets));
+}
+
+std::unique_ptr<Set> MultiSet::to_anisotropic() const {
+  std::vector<std::unique_ptr<Set>> anisotropic_sets;
+  anisotropic_sets.reserve(sets_.size());
+  for (const auto& set : sets_) {
+    anisotropic_sets.emplace_back(set->to_anisotropic());
+  }
+  return std::make_unique<MultiSet>(std::move(anisotropic_sets));
+}
+
+MultiSet& MultiSet::operator+=(ConstVectorRef offset) {
+  for (auto& set : sets_) set->operator+=(offset);
+  return *this;
+}
+MultiSet& MultiSet::operator-=(ConstVectorRef offset) {
+  for (auto& set : sets_) set->operator-=(offset);
+  return *this;
+}
+MultiSet& MultiSet::operator*=(ConstVectorRef scale) {
+  for (auto& set : sets_) set->operator*=(scale);
+  return *this;
+}
+MultiSet& MultiSet::operator/=(ConstVectorRef scale) {
+  for (auto& set : sets_) set->operator/=(scale);
+  return *this;
+}
+
 
 std::ostream& operator<<(std::ostream& os, const MultiSet& set) { return os << set.to_string(); }
 

@@ -148,22 +148,10 @@ class RectSet final : public Set {
    */
   [[nodiscard]] RectSet scale(double scale, const RectSet& bounds, bool relative_to_bounds = false) const;
 
-  RectSet& operator+=(ConstVectorRef offset);
-  RectSet& operator+=(Scalar offset);
-  [[nodiscard]] RectSet operator+(ConstVectorRef offset) const;
-  [[nodiscard]] RectSet operator+(Scalar offset) const;
-  RectSet& operator-=(ConstVectorRef offset);
-  RectSet& operator-=(Scalar offset);
-  [[nodiscard]] RectSet operator-(ConstVectorRef offset) const;
-  [[nodiscard]] RectSet operator-(Scalar offset) const;
-  RectSet& operator*=(ConstVectorRef scale);
-  RectSet& operator*=(Scalar scale);
-  [[nodiscard]] RectSet operator*(ConstVectorRef scale) const;
-  [[nodiscard]] RectSet operator*(Scalar scale) const;
-  RectSet& operator/=(ConstVectorRef scale);
-  RectSet& operator/=(Scalar scale);
-  [[nodiscard]] RectSet operator/(Scalar scale) const;
-  [[nodiscard]] RectSet operator/(ConstVectorRef scale) const;
+  RectSet& operator+=(ConstVectorRef offset) override;
+  RectSet& operator-=(ConstVectorRef offset) override;
+  RectSet& operator*=(ConstVectorRef scale) override;
+  RectSet& operator/=(ConstVectorRef scale) override;
   bool operator==(const Set& other) const override;
   bool operator==(const RectSet& other) const;
 
@@ -175,10 +163,12 @@ class RectSet final : public Set {
 
   [[nodiscard]] std::string to_string() const override;
 
+  [[nodiscard]] std::unique_ptr<Set> clone() const override;
+
  private:
   [[nodiscard]] std::unique_ptr<Set> scale_wrapped_impl(ConstVectorRef scale, const RectSet& bounds,
                                                         bool relative_to_bounds) const override;
-  [[nodiscard]] std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const override;
+  void increase_size_impl(ConstVectorRef size_increase) override;
 
   Vector lb_;  ///< Lower bound vector
   Vector ub_;  ///< Upper bound vector

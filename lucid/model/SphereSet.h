@@ -35,10 +35,10 @@ class SphereSet final : public Set {
   [[nodiscard]] Dimension dimension() const override { return center_.size(); }
   [[nodiscard]] Matrix sample(Index num_samples) const override;
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
-  [[nodiscard]] Matrix lattice(const VectorI &points_per_dim, bool endpoint) const override;
+  [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool endpoint) const override;
 
   /** @getter{center, sphere set} */
-  [[nodiscard]] const Vector &center() const { return center_; }
+  [[nodiscard]] const Vector& center() const { return center_; }
   /** @getter{radius, sphere set} */
   [[nodiscard]] Scalar radius() const { return radius_; }
 
@@ -51,17 +51,25 @@ class SphereSet final : public Set {
 
   [[nodiscard]] std::string to_string() const override;
 
-  bool operator==(const Set &other) const override;
-  bool operator==(const SphereSet &other) const;
+  [[nodiscard]] std::unique_ptr<Set> clone() const override;
+
+  [[nodiscard]] std::unique_ptr<Set> to_anisotropic() const override;
+
+  SphereSet& operator+=(ConstVectorRef offset) override;
+  SphereSet& operator-=(ConstVectorRef offset) override;
+  SphereSet& operator*=(ConstVectorRef scale) override;
+  SphereSet& operator/=(ConstVectorRef scale) override;
+  bool operator==(const Set& other) const override;
+  bool operator==(const SphereSet& other) const;
 
  private:
-  [[nodiscard]] std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const override;
+  void increase_size_impl(ConstVectorRef size_increase) override;
 
   Vector center_;  ///< Center of the sphere. Determines the dimension of the sphere set
   Scalar radius_;  ///< Radius of the sphere
 };
 
-std::ostream &operator<<(std::ostream &os, const SphereSet &set);
+std::ostream& operator<<(std::ostream& os, const SphereSet& set);
 
 }  // namespace lucid
 

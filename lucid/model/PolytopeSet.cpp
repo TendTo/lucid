@@ -172,6 +172,8 @@ void PolytopeSet::scale(const Scalar factor) { b_ *= factor; }
 
 std::string PolytopeSet::to_string() const { return fmt::format("PolytopeSet( A( {} ) b( {} ) )", A_, b_); }
 
+std::unique_ptr<Set> PolytopeSet::clone() const { return std::make_unique<PolytopeSet>(*this); }
+
 std::ostream& operator<<(std::ostream& os, const PolytopeSet& set) { return os << set.to_string(); }
 
 }  // namespace lucid

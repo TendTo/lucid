@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "lucid/model/RectSet.h"
 #include "lucid/util/IndexIterator.h"
 #include "lucid/util/error.h"
 
@@ -198,6 +199,33 @@ std::pair<std::vector<Index>, std::vector<Index>> Set::include_exclude_masks_wra
   }
   return masks;
 }
+std::pair<std::vector<Index>, std::vector<Index>> Set::include_exclude_masks_wrapped(ConstMatrixRef xs,
+                                                                                     const RectSet& period) const {
+  LUCID_CHECK_ARGUMENT_EQ(xs.cols(), dimension());
+  LUCID_CHECK_ARGUMENT_EQ(period.dimension(), dimension());  // period must have the same dimension as the set
+
+  const Vector period_sizes = period.sizes();
+  std::pair<std::vector<Index>, std::vector<Index>> masks;
+  masks.first.reserve(xs.rows());
+  masks.second.reserve(xs.rows());
+
+  std::vector<Index> num_periods_below(dimension());
+  std::vector<Index> num_periods_above(dimension());
+  const Vector glb{(general_lower_bound() - period.lower_bound()).cwiseQuotient(period_sizes)};
+  const Vector gub{(general_upper_bound() - period.lower_bound()).cwiseQuotient(period_sizes)};
+  for (Index d = 0; d < dimension(); d++) {
+    num_periods_below[d] = static_cast<Index>(std::floor(glb(d)));
+    num_periods_above[d] = static_cast<Index>(std::ceil(gub(d)));
+  }
+  IndexIterator it{num_periods_below, num_periods_above};
+  for (Index i = 0; i < xs.rows(); i++) {                        // For each point in xs
+    if (contains_wrapped_batch(*this, it, xs, period_sizes, i))  // If contained, add to include mask
+      masks.first.push_back(i);
+    else  // If not contained, add to exclude mask
+      masks.second.push_back(i);
+  }
+  return masks;
+}
 
 std::unique_ptr<Set> Set::scale_wrapped(const double scale, const RectSet& bounds,
                                         const bool relative_to_bounds) const {
@@ -207,10 +235,21 @@ std::unique_ptr<Set> Set::scale_wrapped(ConstVectorRef scale, const RectSet& bou
                                         const bool relative_to_bounds) const {
   return scale_wrapped_impl(scale, bounds, relative_to_bounds);
 }
+
+template <bool Inplace>
+  requires(!Inplace)
 std::unique_ptr<Set> Set::increase_size(ConstVectorRef size_increase) const {
+  std::unique_ptr<Set> new_set{all_equal(size_increase) ? clone() : to_anisotropic()};
+  new_set->increase_size<true>(size_increase);
+  return new_set;
+}
+
+template <bool Inplace>
+  requires(Inplace)
+void Set::increase_size(ConstVectorRef size_increase) {
   LUCID_CHECK_ARGUMENT_EQ(size_increase.size(), dimension());
   LUCID_CHECK_ARGUMENT_CMP(size_increase.minCoeff(), >=, 0);
-  return increase_size_impl(size_increase);
+  increase_size_impl(size_increase);
 }
 
 void Set::change_size(const double delta_size) { change_size(Vector::Constant(dimension(), delta_size)); }
@@ -224,12 +263,25 @@ Vector Set::general_lower_bound() const { LUCID_NOT_IMPLEMENTED(); }
 Vector Set::general_upper_bound() const { LUCID_NOT_IMPLEMENTED(); }
 
 bool Set::operator==(const Set& other) const { return this == &other; }
+Set& Set::operator+=(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
+Set& Set::operator+=(const Scalar offset) { return operator+=(Vector::Constant(dimension(), offset)); }
+Set& Set::operator-=(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
+Set& Set::operator-=(const Scalar offset) { return operator-=(Vector::Constant(dimension(), offset)); }
+Set& Set::operator*=(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
+Set& Set::operator*=(const Scalar scale) { return operator*=(Vector::Constant(dimension(), scale)); }
+Set& Set::operator/=(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
+Set& Set::operator/=(const Scalar scale) { return operator/=(Vector::Constant(dimension(), scale)); }
 
 std::unique_ptr<Set> Set::scale_wrapped_impl(ConstVectorRef, const RectSet&, bool) const { LUCID_NOT_IMPLEMENTED(); }
-std::unique_ptr<Set> Set::increase_size_impl(ConstVectorRef) const { LUCID_NOT_IMPLEMENTED(); }
+void Set::increase_size_impl(ConstVectorRef) { LUCID_NOT_IMPLEMENTED(); }
+
+std::unique_ptr<Set> Set::to_anisotropic() const { return clone(); }
 
 std::string Set::to_string() const { return "Set( )"; }
 
 std::ostream& operator<<(std::ostream& os, const Set& set) { return os << set.to_string(); }
+
+template std::unique_ptr<Set> Set::increase_size<false>(ConstVectorRef size_increase) const;
+template void Set::increase_size<true>(ConstVectorRef size_increase);
 
 }  // namespace lucid

@@ -260,6 +260,22 @@ class Set {
       ConstMatrixRef xs, ConstVectorRef period) const;
 
   /**
+   * Filter a set `xs`, returning masks containing the indices corresponding to the row vectors that are in @X and
+   * NOT in @X, accounting for wrapping around a given period.
+   * The union of the two sets of indices covers all the indices of `xs`.
+   * This method is a variation of @ref include_exclude_masks that uses @ref contains_wrapped to test membership.
+   * @pre `xs` must have the same number of columns as the dimension of the set, @d
+   * @pre All vectors in `xs` must be contained in the `period` set
+   * @param xs @nxd matrix of row vectors to filter
+   * @param period period for wrapping around
+   * @return pair of vectors of indices where
+   * - the first vector contains the indices corresponding to the vectors that are in the set (wrapped)
+   * - the second vector contains the indices corresponding to the vectors that are NOT in the set (wrapped)
+   */
+  [[nodiscard]] std::pair<std::vector<Index>, std::vector<Index>> include_exclude_masks_wrapped(
+      ConstMatrixRef xs, const RectSet& period) const;
+
+  /**
    * Check if a vector is in @X.
    * @pre @x must have the same dimension as the set
    * @param x vector to test
@@ -312,7 +328,23 @@ class Set {
    * @param size_increase amount to increase the size of the set for each dimension
    * @return new set with increased size
    */
+  template <bool Inplace = false>
+    requires(!Inplace)
   [[nodiscard]] std::unique_ptr<Set> increase_size(ConstVectorRef size_increase) const;
+  /**
+   * Increase the size of the set.
+   * The size increase can be different for each dimension.
+   * The increase is applied symmetrically around the center of the set such that
+   * the total size after the increase is equal to the original size plus `size_increase`.
+   * @pre The set must support size changes.
+   * @pre The size of `scale` must be equal to the dimension of the set.
+   * @pre The new size must be non-negative in all dimensions.
+   * @param size_increase amount to increase the size of the set for each dimension
+   * @return new set with increased size
+   */
+  template <bool Inplace = false>
+    requires(Inplace)
+  void increase_size(ConstVectorRef size_increase);
 
   /**
    * Change the size of the set.
@@ -359,6 +391,13 @@ class Set {
    * @return unique pointer to the rectangular set
    */
   [[nodiscard]] virtual std::unique_ptr<Set> to_rect_set() const;
+  /**
+   * Create a new anisotropic set.
+   * The set should remain the same, but it will allow for different scaling factors in each dimension.
+   * If the set is already anisotropic, it should return a clone of itself.
+   * @return unique pointer to the new anisotropic set
+   */
+  [[nodiscard]] virtual std::unique_ptr<Set> to_anisotropic() const;
 
   /** @getter{lower bound, smallest rectangular set including the whole set} */
   [[nodiscard]] virtual Vector general_lower_bound() const;
@@ -379,9 +418,24 @@ class Set {
   }
 
   virtual bool operator==(const Set& other) const;
+  virtual bool operator!=(const Set& other) const { return !(*this == other); }
+  virtual Set& operator+=(ConstVectorRef offset);
+  Set& operator+=(Scalar offset);
+  virtual Set& operator-=(ConstVectorRef offset);
+  Set& operator-=(Scalar offset);
+  virtual Set& operator*=(ConstVectorRef scale);
+  Set& operator*=(Scalar scale);
+  virtual Set& operator/=(ConstVectorRef scale);
+  Set& operator/=(Scalar scale);
 
   /** @to_string */
   [[nodiscard]] virtual std::string to_string() const;
+  /**
+   * Clone the set.
+   * Create a new instance of the set with the same properties as the current one.
+   * @return new instance of the set
+   */
+  [[nodiscard]] virtual std::unique_ptr<Set> clone() const = 0;
 
  protected:
   /**
@@ -410,9 +464,8 @@ class Set {
    * @pre The size of `scale` must be equal to the dimension of the set.
    * @pre The new size must be non-negative in all dimensions.
    * @param size_increase amount to increase the size of the set for each dimension
-   * @return new set with increased size
    */
-  [[nodiscard]] virtual std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const;
+  virtual void increase_size_impl(ConstVectorRef size_increase);
 };
 
 std::ostream& operator<<(std::ostream& os, const Set& set);

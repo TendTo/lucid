@@ -94,13 +94,32 @@ bool EllipseSet::operator==(const Set& other) const {
 std::string EllipseSet::to_string() const {
   return fmt::format("EllipseSet( center( [{}] ) semi_axes( [{}] ) )", center_, semi_axes_);
 }
-std::unique_ptr<Set> EllipseSet::increase_size_impl(ConstVectorRef size_increase) const {
-  const Vector new_semi_axes = semi_axes_ + size_increase / 2.0;
-  const double new_semi_axes_0 = new_semi_axes(0);
-  if (std::ranges::all_of(new_semi_axes, [new_semi_axes_0](auto x) { return x == new_semi_axes_0; })) {
-    return std::make_unique<SphereSet>(center_, new_semi_axes_0);
-  }
-  return std::make_unique<SphereSet>(center_, new_semi_axes_0);
+
+std::unique_ptr<Set> EllipseSet::clone() const { return std::make_unique<EllipseSet>(*this); }
+
+void EllipseSet::increase_size_impl(ConstVectorRef size_increase) { semi_axes_ += size_increase / 2.0; }
+
+EllipseSet& EllipseSet::operator+=(ConstVectorRef offset) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
+  center_ += offset;
+  return *this;
+}
+EllipseSet& EllipseSet::operator-=(ConstVectorRef offset) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
+  center_ -= offset;
+  return *this;
+}
+EllipseSet& EllipseSet::operator*=(ConstVectorRef scale) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+  semi_axes_.array() *= scale.array();
+  return *this;
+}
+EllipseSet& EllipseSet::operator/=(ConstVectorRef scale) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+  semi_axes_.array() /= scale.array();
+  return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const EllipseSet& set) { return os << set.to_string(); }

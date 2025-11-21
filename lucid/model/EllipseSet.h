@@ -47,6 +47,10 @@ class EllipseSet final : public Set {
   [[nodiscard]] Dimension dimension() const override { return center_.size(); }
   [[nodiscard]] Matrix lattice(const VectorI& points_per_dim, bool endpoint) const override;
   [[nodiscard]] Matrix sample(Index num_samples) const override;
+  EllipseSet& operator+=(ConstVectorRef offset) override;
+  EllipseSet& operator-=(ConstVectorRef offset) override;
+  EllipseSet& operator*=(ConstVectorRef scale) override;
+  EllipseSet& operator/=(ConstVectorRef scale) override;
   [[nodiscard]] bool operator==(const EllipseSet& other) const;
   [[nodiscard]] bool operator==(const Set& other) const override;
   [[nodiscard]] bool operator()(ConstVectorRef x) const override;
@@ -65,8 +69,8 @@ class EllipseSet final : public Set {
 
   [[nodiscard]] std::string to_string() const override;
 
- private:
-  [[nodiscard]] std::unique_ptr<Set> increase_size_impl(ConstVectorRef size_increase) const override;
+  [[nodiscard]] std::unique_ptr<Set> clone() const override;
+  void increase_size_impl(ConstVectorRef size_increase) override;
 
   Vector center_;     ///< Center of the ellipsoid. Determines the dimension of the ellipsoid set
   Vector semi_axes_;  ///< Semi-axes for each dimension

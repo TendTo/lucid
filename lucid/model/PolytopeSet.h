@@ -66,6 +66,8 @@ class PolytopeSet final : public Set {
 
   [[nodiscard]] std::string to_string() const override;
 
+  [[nodiscard]] std::unique_ptr<Set> clone() const override;
+
  private:
   /**
    * Compute bounding box of the polytope using linear programming.

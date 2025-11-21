@@ -70,6 +70,33 @@ void SphereSet::change_size(ConstVectorRef delta_size) {
 Vector SphereSet::general_lower_bound() const { return center_.array() - radius_; }
 Vector SphereSet::general_upper_bound() const { return center_.array() + radius_; }
 
+SphereSet& SphereSet::operator+=(ConstVectorRef offset) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
+  center_ += offset;
+  return *this;
+}
+SphereSet& SphereSet::operator-=(ConstVectorRef offset) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
+  center_ -= offset;
+  return *this;
+}
+SphereSet& SphereSet::operator*=(ConstVectorRef scale) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(scale, [first = scale(0)](const double val) { return val == first; }),
+                       "scale", "must be uniform for all dimensions");
+  radius_ *= scale(0);
+  return *this;
+}
+SphereSet& SphereSet::operator/=(ConstVectorRef scale) {
+  LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
+  LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
+  LUCID_CHECK_ARGUMENT(std::ranges::all_of(scale, [first = scale(0)](const double val) { return val == first; }),
+                       "scale", "must be uniform for all dimensions");
+  radius_ /= scale(0);
+  return *this;
+}
+
 std::unique_ptr<Set> SphereSet::to_rect_set() const {
   return std::make_unique<RectSet>(general_lower_bound(), general_upper_bound());
 }
@@ -77,6 +104,13 @@ std::unique_ptr<Set> SphereSet::to_rect_set() const {
 std::string SphereSet::to_string() const {
   return fmt::format("SphereSet( center( [{}] ) radius( {} ) )", center_, radius_);
 }
+
+std::unique_ptr<Set> SphereSet::clone() const { return std::make_unique<SphereSet>(*this); }
+
+std::unique_ptr<Set> SphereSet::to_anisotropic() const {
+  return std::make_unique<EllipseSet>(center_, Vector::Constant(dimension(), radius_));
+}
+
 bool SphereSet::operator==(const Set& other) const {
   if (Set::operator==(other)) return true;
   if (const auto other_rect = dynamic_cast<const SphereSet*>(&other)) return *this == *other_rect;
@@ -87,12 +121,9 @@ bool SphereSet::operator==(const SphereSet& other) const {
   return dimension() == other.dimension() && center_ == other.center_ && radius_ == other.radius_;
 }
 
-std::unique_ptr<Set> SphereSet::increase_size_impl(ConstVectorRef size_increase) const {
-  if (const double size_increase_0 = size_increase(0);
-      std::ranges::all_of(size_increase, [size_increase_0](const double val) { return val == size_increase_0; })) {
-    return std::make_unique<SphereSet>(center_, radius_ + size_increase_0 / 2.0);
-  }
-  return std::make_unique<EllipseSet>(center_, Vector::Constant(center().size(), radius_) + size_increase / 2.0);
+void SphereSet::increase_size_impl(ConstVectorRef size_increase) {
+  LUCID_CHECK_ARGUMENT(all_equal(size_increase), "size_increase", "must be uniform for all dimensions");
+  radius_ += size_increase(0) / 2.0;
 }
 
 std::ostream& operator<<(std::ostream& os, const SphereSet& set) { return os << set.to_string(); }
