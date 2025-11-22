@@ -1,7 +1,8 @@
 import itertools
 import multiprocessing
+import os
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import mlflow
 import mlflow.data
@@ -24,6 +25,25 @@ def grid_to_config(grid_keys: list[str], param_combination: list[Any]) -> Config
     for key, value in zip(grid_keys, param_combination):
         setattr(config, key, value)
     return config
+
+
+def scenario_config(file: str, param_name: tuple[str], param_combinations: tuple[tuple]) -> Configuration:
+    config = Configuration.from_file(file)
+
+    for key, value in zip(param_name, param_combinations):
+        setattr(config, key, value)
+
+    # Add process noise
+    if config.seed >= 0:
+        np.random.seed(config.seed)  # For reproducibility
+        random.seed(config.seed)
+
+    config.populate_samples()
+
+    single_benchmark(
+        name=os.path.splitext(os.path.basename(file))[0],
+        config=config,
+    )
 
 
 def benchmark(name: str, config: Configuration, grid: dict[str, list[Any]]):
@@ -72,10 +92,24 @@ def single_benchmark(name: str, config: Configuration):
         mlflow.log_input(dataset=mlflow.data.from_numpy(config.x_samples, targets=config.xp_samples))
         mlflow.set_tag("scenario", name)
         try:
-            benchmark_pipeline(config=config)
             with Stats() as stats:
+                benchmark_pipeline(config=config)
                 stats.collect_peak_rss_memory_usage()
                 mlflow.log_metric("peak_rss_memory_usage_bytes", stats.peak_rss_memory_usage)
+                mlflow.log_metric("C", stats.C)
+                mlflow.log_metric("A_xn_wo_x0", stats.A_xn_wo_x0)
+                mlflow.log_metric("A_xn_wo_xu", stats.A_xn_wo_xu)
+                mlflow.log_metric("A_xn_wo_x", stats.A_xn_wo_x)
+                mlflow.log_metric("min_x0", stats.min_x0)
+                mlflow.log_metric("max_xn_wo_x0", stats.max_xn_wo_x0)
+                mlflow.log_metric("max_xu", stats.max_xu)
+                mlflow.log_metric("min_xn_wo_xu", stats.min_xn_wo_xu)
+                mlflow.log_metric("max_x", stats.max_x)
+                mlflow.log_metric("min_xn_wo_x", stats.min_xn_wo_x)
+                mlflow.log_metric("min_d", stats.min_d)
+                mlflow.log_metric("max_d_xn_wo_x", stats.max_d_xn_wo_x)
+                mlflow.log_metric("num_constraints", stats.num_constraints)
+                mlflow.log_metric("num_variables", stats.num_variables)
             status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FINISHED)
         except Exception as ex:
             log.error(f"Error in benchmark {name} with configuration {config.to_safe_dict()}: {ex}")
@@ -201,8 +235,8 @@ def benchmark_pipeline(config: Configuration):
         if callable(feature_map) and not isinstance(feature_map, FeatureMap):
             feature_map = feature_map(estimator)  # Compute the feature map if it is a callable
         assert isinstance(feature_map, FeatureMap), "feature_map must return a FeatureMap instance"
-        for i, val in enumerate(rmse(estimator(config.x_samples), config.f_xp_samples)):
-            mlflow.log_metric(f"f_xp_samples.rmse.{i}", val)
+        # for i, val in enumerate(rmse(estimator(config.x_samples), config.f_xp_samples)):
+        #     mlflow.log_metric(f"f_xp_samples.rmse.{i}", val)
         mlflow.log_metric("f_xp_samples.score", estimator.score(config.x_samples, config.f_xp_samples))
         if config.system_dynamics is not None:
             # Sample some other points (half of the x_samples) to evaluate the regressor against overfitting

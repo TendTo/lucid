@@ -6,11 +6,11 @@ from ._pylucid import (
     Estimator,
     FeatureMap,
     FourierBarrierCertificate,
+    FourierBarrierCertificateParameters,
     GaussianKernel,
     KernelRidgeRegressor,
     MedianHeuristicTuner,
     log,
-    FourierBarrierCertificateParameters,
 )
 
 if TYPE_CHECKING:

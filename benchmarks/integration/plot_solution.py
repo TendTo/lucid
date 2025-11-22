@@ -547,7 +547,13 @@ def plot_set_1d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
         elif isinstance(s, SphereSet):
             ax.plot([s.center[0] - s.radius, s.center[0] + s.radius], [0, 0], color=color, linewidth=3, label=label)
         elif isinstance(s, EllipseSet):
-            ax.plot([s.center[0] - s.semi_axes[0], s.center[0] + s.semi_axes[0]], [0, 0], color=color, linewidth=3, label=label)
+            ax.plot(
+                [s.center[0] - s.semi_axes[0], s.center[0] + s.semi_axes[0]],
+                [0, 0],
+                color=color,
+                linewidth=3,
+                label=label,
+            )
 
     if isinstance(X_set, MultiSet):
         for i, subset in enumerate(X_set):
@@ -572,7 +578,15 @@ def plot_set_2d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
             circle = plt.Circle((s.center[0], s.center[1]), s.radius, color=color, fill=False, linewidth=2, label=label)
             ax.add_patch(circle)
         elif isinstance(s, EllipseSet):
-            ellipse = Ellipse((s.center[0], s.center[1]), 2 * s.semi_axes[0], 2 * s.semi_axes[1], color=color, fill=False, linewidth=2, label=label)
+            ellipse = Ellipse(
+                (s.center[0], s.center[1]),
+                2 * s.semi_axes[0],
+                2 * s.semi_axes[1],
+                color=color,
+                fill=False,
+                linewidth=2,
+                label=label,
+            )
             ax.add_patch(ellipse)
 
     if isinstance(X_set, MultiSet):

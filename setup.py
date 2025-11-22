@@ -4,9 +4,9 @@ import glob
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sysconfig
-import stat
 
 import setuptools
 import setuptools.errors

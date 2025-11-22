@@ -26,9 +26,11 @@ This script is intended for exploration, diagnostics and visualisation; it
 contains compact helpers (``plotting``, ``diagnostics``, ``rescale_sets``)
 that can be extracted into a test harness or reused in pipelines.
 """
+
 from time import time
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 try:
     import pyswarms as ps
@@ -51,9 +53,10 @@ def vallee_poussin_kernel(z: np.ndarray, a: float, b: float) -> np.ndarray:
         numerator = np.sin(((b + a) / 2) * zi) * np.sin(((b - a) / 2) * zi)
         denominator = np.sin(zi / 2) ** 2
         with np.errstate(divide="ignore", invalid="ignore"):
-            fraction = np.where(denominator != 0, numerator / denominator, (b ** 2 - a ** 2))
+            fraction = np.where(denominator != 0, numerator / denominator, (b**2 - a**2))
         prod *= fraction
     return coeff * prod
+
 
 def build_lattice(lb, ub, per_dim):
     # per_dim: number of lattice points per dimension (scalar or 2-tuple)
@@ -66,6 +69,7 @@ def build_lattice(lb, ub, per_dim):
     pts = np.vstack([m.ravel() for m in mesh]).T
     return pts
 
+
 def _wrap_periodic_diffs(diffs, period=2.0 * np.pi):
     """Wrap differences to the principal interval [-period/2, period/2].
 
@@ -77,9 +81,26 @@ def _wrap_periodic_diffs(diffs, period=2.0 * np.pi):
     # shift to [-period/2, period/2] via modulo
     half = period / 2.0
     # Use vectorised modulo: ((d + half) % period) - half
-    return (np.mod(d + half, period) - half)
+    return np.mod(d + half, period) - half
 
-def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, init_lb, init_ub, init_lb_rescale, init_ub_rescale, percent, f_max, Q_tilde, Ntilde):
+
+def plotting(
+    XX,
+    YY,
+    FIELD,
+    lattice,
+    x0_lattice_wo_init,
+    optimizer,
+    x_opt,
+    init_lb,
+    init_ub,
+    init_lb_rescale,
+    init_ub_rescale,
+    percent,
+    f_max,
+    Q_tilde,
+    Ntilde,
+):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(14, 6))
 
     # nicer colormap and contour lines for clarity
@@ -90,34 +111,75 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, init_
     cbar.set_label("VP objective")
 
     # lattice (background) as light gray plus signs
-    ax1.scatter(lattice[:, 0], lattice[:, 1], s=40, marker="+", color="#cccccc", linewidths=0.5, zorder=1, label="lattice on X0")
+    ax1.scatter(
+        lattice[:, 0], lattice[:, 1], s=40, marker="+", color="#cccccc", linewidths=0.5, zorder=1, label="lattice on X0"
+    )
     # excluded points as black plus signs
-    ax1.scatter(x0_lattice_wo_init[:, 0], x0_lattice_wo_init[:, 1], s=40, marker="+", color="k", linewidths=0.5, zorder=3, label="lattice not on X0")
+    ax1.scatter(
+        x0_lattice_wo_init[:, 0],
+        x0_lattice_wo_init[:, 1],
+        s=40,
+        marker="+",
+        color="k",
+        linewidths=0.5,
+        zorder=3,
+        label="lattice not on X0",
+    )
 
     # show the initial rectangle
     from matplotlib.patches import Rectangle
 
-    rect = Rectangle((init_lb[0], init_lb[1]), init_ub[0] - init_lb[0], init_ub[1] - init_lb[1],
-                     linewidth=2, edgecolor="#ff00dd", facecolor="none", zorder=6, linestyle="--")
+    rect = Rectangle(
+        (init_lb[0], init_lb[1]),
+        init_ub[0] - init_lb[0],
+        init_ub[1] - init_lb[1],
+        linewidth=2,
+        edgecolor="#ff00dd",
+        facecolor="none",
+        zorder=6,
+        linestyle="--",
+    )
     ax1.add_patch(rect)
     if percent > 0:
-        rect2 = Rectangle((init_lb_rescale[0], init_lb_rescale[1]),
-                          init_ub_rescale[0] - init_lb_rescale[0],
-                          init_ub_rescale[1] - init_lb_rescale[1],
-                          linewidth=2, edgecolor="#00ff00", facecolor="none", zorder=6, linestyle="-.")
+        rect2 = Rectangle(
+            (init_lb_rescale[0], init_lb_rescale[1]),
+            init_ub_rescale[0] - init_lb_rescale[0],
+            init_ub_rescale[1] - init_lb_rescale[1],
+            linewidth=2,
+            edgecolor="#00ff00",
+            facecolor="none",
+            zorder=6,
+            linestyle="-.",
+        )
         ax1.add_patch(rect2)
 
     # final particle positions with visible edge
     particles = optimizer.swarm.position
-    ax1.scatter(particles[:, 0], particles[:, 1], s=20, facecolors="#3cff00", edgecolors="k", linewidths=0.6,
-                alpha=0.95, zorder=5, label="particles")
+    ax1.scatter(
+        particles[:, 0],
+        particles[:, 1],
+        s=20,
+        facecolors="#3cff00",
+        edgecolors="k",
+        linewidths=0.6,
+        alpha=0.95,
+        zorder=5,
+        label="particles",
+    )
 
     # max solution
-    ax1.scatter(x_opt[0], x_opt[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0,
-                zorder=6, label="max")
-    ax1.annotate(f"max: ({x_opt[0]:.3f}, {x_opt[1]:.3f})", xy=(x_opt[0], x_opt[1]),
-                 xytext=(x_opt[0] + 0.05, x_opt[1] + 0.05), color="#ff00dd", fontsize=9,
-                 bbox=dict(facecolor="white", alpha=0.7, edgecolor="none"), zorder=7)
+    ax1.scatter(
+        x_opt[0], x_opt[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0, zorder=6, label="max"
+    )
+    ax1.annotate(
+        f"max: ({x_opt[0]:.3f}, {x_opt[1]:.3f})",
+        xy=(x_opt[0], x_opt[1]),
+        xytext=(x_opt[0] + 0.05, x_opt[1] + 0.05),
+        color="#ff00dd",
+        fontsize=9,
+        bbox=dict(facecolor="white", alpha=0.7, edgecolor="none"),
+        zorder=7,
+    )
 
     ax1.set_title("Vallee-Poussin field and PSO result")
     ax1.set_xlabel("x1")
@@ -136,35 +198,76 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, init_
     cbar.set_label("VP objective")
 
     # lattice (background) as light gray plus signs
-    ax2.scatter(lattice[:, 0], lattice[:, 1], s=40, marker="+", color="#cccccc", linewidths=0.8, zorder=1, label="lattice on X0")
+    ax2.scatter(
+        lattice[:, 0], lattice[:, 1], s=40, marker="+", color="#cccccc", linewidths=0.8, zorder=1, label="lattice on X0"
+    )
     # excluded points as black plus signs
-    ax2.scatter(x0_lattice_wo_init[:, 0], x0_lattice_wo_init[:, 1], s=40, marker="+", color="k", linewidths=1.2, zorder=3, label="lattice not on X0")
+    ax2.scatter(
+        x0_lattice_wo_init[:, 0],
+        x0_lattice_wo_init[:, 1],
+        s=40,
+        marker="+",
+        color="k",
+        linewidths=1.2,
+        zorder=3,
+        label="lattice not on X0",
+    )
 
     # show the initial rectangle
     from matplotlib.patches import Rectangle
 
-    rect = Rectangle((init_lb[0], init_lb[1]), init_ub[0] - init_lb[0], init_ub[1] - init_lb[1],
-                     linewidth=2, edgecolor="#ff00dd", facecolor="none", zorder=4, linestyle="--")
+    rect = Rectangle(
+        (init_lb[0], init_lb[1]),
+        init_ub[0] - init_lb[0],
+        init_ub[1] - init_lb[1],
+        linewidth=2,
+        edgecolor="#ff00dd",
+        facecolor="none",
+        zorder=4,
+        linestyle="--",
+    )
     ax2.add_patch(rect)
 
     if percent > 0:
-        rect2 = Rectangle((init_lb_rescale[0], init_lb_rescale[1]),
-                            init_ub_rescale[0] - init_lb_rescale[0],
-                            init_ub_rescale[1] - init_lb_rescale[1],
-                            linewidth=2, edgecolor="#00ff00", facecolor="none", zorder=6, linestyle="-.")
+        rect2 = Rectangle(
+            (init_lb_rescale[0], init_lb_rescale[1]),
+            init_ub_rescale[0] - init_lb_rescale[0],
+            init_ub_rescale[1] - init_lb_rescale[1],
+            linewidth=2,
+            edgecolor="#00ff00",
+            facecolor="none",
+            zorder=6,
+            linestyle="-.",
+        )
         ax2.add_patch(rect2)
 
     # final particle positions with visible edge
     particles = optimizer.swarm.position
-    ax2.scatter(particles[:, 0], particles[:, 1], s=20, facecolors="#3cff00", edgecolors="k", linewidths=0.6,
-                alpha=0.95, zorder=5, label="particles")
+    ax2.scatter(
+        particles[:, 0],
+        particles[:, 1],
+        s=20,
+        facecolors="#3cff00",
+        edgecolors="k",
+        linewidths=0.6,
+        alpha=0.95,
+        zorder=5,
+        label="particles",
+    )
 
     # maximizing solution
-    ax2.scatter(x_opt[0], x_opt[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0,
-                zorder=6, label="max")
-    ax2.annotate(f"max: ({x_opt[0]:.3f}, {x_opt[1]:.3f})", xy=(x_opt[0], x_opt[1]),
-                 xytext=(x_opt[0] + 0.05, x_opt[1] + 0.05), color="#ff00dd", fontsize=9,
-                 bbox=dict(facecolor="white", alpha=0.7, edgecolor="none"), zorder=7)
+    ax2.scatter(
+        x_opt[0], x_opt[1], s=260, color="#ff00dd", marker="*", edgecolors="k", linewidths=1.0, zorder=6, label="max"
+    )
+    ax2.annotate(
+        f"max: ({x_opt[0]:.3f}, {x_opt[1]:.3f})",
+        xy=(x_opt[0], x_opt[1]),
+        xytext=(x_opt[0] + 0.05, x_opt[1] + 0.05),
+        color="#ff00dd",
+        fontsize=9,
+        bbox=dict(facecolor="white", alpha=0.7, edgecolor="none"),
+        zorder=7,
+    )
 
     ax2.set_title("Vallee-Poussin field and PSO result")
     ax2.set_xlabel("x1")
@@ -187,10 +290,13 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, init_
     # --- 3D surface plot for additional clarity ---
     try:
         from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+
         fig3 = plt.figure(figsize=(8, 6))
         ax3 = fig3.add_subplot(111, projection="3d")
         # plot surface (use a downsampled grid for speed)
-        surf = ax3.plot_surface(XX, YY, FIELD, rstride=3, cstride=3, cmap="plasma", linewidth=0, antialiased=True, alpha=0.9)
+        surf = ax3.plot_surface(
+            XX, YY, FIELD, rstride=3, cstride=3, cmap="plasma", linewidth=0, antialiased=True, alpha=0.9
+        )
         fig3.colorbar(surf, ax=ax3, shrink=0.6, aspect=10)
 
         # overlay contour projections (level sets) onto a plane beneath the surface
@@ -200,9 +306,9 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, init_
             z_offset = zmin - 0.08 * (zmax - zmin)
             levels = np.linspace(zmin, zmax, 12)
             # contour projected onto the z_offset plane for readability
-            cset = ax3.contour(XX, YY, FIELD, levels=levels, zdir='z', offset=z_offset, cmap='Greys', linewidths=0.8)
+            cset = ax3.contour(XX, YY, FIELD, levels=levels, zdir="z", offset=z_offset, cmap="Greys", linewidths=0.8)
             # optionally draw a light wireframe on the surface to help perceive level changes
-            ax3.plot_wireframe(XX, YY, FIELD, rstride=8, cstride=8, color='k', alpha=0.12)
+            ax3.plot_wireframe(XX, YY, FIELD, rstride=8, cstride=8, color="k", alpha=0.12)
         except Exception:
             # if contouring fails, continue without it
             pass
@@ -232,6 +338,7 @@ def plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, init_
     except Exception:
         # mpl_toolkits may not be available; skip 3D plot gracefully
         print("3D plotting unavailable: skipping surface plot")
+
 
 def diagnostics(FIELD, Q_tilde, f_max, n, grid_pts, lattice, Ntilde):
     # Diagnostics (kept minimal): print FIELD stats and the multidimensional theoretical bound
@@ -264,18 +371,20 @@ def diagnostics(FIELD, Q_tilde, f_max, n, grid_pts, lattice, Ntilde):
     except Exception:
         print("Could not compute basis abs-sum diagnostic (likely memory/time constraints).")
 
+
 def map_sets_to_torustorus(periodic_bounds, init_bounds):
-        # Compute rescale factor from original to periodic domain
-        rescale = (2.0 * np.pi) / (periodic_bounds[1] - periodic_bounds[0])
+    # Compute rescale factor from original to periodic domain
+    rescale = (2.0 * np.pi) / (periodic_bounds[1] - periodic_bounds[0])
 
-        # periodic domain bounds
-        lb = np.array([0, 0])
-        ub = np.array([2*np.pi, 2*np.pi])
+    # periodic domain bounds
+    lb = np.array([0, 0])
+    ub = np.array([2 * np.pi, 2 * np.pi])
 
-        # Compute rescaled bounds
-        init_lb = (init_bounds[0] - periodic_bounds[0]) * rescale
-        init_ub = (init_bounds[1] - periodic_bounds[0]) * rescale
-        return (lb, ub), (init_lb, init_ub)
+    # Compute rescaled bounds
+    init_lb = (init_bounds[0] - periodic_bounds[0]) * rescale
+    init_ub = (init_bounds[1] - periodic_bounds[0]) * rescale
+    return (lb, ub), (init_lb, init_ub)
+
 
 def enlarge_rect(set, periodic_domain, percent):
     lb, ub = periodic_domain
@@ -286,14 +395,16 @@ def enlarge_rect(set, periodic_domain, percent):
     new_ub = np.minimum(ub, set_ub + increase / 2)
     return new_lb, new_ub
 
+
 def contains_rect(point, lb_rect, ub_rect):
-        return np.all(point >= lb_rect) and np.all(point <= ub_rect)
+    return np.all(point >= lb_rect) and np.all(point <= ub_rect)
+
 
 def main(domain_periodic, init, increase_init, Q_tilde=25, f_max=3):
-    assert f_max <= 2*Q_tilde + 1, "f_max must be at least 2*Q_tilde + 1"
+    assert f_max <= 2 * Q_tilde + 1, "f_max must be at least 2*Q_tilde + 1"
     (lb, ub), (init_lb, init_ub) = map_sets_to_torustorus(domain_periodic, init)
-    n = lb.shape[0]  # dimensionality   
-    Ntilde = Q_tilde ** n
+    n = lb.shape[0]  # dimensionality
+    Ntilde = Q_tilde**n
 
     # create a lattice (coarse) to serve as x_lattice
     lattice = build_lattice(lb, ub, per_dim=Q_tilde)
@@ -322,8 +433,9 @@ def main(domain_periodic, init, increase_init, Q_tilde=25, f_max=3):
 
     # run PSO
     t0 = time()
-    optimizer = ps.single.GlobalBestPSO(n_particles=40, dimensions=2, 
-                                        options={"c1": 0.5, "c2": 0.3, "w": 0.9}, bounds=bounds)
+    optimizer = ps.single.GlobalBestPSO(
+        n_particles=40, dimensions=2, options={"c1": 0.5, "c2": 0.3, "w": 0.9}, bounds=bounds
+    )
     fval_opt, x_opt = optimizer.optimize(objfn, iters=150, verbose=False)
     t1 = time()
     print(f"PSO completed in {t1 - t0:.3f} seconds.")
@@ -348,9 +460,24 @@ def main(domain_periodic, init, increase_init, Q_tilde=25, f_max=3):
     diagnostics(FIELD, Q_tilde, f_max, n, grid_pts, lattice, Ntilde)
 
     # Plotting
-    plotting(XX, YY, FIELD, lattice, x0_lattice_wo_init, optimizer, x_opt, 
-             init_lb, init_ub, init_lb_rescale, init_ub_rescale, increase_init, f_max, Q_tilde, Ntilde)
-    
+    plotting(
+        XX,
+        YY,
+        FIELD,
+        lattice,
+        x0_lattice_wo_init,
+        optimizer,
+        x_opt,
+        init_lb,
+        init_ub,
+        init_lb_rescale,
+        init_ub_rescale,
+        increase_init,
+        f_max,
+        Q_tilde,
+        Ntilde,
+    )
+
     return fval_opt, x_opt
 
 
@@ -366,7 +493,7 @@ if __name__ == "__main__":
     init = (init_lb_orig, init_ub_orig)
     increase = 0.1  # 10% increase
 
-    Q_tilde = 25 # number of lattice points on periodic domain per dimension
-    f_max = 3   # maximum frequency index (exclude zero)
+    Q_tilde = 25  # number of lattice points on periodic domain per dimension
+    f_max = 3  # maximum frequency index (exclude zero)
 
     main(domain_periodic, init, increase_init=increase, Q_tilde=Q_tilde, f_max=f_max)

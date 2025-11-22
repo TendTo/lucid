@@ -9,8 +9,8 @@ from ._constants import (
     HIGHS_BUILD,
     MATPLOTLIB_BUILD,
     OMP_BUILD,
-    SOPLEX_BUILD,
     PSOCPP_BUILD,
+    SOPLEX_BUILD,
 )
 
 if GUROBI_BUILD:

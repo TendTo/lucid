@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ._pylucid import (
+    EllipseSet,
     Estimator,
     FeatureMap,
-    EllipseSet,
     MultiSet,
     RectSet,
     Set,
@@ -405,11 +405,17 @@ def plot_solution_2d(
             name="B(x)",
             showscale=False,
             showlegend=True,
+            lighting=dict(ambient=0.5, diffuse=1, fresnel=0.2, specular=0.5, roughness=0.5),
+            lightposition=dict(x=100, y=100, z=2000),
             contours=dict(
-                # x=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True),
-                # y=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True),
                 z=dict(
-                    show=True, start=2 * eta - gamma, end=gamma + 0.1, size=gamma - eta, project_z=True, highlight=False
+                    show=True,
+                    start=eta,
+                    end=gamma + 0.1,
+                    size=gamma - eta,
+                    project_z=True,
+                    highlight=False,
+                    usecolormap=True,
                 ),
             ),
         )
@@ -420,6 +426,8 @@ def plot_solution_2d(
             fig.add_surface(
                 x=X_plane,
                 y=Y_plane,
+                lighting=dict(ambient=0.5, diffuse=1, fresnel=0.2, specular=0.5, roughness=0.5),
+                lightposition=dict(x=100, y=100, z=2000),
                 z=np.full_like(X_plane, eta),
                 colorscale=[[0, "green"], [1, "green"]],
                 opacity=0.2,
@@ -432,6 +440,8 @@ def plot_solution_2d(
                 x=X_plane,
                 y=Y_plane,
                 z=np.full_like(X_plane, gamma),
+                lighting=dict(ambient=0.5, diffuse=1, fresnel=0.2, specular=0.5, roughness=0.5),
+                lightposition=dict(x=100, y=100, z=2000),
                 colorscale=[[0, "red"], [1, "red"]],
                 opacity=0.2,
                 name="gamma",
@@ -448,6 +458,8 @@ def plot_solution_2d(
                 x=X,
                 y=Y,
                 z=Zp,
+                lighting=dict(ambient=0.5, diffuse=1, fresnel=0.2, specular=0.5, roughness=0.5),
+                lightposition=dict(x=100, y=100, z=2000),
                 colorscale=[[0, "black"], [1, "black"]],
                 opacity=0.3,
                 name="B(xp)",
@@ -462,6 +474,8 @@ def plot_solution_2d(
                 x=X,
                 y=Y,
                 z=Z_est,
+                lighting=dict(ambient=0.5, diffuse=1, fresnel=0.2, specular=0.5, roughness=0.5),
+                lightposition=dict(x=100, y=100, z=2000),
                 colorscale=[[0, "purple"], [1, "purple"]],
                 opacity=0.3,
                 name="B(xp) est.",
