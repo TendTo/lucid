@@ -123,7 +123,7 @@ double run_pso(int lattice_resolution, int f_max, const Set& X, const ConstMatri
   PsoOptimiser optimiser{n_tilde, lattice_resolution, f_max, filtered_lattice};
   // Bounds of the optimization. They ensure the particles stay within the X_periodic set
   Matrix matrix_bounds{2, d};
-  // TODO(tend): in case of ellipse, these bounds are not enough. We are currently getting a way more conservative estimate.
+  // TODO(tend): in case of ellipse, these bounds are not enough. We are currently getting a more conservative estimate.
   matrix_bounds.row(0) = X.general_lower_bound().transpose();
   matrix_bounds.row(1) = X.general_upper_bound().transpose();
   // Configure optimiser
@@ -335,6 +335,13 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_DEBUG_FMT("max_x_coeff: (C - 1) / x_denom = ({:.3} - 1) / {:.3} = {:.3}", C, x_denom, max_x_coeff);
   const double diff_sx_coeff = 2.0 * A_x / x_denom;
   LUCID_DEBUG_FMT("diff_sx_coeff: 2 * A_x / x_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, x_denom, diff_sx_coeff);
+
+  if (Stats::Scoped::top()) {
+    Stats::Scoped::top()->value().C = C;
+    Stats::Scoped::top()->value().A_xn_wo_x0 = A_x0;
+    Stats::Scoped::top()->value().A_xn_wo_xu = A_xu;
+    Stats::Scoped::top()->value().A_xn_wo_x = A_x;
+  }
 
   return optimiser.solve_fourier_barrier_synthesis(
       FourierBarrierSynthesisProblem{

@@ -291,6 +291,17 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT("min_d: {}", min_d.get(GRB_DoubleAttr_X));
   LUCID_DEBUG_FMT("max_d_sx: {}", max_d_sx.get(GRB_DoubleAttr_X));
 
+  if (Stats::Scoped::top()) {
+    Stats::Scoped::top()->value().min_x0 = min_x0.get(GRB_DoubleAttr_X);
+    Stats::Scoped::top()->value().max_xn_wo_x0 = max_sx0.get(GRB_DoubleAttr_X);
+    Stats::Scoped::top()->value().max_xu = max_xu.get(GRB_DoubleAttr_X);
+    Stats::Scoped::top()->value().min_xn_wo_xu = min_sxu.get(GRB_DoubleAttr_X);
+    Stats::Scoped::top()->value().max_x = max_x.get(GRB_DoubleAttr_X);
+    Stats::Scoped::top()->value().min_xn_wo_x = min_sx.get(GRB_DoubleAttr_X);
+    Stats::Scoped::top()->value().min_d = min_d.get(GRB_DoubleAttr_X);
+    Stats::Scoped::top()->value().max_d_xn_wo_x = max_d_sx.get(GRB_DoubleAttr_X);
+  }
+
   const Vector solution{
       Vector::NullaryExpr(fxn_lattice.cols(), [&vars](const Index i) { return vars[i].get(GRB_DoubleAttr_X); })};
   cb(true, model.get(GRB_DoubleAttr_ObjVal), solution, eta.get(GRB_DoubleAttr_X), c.get(GRB_DoubleAttr_X),

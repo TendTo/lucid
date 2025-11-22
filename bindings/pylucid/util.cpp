@@ -133,6 +133,18 @@ void init_util(py::module_& m) {
       .def_property_readonly("total_time", STATS_PROPERTY(total_timer.seconds()), Stats_total_timer)
       .def_property_readonly("num_constraints", STATS_PROPERTY(num_constraints), Stats_num_constraints)
       .def_property_readonly("num_variables", STATS_PROPERTY(num_variables), Stats_num_variables)
+      .def_property_readonly("C", STATS_PROPERTY(C), Stats_C)
+      .def_property_readonly("A_xn_wo_x", STATS_PROPERTY(A_xn_wo_x), Stats_A_xn_wo_x)
+      .def_property_readonly("A_xn_wo_x0", STATS_PROPERTY(A_xn_wo_x0), Stats_A_xn_wo_x0)
+      .def_property_readonly("A_xn_wo_xu", STATS_PROPERTY(A_xn_wo_xu), Stats_A_xn_wo_xu)
+      .def_property_readonly("min_x0", STATS_PROPERTY(min_x0), Stats_min_x0)
+      .def_property_readonly("max_xn_wo_x0", STATS_PROPERTY(max_xn_wo_x0), Stats_max_xn_wo_x0)
+      .def_property_readonly("max_xu", STATS_PROPERTY(max_xu), Stats_max_xu)
+      .def_property_readonly("min_xn_wo_xu", STATS_PROPERTY(min_xn_wo_xu), Stats_min_xn_wo_xu)
+      .def_property_readonly("max_x", STATS_PROPERTY(max_x), Stats_max_x)
+      .def_property_readonly("min_xn_wo_x", STATS_PROPERTY(min_xn_wo_x), Stats_min_xn_wo_x)
+      .def_property_readonly("min_d", STATS_PROPERTY(min_d), Stats_min_d)
+      .def_property_readonly("max_d_xn_wo_x", STATS_PROPERTY(max_d_xn_wo_x), Stats_max_d_xn_wo_x)
       .def_property_readonly("peak_rss_memory_usage", STATS_PROPERTY(peak_rss_memory_usage),
                              Stats_peak_rss_memory_usage)
       .def_property_readonly("num_estimator_consolidations", STATS_PROPERTY(num_estimator_consolidations),

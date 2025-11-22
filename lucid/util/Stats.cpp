@@ -29,6 +29,18 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  No. of hyperparameter tuning:      {}\n"
              "  No. of constraints:                {}\n"
              "  No. of variables:                  {}\n"
+             "  C:                                 {:.3f}\n"
+             "  A_xn_wo_x:                         {:.3f}\n"
+             "  A_xn_wo_x0:                        {:.3f}\n"
+             "  A_xn_wo_xu:                        {:.3f}\n"
+             "  Min x0:                            {:.3f}\n"
+             "  Max x_n\\x0:                       {:.3f}\n"
+             "  Max xu:                            {:.3f}\n"
+             "  Min x_n\\xu:                       {:.3f}\n"
+             "  Max x:                             {:.3f}\n"
+             "  Min x_n\\x:                        {:.3f}\n"
+             "  Min d:                             {:.3f}\n"
+             "  Max d_xn_wo_x:                     {:.3f}\n"
              "  Peak memory usage ({}):            {:.3f}\n",
              stats.kernel_timer.seconds(),        //
              stats.feature_map_timer.seconds(),   //
@@ -43,6 +55,18 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              stats.num_tuning,                    //
              stats.num_constraints,               //
              stats.num_variables,                 //
+             stats.C,                             //
+             stats.A_xn_wo_x,                     //
+             stats.A_xn_wo_x0,                    //
+             stats.A_xn_wo_xu,                    //
+             stats.min_x0,                        //
+             stats.max_xn_wo_x0,                  //
+             stats.max_xu,                        //
+             stats.min_xn_wo_xu,                  //
+             stats.max_x,                         //
+             stats.min_xn_wo_x,                   //
+             stats.min_d,                         //
+             stats.max_d_xn_wo_x,                 //
              unit,                                //
              metrics::bytes_to(stats.peak_rss_memory_usage, unit));
 }
