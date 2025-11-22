@@ -58,7 +58,7 @@ IndexIterator<T>::IndexIterator(T min_value, T max_value)
 #endif
 }
 
-template <IsAnyOf<long int, std::vector<long>> T>
+template <IsAnyOf<Index, std::vector<Index>> T>
 IndexIterator<T>& IndexIterator<T>::reset() {
   if constexpr (std::is_same_v<T, Index>) {
     indexes_.assign(indexes_.size(), min_value_);
