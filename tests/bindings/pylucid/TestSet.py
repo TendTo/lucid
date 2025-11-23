@@ -2,6 +2,7 @@ import numpy as np
 
 from pylucid import MultiSet, RectSet, Set, SphereSet
 
+
 def build_lattice(lb: np.ndarray, ub: np.ndarray, per_dim: int, endpoint: bool) -> np.ndarray:
     # per_dim: number of lattice points per dimension (scalar or 2-tuple)
     per_dim = (per_dim,) * len(lb)

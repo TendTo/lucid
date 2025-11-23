@@ -25,7 +25,7 @@ std::uniform_real_distribution<> uniform(0.0, 1.0);
 std::normal_distribution<> normal(0.0, 1.0);
 }  // namespace
 
-EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef semi_axes) : center_(center), semi_axes_(semi_axes) {
+EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef semi_axes) : center_{center}, semi_axes_{semi_axes} {
   LUCID_CHECK_ARGUMENT_CMP(center.size(), >, 0);
   LUCID_CHECK_ARGUMENT_EQ(center.size(), semi_axes.size());
   LUCID_CHECK_ARGUMENT_CMP(semi_axes.minCoeff(), >, 0);

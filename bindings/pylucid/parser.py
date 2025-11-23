@@ -7,7 +7,7 @@ import numpy as np
 import pyparsing as pp
 import sympy as sp
 
-from ._pylucid import MultiSet, RectSet, SphereSet, log
+from ._pylucid import EllipseSet, MultiSet, RectSet, SphereSet, log
 
 T = TypeVar("T")
 
@@ -386,15 +386,19 @@ class SetParser:
         sphere_set_input = pp.Group(number_list + pp.Suppress(",") + number)
         sphere_set = pp.Keyword("SphereSet") + pp.nestedExpr("(", ")", content=sphere_set_input)
 
+        ellipse_set_input = pp.Group(number_list + pp.Suppress(",") + number_list)
+        ellipse_set = pp.Keyword("EllipseSet") + pp.nestedExpr("(", ")", content=ellipse_set_input)
+
         plain_set_list = pp.nestedExpr("[", "]", content=pp.delimitedList(rect_set | sphere_set))
         multi_set = pp.Keyword("MultiSet") + pp.nestedExpr("(", ")", content=pp.delimitedList(plain_set_list))
 
         rect_set.setParseAction(self._to_rect_set)
         sphere_set.setParseAction(self._to_sphere_set)
+        ellipse_set.setParseAction(self._to_ellipse_set)
         multi_set.setParseAction(self._to_multi_set)
 
         set_expr = pp.Forward()
-        set_expr <<= rect_set | sphere_set | multi_set
+        set_expr <<= rect_set | sphere_set | ellipse_set | multi_set
         return set_expr
 
     def parse(self, set_str: str) -> "Set":
@@ -438,6 +442,20 @@ class SetParser:
         center = t.asList()[1][0][0]
         radius = t.asList()[1][0][1]
         return SphereSet(center, radius)
+
+    @staticmethod
+    def _to_ellipse_set(t: pp.ParseResults) -> "EllipseSet":
+        """Convert the parsed token to a EllipseSet object
+
+        Args:
+            t: parsed token containing center and semi_axes of the ellipse
+
+        Returns:
+            EllipseSet object containing the parsed center and semi_axes
+        """
+        center = t.asList()[1][0][0]
+        semi_axes = t.asList()[1][0][1]
+        return EllipseSet(center, semi_axes)
 
     @staticmethod
     def _to_multi_set(t: pp.ParseResults) -> "MultiSet":

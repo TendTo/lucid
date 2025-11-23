@@ -12,6 +12,7 @@ import yaml
 from pylucid import (
     AlglibOptimiser,
     ConstantTruncatedFourierFeatureMap,
+    EllipseSet,
     GaussianKernel,
     GurobiOptimiser,
     HighsOptimiser,
@@ -22,6 +23,7 @@ from pylucid import (
     OptimiserAction,
     RectSet,
     SoplexOptimiser,
+    SphereSet,
     log,
 )
 from pylucid.cli import (
@@ -154,22 +156,68 @@ class TestCli:
                     assert isinstance(path, Path)
                     assert path.suffix == ext
 
-        def test_type_set(self):
+        def test_type_set_str(self):
             """Test parsing sets from strings"""
             # Test RectSet parsing
-            rect_set = type_set("RectSet([1.0, 2.0], [3.0, 4.0])")
+            rect_set = ConfigAction.parse_set_from_config("RectSet([1.0, 2.0], [3.0, 4.0])")
             assert isinstance(rect_set, RectSet)
             assert np.array_equal(rect_set.lower_bound, [1.0, 2.0])
             assert np.array_equal(rect_set.upper_bound, [3.0, 4.0])
 
             # Test MultiSet parsing
-            multi_set = type_set("MultiSet([RectSet([1.0, 2.0], [3.0, 4.0]), RectSet([5.0, 6.0], [7.0, 8.0])])")
+            multi_set = ConfigAction.parse_set_from_config(
+                "MultiSet([RectSet([1.0, 2.0], [3.0, 4.0]), RectSet([5.0, 6.0], [7.0, 8.0])])"
+            )
             assert isinstance(multi_set, MultiSet)
             assert len(multi_set) == 2
 
+            sphere_set = ConfigAction.parse_set_from_config("SphereSet([0.0, 0.0], 5.0)")
+            assert isinstance(sphere_set, SphereSet)
+            assert np.array_equal(sphere_set.center, [0.0, 0.0])
+            assert sphere_set.radius == 5.0
+
+            ellipse_set = ConfigAction.parse_set_from_config("EllipseSet([1.5, 3.0], [4.0, 10.0])")
+            assert isinstance(ellipse_set, EllipseSet)
+            assert np.array_equal(ellipse_set.center, [1.5, 3.0])
+            assert np.array_equal(ellipse_set.semi_axes, [4.0, 10.0])
+
             # Test invalid syntax
             with pytest.raises(pp.ParseException):
-                type_set("InvalidSet([1.0, 2.0], [3.0, 4.0])")
+                ConfigAction.parse_set_from_config("InvalidSet([1.0, 2.0], [3.0, 4.0])")
+
+        def test_type_set_dict(self):
+            """Test parsing sets from strings"""
+            # Test RectSet parsing
+            rect_set = ConfigAction.parse_set_from_config({"RectSet": {"lower": [1.0, 2.0], "upper": [3.0, 4.0]}})
+            assert isinstance(rect_set, RectSet)
+            assert np.array_equal(rect_set.lower_bound, [1.0, 2.0])
+            assert np.array_equal(rect_set.upper_bound, [3.0, 4.0])
+
+            # Test MultiSet parsing
+            multi_set = ConfigAction.parse_set_from_config(
+                [
+                    {"RectSet": {"lower": [1.0, 2.0], "upper": [3.0, 4.0]}},
+                    {"RectSet": {"lower": [5.0, 6.0], "upper": [7.0, 8.0]}},
+                ]
+            )
+            assert isinstance(multi_set, MultiSet)
+            assert len(multi_set) == 2
+
+            sphere_set = ConfigAction.parse_set_from_config({"SphereSet": {"center": [0.0, 0.0], "radius": 5.0}})
+            assert isinstance(sphere_set, SphereSet)
+            assert np.array_equal(sphere_set.center, [0.0, 0.0])
+            assert sphere_set.radius == 5.0
+
+            ellipse_set = ConfigAction.parse_set_from_config(
+                {"EllipseSet": {"center": [1.5, 3.0], "semi_axes": [4.0, 10.0]}}
+            )
+            assert isinstance(ellipse_set, EllipseSet)
+            assert np.array_equal(ellipse_set.center, [1.5, 3.0])
+            assert np.array_equal(ellipse_set.semi_axes, [4.0, 10.0])
+
+            # Test invalid syntax
+            with pytest.raises(ValueError):
+                ConfigAction.parse_set_from_config({"InvalidSet": {"lower": [1.0, 2.0], "upper": [3.0, 4.0]}})
 
         def test_type_estimator(self):
             """Test parsing estimator types from strings"""

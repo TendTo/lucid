@@ -401,8 +401,8 @@ void init_model(py::module_& m) {
       .def_property_readonly("center", &SphereSet::center, SphereSet_center)
       .def_property_readonly("radius", &SphereSet::radius, SphereSet_radius);
   py::class_<EllipseSet, Set>(m, "EllipseSet", EllipseSet_)
-      .def(py::init<Vector, double>(), py::arg("center"), py::arg("semi_axes"), EllipseSet_EllipseSet)
-      .def(py::init<Vector, ConstVectorRef>(), py::arg("center"), py::arg("semi_axes"), EllipseSet_EllipseSet)
+      .def(py::init<ConstVectorRef, double>(), py::arg("center"), py::arg("semi_axes"), EllipseSet_EllipseSet)
+      .def(py::init<ConstVectorRef, ConstVectorRef>(), py::arg("center"), py::arg("semi_axes"), EllipseSet_EllipseSet)
       .def_property_readonly("center", &EllipseSet::center, EllipseSet_center)
       .def_property_readonly("semi_axes", &EllipseSet::semi_axes, EllipseSet_semi_axes);
   py::class_<PolytopeSet, Set>(m, "PolytopeSet", PolytopeSet_)

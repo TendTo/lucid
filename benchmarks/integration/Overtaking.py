@@ -8,7 +8,6 @@ from benchmark import scenario_config
 from pylucid import *
 from pylucid import __version__
 
-
 if __name__ == "__main__":
     # ################################## #
     # Lucid

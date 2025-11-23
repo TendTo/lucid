@@ -2,9 +2,9 @@ import numpy as np
 import pytest
 
 from pylucid import (
-    HighsOptimiser,
     GaussianKernel,
     GridSearchTuner,
+    HighsOptimiser,
     KernelRidgeRegressor,
     LinearTruncatedFourierFeatureMap,
     Parameter,
