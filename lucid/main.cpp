@@ -29,28 +29,36 @@ namespace {
 enum class Solver { Gurobi, Alglib, HiGHS, SOPLEX };
 
 struct CliArgs {
+  int verbose{LUCID_LOG_INFO_LEVEL};
   int seed{-1};
-  double set_scaling{0.1};
-  double gamma{1.0};
-  int time_horizon{5};
-  int num_samples{1000};
-  double lambda{1e-6};
-  double sigma_f{1.0};
-  std::vector<double> sigma_l{1.0};
-  int num_frequencies{4};
-  double C_coeff{1.0};
   bool plot{false};
   bool verify{false};
   std::string problem_log_file{""};
   std::string iis_log_file{""};
+  Matrix x_samples{};
+  Matrix xp_samples{};
+  Matrix f_xp_samples{};
+  int num_samples{1000};
+  double noise_scale{0.01};
+  double lambda{1e-6};
+  double sigma_f{1.0};
+  std::vector<double> sigma_l{1.0};
+  std::vector<double> feature_sigma_l{1.0};
+  int num_frequencies{4};
   double oversample_factor{2.0};
   int lattice_resolution{-1};
-  double noise_scale{0.01};
+  double gamma{1.0};
+  double C_coeff{1.0};
+  int time_horizon{5};
+  double epsilon{0.0};
+  double b_norm{0.0};
+  double b_kappa{1.0};
+  double set_scaling{0.1};
   Solver solver{Solver::Gurobi};
   std::unique_ptr<RectSet> X_bounds;
   std::unique_ptr<Set> X_init;
   std::unique_ptr<Set> X_unsafe;
-  std::function<Matrix(const Matrix&)> f_det;
+  std::function<Matrix(const Matrix&)> system_dynamics;
 };
 
 Vector to_eigen(const std::vector<double>& vectors) {
@@ -86,17 +94,20 @@ bool pipeline(const CliArgs& args) {
   auto f = [&args](const Matrix& x) -> Matrix {
     std::normal_distribution d{0.0, args.noise_scale};
     // Add noise to the linear function
-    const Matrix y{args.f_det(x)};
-    return args.f_det(x) + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
+    const Matrix y{args.system_dynamics(x)};
+    return args.system_dynamics(x) +
+           Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
   };
 
   const Matrix x_samples{args.X_bounds->sample(args.num_samples)};
   const Matrix xp_samples{f(x_samples)};
 
   Vector sigma_l{to_eigen(args.sigma_l)};
+  Vector feature_sigma_l{to_eigen(args.feature_sigma_l)};
   KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(sigma_l, args.sigma_f), args.lambda};
-  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, sigma_l, args.sigma_f, *args.X_bounds};
-  ModelEstimator model_estimator{[&args, &feature_map](const Matrix& x) { return feature_map(args.f_det(x)); }};
+  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, feature_sigma_l, args.sigma_f, *args.X_bounds};
+  ModelEstimator model_estimator{
+      [&args, &feature_map](const Matrix& x) { return feature_map(args.system_dynamics(x)); }};
 
   FourierBarrierCertificate barrier{args.time_horizon, args.gamma};
   const bool res = barrier.synthesize(*get_optimiser(args.solver, args), args.lattice_resolution, model_estimator,
@@ -106,7 +117,7 @@ bool pipeline(const CliArgs& args) {
                                           .ftol = 1e-10,
                                           .xtol = 1e-10,
                                           .C_coeff = args.C_coeff,
-                                          .b_norm = 0.0,
+                                          .b_norm = args.b_norm,
                                       });
   LUCID_INFO_FMT("Synthesized Fourier barrier certificate:\n{}", barrier);
   return res;
@@ -115,42 +126,40 @@ bool pipeline(const CliArgs& args) {
 }  // namespace
 
 CliArgs linear{.seed = 42,
-               .gamma = 1.0,
-               .time_horizon = 15,
+               .problem_log_file = "problem.lp",
+               .iis_log_file = "iis.ilp",
                .num_samples = 1000,
+               .noise_scale = 0.01,
                .lambda = 1e-6,
                .sigma_f = 15.0,
                .sigma_l = {1.2},
+               .feature_sigma_l = {1.2},
                .num_frequencies = 5,
-               .plot = true,
-               .verify = true,
-               .problem_log_file = "problem.lp",
-               .iis_log_file = "iis.ilp",
                .lattice_resolution = 704,
-               .noise_scale = 0.01,
+               .gamma = 1.0,
+               .time_horizon = 15,
                .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-1, 1}}),
                .X_init = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-0.5, 0.5}}),
                .X_unsafe = std::make_unique<MultiSet>(RectSet{{-1, -0.9}}, RectSet{{0.9, 1}}),
-               .f_det = [](const Matrix& x) -> Matrix { return x * 0.5; }};
+               .system_dynamics = [](const Matrix& x) -> Matrix { return x * 0.5; }};
 CliArgs barrier2{.seed = 42,
-                 .gamma = 2.0,
-                 .time_horizon = 5,
+                 .problem_log_file = "problem.lp",
+                 .iis_log_file = "iis.ilp",
                  .num_samples = 500,
+                 .noise_scale = 0.01,
                  .lambda = 1.0e-06,
                  .sigma_f = 15.0,
                  .sigma_l = {2.50304, 3.77779},
+                 .feature_sigma_l = {2.50304, 3.77779},
                  .num_frequencies = 6,
-                 .plot = true,
-                 .verify = true,
-                 .problem_log_file = "problem.lp",
-                 .iis_log_file = "iis.ilp",
                  .oversample_factor = 2.0,
                  .lattice_resolution = 150,
-                 .noise_scale = 0.01,
+                 .gamma = 2.0,
+                 .time_horizon = 5,
                  .X_bounds = std::make_unique<RectSet>(std::vector<std::pair<Scalar, Scalar>>{{-2, 2}, {-2, 2}}),
                  .X_init = std::make_unique<SphereSet>(Vector2{-0.5, -0.5}, 0.4),
                  .X_unsafe = std::make_unique<SphereSet>(Vector2{0.7, -0.7}, 0.3),
-                 .f_det = [](const Matrix& x) -> Matrix {
+                 .system_dynamics = [](const Matrix& x) -> Matrix {
                    // x1 = "x1 + 0.1 * (x2 - 1 + exp(-x1))"
                    // x2 = "x2 + 0.1 * (-sin(x1)**2)"
                    // out.col(0) = x.col(0).array() + 0.1 * (x.col(1).array() - 1 + (-x.col(0)).array().exp());
@@ -161,25 +170,24 @@ CliArgs barrier2{.seed = 42,
                    });
                  }};
 CliArgs barrier3{.seed = 42,
-                 .set_scaling = 0.03,
-                 .gamma = 2.0,
-                 .time_horizon = 5,
+                 .problem_log_file = "problem.lp",
+                 .iis_log_file = "iis.ilp",
                  .num_samples = 1000,
+                 .noise_scale = 0.01,
                  .lambda = 1.e-8,
                  .sigma_f = 1.0,
                  .sigma_l = {0.1, 0.1},
+                 .feature_sigma_l = {0.1, 0.1},
                  .num_frequencies = 10,
-                 .plot = true,
-                 .verify = true,
-                 .problem_log_file = "problem.lp",
-                 .iis_log_file = "iis.ilp",
                  .oversample_factor = 2.0,
                  .lattice_resolution = 150,
-                 .noise_scale = 0.01,
+                 .gamma = 2.0,
+                 .time_horizon = 5,
+                 .set_scaling = 0.03,
                  .X_bounds = std::make_unique<RectSet>(Vector2{-3, -2}, Vector2{2.5, 1}),
                  .X_init = std::make_unique<RectSet>(Vector2{-1.8, -0.1}, Vector2{-1.4, 0.1}),
                  .X_unsafe = std::make_unique<RectSet>(Vector2{0.6, 0.2}, Vector2{0.7, 0.4}),
-                 .f_det = [](const Matrix& x) -> Matrix {
+                 .system_dynamics = [](const Matrix& x) -> Matrix {
                    // x1 = x1 + 0.1 * x2
                    // x2 = x2 + 0.1 * (-x1 - x2 + 1 / 3 * x1 ** 3)
                    return Matrix::NullaryExpr(x.rows(), x.cols(), [&x](const Index row, const Index col) {
