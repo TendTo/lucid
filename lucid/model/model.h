@@ -9,6 +9,7 @@
 
 #include "lucid/model/ConstantTruncatedFourierFeatureMap.h"
 #include "lucid/model/CrossValidator.h"
+#include "lucid/model/EllipseSet.h"
 #include "lucid/model/Estimator.h"
 #include "lucid/model/FeatureMap.h"
 #include "lucid/model/GaussianKernel.h"

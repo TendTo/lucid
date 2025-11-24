@@ -100,6 +100,8 @@ class TruncatedFourierFeatureMap : public FeatureMap {
   [[nodiscard]] const RectSet& X_bounds() const { return X_bounds_; }
   /** @getter{sigma_f value, truncated Fourier feature map} */
   [[nodiscard]] double sigma_f() const { return sigma_f_; }
+  /** @getter{sigma_l value, truncated Fourier feature map} */
+  [[nodiscard]] const Vector& sigma_l() const { return sigma_l_; }
 
   /**
    * Return the periodic input domain for this linear truncated Fourier map.

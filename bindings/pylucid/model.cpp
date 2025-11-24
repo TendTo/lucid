@@ -558,6 +558,8 @@ void init_model(py::module_& m) {
            py::arg("sigma_f"), py::arg("X_bounds"))
       .def("get_periodic_set", &TruncatedFourierFeatureMap::get_periodic_set,
            TruncatedFourierFeatureMap_get_periodic_set)
+      .def("sigma_f", &TruncatedFourierFeatureMap::sigma_f, TruncatedFourierFeatureMap_sigma_f)
+      .def("sigma_l", &TruncatedFourierFeatureMap::sigma_l, TruncatedFourierFeatureMap_sigma_l)
       .def("map_vector", &TruncatedFourierFeatureMap::map_vector, ARG_NONCONVERT("x"),
            TruncatedFourierFeatureMap_map_vector)
       .def("map_matrix", &TruncatedFourierFeatureMap::map_matrix, ARG_NONCONVERT("x"),
