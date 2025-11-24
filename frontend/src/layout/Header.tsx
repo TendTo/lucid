@@ -62,6 +62,7 @@ export default function Header({ reset, methods }: HeaderProps) {
       "time_horizon",
       "sigma_f",
       "sigma_l",
+      "feature_sigma_l",
       "num_frequencies",
       "oversample_factor",
       "lattice_resolution",

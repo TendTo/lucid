@@ -15,6 +15,7 @@ import RectSet from "./RectSet";
 import type { SetType } from "@/types/types";
 import SphereSet from "./SphereSet";
 import { defaultSetWithDimension } from "@/utils/utils";
+import EllipseSet from "./EllipseSet";
 
 type SetInputProps = {
   name: string;
@@ -51,7 +52,11 @@ export default function SetInput({ name, idx, removeItself }: SetInputProps) {
         <SelectContent>
           <SelectGroup>
             {Object.entries(availableSets).map(([value, label]) => (
-              <SelectItem key={value} value={value} disabled={name === "X_bounds"}>
+              <SelectItem
+                key={value}
+                value={value}
+                disabled={name === "X_bounds"}
+              >
                 {label}
               </SelectItem>
             ))}
@@ -62,6 +67,8 @@ export default function SetInput({ name, idx, removeItself }: SetInputProps) {
         <RectSet name={name} idx={idx} />
       ) : type === "SphereSet" ? (
         <SphereSet name={name} idx={idx} />
+      ) : type === "EllipseSet" ? (
+        <EllipseSet name={name} idx={idx} />
       ) : null}
       <ErrorMessage
         errors={formState.errors}

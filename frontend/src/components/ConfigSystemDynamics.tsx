@@ -9,7 +9,12 @@ import {
 import { FaEye, FaSpinner } from "react-icons/fa6";
 import TabGroup from "./TabGroup";
 import { Button } from "./ui/button";
-import type { Configuration, RectSet, SphereSet } from "@/utils/schema";
+import type {
+  Configuration,
+  EllipseSet,
+  RectSet,
+  SphereSet,
+} from "@/utils/schema";
 import FormTextInput from "./FormTextInput";
 import { useEffect, useState } from "react";
 
@@ -39,6 +44,20 @@ function setDimension(
             newCenter.length = value;
             newCenter.fill(1.0, prevSet.center.length);
             setValue(`${setName}.${i}.SphereSet.center`, newCenter);
+          } else if (key === "EllipseSet") {
+            if (prevSet.center.length == value) return;
+            const newCenter = [
+              ...prevSet.center,
+            ] as EllipseSet["EllipseSet"]["center"];
+            newCenter.length = value;
+            newCenter.fill(1.0, prevSet.center.length);
+            setValue(`${setName}.${i}.EllipseSet.center`, newCenter);
+            const newSemiAxis = [
+              ...prevSet.radii,
+            ] as EllipseSet["EllipseSet"]["radii"];
+            newSemiAxis.length = value;
+            newSemiAxis.fill(1.0, prevSet.radii.length);
+            setValue(`${setName}.${i}.EllipseSet.radii`, newSemiAxis);
           } else {
             console.warn(`Unknown set type: ${key}`);
             return;

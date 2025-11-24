@@ -5,7 +5,7 @@ import { useCapabilities } from "@/hooks/useCapabilities";
 import { parseNumberListOrString } from "@/utils/utils";
 
 export default function ConfigAdvanced() {
-  const { ALGLIB, GUROBI, HIGHS, PLOT } = useCapabilities();
+  const { ALGLIB, GUROBI, HIGHS, PLOT, SOPLEX } = useCapabilities();
   return (
     <div>
       <h2 className="font-bold text-lg mb-2">Algorithm Parameters</h2>
@@ -117,6 +117,19 @@ export default function ConfigAdvanced() {
         />
 
         <FormTextInput
+          name="feature_sigma_l"
+          label="Feature Sigma L"
+          placeholder="Feature Sigma L value(s)"
+          type="text"
+          description="Single or comma-separated list of length scales of the feature map"
+          required
+          onChange={(value: string | number) => {
+            if (typeof value === "number") return value;
+            return parseNumberListOrString(value);
+          }}
+        />
+
+        <FormTextInput
           name="num_frequencies"
           label="Number of Frequencies"
           placeholder="Enter number of frequencies"
@@ -195,6 +208,7 @@ export default function ConfigAdvanced() {
             ...(GUROBI ? { GurobiOptimiser: "Gurobi Optimiser" } : {}),
             ...(ALGLIB ? { AlglibOptimiser: "Alglib Optimiser" } : {}),
             ...(HIGHS ? { HighsOptimiser: "Highs Optimiser" } : {}),
+            ...(SOPLEX ? { SoplexOptimiser: "Soplex Optimiser" } : {}),
           }}
         />
       </div>

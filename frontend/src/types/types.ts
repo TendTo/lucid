@@ -23,7 +23,8 @@ export type FeatureMapType =
 export type OptimiserType =
   | "GurobiOptimiser"
   | "AlglibOptimiser"
-  | "HighsOptimiser";
+  | "HighsOptimiser"
+  | "SoplexOptimiser";
 export type SetType = "RectSet" | "SphereSet";
 export type ServerResponse = {
   success: boolean;
@@ -43,10 +44,14 @@ export type ServerCapabilities = {
   GUROBI: boolean;
   ALGLIB: boolean;
   HIGHS: boolean;
+  SOPLEX: boolean;
+  PSOCPP: boolean;
   MATPLOTLIB: boolean;
   PLOT: boolean;
   VERIFICATION: boolean;
   GUI: boolean;
+  OMP: boolean;
+  CUDA: boolean;
 };
 export type LogEntry = {
   text: string;

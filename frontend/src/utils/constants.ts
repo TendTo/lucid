@@ -31,6 +31,7 @@ export const defaultValues: Configuration = {
   time_horizon: 5,
   sigma_f: 15.0,
   sigma_l: 1.0,
+  feature_sigma_l: 1.0,
   num_frequencies: 4,
   oversample_factor: 2.0,
   lattice_resolution: -1,
@@ -68,6 +69,7 @@ const Linear: Partial<Configuration> = {
   time_horizon: 15,
   sigma_f: 18,
   sigma_l: 1.2,
+  feature_sigma_l: 0.8,
   num_frequencies: 5,
   oversample_factor: 64,
   lattice_resolution: -1,
@@ -116,6 +118,7 @@ const Barrier2: Partial<Configuration> = {
   noise_scale: 0.01,
   num_frequencies: 17,
   lattice_resolution: 700,
+  feature_sigma_l: [0.8, 0.8],
   num_samples: 1000,
   optimiser: "GurobiOptimiser",
   oversample_factor: 1,
@@ -192,6 +195,7 @@ const Barrier3: Partial<Configuration> = {
   time_horizon: 5,
   sigma_f: 1.0,
   sigma_l: [2.99266, 4.62946],
+  feature_sigma_l: [0.8, 0.8],
   num_frequencies: 15,
   lattice_resolution: 800,
   noise_scale: 0.01,
@@ -2284,8 +2288,10 @@ export const examples: Record<
 export const availableSets = {
   RectSet: "Rect Set",
   SphereSet: "Sphere Set",
+  EllipseSet: "Ellipse Set",
 };
 export const defaultSet: Record<keyof typeof availableSets, object> = {
   RectSet: [[0, 1]],
   SphereSet: { center: [0], radius: 1 },
+  EllipseSet: { center: [0], radii: [1] },
 } as const;

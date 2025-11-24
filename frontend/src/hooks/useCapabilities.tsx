@@ -6,15 +6,20 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+import { getCapabilities } from "@/utils/jslucid";
 
 const defaultCapabilities: ServerCapabilities = {
-  ALGLIB: true,
+  ALGLIB: false,
   GUROBI: false,
-  HIGHS: false,
+  HIGHS: true,
   MATPLOTLIB: false,
   PLOT: false,
   VERIFICATION: false,
   GUI: true,
+  CUDA: false,
+  OMP: false,
+  PSOCPP: false,
+  SOPLEX: false,
 };
 
 const CapabilitiesContext =
@@ -50,7 +55,18 @@ export default function CapabilitiesProvider({
         console.error("Failed to fetch capabilities:", error);
       }
     }
-    fetchCapabilities();
+    async function fetchFromJslucid() {
+      try {
+        setCapabilities(await getCapabilities());
+      } catch (error) {
+        console.error("Failed to get capabilities from jslucid:", error);
+      }
+    }
+    if (!import.meta.env.VITE_JS_BUILD) {
+      fetchFromJslucid();
+    } else {
+      fetchCapabilities();
+    }
   }, []);
 
   return (

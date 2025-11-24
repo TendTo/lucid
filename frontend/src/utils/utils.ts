@@ -49,7 +49,9 @@ export function capableConfiguration<T extends Partial<Configuration>>(
       ? "GurobiOptimiser"
       : capabilities.ALGLIB
       ? "AlglibOptimiser"
-      : "HighsOptimiser",
+      : capabilities.HIGHS
+      ? "HighsOptimiser"
+      : "SoplexOptimiser",
     plot: capabilities.PLOT && config.plot,
     verify: capabilities.VERIFICATION && config.verify,
   };
@@ -65,6 +67,11 @@ export function defaultSetWithDimension(
     return {
       center: Array.from({ length: dimension }).fill(1.0),
       radius: 1,
+    };
+  } else if (set === "EllipseSet") {
+    return {
+      center: Array.from({ length: dimension }).fill(1.0),
+      radii: Array.from({ length: dimension }).fill(1.0),
     };
   } else {
     throw new Error(`Unknown set type: ${set}`);

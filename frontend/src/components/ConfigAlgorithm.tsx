@@ -180,6 +180,7 @@ export default function ConfigAlgorithm() {
             GurobiOptimiser: "Gurobi Optimiser",
             AlglibOptimiser: "Alglib Optimiser",
             HighsOptimiser: "Highs Optimiser",
+            SoplexOptimiser: "Soplex Optimiser",
           }}
         />
       </div>

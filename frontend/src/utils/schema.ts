@@ -1,16 +1,18 @@
 import { z } from "zod";
 
-function getSetDimension(set: RectSet | SphereSet): number {
+function getSetDimension(set: RectSet | SphereSet | EllipseSet): number {
   if ("RectSet" in set) {
     return set.RectSet.length;
   } else if ("SphereSet" in set) {
     return set.SphereSet.center.length;
+  } else if ("EllipseSet" in set) {
+    return set.EllipseSet.center.length;
   }
   throw new Error(`Invalid set type: ${JSON.stringify(set)}`);
 }
 
 function compareSetDimension(
-  set: (RectSet | SphereSet)[],
+  set: (RectSet | SphereSet | EllipseSet)[],
   expected: number
 ): boolean {
   if (set.length === 0) return true;
@@ -35,8 +37,18 @@ const sphereSet = z.object({
     radius: z.number().gte(0).describe("Radius of the sphere."),
   }),
 });
+const ellipseSet = z.object({
+  EllipseSet: z.object({
+    center: z.array(z.number()).nonempty().describe("Center of the ellipse."),
+    radii: z
+      .array(z.number())
+      .nonempty()
+      .describe("Semi-axis lengths of the ellipse."),
+  }),
+});
+
 const set = z
-  .array(z.union([rectSet, sphereSet]))
+  .array(z.union([rectSet, ellipseSet, sphereSet]))
   .nonempty()
   .refine(
     (rectSet) =>
@@ -136,6 +148,11 @@ export const configurationSchema = z
     sigma_l: z
       .union([z.number(), z.array(z.number())])
       .describe(
+        "Length scale for the estimator, can be a single value or a list."
+      ),
+    feature_sigma_l: z
+      .union([z.number(), z.array(z.number())])
+      .describe(
         "Length scale for the feature map, can be a single value or a list."
       ),
     num_frequencies: z
@@ -182,7 +199,12 @@ export const configurationSchema = z
       .describe("Type of feature map to use for the estimator.")
       .default("LinearTruncatedFourierFeatureMap"),
     optimiser: z
-      .enum(["GurobiOptimiser", "AlglibOptimiser", "HighsOptimiser"])
+      .enum([
+        "GurobiOptimiser",
+        "AlglibOptimiser",
+        "HighsOptimiser",
+        "SoplexOptimiser",
+      ])
       .describe("Type of optimiser to use for the estimator.")
       .default("GurobiOptimiser"),
   })
@@ -290,6 +312,19 @@ export const configurationSchema = z
       message: `Must be a number or an array of length ${data.dimension}.`,
     });
   })
+  .superRefine((data, ctx) => {
+    if (
+      typeof data.feature_sigma_l === "number" ||
+      data.feature_sigma_l.length === 1 ||
+      data.feature_sigma_l.length === data.dimension
+    )
+      return;
+    ctx.addIssue({
+      path: ["feature_sigma_l"],
+      code: "custom",
+      message: `Must be a number or an array of length ${data.dimension}.`,
+    });
+  })
   .describe(
     "Representation of the command line arguments for pylucid expressed in a configuration file"
   );
@@ -298,3 +333,4 @@ export type Configuration = z.infer<typeof configurationSchema>;
 export type LucidSet = z.infer<typeof set>;
 export type RectSet = z.infer<typeof rectSet>;
 export type SphereSet = z.infer<typeof sphereSet>;
+export type EllipseSet = z.infer<typeof ellipseSet>;
