@@ -54,7 +54,7 @@ build:py --enable_matplotlib_build=False
 build:py --enable_omp_build
 
 # Building js bindings
-build:js --compilation_mode=dbg
+build:js --compilation_mode=opt
 build:js --enable_static_build
 build:js --enable_js_build
 build:js --enable_matplotlib_build=False

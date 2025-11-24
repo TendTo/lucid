@@ -19,6 +19,7 @@ import InputSection from "./InputSection";
 import { capableConfiguration } from "@/utils/utils";
 import { useCapabilities } from "@/hooks/useCapabilities";
 import { useSuccessData } from "@/hooks/useSuccessData";
+import { runJslucid } from "@/utils/jslucid";
 
 const initialFormSteps = {
   system: {
@@ -104,6 +105,36 @@ export default function App() {
       }
       resetOutput();
       setSubmitLoading(true);
+
+      if (import.meta.env.VITE_JS_BUILD) {
+        try {
+          const tick = Date.now();
+          const { success, safety, eta, c, b_norm } = await runJslucid(
+            data,
+            (msg: string) => {
+              console.warn("Jslucid log:", msg);
+              setLogs((prevLogs) => [...prevLogs, parseLogEntry(msg)]);
+            }
+          );
+          // if (data.fig !== undefined) updateFigure(data.fig);
+          if (success !== undefined) updateField("success", success);
+          if (safety !== undefined) updateField("obj_val", 1 - safety);
+          if (eta !== undefined) updateField("eta", eta);
+          if (c !== undefined) updateField("c", c);
+          if (b_norm !== undefined) updateField("norm", b_norm);
+          updateField("verified", undefined);
+          updateField("time", (Date.now() - tick) / 1000);
+        } catch (error) {
+          console.error("Jslucid execution failed:", error);
+          setSubmitError(
+            "Jslucid execution failed: " + (error as Error).message
+          );
+        } finally {
+          setSubmitLoading(false);
+        }
+        return;
+      }
+
       const response = await fetch("/api/run", {
         method: "POST",
         headers: {

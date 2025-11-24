@@ -216,7 +216,7 @@ std::unique_ptr<Optimiser> get_optimiser(const Solver solver, const CliArgs& arg
 }
 
 BarrierCertificateResult pipeline(const CliArgs& args) {
-  log::set_verbosity_level(args.verbose);
+  // log::set_verbosity_level(args.verbose);
   random::seed(args.seed);
 
   const std::unique_ptr<Set> X_bounds_ptr{args.X_bounds->to_set()};

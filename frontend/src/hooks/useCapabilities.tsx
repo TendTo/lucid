@@ -62,7 +62,7 @@ export default function CapabilitiesProvider({
         console.error("Failed to get capabilities from jslucid:", error);
       }
     }
-    if (!import.meta.env.VITE_JS_BUILD) {
+    if (import.meta.env.VITE_JS_BUILD) {
       fetchFromJslucid();
     } else {
       fetchCapabilities();
