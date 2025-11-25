@@ -26,7 +26,7 @@ TEST(TestEllipseSet, ConstructionWithSemiAxesVector) {
 
   EXPECT_EQ(ellipse.dimension(), 2);
   EXPECT_EQ(ellipse.center(), Vector2(1.5, -2.5));
-  EXPECT_EQ(ellipse.semi_axes(), Vector2(3.0, 2.0));
+  EXPECT_EQ(ellipse.radii(), Vector2(3.0, 2.0));
 }
 
 TEST(TestEllipseSet, ConstructionWithUniformRadius) {
@@ -36,11 +36,11 @@ TEST(TestEllipseSet, ConstructionWithUniformRadius) {
 
   EXPECT_EQ(ellipse.dimension(), 2);
   EXPECT_EQ(ellipse.center(), center);
-  EXPECT_EQ(ellipse.semi_axes(), Vector2::Constant(radius));
+  EXPECT_EQ(ellipse.radii(), Vector2::Constant(radius));
 }
 
 TEST(TestEllipseSet, Contains2DCircle) {
-  // Test with equal semi_axes (circle)
+  // Test with equal radii (circle)
   const EllipseSet ellipse{Vector2{0, 0}, Vector2{1.0, 1.0}};
 
   // Points inside the ellipse
@@ -62,10 +62,10 @@ TEST(TestEllipseSet, Contains2DCircle) {
 }
 
 TEST(TestEllipseSet, Contains2DEllipse) {
-  // Test with different semi_axes (actual ellipse)
+  // Test with different radii (actual ellipse)
   const Vector2 center{0, 0};
-  const Vector2 semi_axes{2.0, 1.0};  // Wider in x, narrower in y
-  const EllipseSet ellipse{center, semi_axes};
+  const Vector2 radii{2.0, 1.0};  // Wider in x, narrower in y
+  const EllipseSet ellipse{center, radii};
 
   // Points inside the ellipse
   EXPECT_TRUE(ellipse(Vector2{0, 0}));      // Center
@@ -209,23 +209,23 @@ TEST(TestEllipseSet, ChangeSize) {
   EllipseSet ellipse{Vector2{0, 0}, Vector2{2.0, 1.0}};
 
   ellipse.change_size(Vector2{2.0, 2.0});
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 3.0);  // 2.0 + 2.0/2
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 2.0);  // 1.0 + 2.0/2
-  EXPECT_EQ(ellipse.center(), Vector2(0, 0));     // Center should not change
+  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 3.0);   // 2.0 + 2.0/2
+  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 2.0);   // 1.0 + 2.0/2
+  EXPECT_EQ(ellipse.center(), Vector2(0, 0));  // Center should not change
 
   ellipse.change_size(Vector2{-2.0, -2.0});
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 2.0);  // 3.0 - 2.0/2
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 1.0);  // 2.0 - 2.0/2
-  EXPECT_EQ(ellipse.center(), Vector2(0, 0));     // Center should not change
+  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 2.0);   // 3.0 - 2.0/2
+  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 1.0);   // 2.0 - 2.0/2
+  EXPECT_EQ(ellipse.center(), Vector2(0, 0));  // Center should not change
 }
 
 TEST(TestEllipseSet, ChangeSizeUniform) {
   EllipseSet ellipse{Vector2{1, 1}, Vector2{2.0, 3.0}};
 
   ellipse.change_size(4.0);
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 4.0);  // 2.0 + 4.0/2
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 5.0);  // 3.0 + 4.0/2
-  EXPECT_EQ(ellipse.center(), Vector2(1, 1));     // Center should not change
+  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 4.0);   // 2.0 + 4.0/2
+  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 5.0);   // 3.0 + 4.0/2
+  EXPECT_EQ(ellipse.center(), Vector2(1, 1));  // Center should not change
 }
 
 TEST(TestEllipseSet, ChangeSizeNonUniform) {
@@ -233,8 +233,8 @@ TEST(TestEllipseSet, ChangeSizeNonUniform) {
 
   // Test changing size differently in each dimension
   ellipse.change_size(Vector2{2.0, 0.0});
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(0), 3.0);  // 2.0 + 2.0/2
-  EXPECT_DOUBLE_EQ(ellipse.semi_axes()(1), 1.0);  // 1.0 + 0.0/2
+  EXPECT_DOUBLE_EQ(ellipse.radii()(0), 3.0);  // 2.0 + 2.0/2
+  EXPECT_DOUBLE_EQ(ellipse.radii()(1), 1.0);  // 1.0 + 0.0/2
 }
 
 TEST(TestEllipseSet, ChangeSizeInvalid) {
@@ -266,9 +266,9 @@ TEST(TestEllipseSet, Equality) {
 
 TEST(TestEllipseSet, EqualityWithSet) {
   const Vector2 center{1, 2};
-  const Vector2 semi_axes{3.0, 2.0};
-  const EllipseSet ellipse1{center, semi_axes};
-  const EllipseSet ellipse2{center, semi_axes};
+  const Vector2 radii{3.0, 2.0};
+  const EllipseSet ellipse1{center, radii};
+  const EllipseSet ellipse2{center, radii};
 
   const Set& set1 = ellipse1;
   const Set& set2 = ellipse2;

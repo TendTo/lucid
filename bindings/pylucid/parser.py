@@ -448,14 +448,14 @@ class SetParser:
         """Convert the parsed token to a EllipseSet object
 
         Args:
-            t: parsed token containing center and semi_axes of the ellipse
+            t: parsed token containing center and radii of the ellipse
 
         Returns:
-            EllipseSet object containing the parsed center and semi_axes
+            EllipseSet object containing the parsed center and radii
         """
         center = t.asList()[1][0][0]
-        semi_axes = t.asList()[1][0][1]
-        return EllipseSet(center, semi_axes)
+        radii = t.asList()[1][0][1]
+        return EllipseSet(center, radii)
 
     @staticmethod
     def _to_multi_set(t: pp.ParseResults) -> "MultiSet":

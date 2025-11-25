@@ -25,10 +25,10 @@ std::uniform_real_distribution<> uniform(0.0, 1.0);
 std::normal_distribution<> normal(0.0, 1.0);
 }  // namespace
 
-EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef semi_axes) : center_{center}, semi_axes_{semi_axes} {
+EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef radii) : center_{center}, semi_axes_{radii} {
   LUCID_CHECK_ARGUMENT_CMP(center.size(), >, 0);
-  LUCID_CHECK_ARGUMENT_EQ(center.size(), semi_axes.size());
-  LUCID_CHECK_ARGUMENT_CMP(semi_axes.minCoeff(), >, 0);
+  LUCID_CHECK_ARGUMENT_EQ(center.size(), radii.size());
+  LUCID_CHECK_ARGUMENT_CMP(radii.minCoeff(), >, 0);
 }
 
 EllipseSet::EllipseSet(ConstVectorRef center, const Scalar radius)
@@ -92,7 +92,7 @@ bool EllipseSet::operator==(const Set& other) const {
 }
 
 std::string EllipseSet::to_string() const {
-  return fmt::format("EllipseSet( center( [{}] ) semi_axes( [{}] ) )", center_, semi_axes_);
+  return fmt::format("EllipseSet( center( [{}] ) radii( [{}] ) )", center_, semi_axes_);
 }
 
 std::unique_ptr<Set> EllipseSet::clone() const { return std::make_unique<EllipseSet>(*this); }

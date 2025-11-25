@@ -88,7 +88,7 @@ def plot_set_1d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None
         elif isinstance(s, SphereSet):
             x0, x1 = s.center[0] - s.radius, s.center[0] + s.radius
         elif isinstance(s, EllipseSet):
-            x0, x1 = s.center[0] - s.semi_axes[0], s.center[0] + s.semi_axes[0]
+            x0, x1 = s.center[0] - s.radii[0], s.center[0] + s.radii[0]
         fig.add_shape(
             type="line",
             xref="x",
@@ -130,8 +130,8 @@ def plot_set_2d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None
             # TODO: fix
         elif isinstance(s, EllipseSet):
             theta = np.linspace(0, 2 * np.pi, 100)
-            x = s.center[0] + s.semi_axes[0] * np.cos(theta)
-            y = s.center[1] + s.semi_axes[1] * np.sin(theta)
+            x = s.center[0] + s.radii[0] * np.cos(theta)
+            y = s.center[1] + s.radii[1] * np.sin(theta)
             z = np.zeros_like(x)
 
         fig.add_scatter3d(
@@ -182,10 +182,10 @@ def plot_set_2d_plane(X_set: "Set", color: str, label: str = "", fig: go.Figure 
                 type="circle",
                 xref="x",
                 yref="y",
-                x0=s.center[0] - s.semi_axes[0],
-                y0=s.center[1] - s.semi_axes[1],
-                x1=s.center[0] + s.semi_axes[0],
-                y1=s.center[1] + s.semi_axes[1],
+                x0=s.center[0] - s.radii[0],
+                y0=s.center[1] - s.radii[1],
+                x1=s.center[0] + s.radii[0],
+                y1=s.center[1] + s.radii[1],
                 line=dict(color=color),
                 name=label,
                 showlegend=bool(label),
@@ -221,7 +221,7 @@ def plot_set_3d(X_set: "Set", color: str, label: str = "", fig: go.Figure = None
 
             fig.add_scatter3d(x=x, y=y, z=z, mode="lines", line_color=color, name=label, showlegend=bool(label))
         elif isinstance(s, (SphereSet, EllipseSet)):
-            radius = [s.radius] * 3 if isinstance(s, SphereSet) else s.semi_axes
+            radius = [s.radius] * 3 if isinstance(s, SphereSet) else s.radii
             # Adapted from https://community.plotly.com/t/adding-wireframe-around-a-sphere/37661/2
             theta = np.linspace(0, 2 * np.pi, 120)
             phi = np.linspace(0, np.pi, 60)

@@ -327,7 +327,7 @@ class ConfigAction(Action):
             return SphereSet(sphere_data["center"], sphere_data["radius"])
         if "EllipseSet" in set_config:
             ellipse_data = set_config["EllipseSet"]
-            return EllipseSet(ellipse_data["center"], ellipse_data["semi_axes"])
+            return EllipseSet(ellipse_data["center"], ellipse_data["radii"])
         raise raise_error(f"Unsupported set type in dictionary: {set_config}")
 
 

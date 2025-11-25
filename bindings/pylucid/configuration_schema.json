@@ -72,7 +72,7 @@
     },
     "ellipse_set": {
       "type": "object",
-      "required": ["center", "semi_axes"],
+      "required": ["center", "radii"],
       "additionalProperties": false,
       "properties": {
         "center": {
@@ -83,7 +83,7 @@
             "type": "number"
           }
         },
-        "semi_axes": {
+        "radii": {
           "description": "Semi-axis lengths of the ellipse in each dimension.",
           "type": "array",
           "minItems": 1,
@@ -318,7 +318,12 @@
     "optimiser": {
       "description": "Type of optimiser to use for the estimator.",
       "type": "string",
-      "enum": ["GurobiOptimiser", "AlglibOptimiser", "HighsOptimiser", "SoplexOptimiser"],
+      "enum": [
+        "GurobiOptimiser",
+        "AlglibOptimiser",
+        "HighsOptimiser",
+        "SoplexOptimiser"
+      ],
       "default": "GurobiOptimiser"
     }
   }

@@ -179,7 +179,7 @@ class TestCli:
             ellipse_set = ConfigAction.parse_set_from_config("EllipseSet([1.5, 3.0], [4.0, 10.0])")
             assert isinstance(ellipse_set, EllipseSet)
             assert np.array_equal(ellipse_set.center, [1.5, 3.0])
-            assert np.array_equal(ellipse_set.semi_axes, [4.0, 10.0])
+            assert np.array_equal(ellipse_set.radii, [4.0, 10.0])
 
             # Test invalid syntax
             with pytest.raises(pp.ParseException):
@@ -209,11 +209,11 @@ class TestCli:
             assert sphere_set.radius == 5.0
 
             ellipse_set = ConfigAction.parse_set_from_config(
-                {"EllipseSet": {"center": [1.5, 3.0], "semi_axes": [4.0, 10.0]}}
+                {"EllipseSet": {"center": [1.5, 3.0], "radii": [4.0, 10.0]}}
             )
             assert isinstance(ellipse_set, EllipseSet)
             assert np.array_equal(ellipse_set.center, [1.5, 3.0])
-            assert np.array_equal(ellipse_set.semi_axes, [4.0, 10.0])
+            assert np.array_equal(ellipse_set.radii, [4.0, 10.0])
 
             # Test invalid syntax
             with pytest.raises(ValueError):

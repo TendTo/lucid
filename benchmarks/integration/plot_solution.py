@@ -548,7 +548,7 @@ def plot_set_1d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
             ax.plot([s.center[0] - s.radius, s.center[0] + s.radius], [0, 0], color=color, linewidth=3, label=label)
         elif isinstance(s, EllipseSet):
             ax.plot(
-                [s.center[0] - s.semi_axes[0], s.center[0] + s.semi_axes[0]],
+                [s.center[0] - s.radii[0], s.center[0] + s.radii[0]],
                 [0, 0],
                 color=color,
                 linewidth=3,
@@ -580,8 +580,8 @@ def plot_set_2d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
         elif isinstance(s, EllipseSet):
             ellipse = Ellipse(
                 (s.center[0], s.center[1]),
-                2 * s.semi_axes[0],
-                2 * s.semi_axes[1],
+                2 * s.radii[0],
+                2 * s.radii[1],
                 color=color,
                 fill=False,
                 linewidth=2,
@@ -887,7 +887,7 @@ def plot_set_3d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
 
         elif isinstance(s, (SphereSet, EllipseSet)):
             # Create a sphere using spherical coordinates
-            radius = [s.radius] * 3 if isinstance(s, SphereSet) else s.semi_axes
+            radius = [s.radius] * 3 if isinstance(s, SphereSet) else s.radii
             u = np.linspace(0, 2 * np.pi, 20)
             v = np.linspace(0, np.pi, 20)
             x_sphere = s.center[0] + radius[0] * np.outer(np.cos(u), np.sin(v))
