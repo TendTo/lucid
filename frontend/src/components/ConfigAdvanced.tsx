@@ -68,7 +68,7 @@ export default function ConfigAdvanced() {
           placeholder="Lambda value"
           type="number"
           min={0}
-          description="Regularization parameter for the algorithm"
+          description="Regularization parameter for the estimator"
           required
         />
 
@@ -78,7 +78,7 @@ export default function ConfigAdvanced() {
           placeholder="Enter number of samples"
           type="number"
           min={1}
-          description="Number of transitions to sample. Only used if the data is not provided"
+          description="Number of transitions to sample to train the estimator. Only used if the data is not provided"
           required
         />
 
@@ -157,6 +157,17 @@ export default function ConfigAdvanced() {
           type="number"
           min={-1}
           description="Lattice points for each dimension"
+          required
+        />
+
+        <FormTextInput
+          name="set_scaling"
+          label="Set Scaling"
+          placeholder="Set Scaling value"
+          type="number"
+          step={0.01}
+          min={0}
+          description="Scaling to apply to the sets before processing"
           required
         />
 

@@ -168,6 +168,7 @@ export const configurationSchema = z
       .number()
       .int()
       .describe("Number of oversamples to use, -1 for no oversampling."),
+    set_scaling: z.number().gte(0).describe("Scaling factor for the sets."),
     noise_scale: z
       .number()
       .gte(0)

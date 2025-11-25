@@ -35,6 +35,7 @@ export const defaultValues: Configuration = {
   num_frequencies: 4,
   oversample_factor: 2.0,
   lattice_resolution: -1,
+  set_scaling: 0.02,
   noise_scale: 0.01,
   epsilon: 0.0,
   b_kappa: 1.0,

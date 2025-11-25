@@ -1,5 +1,3 @@
-import FormSelectionInput from "@/components/FormSelectionInput";
-import FormTextInput from "@/components/FormTextInput";
 import { type FieldErrors, type FieldValues } from "react-hook-form";
 
 export function algorithmFormErrors(errors: FieldErrors<FieldValues>): boolean {
@@ -12,178 +10,15 @@ export function algorithmFormErrors(errors: FieldErrors<FieldValues>): boolean {
       errors.time_horizon ||
       errors.sigma_f ||
       errors.sigma_l ||
+      errors.feature_sigma_l ||
       errors.num_frequencies ||
       errors.oversample_factor ||
       errors.lattice_resolution ||
+      errors.set_scaling ||
       errors.noise_scale ||
       errors.estimator ||
       errors.kernel ||
       errors.feature_map ||
       errors.optimiser
-  );
-}
-
-export default function ConfigAlgorithm() {
-  return (
-    <div>
-      <h2 className="font-bold text-lg mb-2">Algorithm Parameters</h2>
-
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
-        <FormTextInput
-          name="gamma"
-          label="Gamma"
-          placeholder="Gamma value"
-          type="number"
-          step={0.01}
-          min={0}
-          description="Gamma value for the algorithm"
-          required
-        />
-
-        <FormTextInput
-          name="C_coeff"
-          label="C Coefficient"
-          placeholder="C Coefficient value"
-          type="number"
-          step={0.01}
-          min={0}
-          description="Strictness parameter for the algorithm. A higher value means more strictness."
-          required
-        />
-
-        <FormTextInput
-          name="lambda"
-          label="Lambda"
-          placeholder="Lambda value"
-          type="number"
-          min={0}
-          description="Regularization parameter for the algorithm"
-          required
-        />
-
-        <FormTextInput
-          name="num_samples"
-          label="Number of Samples"
-          placeholder="Enter number of samples"
-          type="number"
-          min={1}
-          description="Total number of samples to use in the algorithm"
-          required
-        />
-
-        <FormTextInput
-          name="time_horizon"
-          label="Time Horizon"
-          placeholder="Enter time horizon"
-          type="number"
-          min={1}
-          description="Time horizon for the algorithm in seconds"
-          required
-        />
-
-        <FormTextInput
-          name="sigma_f"
-          label="Sigma F"
-          placeholder="Sigma F value"
-          type="number"
-          step={0.01}
-          min={0}
-          description="Sigma F parameter for the algorithm"
-          required
-        />
-
-        <FormTextInput
-          name="sigma_l"
-          label="Sigma L"
-          placeholder="Sigma L value(s)"
-          type="text"
-          description="Single value or comma-separated list of Sigma L values"
-          required
-        />
-
-        <FormTextInput
-          name="num_frequencies"
-          label="Number of Frequencies"
-          placeholder="Enter number of frequencies"
-          type="number"
-          min={1}
-          description="Total number of frequencies to use in the algorithm"
-          required
-        />
-
-        <FormTextInput
-          name="oversample_factor"
-          label="Oversample Factor"
-          placeholder="Enter oversample factor"
-          type="number"
-          step={0.01}
-          min={0}
-          description="Oversample factor for the algorithm"
-          required
-        />
-
-        <FormTextInput
-          name="lattice_resolution"
-          label="Lattice resolution"
-          placeholder="Enter number of lattice points per dimension"
-          type="number"
-          min={-1}
-          description="Number of oversamples to use, -1 for no oversampling"
-          required
-        />
-
-        <FormTextInput
-          name="noise_scale"
-          label="Noise Scale"
-          placeholder="Enter noise scale"
-          type="number"
-          step={0.001}
-          min={0}
-          description="Scale of the noise to add to the system dynamics"
-          required
-        />
-      </div>
-
-      <hr className="my-5" />
-
-      <h3 className="font-bold text-lg mb-2">Component Selection</h3>
-
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
-        <FormSelectionInput
-          name="estimator"
-          label="Estimator"
-          options={{ KernelRidgeRegressor: "Kernel Ridge Regressor" }}
-        />
-
-        <FormSelectionInput
-          name="kernel"
-          label="Kernel"
-          options={{ GaussianKernel: "Gaussian Kernel" }}
-        />
-
-        <FormSelectionInput
-          name="feature_map"
-          label="Feature Map"
-          options={{
-            LinearTruncatedFourierFeatureMap:
-              "Linear Truncated Fourier Feature Map",
-            ConstantTruncatedFourierFeatureMap:
-              "Constant Truncated Fourier Feature Map",
-            LogTruncatedFourierFeatureMap: "Log Truncated Fourier Feature Map",
-          }}
-        />
-
-        <FormSelectionInput
-          name="optimiser"
-          label="Optimiser"
-          options={{
-            GurobiOptimiser: "Gurobi Optimiser",
-            AlglibOptimiser: "Alglib Optimiser",
-            HighsOptimiser: "Highs Optimiser",
-            SoplexOptimiser: "Soplex Optimiser",
-          }}
-        />
-      </div>
-    </div>
   );
 }

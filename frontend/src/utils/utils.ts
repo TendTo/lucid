@@ -39,17 +39,37 @@ export function formatNumber(value: number | undefined) {
   return typeof value === "number" ? value.toFixed(6) : value;
 }
 
+function isOptimiserSupported(
+  optimiser: Configuration["optimiser"] | undefined,
+  capabilities: ServerCapabilities
+) {
+  switch (optimiser) {
+    case "GurobiOptimiser":
+      return capabilities.GUROBI;
+    case "HighsOptimiser":
+      return capabilities.HIGHS;
+    case "AlglibOptimiser":
+      return capabilities.ALGLIB;
+    case "SoplexOptimiser":
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function capableConfiguration<T extends Partial<Configuration>>(
   config: T,
   capabilities: ServerCapabilities
 ): T {
   return {
     ...config,
-    optimiser: capabilities.GUROBI
+    optimiser: isOptimiserSupported(config.optimiser, capabilities)
+      ? config.optimiser
+      : capabilities.GUROBI
       ? "GurobiOptimiser"
-      : capabilities.ALGLIB
-      ? "AlglibOptimiser"
       : capabilities.HIGHS
+      ? "AlglibOptimiser"
+      : capabilities.ALGLIB
       ? "HighsOptimiser"
       : "SoplexOptimiser",
     plot: capabilities.PLOT && config.plot,

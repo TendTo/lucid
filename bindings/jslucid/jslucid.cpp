@@ -22,11 +22,6 @@
 using namespace emscripten;
 using namespace lucid;
 
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#pragma GCC diagnostic ignored "-Wunused-function"
-
 enum class Solver { Gurobi, Alglib, HiGHS, SOPLEX };
 
 struct BarrierCertificateResult {
@@ -153,6 +148,8 @@ class JsMatrix {
       }
     }
   }
+  double get_coeff(const int row, const int col) const { return matrix_(row, col); }
+
   const Matrix& matrix() const { return matrix_; }
 
  private:
@@ -250,7 +247,6 @@ BarrierCertificateResult pipeline(const CliArgs& args) {
   Vector feature_sigma_l{to_eigen(args.feature_sigma_l)};
   KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(sigma_l, args.sigma_f), args.lambda};
   LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, feature_sigma_l, args.sigma_f, *X_bounds};
-  ModelEstimator model_estimator([&f_det, &feature_map](const Matrix& x) { return feature_map(f_det(x)); });
 
   const Matrix f_xp_samples = args.f_xp_samples ? args.f_xp_samples->matrix() : feature_map(xp_samples);
   LUCID_DEBUG_FMT("f_xp_samples: {}", LUCID_FORMAT_MATRIX(f_xp_samples));
@@ -266,9 +262,9 @@ BarrierCertificateResult pipeline(const CliArgs& args) {
   LUCID_DEBUG_FMT("Feature map: {}", feature_map);
 
   FourierBarrierCertificate barrier{args.time_horizon, args.gamma};
-  barrier.synthesize(*get_optimiser(args.solver, args), lattice_resolution, model_estimator,
-                     //    estimator,
-                     //    ModelEstimator{[&f_det, &feature_map](const Matrix& x) { return feature_map(f_det(x)); }},
+  barrier.synthesize(*get_optimiser(args.solver, args), lattice_resolution,  //
+                     estimator,
+                     //  ModelEstimator{[&f_det, &feature_map](const Matrix& x) { return feature_map(f_det(x)); }},
                      feature_map, *X_bounds, *X_init, *X_unsafe,
                      FourierBarrierCertificateParameters{
                          .set_scaling = args.set_scaling,
@@ -370,7 +366,8 @@ EMSCRIPTEN_BINDINGS(jslucid) {
       .function("set_coeff", &JsMatrix::set_coeff)
       .function("set_row", &JsMatrix::set_row)
       .function("set_col", &JsMatrix::set_col)
-      .function("set_matrix", &JsMatrix::set_matrix);
+      .function("set_matrix", &JsMatrix::set_matrix)
+      .function("get_coeff", &JsMatrix::get_coeff);
 
   class_<JsSet>("Set").smart_ptr<std::shared_ptr<JsSet>>("Set");
   class_<JsRectSet, base<JsSet>>("RectSet").smart_ptr_constructor<std::shared_ptr<JsRectSet>, const emscripten::val&>(

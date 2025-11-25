@@ -6,7 +6,6 @@ export function parseSystemDynamics(
 ): (x: Float64Array, rows: number, cols: number) => void {
   // Compile each expression using math.js
   const expressions = funStr.map((expr: string) => compile(expr));
-  console.log("Compiled expressions:", expressions);
 
   return (x: Float64Array, rows: number, cols: number) => {
     for (let i = 0; i < rows; i++) {
@@ -15,8 +14,6 @@ export function parseSystemDynamics(
       for (let j = 0; j < cols; j++) {
         scope[`x${j + 1}`] = x[i * cols + j];
       }
-
-      console.log("Scope for row", i, ":", scope);
 
       // Evaluate each expression and update the row
       for (let j = 0; j < cols; j++) {
@@ -135,7 +132,7 @@ export async function runJslucid(
     epsilon: config.epsilon,
     b_kappa: config.b_kappa,
     b_norm: config.b_norm,
-    set_scaling: 0.02,
+    set_scaling: config.set_scaling,
     seed: config.seed,
     gamma: config.gamma,
     time_horizon: config.time_horizon,
