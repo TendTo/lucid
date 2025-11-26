@@ -1,3 +1,4 @@
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
 load("//tools:rules_cc.bzl", "lucid_cc_binary", "lucid_cc_library")
 
@@ -72,13 +73,82 @@ lucid_cc_binary(
 )
 
 wasm_cc_binary(
-    name = "jslucid_wasm",
+    name = "_jslucid_wasm",
     cc_target = ":jslucid",
     outputs = [
         "main_wasm/jslucid.wasm",
         "main_wasm/jslucid.js",
         "main_wasm/jslucid.d.ts",
         #        "main_wasm/main.js.symbols",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+copy_file(
+    name = "jslucid_js_file",
+    src = "main_wasm/jslucid.js",
+    out = "jslucid.js",
+    visibility = ["//visibility:public"],
+)
+
+copy_file(
+    name = "jslucid_wasm_file",
+    src = "main_wasm/jslucid.wasm",
+    out = "jslucid.wasm",
+    visibility = ["//visibility:public"],
+)
+
+genrule(
+    name = "jslucid_d_ts_file",
+    srcs = ["main_wasm/jslucid.d.ts"],
+    outs = ["jslucid.d.ts"],
+    cmd = """
+    sed \\
+    -e 's/x_samples: any/x_samples: number\\[\\]\\[\\] | null/g' \\
+    -e 's/xp_samples: any/xp_samples: number\\[\\]\\[\\] | null/g' \\
+    -e 's/f_xp_samples: any/f_xp_samples: number\\[\\]\\[\\] | null/g' \\
+    -e 's/x_lattice: any/x_lattice: number\\[\\]\\[\\]/g' \\
+    -e 's/xp_lattice: any/xp_lattice: number\\[\\]\\[\\]/g' \\
+    -e 's/B_lattice: any/B_lattice: number\\[\\]/g' \\
+    -e 's/Bp_lattice: any/Bp_lattice: number\\[\\]/g' \\
+    -e 's/Bp_lattice_est: any/Bp_lattice_est: number\\[\\]/g' \\
+    -e 's/sigma_l: any/sigma_l: number\\[\\]/g' \\
+    -e 's/feature_sigma_l: any/feature_sigma_l: number\\[\\]/g' \\
+    -e 's/system_dynamics: any/system_dynamics: (m: Float64Array, rows: number, cols: number) => void/g' \\
+    -e 's/set_sink(_0: any): void/set_sink(cb: (msg: string) => void): void/g' \\
+    -e 's/new(_0: any): RectSet;/new(bounds: \\[number, number\\]\\[\\]): RectSet;/g' \\
+    -e 's/new(_0: any, _1: number): SphereSet;/new(center: number\\[\\], radius: number): SphereSet;/g' \\
+    -e 's/new(_0: any, _1: any): EllipseSet;/new(center: number\\[\\], radii: number\\[\\]): EllipseSet;/g' \\
+    -e 's/new(_0: any): MultiSet;/new(sets: Set\\[\\]): MultiSet;/g' \\
+     $(SRCS) > $(OUTS)
+    """,
+    cmd_ps = """
+    Get-Content $(SRCS) | ForEach-Object { $_ -replace 'x_samples: any', 'x_samples: number[][] | null' `
+    -replace 'xp_samples: any', 'xp_samples: number[][] | null' `
+    -replace 'f_xp_samples: any', 'f_xp_samples: number[][] | null' `
+    -replace 'x_lattice: any', 'x_lattice: number[][]' `
+    -replace 'xp_lattice: any', 'xp_lattice: number[][]' `
+    -replace 'B_lattice: any', 'B_lattice: number[]' `
+    -replace 'Bp_lattice: any', 'Bp_lattice: number[]' `
+    -replace 'Bp_lattice_est: any', 'Bp_lattice_est: number[]' `
+    -replace 'sigma_l: any', 'sigma_l: number[]' `
+    -replace 'feature_sigma_l: any', 'feature_sigma_l: number[]' `
+    -replace 'system_dynamics: any', 'system_dynamics: (m: Float64Array, rows: number, cols: number) => void' `
+    -replace 'set_sink(_0: any): void', 'set_sink(cb: (msg: string) => void): void' `
+    -replace 'new(_0: any): RectSet;', 'new(bounds: [number, number][]): RectSet;' `
+    -replace 'new(_0: any, _1: number): SphereSet;', 'new(center: number[], radius: number): SphereSet;' `
+    -replace 'new(_0: any, _1: any): EllipseSet;', 'new(center: number[], radii: number[]): EllipseSet;' `
+    -replace 'new(_0: any): MultiSet;', 'new(sets: Set[]): MultiSet;' } | Set-Content $(OUTS)
+    """,
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "jslucid_wasm",
+    srcs = [
+        ":jslucid_d_ts_file",
+        ":jslucid_js_file",
+        ":jslucid_wasm_file",
     ],
     visibility = ["//visibility:public"],
 )
