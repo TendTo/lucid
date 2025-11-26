@@ -6,7 +6,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 // https://vite.dev/config/
 export default defineConfig({
   define: {
-    __JSLUCID_PATH__: "'../../../bindings/jslucid/main_wasm/jslucid'",
+    __JSLUCID_PATH__: "'../../../bindings/jslucid/jslucid'",
   },
   plugins: [react(), tailwindcss(), tsconfigPaths()],
   server: {
