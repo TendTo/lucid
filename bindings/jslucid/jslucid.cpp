@@ -24,6 +24,18 @@ using namespace lucid;
 
 enum class Solver { Gurobi, Alglib, HiGHS, SOPLEX };
 
+struct PlotPreviewData {
+  emscripten::val x_lattice;
+  emscripten::val xp_lattice;
+};
+
+struct PlotSolutionData {
+  emscripten::val x_lattice;
+  emscripten::val B_lattice;
+  emscripten::val Bp_lattice;
+  emscripten::val Bp_lattice_est;
+};
+
 struct BarrierCertificateResult {
   bool success{false};
   double eta{0.0};
@@ -35,11 +47,43 @@ struct BarrierCertificateResult {
   double b_norm{0.0};
 };
 
-Vector to_eigen(const std::vector<double>& vectors) {
-  return Vector::NullaryExpr(vectors.size(), [&vectors](const Index i) { return vectors[i]; });
+bool is_empty_array(const emscripten::val& array) { return !array.isArray() || array["length"].as<std::size_t>() == 0; }
+
+Matrix to_eigen_matrix(const emscripten::val& js_matrix) {
+  const int rows = js_matrix["length"].as<int>();
+  const int cols = js_matrix[0]["length"].as<int>();
+  Matrix matrix{rows, cols};
+  for (int row = 0; row < rows; ++row) {
+    for (int col = 0; col < cols; ++col) {
+      matrix(row, col) = js_matrix[row][col].as<double>();
+    }
+  }
+  return matrix;
 }
 
-Vector to_eigen(const emscripten::val& vector) {
+template <class Derived>
+emscripten::val to_array_matrix(const Eigen::MatrixBase<Derived>& matrix) {
+  emscripten::val js_matrix = emscripten::val::array();
+  for (Index row = 0; row < matrix.rows(); ++row) {
+    emscripten::val js_row = emscripten::val::array();
+    for (Index col = 0; col < matrix.cols(); ++col) {
+      js_row.call<void>("push", matrix(row, col));
+    }
+    js_matrix.call<void>("push", js_row);
+  }
+  return js_matrix;
+}
+
+template <class Derived>
+emscripten::val to_array_vector(const Eigen::MatrixBase<Derived>& vector) {
+  emscripten::val js_vector = emscripten::val::array();
+  for (Index i = 0; i < vector.size(); ++i) {
+    js_vector.call<void>("push", vector(i));
+  }
+  return js_vector;
+}
+
+Vector to_eigen_vector(const emscripten::val& vector) {
   return Vector::NullaryExpr(vector["length"].as<std::size_t>(),
                              [&vector](const Index i) { return vector[i].as<double>(); });
 }
@@ -65,37 +109,27 @@ class JsRectSet final : public JsSet {
 
 class JsSphereSet final : public JsSet {
  public:
-  explicit JsSphereSet(const emscripten::val& center, const double radius)
-      : center_(center["length"].as<std::size_t>()), radius_{radius} {
-    for (std::size_t i = 0; i < center_.size(); ++i) {
-      center_[i] = center[i].as<double>();
-    }
+  explicit JsSphereSet(const emscripten::val& center, const double radius) : center_(center), radius_{radius} {}
+  std::unique_ptr<Set> to_set() const override {
+    return std::make_unique<SphereSet>(to_eigen_vector(center_), radius_);
   }
-  std::unique_ptr<Set> to_set() const override { return std::make_unique<SphereSet>(to_eigen(center_), radius_); }
 
  private:
-  std::vector<double> center_;
+  emscripten::val center_;
   double radius_;
 };
 
 class JsEllipseSet final : public JsSet {
  public:
   JsEllipseSet(const emscripten::val& center, const emscripten::val& semi_axes)
-      : center_(center["length"].as<std::size_t>()), semi_axes_(semi_axes["length"].as<std::size_t>()) {
-    for (std::size_t i = 0; i < center_.size(); ++i) {
-      center_[i] = center[i].as<double>();
-    }
-    for (std::size_t i = 0; i < semi_axes_.size(); ++i) {
-      semi_axes_[i] = semi_axes[i].as<double>();
-    }
-  }
+      : center_(center), semi_axes_(semi_axes) {}
   std::unique_ptr<Set> to_set() const override {
-    return std::make_unique<EllipseSet>(to_eigen(center_), to_eigen(semi_axes_));
+    return std::make_unique<EllipseSet>(to_eigen_vector(center_), to_eigen_vector(semi_axes_));
   }
 
  private:
-  std::vector<double> center_;
-  std::vector<double> semi_axes_;
+  emscripten::val center_;
+  emscripten::val semi_axes_;
 };
 
 class JsMultiSet final : public JsSet {
@@ -121,42 +155,7 @@ class JsMultiSet final : public JsSet {
   std::vector<std::shared_ptr<JsSet>> sets_;
 };
 
-class JsMatrix {
- public:
-  static std::shared_ptr<JsMatrix> empty() { return std::make_shared<JsMatrix>(0, 0); }
-  explicit JsMatrix(const emscripten::val& matrix)
-      : matrix_{matrix["length"].as<int>(), matrix[0]["length"].as<int>()} {
-    set_matrix(matrix);
-  }
-  JsMatrix(const int rows, const int cols) : matrix_{rows, cols} {}
-
-  void set_coeff(const int row, const int col, const double value) { matrix_(row, col) = value; }
-  void set_row(const int row, const emscripten::val& values) {
-    for (int col = 0; col < matrix_.cols(); ++col) {
-      matrix_(row, col) = values[col].as<double>();
-    }
-  }
-  void set_col(const int col, const emscripten::val& values) {
-    for (int row = 0; row < matrix_.rows(); ++row) {
-      matrix_(row, col) = values[row].as<double>();
-    }
-  }
-  void set_matrix(const emscripten::val& matrix) {
-    for (int row = 0; row < matrix_.rows(); ++row) {
-      for (int col = 0; col < matrix_.cols(); ++col) {
-        matrix_(row, col) = matrix[row][col].as<double>();
-      }
-    }
-  }
-  double get_coeff(const int row, const int col) const { return matrix_(row, col); }
-
-  const Matrix& matrix() const { return matrix_; }
-
- private:
-  Matrix matrix_;
-};
-
-struct CliArgs {
+struct Configuration {
   int verbose{LUCID_LOG_INFO_LEVEL};
   int seed{-1};
   bool plot{false};
@@ -167,9 +166,9 @@ struct CliArgs {
   std::shared_ptr<JsSet> X_bounds;
   std::shared_ptr<JsSet> X_init;
   std::shared_ptr<JsSet> X_unsafe;
-  std::shared_ptr<JsMatrix> x_samples{};
-  std::shared_ptr<JsMatrix> xp_samples{};
-  std::shared_ptr<JsMatrix> f_xp_samples{};
+  emscripten::val x_samples;
+  emscripten::val xp_samples;
+  emscripten::val f_xp_samples;
   int num_samples{1000};
   double noise_scale{0.01};
   double lambda{1e-6};
@@ -189,71 +188,113 @@ struct CliArgs {
   Solver solver{Solver::Gurobi};
 };
 
-std::unique_ptr<Optimiser> get_optimiser(const Solver solver, const CliArgs& args) {
+std::unique_ptr<Optimiser> get_optimiser(const Solver solver, const Configuration& conf) {
   switch (solver) {
 #ifdef LUCID_GUROBI_BUILD
     case Solver::Gurobi:
-      return std::make_unique<GurobiOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<GurobiOptimiser>(conf.problem_log_file, conf.iis_log_file);
 #endif
 #ifdef LUCID_ALGLIB_BUILD
     case Solver::Alglib:
-      return std::make_unique<AlglibOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<AlglibOptimiser>(conf.problem_log_file, conf.iis_log_file);
 #endif
 #ifdef LUCID_HIGHS_BUILD
     case Solver::HiGHS:
-      return std::make_unique<HighsOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<HighsOptimiser>(conf.problem_log_file, conf.iis_log_file);
 #endif
 #ifdef LUCID_SOPLEX_BUILD
     case Solver::SOPLEX:
-      return std::make_unique<SoplexOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<SoplexOptimiser>(conf.problem_log_file, conf.iis_log_file);
 #endif
     default:
       throw std::invalid_argument("Solver not supported or not built");
   }
 }
 
-BarrierCertificateResult pipeline(const CliArgs& args) {
-  // log::set_verbosity_level(args.verbose);
-  random::seed(args.seed);
+std::function<Matrix(const Matrix&)> get_f_det(const Configuration& conf) {
+  return [&conf](const Matrix& x) -> Matrix {
+    Matrix y{x};
+    emscripten::val view = emscripten::val(emscripten::typed_memory_view(y.size(), y.data()));
+    conf.system_dynamics(view, y.rows(), y.cols());
+    return y;
+  };
+}
 
-  const std::unique_ptr<Set> X_bounds_ptr{args.X_bounds->to_set()};
+std::function<Matrix(const Matrix&)> get_f(const std::function<Matrix(const Matrix&)>& f_det,
+                                           const Configuration& conf) {
+  return [&f_det, &conf](const Matrix& x) -> Matrix {
+    std::normal_distribution d{0.0, conf.noise_scale};
+    Matrix y{f_det(x)};
+    return y + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
+  };
+}
+
+PlotPreviewData plot_preview(const Configuration& conf) {
+  const std::unique_ptr<Set> X_bounds_ptr{conf.X_bounds->to_set()};
   const RectSet* const X_bounds = dynamic_cast<const RectSet*>(X_bounds_ptr.get());
-  const std::unique_ptr<Set> X_init{args.X_init->to_set()};
-  const std::unique_ptr<Set> X_unsafe{args.X_unsafe->to_set()};
+  const auto f_det = get_f_det(conf);
+
+  const Matrix lattice = X_bounds->lattice(conf.num_samples, true);
+  const Matrix xp_lattice = !conf.system_dynamics.isUndefined() ? f_det(lattice) : Matrix{};
+
+  return {
+      .x_lattice = to_array_matrix(lattice),
+      .xp_lattice = to_array_matrix(xp_lattice),
+  };
+}
+
+PlotSolutionData plot_solution(const Set& X_bounds, const std::function<Matrix(const Matrix&)>& f_det,
+                               const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
+                               const FourierBarrierCertificate& barrier, const Configuration& conf) {
+  const Matrix lattice = X_bounds.lattice(25, true);
+  const Matrix f_lattice = feature_map(lattice);
+  const Matrix fp_lattice = !conf.system_dynamics.isUndefined() ? feature_map(f_det(lattice)) : Matrix{};
+  const Matrix fp_lattice_est = estimator(lattice);
+
+  return {
+      .x_lattice = to_array_matrix(lattice),
+      .B_lattice = to_array_vector(f_lattice * barrier.coefficients().transpose()),
+      .Bp_lattice = fp_lattice.rows() > 0 ? to_array_vector(fp_lattice * barrier.coefficients().transpose())
+                                          : emscripten::val::array(),
+      .Bp_lattice_est = to_array_vector(fp_lattice_est * barrier.coefficients().transpose()),
+  };
+}
+
+std::pair<BarrierCertificateResult, PlotSolutionData> pipeline(const Configuration& conf) {
+  // log::set_verbosity_level(conf.verbose);
+  random::seed(conf.seed);
+
+  const std::unique_ptr<Set> X_bounds_ptr{conf.X_bounds->to_set()};
+  const RectSet* const X_bounds = dynamic_cast<const RectSet*>(X_bounds_ptr.get());
+  const std::unique_ptr<Set> X_init{conf.X_init->to_set()};
+  const std::unique_ptr<Set> X_unsafe{conf.X_unsafe->to_set()};
 
   LUCID_DEBUG_FMT("X_bounds: {}", *X_bounds);
   LUCID_DEBUG_FMT("X_init: {}", *X_init);
   LUCID_DEBUG_FMT("X_unsafe: {}", *X_unsafe);
 
-  const Matrix x_samples = args.x_samples ? args.x_samples->matrix() : X_bounds->sample(args.num_samples);
+  const Matrix x_samples =
+      is_empty_array(conf.x_samples) ? X_bounds->sample(conf.num_samples) : to_eigen_matrix(conf.x_samples);
   LUCID_DEBUG_FMT("x_samples: {}", LUCID_FORMAT_MATRIX(x_samples));
 
-  auto f_det = [&args](const Matrix& x) -> Matrix {
-    Matrix y{x};
-    emscripten::val view = emscripten::val(emscripten::typed_memory_view(y.size(), y.data()));
-    args.system_dynamics(view, y.rows(), y.cols());
-    return y;
-  };
-  std::normal_distribution d{0.0, args.noise_scale};
-  auto f = [&f_det, &d](const Matrix& x) -> Matrix {
-    Matrix y{f_det(x)};
-    return y + Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
-  };
+  const auto f_det = get_f_det(conf);
+  const auto f = get_f(f_det, conf);
 
-  const Matrix xp_samples = args.xp_samples ? args.xp_samples->matrix() : f(x_samples);
+  const Matrix xp_samples = is_empty_array(conf.xp_samples) ? f(x_samples) : to_eigen_matrix(conf.xp_samples);
   LUCID_DEBUG_FMT("xp_samples: {}", LUCID_FORMAT_MATRIX(xp_samples));
 
-  Vector sigma_l{to_eigen(args.sigma_l)};
-  Vector feature_sigma_l{to_eigen(args.feature_sigma_l)};
-  KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(sigma_l, args.sigma_f), args.lambda};
-  LinearTruncatedFourierFeatureMap feature_map{args.num_frequencies, feature_sigma_l, args.sigma_f, *X_bounds};
+  Vector sigma_l{to_eigen_vector(conf.sigma_l)};
+  Vector feature_sigma_l{to_eigen_vector(conf.feature_sigma_l)};
+  KernelRidgeRegressor estimator{std::make_unique<GaussianKernel>(sigma_l, conf.sigma_f), conf.lambda};
+  LinearTruncatedFourierFeatureMap feature_map{conf.num_frequencies, feature_sigma_l, conf.sigma_f, *X_bounds};
 
-  const Matrix f_xp_samples = args.f_xp_samples ? args.f_xp_samples->matrix() : feature_map(xp_samples);
+  const Matrix f_xp_samples =
+      is_empty_array(conf.f_xp_samples) ? feature_map(xp_samples) : to_eigen_matrix(conf.f_xp_samples);
   LUCID_DEBUG_FMT("f_xp_samples: {}", LUCID_FORMAT_MATRIX(f_xp_samples));
 
   const int lattice_resolution =
-      args.lattice_resolution < 0 ? static_cast<int>(std::ceil((2 * args.num_frequencies + 1) * args.oversample_factor))
-                                  : args.lattice_resolution;
+      conf.lattice_resolution < 0 ? static_cast<int>(std::ceil((2 * conf.num_frequencies + 1) * conf.oversample_factor))
+                                  : conf.lattice_resolution;
   LUCID_DEBUG_FMT("Number of samples per dimension: {}", lattice_resolution);
 
   estimator.fit(x_samples, feature_map(f(x_samples)));
@@ -261,34 +302,31 @@ BarrierCertificateResult pipeline(const CliArgs& args) {
 
   LUCID_DEBUG_FMT("Feature map: {}", feature_map);
 
-  FourierBarrierCertificate barrier{args.time_horizon, args.gamma};
-  barrier.synthesize(*get_optimiser(args.solver, args), lattice_resolution,  //
-                     estimator,
-                     //  ModelEstimator{[&f_det, &feature_map](const Matrix& x) { return feature_map(f_det(x)); }},
+  FourierBarrierCertificate barrier{conf.time_horizon, conf.gamma};
+  barrier.synthesize(*get_optimiser(conf.solver, conf), lattice_resolution,  //
+                                                                             // estimator,
+                     ModelEstimator{[&f_det, &feature_map](const Matrix& x) { return feature_map(f_det(x)); }},
                      feature_map, *X_bounds, *X_init, *X_unsafe,
                      FourierBarrierCertificateParameters{
-                         .set_scaling = args.set_scaling,
-                         .C_coeff = args.C_coeff,
-                         .epsilon = args.epsilon,
-                         .b_norm = args.b_norm,
-                         .kappa = args.b_kappa,
+                         .set_scaling = conf.set_scaling,
+                         .C_coeff = conf.C_coeff,
+                         .epsilon = conf.epsilon,
+                         .b_norm = conf.b_norm,
+                         .kappa = conf.b_kappa,
                      });
-  LUCID_INFO_FMT("End of operation: {}", barrier);
-  return {
-      .success = barrier.is_synthesized(),
-      .eta = barrier.eta(),
-      .gamma = barrier.gamma(),
-      .T = barrier.T(),
-      .c = barrier.c(),
-      .safety = barrier.safety(),
-      .coefficients = std::vector<double>{barrier.coefficients().data(),
-                                          barrier.coefficients().data() + barrier.coefficients().size()},
-      .b_norm = barrier.norm(),
-  };
-}
-
-double vector_norm(const std::vector<double>& v) {
-  return Eigen::Map<const Eigen::ArrayXd>{v.data(), static_cast<long int>(v.size())}.matrix().norm();
+  LUCID_INFO_FMT("Result: {}", barrier);
+  return {{
+              .success = barrier.is_synthesized(),
+              .eta = barrier.eta(),
+              .gamma = barrier.gamma(),
+              .T = barrier.T(),
+              .c = barrier.c(),
+              .safety = barrier.safety(),
+              .coefficients = std::vector<double>{barrier.coefficients().data(),
+                                                  barrier.coefficients().data() + barrier.coefficients().size()},
+              .b_norm = barrier.norm(),
+          },
+          plot_solution(*X_bounds, f_det, estimator, feature_map, barrier, conf)};
 }
 
 class Log {
@@ -312,6 +350,9 @@ EMSCRIPTEN_BINDINGS(jslucid) {
   value_array<std::pair<double, double>>("PairDouble")
       .element(&std::pair<double, double>::first)
       .element(&std::pair<double, double>::second);
+  value_array<std::pair<BarrierCertificateResult, PlotSolutionData>>("PairResult")
+      .element(&std::pair<BarrierCertificateResult, PlotSolutionData>::first)
+      .element(&std::pair<BarrierCertificateResult, PlotSolutionData>::second);
 
   constant("name", std::string{LUCID_PROGRAM_NAME});
 #ifdef LUCID_DESCRIPTION
@@ -360,15 +401,6 @@ EMSCRIPTEN_BINDINGS(jslucid) {
 
   class_<Random>("random").class_function("seed", &lucid::random::seed);
 
-  class_<JsMatrix>("Matrix")
-      .smart_ptr_constructor<std::shared_ptr<JsMatrix>>("Matrix", &std::make_shared<JsMatrix, const emscripten::val&>)
-      .class_function("empty", &JsMatrix::empty)
-      .function("set_coeff", &JsMatrix::set_coeff)
-      .function("set_row", &JsMatrix::set_row)
-      .function("set_col", &JsMatrix::set_col)
-      .function("set_matrix", &JsMatrix::set_matrix)
-      .function("get_coeff", &JsMatrix::get_coeff);
-
   class_<JsSet>("Set").smart_ptr<std::shared_ptr<JsSet>>("Set");
   class_<JsRectSet, base<JsSet>>("RectSet").smart_ptr_constructor<std::shared_ptr<JsRectSet>, const emscripten::val&>(
       "RectSet", &std::make_shared<JsRectSet>);
@@ -388,6 +420,16 @@ EMSCRIPTEN_BINDINGS(jslucid) {
       .value("HiGHS", Solver::HiGHS)
       .value("SOPLEX", Solver::SOPLEX);
 
+  value_object<PlotPreviewData>("PlotPreviewData")
+      .field("x_lattice", &PlotPreviewData::x_lattice)
+      .field("xp_lattice", &PlotPreviewData::xp_lattice);
+
+  value_object<PlotSolutionData>("PlotSolutionData")
+      .field("x_lattice", &PlotSolutionData::x_lattice)
+      .field("B_lattice", &PlotSolutionData::B_lattice)
+      .field("Bp_lattice", &PlotSolutionData::Bp_lattice)
+      .field("Bp_lattice_est", &PlotSolutionData::Bp_lattice_est);
+
   value_object<BarrierCertificateResult>("BarrierCertificateResult")
       .field("success", &BarrierCertificateResult::success)
       .field("eta", &BarrierCertificateResult::eta)
@@ -398,37 +440,38 @@ EMSCRIPTEN_BINDINGS(jslucid) {
       .field("coefficients", &BarrierCertificateResult::coefficients)
       .field("b_norm", &BarrierCertificateResult::b_norm);
 
-  value_object<CliArgs>("CliArgs")
-      .field("verbose", &CliArgs::verbose)
-      .field("seed", &CliArgs::seed)
-      .field("plot", &CliArgs::plot)
-      .field("verify", &CliArgs::verify)
-      .field("problem_log_file", &CliArgs::problem_log_file)
-      .field("iis_log_file", &CliArgs::iis_log_file)
-      .field("system_dynamics", &CliArgs::system_dynamics)
-      .field("X_bounds", &CliArgs::X_bounds)
-      .field("X_init", &CliArgs::X_init)
-      .field("X_unsafe", &CliArgs::X_unsafe)
-      .field("x_samples", &CliArgs::x_samples)
-      .field("xp_samples", &CliArgs::xp_samples)
-      .field("f_xp_samples", &CliArgs::f_xp_samples)
-      .field("num_samples", &CliArgs::num_samples)
-      .field("noise_scale", &CliArgs::noise_scale)
-      .field("lambda", &CliArgs::lambda)
-      .field("sigma_f", &CliArgs::sigma_f)
-      .field("sigma_l", &CliArgs::sigma_l)
-      .field("feature_sigma_l", &CliArgs::feature_sigma_l)
-      .field("num_frequencies", &CliArgs::num_frequencies)
-      .field("oversample_factor", &CliArgs::oversample_factor)
-      .field("lattice_resolution", &CliArgs::lattice_resolution)
-      .field("gamma", &CliArgs::gamma)
-      .field("C_coeff", &CliArgs::C_coeff)
-      .field("time_horizon", &CliArgs::time_horizon)
-      .field("epsilon", &CliArgs::epsilon)
-      .field("b_norm", &CliArgs::b_norm)
-      .field("b_kappa", &CliArgs::b_kappa)
-      .field("set_scaling", &CliArgs::set_scaling)
-      .field("solver", &CliArgs::solver);
+  value_object<Configuration>("Configuration")
+      .field("verbose", &Configuration::verbose)
+      .field("seed", &Configuration::seed)
+      .field("plot", &Configuration::plot)
+      .field("verify", &Configuration::verify)
+      .field("problem_log_file", &Configuration::problem_log_file)
+      .field("iis_log_file", &Configuration::iis_log_file)
+      .field("system_dynamics", &Configuration::system_dynamics)
+      .field("X_bounds", &Configuration::X_bounds)
+      .field("X_init", &Configuration::X_init)
+      .field("X_unsafe", &Configuration::X_unsafe)
+      .field("x_samples", &Configuration::x_samples)
+      .field("xp_samples", &Configuration::xp_samples)
+      .field("f_xp_samples", &Configuration::f_xp_samples)
+      .field("num_samples", &Configuration::num_samples)
+      .field("noise_scale", &Configuration::noise_scale)
+      .field("lambda", &Configuration::lambda)
+      .field("sigma_f", &Configuration::sigma_f)
+      .field("sigma_l", &Configuration::sigma_l)
+      .field("feature_sigma_l", &Configuration::feature_sigma_l)
+      .field("num_frequencies", &Configuration::num_frequencies)
+      .field("oversample_factor", &Configuration::oversample_factor)
+      .field("lattice_resolution", &Configuration::lattice_resolution)
+      .field("gamma", &Configuration::gamma)
+      .field("C_coeff", &Configuration::C_coeff)
+      .field("time_horizon", &Configuration::time_horizon)
+      .field("epsilon", &Configuration::epsilon)
+      .field("b_norm", &Configuration::b_norm)
+      .field("b_kappa", &Configuration::b_kappa)
+      .field("set_scaling", &Configuration::set_scaling)
+      .field("solver", &Configuration::solver);
 
+  function("plot_preview", &plot_preview);
   function("pipeline", &pipeline);
 }
