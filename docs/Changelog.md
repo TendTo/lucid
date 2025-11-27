@@ -12,8 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Contour for gamma and eta planes when plotting the 2D barrier function
 - MACRO documentation
 - Windows support for HiGHS
-- Support for `epsilon`, `b_kappa` and `b_norm` parameters in the configuration
+- Support for `epsilon`, `b_kappa`, `b_norm`, `feature_sigma_l` and `set_scaling` parameters in the configuration
+- Improved problem formulation
 - Monte Carlo sampling to use as a baseline
+- Online demo running in the Browser using WebAssembly
 
 ### Changed
 

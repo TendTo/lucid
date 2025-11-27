@@ -303,9 +303,7 @@ std::pair<BarrierCertificateResult, PlotSolutionData> pipeline(const Configurati
 
   FourierBarrierCertificate barrier{conf.time_horizon, conf.gamma};
   barrier.synthesize(*get_optimiser(conf.solver, conf), lattice_resolution,  //
-                                                                             // estimator,
-                     ModelEstimator{[&f_det, &feature_map](const Matrix& x) { return feature_map(f_det(x)); }},
-                     feature_map, *X_bounds, *X_init, *X_unsafe,
+                     estimator, feature_map, *X_bounds, *X_init, *X_unsafe,
                      FourierBarrierCertificateParameters{
                          .set_scaling = conf.set_scaling,
                          .C_coeff = conf.C_coeff,

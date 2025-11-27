@@ -7,6 +7,10 @@ _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical System
 [![Docker CI](https://github.com/TendTo/lucid/actions/workflows/docker.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docker.yml)
 [![Docs CI](https://github.com/TendTo/lucid/actions/workflows/docs.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docs.yml)
 
+> [!TIP]  
+> Try out the [online demo](https://tendto.github.io/lucid/demo//)!
+> Note that the memory in the browser is limited, so only small problems can be solved.
+
 > [!WARNING]  
 > This project is under active development.
 > Features and APIs may change without prior notice.
