@@ -25,7 +25,7 @@ std::uniform_real_distribution<> uniform(0.0, 1.0);
 std::normal_distribution<> normal(0.0, 1.0);
 }  // namespace
 
-EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef radii) : center_{center}, semi_axes_{radii} {
+EllipseSet::EllipseSet(ConstVectorRef center, ConstVectorRef radii) : center_{center}, radii_{radii} {
   LUCID_CHECK_ARGUMENT_CMP(center.size(), >, 0);
   LUCID_CHECK_ARGUMENT_EQ(center.size(), radii.size());
   LUCID_CHECK_ARGUMENT_CMP(radii.minCoeff(), >, 0);
@@ -41,18 +41,18 @@ Matrix EllipseSet::sample(const Index num_samples) const {
       Matrix::NullaryExpr(num_samples, dimension(), [](const Index, const Index) { return uniform(random::gen); })
           .array()
           .pow(1.0 / dimension())};
-  return ((r * semi_axes_.asDiagonal()).cwiseProduct(u).array().colwise() / norm.transpose().array()).rowwise() +
+  return ((r * radii_.asDiagonal()).cwiseProduct(u).array().colwise() / norm.transpose().array()).rowwise() +
          center_.array();
 }
 
 bool EllipseSet::operator()(ConstVectorRef x) const {
   LUCID_CHECK_ARGUMENT_EQ(x.size(), center_.size());
-  return (x - center_).cwiseQuotient(semi_axes_).squaredNorm() <= 1.0 + std::numeric_limits<Scalar>::epsilon();
+  return (x - center_).cwiseQuotient(radii_).squaredNorm() <= 1.0 + std::numeric_limits<Scalar>::epsilon();
 }
 
 Matrix EllipseSet::lattice(const VectorI& points_per_dim, const bool endpoint) const {
   // Generate a lattice by creating a bounding box and filtering points
-  const RectSet rect_set{center_ - semi_axes_, center_ + semi_axes_};
+  const RectSet rect_set{center_ - radii_, center_ + radii_};
   const Matrix lattice{rect_set.lattice(points_per_dim, endpoint)};
 
   std::vector<Index> mask_rows;
@@ -64,25 +64,25 @@ Matrix EllipseSet::lattice(const VectorI& points_per_dim, const bool endpoint) c
   return lattice(mask_rows, Eigen::placeholders::all);
 }
 
-Vector EllipseSet::general_lower_bound() const { return center_ - semi_axes_; }
-Vector EllipseSet::general_upper_bound() const { return center_ + semi_axes_; }
+Vector EllipseSet::general_lower_bound() const { return center_ - radii_; }
+Vector EllipseSet::general_upper_bound() const { return center_ + radii_; }
 
 void EllipseSet::change_size(ConstVectorRef delta_size) {
   LUCID_TRACE_FMT("({})", LUCID_FORMAT_MATRIX(delta_size));
   LUCID_CHECK_ARGUMENT_EQ(delta_size.size(), dimension());
   // Update each radius by half of the delta (since delta affects diameter)
-  const Vector new_semi_axes = semi_axes_ + delta_size / 2.0;
-  LUCID_CHECK_ARGUMENT_CMP(new_semi_axes.minCoeff(), >, 0);
-  semi_axes_ = new_semi_axes;
+  const Vector new_radii = radii_ + delta_size / 2.0;
+  LUCID_CHECK_ARGUMENT_CMP(new_radii.minCoeff(), >, 0);
+  radii_ = new_radii;
   LUCID_TRACE_FMT("=> {}", *this);
 }
 
 std::unique_ptr<Set> EllipseSet::to_rect_set() const {
-  return std::make_unique<RectSet>(center_ - semi_axes_, center_ + semi_axes_);
+  return std::make_unique<RectSet>(center_ - radii_, center_ + radii_);
 }
 
 bool EllipseSet::operator==(const EllipseSet& other) const {
-  return dimension() == other.dimension() && center_ == other.center_ && semi_axes_ == other.semi_axes_;
+  return dimension() == other.dimension() && center_ == other.center_ && radii_ == other.radii_;
 }
 
 bool EllipseSet::operator==(const Set& other) const {
@@ -92,12 +92,12 @@ bool EllipseSet::operator==(const Set& other) const {
 }
 
 std::string EllipseSet::to_string() const {
-  return fmt::format("EllipseSet( center( [{}] ) radii( [{}] ) )", center_, semi_axes_);
+  return fmt::format("EllipseSet( center( [{}] ) radii( [{}] ) )", center_, radii_);
 }
 
 std::unique_ptr<Set> EllipseSet::clone() const { return std::make_unique<EllipseSet>(*this); }
 
-void EllipseSet::increase_size_impl(ConstVectorRef size_increase) { semi_axes_ += size_increase / 2.0; }
+void EllipseSet::increase_size_impl(ConstVectorRef size_increase) { radii_ += size_increase / 2.0; }
 
 EllipseSet& EllipseSet::operator+=(ConstVectorRef offset) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), offset.size());
@@ -112,13 +112,13 @@ EllipseSet& EllipseSet::operator-=(ConstVectorRef offset) {
 EllipseSet& EllipseSet::operator*=(ConstVectorRef scale) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
   LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
-  semi_axes_.array() *= scale.array();
+  radii_.array() *= scale.array();
   return *this;
 }
 EllipseSet& EllipseSet::operator/=(ConstVectorRef scale) {
   LUCID_CHECK_ARGUMENT_EQ(dimension(), scale.size());
   LUCID_CHECK_ARGUMENT_CMP(scale.minCoeff(), >, 0);
-  semi_axes_.array() /= scale.array();
+  radii_.array() /= scale.array();
   return *this;
 }
 

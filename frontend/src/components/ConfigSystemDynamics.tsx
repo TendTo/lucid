@@ -52,12 +52,12 @@ function setDimension(
             newCenter.length = value;
             newCenter.fill(1.0, prevSet.center.length);
             setValue(`${setName}.${i}.EllipseSet.center`, newCenter);
-            const newSemiAxis = [
+            const newRadii = [
               ...prevSet.radii,
             ] as EllipseSet["EllipseSet"]["radii"];
-            newSemiAxis.length = value;
-            newSemiAxis.fill(1.0, prevSet.radii.length);
-            setValue(`${setName}.${i}.EllipseSet.radii`, newSemiAxis);
+            newRadii.length = value;
+            newRadii.fill(1.0, prevSet.radii.length);
+            setValue(`${setName}.${i}.EllipseSet.radii`, newRadii);
           } else {
             console.warn(`Unknown set type: ${key}`);
             return;

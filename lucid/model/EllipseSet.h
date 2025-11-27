@@ -58,7 +58,7 @@ class EllipseSet final : public Set {
   /** @getter{center, ellipsoid set} */
   [[nodiscard]] const Vector& center() const { return center_; }
   /** @getter{radii, ellipsoid set} */
-  [[nodiscard]] const Vector& radii() const { return semi_axes_; }
+  [[nodiscard]] const Vector& radii() const { return radii_; }
 
   [[nodiscard]] Vector general_lower_bound() const override;
   [[nodiscard]] Vector general_upper_bound() const override;
@@ -72,8 +72,8 @@ class EllipseSet final : public Set {
   [[nodiscard]] std::unique_ptr<Set> clone() const override;
   void increase_size_impl(ConstVectorRef size_increase) override;
 
-  Vector center_;     ///< Center of the ellipsoid. Determines the dimension of the ellipsoid set
-  Vector semi_axes_;  ///< Semi-axes for each dimension
+  Vector center_;  ///< Center of the ellipsoid. Determines the dimension of the ellipsoid set
+  Vector radii_;   ///< Radii for each dimension
 };
 
 std::ostream& operator<<(std::ostream& os, const EllipseSet& set);

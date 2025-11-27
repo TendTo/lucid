@@ -14,7 +14,7 @@ export default function EllipseSet({ name, idx }: EllipseSetProps) {
     control,
     name: `${name}.${idx}.EllipseSet.center`,
   });
-  const { fields: semiAxisFields } = useFieldArray({
+  const { fields: radiiFields } = useFieldArray({
     control,
     name: `${name}.${idx}.EllipseSet.radii`,
   });
@@ -70,7 +70,7 @@ export default function EllipseSet({ name, idx }: EllipseSetProps) {
       </div>
       <span className="font-semibold">Radii</span>
       <div className="flex items-center gap-2 p-1 border border-blue-300 rounded border-dashed">
-        {semiAxisFields.map((field, index) => (
+        {radiiFields.map((field, index) => (
           <div className="my-2" key={field.id}>
             <Input
               onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => {

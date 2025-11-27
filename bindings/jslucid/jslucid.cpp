@@ -121,15 +121,14 @@ class JsSphereSet final : public JsSet {
 
 class JsEllipseSet final : public JsSet {
  public:
-  JsEllipseSet(const emscripten::val& center, const emscripten::val& semi_axes)
-      : center_(center), semi_axes_(semi_axes) {}
+  JsEllipseSet(const emscripten::val& center, const emscripten::val& radii) : center_(center), radii_(radii) {}
   std::unique_ptr<Set> to_set() const override {
-    return std::make_unique<EllipseSet>(to_eigen_vector(center_), to_eigen_vector(semi_axes_));
+    return std::make_unique<EllipseSet>(to_eigen_vector(center_), to_eigen_vector(radii_));
   }
 
  private:
   emscripten::val center_;
-  emscripten::val semi_axes_;
+  emscripten::val radii_;
 };
 
 class JsMultiSet final : public JsSet {

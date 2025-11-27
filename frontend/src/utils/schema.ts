@@ -43,7 +43,7 @@ const ellipseSet = z.object({
     radii: z
       .array(z.number())
       .nonempty()
-      .describe("Semi-axis lengths of the ellipse."),
+      .describe("Radii lengths of the ellipse."),
   }),
 });
 
