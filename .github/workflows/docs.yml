@@ -27,6 +27,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - uses: ./.github/actions/bazel-cache
 
       - name: Install Doxygen
         run: sudo apt-get install graphviz -y
@@ -34,10 +35,18 @@ jobs:
       - name: Generate Doxygen Documentation
         run: bazel build //docs
 
+      - name: Generate demo
+        run: |
+          bazel build //frontend --config=js
+          chmod +w bazel-out/k8-opt/bin/frontend/dist/assets/
+          cp bazel-out/k8-opt/bin/bindings/jslucid/main_wasm/* bazel-out/k8-opt/bin/frontend/dist/assets/
+
       - name: Create .nojekyll (ensures pages with underscores work on gh pages)
         run: |
-          chmod +w bazel-bin/docs/html/
-          touch bazel-bin/docs/html/.nojekyll
+          chmod +w bazel-out/k8-fastbuild/bin/docs/html/
+          mkdir -p bazel-out/k8-fastbuild/bin/docs/html/demo
+          cp -r bazel-out/k8-opt/bin/frontend/dist/* bazel-out/k8-fastbuild/bin/docs/html/demo/
+          touch bazel-out/k8-fastbuild/bin/docs/html/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -45,7 +54,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "bazel-bin/docs/html"
+          path: "bazel-out/k8-fastbuild/bin/docs/html"
 
       - name: Deploy to GitHub Pages
         id: deployment
