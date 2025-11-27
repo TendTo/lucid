@@ -130,7 +130,7 @@ const Barrier2: Partial<Configuration> = {
   sigma_l: [2.50304, 3.77779],
   system_dynamics: [
     "x1 + 0.1 * (x2 - 1 + exp(-x1))",
-    "x2 + 0.1 * (-sin(x1)**2)",
+    "x2 + 0.1 * (-(sin(x1)^2))",
   ],
   time_horizon: 5,
   verbose: 3,
@@ -141,7 +141,7 @@ const Barrier3: Partial<Configuration> = {
   verbose: 3,
   seed: 42,
   dimension: 2,
-  system_dynamics: ["x1 + 0.1 * x2", "x2 + 0.1 * (-x1 - x2 + 1 / 3 * x1 ** 3)"],
+  system_dynamics: ["x1 + 0.1 * x2", "x2 + 0.1 * (-x1 - x2 + 1 / 3 * x1 ^ 3)"],
   x_samples: [],
   xp_samples: [],
   X_bounds: [
