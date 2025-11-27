@@ -19,7 +19,7 @@ import InputSection from "./InputSection";
 import { capableConfiguration } from "@/utils/utils";
 import { useCapabilities } from "@/hooks/useCapabilities";
 import { useSuccessData } from "@/hooks/useSuccessData";
-import { runJslucid } from "@/utils/jslucid";
+import { generatePreviewFigure, runJslucid } from "@/utils/jslucid";
 
 const initialFormSteps = {
   system: {
@@ -109,14 +109,18 @@ export default function App() {
       if (import.meta.env.VITE_JS_BUILD) {
         try {
           const tick = Date.now();
-          const { success, safety, eta, c, b_norm } = await runJslucid(
-            data,
-            (msg: string) => {
-              console.warn("Jslucid log:", msg);
-              setLogs((prevLogs) => [...prevLogs, parseLogEntry(msg)]);
-            }
-          );
-          // if (data.fig !== undefined) updateFigure(data.fig);
+          const {
+            success,
+            safety,
+            eta,
+            c,
+            b_norm,
+            fig = undefined,
+          } = await runJslucid(data, (msg: string) => {
+            console.warn("Jslucid log:", msg);
+            setLogs((prevLogs) => [...prevLogs, parseLogEntry(msg)]);
+          });
+          if (fig !== undefined) updateFigure(fig);
           if (success !== undefined) updateField("success", success);
           if (safety !== undefined) updateField("obj_val", 1 - safety);
           if (eta !== undefined) updateField("eta", eta);
@@ -242,6 +246,24 @@ export default function App() {
     }
     resetOutput();
     setPreviewLoading(true);
+
+    if (import.meta.env.VITE_JS_BUILD) {
+      try {
+        const fig = await generatePreviewFigure(
+          methods.getValues() as Configuration
+        );
+        updateFigure(fig);
+      } catch (error) {
+        console.error("Jslucid preview generation failed:", error);
+        setPreviewError(
+          "Jslucid preview generation failed: " + (error as Error).message
+        );
+      } finally {
+        setPreviewLoading(false);
+      }
+      return;
+    }
+
     const response = await fetch("/api/preview-graph", {
       method: "POST",
       headers: {

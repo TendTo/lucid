@@ -6,14 +6,15 @@ import tsconfigPaths from "vite-tsconfig-paths";
 // https://vite.dev/config/
 export default defineConfig({
   define: {
-    __JSLUCID_PATH__: "'../../../bindings/jslucid/jslucid'",
+    __JSLUCID_PATH__: "'./jslucid.js'",
   },
   plugins: [react(), tailwindcss(), tsconfigPaths()],
+  base: "./",
   server: {
     fs: {
       allow: [
         searchForWorkspaceRoot(process.cwd()),
-        `path/to/bazel-out/k8-opt/bin/bindings/jslucid/main_wasm/jslucid.wasm`,
+        `path/to/bazel-out/k8-opt/bin/bindings/jslucid/jslucid.wasm`,
       ],
     },
     proxy: {

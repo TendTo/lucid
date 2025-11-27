@@ -17,7 +17,6 @@ FILE_DEPS = [
     "tsconfig.json",
     "tsconfig.node.json",
     "vite.config.ts",
-    "//bindings/jslucid:jslucid_wasm",
 ] + glob([
     "src/**",
     "public/**",
@@ -69,7 +68,10 @@ BUILD_DEPS = [":node_modules/" + d for d in [
 
 vite_bin.vite(
     name = "frontend",
-    srcs = FILE_DEPS + BUILD_DEPS,
+    srcs = FILE_DEPS + BUILD_DEPS + select({
+        "//tools:js_build": ["//bindings/jslucid:jslucid_wasm"],
+        "//conditions:default": [],
+    }),
     args = ["build"],
     chdir = package_name(),
     env = select({
