@@ -18,18 +18,7 @@ def scenario_config(config: Configuration) -> Configuration:
         "'X_bounds', 'X_init', and 'X_unsafe' must be specified",
     )
 
-    if len(config.x_samples) == 0:
-        # If x_samples is not provided, sample it from the bounds
-        config.x_samples = config.X_bounds.sample(config.num_samples)
-    if len(config.xp_samples) == 0:
-        assert_or_raise(
-            config.system_dynamics is not None,
-            "If no outputs are provided, 'system_dynamics' must be specified",
-        )
-        # If xp_samples is not provided, compute it using the system dynamics function
-        # Noisy system dynamics
-        f = lambda x: config.system_dynamics(x) + np.random.normal(scale=config.noise_scale)
-        config.xp_samples = f(config.x_samples)
+    config.populate_samples()
 
     assert_or_raise(len(config.x_samples) > 0, "No samples to use for the scenario")
     assert_or_raise(len(config.xp_samples) > 0, "No transition samples to use for the scenario")
@@ -97,4 +86,4 @@ def main(argv: "Sequence[str] | None" = None) -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

@@ -115,7 +115,7 @@ class Configuration(Namespace):
     estimator: "type[Estimator]" = KernelRidgeRegressor
     kernel: "type[Kernel]" = GaussianKernel
     feature_map: "type[FeatureMap] | FeatureMap | Callable[[Estimator], FeatureMap]" = LinearTruncatedFourierFeatureMap
-    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD and GurobiOptimiser is not None else SoplexOptimiser
+    optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else HighsOptimiser
     tuner: "Tuner | None" = None
 
     def populate_samples(self):
@@ -132,9 +132,22 @@ class Configuration(Namespace):
             f = lambda x: self.system_dynamics(x) + np.random.normal(scale=self.noise_scale)
             self.xp_samples = f(self.x_samples)
 
+    @classmethod
+    def set_to_dict(cls, set: "Set") -> dict:
+        if isinstance(set, RectSet):
+            return {"RectSet": [(lb, ub) for lb, ub in zip(set.lower_bound.tolist(), set.upper_bound.tolist())]}
+        if isinstance(set, SphereSet):
+            return {"SphereSet": {"center": set.center.tolist(), "radius": set.radius}}
+        if isinstance(set, EllipseSet):
+            return {"EllipseSet": {"center": set.center.tolist(), "radii": set.radii.tolist()}}
+        if isinstance(set, MultiSet):
+            return [cls.set_to_dict(s) for s in set]
+        raise raise_error(f"Unsupported set type: {type(set)}")
+
     def to_safe_dict(self) -> dict:
         config_dict = self.__dict__.copy()
         config_dict["system_dynamics"] = []
+        config_dict["lambda"] = config_dict.pop("lambda_")
         for k, v in config_dict.items():
             if isinstance(v, np.ndarray):
                 config_dict[k] = v.tolist()
@@ -143,8 +156,9 @@ class Configuration(Namespace):
             elif isinstance(v, Path):
                 config_dict[k] = str(v)
             elif isinstance(v, Set):
-                config_dict[k] = str(v)
-            elif isinstance(v, (Estimator, Kernel, FeatureMap, Optimiser, GurobiOptimiser)):
+                set_value = self.set_to_dict(v)
+                config_dict[k] = set_value if isinstance(v, MultiSet) else [set_value]
+            elif isinstance(v, (Estimator, Kernel, FeatureMap, Optimiser)):
                 config_dict[k] = v.__class__.__name__
         return config_dict
 
@@ -384,6 +398,8 @@ class EstimatorAction(Action):
             return setattr(namespace, self.dest, values)
         if values == "KernelRidgeRegressor":
             return setattr(namespace, self.dest, KernelRidgeRegressor)
+        if values == "ModelEstimator":
+            return setattr(namespace, self.dest, ModelEstimator)
         raise raise_error(f"Unsupported estimator type: {values}")
 
 
@@ -475,7 +491,7 @@ class MultiNMatrixAction(Action):
         assert_or_raise(path_to_file.exists(), f"File does not exist: {values}")
         if path_to_file.suffix == ".npz":
             raise NotImplementedError("MultiNMatrixAction does not support .npz files with multiple arrays. ")
-        elif path_to_file.suffix == ".csv":
+        if path_to_file.suffix == ".csv":
             cols = int(info) if info.isdigit() else (namespace.X_bounds.dimension if namespace.X_bounds else 0)
             assert_or_raise(cols > 0, f"Invalid number of columns specified: {cols}")
             with open(path_to_file, "rb") as f:
@@ -588,7 +604,7 @@ def arg_parser() -> "ArgumentParser":
         "Specify a function for each dimension of the output space. "
         "Variables `x1`, `x2`, ..., `xn` stand for the n-dimensional input state space components. "
         "All components of the input state space must be present in the function. "
-        "For example, `--system_dynamics 'x1**2 + x2 / 2' '2 * x1 + sin(-x2)' 'cos(x1)'` "
+        "For example, `--system_dynamics 'x1^2 + x2 / 2' '2 * x1 + sin(-x2)' 'cos(x1)'` "
         "will produce a function that takes a 2D input (x1, x2) and returns a 3D output (y1, y2, y3)",
     )
     parser.add_argument(
@@ -738,7 +754,7 @@ def arg_parser() -> "ArgumentParser":
         "--estimator",
         action=EstimatorAction,
         default=config.estimator,
-        choices=["KernelRidgeRegressor"],
+        choices=["KernelRidgeRegressor", "ModelEstimator"],
         help="estimator class to use for regression",
     )
     parser.add_argument(
@@ -776,14 +792,6 @@ def arg_parser() -> "ArgumentParser":
         type=float,
         default=config.set_scaling,
         help="percentage increase for scaling the initial set during synthesis",
-    )
-
-    # Deprecated arguments
-    # TODO: remove
-    parser.add_argument(
-        "--constant-lattice-points",
-        action="store_true",
-        help="flag to indicate whether to use a constant number of lattice points. Deprecated",
     )
 
     return parser

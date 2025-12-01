@@ -45,6 +45,16 @@
                     "$ref": "#/$defs/sphere_set"
                   }
                 }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["EllipseSet"],
+                "properties": {
+                  "EllipseSet": {
+                    "$ref": "#/$defs/ellipse_set"
+                  }
+                }
               }
             ]
           }
@@ -296,7 +306,7 @@
     "estimator": {
       "description": "Type of estimator to use.",
       "type": "string",
-      "enum": ["KernelRidgeRegressor"],
+      "enum": ["KernelRidgeRegressor", "ModelEstimator"],
       "default": "KernelRidgeRegressor"
     },
     "kernel": {

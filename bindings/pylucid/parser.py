@@ -389,7 +389,7 @@ class SetParser:
         ellipse_set_input = pp.Group(number_list + pp.Suppress(",") + number_list)
         ellipse_set = pp.Keyword("EllipseSet") + pp.nestedExpr("(", ")", content=ellipse_set_input)
 
-        plain_set_list = pp.nestedExpr("[", "]", content=pp.delimitedList(rect_set | sphere_set))
+        plain_set_list = pp.nestedExpr("[", "]", content=pp.delimitedList(rect_set | sphere_set | ellipse_set))
         multi_set = pp.Keyword("MultiSet") + pp.nestedExpr("(", ")", content=pp.delimitedList(plain_set_list))
 
         rect_set.setParseAction(self._to_rect_set)

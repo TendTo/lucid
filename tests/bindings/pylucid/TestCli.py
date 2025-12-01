@@ -33,10 +33,10 @@ from pylucid.cli import (
     FeatureMapAction,
     FloatOrNVectorAction,
     KernelAction,
+    ModelEstimator,
     NMatrixAction,
     SystemDynamicsAction,
     arg_parser,
-    type_set,
     type_valid_path,
 )
 
@@ -226,6 +226,8 @@ class TestCli:
             action = EstimatorAction(option_strings=None, dest="estimator")
             action(None, args, "KernelRidgeRegressor")
             assert args.estimator == KernelRidgeRegressor
+            action(None, args, "ModelEstimator")
+            assert args.estimator == ModelEstimator
 
             # Test invalid estimator string
             with pytest.raises(ValueError):
