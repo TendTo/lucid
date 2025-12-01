@@ -135,7 +135,7 @@ class Configuration(Namespace):
     @classmethod
     def set_to_dict(cls, set: "Set") -> dict:
         if isinstance(set, RectSet):
-            return {"RectSet": [(lb, ub) for lb, ub in zip(set.lower_bound.tolist(), set.upper_bound.tolist())]}
+            return {"RectSet": [[lb, ub] for lb, ub in zip(set.lower_bound.tolist(), set.upper_bound.tolist())]}
         if isinstance(set, SphereSet):
             return {"SphereSet": {"center": set.center.tolist(), "radius": set.radius}}
         if isinstance(set, EllipseSet):

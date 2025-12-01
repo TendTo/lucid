@@ -10,6 +10,7 @@ from ._pylucid import (
     GaussianKernel,
     KernelRidgeRegressor,
     MedianHeuristicTuner,
+    ModelEstimator,
     log,
 )
 
@@ -108,14 +109,7 @@ def pipeline(
         or isinstance(config.feature_map, (FeatureMap, type))
     ), "f_xp_samples must be provided when feature_map is a callback"
 
-    if isinstance(config.estimator, type):
-        estimator = config.estimator(
-            kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),
-            regularization_constant=config.lambda_,
-            **({"tuner": config.tuner} if config.tuner is not None else {}),
-        )
-    else:
-        estimator = config.estimator
+    # Initialize feature map
     if isinstance(config.feature_map, type) and issubclass(config.feature_map, FeatureMap):
         assert config.num_frequencies > 0, "num_frequencies must be set and positive if feature_map is a class"
         feature_map = config.feature_map(
@@ -126,7 +120,24 @@ def pipeline(
         )
     else:
         feature_map = config.feature_map
+    log.debug(f"Feature map: {feature_map}")
 
+    # Initialize estimator
+    if isinstance(config.estimator, type):
+        if config.estimator == ModelEstimator:
+            assert config.system_dynamics is not None, "system_dynamics must be provided when using ModelEstimator"
+            assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
+            estimator = ModelEstimator(lambda x: feature_map(config.system_dynamics(x)))
+        else:
+            estimator = config.estimator(
+                kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),
+                regularization_constant=config.lambda_,
+                **({"tuner": config.tuner} if config.tuner is not None else {}),
+            )
+    else:
+        estimator = config.estimator
+
+    # Determine lattice resolution
     num_frequencies = feature_map.num_frequencies if config.num_frequencies < 0 else config.num_frequencies
     lattice_resolution = (
         np.ceil((2 * num_frequencies + 1) * config.oversample_factor)
@@ -134,7 +145,8 @@ def pipeline(
         else config.lattice_resolution
     )
     lattice_resolution = int(lattice_resolution)
-    log.debug(f"Number of samples per dimension: {lattice_resolution}")
+    log.debug(f"Number of points per dimension: {lattice_resolution}")
+
     assert (
         lattice_resolution > 2 * num_frequencies
     ), f"n_per_dim must be greater than nyquist ({2 * num_frequencies + 1})"
@@ -159,17 +171,6 @@ def pipeline(
         f_xp_evaluation = feature_map(config.system_dynamics(x_evaluation))
         log.debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
         log.debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
-
-    log.debug(f"Feature map: {feature_map}")
-    x_lattice = config.X_bounds.lattice(lattice_resolution, True)
-    u_f_x_lattice = feature_map(x_lattice)
-    u_f_xp_lattice_via_regressor = estimator(x_lattice)
-    # We are fixing the zero frequency to the constant value we computed in the feature map
-    # If we don't, the regressor has a hard time learning it on the extreme left and right points, because it tends to 0
-    u_f_xp_lattice_via_regressor[:, 0] = feature_map.weights[0] * config.sigma_f
-    log.debug(f"x_lattice: {x_lattice.shape}, u_f_x_lattice: {u_f_x_lattice.shape}")
-
-    x_lattice = config.X_bounds.lattice(lattice_resolution, False)
 
     barrier = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
     success = barrier.synthesize(

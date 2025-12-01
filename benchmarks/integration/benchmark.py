@@ -9,6 +9,7 @@ import mlflow.data
 import mlflow.entities
 
 from pylucid import *
+from pylucid._pylucid import ModelEstimator
 from pylucid.plot import plot_solution
 
 if TYPE_CHECKING:
@@ -191,14 +192,6 @@ def benchmark_pipeline(config: Configuration):
             or isinstance(config.feature_map, (FeatureMap, type))
         ), "f_xp_samples must be provided when feature_map is a callback"
 
-        if isinstance(config.estimator, type):
-            estimator = config.estimator(
-                kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),
-                regularization_constant=config.lambda_,
-                **({"tuner": config.tuner} if config.tuner is not None else {}),
-            )
-        else:
-            estimator = config.estimator
         if isinstance(config.feature_map, type) and issubclass(config.feature_map, FeatureMap):
             assert config.num_frequencies > 0, "num_frequencies must be set and positive if feature_map is a class"
             feature_map = config.feature_map(
@@ -209,6 +202,20 @@ def benchmark_pipeline(config: Configuration):
             )
         else:
             feature_map = config.feature_map
+
+        if isinstance(config.estimator, type):
+            if config.estimator == ModelEstimator:
+                assert config.system_dynamics is not None, "system_dynamics must be provided when using ModelEstimator"
+                assert isinstance(feature_map, FeatureMap), "feature_map must be a FeatureMap instance"
+                estimator = ModelEstimator(lambda x: feature_map(config.system_dynamics(x)))
+            else:
+                estimator = config.estimator(
+                    kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),
+                    regularization_constant=config.lambda_,
+                    **({"tuner": config.tuner} if config.tuner is not None else {}),
+                )
+        else:
+            estimator = config.estimator
 
         num_frequencies = feature_map.num_frequencies if config.num_frequencies < 0 else config.num_frequencies
         lattice_resolution = (
