@@ -111,7 +111,6 @@ def build_barrier_expression(
         A symbolic expression representing the barrier function.
     """
     # Encode the truncated Fourier feature map as a symbolic expression in terms of xs
-    # Encode the truncated Fourier feature map as a symbolic expression in terms of xs
     sym_tffm = [1.0]
     for row in tffm.omega[1:]:
         sym_tffm.append(
@@ -275,20 +274,21 @@ def verify_barrier_conditions(
     Returns:
         True if the barrier conditions are satisfied, False otherwise.
     """
-    # Create symbolic variables for the input dimensions
-    x = np.array([Real(f"x{i}") for i in range(X_bounds.dimension)])[np.newaxis, :]  # x in X_bounds
-    x = x[0].tolist()  # Convert to a list for further processing
-    barrier = build_barrier_expression(xs=x, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
+    if not isinstance(estimator, KernelRidgeRegressor):
+        log.error("Estimator must be a KernelRidgeRegressor to verify barrier conditions.")
+        return False
 
-    build_barrier_expression(xs=x, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
+    # Create symbolic variables for the input dimensions
+    xs = [Real(f"x{i}") for i in range(X_bounds.dimension)]  # x in X_bounds
+    barrier = build_barrier_expression(xs=xs, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=sol)
 
     H = estimator.coefficients
     b = sol.T
-    if False:
+    if False:  # TODO: use this branch in order to speed up verification once the estimator is consistent
         phi = np.array(
             [
                 build_barrier_expression(
-                    xs=x, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=tffm(training_input)[0]
+                    xs=xs, X_bounds=X_bounds, tffm=tffm, sigma_f=sigma_f, sol=tffm(training_input)[0]
                 )
                 for training_input in estimator.training_inputs
             ]
@@ -296,24 +296,24 @@ def verify_barrier_conditions(
 
         barrier_p = phi @ (H @ b)
     else:
-        barrier_p = apply_estimator(estimator, x) @ (H @ b)
+        barrier_p = apply_estimator(estimator, xs) @ (H @ b)
 
     # Idea: Trying to find a counterexample that violates one of the barrier conditions.
     # ========= Barrier condition 1: Positivity ========================================
     tolerance = 1e-8
-    constraints_pos = And(build_set_constraint(x, X_bounds), Not(barrier >= -tolerance))
+    constraints_pos = And(build_set_constraint(xs, X_bounds), Not(barrier >= -tolerance))
 
     # ========= Barrier condition 2: Initial set =======================================
-    constraints_init = And(build_set_constraint(x, X_init), Not(barrier <= eta + tolerance * eta))
+    constraints_init = And(build_set_constraint(xs, X_init), Not(barrier <= eta + tolerance * eta))
 
     # ========= Barrier condition 3: Unsafe set ========================================
-    constraints_unsafe = And(build_set_constraint(x, X_unsafe), Not(barrier >= gamma - tolerance * gamma))
+    constraints_unsafe = And(build_set_constraint(xs, X_unsafe), Not(barrier >= gamma - tolerance * gamma))
 
     # ========= Barrier condition 4: Kushner condition =================================
     kappa = sigma_f * epsilon * b_norm
     constraints_kushner = And(
-        build_set_constraint(x, X_bounds),
-        Not(build_set_constraint(x, X_unsafe)),
+        build_set_constraint(xs, X_bounds),
+        Not(build_set_constraint(xs, X_unsafe)),
         Not(barrier_p - barrier <= c + tolerance * c + kappa),
     )
 
@@ -327,7 +327,7 @@ def verify_barrier_conditions(
             log.info(f"Condition {name} has been verified via dReal.")
         else:
             log.error("Found counter example")
-            model = {str(x_): res[x_].lb() for x_ in x}
+            model = {str(x): res[x].lb() for x in xs}
             log.error(f"Model: {model}")
             point = np.array([list(model.values())], dtype=np.float64)
             true_barrier = tffm(point) @ sol.T
