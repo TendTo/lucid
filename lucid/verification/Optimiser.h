@@ -32,7 +32,7 @@ struct FourierBarrierSynthesisProblem {
   const std::vector<Index>& xu_include_mask{};  ///< Lattice mask for the points in xu
   const std::vector<Index>& xu_exclude_mask{};  ///< Lattice mask for the points not in xu
   int T{1};                                     ///< Time horizon
-  double gamma{1};                              ///< @gamma value
+  double gamma{1};                              ///< @gamma_ value
   double eta_coeff{0};                          ///< Coefficient for the eta constraint @f$ 2 / (C - A_x0 + 1) @f$
   double min_x0_coeff{0};    ///< Coefficient for the lower bound on B at x0 @f$ (C - A_{x0} - 1) / (C - A_{x0} + 1) @f$
   double max_sx0_coeff{0};   ///< Coefficient for the difference in B at x0 @f$ A_{x0} / (C - A_{x0} + 1) @f$

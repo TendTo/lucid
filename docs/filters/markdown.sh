@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# Unused
 readonly regex_match_math_double='^\$\$$'
-readonly regex_substitute_math_double='\\f$$'
+readonly regex_substitute_math_double='\\f$'
 
 readonly regex_match_math_split='\$(.)\$'
 readonly regex_substitute_math_split='$ \1 $'
 
-readonly regex_match_math='(([^$])\$|^\$([^$]))'
-readonly regex_substitute_math='\2\\f$\3'
+readonly regex_match_math='([^$\])\$([^$])'
+readonly regex_substitute_math='\1\\f$\2'
 
 readonly regex_match_slash_curly_math='([^\])\\(\{|\})'
 readonly regex_substitute_slash_curly_math='\1\\\\\2'
@@ -45,10 +44,10 @@ readonly regex_title_logo='<img alt="Icon" src="docs\/_static\/logo.svg" align="
 
 cat "${1}" \
 | sed -E \
-    -e "s/$regex_match_math_split/$regex_substitute_math_split/g" \
-    -e "s/$regex_match_slash_curly_math/$regex_substitute_slash_curly_math/g" \
-    -e "s/$regex_match_math/$regex_substitute_math/g" \
     -e "s/$regex_title_logo//g" \
+    -e "s/$regex_match_math_double/$regex_substitute_math_double/g" \
+    -e "s/$regex_match_math_split/$regex_substitute_math_split/g" \
+    -e "s/$regex_match_math/$regex_substitute_math/g" \
     -e "s/$regex_match_code_block/$regex_substitute_code_block/g" \
     -e "s/$regex_match_tab_tag/$regex_substitute_tab_tag/g" \
     -e "s/$regex_match_end_tab_tag/$regex_substitute_end_tab_tag/g" \

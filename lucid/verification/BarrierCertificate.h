@@ -46,15 +46,15 @@ class BarrierCertificate {
    * @pre `eta` must be greater than or equal to 0.
    * @pre `c` must be greater than or equal to 0.
    * @param T time horizon
-   * @param gamma @gamma value in the CBC definition
-   * @param eta @eta value in the CBC definition
+   * @param gamma @gamma_ value in the CBC definition
+   * @param eta @eta_ value in the CBC definition
    * @param c @f$ c @f$ value in the CBC definition
    */
   explicit BarrierCertificate(int T, double gamma, double eta = 0, double c = 0);
-  BarrierCertificate(const BarrierCertificate &other) = default;
-  BarrierCertificate& operator=(const BarrierCertificate &other) = default;
-  BarrierCertificate(BarrierCertificate &&other) noexcept = default;
-  BarrierCertificate& operator=(BarrierCertificate &&other) noexcept = default;
+  BarrierCertificate(const BarrierCertificate& other) = default;
+  BarrierCertificate& operator=(const BarrierCertificate& other) = default;
+  BarrierCertificate(BarrierCertificate&& other) noexcept = default;
+  BarrierCertificate& operator=(BarrierCertificate&& other) noexcept = default;
   virtual ~BarrierCertificate() = default;
 
   /**
@@ -69,9 +69,9 @@ class BarrierCertificate {
   [[nodiscard]] bool is_synthesized() const { return norm_ != 0; }
   /** @getter{norm describing the complexity of the barrier, barrier certificate} */
   [[nodiscard]] double norm() const { return norm_; }
-  /** @getter{@gamma value in the CBC definition, barrier certificate} */
+  /** @getter{@gamma_ value in the CBC definition, barrier certificate} */
   [[nodiscard]] double gamma() const { return gamma_; }
-  /** @getter{@eta value in the CBC definition, barrier certificate} */
+  /** @getter{@eta_ value in the CBC definition, barrier certificate} */
   [[nodiscard]] double eta() const { return eta_; }
   /** @getter{@f$ c @f$ value in the CBC definition, barrier certificate} */
   [[nodiscard]] double c() const { return c_; }
@@ -100,8 +100,8 @@ class BarrierCertificate {
   [[nodiscard]] virtual double apply_impl(ConstVectorRef x) const = 0;
 
   int T_;          ///< Time horizon
-  double gamma_;   ///< @gamma value in the CBC definition
-  double eta_;     ///< @eta value in the CBC definition
+  double gamma_;   ///< @gamma_ value in the CBC definition
+  double eta_;     ///< @eta_ value in the CBC definition
   double c_;       ///< @f$ c @f$ value in the CBC definition
   double norm_;    ///< Norm describing the complexity of the barrier. It is 0 if the barrier has not been synthesized
   double safety_;  ///< Safety probability of the system. It is 0 if the barrier has not been synthesized

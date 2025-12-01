@@ -7,13 +7,13 @@ This document describes the legend all the symbols used in the documentation of 
 ### Basic
 
 - $x, y$: A scalar value.
-- $\boldsymbol{x}, \boldsymbol{y}, \dots$: A vector.
-- $\boldsymbol{A}, \boldsymbol{B}, \dots$: A matrix.
-- $\boldsymbol{A}_{ij}$: The element at row $i$ and column $j$ of $\boldsymbol{A}$.
-- $\boldsymbol{A}_{i:}$: The $i$-th row of $\boldsymbol{A}$.
-- $\boldsymbol{A}_{:j}$: The $j$-th column of $\boldsymbol{A}$.
-- $\boldsymbol{A}^T$: The transpose of $\boldsymbol{A}$.
-- $\boldsymbol{A}^{-1}$: The inverse of $\boldsymbol{A}$.
+- $x, y, \dots$: A vector.
+- $A, B, \dots$: A matrix.
+- $A_{ij}$: The element at row $i$ and column $j$ of $A$.
+- $A_{i:}$: The $i$-th row of $A$.
+- $A_{:j}$: The $j$-th column of $A$.
+- $A^T$: The transpose of $A$.
+- $A^{-1}$: The inverse of $A$.
 
 ### Probability
 
@@ -34,5 +34,5 @@ This document describes the legend all the symbols used in the documentation of 
 ### Specific symbols
 
 - $k$: Kernel function.
-- $\boldsymbol{K}$: Gram matrix, defined as $\boldsymbol{K}_{ij} = k(\boldsymbol{x}_i, \boldsymbol{x}_j)$.
-- $\boldsymbol{K}_{ij}$: The element at row $i$ and column $j$ of $\boldsymbol{K}$.
+- $K$: Gram matrix, defined as $K_{ij} = k(x_i, x_j)$.
+- $K_{ij}$: The element at row $i$ and column $j$ of $K$.

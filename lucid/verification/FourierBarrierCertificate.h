@@ -127,7 +127,7 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * @param success true if the synthesis was successful
    * @param obj_val objective value
    * @param coefficients coefficients of the basis
-   * @param eta @eta value
+   * @param eta @eta_ value
    * @param c @f$ c @f$ value
    * @param norm actual norm of the barrier function
    * @param b_norm target norm for the coefficients of the basis

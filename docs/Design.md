@@ -111,12 +111,8 @@ flowchart TD
   BmaxX("$$\max_{x \in \mathcal{X}} \phi(x)^T b $$")
   BdminX("$$\max_{x \in \mathcal{X}} \phi(x)^T (Hb - b) $$")
   BminXsX("$$\min_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}} \phi(x)^T b $$")
-  BmaxXsX("$$\max_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}} \phi(x)^T b $$")
-  BminXsX0("$$\min_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}_0} \phi(x)^T b $$")
   BmaxXsX0("$$\max_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}_0} \phi(x)^T b $$")
   BminXsXu("$$\min_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}_u} \phi(x)^T b $$")
-  BmaxXsXu("$$\max_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}_u} \phi(x)^T b $$")
-  BdminsX("$$\min_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}} \phi(x)^T (Hb - b) $$")
   BdmaxsX("$$\max_{x \in \mathcal{\tilde{X}} \setminus \mathcal{X}} \phi(x)^T (Hb - b) $$")
   Asx0("$$A^{S \setminus X_0}_{\tilde{N}}$$")
   Asxu("$$A^{S \setminus X_u}_{\tilde{N}}$$")
@@ -133,27 +129,22 @@ flowchart TD
   delta("$$c - \varepsilon \bar{B} \kappa$$")
 
   XsX --> BminXsX
-  XsX --> BmaxXsX
   XsX --> Asx
-  XsX0 --> BminXsX0
   XsX0 --> BmaxXsX0
   XsX0 --> Asx0
   XsXu --> BminXsXu
-  XsXu --> BmaxXsXu
   XsXu --> Asxu
 
   X0 --> BminX0
   Xu --> BmaxXu
   X --> BmaxX
   D --> BdminX
-  DXsX --> BdminsX
   DXsX --> BdmaxsX
 
   C --> hateta
   eta --> hateta
   Asx0 --> hateta
   BminX0 --> hateta
-  BminXsX0 --> hateta
   BmaxXsX0 --> hateta
 
   C --> hatgamma
@@ -161,21 +152,18 @@ flowchart TD
   Asxu --> hatgamma
   BmaxXu --> hatgamma
   BminXsXu --> hatgamma
-  BmaxXsXu --> hatgamma
 
 
   C --> hatdelta
   delta --> hatdelta
   Asx --> hatdelta
   BdminX --> hatdelta
-  BdminsX --> hatdelta
   BdmaxsX --> hatdelta
 
   C --> hatxi
   Asx --> hatxi
   BmaxX --> hatxi
   BminXsX --> hatxi
-  BmaxXsX --> hatxi
 ```
 
 Where:
