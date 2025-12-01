@@ -35,16 +35,16 @@ struct FourierBarrierSynthesisProblem {
   double gamma{1};                              ///< @gamma value
   double eta_coeff{0};                          ///< Coefficient for the eta constraint @f$ 2 / (C - A_x0 + 1) @f$
   double min_x0_coeff{0};    ///< Coefficient for the lower bound on B at x0 @f$ (C - A_{x0} - 1) / (C - A_{x0} + 1) @f$
-  double diff_sx0_coeff{0};  ///< Coefficient for the difference in B at x0 @f$ A_{x0} / (C - A_{x0} + 1) @f$
+  double max_sx0_coeff{0};   ///< Coefficient for the difference in B at x0 @f$ A_{x0} / (C - A_{x0} + 1) @f$
   double gamma_coeff{0};     ///< Coefficient for the gamma constraint @f$ 2 / (C - A_{xu} + 1) @f$
   double max_xu_coeff{0};    ///< Coefficient for the upper bound on B at xu @f$ (C - A_{xu} - 1) / (C - A_{xu} + 1) @f$
-  double diff_sxu_coeff{0};  ///< Coefficient for the difference in B at xu @f$ A_{xu} / (C - A_{xu} + 1) @f$
+  double min_sxu_coeff{0};   ///< Coefficient for the difference in B at xu @f$ A_{xu} / (C - A_{xu} + 1) @f$
   double ebk{0};             ///< Coefficient for the Kushner constraint @f$ \epsilon * target\_norm * \kappa @f$
   double c_ebk_coeff{0};     ///< Coefficient for the Kushner constraint @f$ 2 / (C - A_{x} + 1) @f$
   double min_d_coeff{0};     ///< Coefficient for the lower bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
-  double diff_d_sx_coeff{0};  ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
-  double max_x_coeff{0};      ///< Coefficient for the upper bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
-  double diff_sx_coeff{0};    ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
+  double max_d_sx_coeff{0};  ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
+  double max_x_coeff{0};     ///< Coefficient for the upper bound on B at x @f$ (C - A_{x} - 1) / (C - A_{x} + 1) @f$
+  double min_sx_coeff{0};    ///< Coefficient for the difference in B at x @f$ A_{x} / (C - A_{x} + 1) @f$
 
   std::string to_string() const;
 };

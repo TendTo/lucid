@@ -74,9 +74,9 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   static_assert(std::remove_reference_t<ConstMatrixRef>::IsRowMajor, "Row major order is expected to avoid copy/eval");
 
   const auto& [num_constraints, fxn_lattice, dn_lattice, x_include_mask, x_exclude_mask, x0_include_mask,
-               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, eta_coeff, min_x0_coeff, diff_sx0_coeff,
-               gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, diff_d_sx_coeff, max_x_coeff,
-               diff_sx_coeff] = problem;
+               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, eta_coeff, min_x0_coeff, max_sx0_coeff,
+               gamma_coeff, max_xu_coeff, min_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, max_d_sx_coeff, max_x_coeff,
+               min_sx_coeff] = problem;
 
 #ifndef NLOG
   const bool should_log = should_log_problem();
@@ -172,9 +172,9 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT(
       "X0 lattice constraints - {} constraints\n"
       "for all x_0: [ B(x_0) >= min_X0] AND [ B(x_0) <= hateta ]\n"
-      "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - diff_sx0_coeff * max_sx0\n"
+      "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - max_sx0_coeff * max_sx0\n"
       "hateta = {} * eta + {} * min_X0 - {} * max_sx0",
-      x0_include_mask.size() * 2, eta_coeff, min_x0_coeff, diff_sx0_coeff);
+      x0_include_mask.size() * 2, eta_coeff, min_x0_coeff, max_sx0_coeff);
   for (Index row : x0_include_mask) {
     soplex::DSVectorReal vec(static_cast<int>(fxn_lattice.cols()) + 3);
     for (Index col = 0; col < fxn_lattice.cols(); ++col) vec.add(static_cast<int>(col), fxn_lattice(row, col));
@@ -185,7 +185,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     // B(x0) <= hateta
     vec.add(eta, -eta_coeff);
     vec.value(vec.pos(min_x0)) = -min_x0_coeff;
-    vec.add(max_sx0, diff_sx0_coeff);
+    vec.add(max_sx0, max_sx0_coeff);
     LUCID_MODEL_ADD_CONSTRAINT(rows, -soplex::infinity, vec, 0.0, fmt::format("B(x_0)<=hateta[{}]", row),
                                constraint_names, should_log);
   }
@@ -193,9 +193,9 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT(
       "Xu lattice constraints - {} constraints\n"
       "for all x_u: [ B(x_u) <= max_Xu ] AND [ B(x_u) >= hatgamma ] \n"
-      "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu - diff_sxu_coeff * min_sxu\n"
+      "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu - min_sxu_coeff * min_sxu\n"
       "hatgamma = {} + {} * max_Xu - {} * min_sxu",
-      xu_include_mask.size() * 2, gamma_coeff * gamma, max_xu_coeff, diff_sxu_coeff);
+      xu_include_mask.size() * 2, gamma_coeff * gamma, max_xu_coeff, min_sxu_coeff);
   for (Index row : xu_include_mask) {
     soplex::DSVectorReal vec(static_cast<int>(fxn_lattice.cols()) + 1);
     for (Index col = 0; col < fxn_lattice.cols(); ++col) vec.add(static_cast<int>(col), fxn_lattice(row, col));
@@ -205,7 +205,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
                                constraint_names, should_log);
     // B(xu) >= hatgamma
     vec.value(vec.pos(max_xu)) = -max_xu_coeff;
-    vec.add(min_sxu, diff_sxu_coeff);
+    vec.add(min_sxu, min_sxu_coeff);
     LUCID_MODEL_ADD_CONSTRAINT(rows, gamma_coeff * gamma, vec, soplex::infinity,
                                fmt::format("B(x_u)>=hatgamma[{}]", row), constraint_names, should_log);
   }
@@ -213,9 +213,9 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT(
       "Kushner constraints (verification case) - {} constraints\n"
       "for all x: [ B(xp) - B(x) >= min_d ] AND [ B(xp) - B(x) <= hatDelta ] AND \n"
-      "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d - diff_d_sx_coeff * max_d_sx\n"
+      "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d - max_d_sx_coeff * max_d_sx\n"
       "hatDelta = {} * (c - {}) + {} * min_d - {} * max_d_sx",
-      x_include_mask.size() * 2, c_ebk_coeff, ebk, min_d_coeff, diff_d_sx_coeff);
+      x_include_mask.size() * 2, c_ebk_coeff, ebk, min_d_coeff, max_d_sx_coeff);
   for (Index row : x_include_mask) {
     soplex::DSVectorReal vec(static_cast<int>(dn_lattice.cols()) + 2);
     for (Index col = 0; col < dn_lattice.cols(); ++col) vec.add(static_cast<int>(col), dn_lattice(row, col));
@@ -226,7 +226,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     // B(xp) - B(x) <= hatDelta
     vec.add(c, -c_ebk_coeff);
     vec.value(vec.pos(min_d)) = -min_d_coeff;
-    vec.add(max_d_sx, diff_d_sx_coeff);
+    vec.add(max_d_sx, max_d_sx_coeff);
     LUCID_MODEL_ADD_CONSTRAINT(rows, -soplex::infinity, vec, -c_ebk_coeff * ebk,
                                fmt::format("B(xp)-B(x)<=hatDelta[{}]", row), constraint_names, should_log);
   }
@@ -234,9 +234,9 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_DEBUG_FMT(
       "Positive barrier - {} constraints\n"
       "for all x: [ B(x) <= max_X ] AND [ B(x) >= hatxi ]\n"
-      "hatxi = max_x_coeff * max_X - diff_sx_coeff * min_sx\n"
+      "hatxi = max_x_coeff * max_X - min_sx_coeff * min_sx\n"
       "hatxi = {} * max_X - {} * min_sx",
-      x_include_mask.size() * 2, max_x_coeff, diff_sx_coeff);
+      x_include_mask.size() * 2, max_x_coeff, min_sx_coeff);
   for (Index row : x_include_mask) {
     soplex::DSVectorReal vec(static_cast<int>(fxn_lattice.cols()) + 1);
     for (Index col = 0; col < fxn_lattice.cols(); ++col) vec.add(static_cast<int>(col), fxn_lattice(row, col));
@@ -246,7 +246,7 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
                                should_log);
     // B(x) >= hatxi
     vec.value(vec.pos(max_x)) = -max_x_coeff;
-    vec.add(min_sx, diff_sx_coeff);
+    vec.add(min_sx, min_sx_coeff);
     LUCID_MODEL_ADD_CONSTRAINT(rows, 0.0, vec, soplex::infinity, fmt::format("B(x)>=hatxi[{}]", row), constraint_names,
                                should_log);
   }

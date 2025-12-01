@@ -207,9 +207,9 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
   constexpr double max_num = std::numeric_limits<double>::infinity();
   constexpr Dimension num_special_vars = 10;  // Additional variables, e.g., c, eta, minX0, maxXU, maxXX, minDelta
   const auto& [num_constraints, fxn_lattice, dn_lattice, x_include_mask, x_exclude_mask, x0_include_mask,
-               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, eta_coeff, min_x0_coeff, diff_sx0_coeff,
-               gamma_coeff, max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, diff_d_sx_coeff, max_x_coeff,
-               diff_sx_coeff] = problem;
+               x0_exclude_mask, xu_include_mask, xu_exclude_mask, T, gamma, eta_coeff, min_x0_coeff, max_sx0_coeff,
+               gamma_coeff, max_xu_coeff, min_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, max_d_sx_coeff, max_x_coeff,
+               min_sx_coeff] = problem;
 
 #ifndef NLOG
   const bool should_log = should_log_problem();
@@ -262,64 +262,64 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
   LUCID_DEBUG_FMT(
       "X0 lattice constraints - {} constraints\n"
       "for all x_0: [ B(x_0) >= min_X0] AND [ B(x_0) <= hateta ]\n"
-      "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - diff_sx0_coeff * max_sx0\n"
+      "hateta = eta_coeff * eta + min_x0_coeff * min_X0 - max_sx0_coeff * max_sx0\n"
       "hateta = {} * eta + {} * min_X0 - {} * max_sx0",
-      x0_include_mask.size() * 2, eta_coeff, min_x0_coeff, diff_sx0_coeff);
+      x0_include_mask.size() * 2, eta_coeff, min_x0_coeff, max_sx0_coeff);
   for (Index row : x0_include_mask) {
     // B(x) >= min_x0
     lp_problem.add_constraint<'>'>(fxn_lattice.row(row).data(), std::array{min_x0}, std::array{-1.0}, 0.0,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)>=min_X0[{}]", row));
     // B(x) <= hateta
     lp_problem.add_constraint<'<'>(fxn_lattice.row(row).data(), std::array{eta, min_x0, max_sx0},
-                                   std::array{-eta_coeff, -min_x0_coeff, diff_sx0_coeff}, 0.0,
+                                   std::array{-eta_coeff, -min_x0_coeff, max_sx0_coeff}, 0.0,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x_0)<=hateta[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
       "Xu lattice constraints - {} constraints\n"
       "for all x_u: [ B(x_u) <= max_Xu ] AND [ B(x_u) >= hatgamma ] \n"
-      "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu - diff_sxu_coeff * min_sxu\n"
+      "hatgamma = gamma_coeff * gamma + max_Xu_coeff * max_Xu - min_sxu_coeff * min_sxu\n"
       "hatgamma = {} + {} * max_Xu - {} * min_sxu",
-      xu_include_mask.size() * 2, gamma_coeff * gamma, max_xu_coeff, diff_sxu_coeff);
+      xu_include_mask.size() * 2, gamma_coeff * gamma, max_xu_coeff, min_sxu_coeff);
   for (Index row : xu_include_mask) {
     // B(x_u) <= max_Xu
     lp_problem.add_constraint<'<'>(fxn_lattice.row(row).data(), std::array{max_xu}, std::array{-1.0}, 0.0,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)<=max_Xu[{}]", row));
     // B(x_u) >= hatgamma
     lp_problem.add_constraint<'>'>(fxn_lattice.row(row).data(), std::array{max_xu, min_sxu},
-                                   std::array{-max_xu_coeff, diff_sxu_coeff}, gamma_coeff * gamma,
+                                   std::array{-max_xu_coeff, min_sxu_coeff}, gamma_coeff * gamma,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x_u)>=hatgamma[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
       "Kushner constraints (verification case) - {} constraints\n"
       "for all x: [ B(xp) - B(x) >= min_d ] AND [ B(xp) - B(x) <= hatDelta ] AND \n"
-      "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d - diff_d_sx_coeff * max_d_sx\n"
+      "hatDelta = c_ebk_coeff * (c - ebk) + min_d_coeff * min_d - max_d_sx_coeff * max_d_sx\n"
       "hatDelta = {} * (c - {}) + {} * min_d - {} * max_d_sx",
-      x_include_mask.size() * 2, c_ebk_coeff, ebk, min_d_coeff, diff_d_sx_coeff);
+      x_include_mask.size() * 2, c_ebk_coeff, ebk, min_d_coeff, max_d_sx_coeff);
   for (Index row : x_include_mask) {
     // B(x) >= min_d
     lp_problem.add_constraint<'>'>(dn_lattice.row(row).data(), std::array{min_d}, std::array{-1.0}, 0.0,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)>=min_d[{}]", row));
     // B(xp) - B(x) <= hatDelta
     lp_problem.add_constraint<'<'>(dn_lattice.row(row).data(), std::array{c, min_d, max_d_sx},
-                                   std::array{-c_ebk_coeff, -min_d_coeff, diff_d_sx_coeff}, -c_ebk_coeff * ebk,
+                                   std::array{-c_ebk_coeff, -min_d_coeff, max_d_sx_coeff}, -c_ebk_coeff * ebk,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(xp)-B(x)<=hatDelta[{}]", row));
   }
 
   LUCID_DEBUG_FMT(
       "Positive barrier - {} constraints\n"
       "for all x: [ B(x) <= max_X ] AND [ B(x) >= hatxi ]\n"
-      "hatxi = max_x_coeff * max_X - diff_sx_coeff * min_sx\n"
+      "hatxi = max_x_coeff * max_X - min_sx_coeff * min_sx\n"
       "hatxi = {} * max_X - {} * min_sx",
-      x_include_mask.size() * 2, max_x_coeff, diff_sx_coeff);
+      x_include_mask.size() * 2, max_x_coeff, min_sx_coeff);
   for (Index row : x_include_mask) {
     // B(x) <= max_x
     lp_problem.add_constraint<'<'>(fxn_lattice.row(row).data(), std::array{max_x}, std::array{-1.0}, 0.0,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x)<=max_x[{}]", row));
     // B(x) >= hatxi
     lp_problem.add_constraint<'>'>(fxn_lattice.row(row).data(), std::array{max_x, min_sx},
-                                   std::array{-max_x_coeff, diff_sx_coeff}, 0.0,
+                                   std::array{-max_x_coeff, min_sx_coeff}, 0.0,
                                    LUCID_FORMAT_NAME(should_log_problem(), "B(x)>=hatxi[{}]", row));
   }
 

@@ -302,8 +302,8 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_DEBUG_FMT("eta_coeff: 2 / x0_denom = 2 / {:.3} = {:.3}", x0_denom, eta_coeff);
   const double min_x0_coeff = (C - 1.0) / x0_denom;
   LUCID_DEBUG_FMT("min_x0_coeff: (C - 1) / x0_denom = ({:.3} - 1) / {:.3} = {:.3}", C, x0_denom, min_x0_coeff);
-  const double diff_sx0_coeff = 2.0 * A_x0 / x0_denom;
-  LUCID_DEBUG_FMT("diff_sx0_coeff: 2 * A_x0 / x0_denom = 2 * {:.3} / {:.3} = {:.3}", A_x0, x0_denom, diff_sx0_coeff);
+  const double max_sx0_coeff = 2.0 * A_x0 / x0_denom;
+  LUCID_DEBUG_FMT("max_sx0_coeff: 2 * A_x0 / x0_denom = 2 * {:.3} / {:.3} = {:.3}", A_x0, x0_denom, max_sx0_coeff);
 
   const double xu_denom = C - 2.0 * A_xu + 1.0;
   LUCID_DEBUG_FMT("xu_denom: C - 2 * A_xu + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_xu, xu_denom);
@@ -312,8 +312,8 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_DEBUG_FMT("gamma_coeff: 2 / xu_denom = 2 / {:.3} = {:.3}", xu_denom, gamma_coeff);
   const double max_xu_coeff = (C - 1.0) / xu_denom;
   LUCID_DEBUG_FMT("max_xu_coeff: (C - 1) / xu_denom = ({:.3} - 1) / {:.3} = {:.3}", C, xu_denom, max_xu_coeff);
-  const double diff_sxu_coeff = 2.0 * A_xu / xu_denom;
-  LUCID_DEBUG_FMT("diff_sxu_coeff: 2 * A_xu / xu_denom = 2 * {:.3} / {:.3} = {:.3}", A_xu, xu_denom, diff_sxu_coeff);
+  const double min_sxu_coeff = 2.0 * A_xu / xu_denom;
+  LUCID_DEBUG_FMT("min_sxu_coeff: 2 * A_xu / xu_denom = 2 * {:.3} / {:.3} = {:.3}", A_xu, xu_denom, min_sxu_coeff);
 
   const double ebk = parameters.epsilon * parameters.b_norm * parameters.kappa;
   LUCID_DEBUG_FMT("ebk: epsilon * b_norm * kappa = {:.3} * {:.3} * {:.3} = {:.3}", parameters.epsilon,
@@ -325,16 +325,16 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_DEBUG_FMT("c_ebk_coeff: 2 / d_denom = 2 / {:.3} = {:.3}", d_denom, c_ebk_coeff);
   const double min_d_coeff = (C - 1.0) / d_denom;
   LUCID_DEBUG_FMT("min_d_coeff: (C - 1) / d_denom = ({:.3} - 1) / {:.3} = {:.3}", C, d_denom, min_d_coeff);
-  const double diff_d_sx_coeff = 2.0 * A_x / d_denom;
-  LUCID_DEBUG_FMT("diff_d_sx_coeff: 2 * A_x / d_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, d_denom, diff_d_sx_coeff);
+  const double max_d_sx_coeff = 2.0 * A_x / d_denom;
+  LUCID_DEBUG_FMT("max_d_sx_coeff: 2 * A_x / d_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, d_denom, max_d_sx_coeff);
 
   const double x_denom = C - 2.0 * A_x + 1.0;
   LUCID_DEBUG_FMT("x_denom: C - 2 * A_x + 1 = {:.3} - 2 * {:.3} + 1 = {:.3}", C, A_x, x_denom);
   LUCID_ASSERT(x_denom != 0.0, "Denominator for x_coeff cannot be zero");
   const double max_x_coeff = (C - 1.0) / x_denom;
   LUCID_DEBUG_FMT("max_x_coeff: (C - 1) / x_denom = ({:.3} - 1) / {:.3} = {:.3}", C, x_denom, max_x_coeff);
-  const double diff_sx_coeff = 2.0 * A_x / x_denom;
-  LUCID_DEBUG_FMT("diff_sx_coeff: 2 * A_x / x_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, x_denom, diff_sx_coeff);
+  const double min_sx_coeff = 2.0 * A_x / x_denom;
+  LUCID_DEBUG_FMT("min_sx_coeff: 2 * A_x / x_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, x_denom, min_sx_coeff);
 
   if (Stats::Scoped::top()) {
     Stats::Scoped::top()->value().C = C;
@@ -360,16 +360,16 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
           .gamma = gamma_,
           .eta_coeff = eta_coeff,
           .min_x0_coeff = min_x0_coeff,
-          .diff_sx0_coeff = diff_sx0_coeff,
+          .max_sx0_coeff = max_sx0_coeff,
           .gamma_coeff = gamma_coeff,
           .max_xu_coeff = max_xu_coeff,
-          .diff_sxu_coeff = diff_sxu_coeff,
+          .min_sxu_coeff = min_sxu_coeff,
           .ebk = ebk,
           .c_ebk_coeff = c_ebk_coeff,
           .min_d_coeff = min_d_coeff,
-          .diff_d_sx_coeff = diff_d_sx_coeff,
+          .max_d_sx_coeff = max_d_sx_coeff,
           .max_x_coeff = max_x_coeff,
-          .diff_sx_coeff = diff_sx_coeff,
+          .min_sx_coeff = min_sx_coeff,
       },
       std::bind(&FourierBarrierCertificate::optimiser_callback, this, std::placeholders::_1, std::placeholders::_2,
                 std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,

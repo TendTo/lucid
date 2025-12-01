@@ -23,13 +23,13 @@ std::string FourierBarrierSynthesisProblem::to_string() const {
       "FourierBarrierSynthesisProblem( num_constraints( {} ) fxn_lattice.rows( {} ) fxn_lattice.cols( {} ) "
       "dn_lattice.rows( {} ) dn_lattice.cols( {} ) x_include_mask.size( {} ) x_exclude_mask.size( {} ) "
       "x0_include_mask.size( {} ) x0_exclude_mask.size( {} ) xu_include_mask.size( {} ) xu_exclude_mask.size( {} ) "
-      "T( {} ) gamma( {} ) eta_coeff( {} ) min_x0_coeff( {} ) diff_sx0_coeff( {} ) gamma_coeff( {} ) "
-      "max_xu_coeff( {} ) diff_sxu_coeff( {} ) ebk( {} ) c_ebk_coeff( {} ) min_d_coeff( {} ) diff_d_sx_coeff( {} ) "
-      "max_x_coeff( {} ) diff_sx_coeff( {} ) )",
+      "T( {} ) gamma( {} ) eta_coeff( {} ) min_x0_coeff( {} ) max_sx0_coeff( {} ) gamma_coeff( {} ) "
+      "max_xu_coeff( {} ) min_sxu_coeff( {} ) ebk( {} ) c_ebk_coeff( {} ) min_d_coeff( {} ) max_d_sx_coeff( {} ) "
+      "max_x_coeff( {} ) min_sx_coeff( {} ) )",
       num_constraints, fxn_lattice.rows(), fxn_lattice.cols(), dn_lattice.rows(), dn_lattice.cols(),
       x_include_mask.size(), x_exclude_mask.size(), x0_include_mask.size(), x0_exclude_mask.size(),
-      xu_include_mask.size(), xu_exclude_mask.size(), T, gamma, eta_coeff, min_x0_coeff, diff_sx0_coeff, gamma_coeff,
-      max_xu_coeff, diff_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, diff_d_sx_coeff, max_x_coeff, diff_sx_coeff);
+      xu_include_mask.size(), xu_exclude_mask.size(), T, gamma, eta_coeff, min_x0_coeff, max_sx0_coeff, gamma_coeff,
+      max_xu_coeff, min_sxu_coeff, ebk, c_ebk_coeff, min_d_coeff, max_d_sx_coeff, max_x_coeff, min_sx_coeff);
 }
 
 Optimiser::Optimiser(std::string problem_log_file, std::string iis_log_file)
