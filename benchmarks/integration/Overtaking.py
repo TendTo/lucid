@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import itertools
-import multiprocessing
 import time
 
-from benchmark import scenario_config
+from benchmark import parse_args, run_grid
 
 from pylucid import *
 from pylucid import __version__
@@ -16,42 +15,18 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
+        "num_samples": [1000],
         "seed": [42],
-        "num_frequencies": [3, 4],
-        "lattice_resolution": [100, 110],
+        "num_frequencies": [5, 6, 7],
+        "lattice_resolution": [70],
+        "set_scaling": [0.03, 0.04, 0.05],
+        "feature_sigma_l": [np.array([0.525, 0.05, 1.0])]
+        + [
+            np.array([sigma_l1, sigma_l2, sigma_l3])
+            for sigma_l1, sigma_l2, sigma_l3 in itertools.product(np.linspace(0.05, 1.0, 3), repeat=3)
+        ],
     }
-
-    param_combinations = list(itertools.product(*grid.values()))
-    grid_keys = list(grid.keys())
-
-    seed = [42]
-    pairs = [
-        # (5, 99),
-        # (5, 100),
-        # (5, 88),
-        # (5, 77),
-        (5, 66),
-        (4, 90),
-        (4, 81),
-        (5, 55),
-        (4, 72),
-        (5, 44),
-        (4, 63),
-    ]
-
-    param_combinations = [(s, f, o) for s, (f, o) in itertools.product(seed, pairs)]
-    print(f"Running {len(param_combinations)} configurations.")
-    print(f"{(param_combinations)}")
-
-    # Prepare arguments for multiprocessing
-    args_list = [(grid_keys, param_combination) for param_combination in param_combinations]
-
-    # Run benchmarks in parallel using multiprocessing
-    MAX_PARALLEL = multiprocessing.cpu_count() // 3
-    MAX_PARALLEL = 1
-    with multiprocessing.Pool(processes=max(1, MAX_PARALLEL)) as pool:
-        pool.starmap(scenario_config, args_list)
-    # scenario_config(*args_list[0])  # Run only one configuration for testing
+    run_grid(parse_args("benchmarks/integration/overtaking.yaml"), grid=grid)
 
     end = time.time()
     log.info(f"Elapsed time: {end - start}")

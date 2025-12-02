@@ -1,4 +1,6 @@
 import argparse
+import json
+import os
 from dataclasses import dataclass
 
 import numpy as np
@@ -12,9 +14,9 @@ from plot_solution import (
     plot_solution_matplotlib,
 )
 
-from lucid import MultiSet, RectSet
+from pylucid import ModelEstimator
 
-FILTER = 'params.C_coeff = "1.0" and metrics.run.obj_val > 0 and metrics.run.obj_val < 1 and params.constant_lattice_points = "False" and metrics.run.success = 1 and T = "5"'
+FILTER = "metrics.run.safety > 0 and metrics.run.safety < 1 and metrics.run.success = 1"
 
 
 @dataclass
@@ -42,14 +44,17 @@ def plot_solution(args: Args, data: pd.DataFrame):
     for run in data.itertuples():
         feature_map = config.feature_map(
             num_frequencies=run.num_frequencies,
-            sigma_l=run.sigma_l,
+            sigma_l=run.feature_sigma_l,
             sigma_f=run.sigma_f,
             X_bounds=config.X_bounds,
         )
-        estimator = config.estimator(
-            kernel=config.kernel(sigma_l=run.sigma_l, sigma_f=run.sigma_f),
-            regularization_constant=run.lambda_,
-        )
+        if config.estimator != ModelEstimator:
+            estimator = config.estimator(
+                kernel=config.kernel(sigma_l=run.sigma_l, sigma_f=run.sigma_f),
+                regularization_constant=run.lambda_,
+            )
+        else:
+            estimator = config.estimator(lambda x: feature_map(config.system_dynamics(x)))
         estimator.consolidate(config.x_samples, feature_map(config.xp_samples))
         plot_solution_matplotlib(
             args=args,
@@ -116,11 +121,19 @@ def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
 
 def get_solution(run: "Run", d_uri: str):
     _, path = run.info.artifact_uri.split("/mlruns/")
-    file = requests.get(f"{d_uri}/{path}/solution.json", timeout=10)
-    if file.status_code == 200:
-        file = file.json()
-        return np.array(file["data"]).flatten()
-    return np.array([])
+    # Get the path of this python script
+    #
+    file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "mlruns", path, "solution.json")
+    print(f"Loading solution from {file_path} ...")
+    if not os.path.exists(file_path):
+        print(f"WARNING: File {file_path} does not exist.")
+        return np.array([])
+    with open(file_path, "r") as f:
+        content = json.load(f)
+    if "data" not in content:
+        print(f"WARNING: File {file_path} does not contain 'data' key.")
+        return np.array([])
+    return np.array(content["data"]).flatten()
 
 
 def get_data_from_mlflow(args: Args):
@@ -138,8 +151,8 @@ def get_data_from_mlflow(args: Args):
             # Params
             "seed": int(run.data.params["seed"]),
             "sigma_f": float(run.data.params["sigma_f"]),
-            "sigma_l": np.array(eval(run.data.params["sigma_l"])),
-            "lambda_": float(run.data.params["lambda_"]),
+            "sigma_l": np.array([float(run.data.params["sigma_l"])] if isinstance(eval(run.data.params["sigma_l"]), float) else eval(run.data.params["sigma_l"])),
+            "lambda_": float(run.data.params.get("lambda", None) or run.data.params.get("lambda_", None)),
             "num_frequencies": int(run.data.params["num_frequencies"]),
             "lattice_resolution": int(
                 (
@@ -153,13 +166,16 @@ def get_data_from_mlflow(args: Args):
             "T": int(run.data.params["time_horizon"]),
             "gamma": float(run.data.params["gamma"]),
             "noise_scale": float(run.data.params["noise_scale"]),
+            "set_scaling": float(run.data.params["set_scaling"]),
+            "num_samples": int(run.data.params["num_samples"]),
+            "feature_sigma_l": np.array([float(run.data.params["feature_sigma_l"])] if isinstance(eval(run.data.params["feature_sigma_l"]), float) else eval(run.data.params["feature_sigma_l"])),
             "oversample_factor": float(run.data.params["oversample_factor"]),
             # Metrics
             "eta": float(run.data.metrics["run.eta"]),
             "c": float(run.data.metrics["run.c"]),
             "norm": float(run.data.metrics["run.norm"]),
-            "obj_val": float(run.data.metrics["run.obj_val"]),
-            "percentage": (1 - float(run.data.metrics["run.obj_val"])) * 100,
+            "obj_val": 1 - float(run.data.metrics["run.safety"]),
+            "percentage": float(run.data.metrics["run.safety"]) * 100,
             # Format time as MM:SS
             "time_milliseconds": run.info.end_time - run.info.start_time,
             "time": f"{(run.info.end_time - run.info.start_time) // 1000 // 60}:{(run.info.end_time - run.info.start_time) // 1000 % 60:02d}",
@@ -179,34 +195,44 @@ def get_data_from_pickle(args: Args):
     """
     data = pd.read_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
     print(f"Loaded {len(data)} runs from pickle file for experiment '{args.experiment}'.")
-    # Filter out the data where "T" != 5
-    data = data[data["T"] == 5]
     return data
 
 
 LATEX_KEEPS = {
     "num_frequencies": "Freq.",
     "lattice_resolution": "Lattice Size",
+    "feature_sigma_l": r"$\sigma_{l_f}$",
+    "set_scaling": "Set Scale",
     "eta": r"$\eta$",
-    "gamma": r"$\gamma$",
     "c": r"$c$",
     "time": "Runtime",
     "percentage": "Safety Prob.",
 }
 
 
-def main(args: Args):
-    # Create an experiment with a name that is unique and case sensitive.
-    data = get_data_from_mlflow(args) if args.download else get_data_from_pickle(args)
-    # Remove duplicate runs based on the 'objective value' column
-    data = data.drop_duplicates(subset=["obj_val"], keep="first")
-    print(f"Found {len(data)} unique runs in experiment '{args.experiment}'.")
-    data[LATEX_KEEPS.keys()].rename(LATEX_KEEPS, axis=1).to_latex(
-        f"benchmarks/integration/{args.experiment.lower()}.tex",
+def print_latex_table(data: pd.DataFrame, experiment: str):
+    latex_data = data[LATEX_KEEPS.keys()].sort_values(by=["percentage", "c"], ascending=[False, True])
+    latex_data.percentage = latex_data.percentage.apply(lambda x: f"{x:.2f}\\%")
+    latex_data.set_scaling = latex_data.set_scaling.apply(lambda x: f"{x * 100:.0f}\\%")
+    latex_data.feature_sigma_l = latex_data.feature_sigma_l.apply(
+        lambda x: "[" + ", ".join([f"{v:.2f}" for v in x]) + "]"
+    )
+    latex_data.rename(LATEX_KEEPS, axis=1).to_latex(
+        f"benchmarks/integration/{experiment.lower()}.tex",
         index=False,
         float_format="%.2f",
         column_format="c" * len(LATEX_KEEPS),
     )
+
+
+def main(args: Args):
+    # Create an experiment with a name that is unique and case sensitive.
+    data = get_data_from_mlflow(args) if args.download else get_data_from_pickle(args)
+    data.sort_values(by=["obj_val"], ascending=True, inplace=True)
+    # Remove duplicate runs based on the 'objective value' column
+    data = data.drop_duplicates(subset=["obj_val"], keep="first")
+    print(f"Found {len(data)} unique runs in experiment '{args.experiment}'.")
+    print_latex_table(data, args.experiment)
     for i, row in enumerate(data.itertuples()):
         print(
             f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, lattice_resolution {row.lattice_resolution}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"

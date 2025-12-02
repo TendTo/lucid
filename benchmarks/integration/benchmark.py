@@ -1,6 +1,8 @@
+import argparse
 import itertools
 import multiprocessing
 import os
+import traceback
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -9,11 +11,60 @@ import mlflow.data
 import mlflow.entities
 
 from pylucid import *
-from pylucid._pylucid import ModelEstimator
 from pylucid.plot import plot_solution
 
 if TYPE_CHECKING:
+    from typing import Sequence
+
     from pylucid._pylucid import NMatrix
+
+
+class BenchmarkArgs(argparse.Namespace):
+    parallel: bool
+    jobs: int
+    scenario: str
+    single: bool
+
+
+def parse_args(scenario: str = "", args: "Sequence[str] | None" = None) -> BenchmarkArgs:
+    parser = argparse.ArgumentParser(description="Benchmark configuration")
+    parser.add_argument("-p", "--parallel", action="store_true", help="Run benchmarks in parallel (multiprocessing)")
+    parser.add_argument(
+        "-j",
+        "--jobs",
+        type=int,
+        default=max(multiprocessing.cpu_count() - 2, 1),
+        help="Number of parallel jobs to run (default: CPU cores - 2)",
+    )
+    parser.add_argument("-s", "--scenario", type=str, default=scenario, help="Scenario YAML file to run")
+    parser.add_argument("--single", action="store_true", help="Only run a single benchmark (for debugging)")
+    args = parser.parse_args(args, namespace=BenchmarkArgs())
+    return args
+
+
+def run_grid(
+    args: BenchmarkArgs,
+    grid: "dict[str, list[Any]]" = None,
+    params_list: "tuple[tuple[tuple[str, ...], tuple[Any, ...]]]" = None,
+):
+    if grid is not None and params_list is not None:
+        raise ValueError("Either grid or params_list should be provided, not both.")
+    if grid is not None:
+        param_combinations = list(itertools.product(*grid.values()))
+        grid_keys = list(grid.keys())
+        print(f"Running {len(param_combinations)} configurations.")
+        params_list = [(grid_keys, param_combination) for param_combination in param_combinations]
+
+    # Run benchmarks in parallel using multiprocessing
+    if args.parallel and not args.single:
+        with multiprocessing.Pool(processes=max(1, args.jobs)) as pool:
+            pool.starmap(scenario_config, [(args.scenario,) + params for params in params_list])
+    else:
+        for i, params in enumerate(params_list):
+            print(f"Running scenario {i+1}/{len(params_list)} with: {params}")
+            scenario_config(args.scenario, *params)
+            if args.single:
+                break
 
 
 def rmse(x: "NMatrix", y: "NMatrix", ax=0) -> "np.ndarray":
@@ -113,7 +164,10 @@ def single_benchmark(name: str, config: Configuration):
                 mlflow.log_metric("num_variables", stats.num_variables)
             status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FINISHED)
         except Exception as ex:
-            log.error(f"Error in benchmark {name} with configuration {config.to_safe_dict()}: {ex}")
+            log.error(
+                f"Error in benchmark {name} with configuration {config.to_safe_dict()}: {ex}\n{traceback.format_exc()}"
+            )
+            print(traceback.format_exc())
             status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FAILED)
         finally:
             log.clear()
@@ -169,6 +223,45 @@ class TimeLogger:
 
     def __exit__(self, exc_type, exc_value, traceback):
         mlflow.log_metric(f"duration.{self.name}", (datetime.now() - self.start_time).total_seconds())
+
+
+def tune(conf: Configuration, tffm: TruncatedFourierFeatureMap):
+    import optuna
+
+    def sample(conf: Configuration) -> tuple["NMatrix", "NMatrix"]:
+        if conf.system_dynamics is None:
+            return conf.x_samples, conf.xp_samples
+        X_samples = conf.X_bounds.sample(conf.num_samples)
+        Xp_samples = conf.system_dynamics(X_samples)
+        return X_samples, Xp_samples
+
+    def objective(trial: optuna.Trial):
+        sigma_l = np.array(
+            [trial.suggest_float(f"sigma_l{i}", 1e-5, 1e5, log=True) for i in range(conf.X_bounds.dimension)]
+        )
+        estimator = conf.estimator(
+            kernel=GaussianKernel(sigma_f=conf.sigma_f, sigma_l=sigma_l),
+            regularization_constant=conf.lambda_,
+        )
+        training_x_samples, training_xp_samples = sample(conf)
+        try:
+            estimator.fit(training_x_samples, tffm(training_xp_samples))
+        except Exception:
+            return np.nan
+        val_x_samples, val_xp_samples = sample(conf)
+        return -estimator.score(val_x_samples, tffm(val_xp_samples))
+
+    study = optuna.create_study()
+    study.optimize(objective, n_trials=20, n_jobs=4)
+
+    print("Number of finished trials: ", len(study.trials))
+    best_params = study.best_params
+    print("Best trial:", best_params)
+
+    return conf.estimator(
+        kernel=GaussianKernel(sigma_f=conf.sigma_f, sigma_l=np.array(tuple(best_params.values()))),
+        regularization_constant=conf.lambda_,
+    )
 
 
 def benchmark_pipeline(config: Configuration):
@@ -234,6 +327,9 @@ def benchmark_pipeline(config: Configuration):
             config.f_xp_samples = feature_map(config.xp_samples)
 
     with TimeLogger("fit"):
+        if not isinstance(estimator, ModelEstimator):
+            log.info("Tuning hyperparameters...")
+            estimator = tune(config, feature_map)
         log.debug(f"Estimator pre-fit: {estimator}")
         estimator.fit(x=config.x_samples, y=config.f_xp_samples)  # Actual fitting of the regressor
         log.info(f"Estimator post-fit: {estimator}")
