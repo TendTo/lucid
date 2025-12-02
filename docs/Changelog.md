@@ -13,15 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MACRO documentation
 - Windows support for HiGHS
 - Support for `epsilon`, `b_kappa`, `b_norm`, `feature_sigma_l` and `set_scaling` parameters in the configuration
-- Improved problem formulation
+- PSO optimizer
+- SoPlex optimizer
 - Monte Carlo sampling to use as a baseline
 - Online demo running in the Browser using WebAssembly
+- Ability to record internal statistics during tool execution via the `Stats` class
 
 ### Changed
 
 - The default examples in the GUI have been updated to match the ones in the paper
 - Optimized the number of points required for plotting eta and gamma planes
 - Pylucid loads Gurobi dynamically at runtime, to avoid forcing its installation if it is not needed
+- Improved LP problem formulation
+- Improved documentation
 
 ### Fixed
 
@@ -33,6 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[0.0.2]: https://github.com/TendTo/lucid
-[0.0.1]: https://github.com/TendTo/lucid
+[0.0.1]: https://github.com/TendTo/lucid/tree/0.0.1
+[0.0.2]: https://github.com/TendTo/lucid/compare/0.0.1...HEAD
 [NEXT.VERSION]: https://github.com/TendTo/lucid
