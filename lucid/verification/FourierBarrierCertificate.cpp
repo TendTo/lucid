@@ -198,6 +198,35 @@ double compute_A_impl(const int lattice_resolution, const int f_max, const RectS
   return *std::ranges::max_element(As);
 }
 
+/**
+ * Check whether there are any common points between the two sets defined by the include masks.
+ * @pre The include masks must be sorted in ascending order.
+ * @param x0_include_mask include mask for the initial set
+ * @param xu_include_mask include mask for the unsafe set
+ * @return true if at least one point is common between the two sets
+ * @return false if there are no points shared between the two sets
+ */
+bool check_common_points(const std::vector<Index>& x0_include_mask, const std::vector<Index>& xu_include_mask) {
+  // Check whether any point in x0 is also in xu, which would make the problem infeasible
+  if (x0_include_mask.empty() || xu_include_mask.empty()) return false;
+
+  // The masks produced by include_exclude_masks_wrapped iterate indices in ascending order,
+  // so we can detect any common index in linear time using a two-pointer merge.
+  std::size_t i = 0;
+  std::size_t j = 0;
+  while (i < x0_include_mask.size() && j < xu_include_mask.size()) {
+    const Index a = x0_include_mask[i];
+    const Index b = xu_include_mask[j];
+    if (a == b) return true;
+    if (a < b) {
+      ++i;
+    } else {
+      ++j;
+    }
+  }
+  return false;
+}
+
 }  // namespace
 
 std::string FourierBarrierCertificateParameters::to_string() const {
@@ -341,6 +370,12 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
     Stats::Scoped::top()->value().A_xn_wo_x0 = A_x0;
     Stats::Scoped::top()->value().A_xn_wo_xu = A_xu;
     Stats::Scoped::top()->value().A_xn_wo_x = A_x;
+  }
+
+  // Check whether any point in x0 is also in xu, which would make the problem infeasible
+  if (check_common_points(x0_include_mask, xu_include_mask)) {
+    LUCID_ERROR("Scaled initial set and unsafe set have some points in common. Problem is infeasible.");
+    return false;
   }
 
   return optimiser.solve_fourier_barrier_synthesis(

@@ -105,7 +105,7 @@ source .venv/bin/activate
 .venv\Scripts\activate
 
 # Install pylucid
-pip install "pylucid[gui,plot]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
+pip install "pylucid[gui]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
 
 # Ensure pylucid is installed correctly
 python3 -c "import pylucid; print(pylucid.__version__)"
@@ -145,7 +145,7 @@ source .venv/bin/activate
 .venv\Scripts\activate
 
 # Install the python wrapper (pylucid)
-pip install ".[gui,plot]"
+pip install ".[gui]"
 
 # Ensure pylucid is installed
 python3 -c "import pylucid; print(pylucid.__version__)"

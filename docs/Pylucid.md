@@ -25,7 +25,7 @@ We provide a pre-built Pylucid package that can be installed directly with pip w
 
 ```bash
 # Install pylucid
-pip install "pylucid[gui,plot]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
+pip install "pylucid[gui]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
 
 # Ensure pylucid is installed correctly
 python3 -c "import pylucid; print(pylucid.__version__)"
@@ -54,7 +54,7 @@ It is possible to customise the installation, including optional dependencies, t
 # GUI => Graphical User Interface, pylucid-gui
 # Verification => Verify the barrier via the dReal SMT solver
 # Plot => Plot the results using plotly
-pip install ".[gui,verification,plot]"
+pip install ".[gui,verification]"
 ```
 
 > [!TIP]  
