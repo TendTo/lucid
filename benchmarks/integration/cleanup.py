@@ -26,7 +26,7 @@ def get_metric_value(run_dir: Path, metric_name: str) -> Optional[float]:
     try:
         # MLflow metrics files contain: timestamp value step
         # We want the last (most recent) value
-        with open(metric_file, "r") as f:
+        with open(metric_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
             if lines:
                 # Get last line and extract the value (second column)
@@ -54,7 +54,7 @@ def get_run_name(run_dir: Path) -> str:
     meta_file = run_dir / "meta.yaml"
     if meta_file.exists():
         try:
-            with open(meta_file, "r") as f:
+            with open(meta_file, "r", encoding="utf-8") as f:
                 content = f.read()
                 # Simple parsing for run_name
                 for line in content.split("\n"):
@@ -72,6 +72,7 @@ def delete_low_safety_runs(
     metric_name: str = "run.safety",
     threshold: float = 0.1,
     dry_run: bool = False,
+    remove: bool = False,
 ) -> None:
     """
     Delete runs with safety metric below threshold.
@@ -122,18 +123,18 @@ def delete_low_safety_runs(
 
             if not dry_run:
                 try:
-                    if args.remove:
+                    if remove:
                         shutil.rmtree(run_dir)
                     else:
                         shutil.move(run_dir, run_dir.parent.parent.parent / "deleted" / experiment_id / run_dir.name)
                     # shutil.rmtree(run_dir)
-                    print(f"      ✅ Deleted")
+                    print("      ✅ Deleted")
                 except Exception as e:
                     print(f"      ❌ Error deleting: {e}")
                     kept_count += 1
                     continue
             else:
-                print(f"      [Would delete in real run]")
+                print("      [Would delete in real run]")
 
             deleted_count += 1
         else:
@@ -175,4 +176,5 @@ if __name__ == "__main__":
         metric_name=args.metric_name,
         threshold=args.threshold,
         dry_run=args.dry_run,
+        remove=args.remove,
     )
