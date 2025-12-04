@@ -62,7 +62,7 @@ def scenario_config(
     )
     feature_map = LinearTruncatedFourierFeatureMap(
         num_frequencies=config.num_frequencies,
-        sigma_l=config.sigma_l,
+        sigma_l=config.feature_sigma_l,
         sigma_f=config.sigma_f,
         X_bounds=X_bounds,
     )

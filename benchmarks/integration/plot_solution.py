@@ -443,11 +443,11 @@ def base_load_configuration(file_path: "str | Path") -> Configuration:
     return config
 
 
-def load_configuration(file_path: "str | Path") -> Configuration:
-    config = base_load_configuration(file_path)
+def load_configuration(config: "str | Path | Configuration") -> Configuration:
+    config = config if isinstance(config, Configuration) else base_load_configuration(config)
     config.feature_map = config.feature_map(
         num_frequencies=config.num_frequencies,
-        sigma_l=config.sigma_l,
+        sigma_l=config.feature_sigma_l,
         sigma_f=config.sigma_f,
         X_bounds=config.X_bounds,
     )
