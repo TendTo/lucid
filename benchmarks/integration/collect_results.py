@@ -12,6 +12,7 @@ from plot_solution import (
     base_load_configuration,
     plot_contour_benchmarks,
     plot_solution_matplotlib,
+    load_configuration,
 )
 
 from pylucid import ModelEstimator
@@ -170,6 +171,10 @@ def get_data_from_mlflow(args: Args):
             "num_samples": int(run.data.params["num_samples"]),
             "feature_sigma_l": np.array([float(run.data.params["feature_sigma_l"])] if isinstance(eval(run.data.params["feature_sigma_l"]), float) else eval(run.data.params["feature_sigma_l"])),
             "oversample_factor": float(run.data.params["oversample_factor"]),
+            "b_kappa": float(run.data.params.get("b_kappa", 1.0)),
+            "b_norm": float(run.data.params.get("b_norm", 1.0)),
+            "C_coeff": float(run.data.params.get("C_coeff", 1.0)),
+            "epsilon": float(run.data.params.get("epsilon", 0.0)),
             # Metrics
             "eta": float(run.data.metrics["run.eta"]),
             "c": float(run.data.metrics["run.c"]),
@@ -179,8 +184,12 @@ def get_data_from_mlflow(args: Args):
             # Format time as MM:SS
             "time_milliseconds": run.info.end_time - run.info.start_time,
             "time": f"{(run.info.end_time - run.info.start_time) // 1000 // 60}:{(run.info.end_time - run.info.start_time) // 1000 % 60:02d}",
+            "peak_rss_memory_usage_bytes": float(run.data.metrics.get("run.peak_rss_memory_usage_bytes", -1)),
+            "num_variables": int(run.data.metrics.get("run.num_variables", -1)),
+            "num_constraints": int(run.data.metrics.get("run.num_constraints", -1)),
             # Results
             "solution": get_solution(run, args.d_uri),
+            "verified": -1,
         }
         for run in runs
     )
@@ -224,6 +233,27 @@ def print_latex_table(data: pd.DataFrame, experiment: str):
         column_format="c" * len(LATEX_KEEPS),
     )
 
+def config_from_df_row(args: Args, row: pd.Series):
+    config = base_load_configuration(f"benchmarks/integration/{args.experiment.lower()}.yaml")
+    config.seed = row.seed
+    config.sigma_f = row.sigma_f
+    config.sigma_l = row.sigma_l
+    config.lambda_ = row.lambda_
+    config.num_frequencies = row.num_frequencies
+    config.lattice_resolution = row.lattice_resolution
+    config.time_horizon = row["T"]
+    config.gamma = row.gamma
+    config.noise_scale = row.noise_scale
+    config.set_scaling = row.set_scaling
+    config.feature_sigma_l = row.feature_sigma_l
+    config.num_samples = row.num_samples
+    config.oversample_factor = row.oversample_factor
+    config.b_kappa = row.b_kappa
+    config.b_norm = row.b_norm
+    config.C_coeff = row.C_coeff
+    config.epsilon = row.epsilon
+    config = load_configuration(config)
+    return config
 
 def main(args: Args):
     # Create an experiment with a name that is unique and case sensitive.
