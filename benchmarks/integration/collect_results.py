@@ -136,6 +136,19 @@ def get_solution(run: "Run", d_uri: str):
     return np.array(content["data"]).flatten()
 
 
+def float_or_array(run: "Run", key: str) -> float | np.ndarray:
+    value = run.data.params[key]
+    try:
+        # Try to evaluate as a Python literal (e.g., list, array)
+        evaluated_value = eval(value)
+        if isinstance(evaluated_value, (list, np.ndarray)):
+            return np.array(evaluated_value)
+        return float(evaluated_value)
+    except (SyntaxError, NameError):
+        # If eval fails, treat it as a float
+        return float(value)
+
+
 def get_data_from_mlflow(args: Args):
     # Create an experiment with a name that is unique and case sensitive.
     client = MlflowClient(tracking_uri=args.uri)
@@ -151,7 +164,11 @@ def get_data_from_mlflow(args: Args):
             # Params
             "seed": int(run.data.params["seed"]),
             "sigma_f": float(run.data.params["sigma_f"]),
-            "sigma_l": np.array([float(run.data.params["sigma_l"])] if isinstance(eval(run.data.params["sigma_l"]), float) else eval(run.data.params["sigma_l"])),
+            "sigma_l": (
+                float_or_array(run, "fit.sigma_l")
+                if "fit.sigma_l" in run.data.params
+                else float_or_array(run, "sigma_l")
+            ),
             "lambda_": float(run.data.params.get("lambda", None) or run.data.params.get("lambda_", None)),
             "num_frequencies": int(run.data.params["num_frequencies"]),
             "lattice_resolution": int(
@@ -168,7 +185,7 @@ def get_data_from_mlflow(args: Args):
             "noise_scale": float(run.data.params["noise_scale"]),
             "set_scaling": float(run.data.params["set_scaling"]),
             "num_samples": int(run.data.params["num_samples"]),
-            "feature_sigma_l": np.array([float(run.data.params["feature_sigma_l"])] if isinstance(eval(run.data.params["feature_sigma_l"]), float) else eval(run.data.params["feature_sigma_l"])),
+            "feature_sigma_l": float_or_array(run, "feature_sigma_l"),
             "oversample_factor": float(run.data.params["oversample_factor"]),
             "b_kappa": float(run.data.params.get("b_kappa", 1.0)),
             "b_norm": float(run.data.params.get("b_norm", 1.0)),
@@ -233,8 +250,9 @@ def print_latex_table(data: pd.DataFrame, experiment: str):
         column_format="c" * len(LATEX_KEEPS),
     )
 
-def config_from_df_row(args: Args, row: pd.Series):
-    config = base_load_configuration(f"benchmarks/integration/{args.experiment.lower()}.yaml")
+
+def config_from_df_row(experiment: str, row: pd.Series):
+    config = base_load_configuration(f"benchmarks/integration/{experiment.lower()}.yaml", row.seed)
     config.seed = row.seed
     config.sigma_f = row.sigma_f
     config.sigma_l = row.sigma_l
@@ -255,17 +273,19 @@ def config_from_df_row(args: Args, row: pd.Series):
     config = load_configuration(config)
     return config
 
+
 def main(args: Args):
     # Create an experiment with a name that is unique and case sensitive.
     data = get_data_from_mlflow(args) if args.download else get_data_from_pickle(args)
     data.sort_values(by=["obj_val"], ascending=True, inplace=True)
     if args.verify:
         from pylucid.dreal import verify_barrier_conditions
+
         verified_rows = data[data["verified"] == 1].shape[0]
         for i, row in data.iterrows():
             if verified_rows >= 10:
                 break
-            config = config_from_df_row(args, row)
+            config = config_from_df_row(args.experiment, row)
             success = verify_barrier_conditions(
                 X_bounds=config.X_bounds,
                 X_init=config.X_init,

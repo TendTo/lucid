@@ -430,21 +430,19 @@ def load_solution(file_path: "str | Path") -> "tuple[np.ndarray, float, float]":
     return np.array(data["data"], dtype=float).flatten(), data["eta"], data["c"]
 
 
-def base_load_configuration(file_path: "str | Path") -> Configuration:
+def base_load_configuration(file_path: "str | Path", seed: int = -1) -> Configuration:
     config = Configuration.from_file(file_path)
+    if seed >= 0:
+        config.seed = seed
     if config.seed >= 0:
         np.random.seed(config.seed)
         random.seed(config.seed)
-    if len(config.x_samples) == 0:
-        config.x_samples = config.X_bounds.sample(config.num_samples)
-    if len(config.xp_samples) == 0:
-        f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
-        config.xp_samples = f(config.x_samples)
+    config.populate_samples()
     return config
 
 
-def load_configuration(config: "str | Path | Configuration") -> Configuration:
-    config = config if isinstance(config, Configuration) else base_load_configuration(config)
+def load_configuration(config: "str | Path | Configuration", seed: int = -1) -> Configuration:
+    config = config if isinstance(config, Configuration) else base_load_configuration(config, seed=seed)
     config.feature_map = config.feature_map(
         num_frequencies=config.num_frequencies,
         sigma_l=config.feature_sigma_l,

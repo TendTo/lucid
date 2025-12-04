@@ -228,6 +228,9 @@ class TimeLogger:
 def tune(conf: Configuration, tffm: TruncatedFourierFeatureMap):
     import optuna
 
+    if isinstance(conf.estimator, Estimator):
+        return conf.estimator
+
     def sample(conf: Configuration) -> tuple["NMatrix", "NMatrix"]:
         if conf.system_dynamics is None:
             return conf.x_samples, conf.xp_samples
@@ -277,7 +280,7 @@ def benchmark_pipeline(config: Configuration):
         ), "x_samples and xp_samples must have the same number of samples"
         assert isinstance(config.sigma_f, float) and config.sigma_f > 0, "sigma_f must be a positive float"
         assert (
-            not isinstance(config.feature_map, FeatureMap) or config.num_frequencies <= 0
+            not isinstance(config.feature_map, FeatureMap) or config.feature_map.num_frequencies == config.num_frequencies
         ), "num_frequencies and feature_map are mutually exclusive"
         assert (
             config.f_xp_samples is not None
@@ -329,7 +332,8 @@ def benchmark_pipeline(config: Configuration):
     with TimeLogger("fit"):
         if not isinstance(estimator, ModelEstimator):
             log.info("Tuning hyperparameters...")
-            estimator = tune(config, feature_map)
+            estimator: "KernelRidgeRegressor[GaussianKernel]" = tune(config, feature_map)
+            mlflow.log_param("fit.sigma_l", estimator.kernel.sigma_l.tolist())
         log.debug(f"Estimator pre-fit: {estimator}")
         estimator.fit(x=config.x_samples, y=config.f_xp_samples)  # Actual fitting of the regressor
         log.info(f"Estimator post-fit: {estimator}")
