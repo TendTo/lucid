@@ -71,6 +71,111 @@ def tune() -> "Estimator":
     return estimator
 
 
+def run_pipeline(
+    config: "Configuration",
+    lattice_resolution: int,
+    estimator: "Estimator",
+    feature_map: "FeatureMap",
+    optimiser_cb: "Callable[[OptimiserResult], None]" = None,
+    plot_cb: "Callable[[Figure], None]" = None,
+    verify_cb: "Callable[[bool], None]" = None,
+    show: bool = True,
+) -> bool:
+    """Having setup the configuration, feature map, and estimator, run the main pipeline.
+
+    Args:
+        config: The configuration object containing all the parameters.
+        lattice_resolution: The resolution of the lattice to use for synthesis.
+        estimator: The trained estimator to use for synthesis.
+        feature_map: The feature map used to train the estimator.
+        optimiser_cb: A callback function to handle the optimization results.
+        plot_cb: A callback function to handle the plotting results.
+        verify_cb: A callback function to handle the verification results.
+        show: Whether to show the plots.
+    
+    Returns:
+        True if the optimization was successful, False otherwise.
+    """
+    barrier = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
+    success = barrier.synthesize(
+        lattice_resolution=config.lattice_resolution,
+        estimator=estimator,
+        X_bounds=config.X_bounds,
+        X_init=config.X_init,
+        X_unsafe=config.X_unsafe,
+        feature_map=feature_map,
+        parameters=FourierBarrierCertificateParameters(
+            b_norm=config.b_norm,
+            epsilon=config.epsilon,
+            C_coeff=config.C_coeff,
+            set_scaling=config.set_scaling,
+            kappa=config.b_kappa,
+        ),
+        optimiser=config.optimiser(config.problem_log_file, config.iis_log_file),
+    )
+
+    obj_val = 1 - barrier.safety
+    eta = barrier.eta
+    c = barrier.c
+    norm = barrier.norm
+    sol = barrier.coefficients
+
+    if not success:
+        log.error("Optimization failed")
+    else:
+        log.info("Optimization succeeded")
+        log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
+        log.debug(f"{sol = }")
+    if optimiser_cb is not None:
+        optimiser_cb(
+            OptimiserResult(
+                success=success,
+                obj_val=obj_val,
+                sol=sol,
+                eta=eta,
+                c=c,
+                norm=norm,
+            )
+        )
+    if config.plot and config.X_bounds.dimension <= 2:
+        log.info("Plotting the solution")
+        fig = plot_solution(
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            feature_map=feature_map,
+            eta=eta if success else None,
+            gamma=config.gamma,
+            sol=sol if success else None,
+            f=config.system_dynamics,
+            estimator=estimator,
+            num_samples=lattice_resolution,
+            c=c if success else None,
+            show=show,
+        )
+        if plot_cb is not None:
+            plot_cb(fig)
+    if config.verify and success:
+        log.info("Verifying the solution")
+        verified = verify_barrier_conditions(
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            sigma_f=config.sigma_f,
+            eta=eta,
+            c=c,
+            gamma=config.gamma,
+            estimator=estimator,
+            tffm=feature_map,
+            sol=sol,
+            epsilon=config.epsilon,
+            b_norm=config.b_norm,
+        )
+        if verify_cb is not None:
+            verify_cb(verified)
+    
+    return success
+
 def pipeline(
     config: "Configuration",
     show: bool = True,
@@ -172,80 +277,13 @@ def pipeline(
         log.debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
         log.debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")
 
-    barrier = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
-    success = barrier.synthesize(
-        lattice_resolution=config.lattice_resolution,
+    return run_pipeline(
+        config=config,
+        lattice_resolution=lattice_resolution,
         estimator=estimator,
-        X_bounds=config.X_bounds,
-        X_init=config.X_init,
-        X_unsafe=config.X_unsafe,
         feature_map=feature_map,
-        parameters=FourierBarrierCertificateParameters(
-            b_norm=config.b_norm,
-            epsilon=config.epsilon,
-            C_coeff=config.C_coeff,
-            set_scaling=config.set_scaling,
-            kappa=config.b_kappa,
-        ),
-        optimiser=config.optimiser(config.problem_log_file, config.iis_log_file),
+        optimiser_cb=optimiser_cb,
+        plot_cb=plot_cb,
+        verify_cb=verify_cb,
+        show=show,
     )
-
-    obj_val = 1 - barrier.safety
-    eta = barrier.eta
-    c = barrier.c
-    norm = barrier.norm
-    sol = barrier.coefficients
-
-    if not success:
-        log.error("Optimization failed")
-    else:
-        log.info("Optimization succeeded")
-        log.debug(f"{obj_val = }, {eta = }, {c = }, {norm = }")
-        log.debug(f"{sol = }")
-    if optimiser_cb is not None:
-        optimiser_cb(
-            OptimiserResult(
-                success=success,
-                obj_val=obj_val,
-                sol=sol,
-                eta=eta,
-                c=c,
-                norm=norm,
-            )
-        )
-    if config.plot and config.X_bounds.dimension <= 2:
-        log.info("Plotting the solution")
-        fig = plot_solution(
-            X_bounds=config.X_bounds,
-            X_init=config.X_init,
-            X_unsafe=config.X_unsafe,
-            feature_map=feature_map,
-            eta=eta if success else None,
-            gamma=config.gamma,
-            sol=sol if success else None,
-            f=config.system_dynamics,
-            estimator=estimator,
-            num_samples=lattice_resolution,
-            c=c if success else None,
-            show=show,
-        )
-        if plot_cb is not None:
-            plot_cb(fig)
-    if config.verify and success:
-        log.info("Verifying the solution")
-        verified = verify_barrier_conditions(
-            X_bounds=config.X_bounds,
-            X_init=config.X_init,
-            X_unsafe=config.X_unsafe,
-            sigma_f=config.sigma_f,
-            eta=eta,
-            c=c,
-            gamma=config.gamma,
-            estimator=estimator,
-            tffm=feature_map,
-            sol=sol,
-            epsilon=config.epsilon,
-            b_norm=config.b_norm,
-        )
-        if verify_cb is not None:
-            verify_cb(verified)
