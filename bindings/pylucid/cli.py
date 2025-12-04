@@ -160,6 +160,8 @@ class Configuration(Namespace):
                 config_dict[k] = set_value if isinstance(v, MultiSet) else [set_value]
             elif isinstance(v, (Estimator, Kernel, FeatureMap, Optimiser)):
                 config_dict[k] = v.__class__.__name__
+            elif isinstance(v, np.number):
+                config_dict[k] = v.item()
         return config_dict
 
     def to_yaml(self, path: "str | Path | None" = None) -> str:
