@@ -2,10 +2,8 @@ import argparse
 import json
 import os
 from dataclasses import dataclass
-
 import numpy as np
 import pandas as pd
-import requests
 from mlflow import MlflowClient
 from mlflow.entities import Run
 from plot_solution import (
@@ -36,6 +34,7 @@ class Args(argparse.Namespace):
     plot: bool
     filter: str
     output: str
+    to_config: bool
 
 
 def plot_solution(args: Args, data: pd.DataFrame):
@@ -211,6 +210,7 @@ LATEX_KEEPS = {
     "num_frequencies": "Freq.",
     "lattice_resolution": "Lattice Size",
     "feature_sigma_l": r"$\sigma_{l_f}$",
+    "sigma_l": r"$\sigma_l$",
     "set_scaling": "Set Scale",
     "eta": r"$\eta$",
     "c": r"$c$",
@@ -241,7 +241,7 @@ def config_from_df_row(args: Args, row: pd.Series):
     config.lambda_ = row.lambda_
     config.num_frequencies = row.num_frequencies
     config.lattice_resolution = row.lattice_resolution
-    config.time_horizon = row["T"]
+    config.time_horizon = row["T"] if isinstance(row, pd.Series) else row.T
     config.gamma = row.gamma
     config.noise_scale = row.noise_scale
     config.set_scaling = row.set_scaling
@@ -259,6 +259,35 @@ def main(args: Args):
     # Create an experiment with a name that is unique and case sensitive.
     data = get_data_from_mlflow(args) if args.download else get_data_from_pickle(args)
     data.sort_values(by=["obj_val"], ascending=True, inplace=True)
+    if args.verify:
+        from pylucid.dreal import verify_barrier_conditions
+        verified_rows = data[data["verified"] == 1].shape[0]
+        for i, row in data.iterrows():
+            if verified_rows >= 10:
+                break
+            config = config_from_df_row(args, row)
+            success = verify_barrier_conditions(
+                X_bounds=config.X_bounds,
+                X_init=config.X_init,
+                X_unsafe=config.X_unsafe,
+                estimator=config.estimator,
+                b_norm=config.b_norm,
+                c=row.c,
+                eta=row.eta,
+                gamma=row.gamma,
+                epsilon=config.epsilon,
+                sigma_f=config.sigma_f,
+                sol=row.solution,
+                tffm=config.feature_map,
+            )
+            if success:
+                verified_rows += 1
+                data.at[i, "verified"] = 1
+            else:
+                data.at[i, "verified"] = 0
+            data.to_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
+        data = data[data["verified"] == 1]
+
     # Remove duplicate runs based on the 'objective value' column
     data = data.drop_duplicates(subset=["obj_val"], keep="first")
     print(f"Found {len(data)} unique runs in experiment '{args.experiment}'.")
@@ -275,6 +304,11 @@ def main(args: Args):
             r = input(f"Run {row.Index} - Print?...")
             if r.lower() == "y" or r.lower() == "yes":
                 plot_solution(args, row)
+        if args.to_config:
+            # Ensure the output directory exists
+            os.makedirs(f"benchmarks/integration/{args.experiment.lower()}", exist_ok=True)
+            config = config_from_df_row(args, row)
+            config.to_yaml(f"benchmarks/integration/{args.experiment.lower()}/{i}.yaml")
         print("---" * 20)
     plot_contour_benchmarks(
         args.experiment, x=data["num_frequencies"].values, y=data["lattice_resolution"].values, z=data["obj_val"].values
@@ -309,4 +343,5 @@ if __name__ == "__main__":
         help="Output file path if the solution is to be exported, without the extension.",
     )
     parser.add_argument("-f", "--filter", type=str, default=FILTER, help="Filter for the MLflow runs.")
+    parser.add_argument("--to-config", action="store_true", help="Export the configuration corresponding to each run.")
     main(parser.parse_args())
