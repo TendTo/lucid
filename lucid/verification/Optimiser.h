@@ -67,16 +67,26 @@ class Optimiser {
    */
   using SolutionCallback = std::function<void(bool, double, const Vector&, double, double, double)>;
 
+  /**
+   * Construct a new Optimiser object.
+   * If `problem_log_file` is provided, the optimiser will log the LP problem to the specified file.
+   * If `iis_log_file` is provided, the optimiser will log the
+   * Irreducible Inconsistent Subsystem (IIS) to the specified file if the problem is found to be infeasible.
+   * @param problem_log_file file to log the problem to
+   * @param iis_log_file file to log the IIS to
+   */
   explicit Optimiser(std::string problem_log_file = "", std::string iis_log_file = "");
 
   /**
-   * Solve the Fourier barrier synthesis problem.
+   * Solve the FourierBarrierCertificate synthesis optimisation problem by solving the corresponding LP.
+   * See @ref FourierBarrierCertificate::synthesize for more details.
    * @param problem problem definition
    * @param cb callback function called when the optimisation is done
    * @return true if the optimisation was successful
    * @return false if no solution was found (i.e., the problem is infeasible)
    */
-  bool solve_fourier_barrier_synthesis(const FourierBarrierSynthesisProblem& problem, const SolutionCallback& cb) const;
+  [[nodiscard]] bool solve_fourier_barrier_synthesis(const FourierBarrierSynthesisProblem& problem,
+                                                     const SolutionCallback& cb) const;
 
   /** @getter{problem log file, solver} */
   [[nodiscard]] const std::string& problem_log_file() const { return problem_log_file_; }
@@ -95,16 +105,21 @@ class Optimiser {
   /** @checker{configured to log the iis, solver} */
   [[nodiscard]] bool should_log_iis() const { return !iis_log_file_.empty(); }
 
-  /**
-   * Get string representation of the optimiser.
-   * @return string representation
-   */
   /** @to_string */
   [[nodiscard]] virtual std::string to_string() const;
 
  protected:
-  virtual bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
-                                                    const SolutionCallback& cb) const = 0;
+  /**
+   * Implementation of the Fourier barrier synthesis solver.
+   * It interfaces with the specific LP solver backend.
+   * See @ref FourierBarrierCertificate::synthesize for more details.
+   * @param params problem definition
+   * @param cb callback function called when the optimisation is done
+   * @return true if the optimisation was successful
+   * @return false if no solution was found (i.e., the problem is infeasible
+   */
+  [[nodiscard]] virtual bool solve_fourier_barrier_synthesis_impl(const FourierBarrierSynthesisProblem& params,
+                                                                  const SolutionCallback& cb) const = 0;
 
   std::string problem_log_file_;  ///< File to log the problem to, if provided
   std::string iis_log_file_;      ///< File to log the IIS (Irreducible Inconsistent Subsystem) to, if found

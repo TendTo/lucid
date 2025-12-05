@@ -55,7 +55,6 @@ struct FourierBarrierCertificateParameters {
  * \frac{\alpha_M}{2 \sigma_f^2 \omega_M^2} & \frac{\beta_M}{2 \sigma_f^2 \omega_M^2}
  * \end{bmatrix}^T
  * @f]
- * @todo Add more details to the formulation, as there are some undefined symbols used.
  */
 class FourierBarrierCertificate final : public BarrierCertificate {
  public:
@@ -75,26 +74,92 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * Synthesize the barrier certificate.
    * This is done in multiple steps.
    *
-   * **Finding the bounds**
+   * ### Bounding the contribution from outside the sets of interest
    *
-   * First, we find some upper and lower bounds on the value the barrier certificate can assume over @X0 and @Xu.
-   * For simplicity, we only explain the process for finding the upper bound over @X0, but the same applies
-   * to the lower bound over @X0 and bounds over @Xu.
-   * We can obtain the lower bound on @X0 by using the following inequality:
+   * Let @Xn be the periodic domain induced by the Fourier feature map, i.e., the smallest hyperrectangle such that
+   * the lowest non-zero frequency used by the barrier completes one period in.
+   * Then, we compute the contribution of all the points in the periodic domain
+   * outside the sets of interest @X, @X0, and @Xu using Particle Swarm Optimisation (PSO).
+   * The overapproximation of these contribution are defined as
    * @f[
-   * B(x) \le \hat{B}^{\mathcal{X}_0}_{\tilde{N}}C_{\tilde{N}}
-   * + R^{\mathcal{\tilde{X}}\setminus\mathcal{X}_0}_{\tilde{N}}\underbrace{\frac{1}{\tilde{N}}
-   * \sum_{\bar{x} \in \Theta_{\tilde{N}}\setminus\mathcal{X}_0} D^n_{f_{\max}-\tilde{Q}-f_{\max}}(x - \bar{x})}
-   * _{A^{\mathcal{\tilde{X}\setminus\mathcal{X}_0}}_\tilde{N}}
-   * \quad \forall x \in \mathcal{X}_0 ,
+   * A^{\tilde{\mathcal{X}}\setminus\mathbb{S}}_{\tilde{N}} \coloneqq \frac{1}{\tilde{N}}
+   * \sum_{\bar{x}\in\Theta_{\tilde{N}}\setminus\mathbb{S}} 
+   * D^n_{f_{\text{max}},\tilde{Q}-f_{\text{max}}}(x-\bar{x}),
    * @f]
-   * where @f$ R^{\mathcal{\tilde{X}}\setminus\mathcal{X}_0}_{\tilde{N}} =
-   * \max_{x \in \Theta_\tilde{N} \setminus \mathcal{X}_0}\{\phi_M(x)^Tb\} - \hat{B}_\tilde{N}^{\mathcal{X}_0} @f$
-   * is the residual outside @X0,
-   * and @f$ C_{\tilde{N}} = \left( 1 - \frac{2 f_{\max}}{\tilde{Q}} \right)^{-\frac{n}{2}} @f$.
-   * Note that we can find the upper bound @f$ A^{\mathcal{\tilde{X}\setminus\mathcal{X}_0}}_\tilde{N} @f$
-   * by solving an optimisation problem before starting the synthesis, using, e.g.,
-   * [particle swarm optimisation (PSO)](https://en.wikipedia.org/wiki/Particle_swarm_optimization).
+   * where @f$\mathbb{S}\in\{\mathcal{X},\mathcal{X}_0,\mathcal{X}_u\}@f$, @f$\Theta_{\tilde{N}}@f$
+   * is a lattice of cardinality @f$\tilde{N}@f$ on the periodic domain,
+   * and @f$D^n_{f_{\text{max}},\tilde{Q}-f_{\text{max}}}@f$ is the ValleePoussinKernel.
+   *
+   * ### Linear Program formulation
+   *
+   * Having determined the lattices @f$\smash{\Theta_{\hat{N}}}@f$ and @f$\smash{\Theta_{\tilde{N}}}@f$, we form the
+   * discrete sets @f$\{ x_0^{(1)}, \ldots, x_0^{(\hat{N}_0)} \} \subset \mathcal{X}_0@f$ and @f$\{ x_u^{(1)}, \ldots,
+   * x_u^{(\hat{N}_u)} \} \subset \mathcal{X}_u@f$ of cardinality @f$\hat{N}_0,\hat{N}_u\in\N@f$, respectively. For
+   * given @f$\bar{B}@f$ and @f$\gamma@f$, we obtain the following LP:
+   *
+   * @f[
+   * \begin{align*}
+   *                      & \min_{\substack{b, c, \eta \\
+   *             \check{B}_{\tilde{N}}^{\mathcal{X}_0},\hat{B}_{\tilde{N}}^{\mathcal{X}_u},
+   *             \check{B}_\Delta^{\mathcal{X}},
+   *             \hat{B}_{\tilde{N}}^{{\mathcal{X}}}
+   * \\
+   *             \hat{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}_0},
+   *             \check{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}_u},
+   *             \check{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}},
+   *             \hat{B}_\Delta^{\tilde{\mathcal{X}}\setminus\mathcal{X}}
+   *             }} \quad &                            & \eta + cT, & &                         \\ & \text{subject
+   * to}\quad
+   *                      &                            & \check{B}_{\tilde{N}}^{\mathcal{X}_0}\leq\phi_M(x_0^{(i)})^\top
+   * b\leq\hat{\eta}, \quad &                                                                        &
+   * i=1,\ldots,\hat{N}_0,   \\ &                            & & \hat{\gamma}\leq\phi_M(x_u^{(i)})^\top
+   * b\leq\hat{B}_{\tilde{N}}^{\mathcal{X}_u},
+   *             \quad    &                            & i=1,\ldots,\hat{N}_u, \\ &                            & &
+   * \check{B}_\Delta^{\mathcal{X}}\leq\phi_M(x^{(i)})^\top(Hb - b) \leq \hat{\Delta},
+   *             \quad    &                            & i=1,\ldots,\hat{N}, \\ &                            & &
+   * \hat{\xi}\leq\phi_M(x^{(i)})^\top b\leq\hat{B}_{\tilde{N}}^{{\mathcal{X}}},
+   *             \quad    &                            & i=1,\ldots,\hat{N}, \\ &                            & &
+   * \phi_M(x^{(i)})^\top b\leq\hat{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}_0},
+   *             \quad    &                            & i=1,\ldots,\tilde{N}-\hat{N}_0, \\ & & &
+   * \check{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}_u}\leq\phi_M(x^{(i)})^\top b,
+   *             \quad    &                            & i=1,\ldots,\tilde{N}-\hat{N}_u, \\ & & &
+   * \check{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}}\leq\phi_M(x^{(i)})^\top b,
+   *             \quad    &                            & i=1,\ldots,\tilde{N}-\hat{N}, \\ &                            &
+   * & \phi_M(x^{(i)})^\top (Hb - b)\leq\hat{B}_\Delta^{\tilde{\mathcal{X}}\setminus\mathcal{X}},
+   *             \quad    &                            & i=1,\ldots,\tilde{N}-\hat{N}, \\ &                            &
+   * & c\geq 0,\,\gamma>\eta\geq 0,\, b\in\mathbb{R}^{2M+1},                          &                       &
+   * \end{align*}
+   * @f]
+   *
+   * with @f$\kappa\geq\sigma_f@f$, @f$\bar{B}\geq\left|\left|b\right|\right|_2@f$, and constraint-tightening
+   * coefficients
+   *
+   * @f[
+   * \begin{align*}
+   *       \hat{\eta}   & \coloneqq \frac{2\eta +
+   * (C_{\tilde{N}}-1)\check{B}_{\tilde{N}}^{\mathcal{X}_0}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}_0}_{\tilde{N}}
+   * \hat{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}_0}}
+   * {C_{\tilde{N}}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}_0}_{\tilde{N}}+1},
+   *                    & & \hat{\gamma} \coloneqq \frac{2\gamma +
+   * (C_{\tilde{N}}-1)\hat{B}_{\tilde{N}}^{\mathcal{X}_u}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}_u}_{\tilde{N}}
+   * \check{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}_u}}
+   * {C_{\tilde{N}}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}_u}_{\tilde{N}}+1},
+   * \\
+   *       \hat{\Delta} & \coloneqq \frac{2(c - \varepsilon\bar{B}\kappa) +
+   * (C_{\tilde{N}}-1)\check{B}_\Delta^\mathcal{X}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}}_{\tilde{N}}
+   * \hat{B}_{\Delta}^{\tilde{\mathcal{X}}\setminus\mathcal{X}}}
+   * {C_{\tilde{N}}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}}_{\tilde{N}}+1},
+   *                    & & \hat{\xi} \coloneqq
+   * \frac{(C_{\tilde{N}}-1)\hat{B}_{\tilde{N}}^{{\mathcal{X}}}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}}_{\tilde{N}}
+   * \check{B}_{\tilde{N}}^{\tilde{\mathcal{X}}\setminus\mathcal{X}}}
+   * {C_{\tilde{N}}-2A^{\tilde{\mathcal{X}}\setminus\mathcal{X}}_{\tilde{N}}+1}
+   * .
+   * \end{align*}
+   * @f]
+   *
+   * Any solution to the LP that satisfies @f$\left|\left|b\right|\right|_2\leq\bar{B}@f$ determines a valid barrier.
+   *
+   *
    * @param optimiser LP optimiser to use for the synthesis
    * @param lattice_resolution number of lattice points on periodic domain per dimension
    * @param estimator estimator model to compute the value of the feature map on @xp
@@ -105,6 +170,7 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * @param parameters parameters for barrier synthesis
    * @return true if the synthesis was successful
    * @return false if no solution was found
+   * @see [Bounding Multivariate Trigonometric Polynomials](https://doi.org/10.1109/TSP.2018.2883925)
    */
   bool synthesize(const Optimiser& optimiser, int lattice_resolution, const Estimator& estimator,
                   const TruncatedFourierFeatureMap& feature_map, const RectSet& X_bounds, const Set& X_init,

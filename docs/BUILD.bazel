@@ -26,6 +26,7 @@ doxygen(
         "licence=@par Licence:^^",
         # Math
         "X=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} @f$",
+        "Xn=@f$ \\texttip{\\mathcal{X}}{Periodic set}_n @f$",
         "Xu=@f$ \\texttip{\\mathcal{X}}{Usafe set}_u @f$",
         "X0=@f$ \\texttip{\\mathcal{X}}{Initial set}_0 @f$",
         "XsubRn=@f$ \\texttip{\\mathcal{X}}{Polish sample vector space} \\subseteq \\mathbb{R}^n @f$",
@@ -43,6 +44,7 @@ doxygen(
         "N=@f$ N @f$",
         "nvector=@f$ n @f$ dimensional vector",
         "fx=@f$ f(x) @f$",
+        "fmax=@f$ f_{\\text{max}} @f$",
         "nxm=@f$ n \\times m @f$",
         "nxn=@f$ n \\times m @f$",
         "n1xd=@f$ \\texttip{n_1}{Number of samples in the first matrix} \\times \\texttip{d}{Dimension of the vector space} @f$",
@@ -158,6 +160,7 @@ doxygen(
     mathjax_extensions = [
         "mathtools",
         "ams",
+        "action",
     ],
     mathjax_version = "MathJax_3",
     page_outline_panel = False,
