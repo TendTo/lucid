@@ -293,6 +293,10 @@
       "description": "Whether to verify the results.",
       "type": "boolean"
     },
+    "print_stats": {
+      "description": "Whether to print detailed statistics about the run.",
+      "type": "boolean"
+    },
     "problem_log_file": {
       "description": "File to log the problem formulation.",
       "type": "string",

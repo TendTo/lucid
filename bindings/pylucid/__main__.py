@@ -71,7 +71,7 @@ def main(argv: "Sequence[str] | None" = None) -> int:
             raise raise_error("The 'scenario_config' function must return an instance of 'Configuration'")
     else:
         # If no input file is provided, use the default scenario configuration
-        log.info("No python script provided, using default scenario configuration with the specified parameters")
+        log.info("No python script provided, using default scenario with the user-provided configuration")
         config = scenario_config(config)
 
     # If all the checks pass, run the scenario
@@ -80,8 +80,9 @@ def main(argv: "Sequence[str] | None" = None) -> int:
     log.info(f"Running scenario (LUCID version: {__version__})")
     with Stats() as stats:
         pipeline(config)
-        stats.collect_peak_rss_memory_usage()
-        log.info(str(stats))
+        if config.print_stats:
+            stats.collect_peak_rss_memory_usage()
+            log.info(str(stats))
     return 0
 
 

@@ -36,6 +36,7 @@ class Configuration(Namespace):
         verify: Whether to verify the barrier certificate using dReal
         problem_log_file: File to save the optimization problem in LP format. If empty, the problem will not be saved
         iis_log_file: File to save the irreducible infeasible set (IIS) in ILP format. If empty, the IIS will not be saved
+        print_stats: Whether to print detailed statistics after completing the synthesis
 
         system_dynamics: Deterministic function that maps the state variable x to the next state variable x+
         X_bounds: Set that bounds the state space
@@ -77,6 +78,7 @@ class Configuration(Namespace):
     verify: bool = False
     problem_log_file: str = ""
     iis_log_file: str = ""
+    print_stats: bool = False
 
     # System dynamics and specification
     system_dynamics: "Callable[[NMatrix], NMatrix] | None" = None
@@ -594,6 +596,12 @@ def arg_parser() -> "ArgumentParser":
         type=str,
         default=config.iis_log_file,
         help="file to save the irreducible infeasible set (IIS) in ILP format. If empty, the IIS will not be saved",
+    )
+    parser.add_argument(
+        "-p",
+        "--print_stats",
+        action="store_true",
+        help="whether to print detailed statistics after completing the synthesis",
     )
 
     # System dynamics and specification arguments

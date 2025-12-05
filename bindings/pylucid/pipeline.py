@@ -13,6 +13,7 @@ from ._pylucid import (
     ModelEstimator,
     log,
 )
+from .plot import plot_solution
 
 if TYPE_CHECKING:
     from typing import Callable
@@ -21,23 +22,6 @@ if TYPE_CHECKING:
 
     from ._pylucid import NMatrix, NVector
     from .cli import Configuration
-
-try:
-    from .dreal import verify_barrier_conditions
-except ImportError:
-    log.warn("Verification disabled")
-
-    def verify_barrier_conditions(*args, **kwargs) -> "bool":
-        pass
-
-
-try:
-    from .plot import plot_solution
-except ImportError:
-    log.warn("Plotting disabled")
-
-    def plot_solution(*args, **kwargs) -> "Figure":
-        pass
 
 
 class OptimiserResult(TypedDict):
@@ -92,7 +76,7 @@ def run_pipeline(
         plot_cb: A callback function to handle the plotting results.
         verify_cb: A callback function to handle the verification results.
         show: Whether to show the plots.
-    
+
     Returns:
         True if the optimization was successful, False otherwise.
     """
@@ -156,7 +140,16 @@ def run_pipeline(
         if plot_cb is not None:
             plot_cb(fig)
     if config.verify and success:
-        log.info("Verifying the solution")
+        try:
+            from .dreal import verify_barrier_conditions
+
+            log.info("Verifying the solution")
+        except ImportError:
+            log.warn("Verification disabled")
+
+            def verify_barrier_conditions(*args, **kwargs) -> "bool":
+                pass
+
         verified = verify_barrier_conditions(
             X_bounds=config.X_bounds,
             X_init=config.X_init,
@@ -173,8 +166,9 @@ def run_pipeline(
         )
         if verify_cb is not None:
             verify_cb(verified)
-    
+
     return success
+
 
 def pipeline(
     config: "Configuration",
