@@ -70,7 +70,7 @@ bool_flag(
 
 bool_flag(
     name = "enable_gui_build",
-    build_setting_default = False,  # True
+    build_setting_default = True,
 )
 
 bool_flag(
