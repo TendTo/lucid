@@ -100,8 +100,13 @@ py_library(
         requirement("sympy"),
         requirement("pyyaml"),
         requirement("jsonschema"),
-        requirement("gurobipy"),
-    ],
+    ] + select({
+        "//tools:gurobi_build": [requirement("gurobipy")],
+        "//conditions:default": [],
+    }) + select({
+        "//tools:cuda_build": [requirement("cuda-pathfinder")],
+        "//conditions:default": [],
+    }),
 )
 
 py_binary(
@@ -130,8 +135,13 @@ py_binary(
         requirement("sympy"),
         requirement("pyyaml"),
         requirement("jsonschema"),
-        requirement("gurobipy"),
-    ],
+    ] + select({
+        "//tools:gurobi_build": [requirement("gurobipy")],
+        "//conditions:default": [],
+    }) + select({
+        "//tools:cuda_build": [requirement("cuda-pathfinder")],
+        "//conditions:default": [],
+    }),
 )
 
 py_binary(

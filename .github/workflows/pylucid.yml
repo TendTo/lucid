@@ -61,12 +61,16 @@ jobs:
           - macos-latest
           - windows-latest
         python_version:
-          - "3.8"
-#          - "3.9"
+#          - "3.8"
+          - "3.9"
 #          - "3.10"
 #          - "3.11"
 #          - "3.12"
 #          - "3.13"
+        exclude:
+          # Gurobipy is not available for Python 3.8 on macOS arm
+          - os: macos-latest
+            python_version: "3.8"
 
     steps:
       - uses: actions/checkout@v4
