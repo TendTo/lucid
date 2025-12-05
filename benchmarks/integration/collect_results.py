@@ -200,9 +200,21 @@ def get_data_from_mlflow(args: Args):
             # Format time as MM:SS
             "time_milliseconds": run.info.end_time - run.info.start_time,
             "time": f"{(run.info.end_time - run.info.start_time) // 1000 // 60}:{(run.info.end_time - run.info.start_time) // 1000 % 60:02d}",
-            "peak_rss_memory_usage_bytes": float(run.data.metrics.get("run.peak_rss_memory_usage_bytes", -1)),
-            "num_variables": int(run.data.metrics.get("run.num_variables", -1)),
-            "num_constraints": int(run.data.metrics.get("run.num_constraints", -1)),
+            "peak_rss_memory_usage_bytes": float(run.data.metrics.get("peak_rss_memory_usage_bytes", -1)),
+            "C": float(run.data.metrics.get("C", -1)),
+            "A_xn_wo_x0": float(run.data.metrics.get("A_xn_wo_x0", -1)),
+            "A_xn_wo_xu": float(run.data.metrics.get("A_xn_wo_xu", -1)),
+            "A_xn_wo_x": float(run.data.metrics.get("A_xn_wo_x", -1)),
+            "min_x0": float(run.data.metrics.get("min_x0", -1)),
+            "max_xn_wo_x0": float(run.data.metrics.get("max_xn_wo_x0", -1)),
+            "max_xu": float(run.data.metrics.get("max_xu", -1)),
+            "min_xn_wo_xu": float(run.data.metrics.get("min_xn_wo_xu", -1)),
+            "max_x": float(run.data.metrics.get("max_x", -1)),
+            "min_xn_wo_x": float(run.data.metrics.get("min_xn_wo_x", -1)),
+            "min_d": float(run.data.metrics.get("min_d", -1)),
+            "max_d_xn_wo_x": float(run.data.metrics.get("max_d_xn_wo_x", -1)),
+            "num_variables": int(run.data.metrics.get("num_variables", -1)),
+            "num_constraints": int(run.data.metrics.get("num_constraints", -1)),
             # Results
             "solution": get_solution(run, args.d_uri),
             "verified": -1,
@@ -285,6 +297,8 @@ def main(args: Args):
         for i, row in data.iterrows():
             if verified_rows >= 10:
                 break
+            if row["verified"] != -1:
+                continue
             config = config_from_df_row(args.experiment, row)
             success = verify_barrier_conditions(
                 X_bounds=config.X_bounds,

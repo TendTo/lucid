@@ -98,35 +98,6 @@ def scenario_config(file: str, param_name: tuple[str], param_combinations: tuple
     )
 
 
-def benchmark(name: str, config: Configuration, grid: dict[str, list[Any]]):
-    """Run the benchmark scenario."""
-    logs: list[str] = []
-    log.set_sink(logs.append)
-    log.set_verbosity(log.LOG_DEBUG)
-
-    config = config.shallow_copy()
-    mlflow.set_experiment(experiment_name=name)
-    with mlflow.start_run(run_name=f"{name}-{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"):
-        mlflow.log_input(dataset=mlflow.data.from_numpy(config.x_samples, targets=config.xp_samples))
-        mlflow.set_tag("scenario", name)
-        i = 0
-        for param_combination in itertools.product(*grid.values()):
-            for key, value in zip(grid.keys(), param_combination):
-                setattr(config, key, value)
-            with mlflow.start_run(run_name=f"{name}-{i}", nested=True):
-                try:
-                    benchmark_pipeline(config=config)
-                    status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FINISHED)
-                except Exception as ex:
-                    log.error(f"Error in benchmark {name} with configuration {config.to_safe_dict()}: {ex}")
-                    status = mlflow.entities.RunStatus.to_string(mlflow.entities.RunStatus.FAILED)
-                i += 1
-                mlflow.log_text("\n".join(logs), "logs.log")
-                mlflow.end_run(status=status)
-            logs = []
-    log.clear()
-
-
 def single_benchmark(name: str, config: Configuration):
     """Run the benchmark scenario."""
     logs: list[str] = []

@@ -15,6 +15,8 @@ class BenchmarkArgs(argparse.Namespace):
     tune: bool
     num_rows: int
     start_from: int
+    config: bool
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -24,6 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--num-rows", type=int, help="Number of rows to process", default=-1)
     parser.add_argument("--start-from", type=int, help="Row index to start from", default=0)
     parser.add_argument("-t", "--tune", action="store_true", help="Run in tuning mode (if applicable)")
+    parser.add_argument("-c", "--config", action="store_true", help="Instead of running the experiment, save the configuration to a config file")
     args: BenchmarkArgs = parser.parse_args()
     data: pd.DataFrame = pd.read_pickle(f"benchmarks/integration/{args.experiment}.pkl")
     if args.verified:
@@ -38,5 +41,10 @@ if __name__ == "__main__":
         for seed in (args.seeds if args.seeds is not None else [row.seed]):
             config.seed = seed
         if args.tune:
-            config.estimator = KernelRidgeRegressor
+            config.estimator = config.estimator.__class__
+        if args.config:
+            config.estimator = config.estimator.__class__
+            config.feature_map = config.feature_map.__class__
+            config.to_yaml(f"{args.experiment}-config-{i}.yaml")
+            continue
         single_benchmark(f"{args.experiment}-dist", config)
