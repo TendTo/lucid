@@ -226,7 +226,7 @@ def tune(conf: Configuration, tffm: TruncatedFourierFeatureMap):
         return -estimator.score(val_x_samples, tffm(val_xp_samples))
 
     study = optuna.create_study()
-    study.optimize(objective, n_trials=20, n_jobs=4)
+    study.optimize(objective, n_trials=100, n_jobs=4)
 
     print("Number of finished trials: ", len(study.trials))
     best_params = study.best_params
@@ -251,7 +251,8 @@ def benchmark_pipeline(config: Configuration):
         ), "x_samples and xp_samples must have the same number of samples"
         assert isinstance(config.sigma_f, float) and config.sigma_f > 0, "sigma_f must be a positive float"
         assert (
-            not isinstance(config.feature_map, FeatureMap) or config.feature_map.num_frequencies == config.num_frequencies
+            not isinstance(config.feature_map, FeatureMap)
+            or config.feature_map.num_frequencies == config.num_frequencies
         ), "num_frequencies and feature_map are mutually exclusive"
         assert (
             config.f_xp_samples is not None

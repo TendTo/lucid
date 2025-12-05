@@ -2,15 +2,16 @@ import argparse
 import json
 import os
 from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
 from mlflow import MlflowClient
 from mlflow.entities import Run
 from plot_solution import (
     base_load_configuration,
+    load_configuration,
     plot_contour_benchmarks,
     plot_solution_matplotlib,
-    load_configuration,
 )
 
 from pylucid import ModelEstimator
@@ -221,6 +222,7 @@ def get_data_from_mlflow(args: Args):
         }
         for run in runs
     )
+    data.sort_values(by=["obj_val"], ascending=True, inplace=True)
     data.to_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
     return data
 
