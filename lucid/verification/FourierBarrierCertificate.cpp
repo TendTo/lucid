@@ -436,6 +436,15 @@ void FourierBarrierCertificate::optimiser_callback(bool success, double obj_val,
   norm_ = norm;
   safety_ = 1 - obj_val;
 
+  if (Stats::Scoped::top()) {
+    Stats::Scoped::top()->value().c = c;
+    Stats::Scoped::top()->value().eta = eta;
+    Stats::Scoped::top()->value().gamma = gamma_;
+    Stats::Scoped::top()->value().b_norm = b_norm;
+    Stats::Scoped::top()->value().b_norm = norm;
+    Stats::Scoped::top()->value().safety = safety_;
+  }
+
   LUCID_DEBUG_FMT("success: {}, obj_val: {}, norm: {}, eta: {}, c: {}", success, obj_val, norm, eta, c);
   LUCID_DEBUG_FMT("coefficients: {}", LUCID_FORMAT_VECTOR(coefficients_));
   LUCID_INFO_FMT("Solution found, objective = {}", obj_val);
