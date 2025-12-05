@@ -272,9 +272,11 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   LUCID_ASSERT(num_constraints == model.get(GRB_IntAttr_NumConstrs), "Number of constraints mismatch");
 
   if (model.get(GRB_IntAttr_SolCount) == 0) {
-    model.computeIIS();
     LUCID_INFO_FMT("No solution found, optimization status = {}", model.get(GRB_IntAttr_Status));
-    if (!iis_log_file_.empty()) model.write(iis_log_file_);
+    if (!iis_log_file_.empty()) {
+      model.computeIIS();
+      model.write(iis_log_file_);
+    }
     cb(false, 0, Vector{}, 0, 0, 0);
     return false;
   }
