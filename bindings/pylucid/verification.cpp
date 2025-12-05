@@ -126,8 +126,8 @@ void init_verification(py::module_& m) {
            }),
            py::arg("set_scaling") = 0.1, py::arg("num_particles") = 40, py::arg("phi_local") = 0.5,
            py::arg("phi_global") = 0.3, py::arg("weight") = 0.9, py::arg("max_iter") = 150, py::arg("max_vel") = 0.0,
-           py::arg("ftol") = 1e-8, py::arg("xtol") = 1e-8, py::arg("C_coeff") = 1.0, py::arg("epsilon") = 1.0,
-           py::arg("b_norm") = 0.0, py::arg("kappa") = 1.0, py::arg("threads") = 0,
+           py::arg("ftol") = 1e-8, py::arg("xtol") = 1e-8, py::arg("C_coeff") = 1.0, py::arg("epsilon") = 0.0,
+           py::arg("b_norm") = 1.0, py::arg("kappa") = 1.0, py::arg("threads") = 0,
            FourierBarrierCertificateParameters_)
       .def_readwrite("set_scaling", &FourierBarrierCertificateParameters::set_scaling,
                      FourierBarrierCertificateParameters_set_scaling)
