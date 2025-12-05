@@ -32,6 +32,11 @@ struct Stats {
   std::size_t num_tuning{0};                    ///< Number of hyperparameter tuning runs
   std::size_t num_constraints{0};               ///< Number of constraints in the last optimisation problem
   std::size_t num_variables{0};                 ///< Number of variables in the last optimisation problem
+  double eta{0};                                ///< Constant @eta_ found in the barrier
+  double gamma{0};                              ///< Constant @gamma_ found in the barrier
+  double c{0};                                  ///< Constant @c_ found in the barrier
+  double safety{0};                             ///< Safety margin found in the barrier
+  double b_norm{0};                             ///< Norm of the barrier coefficients
   double C{0};                                  ///< Regularisation parameter C in the last optimisation problem
   double A_xn_wo_x{0};                          ///< A coefficient computed over Xn \ X
   double A_xn_wo_x0{0};                         ///< A coefficient computed over Xn \ X0

@@ -29,6 +29,11 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  No. of hyperparameter tuning:      {}\n"
              "  No. of constraints:                {}\n"
              "  No. of variables:                  {}\n"
+             "  eta:                               {:.3f}\n"
+             "  gamma:                             {:.3f}\n"
+             "  c:                                 {:.3f}\n"
+             "  Safety percentage:                 {:.3f}%\n"
+             "  Barrier norm:                      {:.3f}\n"
              "  C:                                 {:.3f}\n"
              "  A xn/x:                            {:.3f}\n"
              "  A xn/x0:                           {:.3f}\n"
@@ -55,6 +60,11 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              stats.num_tuning,                    //
              stats.num_constraints,               //
              stats.num_variables,                 //
+             stats.eta,                           //
+             stats.gamma,                         //
+             stats.c,                             //
+             stats.safety * 100.0,                //
+             stats.b_norm,                        //
              stats.C,                             //
              stats.A_xn_wo_x,                     //
              stats.A_xn_wo_x0,                    //
