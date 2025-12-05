@@ -116,6 +116,7 @@ class TestCli:
                     "0.5",
                     "--b_norm",
                     "2.0",
+                    "--print_stats"
                 ],
             )
 
@@ -139,6 +140,7 @@ class TestCli:
             assert args.epsilon == 0.1
             assert args.b_kappa == 0.5
             assert args.b_norm == 2.0
+            assert args.print_stats is True
 
     class TestTypeConversions:
         """Test type conversion functions used in argument parsing"""
