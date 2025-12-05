@@ -1,7 +1,8 @@
-from pylucid import *
 import matplotlib
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+from pylucid import *
 
 matplotlib.use("WebAgg")
 

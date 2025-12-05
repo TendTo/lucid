@@ -116,7 +116,7 @@ class TestCli:
                     "0.5",
                     "--b_norm",
                     "2.0",
-                    "--print_stats"
+                    "--print_stats",
                 ],
             )
 
