@@ -101,7 +101,6 @@ py_library(
         requirement("pyyaml"),
         requirement("jsonschema"),
         requirement("gurobipy"),
-        requirement("cuda-pathfinder"),
     ],
 )
 
@@ -132,7 +131,6 @@ py_binary(
         requirement("pyyaml"),
         requirement("jsonschema"),
         requirement("gurobipy"),
-        requirement("cuda-pathfinder"),
     ],
 )
 

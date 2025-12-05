@@ -92,6 +92,7 @@ def generate_stub_files(out_dir: str, _pylucid_pyi: str):
             )
             .replace(b'typing.Annotated[numpy.typing.NDArray[numpy.float64], "[m, n]"]', b"NMatrix")
             .replace(b'typing.Annotated[numpy.typing.NDArray[numpy.float64], "[1, n]"]', b"NVector")
+            .replace(b'typing.Annotated[numpy.typing.ArrayLike, numpy.float64, "[1, n]"]', b"NVector")
         )
 
     with open(_pylucid_pyi, "wb") as f:
