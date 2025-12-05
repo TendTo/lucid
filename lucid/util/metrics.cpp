@@ -76,25 +76,26 @@ size_t get_peak_rss() {
 #include <sys/resource.h>
 #include <unistd.h>
 
-size_t get_current_rss() {
+std::size_t get_current_rss() {
   // Configure what we want to query
   mach_task_basic_info info;
   mach_msg_type_number_t count = MACH_TASK_BASIC_INFO_COUNT;
 
   // Retrieve basic information about the process
-  kern_return_t result = task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&info, &count);
+  kern_return_t result =
+      task_info(mach_task_self(), MACH_TASK_BASIC_INFO, reinterpret_cast<task_info_t>(&info), &count);
   if (result != KERN_SUCCESS) return 0;
 
-  return size_t(info.resident_size);
+  return static_cast<std::size_t>(info.resident_size);
 }
 
-size_t get_peak_rss() {
-  rusage usage_data;
+std::size_t get_peak_rss() {
+  rusage usage_data{};
   getrusage(RUSAGE_SELF, &usage_data);
 
   // From "man getrusage":
   //    ru_maxrss the maximum resident set size utilized (in bytes).
-  return size_t(usage_data.ru_maxrss);
+  return static_cast<std::size_t>(usage_data.ru_maxrss);
 }
 #else
 size_t get_current_rss() { return 0; }

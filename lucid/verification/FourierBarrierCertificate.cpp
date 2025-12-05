@@ -56,12 +56,25 @@ class Objective {
    * @tparam Period period of the angle
    * @param x angle in radians
    * @return wrapped angle in radians
+   * @see [Clang not supporting constexpr in templates](https://bugs.llvm.org/show_bug.cgi?id=41093)
    */
   template <double Period>
   static double wrap_angle(double x) {
     x = std::fmod(x + Period / 2, Period);
     if (x < 0) x += Period;
     return x - Period / 2;
+  }
+
+  /**
+   * Wrap angle to [-2pi/2, 2pi/2].
+   * @param x angle in radians
+   * @return wrapped angle in radians
+   */
+  static double wrap_angle_2pi(double x) {
+    constexpr double period = 2 * std::numbers::pi;
+    x = std::fmod(x + period / 2, period);
+    if (x < 0) x += period;
+    return x - period / 2;
   }
 
   /**
@@ -79,7 +92,7 @@ class Objective {
     // x - bar{x}
     const auto diffs = -1 * (lattice_.rowwise() - x.col(0).transpose());
     // (x - bar{x}) wrapped between [-pi, pi]
-    const auto wrapped_diffs = diffs.unaryExpr(&wrap_angle<2.0 * std::numbers::pi>);
+    const auto wrapped_diffs = diffs.unaryExpr(&wrap_angle_2pi);
     // Apply the Vallée-Poussin kernel to each row of the wrapped differences
     const Matrix res = kernel_(wrapped_diffs);
     LUCID_ASSERT(res.cols() == 1 && res.rows() == lattice_.rows(),
