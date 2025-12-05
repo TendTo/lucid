@@ -252,7 +252,7 @@ export default function App() {
         const fig = await generatePreviewFigure(
           methods.getValues() as Configuration
         );
-        updateFigure(fig);
+        if (fig !== undefined) updateFigure(fig);
       } catch (error) {
         console.error("Jslucid preview generation failed:", error);
         setPreviewError(

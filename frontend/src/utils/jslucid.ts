@@ -103,11 +103,11 @@ export async function getCapabilities() {
 
 async function toJslucidConfiguration(
   config: Configuration,
-  Solver,
-  MultiSet,
-  SphereSet,
-  RectSet,
-  EllipseSet
+  Solver: any,
+  MultiSet: any,
+  SphereSet: any,
+  RectSet: any,
+  EllipseSet: any
 ) {
   function toOptimiser(optimiser: Configuration["optimiser"]) {
     switch (optimiser) {
@@ -128,7 +128,7 @@ async function toJslucidConfiguration(
       | Configuration["X_init"]
       | Configuration["X_unsafe"]
       | Configuration["X_bounds"][number]
-  ): RectSet | MultiSet | EllipseSet | SphereSet {
+  ): typeof RectSet | typeof MultiSet | typeof EllipseSet | typeof SphereSet {
     if (Array.isArray(set)) {
       if (set.length === 0) {
         throw new Error("Empty set cannot be converted.");

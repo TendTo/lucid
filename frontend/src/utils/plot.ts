@@ -1,4 +1,5 @@
-import type { Data, Layout, PlotlyDataLayoutConfig } from "plotly.js";
+import type { Annotations, Data, Layout, Shape } from "plotly.js";
+import type { PlotParams } from "react-plotly.js";
 
 interface PlotPreviewData {
   x_lattice: number[][];
@@ -439,7 +440,7 @@ function plotSolution1d(
     gamma?: number | null;
     c?: number;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const {
     XInit = null,
     XUnsafe = null,
@@ -449,7 +450,7 @@ function plotSolution1d(
   } = options;
 
   const data: Data[] = [];
-  const shapes: Partial<Layout["shapes"]> = [];
+  const shapes: Partial<Shape>[] = [];
   const X_lattice = solutionData.x_lattice.map((row: number[]) => row[0]);
 
   // Draw sets
@@ -551,9 +552,9 @@ function plotSolution1d(
   return {
     data,
     layout: {
-      title: "Barrier certificate",
+      title: { text: "Barrier certificate" },
       xaxis: {
-        title: "State space",
+        title: { text: "State space" },
         range: [XBounds.lower_bound[0], XBounds.upper_bound[0]],
       },
       shapes,
@@ -571,7 +572,7 @@ function plotSolution2d(
     eta?: number | null;
     gamma?: number | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const { XInit = null, XUnsafe = null, eta = null, gamma = null } = options;
 
   const data: Data[] = [];
@@ -614,6 +615,7 @@ function plotSolution2d(
       showscale: false,
       showlegend: true,
       contours: {
+        /* @ts-ignore */
         z: {
           show: true,
           start: eta || 0,
@@ -710,17 +712,17 @@ function plotSolution2d(
   return {
     data,
     layout: {
-      title: "Barrier certificate",
+      title: { text: "Barrier certificate" },
       scene: {
         xaxis: {
-          title: "State space x[0]",
+          title: { text: "State space x[0]" },
           range: [XBounds.lower_bound[0], XBounds.upper_bound[0]],
         },
         yaxis: {
-          title: "State space x[1]",
+          title: { text: "State space x[1]" },
           range: [XBounds.lower_bound[1], XBounds.upper_bound[1]],
         },
-        zaxis: { title: "Barrier value", range: [0, undefined] },
+        zaxis: { title: { text: "Barrier value" }, range: [0, undefined] },
       },
     },
   };
@@ -728,12 +730,12 @@ function plotSolution2d(
 
 function plotData1d(
   previewData: PlotPreviewData,
-  XBounds: RectSet,
+  _: RectSet,
   options: {
     XInit?: Set | null;
     XUnsafe?: Set | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const { XInit = null, XUnsafe = null } = options;
   const X_lattice = previewData.x_lattice.map((row: number[]) => row[0]);
   const Xp_lattice = previewData.xp_lattice.map((row: number[]) => row[0]);
@@ -742,7 +744,7 @@ function plotData1d(
   );
 
   const data: Data[] = [];
-  const annotations: Partial<Layout["annotations"]> = [];
+  const annotations: Partial<Annotations>[] = [];
 
   if (XInit) plotSet1d(XInit, "blue", "Initial Set", data);
   if (XUnsafe) plotSet1d(XUnsafe, "red", "Unsafe Set", data);
@@ -791,9 +793,9 @@ function plotData1d(
   return {
     data,
     layout: {
-      title: "Data Plot",
-      xaxis: { title: "Input" },
-      yaxis: { title: "Output" },
+      title: { text: "Data Plot" },
+      xaxis: { title: { text: "Input" } },
+      yaxis: { title: { text: "Output" } },
       annotations,
     },
   };
@@ -806,10 +808,10 @@ function plotData2d(
     XInit?: Set | null;
     XUnsafe?: Set | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const { XInit = null, XUnsafe = null } = options;
   const data: Data[] = [];
-  const shapes: Partial<Layout["shapes"]> = [];
+  const shapes: Partial<Shape>[] = [];
   const xSamples = previewData.x_lattice;
   const xpSamples = previewData.xp_lattice;
 
@@ -835,6 +837,7 @@ function plotData2d(
       symbol: "arrow",
       color: "blue",
       size: 10,
+      /* @ts-ignore */
       angleref: "previous",
     },
     name: "Samples",
@@ -844,15 +847,15 @@ function plotData2d(
   return {
     data,
     layout: {
-      title: "Data Plot",
+      title: { text: "Data Plot" },
       xaxis: {
-        title: "Input Dimension 1",
+        title: { text: "Input Dimension 1" },
         range: XBounds
           ? [XBounds.lower_bound[0], XBounds.upper_bound[0]]
           : undefined,
       },
       yaxis: {
-        title: "Input Dimension 2",
+        title: { text: "Input Dimension 2" },
         range: XBounds
           ? [XBounds.lower_bound[1], XBounds.upper_bound[1]]
           : undefined,
@@ -864,12 +867,12 @@ function plotData2d(
 
 function plotData3d(
   previewData: PlotPreviewData,
-  XBounds: RectSet,
+  _: RectSet,
   options: {
     XInit?: Set | null;
     XUnsafe?: Set | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const { XInit = null, XUnsafe = null } = options;
   const xSamples = previewData.x_lattice;
   const xpSamples = previewData.xp_lattice;
@@ -916,6 +919,7 @@ function plotData3d(
       x: [xSamples[i][0] + arrowStartingRatio * dx],
       y: [xSamples[i][1] + arrowStartingRatio * dy],
       z: [xSamples[i][2] + arrowStartingRatio * dz],
+      /* @ts-ignore */
       u: [arrowTipRatio * dx],
       v: [arrowTipRatio * dy],
       w: [arrowTipRatio * dz],
@@ -931,11 +935,11 @@ function plotData3d(
   return {
     data,
     layout: {
-      title: "Data Plot",
+      title: { text: "Data Plot" },
       scene: {
-        xaxis: { title: "Input Dimension 1" },
-        yaxis: { title: "Input Dimension 2" },
-        zaxis: { title: "Input Dimension 3" },
+        xaxis: { title: { text: "Input Dimension 1" } },
+        yaxis: { title: { text: "Input Dimension 2" } },
+        zaxis: { title: { text: "Input Dimension 3" } },
       },
     },
   };
@@ -951,7 +955,7 @@ export function plotSolution(
     gamma?: number | null;
     c?: number;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const plotSolutionFunctions = [plotSolution1d, plotSolution2d];
 
   if (XBounds && XBounds.dimension <= plotSolutionFunctions.length) {
@@ -963,8 +967,7 @@ export function plotSolution(
   }
 
   throw new Error(
-    `Plotting is not supported for ${
-      XBounds?.dimension ?? "?"
+    `Plotting is not supported for ${XBounds?.dimension ?? "?"
     }-dimensional sets. Only 1D and 2D are supported.`
   );
 }
@@ -976,7 +979,7 @@ function plotFunction1d(
     XInit?: Set | null;
     XUnsafe?: Set | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   return plotData1d(previewData, XBounds, options);
 }
 
@@ -987,7 +990,7 @@ function plotFunction2d(
     XInit?: Set | null;
     XUnsafe?: Set | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   return plotData2d(previewData, XBounds, options);
 }
 
@@ -998,7 +1001,7 @@ export function plotFunction(
     XInit?: Set | null;
     XUnsafe?: Set | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const plotFunctionFunctions = [plotFunction1d, plotFunction2d];
 
   if (XBounds.dimension <= plotFunctionFunctions.length) {
@@ -1021,7 +1024,7 @@ export function plotData(
     XInit?: Set | null;
     XUnsafe?: Set | null;
   } = {}
-): PlotlyDataLayoutConfig {
+): PlotParams {
   const { XInit = null, XUnsafe = null } = options;
   validateInputs(
     previewData.x_lattice,
