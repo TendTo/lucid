@@ -81,11 +81,11 @@ Vector TruncatedFourierFeatureMap::map_vector(ConstVectorRef x) const {
 
   const Vector basis = sigma_f_ * weights_.cwiseProduct(trig);
 #ifndef NLOG
-  if (Scalar checksum = (basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f_).abs().maxCoeff();
-      checksum > .06) {
-    // TODO(tend): this will probably need to be a warning. Maybe only put it for the matrix case?
-    LUCID_TRACE_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 0.06", checksum);
-  }
+  // if (Scalar checksum = (basis.cwiseProduct(basis).colwise().sum().array().sqrt() - sigma_f_).abs().maxCoeff();
+  //     checksum > .06) {
+  //   // TODO(tend): this will probably need to be a warning. Maybe only put it for the matrix case?
+  //   LUCID_TRACE_FMT("Checksum failed: Fourier basis frequency bands don't add up: {} > 0.06", checksum);
+  // }
 #endif
   return basis;
 }

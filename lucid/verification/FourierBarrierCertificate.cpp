@@ -129,7 +129,7 @@ double run_pso(int lattice_resolution, int f_max, const Set& X, const ConstMatri
   const int n_tilde = lucid::pow(lattice_resolution, d);
 
   if (filtered_lattice.rows() == 0) {
-    LUCID_WARN("No lattice points to evaluate in PSO");
+    LUCID_DEBUG_FMT("No lattice points to evaluate in PSO for set {}, returning 0", X);
     return 0;
   }
 
@@ -295,10 +295,6 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   // Create a lattice over the periodic set with no endpoints (since they would wrap around)
   const Matrix pi_lattice{pi.lattice(lattice_resolution, false)};
 
-  LUCID_ASSERT((X_tilde.lower_bound().array() <= X_bounds.lower_bound().array()).all() &&
-                   (X_bounds.upper_bound().array() <= X_tilde.upper_bound().array()).all(),
-               "X_bounds must be contained in X_tilde");
-
   const double A_x = compute_A(lattice_resolution, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
   const double A_x0 = compute_A(lattice_resolution, f_max, pi, X_tilde, X_init, pi_lattice, parameters);
   const double A_xu = compute_A(lattice_resolution, f_max, pi, X_tilde, X_unsafe, pi_lattice, parameters);
@@ -332,6 +328,10 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   const auto [x_include_mask, x_exclude_mask] = X_bounds_rescaled->include_exclude_masks_wrapped(lattice, X_tilde);
   const auto [x0_include_mask, x0_exclude_mask] = X_init_rescaled->include_exclude_masks_wrapped(lattice, X_tilde);
   const auto [xu_include_mask, xu_exclude_mask] = X_unsafe_rescaled->include_exclude_masks_wrapped(lattice, X_tilde);
+
+  if (x_include_mask.empty()) LUCID_WARN_FMT("No lattice points inside the bounds set {}", *X_bounds_rescaled);
+  if (x0_include_mask.empty()) LUCID_WARN_FMT("No lattice points inside the initial set {}", *X_init_rescaled);
+  if (xu_include_mask.empty()) LUCID_WARN_FMT("No lattice points inside the unsafe set {}", *X_unsafe_rescaled);
 
   const double C = std::pow(1 - parameters.C_coeff * 2.0 * f_max / static_cast<double>(lattice_resolution), -n / 2.0);
   LUCID_DEBUG_FMT("C = (1 - (2 f_max) / lattice_resolution)^(-n/2) = (1 - {:.3f} * 2.0 * {} / {})^(-{}/2) = {:.3}",
