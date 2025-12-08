@@ -18,44 +18,32 @@ namespace lucid {
 
 extern const Matrix emptyMatrix;
 
-#define LUCID_CONSTEXPR_PARAMETER(param_name, type, default_value, help)                   \
- public:                                                                                   \
-  /** @getter{`##param_name##` parameter, configuration, Default to default_value##} */    \
-  type &m_##param_name() { return param_name##_; }                                         \
-  /** @getsetter{`##param_name##` parameter, configuration, Default to default_value##} */ \
-  [[nodiscard]] const type &param_name() const { return param_name##_; }                   \
-  static constexpr type default_##param_name{default_value};                               \
-  static constexpr const char *const help_##param_name{help};                              \
-                                                                                           \
- private:                                                                                  \
-  type param_name##_{default_value}  // NOLINT(whitespace/braces): false positive
+#define LUCID_CONSTEXPR_PARAMETER(param_name, type, default_value, help) \
+  static constexpr type default_##param_name{default_value};             \
+  static constexpr const char *const help_##param_name{help};            \
+  type param_name { default_value }  // NOLINT(whitespace/braces): false positive
 
-#define LUCID_CONST_PARAMETER(param_name, type, default_value, help)                       \
- public:                                                                                   \
-  /** @getter{`##param_name##` parameter, configuration, Default to default_value##} */    \
-  type &m_##param_name() { return param_name##_; }                                         \
-  /** @getsetter{`##param_name##` parameter, configuration, Default to default_value##} */ \
-  [[nodiscard]] const type &param_name() const { return param_name##_; }                   \
-  static constexpr const char *const help_##param_name{help};                              \
-                                                                                           \
- private:                                                                                  \
-  type param_name##_{default_value}  // NOLINT(whitespace/braces): false positive
+#define LUCID_CONST_PARAMETER(param_name, type, default_value, help) \
+  static constexpr const char *const help_##param_name{help};        \
+  type param_name { default_value }  // NOLINT(whitespace/braces): false positive
 
 /**
  * Simple dataclass used to store the configuration of the program.
  */
-class Configuration {
+struct Configuration {
  public:
   /** Underlying optimiser to use. */
   enum class Optimiser {
     GUROBI,  ///< Gurobi optimiser. Default option
     ALGLIB,  ///< Alglib optimiser
     HIGHS,   ///< HiGHS optimiser
+    SOPLEX,  ///< SOPLEX optimiser
   };
 
   /** Estimator class to use for regression. */
   enum class Estimator {
     KERNEL_RIDGE_REGRESSOR,  ///< Kernel Ridge Regressor. Default option
+    MODEL_ESTIMATOR,         ///< Model Estimator
   };
 
   /** Kernel class to use for the estimator. */
@@ -70,10 +58,9 @@ class Configuration {
     LOG_TRUNCATED_FOURIER_FEATURE_MAP,       ///< Log Truncated Fourier Feature Map
   };
 
-  /** @constructor{Configuration} */
-  Configuration() = default;
+  static Configuration from_yaml(const std::string &filename);
+  static Configuration from_yaml_str(const std::string &yaml_str);
 
- private:
   // Global generic configuration
   LUCID_CONSTEXPR_PARAMETER(verbose, int, 3, "Verbosity level for logging. It goes from -1 (no logging) to 5 (TRACE)");
   LUCID_CONSTEXPR_PARAMETER(seed, int, -1, "Random seed for reproducibility. If < 0, no seeding is done");
@@ -121,6 +108,9 @@ class Configuration {
   LUCID_CONST_PARAMETER(
       sigma_l, Vector, Vector::Constant(1, 1.0),
       "Variance parameter for the kernel, can be a single float (isotropic) or an array of floats (anisotropic)");
+  LUCID_CONST_PARAMETER(feature_sigma_l, Vector, Vector::Constant(1, 1.0),
+                        "Variance parameter for the feature map, can be a single float (isotropic) "
+                        "or an array of floats (anisotropic)");
 
   // Barrier certificate parameters
   LUCID_CONSTEXPR_PARAMETER(num_frequencies, int, 10,
@@ -143,6 +133,8 @@ class Configuration {
   LUCID_CONSTEXPR_PARAMETER(epsilon, double, 0.0, "Robustifying radius");
   LUCID_CONSTEXPR_PARAMETER(b_norm, double, 1.0, "Expected value of the barrier norm");
   LUCID_CONSTEXPR_PARAMETER(b_kappa, double, 1.0, "Coefficient");
+  LUCID_CONSTEXPR_PARAMETER(set_scaling, double, 0.01,
+                            "Scaling factor for the sets with respect to the periodic domain");
 
   // Classes to use for the pipeline
   LUCID_CONSTEXPR_PARAMETER(estimator, Estimator, Estimator::KERNEL_RIDGE_REGRESSOR,

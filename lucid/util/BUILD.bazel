@@ -53,7 +53,11 @@ lucid_cc_library(
     name = "configuration",
     srcs = ["Configuration.cpp"],
     hdrs = ["Configuration.h"],
-    implementation_deps = [":error"],
+    implementation_deps = [
+        ":error",
+        "@exprtk",
+        "@yaml-cpp",
+    ],
     deps = [
         ":logging",
         "//lucid/lib:eigen",

@@ -33,8 +33,8 @@ struct FourierBarrierCertificateParameters {
   double ftol = 1e-8;        ///< Function value tolerance for convergence
   double xtol = 1e-8;        ///< Position change tolerance for convergence
   double C_coeff = 1.0;      ///< Used to either strengthen (>1) or weaken (<1) the conservative coefficient C
-  double epsilon = 1.0;      ///< Epsilon parameter (?)
-  double b_norm = 0.0;       ///< Target norm for the barrier certificate
+  double epsilon = 0.0;      ///< Robustifying radius
+  double b_norm = 1.0;       ///< Target norm for the barrier certificate
   double kappa = 1.0;        ///< Kappa parameter (?)
   int threads = 0;           ///< Number of threads to use. 0 means automatic detection
 
@@ -83,7 +83,7 @@ class FourierBarrierCertificate final : public BarrierCertificate {
    * The overapproximation of these contribution are defined as
    * @f[
    * A^{\tilde{\mathcal{X}}\setminus\mathbb{S}}_{\tilde{N}} \coloneqq \frac{1}{\tilde{N}}
-   * \sum_{\bar{x}\in\Theta_{\tilde{N}}\setminus\mathbb{S}} 
+   * \sum_{\bar{x}\in\Theta_{\tilde{N}}\setminus\mathbb{S}}
    * D^n_{f_{\text{max}},\tilde{Q}-f_{\text{max}}}(x-\bar{x}),
    * @f]
    * where @f$\mathbb{S}\in\{\mathcal{X},\mathcal{X}_0,\mathcal{X}_u\}@f$, @f$\Theta_{\tilde{N}}@f$
