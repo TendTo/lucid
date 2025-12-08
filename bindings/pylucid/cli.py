@@ -255,7 +255,7 @@ class ConfigAction(Action):
         """
         # Process basic parameters in order matching Configuration class definition
         # Global generic configuration
-        args.input = Path()
+        args.input = config_dict.get("input", args.input)
         args.verbose = int(config_dict.get("verbose", args.verbose))
         args.seed = int(config_dict.get("seed", args.seed))
         args.plot = bool(config_dict.get("plot", args.plot))

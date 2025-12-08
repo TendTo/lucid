@@ -48,8 +48,10 @@ def main(argv: "Sequence[str] | None" = None) -> int:
     # Set verbosity based on the command line argument
     log.set_verbosity(config.verbose)
 
+    if config.input != Path():
+        log.info(f"Loading configuration from file '{config.input}'")
+
     if config.input.suffix == ".py":
-        log.info(f"Loading scenario configuration from file '{config.input}'")
         # Import the input file as a module
         spec = importlib.util.spec_from_file_location(config.input.stem, config.input)
         mod = importlib.util.module_from_spec(spec)
@@ -70,8 +72,7 @@ def main(argv: "Sequence[str] | None" = None) -> int:
         if not isinstance(config, Configuration):
             raise raise_error("The 'scenario_config' function must return an instance of 'Configuration'")
     else:
-        # If no input file is provided, use the default scenario configuration
-        log.info("No python script provided, using default scenario with the user-provided configuration")
+        # If no input file is provided, use the default scenario with the provided configuration
         config = scenario_config(config)
 
     # If all the checks pass, run the scenario

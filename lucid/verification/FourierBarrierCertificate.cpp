@@ -460,8 +460,7 @@ void FourierBarrierCertificate::optimiser_callback(bool success, double obj_val,
 
   LUCID_DEBUG_FMT("success: {}, obj_val: {}, norm: {}, eta: {}, c: {}", success, obj_val, norm, eta, c);
   LUCID_DEBUG_FMT("coefficients: {}", LUCID_FORMAT_VECTOR(coefficients_));
-  LUCID_INFO_FMT("Solution found, objective = {}", obj_val);
-  LUCID_INFO_FMT("Satisfaction probability is {:.6f}%", safety_ * 100);
+  LUCID_INFO_FMT("Solution found, satisfaction probability is {:.6f}%", safety_ * 100);
   if (norm > b_norm) {
     LUCID_WARN_FMT("Actual norm exceeds bound: {} > {} (diff: {})", norm, b_norm, norm - b_norm);
   }
