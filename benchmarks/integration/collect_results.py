@@ -216,6 +216,8 @@ def get_data_from_mlflow(args: Args):
             "max_d_xn_wo_x": float(run.data.metrics.get("max_d_xn_wo_x", -1)),
             "num_variables": int(run.data.metrics.get("num_variables", -1)),
             "num_constraints": int(run.data.metrics.get("num_constraints", -1)),
+            "samples_score": float(run.data.metrics.get("f_xp_samples.score", -1)),
+            "evaluation_score": float(run.data.metrics.get("f_xp_evaluation.score", -1)),
             # Results
             "solution": get_solution(run, args.d_uri),
             "verified": -1,
