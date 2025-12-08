@@ -103,6 +103,7 @@ export async function getCapabilities() {
 
 async function toJslucidConfiguration(
   config: Configuration,
+  num_points_plot: number,
   Solver: any,
   MultiSet: any,
   SphereSet: any,
@@ -178,6 +179,7 @@ async function toJslucidConfiguration(
     C_coeff: config.C_coeff,
     plot: config.plot,
     verify: config.verify,
+    num_points_plot: num_points_plot,
     problem_log_file: config.problem_log_file,
     iis_log_file: config.iis_log_file,
     oversample_factor: config.oversample_factor,
@@ -206,6 +208,7 @@ export async function generatePreviewFigure(config: Configuration) {
     await jslucid();
   const jsConfig = await toJslucidConfiguration(
     config,
+    config.num_samples,
     Solver,
     MultiSet,
     SphereSet,
@@ -235,6 +238,7 @@ export async function runJslucid(
   const [solution, plotData] = pipeline(
     await toJslucidConfiguration(
       config,
+      100,
       Solver,
       MultiSet,
       SphereSet,

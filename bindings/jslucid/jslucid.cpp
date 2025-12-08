@@ -159,6 +159,7 @@ struct Configuration {
   int seed{-1};
   bool plot{false};
   bool verify{false};
+  int num_points_plot{100};
   std::string problem_log_file{""};
   std::string iis_log_file{""};
   emscripten::val system_dynamics;
@@ -233,7 +234,7 @@ PlotPreviewData plot_preview(const Configuration& conf) {
   const RectSet* const X_bounds = dynamic_cast<const RectSet*>(X_bounds_ptr.get());
   const auto f_det = get_f_det(conf);
 
-  const Matrix lattice = X_bounds->lattice(conf.num_samples, true);
+  const Matrix lattice = X_bounds->lattice(conf.num_points_plot, true);
   const Matrix xp_lattice = !conf.system_dynamics.isUndefined() ? f_det(lattice) : Matrix{};
 
   return {
@@ -245,7 +246,7 @@ PlotPreviewData plot_preview(const Configuration& conf) {
 PlotSolutionData plot_solution(const Set& X_bounds, const std::function<Matrix(const Matrix&)>& f_det,
                                const Estimator& estimator, const TruncatedFourierFeatureMap& feature_map,
                                const FourierBarrierCertificate& barrier, const Configuration& conf) {
-  const Matrix lattice = X_bounds.lattice(25, true);
+  const Matrix lattice = X_bounds.lattice(conf.num_points_plot, true);
   const Matrix f_lattice = feature_map(lattice);
   const Matrix fp_lattice = !conf.system_dynamics.isUndefined() ? feature_map(f_det(lattice)) : Matrix{};
   const Matrix fp_lattice_est = estimator(lattice);
@@ -442,6 +443,7 @@ EMSCRIPTEN_BINDINGS(jslucid) {
       .field("seed", &Configuration::seed)
       .field("plot", &Configuration::plot)
       .field("verify", &Configuration::verify)
+      .field("num_points_plot", &Configuration::num_points_plot)
       .field("problem_log_file", &Configuration::problem_log_file)
       .field("iis_log_file", &Configuration::iis_log_file)
       .field("system_dynamics", &Configuration::system_dynamics)
