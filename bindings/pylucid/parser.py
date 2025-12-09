@@ -64,6 +64,7 @@ class SymbolicParser(ABC, Generic[T]):
         self._un_ops.update(un_ops or {})
         self._bin_ops = {
             "**": Operation(pp.opAssoc.RIGHT, 2, lambda x1, x2: x1**x2),
+            "^": Operation(pp.opAssoc.RIGHT, 2, lambda x1, x2: x1**x2),
             "/": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 / x2),
             "*": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 * x2),
             "-": Operation(pp.opAssoc.LEFT, 2, lambda x1, x2: x1 - x2),
