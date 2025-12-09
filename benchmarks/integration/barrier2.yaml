@@ -1,4 +1,26 @@
 # yaml-language-server: $schema=../../bindings/pylucid/configuration_schema.json
+b_norm: 16.0
+estimator: KernelRidgeRegressor
+feature_map: LinearTruncatedFourierFeatureMap
+feature_sigma_l: [0.16000000000000003, 0.11677777777777779]
+gamma: 1.0
+kernel: GaussianKernel
+lambda: 1.0e-06
+lattice_resolution: 330
+noise_scale: 0.01
+num_frequencies: 7
+num_samples: 1000
+optimiser: GurobiOptimiser
+plot: true
+seed: 42
+set_scaling: 0.05
+sigma_f: 1.0
+sigma_l: [0.40501051998808607, 0.3580734352248586]
+system_dynamics:
+  - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
+  - "x2 + 0.1 * (-(sin(x1)^2))"
+time_horizon: 5
+verbose: 3
 X_bounds:
   - RectSet:
       - [-2, 2]
@@ -11,27 +33,3 @@ X_unsafe:
   - SphereSet:
       center: [0.7, -0.7]
       radius: 0.3
-C_coeff: 1
-estimator: KernelRidgeRegressor
-feature_map: LinearTruncatedFourierFeatureMap
-gamma: 1.0
-kernel: GaussianKernel
-lambda: 1.0e-06
-noise_scale: 0.01
-num_frequencies: 15
-lattice_resolution: 400
-num_samples: 1000
-optimiser: GurobiOptimiser
-oversample_factor: 1
-plot: true
-seed: 42
-sigma_f: 1
-# sigma_l: [1, 5.39338] # Original
-sigma_l: [2.50304, 3.77779] # LB
-# sigma_l: [0.0215443, 0.0215443] # GRID
-system_dynamics:
-  - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
-  - "x2 + 0.1 * (-(sin(x1)**2))"
-time_horizon: 5
-verbose: 3
-verify: false
