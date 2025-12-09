@@ -42,13 +42,13 @@ struct Stats {
   double A_xn_wo_x0{0};                         ///< A coefficient computed over Xn \ X0
   double A_xn_wo_xu{0};                         ///< A coefficient computed over Xn \ Xu
   double min_x0{0};                             ///< Minimum value of the barrier over lattice points in X0
-  double max_xn_wo_x0{0};                       ///< Maximum value of the barrier over lattice points in Xn \ X0
+  double max_sx0{0};                            ///< Maximum value of the barrier over lattice points in Xn \ X0
   double max_xu{0};                             ///< Maximum value of the barrier over lattice points in Xu
-  double min_xn_wo_xu{0};                       ///< Minimum value of the barrier over lattice points in Xn \ Xu
+  double min_sxu{0};                            ///< Minimum value of the barrier over lattice points in Xn \ Xu
   double max_x{0};                              ///< Maximum value of the barrier over lattice points in X
-  double min_xn_wo_x{0};                        ///< Minimum value of the barrier over lattice points in Xn \ X
+  double min_sx{0};                             ///< Minimum value of the barrier over lattice points in Xn \ X
   double min_d{0};                              ///< Minimum value of the barrier xp - x over lattice points in X
-  double max_d_xn_wo_x{0};                      ///< Maximum value of the barrier xp - x over lattice points in Xn \ X
+  double max_d_sx{0};                           ///< Maximum value of the barrier xp - x over lattice points in Xn \ X
   std::size_t peak_rss_memory_usage{0};         ///< Peak Resident Set Size (RSS) memory usage in bytes
 };
 

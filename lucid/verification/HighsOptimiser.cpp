@@ -30,6 +30,14 @@
 #define LUCID_FORMAT_NAME(should_log, str, ...) ""
 #endif
 
+#define LOG_AND_STATS(sol, variable)                                    \
+  do {                                                                  \
+    LUCID_DEBUG_FMT(#variable ": {}", sol.col_value[variable]);         \
+    if (Stats::Scoped::top()) {                                         \
+      Stats::Scoped::top()->value().variable = sol.col_value[variable]; \
+    }                                                                   \
+  } while (0)
+
 namespace lucid {
 
 HighsOptimiser::HighsOptimiser(std::map<std::string, std::string> options, std::string problem_log_file,
@@ -370,6 +378,19 @@ bool HighsOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierSy
 
   const HighsInfo& info = highs.getInfo();
   const HighsSolution& sol = highs.getSolution();
+
+  // Print the value of each variable and store it in the stats object
+  LOG_AND_STATS(sol, c);
+  LOG_AND_STATS(sol, eta);
+  LOG_AND_STATS(sol, min_x0);
+  LOG_AND_STATS(sol, max_sx0);
+  LOG_AND_STATS(sol, max_xu);
+  LOG_AND_STATS(sol, min_sxu);
+  LOG_AND_STATS(sol, max_x);
+  LOG_AND_STATS(sol, min_sx);
+  LOG_AND_STATS(sol, min_d);
+  LOG_AND_STATS(sol, max_d_sx);
+
   const Vector solution{Vector::NullaryExpr(fxn_lattice.cols(), [&sol](const Index i) { return sol.col_value[i]; })};
   cb(true, info.objective_function_value, solution, sol.col_value[eta], sol.col_value[c], solution.norm());
   return true;

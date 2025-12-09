@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "lucid/lib/soplex.h"
+#include "lucid/util/Stats.h"
 #include "lucid/util/error.h"
 
 #ifdef LUCID_PYTHON_BUILD
@@ -26,6 +27,14 @@
 #else
 #define LUCID_MODEL_ADD_CONSTRAINT(model, lhs, vec, rhs, name, names, should_log) rows.add(lhs, vec, rhs)
 #endif
+
+#define LOG_AND_STATS(sol, variable)                          \
+  do {                                                        \
+    LUCID_DEBUG_FMT(#variable ": {}", sol[variable]);         \
+    if (Stats::Scoped::top()) {                               \
+      Stats::Scoped::top()->value().variable = sol[variable]; \
+    }                                                         \
+  } while (0)
 
 namespace lucid {
 
@@ -305,6 +314,19 @@ bool SoplexOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   soplex::VectorReal sol{num_vars};
   [[maybe_unused]] const bool res = spx.getPrimal(sol);
   LUCID_ASSERT(res, "error getting solution");
+
+  // Print the value of each variable and store it in the stats object
+  LOG_AND_STATS(sol, c);
+  LOG_AND_STATS(sol, eta);
+  LOG_AND_STATS(sol, min_x0);
+  LOG_AND_STATS(sol, max_sx0);
+  LOG_AND_STATS(sol, max_xu);
+  LOG_AND_STATS(sol, min_sxu);
+  LOG_AND_STATS(sol, max_x);
+  LOG_AND_STATS(sol, min_sx);
+  LOG_AND_STATS(sol, min_d);
+  LOG_AND_STATS(sol, max_d_sx);
+
   const Vector solution{
       Vector::NullaryExpr(fxn_lattice.cols(), [&sol](const Index i) { return sol[static_cast<int>(i)]; })};
   cb(true, spx.objValueReal(), solution, sol[eta], sol[c], solution.norm());

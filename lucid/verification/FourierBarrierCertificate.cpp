@@ -295,6 +295,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   // Create a lattice over the periodic set with no endpoints (since they would wrap around)
   const Matrix pi_lattice{pi.lattice(lattice_resolution, false)};
 
+  LUCID_INFO("Computing LP coefficients");
   const double A_x = compute_A(lattice_resolution, f_max, pi, X_tilde, X_bounds, pi_lattice, parameters);
   const double A_x0 = compute_A(lattice_resolution, f_max, pi, X_tilde, X_init, pi_lattice, parameters);
   const double A_xu = compute_A(lattice_resolution, f_max, pi, X_tilde, X_unsafe, pi_lattice, parameters);

@@ -255,8 +255,9 @@ def pipeline(
         config.f_xp_samples = feature_map(config.xp_samples)
 
     log.debug(f"Estimator pre-fit: {estimator}")
+    log.info("Fitting the estimator")
     estimator.fit(x=config.x_samples, y=config.f_xp_samples)  # Actual fitting of the regressor
-    log.info(f"Estimator post-fit: {estimator}")
+    (log.info if config.tuner is not None else log.debug)(f"Estimator post-fit: {estimator}")
 
     if callable(feature_map) and not isinstance(feature_map, FeatureMap):
         feature_map = feature_map(estimator)  # Compute the feature map if it is a callable
@@ -266,7 +267,7 @@ def pipeline(
     log.debug(f"Score on f_xp_samples {estimator.score(config.x_samples, config.f_xp_samples)}")
     if config.system_dynamics is not None:
         # Sample some other points (half of the x_samples) to evaluate the regressor against overfitting
-        x_evaluation = config.X_bounds.sample(config.x_samples.shape[0] // 2)
+        x_evaluation = config.X_bounds.sample(config.x_samples.shape[0])
         f_xp_evaluation = feature_map(config.system_dynamics(x_evaluation))
         log.debug(f"RMSE on f_det_evaluated {rmse(estimator(x_evaluation), f_xp_evaluation)}")
         log.debug(f"Score on f_det_evaluated {estimator.score(x_evaluation, f_xp_evaluation)}")

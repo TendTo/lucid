@@ -37,6 +37,14 @@
 #define LUCID_MODEL_ADD_CONSTRAINT(model, expr, op, rhs, name, should_log) model.addConstr(expr, op, rhs)
 #endif
 
+#define LOG_AND_STATS(variable)                                                \
+  do {                                                                         \
+    LUCID_DEBUG_FMT(#variable ": {}", variable.get(GRB_DoubleAttr_X));         \
+    if (Stats::Scoped::top()) {                                                \
+      Stats::Scoped::top()->value().variable = variable.get(GRB_DoubleAttr_X); \
+    }                                                                          \
+  } while (0)
+
 namespace lucid {
 
 #ifdef LUCID_GUROBI_BUILD
@@ -281,28 +289,17 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     return false;
   }
 
-  // Print the value of each variable
-  LUCID_DEBUG_FMT("c: {}", c.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("eta: {}", eta.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("min_X0: {}", min_x0.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("max_sx0: {}", max_sx0.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("max_xu: {}", max_xu.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("min_sxu: {}", min_sxu.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("max_x: {}", max_x.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("min_sx: {}", min_sx.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("min_d: {}", min_d.get(GRB_DoubleAttr_X));
-  LUCID_DEBUG_FMT("max_d_sx: {}", max_d_sx.get(GRB_DoubleAttr_X));
-
-  if (Stats::Scoped::top()) {
-    Stats::Scoped::top()->value().min_x0 = min_x0.get(GRB_DoubleAttr_X);
-    Stats::Scoped::top()->value().max_xn_wo_x0 = max_sx0.get(GRB_DoubleAttr_X);
-    Stats::Scoped::top()->value().max_xu = max_xu.get(GRB_DoubleAttr_X);
-    Stats::Scoped::top()->value().min_xn_wo_xu = min_sxu.get(GRB_DoubleAttr_X);
-    Stats::Scoped::top()->value().max_x = max_x.get(GRB_DoubleAttr_X);
-    Stats::Scoped::top()->value().min_xn_wo_x = min_sx.get(GRB_DoubleAttr_X);
-    Stats::Scoped::top()->value().min_d = min_d.get(GRB_DoubleAttr_X);
-    Stats::Scoped::top()->value().max_d_xn_wo_x = max_d_sx.get(GRB_DoubleAttr_X);
-  }
+  // Print the value of each variable and store it in the stats object
+  LOG_AND_STATS(c);
+  LOG_AND_STATS(eta);
+  LOG_AND_STATS(min_x0);
+  LOG_AND_STATS(max_sx0);
+  LOG_AND_STATS(max_xu);
+  LOG_AND_STATS(min_sxu);
+  LOG_AND_STATS(max_x);
+  LOG_AND_STATS(min_sx);
+  LOG_AND_STATS(min_d);
+  LOG_AND_STATS(max_d_sx);
 
   const Vector solution{
       Vector::NullaryExpr(fxn_lattice.cols(), [&vars](const Index i) { return vars[i].get(GRB_DoubleAttr_X); })};

@@ -70,13 +70,13 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              stats.A_xn_wo_x0,                    //
              stats.A_xn_wo_xu,                    //
              stats.min_x0,                        //
-             stats.max_xn_wo_x0,                  //
+             stats.max_sx0,                       //
              stats.max_xu,                        //
-             stats.min_xn_wo_xu,                  //
+             stats.min_sxu,                       //
              stats.max_x,                         //
-             stats.min_xn_wo_x,                   //
+             stats.min_sx,                        //
              stats.min_d,                         //
-             stats.max_d_xn_wo_x,                 //
+             stats.max_d_sx,                      //
              unit,                                //
              metrics::bytes_to(stats.peak_rss_memory_usage, unit));
 }

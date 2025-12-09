@@ -21,6 +21,14 @@
 #include "lucid/util/error.h"
 #include "lucid/util/logging.h"
 
+#define LOG_AND_STATS(lp_problem, variable)                                     \
+  do {                                                                          \
+    LUCID_DEBUG_FMT(#variable ": {}", lp_problem.solution()[variable]);         \
+    if (Stats::Scoped::top()) {                                                 \
+      Stats::Scoped::top()->value().variable = lp_problem.solution()[variable]; \
+    }                                                                           \
+  } while (0)
+
 namespace lucid {
 #ifdef LUCID_ALGLIB_BUILD
 namespace {
@@ -248,6 +256,18 @@ bool AlglibOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
     cb(false, 0, Vector{}, 0, 0, 0);
     return false;
   }
+
+  // Print the value of each variable and store it in the stats object
+  LOG_AND_STATS(lp_problem, c);
+  LOG_AND_STATS(lp_problem, eta);
+  LOG_AND_STATS(lp_problem, min_x0);
+  LOG_AND_STATS(lp_problem, max_sx0);
+  LOG_AND_STATS(lp_problem, max_xu);
+  LOG_AND_STATS(lp_problem, min_sxu);
+  LOG_AND_STATS(lp_problem, max_x);
+  LOG_AND_STATS(lp_problem, min_sx);
+  LOG_AND_STATS(lp_problem, min_d);
+  LOG_AND_STATS(lp_problem, max_d_sx);
 
   const Vector solution{
       Vector::NullaryExpr(fxn_lattice.cols(), [&lp_problem](const Index i) { return lp_problem.solution()[i]; })};
