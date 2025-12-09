@@ -14,7 +14,6 @@ class BenchmarkArgs(argparse.Namespace):
     experiment: str
     verified: bool
     datafile: str
-    seeds: list[int] | None
     tune: bool
     num_rows: int
     start_from: int
@@ -33,7 +32,6 @@ if __name__ == "__main__":
         help="Path to the data file. Defaults to 'benchmarks/integration/<experiment>.pkl'",
         default="",
     )
-    parser.add_argument("-s", "--seeds", type=int, nargs="+", help="Specific seeds to run (overrides CSV data)")
     parser.add_argument("-n", "--num-rows", type=int, help="Number of rows to process", default=-1)
     parser.add_argument("--start-from", type=int, help="Row index to start from", default=0)
     parser.add_argument("-t", "--tune", action="store_true", help="Run in tuning mode (if applicable)")
@@ -59,32 +57,38 @@ if __name__ == "__main__":
         if r.lower() not in ("yes", "y", "1", "true", "ok"):
             exit(0)
     for i, (_, row) in enumerate(data.iterrows()):
+        if hasattr(row, "sample_score") and row.sample_score < 0.9:
+            print(f"Skipping row {i} due to low sample score: {row.sample_score}")
+            args.num_rows += 1  # compensate for skipped rows
+            continue
+        if row.seed != 42:
+            print(f"Skipping row {i} due to non-standard seed: {row.seed}")
+            args.num_rows += 1  # compensate for skipped rows
+            continue
         if i < args.start_from:
             continue
         if args.num_rows != -1 and i >= args.start_from + args.num_rows:
             break
         row.num_samples = 1000
-        for seed in args.seeds if args.seeds is not None else [row.seed]:
-            row.seed = seed
-            config = config_from_df_row(args.experiment, row)
-            if args.tune:
-                config.estimator = config.estimator.__class__
-            if args.config:
-                config.estimator = config.estimator.__class__
-                config.feature_map = config.feature_map.__class__
-                config.to_yaml(f"{args.experiment}-config-{i}.yaml")
-                continue
-            if args.dry_run:
-                config.estimator = config.estimator.__class__
-                config.feature_map = config.feature_map.__class__
-                print(f"Dry run for config {i}:")
-                pipeline(
-                    config,
-                    optimiser_cb=lambda res: print(
-                        f"Close enough: {row.obj_val}"
-                        if np.isclose(res["obj_val"], row.obj_val)
-                        else f"Missmatch: {res['obj_val']} vs {row.obj_val}"
-                    ),
-                )
-                continue
-            single_benchmark(f"{args.experiment}-dist", config)
+        config = config_from_df_row(args.experiment, row)
+        if args.tune:
+            config.estimator = config.estimator.__class__
+        if args.config:
+            config.estimator = config.estimator.__class__
+            config.feature_map = config.feature_map.__class__
+            config.to_yaml(f"{args.experiment}-config-{i}.yaml")
+            continue
+        if args.dry_run:
+            config.estimator = config.estimator.__class__
+            config.feature_map = config.feature_map.__class__
+            print(f"Dry run for config {i}:")
+            pipeline(
+                config,
+                optimiser_cb=lambda res: print(
+                    f"Close enough: {row.obj_val}"
+                    if np.isclose(res["obj_val"], row.obj_val)
+                    else f"Missmatch: {res['obj_val']} vs {row.obj_val}"
+                ),
+            )
+            continue
+        single_benchmark(f"{args.experiment}-dist", config)

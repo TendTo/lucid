@@ -104,8 +104,6 @@ def single_benchmark(name: str, config: Configuration):
 
     def handle_log(message: str):
         logs.append(message)
-        if "C:" in message:
-            print(message)
 
     log.set_sink(handle_log)
     log.set_verbosity(log.LOG_DEBUG)
@@ -239,6 +237,7 @@ def tune(conf: Configuration, tffm: TruncatedFourierFeatureMap):
 
 
 def benchmark_pipeline(config: Configuration):
+    log.debug(f"Pipeline started with {config}")
     with TimeLogger("setup"):
         config_dict = config.to_safe_dict()
         mlflow.log_dict(config_dict, "config.yaml")
@@ -270,6 +269,7 @@ def benchmark_pipeline(config: Configuration):
             )
         else:
             feature_map = config.feature_map
+        log.debug(f"Feature map: {feature_map}")
 
         if isinstance(config.estimator, type):
             if config.estimator == ModelEstimator:
@@ -326,14 +326,9 @@ def benchmark_pipeline(config: Configuration):
             mlflow.log_metric("f_xp_evaluation.score", estimator.score(x_evaluation, f_xp_evaluation))
 
     with TimeLogger("solve"):
-        optimiser: Optimiser = config.optimiser(
-            problem_log_file=config.problem_log_file,
-            iis_log_file=config.iis_log_file,
-        )
         b = FourierBarrierCertificate(T=config.time_horizon, gamma=config.gamma)
         success = b.synthesize(
-            optimiser=optimiser,
-            lattice_resolution=config.lattice_resolution,
+            lattice_resolution=lattice_resolution,
             estimator=estimator,
             feature_map=feature_map,
             X_bounds=config.X_bounds,
@@ -346,6 +341,7 @@ def benchmark_pipeline(config: Configuration):
                 kappa=config.b_kappa,
                 C_coeff=config.C_coeff,
             ),
+            optimiser=config.optimiser(problem_log_file=config.problem_log_file, iis_log_file=config.iis_log_file),
         )
     check_cb_factory(
         success=success,
@@ -371,7 +367,6 @@ def check_cb_factory(
                 "run.norm": b.norm,
             }
         )
-        b.coefficients.shape
         if success:
             mlflow.log_table({"solution": b.coefficients.tolist()}, "solution.json")
         if config.plot and config.X_bounds.dimension <= 2:
