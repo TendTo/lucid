@@ -26,89 +26,92 @@ using namespace lucid;  // NOLINT
 
 namespace {
 
-std::unique_ptr<Optimiser> get_optimiser(const Configuration::Optimiser solver, const Configuration& args) {
-  switch (solver) {
+std::unique_ptr<Optimiser> get_optimiser(const Configuration& config) {
+  switch (config.optimiser) {
 #ifdef LUCID_GUROBI_BUILD
     case Configuration::Optimiser::GUROBI:
-      return std::make_unique<GurobiOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<GurobiOptimiser>(config.problem_log_file, config.iis_log_file);
 #endif
 #ifdef LUCID_ALGLIB_BUILD
     case Configuration::Optimiser::ALGLIB:
-      return std::make_unique<AlglibOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<AlglibOptimiser>(config.problem_log_file, config.iis_log_file);
 #endif
 #ifdef LUCID_HIGHS_BUILD
     case Configuration::Optimiser::HIGHS:
-      return std::make_unique<HighsOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<HighsOptimiser>(config.problem_log_file, config.iis_log_file);
 #endif
 #ifdef LUCID_SOPLEX_BUILD
     case Configuration::Optimiser::SOPLEX:
-      return std::make_unique<SoplexOptimiser>(args.problem_log_file, args.iis_log_file);
+      return std::make_unique<SoplexOptimiser>(config.problem_log_file, config.iis_log_file);
 #endif
     default:
       throw std::invalid_argument("Solver not supported or not built");
   }
 }
 
-std::unique_ptr<Estimator> get_estimator(const Configuration::Estimator estimator_type, const Configuration& args) {
-  switch (estimator_type) {
+std::unique_ptr<Estimator> get_estimator(const Configuration& config) {
+  switch (config.estimator) {
     case Configuration::Estimator::MODEL_ESTIMATOR:
-      return std::make_unique<ModelEstimator>(args.system_dynamics);
+      return std::make_unique<ModelEstimator>(config.system_dynamics);
     case Configuration::Estimator::KERNEL_RIDGE_REGRESSOR:
-      return std::make_unique<KernelRidgeRegressor>(std::make_unique<GaussianKernel>(args.sigma_l, args.sigma_f),
-                                                    args.lambda);
+      return std::make_unique<KernelRidgeRegressor>(std::make_unique<GaussianKernel>(config.sigma_l, config.sigma_f),
+                                                    config.lambda);
     default:
       throw std::invalid_argument("Estimator not supported");
   }
 }
 
-std::unique_ptr<TruncatedFourierFeatureMap> get_feature_map(const Configuration::FeatureMap feature_map_type,
-                                                            const Configuration& args, const RectSet& X_bounds) {
-  switch (feature_map_type) {
+std::unique_ptr<TruncatedFourierFeatureMap> get_feature_map(const Configuration& config) {
+  const RectSet& X_bounds = *dynamic_cast<RectSet*>(config.X_bounds.get());
+  switch (config.feature_map) {
     case Configuration::FeatureMap::LINEAR_TRUNCATED_FOURIER_FEATURE_MAP:
-      return std::make_unique<LinearTruncatedFourierFeatureMap>(args.num_frequencies, args.feature_sigma_l,
-                                                                args.sigma_f, X_bounds);
+      return std::make_unique<LinearTruncatedFourierFeatureMap>(config.num_frequencies, config.feature_sigma_l,
+                                                                config.sigma_f, X_bounds);
     case Configuration::FeatureMap::CONSTANT_TRUNCATED_FOURIER_FEATURE_MAP:
-      return std::make_unique<ConstantTruncatedFourierFeatureMap>(args.num_frequencies, args.feature_sigma_l,
-                                                                  args.sigma_f, X_bounds);
+      return std::make_unique<ConstantTruncatedFourierFeatureMap>(config.num_frequencies, config.feature_sigma_l,
+                                                                  config.sigma_f, X_bounds);
     case Configuration::FeatureMap::LOG_TRUNCATED_FOURIER_FEATURE_MAP:
-      return std::make_unique<LogTruncatedFourierFeatureMap>(args.num_frequencies, args.feature_sigma_l, args.sigma_f,
-                                                             X_bounds);
+      return std::make_unique<LogTruncatedFourierFeatureMap>(config.num_frequencies, config.feature_sigma_l,
+                                                             config.sigma_f, X_bounds);
     default:
       throw std::invalid_argument("Feature map not supported");
   }
 }
 
-bool pipeline(const Configuration& args) {
-  LUCID_LOG_INIT_VERBOSITY(args.verbose);
-  random::seed(args.seed);
+bool pipeline(const Configuration& config) {
+  LUCID_LOG_INIT_VERBOSITY(config.verbose);
+  random::seed(config.seed);
 
-  std::cout << args << std::endl;
-  const RectSet& X_bounds = *dynamic_cast<RectSet*>(args.X_bounds.get());
+  LUCID_DEBUG_FMT("{}", config);
+  const RectSet& X_bounds = *dynamic_cast<RectSet*>(config.X_bounds.get());
 
-  auto f = [&args](const Matrix& x) -> Matrix {
-    std::normal_distribution d{0.0, args.noise_scale};
+  auto f = [&config](const Matrix& x) -> Matrix {
+    std::normal_distribution d{0.0, config.noise_scale};
     // Add noise to the linear function
-    const Matrix y{args.system_dynamics(x)};
-    return args.system_dynamics(x) +
+    const Matrix y{config.system_dynamics(x)};
+    return config.system_dynamics(x) +
            Matrix::NullaryExpr(y.rows(), y.cols(), [&d](Index, Index) { return d(random::gen); });
   };
 
-  const Matrix x_samples{args.X_bounds->sample(args.num_samples)};
+  const Matrix x_samples{config.X_bounds->sample(config.num_samples)};
   const Matrix xp_samples{f(x_samples)};
 
-  const std::unique_ptr<Estimator> estimator{get_estimator(args.estimator, args)};
-  const std::unique_ptr<TruncatedFourierFeatureMap> feature_map{get_feature_map(args.feature_map, args, X_bounds)};
+  LUCID_DEBUG_FMT("{}", LUCID_FORMAT_MATRIX(x_samples));
+  LUCID_DEBUG_FMT("{}", LUCID_FORMAT_MATRIX(xp_samples));
+
+  const std::unique_ptr<Estimator> estimator{get_estimator(config)};
+  const std::unique_ptr<TruncatedFourierFeatureMap> feature_map{get_feature_map(config)};
   estimator->fit(x_samples, (*feature_map)(xp_samples));
 
-  FourierBarrierCertificate barrier{args.time_horizon, args.gamma};
-  const bool res = barrier.synthesize(*get_optimiser(args.optimiser, args), args.lattice_resolution, *estimator,
-                                      *feature_map, X_bounds, *args.X_init, *args.X_unsafe,
+  FourierBarrierCertificate barrier{config.time_horizon, config.gamma};
+  const bool res = barrier.synthesize(*get_optimiser(config), config.lattice_resolution, *estimator, *feature_map,
+                                      X_bounds, *config.X_init, *config.X_unsafe,
                                       {
-                                          .set_scaling = args.set_scaling,
-                                          .C_coeff = args.C_coeff,
-                                          .epsilon = args.epsilon,
-                                          .b_norm = args.b_norm,
-                                          .kappa = args.b_kappa,
+                                          .set_scaling = config.set_scaling,
+                                          .C_coeff = config.C_coeff,
+                                          .epsilon = config.epsilon,
+                                          .b_norm = config.b_norm,
+                                          .kappa = config.b_kappa,
                                       });
   LUCID_INFO_FMT("Synthesized Fourier barrier certificate:\n{}", barrier);
   return res;
@@ -197,6 +200,8 @@ Configuration barrier3{
     .set_scaling = 0.03,
 };
 
+constexpr char USAGE[] = "{} <linear | barrier2 | barrier3 | /path/to/config.yaml> [gurobi | alglib | highs | soplex]";
+
 /**
  * Main function.
  * @param argc Number of arguments.
@@ -205,38 +210,38 @@ Configuration barrier3{
  */
 int main(const int argc, char* argv[]) {
   if (argc < 2) {
-    fmt::println("Usage: {} <linear|barrier2|barrier3> [gurobi|alglib|highs|soplex]", argv[0]);
+    fmt::println(USAGE, argv[0]);
     return 1;
   }
 
-  Configuration file_args;
-  Configuration* args = nullptr;
+  Configuration file_config;
+  Configuration* config = nullptr;
   if (std::string_view{argv[1]} == "linear") {  // NOLINT(whitespace/braces): standard initialisation
-    args = &linear;
+    config = &linear;
   } else if (std::string_view{argv[1]} == "barrier2") {  // NOLINT(whitespace/braces): standard initialisation
-    args = &barrier2;
+    config = &barrier2;
   } else if (std::string_view{argv[1]} == "barrier3") {  // NOLINT(whitespace/braces): standard initialisation
-    args = &barrier3;
+    config = &barrier3;
   } else {
-    file_args = Configuration::from_yaml(argv[1]);
-    args = &file_args;
+    file_config = Configuration::from_yaml(argv[1]);
+    config = &file_config;
   }
   if (argc >= 3) {
     if (std::string_view{argv[2]} == "alglib") {  // NOLINT(whitespace/braces): standard initialisation
-      args->optimiser = Configuration::Optimiser::ALGLIB;
+      config->optimiser = Configuration::Optimiser::ALGLIB;
     } else if (std::string_view{argv[2]} == "gurobi") {  // NOLINT(whitespace/braces): standard initialisation
-      args->optimiser = Configuration::Optimiser::GUROBI;
+      config->optimiser = Configuration::Optimiser::GUROBI;
     } else if (std::string_view{argv[2]} == "highs") {  // NOLINT(whitespace/braces): standard initialisation
-      args->optimiser = Configuration::Optimiser::HIGHS;
+      config->optimiser = Configuration::Optimiser::HIGHS;
     } else if (std::string_view{argv[2]} == "soplex") {  // NOLINT(whitespace/braces): standard initialisation
-      args->optimiser = Configuration::Optimiser::SOPLEX;
+      config->optimiser = Configuration::Optimiser::SOPLEX;
     } else {
-      fmt::println("Usage: {} <linear|barrier2|barrier3> [gurobi|alglib|highs|soplex]", argv[0]);
+      fmt::println(USAGE, argv[0]);
       return 1;
     }
   }
 
-  pipeline(*args);
+  pipeline(*config);
   return 0;
 }
 
