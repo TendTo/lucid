@@ -19,7 +19,7 @@ We provide a pre-built Pylucid package that can be installed directly with pip w
 
 - [Python](https://www.python.org/) 3.8 or higher
 - [Linux, Glibc >= 2.35](https://gist.github.com/richardlau/6a01d7829cc33ddab35269dacc127680), [Windows](https://www.microsoft.com/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
-- [Gurobi](https://www.gurobi.com/) 12.0.0 or higher
+- (_Optional_) [Gurobi licence](https://www.gurobi.com/)
 
 **Installation commands**
 
@@ -51,9 +51,10 @@ It is possible to customise the installation, including optional dependencies, t
 
 ```bash
 # Install the bindings with optional dependencies
-# GUI => Graphical User Interface, pylucid-gui
-# Verification => Verify the barrier via the dReal SMT solver
-# Plot => Plot the results using plotly
+# verification => Verify the barrier via the dReal SMT solver
+# gurobi => Gurobi solver support
+# cuda => CUDA support for HiGHS
+# gui => Graphical User Interface, pylucid-gui
 pip install ".[gui,verification]"
 ```
 

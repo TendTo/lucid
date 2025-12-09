@@ -29,7 +29,7 @@ If you encounter any errors, please refer to the [Troubleshooting](docs/FAQ.md#t
 **Requirements**
 
 - [Docker](https://www.docker.com/)
-- [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+- (_Optional_) [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
 
 **Command**
 
@@ -59,7 +59,7 @@ docker run --name lucid -it --rm -p 3661:3661 \
 **Requirements**
 
 - [Docker](https://www.docker.com/)
-- [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+- (_Optional_) [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
 
 **Command**
 
@@ -90,7 +90,7 @@ docker run --name lucid -it --rm -p 3661:3661 \
 
 - [Python](https://www.python.org/) 3.8 or higher
 - [Linux, Glibc >= 2.35](https://gist.github.com/richardlau/6a01d7829cc33ddab35269dacc127680), [Windows](https://www.microsoft.com/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
-- [Gurobi](https://www.gurobi.com/) 12.0.0 or higher
+- (_Optional_) [Gurobi licence](https://www.gurobi.com/)
 
 **Installation commands**
 
@@ -120,11 +120,12 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 
 - [Bazel](https://bazel.build/) 8.1.1
 - [Python](https://www.python.org/) 3.8 or higher
-- C++ compiler with C++20 support
+- C++ compiler with C++20 support.  
+  We tested in particular:
   - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
   - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
   - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
-- [Gurobi](https://www.gurobi.com/) 12.0.0 or higher
+- (_Optional_) [Gurobi licence](https://www.gurobi.com/)
 
 **Installation commands**
 
@@ -159,15 +160,12 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 **Requirements**
 
 - [Bazel](https://bazel.build/) 8.1.1
-- C++ compiler with C++20 support
+- C++ compiler with C++20 support.  
+  We tested in particular:
   - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
   - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
   - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
-- [Gurobi](https://www.gurobi.com/) 12.0.1
-
-> [!IMPORTANT]  
-> While it is possible to run the Lucid binary following the instructions below,
-> right now it simply solves a default problem.
+- (_Optional_) [Gurobi licence](https://www.gurobi.com/)
 
 **Installation commands**
 

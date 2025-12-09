@@ -5,7 +5,7 @@
 ### Requirements
 
 - [Docker](https://www.docker.com/)
-- [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
+- (_Optional_) [Gurobi Web License Service (WLS) license](https://www.gurobi.com/features/web-license-service/)
 
 ### Using Lucid with Docker
 
@@ -49,15 +49,16 @@ Other versions may work as well, but they have not been tested.
 
 - [Bazel](https://bazel.build/) 8.1.1
   - We suggest using [bazelisk](https://github.com/bazelbuild/bazelisk) to manage Bazel's version.
-- C++ compiler with C++20 support
+- C++ compiler with C++20 support.  
+  We tested in particular:
   - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0
   - **On Windows**: [msvc](https://visualstudio.microsoft.com/) 19.32.31332
   - **On macOS**: [Clang/LLVM](https://clang.llvm.org/) 15.0.0
-- [Gurobi](https://www.gurobi.com/) 12.0.1
+- (_Optional_) [Gurobi licence](https://www.gurobi.com/)
 
 ### Gurobi requirements
 
-While there are other solvers supported by Lucid, [Gurobi](https://www.gurobi.com/) is the recommended one.
+While Lucid supports multiple [LP solvers](https://en.wikipedia.org/wiki/Linear_programming), [Gurobi](https://www.gurobi.com/) remains the recommended one.
 Being a commercial solver, it must be installed separately and requires a valid license to run.
 
 Before the installation, ensure that the `GUROBI_HOME` environment variable is set correctly.
