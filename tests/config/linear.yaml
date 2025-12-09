@@ -1,6 +1,24 @@
+# yaml-language-server: $schema=../../bindings/pylucid/configuration_schema.json
+b_norm: 2.0
+estimator: KernelRidgeRegressor
+feature_map: LinearTruncatedFourierFeatureMap
+feature_sigma_l: 0.0925
+gamma: 1.0
+kernel: GaussianKernel
+lambda: 1.0e-5
+lattice_resolution: 300
+noise_scale: 0.01
+num_frequencies: 6
+num_samples: 1000
+optimiser: GurobiOptimiser
+plot: true
 seed: 42
-system_dynamics:
-  - x1 / 2
+set_scaling: 0.04000000000000001
+sigma_f: 1.0
+sigma_l: 0.04465750366442458
+system_dynamics: [x1 / 2]
+time_horizon: 15
+verbose: 3
 X_bounds:
   - RectSet:
       - [-1, 1]
@@ -12,20 +30,3 @@ X_unsafe:
       - [-1, -0.9]
   - RectSet:
       - [0.9, 1]
-gamma: 1.0
-C_coeff: 1.0
-lambda: 1.0e-5
-num_samples: 1000
-time_horizon: 15
-sigma_f: 1.0
-sigma_l: 0.013479510641293407
-feature_sigma_l: 0.06
-num_frequencies: 8
-lattice_resolution: 400
-noise_scale: 0.01
-plot: true
-verify: true
-estimator: KernelRidgeRegressor
-feature_map: LinearTruncatedFourierFeatureMap
-optimiser: HighsOptimiser
-set_scaling: 0.02

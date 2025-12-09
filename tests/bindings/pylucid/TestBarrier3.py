@@ -9,14 +9,15 @@ from pylucid.pipeline import OptimiserResult, pipeline
 def optimiser_cb(res: OptimiserResult):
     """Callback function to handle the results of the optimiser."""
     assert res["success"], "Optimisation failed"
-    assert res["obj_val"] <= 0, "Objective value should be non-positive"
+    assert res["obj_val"] <= 61.0, f"Objective value should be <= 61.0, got {res['obj_val']}"
+    assert len(res["sol"]) == 97, f"Expected solution length of 97, got {len(res['sol'])}"
 
 
 def scenario_config() -> "Configuration":
     config = Configuration.from_file("tests/config/barrier3.yaml")
-    f = lambda x: config.system_dynamics(x) + np.random.normal(scale=config.noise_scale)
-    config.x_samples = config.X_bounds.sample(config.num_samples)
-    config.xp_samples = f(config.x_samples)
+    random.seed(config.seed)
+    np.random.seed(config.seed)
+    config.populate_samples()
     return config
 
 

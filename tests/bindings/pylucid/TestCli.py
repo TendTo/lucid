@@ -377,7 +377,10 @@ class TestCli:
                 # The action should handle this appropriately
                 assert hasattr(namespace, "x_samples")
             finally:
-                os.unlink(tmp_path)
+                try:
+                    os.unlink(tmp_path)
+                except Exception:
+                    pass
 
         def test_csv_file_input(self):
             """Test parsing .csv file input"""
