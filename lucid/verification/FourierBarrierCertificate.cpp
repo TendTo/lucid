@@ -46,10 +46,12 @@ class Objective {
    * @param lattice lattice points
    */
   Objective(const int n_tilde, const double lattice_resolution, const int f_max,
-            const ConstMatrixRowIndexedView& lattice)
+            const ConstMatrixRowIndexedView& lattice, const Set& X)
       : n_tilde_{n_tilde},
         lattice_{lattice},
-        kernel_{ValleePoussinKernel{static_cast<double>(f_max), lattice_resolution - static_cast<double>(f_max)}} {}
+        kernel_{ValleePoussinKernel{static_cast<double>(f_max), lattice_resolution - static_cast<double>(f_max)}},
+        X_{X},
+        needs_set_check_{dynamic_cast<const RectSet*>(&X) == nullptr} {}
 
   /**
    * Wrap angle to [-Period/2, Period/2].
@@ -88,6 +90,8 @@ class Objective {
    */
   template <class Derived>
   double operator()(const Eigen::MatrixBase<Derived>& x) const {
+    if (needs_set_check_ && !X_.contains(x)) return 0;
+
     LUCID_ASSERT(x.size() == lattice_.cols(), "The input dimension must be equal to the lattice dimension");
     // x - bar{x}
     const auto diffs = -1 * (lattice_.rowwise() - x.col(0).transpose());
@@ -105,6 +109,8 @@ class Objective {
   const int n_tilde_;                         ///< Number of lattice points
   const ConstMatrixRowIndexedView& lattice_;  ///< Lattice points
   const ValleePoussinKernel kernel_;          ///< Vallée-Poussin kernel
+  const Set& X_;                              ///< Set over which we are optimising
+  const bool needs_set_check_;                ///< Whether to check if the point is in the set
 };
 
 #ifdef LUCID_PYTHON_BUILD
@@ -125,6 +131,7 @@ using PsoOptimiser = pso::ParticleSwarmOptimization<double, Objective>;
 
 double run_pso(int lattice_resolution, int f_max, const Set& X, const ConstMatrixRowIndexedView& filtered_lattice,
                const FourierBarrierCertificateParameters& parameters) {
+  LUCID_TRACE_FMT("({}, {}, {}, filtered_lattice, {})", lattice_resolution, f_max, X, parameters);
   const int d = static_cast<int>(X.dimension());
   const int n_tilde = lucid::pow(lattice_resolution, d);
 
@@ -133,7 +140,9 @@ double run_pso(int lattice_resolution, int f_max, const Set& X, const ConstMatri
     return 0;
   }
 
-  PsoOptimiser optimiser{n_tilde, lattice_resolution, f_max, filtered_lattice};
+  LUCID_TRACE_FMT("PSO bounds: {} | {}", X.general_lower_bound(), X.general_upper_bound());
+
+  PsoOptimiser optimiser{n_tilde, lattice_resolution, f_max, filtered_lattice, X};
   // Bounds of the optimization. They ensure the particles stay within the X_periodic set
   Matrix matrix_bounds{2, d};
   // TODO(tend): in case of ellipse, these bounds are not enough. We are currently getting a more conservative estimate.
@@ -179,6 +188,7 @@ double compute_A_impl(int lattice_resolution, int f_max, const RectSet& pi, cons
   const std::unique_ptr<Set> X_periodic_rescaled{X_periodic->increase_size(parameters.set_scaling * pi.sizes())};
 
   LUCID_TRACE_FMT("X_periodic: {}", *X_periodic);
+  LUCID_TRACE_FMT("X_periodic_rescaled: {}", *X_periodic_rescaled);
 
   // Only keep the lattice points that are not in X_periodic, accounting for wrapping
   const auto lattice_wo_x{
