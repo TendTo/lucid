@@ -66,6 +66,8 @@ struct Configuration {
   LUCID_CONSTEXPR_PARAMETER(seed, int, -1, "Random seed for reproducibility. If < 0, no seeding is done");
   LUCID_CONSTEXPR_PARAMETER(plot, bool, false, "Whether to plot the solution using plotly");
   LUCID_CONSTEXPR_PARAMETER(verify, bool, false, "Whether to verify the barrier certificate using dReal");
+  LUCID_CONSTEXPR_PARAMETER(print_stats, bool, false,
+                            "Whether to print the detailed statistics at the end of the execution");
   LUCID_CONST_PARAMETER(problem_log_file, std::string, "",
                         "File to save the optimization problem in LP format. "
                         "If empty, the problem will not be saved");

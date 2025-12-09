@@ -93,6 +93,7 @@ Configuration Configuration::from_yaml_str(const std::string &yaml_str) {
   if (yaml["seed"]) config.seed = yaml["seed"].as<int>();
   if (yaml["plot"]) config.plot = yaml["plot"].as<bool>();
   if (yaml["verify"]) config.verify = yaml["verify"].as<bool>();
+  if (yaml["print_stats"]) config.print_stats = yaml["print_stats"].as<bool>();
   if (yaml["problem_log_file"]) config.problem_log_file = yaml["problem_log_file"].as<std::string>();
   if (yaml["iis_log_file"]) config.iis_log_file = yaml["iis_log_file"].as<std::string>();
   if (yaml["system_dynamics"]) {

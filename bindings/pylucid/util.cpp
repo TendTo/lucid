@@ -138,13 +138,13 @@ void init_util(py::module_& m) {
       .def_property_readonly("A_xn_wo_x0", STATS_PROPERTY(A_xn_wo_x0), Stats_A_xn_wo_x0)
       .def_property_readonly("A_xn_wo_xu", STATS_PROPERTY(A_xn_wo_xu), Stats_A_xn_wo_xu)
       .def_property_readonly("min_x0", STATS_PROPERTY(min_x0), Stats_min_x0)
-      .def_property_readonly("max_xn_wo_x0", STATS_PROPERTY(max_xn_wo_x0), Stats_max_xn_wo_x0)
+      .def_property_readonly("max_sx0", STATS_PROPERTY(max_sx0), Stats_max_sx0)
       .def_property_readonly("max_xu", STATS_PROPERTY(max_xu), Stats_max_xu)
-      .def_property_readonly("min_xn_wo_xu", STATS_PROPERTY(min_xn_wo_xu), Stats_min_xn_wo_xu)
+      .def_property_readonly("min_sxu", STATS_PROPERTY(min_sxu), Stats_min_sxu)
       .def_property_readonly("max_x", STATS_PROPERTY(max_x), Stats_max_x)
-      .def_property_readonly("min_xn_wo_x", STATS_PROPERTY(min_xn_wo_x), Stats_min_xn_wo_x)
+      .def_property_readonly("min_sx", STATS_PROPERTY(min_sx), Stats_min_sx)
       .def_property_readonly("min_d", STATS_PROPERTY(min_d), Stats_min_d)
-      .def_property_readonly("max_d_xn_wo_x", STATS_PROPERTY(max_d_xn_wo_x), Stats_max_d_xn_wo_x)
+      .def_property_readonly("max_d_sx", STATS_PROPERTY(max_d_sx), Stats_max_d_sx)
       .def_property_readonly("peak_rss_memory_usage", STATS_PROPERTY(peak_rss_memory_usage),
                              Stats_peak_rss_memory_usage)
       .def_property_readonly("num_estimator_consolidations", STATS_PROPERTY(num_estimator_consolidations),

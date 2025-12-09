@@ -79,6 +79,7 @@ std::unique_ptr<TruncatedFourierFeatureMap> get_feature_map(const Configuration&
 }
 
 bool pipeline(const Configuration& config) {
+  ScopedValue<Stats, StatsTag> stats{};
   LUCID_LOG_INIT_VERBOSITY(config.verbose);
   random::seed(config.seed);
 
@@ -114,6 +115,10 @@ bool pipeline(const Configuration& config) {
                                           .kappa = config.b_kappa,
                                       });
   LUCID_INFO_FMT("Synthesized Fourier barrier certificate:\n{}", barrier);
+  if (config.print_stats) {
+    stats.value().peak_rss_memory_usage = metrics::get_peak_rss();
+    LUCID_INFO_FMT("{}", stats.value());
+  }
   return res;
 }
 
