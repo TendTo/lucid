@@ -19,9 +19,8 @@ if __name__ == "__main__":
         "seed": [42],
         "num_frequencies": [5, 6, 7],
         "lattice_resolution": [70],
-        "set_scaling": [0.03, 0.04, 0.05],
-        "feature_sigma_l": [np.array([0.525, 0.05, 1.0])]
-        + [
+        "set_scaling": [0.04, 0.05],
+        "feature_sigma_l": [
             np.array([sigma_l1, sigma_l2, sigma_l3])
             for sigma_l1, sigma_l2, sigma_l3 in itertools.product(np.linspace(0.05, 1.0, 3), repeat=3)
         ],

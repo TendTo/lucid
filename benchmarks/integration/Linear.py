@@ -14,9 +14,11 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        "estimator": [KernelRidgeRegressor, ModelEstimator],
-        "lattice_resolution": [100, 200],
-        "num_frequencies": [7, 8, 9],
+        "estimator": [KernelRidgeRegressor],
+        "set_scaling": np.linspace(0.01, 0.1, 10),
+        "lattice_resolution": [100, 200, 300, 400],
+        "feature_sigma_l": np.linspace(0.01, 1.0, 25),
+        "num_frequencies": [4, 5, 6, 7, 8, 9],
     }
     run_grid(parse_args("benchmarks/integration/linear.yaml"), grid=grid)
 

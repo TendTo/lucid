@@ -15,14 +15,13 @@ if __name__ == "__main__":
     start = time.time()
 
     grid = {
-        "num_samples": [10],
         "seed": [42],
-        "num_frequencies": [5, 6, 7, 8, 9],
+        "num_frequencies": [6, 7, 8],
         "lattice_resolution": [330],
-        "set_scaling": [0.015, 0.02, 0.025],
+        "set_scaling": [0.03, 0.04, 0.05],
         "feature_sigma_l": [
             np.array([sigma_l1, sigma_l2])
-            for sigma_l1, sigma_l2 in itertools.product(np.linspace(0.05, 1.0, 10), repeat=2)
+            for sigma_l1, sigma_l2 in itertools.product(np.linspace(0.04, 0.4, 10), np.linspace(0.0005, 0.15, 10))
         ],
     }
     run_grid(parse_args("benchmarks/integration/barrier2.yaml"), grid=grid)
