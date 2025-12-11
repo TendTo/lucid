@@ -16,8 +16,8 @@ Pylucid is a Python wrapper for the Lucid library, providing an easy-to-use comm
 #### Getting `LucidInvalidArgumentException`
 
 This error indicates that one or more of the arguments provided to a Lucid function are invalid.
-The message accompanying the exception should provide more details about which argument is causing the problem and why.
-Also, try checking the documentation of the function being called and ensure the preconditions on the arguments are met.
+The message accompanying the exception should provide more details on which argument is causing the problem.
+Try checking the documentation of the function being called and ensure the preconditions on the arguments are met.
 
 #### ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.35' not found
 
@@ -76,6 +76,20 @@ For Gurobi support, see [Building with Gurobi](Installation.md#gurobi-requiremen
 Pylucid is a thin wrapper around the C++ Lucid library, which means that when you press `Ctrl+C`, the Python interpreter sends a signal to the C++ executable, which may not handle it immediately.  
 Long running operations may not notice the signal until they complete, which can cause the process to appear unresponsive.
 In most cases the process will stop soon, (e.g., after an iteration of the optimiser has completed), but if a immediate termination is required, the safest way to stop the process is to close the terminal.
+
+#### When trying to plot I get a huge unreadable string but no plot is shown
+
+This happens when [plotly](https://plotly.com/python/) detects the presence of [IPython](https://ipython.org/), prompting it to change its default renderer to `notebook`.
+To fix this, you can explicitly set the renderer to `browser`, which will open the plot in your default web browser:
+
+```python
+import plotly.io as pio
+pio.renderers.default = 'browser'
+```
+
+Alternatively, uninstall IPython from your environment or run the script in a notebook.
+For more information, see the [plotly documentation](https://plotly.com/python/renderers/).
+
 
 #### Address already in use. Port X is in use by another program
 
