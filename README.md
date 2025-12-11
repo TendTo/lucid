@@ -68,14 +68,14 @@ docker run --name lucid -it --rm -p 3661:3661 \
 docker build -t lucid .
 
 # Run the image on script/path/to/script.py.
-# Needs a Gurobi WS licence to use the Gurobi solver.
+# You will need a Gurobi WS licence to use the Gurobi solver.
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
   lucid /scripts/script.py
 
 # Run the GUI.
-# Needs a Gurobi WS licence to use the Gurobi solver.
+# You will need a Gurobi WS licence to use the Gurobi solver.
 docker run --name lucid -it --rm -p 3661:3661 \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
   --entrypoint pylucid-gui lucid
@@ -95,14 +95,11 @@ docker run --name lucid -it --rm -p 3661:3661 \
 **Installation commands**
 
 ```bash
-# Create a virtual environment (optional)
-python3 -m venv .venv
+# Create a virtual environment - Linux (optional)
+python3 -m venv .venv ; source .venv/bin/activate
 
-# Activate the virtual environment on Linux (optional)
-source .venv/bin/activate
-
-# Activate the virtual environment on Windows (optional)
-.venv\Scripts\activate
+# Create a virtual environment - Windows (optional)
+python3 -m venv .venv ; .venv\Scripts\activate
 
 # Install pylucid
 pip install "pylucid[gui]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
@@ -136,14 +133,11 @@ git clone https://github.com/TendTo/lucid.git
 # Move to the root of the repository
 cd lucid
 
-# Create a virtual environment (optional)
-python3 -m venv .venv
+# Create a virtual environment - Linux (optional)
+python3 -m venv .venv ; source .venv/bin/activate
 
-# Activate the virtual environment on Linux (optional)
-source .venv/bin/activate
-
-# Activate the virtual environment on Windows (optional)
-.venv\Scripts\activate
+# Create a virtual environment - Windows (optional)
+python3 -m venv .venv ; .venv\Scripts\activate
 
 # Install the python wrapper (pylucid)
 pip install ".[gui]"
@@ -178,6 +172,87 @@ cd lucid
 
 # Compile and run lucid
 bazel run //lucid -- [args]
+```
+
+[//]: # "@end-tab"
+[//]: # "@end-tabbed"
+
+## Quick start
+
+Start using Lucid immediately via the command line, GUI or configuration file.
+For more details, see the [Configuration](docs/Configuration.md) section.
+
+> [!NOTE]  
+> You will need a Gurobi licence to use the Gurobi solver.
+
+[//]: # "@tabbed"
+[//]: # "@tab"
+
+### Command line arguments (for quick testing)
+
+**Docker**
+
+```bash
+docker run --name lucid -it --rm \
+  ghcr.io/tendto/lucid:main --X_bounds "RectSet([-1], [1])" \
+  --X_init "RectSet([-0.5], [0.5])" \
+  --X_unsafe "MultiSet([RectSet([-1], [-0.9]), RectSet([0.9], [1])])" \
+  --system_dynamics "x1 / 2" --num_frequencies 6 \
+  --feature_sigma_l 0.0925 --optimiser HighsOptimiser \
+  --set_scaling 0.04
+```
+
+**Python**
+
+```bash
+pylucid --X_bounds "RectSet([-1], [1])" \
+  --X_init "RectSet([-0.5], [0.5])" \
+  --X_unsafe "MultiSet([RectSet([-1], [-0.9]), RectSet([0.9], [1])])" \
+  --system_dynamics "x1 / 2" --num_frequencies 6 \
+  --feature_sigma_l 0.0925 --optimiser HighsOptimiser \
+  --set_scaling 0.04
+```
+
+[//]: # "@end-tab"
+[//]: # "@tab"
+
+### Docker - GUI (visual)
+
+The GUI will be available at [http://localhost:3661](http://localhost:3661).
+
+**Docker**
+
+```bash
+docker run --name lucid -it --rm \
+  -p 3661:3661 \
+  --entrypoint pylucid-gui ghcr.io/tendto/lucid:main
+```
+
+**Python**
+
+```bash
+pylucid-gui
+```
+
+[//]: # "@end-tab"
+[//]: # "@tab"
+
+### Configuration file (flexible)
+
+Assuming we have a [config.yaml](./tests/config/linear.yaml) configuration file.
+
+**Docker**
+
+```bash
+docker run --name lucid -it --rm \
+  -v/path/to/config.yaml:/config.yaml \
+  ghcr.io/tendto/lucid:main /config.yaml
+```
+
+**Python**
+
+```bash
+pylucid config.yaml
 ```
 
 [//]: # "@end-tab"
