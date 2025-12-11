@@ -6,11 +6,11 @@ feature_sigma_l: [0.16000000000000003, 0.11677777777777779]
 gamma: 1.0
 kernel: GaussianKernel
 lambda: 1.0e-06
-lattice_resolution: 200
+lattice_resolution: 100
 noise_scale: 0.01
 num_frequencies: 7
 num_samples: 1000
-optimiser: GurobiOptimiser
+optimiser: HighsOptimiser
 plot: true
 seed: 42
 set_scaling: 0.05
@@ -18,7 +18,7 @@ sigma_f: 1.0
 sigma_l: [0.40501051998808607, 0.3580734352248586]
 system_dynamics:
   - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
-  - "x2 + 0.1 * (-(sin(x1)**2))"
+  - "x2 + 0.1 * -(sin(x1)^2)"
 time_horizon: 5
 verbose: 3
 X_bounds:

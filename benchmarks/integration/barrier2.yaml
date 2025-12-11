@@ -18,7 +18,7 @@ sigma_f: 1.0
 sigma_l: [0.40501051998808607, 0.3580734352248586]
 system_dynamics:
   - "x1 + 0.1 * (x2 - 1 + exp(-x1))"
-  - "x2 + 0.1 * (-(sin(x1)^2))"
+  - "x2 + 0.1 * -(sin(x1)^2)"
 time_horizon: 5
 verbose: 3
 X_bounds:

@@ -34,7 +34,7 @@ pylucid_py_test(
     data = ["//tests/config:barrier2.yaml"],
 )
 
-# pylucid_py_test(
-#     name = "test_barrier_3",
-#     data = ["//tests/config:barrier3.yaml"],
-# )
+pylucid_py_test(
+    name = "test_barrier_3",
+    data = ["//tests/config:barrier3.yaml"],
+)

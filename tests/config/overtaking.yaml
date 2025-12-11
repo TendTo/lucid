@@ -8,7 +8,7 @@ kernel: GaussianKernel
 lambda: 1.0e-05
 lattice_resolution: 70
 num_frequencies: 5
-optimiser: GurobiOptimiser
+optimiser: HighsOptimiser
 plot: true
 seed: 42
 set_scaling: 0.03
