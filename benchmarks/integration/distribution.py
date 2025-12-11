@@ -8,6 +8,7 @@ from collect_results import config_from_df_row
 from pylucid import *
 from pylucid import __version__
 from pylucid.pipeline import pipeline
+from mlflow import MlflowClient
 
 
 class BenchmarkArgs(argparse.Namespace):
@@ -19,6 +20,28 @@ class BenchmarkArgs(argparse.Namespace):
     start_from: int
     config: bool
     dry_run: bool
+    avoid_duplicates: bool
+
+
+def check_exists(config: Configuration, args: BenchmarkArgs) -> bool:
+    """Check if the given configuration already exists in the database."""
+    client = MlflowClient(tracking_uri="http://localhost:5000")
+    experiments = client.search_experiments(filter_string=f"name = '{args.experiment}-dist'")
+    f = (
+        f'metrics.run.safety > 0 and metrics.run.safety < 1 and metrics.run.success = 1 and params.seed = "{config.seed}"'
+        f' and params.num_samples = "{config.num_samples}" and params.noise_scale = "{config.noise_scale}"'
+        f' and params.estimator = "{config.estimator.__class__.__name__}" and params.feature_map = "{config.feature_map.__class__.__name__}"'
+        f' and params.sigma_f = "{config.sigma_f}" and params.num_frequencies = "{config.num_frequencies}"'
+        f' and params.lattice_resolution = "{config.lattice_resolution}" and params.feature_sigma_l = "{config.feature_sigma_l.tolist()}"'
+        f' and params.set_scaling = "{config.set_scaling}" and params.sigma_l = "{config.sigma_l.tolist()}"'
+    )
+    runs = client.search_runs(
+        experiment_ids=[e.experiment_id for e in experiments],
+        filter_string=f,
+        order_by=["metrics.run.safety desc"],
+    )
+    print(f"Found {len(runs)}")
+    return len(runs) > 0
 
 
 if __name__ == "__main__":
@@ -32,7 +55,7 @@ if __name__ == "__main__":
         help="Path to the data file. Defaults to 'benchmarks/integration/<experiment>.pkl'",
         default="",
     )
-    parser.add_argument("-n", "--num-rows", type=int, help="Number of rows to process", default=-1)
+    parser.add_argument("-n", "--num-rows", type=int, help="Number of rows to process", default=1000000)
     parser.add_argument("--start-from", type=int, help="Row index to start from", default=0)
     parser.add_argument("-t", "--tune", action="store_true", help="Run in tuning mode (if applicable)")
     parser.add_argument(
@@ -42,6 +65,7 @@ if __name__ == "__main__":
         help="Instead of running the experiment, save the configuration to a config file",
     )
     parser.add_argument("--dry-run", action="store_true", help="Dry run without executing benchmarks")
+    parser.add_argument("-a", "--avoid-duplicates", action="store_true", help="Avoid running duplicate configurations")
     args: BenchmarkArgs = parser.parse_args()
     data: pd.DataFrame = pd.read_pickle(
         f"benchmarks/integration/{args.experiment}.pkl" if args.datafile == "" else args.datafile
@@ -67,10 +91,13 @@ if __name__ == "__main__":
             continue
         if i < args.start_from:
             continue
-        if args.num_rows != -1 and i >= args.start_from + args.num_rows:
+        if i >= args.start_from + args.num_rows:
             break
         row.num_samples = 1000
         config = config_from_df_row(args.experiment, row)
+        if args.avoid_duplicates and check_exists(config, args):
+            print(f"Skipping row {i} due to existing configuration in database.")
+            continue
         if args.tune:
             config.estimator = config.estimator.__class__
         if args.config:
