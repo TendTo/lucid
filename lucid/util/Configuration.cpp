@@ -8,8 +8,15 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <exprtk/exprtk.hpp>
+#include <memory>
 #include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
+
+// The exprtk library is used for parsing mathematical expressions
+// It should go after the c++ headers
+#include <exprtk/exprtk.hpp>
 
 #include "lucid/model/EllipseSet.h"
 #include "lucid/model/MultiSet.h"
