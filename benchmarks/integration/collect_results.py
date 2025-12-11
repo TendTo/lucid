@@ -35,6 +35,9 @@ class Args(argparse.Namespace):
     filter: str
     output: str
     to_config: bool
+    seed: int
+    score: float
+    safety: float
 
 
 def plot_solution(args: Args, data: pd.DataFrame):
@@ -258,6 +261,9 @@ def print_latex_table(data: pd.DataFrame, experiment: str):
     latex_data.feature_sigma_l = latex_data.feature_sigma_l.apply(
         lambda x: "[" + ", ".join([f"{v:.2f}" for v in x]) + "]"
     )
+    latex_data.sigma_l = latex_data.sigma_l.apply(
+        lambda x: "[" + ", ".join([f"{v:.2f}" for v in x]) + "]"
+    )
     latex_data.rename(LATEX_KEEPS, axis=1).to_latex(
         f"benchmarks/integration/{experiment.lower()}.tex",
         index=False,
@@ -324,6 +330,17 @@ def main(args: Args):
                 data.at[i, "verified"] = 0
             data.to_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
         data = data[data["verified"] == 1]
+    if args.seed >= 0:
+        data = data[data["seed"] == args.seed]
+    if args.score >= 0.0:
+        if "evaluation_score" in data.columns:
+            data = data[data["evaluation_score"] >= args.score]
+        elif "samples_score" in data.columns:
+            data = data[data["samples_score"] >= args.score]
+        else:
+            print("No score column found in data.")
+    if args.safety >= 0.0:
+        data = data[data["obj_val"] <= (1 - args.safety)]
 
     # Remove duplicate runs based on the 'objective value' column
     data = data.drop_duplicates(subset=["obj_val"], keep="first")
@@ -378,4 +395,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("-f", "--filter", type=str, default=FILTER, help="Filter for the MLflow runs.")
     parser.add_argument("--to-config", action="store_true", help="Export the configuration corresponding to each run.")
+    parser.add_argument("--seed", type=int, help="Random seed for the experiment.", default=-1)
+    parser.add_argument("--score", type=float, help="Minimum score for the experiment.", default=-1.0)
+    parser.add_argument("--safety", type=float, help="Minimum safety for the experiment.", default=-1.0)
     main(parser.parse_args())

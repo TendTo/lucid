@@ -21,12 +21,14 @@ except ImportError:
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
+from matplotlib.colors import LightSource
 
 from pylucid import random
 
 CM = 1 / 2.54  # centimeters in inches
 plt.rcParams["font.family"] = ["Times New Roman"]
-
+plt.rcParams["font.size"] = 8
+FONTSIZE_LABEL = 8
 
 def plot_solution_matplotlib(
     args: "argparse.Namespace",
@@ -71,11 +73,12 @@ def plot_solution_1d_matplotlib(
 ):
     # use an interactive backend if available
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(8.41 * CM, 8 * CM))
+    
     ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
     # Scale the y-axis to fit the plot to make the plot shorter
     # No set_ylim is set to allow the plot to scale automatically
-    ax.set_aspect(aspect=0.7)
+    ax.set_aspect(aspect=0.4)
 
     # Draw the initial and unsafe sets
     def plot_rect_1d(s, color, label=None):
@@ -130,7 +133,7 @@ def plot_solution_1d_matplotlib(
 
     # Lower the legend to the bottom
     # Slighly increase the legend font size
-    ax.legend(loc="center", ncol=2, fontsize=16, frameon=True)
+    ax.legend(loc="upper center", ncol=2, fontsize=FONTSIZE_LABEL, frameon=False, bbox_to_anchor=(0.5, 1.04))
     fig.tight_layout()
     fig.savefig(f"benchmarks/integration/{args.experiment.lower()}.pgf", bbox_inches="tight", dpi=300)
 
@@ -160,7 +163,7 @@ def plot_solution_2d_matplotlib(
 
     # Create a color map so that values below eta are blue, values between eta and gamma are transparent, and values above gamma are red
     mygreens = colors.ListedColormap(["blue", "#00000000", "red"])
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure(figsize=(8.42 * CM, 7.5 * CM))
     ax: "Axes3D" = fig.add_subplot(111, projection="3d")
 
     # Set plot bounds
@@ -168,7 +171,7 @@ def plot_solution_2d_matplotlib(
     ax.set_ylim([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
     ax.set_zlim([0, gamma + 1 if gamma is not None else 1])
     # scale the z-axis to fit the plot to make the plot shorter
-    ax.set_box_aspect([1, 1, 0.5])  # Aspect ratio for x, y, z axes
+    ax.set_box_aspect([1, 1, 0.45])  # Aspect ratio for x, y, z axes
 
     # Helper function to plot sets in 2D on the z=0 plane
     def plot_rect_2d_matplotlib(s, color, label=None, alpha=0.3):
@@ -177,7 +180,7 @@ def plot_solution_2d_matplotlib(
             x = [s.lower_bound[0], s.upper_bound[0], s.upper_bound[0], s.lower_bound[0], s.lower_bound[0]]
             y = [s.lower_bound[1], s.lower_bound[1], s.upper_bound[1], s.upper_bound[1], s.lower_bound[1]]
             z = [0, 0, 0, 0, 0]
-            ax.plot(x, y, z, color=color, linewidth=3, label=label)
+            ax.plot(x, y, z, color=color, linewidth=1.5, label=label)
 
             # Fill the rectangle on z=0 plane for better visibility
             xx = [s.lower_bound[0], s.upper_bound[0], s.upper_bound[0], s.lower_bound[0]]
@@ -191,7 +194,7 @@ def plot_solution_2d_matplotlib(
             x = s.center[0] + s.radius * np.cos(theta)
             y = s.center[1] + s.radius * np.sin(theta)
             z = np.zeros_like(x)
-            ax.plot(x, y, z, color=color, linewidth=3, label=label)
+            ax.plot(x, y, z, color=color, linewidth=1.5, label=label)
         elif isinstance(s, MultiSet):
             for i, rect in enumerate(s):
                 plot_rect_2d_matplotlib(rect, color, label if i == 0 else None, alpha)
@@ -211,35 +214,50 @@ def plot_solution_2d_matplotlib(
         Z = feature_map(points) @ sol.T
         Z = Z.reshape(X.shape)
 
+        ls = LightSource(azdeg=200, altdeg=30)
+        rgb = ls.shade(Z, plt.cm.viridis, blend_mode="soft", vert_exag=0.1)
+
         # Plot main barrier surface
         ax.plot_surface(
             X,
             Y,
             Z,
             cmap="viridis",
-            alpha=0.7,
+            alpha=0.65,
             label=r"$B(x)$",
-            rstride=4,
-            cstride=4,
+            rstride=3,
+            cstride=3,
+            facecolors=rgb,
+            antialiased=True,
+            shade=False,
+            linewidth=0,
         )
-        contour_Z = Z.copy()
-        np.clip(contour_Z, eta, gamma, out=contour_Z)  # Clip values to be non-negative
-        contour_Z[np.logical_and(eta < contour_Z, contour_Z < gamma)] = (gamma - eta) / 2 + eta
-        ax.contour(X, Y, contour_Z, zdir="z", offset=0, cmap=mygreens, linestyles="dotted", linewidths=2)
-        # contour_Z[Z < gamma] = 0  # Set values above gamma to 0 for contouring
+        ax.contour(X, Y, Z, levels=[eta, gamma], zdir="z", offset=0, cmap=mygreens, linestyles="dashed", linewidths=0.5)
+        ax.contour(X, Y, Z, levels=[eta], zdir="z", offset=eta, colors=["blue"], linestyles="solid", linewidths=0.5)
+        ax.contour(X, Y, Z, levels=[gamma], zdir="z", offset=gamma, colors=["red"], linestyles="solid", linewidths=0.5)
 
         x_plane = np.array([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
         y_plane = np.array([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
         X_plane, Y_plane = np.meshgrid(x_plane, y_plane)
         # Plot eta and gamma as planes if provided
         if eta is not None:
-            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, eta), color="green", alpha=0.2, label=r"$\eta$")
+            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, eta), color="green", alpha=0.2, label=r"$\eta$", linewidth=0.25, edgecolors='b')
 
         if gamma is not None:
-            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, gamma), color="red", alpha=0.2, label=r"$\gamma$")
+            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, gamma), color="red", alpha=0.2, label=r"$\gamma$", linewidth=0.25, edgecolors='r')
             # Update z-axis limit if gamma is provided
             current_zlim = ax.get_zlim()
             ax.set_zlim([0, max(current_zlim[1], gamma + 1)])
+            ticks = [0]
+            if eta is not None:
+                ticks.append(eta)
+            if gamma is not None:
+                ticks.append(gamma)
+            ax.zaxis.set_major_locator(plt.MaxNLocator(4))
+            ticks.append(max(current_zlim[1], gamma + 1))
+            # ax.set_zticks(ticks)
+            # ax.set_zticklabels([f"{tick:.1f}" for tick in ticks])
+
 
         # Plot f(x) surface if provided
         if f is not None and args.plot_bxp:
@@ -259,13 +277,20 @@ def plot_solution_2d_matplotlib(
             surf_est._edgecolors2d = surf_est._edgecolor3d
 
     # Set labels and title
-    ax.set_xlabel("State space x[0]")
-    ax.set_ylabel("State space x[1]")
-    ax.set_zlabel("Barrier value")
+    ax.xaxis.set_major_locator(plt.MaxNLocator(6))
+    ax.yaxis.set_major_locator(plt.MaxNLocator(6))
+    ax.set_xlabel("$x_0$", labelpad=0.3)
+    ax.set_ylabel("$x_1$", labelpad=0.3)
+    ax.tick_params(axis='x', which='major', pad=.4)
+    ax.tick_params(axis='y', which='major', pad=.4)
+    ax.tick_params(axis='z', which='major', pad=.4)
+
+    # ax.set_zlabel("Barrier value")
 
     # Move the legend on the rigt top
     # a bit more to the right
-    ax.legend(loc="upper right", fontsize=16, frameon=True, bbox_to_anchor=(1.1, 0.9))
+    ax.legend(loc="upper right", fontsize=FONTSIZE_LABEL, frameon=False, bbox_to_anchor=(1.12, 0.95), handlelength=1) # , bbox_to_anchor=(0, 1), borderpad=1, labelspacing=1)
+    # ax.legend(loc="upper left", fontsize=FONTSIZE_LABEL, frameon=False, bbox_to_anchor=(0.005, 0.95), handlelength=1) # , bbox_to_anchor=(0, 1), borderpad=1, labelspacing=1)
 
     # Save figure
     ax.view_init(args.elevation, args.azimuth, args.roll)
@@ -406,13 +431,13 @@ def plot_solution_3d_matplotlib(
             surf_est._edgecolors2d = surf_est._edgecolor3d
 
     # Set labels and title
-    ax.set_xlabel("State space x[0]")
-    ax.set_ylabel("State space x[1]")
+    ax.set_xlabel("State space $x_0$")
+    ax.set_ylabel("State space $x_1$")
     ax.set_zlabel("Barrier value")
 
     # Move the legend on the rigt top
     # a bit more to the right
-    ax.legend(loc="upper right", fontsize=16, frameon=True, bbox_to_anchor=(1.1, 0.9))
+    ax.legend(loc="upper right", fontsize=FONTSIZE_LABEL, frameon=True, bbox_to_anchor=(1.1, 0.9))
 
     # Save figure
     ax.view_init(args.elevation, args.azimuth, args.roll)
@@ -458,7 +483,7 @@ def load_configuration(config: "str | Path | Configuration", seed: int = -1) -> 
 
 
 def plot_contour_benchmarks(name: str, x: "np.ndarray", y: "np.ndarray", z: "np.ndarray"):
-    fig = plt.figure(figsize=(11 * CM, 11 * CM))
+    fig = plt.figure(figsize=(8.41 * CM, 11 * CM))
     ax = fig.add_subplot(111)
 
     ax.tricontour(x, y, 1 - z, levels=len(np.unique(z)) // 2, linewidths=0.5, colors="k")
@@ -466,8 +491,8 @@ def plot_contour_benchmarks(name: str, x: "np.ndarray", y: "np.ndarray", z: "np.
 
     fig.colorbar(cntr2, ax=ax)
     ax.plot(x, y, "ko", ms=3)
-    ax.set_xlabel("Number of frequencies", fontsize=11)
-    ax.set_ylabel("Lattice size per dimension", fontsize=11)
+    ax.set_xlabel("Number of frequencies", fontsize=FONTSIZE_LABEL)
+    ax.set_ylabel("Lattice size per dimension", fontsize=FONTSIZE_LABEL)
     ax.set_xticks(np.linspace(min(x), max(x), max(x) - min(x) + 1, endpoint=True))
     fig.tight_layout()
     fig.savefig(f"benchmarks/integration/contour-{name.lower()}.pgf", bbox_inches="tight", dpi=300)
@@ -624,15 +649,15 @@ def plot_function_1d_matplotlib(
 
     # Plot sets
     if X_init is not None:
-        plot_set_1d_matplotlib(X_init, "blue", "$X_0$", ax)
+        plot_set_1d_matplotlib(X_init, "blue", r"$X_0$", ax)
     if X_unsafe is not None:
-        plot_set_1d_matplotlib(X_unsafe, "red", "$X_U$", ax)
+        plot_set_1d_matplotlib(X_unsafe, "red", r"$X_U$", ax)
 
     ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
     ax.set_ylim([-0.5, 1.5])
-    ax.set_xlabel("$x_1$", fontsize=16)
+    ax.set_xlabel("$x_1$", fontsize=FONTSIZE_LABEL)
     if X_init is not None or X_unsafe is not None:
-        ax.legend(fontsize=16)
+        ax.legend(fontsize=FONTSIZE_LABEL)
 
     fig.tight_layout()
 
@@ -700,17 +725,17 @@ def plot_function_2d_matplotlib(
 
     # Plot sets
     if X_init is not None:
-        plot_set_2d_matplotlib(X_init, "blue", "$X_0$", ax)
+        plot_set_2d_matplotlib(X_init, "blue", r"$X_0$", ax)
     if X_unsafe is not None:
-        plot_set_2d_matplotlib(X_unsafe, "red", "$X_U$", ax)
+        plot_set_2d_matplotlib(X_unsafe, "red", r"$X_U$", ax)
 
     ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
     ax.set_ylim([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
-    ax.set_xlabel("$x_1$", fontsize=9)
-    ax.set_ylabel("$x_2$", fontsize=9)
+    ax.set_xlabel("$x_1$", fontsize=FONTSIZE_LABEL)
+    ax.set_ylabel("$x_2$", fontsize=FONTSIZE_LABEL)
     ax.set_aspect("equal")
     if X_init is not None or X_unsafe is not None:
-        ax.legend(fontsize=9)
+        ax.legend(fontsize=FONTSIZE_LABEL)
 
     fig.tight_layout()
 
@@ -778,15 +803,15 @@ def plot_data_1d_matplotlib(
 
     # Plot sets
     if X_init is not None:
-        plot_set_1d_matplotlib(X_init, "green", "$X_0$", ax)
+        plot_set_1d_matplotlib(X_init, "green", r"$X_0$", ax)
     if X_unsafe is not None:
-        plot_set_1d_matplotlib(X_unsafe, "red", "$X_U$", ax)
+        plot_set_1d_matplotlib(X_unsafe, "red", r"$X_U$", ax)
 
     ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
     ax.set_ylim([0, 1])
-    ax.set_xlabel("Input", fontsize=16)
-    ax.set_ylabel("Output", fontsize=16)
-    ax.legend(fontsize=16)
+    ax.set_xlabel("Input", fontsize=FONTSIZE_LABEL)
+    ax.set_ylabel("Output", fontsize=FONTSIZE_LABEL)
+    ax.legend(fontsize=FONTSIZE_LABEL)
 
     fig.tight_layout()
 
@@ -811,9 +836,9 @@ def plot_data_2d_matplotlib(
 
     # Plot sets
     if X_init is not None:
-        plot_set_2d_matplotlib(X_init, "green", "$X_0$", ax)
+        plot_set_2d_matplotlib(X_init, "green", r"$X_0$", ax)
     if X_unsafe is not None:
-        plot_set_2d_matplotlib(X_unsafe, "red", "$X_U$", ax)
+        plot_set_2d_matplotlib(X_unsafe, "red", r"$X_U$", ax)
 
     # Subsample for cleaner visualization
     step = max(1, len(x_samples) // 200)
@@ -837,9 +862,9 @@ def plot_data_2d_matplotlib(
         ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
         ax.set_ylim([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
 
-    ax.set_xlabel("$x_1$", fontsize=16)
-    ax.set_ylabel("$x_2$", fontsize=16)
-    ax.legend(fontsize=16)
+    ax.set_xlabel("$x_1$", fontsize=FONTSIZE_LABEL)
+    ax.set_ylabel("$x_2$", fontsize=FONTSIZE_LABEL)
+    ax.legend(fontsize=FONTSIZE_LABEL)
 
     fig.tight_layout()
 
@@ -944,15 +969,15 @@ def plot_data_3d_matplotlib(
         ax.set_zlim([X_bounds.lower_bound[2], X_bounds.upper_bound[2]])
 
     if X_init is not None:
-        plot_set_3d_matplotlib(X_init, "blue", "$X_0$", ax=ax)
+        plot_set_3d_matplotlib(X_init, "blue", r"$X_0$", ax=ax)
     if X_unsafe is not None:
-        plot_set_3d_matplotlib(X_unsafe, "red", "$X_U$", ax=ax)
+        plot_set_3d_matplotlib(X_unsafe, "red", r"$X_U$", ax=ax)
 
-    ax.set_xlabel("$x_1$", fontsize=11)
-    ax.set_ylabel("$x_2$", fontsize=11)
-    ax.set_zlabel("$x_3$", fontsize=11)
+    ax.set_xlabel("$x_1$", fontsize=FONTSIZE_LABEL)
+    ax.set_ylabel("$x_2$", fontsize=FONTSIZE_LABEL)
+    ax.set_zlabel("$x_3$", fontsize=FONTSIZE_LABEL)
     # Move the legend on the right top and more to the right
-    ax.legend(fontsize=11, loc="upper right", bbox_to_anchor=(1.1, 1.0))
+    ax.legend(fontsize=FONTSIZE_LABEL, loc="upper right", bbox_to_anchor=(1.1, 1.0))
 
     fig.tight_layout()
     ax.view_init(44, 154, 0)
