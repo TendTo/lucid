@@ -101,7 +101,7 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 ### Performance
 
 - [ ] Use templates instead of polymorphism where possible
-- [ ] Parallelization via OpenMP and/or GPU
+- [x] Parallelization via OpenMP and/or GPU
 - [ ] Remove lattice points from $X_{\hat{N}}$ that intersect with the unsafe set $X_u$ (effort 1/performance +2)
 - [ ] Eliminate cross-frequencies from the basis, thus reducing the problem size significantly (effort 1/performance +3.5)
 - [ ] Use cheating coefficient C_coeff<1 and use dReal to certify if the constraints hold on the entire continuous sets X_bounds, X_init, X_unsafe (effort 1/performance +4)
@@ -138,8 +138,8 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 - [x] Add simple Polytopic Sets
 - [x] Add other sets
 - [x] tool paper aaai vs this different one
-- [ ] Make gurobi builds work on CI/CD
-- [ ] Align all benchmarks configurations
+- [x] Make gurobi builds work on CI/CD
+- [x] Align all benchmarks configurations
 - [ ] Improve GUI results (time)
 - [ ] Add a kill button
 
@@ -152,8 +152,8 @@ classDef not-planned stroke:#b00,stroke-width:2px,stroke-dasharray:15px;
 - [x] Pass this to the barrier, along with all the other sets (Bounds, Initial, Unsafe)
 - [x] Filter the points that fall in each set, possibly enlarged (strong suggestion, something like 10%)
   - [x] Add `change_size` method to sets
-  - [ ] Should have a check to verify when some Initial and Usafe sets intersect
-  - [ ] Notice that enlarging the sets may require handling the wrapping (pacman-stype)
+  - [x] Should have a check to verify when some Initial and Usafe sets intersect
+  - [x] Notice that enlarging the sets may require handling the wrapping (pacman-stype)
 - [x] These are the points that will go into the LP
   - The feature map must be evaluated on all points
   - Possibly the estimator too!
