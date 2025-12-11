@@ -50,7 +50,7 @@ RUN sed 's/python.toolchain(/python.toolchain(\nignore_root_user_error = True,/g
 
 # Install pylucid bindings and clean up bazel
 RUN pip install --upgrade pip && \
-    pip install --ignore-installed --no-cache-dir ".[verification,gui]" && \
+    pip install --ignore-installed --no-cache-dir ".[verification,gui,gurobi]" && \
     bazel clean --expunge
 
 ENTRYPOINT [ "pylucid" ]
