@@ -87,6 +87,11 @@ div.memdoc {
   margin-top: -1px !important;
 }
 
+/** Shadow in titles **/
+td h2.groupheader {
+  box-shadow: none;
+}
+
 /** Plotly **/
 html div[data-plot] {
 }
