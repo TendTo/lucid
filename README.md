@@ -26,6 +26,8 @@ If you encounter any errors, please refer to the [Troubleshooting](docs/FAQ.md#t
 
 ### Docker (pre-built)
 
+Fully fledged Docker image available on the GitHub repository's [container registry](https://github.com/orgs/TendTo/packages/container/package/lucid).
+
 **Requirements**
 
 - [Docker](https://www.docker.com/)
@@ -56,6 +58,10 @@ docker run --name lucid -it --rm -p 3661:3661 \
 
 ### Docker (source)
 
+Fully fledged Docker image that you can build from source.
+Useful if you want to apply custom modifications to the codebase or if you want to use a specific commit as a base.
+Intended for advanced users.
+
 **Requirements**
 
 - [Docker](https://www.docker.com/)
@@ -67,7 +73,7 @@ docker run --name lucid -it --rm -p 3661:3661 \
 # Build the image
 docker build -t lucid .
 
-# Run the image on script/path/to/script.py.
+# Run the image on /path/to/script.py.
 # You will need a Gurobi WS licence to use the Gurobi solver.
 docker run --name lucid -it --rm \
   -v/path/to/script.py:/scripts \
@@ -79,6 +85,29 @@ docker run --name lucid -it --rm \
 docker run --name lucid -it --rm -p 3661:3661 \
   -v/path/to/gurobi.lic:/opt/gurobi/gurobi.lic:ro \
   --entrypoint pylucid-gui lucid
+```
+
+[//]: # "@end-tab"
+[//]: # "@tab"
+
+### Docker (light)
+
+Lightweight Docker image available on the GitHub repository's [container registry](https://github.com/orgs/TendTo/packages/container/package/lucid-light).
+This image does not support the Gurobi solver, relaying instead on open-source solvers only (e.g., HiGHS).
+Moreover, it does not include the Python wrapper `pylucid`, so it can only parse `.yaml` configuration files.
+As a result, it has a significantly smaller footprint (~70MB).
+
+**Requirements**
+
+- [Docker](https://www.docker.com/)
+
+**Command**
+
+```bash
+# Run the image on /path/to/config.yaml.
+docker run --name lucid -it --rm \
+  -v/path/to/config.yaml:/config.yaml \
+  ghcr.io/tendto/lucid-light:main /config.yaml
 ```
 
 [//]: # "@end-tab"
@@ -188,7 +217,7 @@ For more details, see the [Configuration](docs/Configuration.md) section.
 [//]: # "@tabbed"
 [//]: # "@tab"
 
-### Command line arguments (for quick testing)
+### Command line arguments (quick testing)
 
 **Docker**
 
@@ -216,7 +245,7 @@ pylucid --X_bounds "RectSet([-1], [1])" \
 [//]: # "@end-tab"
 [//]: # "@tab"
 
-### Docker - GUI (visual)
+### GUI (visual)
 
 The GUI will be available at [http://localhost:3661](http://localhost:3661).
 
@@ -247,6 +276,14 @@ Assuming we have a [config.yaml](./tests/config/linear.yaml) configuration file.
 docker run --name lucid -it --rm \
   -v/path/to/config.yaml:/config.yaml \
   ghcr.io/tendto/lucid:main /config.yaml
+```
+
+**Docker (light)**
+
+```bash
+docker run --name lucid -it --rm \
+  -v/path/to/config.yaml:/config.yaml \
+  ghcr.io/tendto/lucid-light:main /config.yaml
 ```
 
 **Python**

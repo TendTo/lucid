@@ -61,7 +61,7 @@ TEST(TestGurobiOptimiser, Solve) {
                                                   double) {};
 
   try {
-    o.solve_fourier_barrier_synthesis(
+    const bool sol = o.solve_fourier_barrier_synthesis(
         {
             .num_constraints = 0,
             .fxn_lattice = fxn_lattice,
@@ -88,7 +88,7 @@ TEST(TestGurobiOptimiser, Solve) {
             .min_sx_coeff = 0.0,
         },
         cb);
-    FAIL();
+    EXPECT_FALSE(sol);
   } catch (const GRBException& e) {
     EXPECT_EQ(e.getErrorCode(), GRB_ERROR_NO_LICENSE);
   }
