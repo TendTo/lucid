@@ -30,7 +30,6 @@ class Args(argparse.Namespace):
     plot_bxp: bool
     plot_bxe: bool
     uri: str
-    d_uri: str
     download: bool
     plot: bool
     filter: str
@@ -120,7 +119,7 @@ def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
         return data
 
 
-def get_solution(run: "Run", d_uri: str):
+def get_solution(run: "Run") -> np.ndarray:
     _, path = run.info.artifact_uri.split("/mlruns/")
     # Get the path of this python script
     #
@@ -219,7 +218,7 @@ def get_data_from_mlflow(args: Args):
             "samples_score": float(run.data.metrics.get("f_xp_samples.score", -1)),
             "evaluation_score": float(run.data.metrics.get("f_xp_evaluation.score", -1)),
             # Results
-            "solution": get_solution(run, args.d_uri),
+            "solution": get_solution(run),
             "verified": -1,
         }
         for run in runs
@@ -360,9 +359,6 @@ if __name__ == "__main__":
     parser.add_argument("experiment", type=str, help="Name of the MLflow experiment to collect results from.")
     parser.add_argument(
         "-u", "--uri", type=str, default="http://localhost:5000", help="URI of the MLflow tracking server."
-    )
-    parser.add_argument(
-        "-d", "--d_uri", type=str, default="http://localhost:8000", help="URI of the MLflow download server."
     )
     parser.add_argument("-p", "--points", type=int, help="The number of points for the plot.", default=200)
     parser.add_argument("-e", "--elevation", type=float, help="The elevation angle for the plot.", default=30)
