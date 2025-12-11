@@ -798,7 +798,7 @@ def arg_parser() -> "ArgumentParser":
         help="optimiser class to use for the optimization",
     )
     parser.add_argument(
-        "--set-scaling",
+        "--set_scaling",
         type=float,
         default=config.set_scaling,
         help="percentage increase for scaling the initial set during synthesis",
