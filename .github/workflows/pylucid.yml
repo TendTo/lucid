@@ -42,6 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/bazel-cache
+        if: matrix.os != 'windows-latest'
       - uses: ./.github/actions/frontend-setup
         if: matrix.os == 'windows-latest'
       - name: Install openmp on macOS
@@ -83,6 +84,7 @@ jobs:
           os: ${{ matrix.os }}
           version: "12.0.0"
       - uses: ./.github/actions/bazel-cache
+        if: matrix.os != 'windows-latest'
       - uses: ./.github/actions/frontend-setup
         if: matrix.os == 'windows-latest'
 
