@@ -51,3 +51,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker image (light)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.light
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-light
+          labels: ${{ steps.meta.outputs.labels }}
