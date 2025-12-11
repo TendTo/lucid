@@ -14,6 +14,9 @@ on:
   #     - "lucid/**"
   #     - "bindings/pylucid/**"
   #     - "test/**"
+  push:
+    tags:
+      - "*.*.*"
 
 env:
   LUCID_FLAGS: --enable_gurobi_build=False --enable_matplotlib_build=False
@@ -61,12 +64,12 @@ jobs:
           - macos-latest
           - windows-latest
         python_version:
-#          - "3.8"
+          - "3.8"
           - "3.9"
-#          - "3.10"
-#          - "3.11"
-#          - "3.12"
-#          - "3.13"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
         exclude:
           # Gurobipy is not available for Python 3.8 on macOS arm
           - os: macos-latest
