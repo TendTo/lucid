@@ -58,5 +58,5 @@ jobs:
           context: .
           file: Dockerfile.light
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-light
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}-light
