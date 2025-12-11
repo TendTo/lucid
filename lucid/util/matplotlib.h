@@ -1,5 +1,6 @@
 /**
- * @author Room 6.030
+ * @author Ernesto Casablanca
+ * @author Oliver Schön
  * @author Benno Evers
  * @copyright 2014 (https://github.com/lava/matplotlib-cpp)
  * @copyright 2025 lucid

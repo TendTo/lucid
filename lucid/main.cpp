@@ -1,6 +1,7 @@
 /**
  * @file main.cpp
- * @author Room 6.030
+ * @author Ernesto Casablanca
+ * @author Oliver Schön
  * @copyright 2025 lucid
  * @licence Apache-2.0 license
  * @file

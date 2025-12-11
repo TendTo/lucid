@@ -1,5 +1,6 @@
 /**
- * @author TendTo
+ * @author Ernesto Casablanca
+ * @author Oliver Schön
  * @copyright 2025 lucid
  * @licence BSD 3-Clause License
  */
