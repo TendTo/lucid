@@ -19,6 +19,22 @@ This error indicates that one or more of the arguments provided to a Lucid funct
 The message accompanying the exception should provide more details on which argument is causing the problem.
 Try checking the documentation of the function being called and ensure the preconditions on the arguments are met.
 
+#### The version of Pylucid installed via pip does not match my expectations
+
+This can happen for multiple reasons.
+Usually, it simply means that pip was not able to find a pre-build version of Pylucid compatible with your system.
+For instance, Guorbipy is not compatible with `Python<3.9`, so `pip install pylucid[gui,guorbi]` may fail on `Python 3.8` or fallback to an older version.
+Forcing pip to install a specific Pylucid version will reveal the underlying issue.
+E.g.,
+
+```bash
+# Cannot install the [gurobi] optional dependency on Python 3.8.
+# You either remove it and use a local gurobi installation instead, or upgrade Python to a newer version.
+
+pip install "pylucid[gui,gurobi]==0.0.2" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
+# ERROR: No matching distribution found for gurobipy<=12.0.3,>=12.0.0; extra == "gurobi"
+```
+
 #### ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.35' not found
 
 This error occurs if the `libc` version on your Linux system is too old.
@@ -89,7 +105,6 @@ pio.renderers.default = 'browser'
 
 Alternatively, uninstall IPython from your environment or run the script in a notebook.
 For more information, see the [plotly documentation](https://plotly.com/python/renderers/).
-
 
 #### Address already in use. Port X is in use by another program
 
