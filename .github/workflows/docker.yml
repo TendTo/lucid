@@ -52,11 +52,17 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Extract metadata (tags, labels) for Docker (light)
+        id: meta-light
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-light
+
       - name: Build and push Docker image (light)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.light
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}-light
+          tags: ${{ steps.meta-light.outputs.tags }}
+          labels: ${{ steps.meta-light.outputs.labels }}
