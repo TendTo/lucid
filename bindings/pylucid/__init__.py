@@ -16,12 +16,12 @@ from ._constants import (
 if GUROBI_BUILD:
     import sys as _sys
 
-    if _sys.version_info > (3, 8):
+    if _sys.version_info >= (3, 9):  # Python 3.9, use gurobipy wheel with embedded shared libraries
         try:
             import gurobipy as _gurobipy
         except ImportError as e:
             raise ImportError("Could not import gurobipy. Make sure it is installed with 'pip install gurobipy'") from e
-    else:
+    else:  # Older Python versions, use system-installed Gurobi, if available
         import os as _os
 
         if _os.name == "nt" and _os.environ.get("GUROBI_HOME", "") != "":

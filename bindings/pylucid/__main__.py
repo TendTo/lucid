@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import sys
+from pathlib import Path
 
 import numpy as np
 
@@ -33,7 +34,7 @@ def scenario_config(config: Configuration) -> Configuration:
     return config
 
 
-def main(argv: "Sequence[str] | None" = None) -> int:
+def main(argv: "list[str] | None" = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     if not argv:
         # If no arguments are provided, print the help message and exit
