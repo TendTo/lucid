@@ -63,6 +63,7 @@ jobs:
         os:
           - ubuntu-22.04
           - macos-latest
+          - macos-14
           - windows-latest
         python_version:
           - "3.8"
@@ -74,6 +75,8 @@ jobs:
         exclude:
           # Gurobipy is not available for Python 3.8 on macOS arm
           - os: macos-latest
+            python_version: "3.8"
+          - os: macos-14
             python_version: "3.8"
 
     steps:
