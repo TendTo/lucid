@@ -1,3 +1,4 @@
+from pylucid import RectSet, MultiSet
 import argparse
 import json
 import os
@@ -13,6 +14,7 @@ from plot_solution import (
     plot_contour_benchmarks,
     plot_solution_matplotlib,
 )
+import scipy.io as sio
 
 from pylucid import ModelEstimator
 
@@ -109,9 +111,9 @@ def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
         x_lattice = config.X_bounds.lattice(config.num_samples or 1000, True)
         assert isinstance(config.X_bounds, RectSet)
 
-        # data["X_bounds_lower"], data["X_bounds_upper"] = get_bounds(config.X_bounds)
-        # data["X_init_lower"], data["X_init_upper"] = get_bounds(config.X_init)
-        # data["X_unsafe_lower"], data["X_unsafe_upper"] = get_bounds(config.X_unsafe)
+        data["X_bounds_lower"], data["X_bounds_upper"] = get_bounds(config.X_bounds)
+        data["X_init_lower"], data["X_init_upper"] = get_bounds(config.X_init)
+        data["X_unsafe_lower"], data["X_unsafe_upper"] = get_bounds(config.X_unsafe)
 
         data["x_lattice"] = x_lattice
         data["x_barrier_values"] = feature_map(x_lattice) @ run.solution.T
@@ -120,6 +122,18 @@ def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
             data["xp_barrier_values"] = feature_map(config.system_dynamics(x_lattice)) @ run.solution.T
 
         return data
+
+def get_bounds(bounds: "MultiSet | RectSet") -> tuple[list[np.ndarray], list[np.ndarray]]:
+    if isinstance(bounds, RectSet):
+        return [bounds.lower_bound], [bounds.upper_bound]
+    if isinstance(bounds, MultiSet):
+        lb, ub = np.array([]), np.array([])
+        for s in bounds:
+            if isinstance(s, RectSet):
+                lb = np.vstack([lb, s.lower_bound]) if lb.size else s.lower_bound
+                ub = np.vstack([ub, s.upper_bound]) if ub.size else s.upper_bound
+        return [lb], [ub]
+    raise TypeError("Unsupported bounds type")
 
 
 def get_solution(run: "Run") -> np.ndarray:
