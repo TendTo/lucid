@@ -20,8 +20,8 @@ except ImportError:
 
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
 from matplotlib.colors import LightSource
+from matplotlib.patches import Ellipse
 
 from pylucid import random
 
@@ -29,6 +29,7 @@ CM = 1 / 2.54  # centimeters in inches
 plt.rcParams["font.family"] = ["Times New Roman"]
 plt.rcParams["font.size"] = 8
 FONTSIZE_LABEL = 8
+
 
 def plot_solution_matplotlib(
     args: "argparse.Namespace",
@@ -74,7 +75,7 @@ def plot_solution_1d_matplotlib(
     # use an interactive backend if available
 
     fig, ax = plt.subplots(figsize=(8.41 * CM, 8 * CM))
-    
+
     ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
     # Scale the y-axis to fit the plot to make the plot shorter
     # No set_ylim is set to allow the plot to scale automatically
@@ -241,10 +242,28 @@ def plot_solution_2d_matplotlib(
         X_plane, Y_plane = np.meshgrid(x_plane, y_plane)
         # Plot eta and gamma as planes if provided
         if eta is not None:
-            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, eta), color="green", alpha=0.2, label=r"$\eta$", linewidth=0.25, edgecolors='b')
+            ax.plot_surface(
+                X_plane,
+                Y_plane,
+                np.full_like(X_plane, eta),
+                color="green",
+                alpha=0.2,
+                label=r"$\eta$",
+                linewidth=0.25,
+                edgecolors="b",
+            )
 
         if gamma is not None:
-            ax.plot_surface(X_plane, Y_plane, np.full_like(X_plane, gamma), color="red", alpha=0.2, label=r"$\gamma$", linewidth=0.25, edgecolors='r')
+            ax.plot_surface(
+                X_plane,
+                Y_plane,
+                np.full_like(X_plane, gamma),
+                color="red",
+                alpha=0.2,
+                label=r"$\gamma$",
+                linewidth=0.25,
+                edgecolors="r",
+            )
             # Update z-axis limit if gamma is provided
             current_zlim = ax.get_zlim()
             ax.set_zlim([0, max(current_zlim[1], gamma + 1)])
@@ -257,7 +276,6 @@ def plot_solution_2d_matplotlib(
             ticks.append(max(current_zlim[1], gamma + 1))
             # ax.set_zticks(ticks)
             # ax.set_zticklabels([f"{tick:.1f}" for tick in ticks])
-
 
         # Plot f(x) surface if provided
         if f is not None and args.plot_bxp:
@@ -281,15 +299,17 @@ def plot_solution_2d_matplotlib(
     ax.yaxis.set_major_locator(plt.MaxNLocator(6))
     ax.set_xlabel("$x_0$", labelpad=0.3)
     ax.set_ylabel("$x_1$", labelpad=0.3)
-    ax.tick_params(axis='x', which='major', pad=.4)
-    ax.tick_params(axis='y', which='major', pad=.4)
-    ax.tick_params(axis='z', which='major', pad=.4)
+    ax.tick_params(axis="x", which="major", pad=0.4)
+    ax.tick_params(axis="y", which="major", pad=0.4)
+    ax.tick_params(axis="z", which="major", pad=0.4)
 
     # ax.set_zlabel("Barrier value")
 
     # Move the legend on the rigt top
     # a bit more to the right
-    ax.legend(loc="upper right", fontsize=FONTSIZE_LABEL, frameon=False, bbox_to_anchor=(1.12, 0.95), handlelength=1) # , bbox_to_anchor=(0, 1), borderpad=1, labelspacing=1)
+    ax.legend(
+        loc="upper right", fontsize=FONTSIZE_LABEL, frameon=False, bbox_to_anchor=(1.12, 0.95), handlelength=1
+    )  # , bbox_to_anchor=(0, 1), borderpad=1, labelspacing=1)
     # ax.legend(loc="upper left", fontsize=FONTSIZE_LABEL, frameon=False, bbox_to_anchor=(0.005, 0.95), handlelength=1) # , bbox_to_anchor=(0, 1), borderpad=1, labelspacing=1)
 
     # Save figure

@@ -14,12 +14,22 @@ from ._constants import (
 )
 
 if GUROBI_BUILD:
-    try:
-        import gurobipy as _gurobipy
-    except ImportError as e:
-        raise ImportError("Could not import gurobipy. Make sure it is installed with 'pip install gurobipy'") from e
+    import sys as _sys
+
+    if _sys.version_info > (3, 8):
+        try:
+            import gurobipy as _gurobipy
+        except ImportError as e:
+            raise ImportError("Could not import gurobipy. Make sure it is installed with 'pip install gurobipy'") from e
+    else:
+        import os as _os
+
+        if _os.name == "nt" and _os.environ.get("GUROBI_HOME", "") != "":
+            # Windows
+            _os.add_dll_directory(_os.path.join(_os.environ.get("GUROBI_HOME", ""), "bin"))
+
 if CUDA_BUILD:
-    import os
+    import os as _os
 
     try:
         from cuda.pathfinder import load_nvidia_dynamic_lib as _load_nvidia_dynamic_lib
@@ -28,13 +38,25 @@ if CUDA_BUILD:
             "Could not import cuda-pathfinder. Make sure it is installed with 'pip install cuda-pathfinder'"
         ) from e
 
-    os.add_dll_directory(os.path.dirname(_load_nvidia_dynamic_lib("cublas").abs_path))
+    _os.add_dll_directory(_os.path.dirname(_load_nvidia_dynamic_lib("cublas").abs_path))
 
 from ._pylucid import *
 from ._pylucid import __doc__ as __pylucid_doc__
 from ._pylucid import __version__ as __pylucid_version__
-from .cli import *
-from .parser import *
+from .cli import (
+    ConfigAction,
+    Configuration,
+    EstimatorAction,
+    FeatureMapAction,
+    FloatOrNVectorAction,
+    KernelAction,
+    MultiNMatrixAction,
+    NMatrixAction,
+    OptimiserAction,
+    SystemDynamicsAction,
+    arg_parser,
+)
+from .parser import DrealParser, SetParser, SymbolicParser, SympyParser, Z3Parser
 from .util import assert_or_raise, raise_error
 
 __version__ = __pylucid_version__

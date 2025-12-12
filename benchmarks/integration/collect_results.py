@@ -261,9 +261,7 @@ def print_latex_table(data: pd.DataFrame, experiment: str):
     latex_data.feature_sigma_l = latex_data.feature_sigma_l.apply(
         lambda x: "[" + ", ".join([f"{v:.2f}" for v in x]) + "]"
     )
-    latex_data.sigma_l = latex_data.sigma_l.apply(
-        lambda x: "[" + ", ".join([f"{v:.2f}" for v in x]) + "]"
-    )
+    latex_data.sigma_l = latex_data.sigma_l.apply(lambda x: "[" + ", ".join([f"{v:.2f}" for v in x]) + "]")
     latex_data.rename(LATEX_KEEPS, axis=1).to_latex(
         f"benchmarks/integration/{experiment.lower()}.tex",
         index=False,
