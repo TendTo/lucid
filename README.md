@@ -8,7 +8,7 @@ _Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical System
 [![Docs CI](https://github.com/TendTo/lucid/actions/workflows/docs.yml/badge.svg)](https://github.com/TendTo/lucid/actions/workflows/docs.yml)
 
 > [!TIP]  
-> Try out the [online demo](https://tendto.github.io/lucid/demo//)!
+> Try out the [online demo](https://tendto.github.io/lucid/demo/)!
 > Note that the memory in the browser is limited, so only small problems can be solved.
 
 > [!WARNING]  
