@@ -40,7 +40,7 @@ jobs:
           - "3.13"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/bazel-cache
         if: matrix.os != 'windows-latest'
       - uses: ./.github/actions/frontend-setup
@@ -77,7 +77,7 @@ jobs:
             python_version: "3.8"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/gurobi-lib
         id: gurobi-lib
         with:
@@ -96,7 +96,7 @@ jobs:
       #     export CXX=/usr/local/opt/llvm/bin/clang++
 
       - name: Install python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ matrix.python_version }}"
           cache: "pip"
@@ -115,7 +115,7 @@ jobs:
           LD_LIBRARY_PATH: ${{ steps.gurobi-lib.outputs.gurobi-home }}/lib
 
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: python-package-${{ matrix.os }}-${{ matrix.python_version }}
           path: dist/
@@ -129,7 +129,7 @@ jobs:
 
     steps:
       - name: Retrieve release distributions
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           path: dist/
           merge-multiple: true
