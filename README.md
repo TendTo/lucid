@@ -130,8 +130,8 @@ python3 -m venv .venv ; source .venv/bin/activate
 # Create a virtual environment - Windows (optional)
 python3 -m venv .venv ; .venv\Scripts\activate
 
-# Install pylucid
-pip install "pylucid[gui]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
+# Install pylucid (with GUI and Gurobi support, optional)
+pip install "pylucid[gui,gurobi]" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
 
 # Ensure pylucid is installed correctly
 python3 -c "import pylucid; print(pylucid.__version__)"
@@ -156,10 +156,8 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 **Installation commands**
 
 ```bash
-# Clone the repository
+# Clone the repository and move to its root
 git clone https://github.com/TendTo/lucid.git
-
-# Move to the root of the repository
 cd lucid
 
 # Create a virtual environment - Linux (optional)
@@ -168,8 +166,8 @@ python3 -m venv .venv ; source .venv/bin/activate
 # Create a virtual environment - Windows (optional)
 python3 -m venv .venv ; .venv\Scripts\activate
 
-# Install the python wrapper (pylucid)
-pip install ".[gui]"
+# Install pylucid (with GUI and Gurobi support, optional)
+pip install ".[gui,gurobi]"
 
 # Ensure pylucid is installed
 python3 -c "import pylucid; print(pylucid.__version__)"
