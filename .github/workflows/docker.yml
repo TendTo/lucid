@@ -12,7 +12,6 @@ on:
       - "Dockerfile"
       - ".github/workflows/docker.yml"
     tags:
-      - "v*.*.*"
       - "*.*.*"
   workflow_dispatch:
 

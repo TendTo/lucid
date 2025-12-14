@@ -261,6 +261,12 @@ export default function ConfigAdvanced() {
           />
         )}
 
+        <FormCheckboxInput
+          name="print_stats"
+          label="Print Statistics"
+          description="Enable printing of statistics"
+        />
+
         <FormTextInput
           name="problem_log_file"
           label="Problem Log File"
@@ -271,6 +277,12 @@ export default function ConfigAdvanced() {
           name="iis_log_file"
           label="IIS Log File"
           placeholder="IIS log file path"
+        />
+
+        <FormTextInput
+          name="output_file"
+          label="Output File"
+          placeholder="Output file path"
         />
       </div>
     </div>

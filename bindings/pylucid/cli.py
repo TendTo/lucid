@@ -78,6 +78,7 @@ class Configuration(Namespace):
     verify: bool = False
     problem_log_file: str = ""
     iis_log_file: str = ""
+    output_file: str = ""
     print_stats: bool = False
 
     # System dynamics and specification
@@ -260,8 +261,10 @@ class ConfigAction(Action):
         args.seed = int(config_dict.get("seed", args.seed))
         args.plot = bool(config_dict.get("plot", args.plot))
         args.verify = bool(config_dict.get("verify", args.verify))
+        args.print_stats = bool(config_dict.get("print_stats", args.print_stats))
         args.problem_log_file = str(config_dict.get("problem_log_file", args.problem_log_file))
         args.iis_log_file = str(config_dict.get("iis_log_file", args.iis_log_file))
+        args.output_file = type_valid_output_file(str(config_dict.get("output_file", args.output_file)))
 
         # Transition samples
         args.num_samples = int(config_dict.get("num_samples", args.num_samples))
@@ -394,6 +397,17 @@ def type_valid_path(path_str: str) -> Path:
 def type_set(set_str: str) -> "Set":
     """Convert a string representation of a function into a callable."""
     return SetParser().parse(set_str)
+
+
+def type_valid_output_file(path_str: str) -> str:
+    """Validate the output file path and its suffix."""
+    if not path_str:
+        return ""  # Allow empty input for default behavior
+    path = Path(path_str)
+    suffixes = (".yaml", ".yml", ".json", ".mat", ".npz", ".csv")
+    if path.suffix not in suffixes:
+        raise raise_error(f"Unsupported output file type: {path.suffix}. Supported types are {suffixes}")
+    return path_str
 
 
 class EstimatorAction(Action):
@@ -802,6 +816,13 @@ def arg_parser() -> "ArgumentParser":
         type=float,
         default=config.set_scaling,
         help="percentage increase for scaling the initial set during synthesis",
+    )
+    parser.add_argument(
+        "-O",
+        "--output_file",
+        type=type_valid_output_file,
+        default=config.output_file,
+        help="save the final results to the specified .yaml, .json, .mat, .npz or .csv file",
     )
 
     return parser

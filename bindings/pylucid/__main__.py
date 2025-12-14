@@ -7,6 +7,7 @@ import numpy as np
 
 from pylucid import *
 from pylucid import __version__
+from pylucid.ext import save_result
 
 
 def scenario_config(config: Configuration) -> Configuration:
@@ -77,14 +78,18 @@ def main(argv: "list[str] | None" = None) -> int:
         config = scenario_config(config)
 
     # If all the checks pass, run the scenario
-    from pylucid.pipeline import pipeline
+    from pylucid.pipeline import OptimiserResult, pipeline
 
     log.info(f"Running scenario (LUCID version: {__version__})")
     with Stats() as stats:
-        pipeline(config)
+        result = OptimiserResult(c=0.0, success=False, obj_val=0.0, eta=0.0, T=0, norm=0.0, sol=np.array([]))
+        pipeline(config, optimiser_cb=result.update)
         if config.print_stats:
             stats.collect_peak_rss_memory_usage()
             log.info(str(stats))
+        if config.output_file:
+            log.info(f"Saving results to '{config.output_file}'")
+            save_result(config.output_file, config, stats, result)
     return 0
 
 

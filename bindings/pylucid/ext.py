@@ -1,6 +1,16 @@
+import csv
+import json
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from ._pylucid import Estimator, Parameter
+import numpy as np
+import scipy.io
+import yaml
+
+from ._pylucid import Estimator, Parameter, Stats
+from .cli import Configuration
+from .pipeline import OptimiserResult
+from .util import raise_error
 
 if TYPE_CHECKING:
     from typing import Callable
@@ -58,3 +68,43 @@ class ModelEstimator(Estimator):
 
     def __str__(self) -> str:
         return f"ModelEstimator( f( {self._f.__name__} ) )"
+
+
+def save_result(output_file: str, config: Configuration, stats: Stats, result: OptimiserResult) -> None:
+    """Save the final results to a file in YAML, JSON, MAT or CSV format.
+
+    Args:
+        output_file: The path to the output file.
+        config: The configuration used for the scenario.
+        stats: The statistics of the scenario.
+    """
+    merged_dict = {**config.to_safe_dict(), **stats.to_dict()}
+    merged_dict["run_success"] = result["success"]
+    merged_dict["run_c"] = result["c"]
+    merged_dict["run_eta"] = result["eta"]
+    merged_dict["run_time_horizon"] = result["T"]
+    merged_dict["run_safety"] = 1 - result["obj_val"]
+    merged_dict["run_norm"] = result["norm"]
+    merged_dict["run_sol"] = result["sol"].tolist()
+
+    output_path = Path(output_file)
+    if output_path.suffix in [".yaml", ".yml"]:
+        with open(output_path, "w", encoding="utf-8") as f:
+            yaml.dump(merged_dict, f)
+    elif output_path.suffix == ".json":
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(merged_dict, f, indent=4)
+    elif output_path.suffix == ".mat":
+        for key, value in merged_dict.items():
+            if value is None:
+                merged_dict[key] = np.nan
+        scipy.io.savemat(output_path, merged_dict)
+    elif output_path.suffix == ".npz":
+        np.savez(output_path, **merged_dict)
+    elif output_path.suffix == ".csv":
+        with open(output_path, "w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, merged_dict.keys())
+            w.writeheader()
+            w.writerow(merged_dict)
+    else:
+        raise_error(f"Unsupported output file format: {output_path.suffix}")

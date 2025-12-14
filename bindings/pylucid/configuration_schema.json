@@ -339,6 +339,13 @@
         "SoplexOptimiser"
       ],
       "default": "GurobiOptimiser"
+    },
+    "output_file": {
+      "description": "Path to save the final results to.",
+      "type": "string",
+      "format": "file-path",
+      "pattern": "(.*\\.(yaml|yml|json|mat|npz|csv)|)$",
+      "default": ""
     }
   }
 }

@@ -175,6 +175,7 @@ export const configurationSchema = z
       .describe("Scale of the noise to add to the system dynamics."),
     plot: z.boolean().describe("Whether to plot the results."),
     verify: z.boolean().describe("Whether to verify the results."),
+    print_stats: z.boolean().describe("Enable printing of statistics."),
     problem_log_file: z
       .string()
       .describe("File to log the problem formulation.")
@@ -183,6 +184,10 @@ export const configurationSchema = z
       .string()
       .describe("File to log the irreducible infeasible set (IIS).")
       .default("iis.ilp"),
+    output_file: z
+      .string()
+      .describe("Path to save the final results to.")
+      .default(""),
     estimator: z
       .literal("KernelRidgeRegressor")
       .describe("Type of estimator to use.")

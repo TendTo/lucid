@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Monte Carlo sampling to use as a baseline
 - Online demo running in the Browser using WebAssembly
 - Ability to record internal statistics during tool execution via the `Stats` class
+- Ability to save results in `.yaml`, `.json`, `.mat`, `.npz` or `.csv` formats
 
 ### Changed
 

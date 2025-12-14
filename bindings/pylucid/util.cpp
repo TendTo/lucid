@@ -155,6 +155,39 @@ void init_util(py::module_& m) {
       .def_property_readonly("num_kernel_applications", STATS_PROPERTY(num_kernel_applications),
                              Stats_num_kernel_applications)
       .def_property_readonly("num_tuning", STATS_PROPERTY(num_tuning), Stats_num_tuning)
+      .def("to_dict",
+           [](const ScopedStats& self) {
+             if (!self.has_stats()) THROW_NOT_STATS_AVAILABLE_ERROR();
+             py::dict d;
+             const Stats& stats = self.stats();
+             d["estimator_time"] = stats.estimator_timer.seconds();
+             d["feature_map_time"] = stats.feature_map_timer.seconds();
+             d["barrier_time"] = stats.barrier_timer.seconds();
+             d["optimiser_time"] = stats.optimiser_timer.seconds();
+             d["tuning_time"] = stats.tuning_timer.seconds();
+             d["kernel_time"] = stats.kernel_timer.seconds();
+             d["total_time"] = stats.total_timer.seconds();
+             d["num_constraints"] = stats.num_constraints;
+             d["num_variables"] = stats.num_variables;
+             d["C"] = stats.C;
+             d["A_xn_wo_x"] = stats.A_xn_wo_x;
+             d["A_xn_wo_x0"] = stats.A_xn_wo_x;
+             d["A_xn_wo_xu"] = stats.A_xn_wo_xu;
+             d["min_x0"] = stats.min_x0;
+             d["max_sx0"] = stats.max_sx0;
+             d["max_xu"] = stats.max_xu;
+             d["min_sxu"] = stats.min_sxu;
+             d["max_x"] = stats.max_x;
+             d["min_sx"] = stats.min_sx;
+             d["min_d"] = stats.min_d;
+             d["max_d_sx"] = stats.max_d_sx;
+             d["peak_rss_memory_usage"] = stats.peak_rss_memory_usage;
+             d["num_estimator_consolidations"] = stats.num_estimator_consolidations;
+             d["num_feature_map_applications"] = stats.num_feature_map_applications;
+             d["num_kernel_applications"] = stats.num_kernel_applications;
+             d["num_tuning"] = stats.num_tuning;
+             return d;
+           })
       .def("__enter__", &ScopedStats::enter)
       .def("__exit__", [](ScopedStats& self, const py::object&, const py::object&, const py::object&) { self.exit(); })
       .def("__str__", STRING_LAMBDA(ScopedStats));

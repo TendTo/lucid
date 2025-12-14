@@ -20,6 +20,7 @@ from . import CAPABILITIES
 from .__main__ import scenario_config
 from ._pylucid import *
 from .cli import ConfigAction, Configuration
+from .ext import save_result
 from .pipeline import OptimiserResult, pipeline
 from .plot import plot_data, plot_function
 
@@ -35,7 +36,10 @@ def run_lucid(config: Configuration):
         random.seed(config.seed)
     log.set_verbosity(config.verbose)
 
+    local_result = OptimiserResult(c=0.0, success=False, obj_val=0.0, eta=0.0, T=0, norm=0.0, sol=np.array([]))
+
     def optimiser_cb(result: "OptimiserResult"):
+        local_result.update(result)
         if not result["success"]:
             result["error"] = "Optimization failed"
         if isinstance(result["sol"], np.ndarray):
@@ -52,7 +56,15 @@ def run_lucid(config: Configuration):
         QUEUES[threading.get_ident()].put({"verified": verified})
 
     try:
-        pipeline(scenario_config(config), show=False, optimiser_cb=optimiser_cb, plot_cb=plot_cb, verify_cb=check_cb)
+        with Stats() as stats:
+            pipeline(
+                scenario_config(config), show=False, optimiser_cb=optimiser_cb, plot_cb=plot_cb, verify_cb=check_cb
+            )
+            stats.collect_peak_rss_memory_usage()
+            if config.print_stats:
+                log.info(str(stats))
+            if config.output_file:
+                save_result(config.output_file, config, stats, local_result)
     except Exception as e:
         log.error(f"Error during optimisation: {e}")
         raise e
