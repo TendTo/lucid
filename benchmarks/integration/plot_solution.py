@@ -1,8 +1,10 @@
 import json
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pandas as pd
 
 from pylucid import *
 
@@ -527,7 +529,15 @@ def plot_solution(experiment_name: "str", args: "argparse.Namespace"):
     :param solution: Solution data as a numpy array.
     """
     config = load_configuration(experiment_name + ".yaml")
-    solution, eta, c = load_solution(experiment_name + ".sol.json")
+    if os.path.exists(experiment_name + ".sol.json"):
+        solution, eta, c = load_solution(experiment_name + ".sol.json")
+    elif os.path.exists(experiment_name + ".pkl"):
+        data: pd.DataFrame = pd.read_pickle(experiment_name + ".pkl")
+        data.sort_values("obj_val", inplace=True)
+        row = data.iloc[0]
+        solution, eta, c = row["solution"], row["eta"], row["c"]
+    else:
+        raise FileNotFoundError(f"Solution file not found for experiment {experiment_name}.")
     plot_solution_matplotlib(
         estimator=config.estimator,
         c=c,
@@ -600,7 +610,7 @@ def plot_set_1d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
 
     if isinstance(X_set, MultiSet):
         for i, subset in enumerate(X_set):
-            plot_set_1d_matplotlib(subset, color, label if i == 0 else "")
+            plot_set_1d_matplotlib(subset, color, label if i == 0 else "", ax)
     else:
         plot_rect_1d_helper(X_set, color, label)
 
@@ -614,9 +624,16 @@ def plot_set_2d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
 
     def plot_rect_2d_helper(s: "Set", color: str, label: str):
         if isinstance(s, RectSet):
-            x = [s.lower_bound[0], s.upper_bound[0], s.upper_bound[0], s.lower_bound[0], s.lower_bound[0]]
-            y = [s.lower_bound[1], s.lower_bound[1], s.upper_bound[1], s.upper_bound[1], s.lower_bound[1]]
-            ax.plot(x, y, color=color, linewidth=2, label=label)
+            rect = plt.Rectangle(
+                (s.lower_bound[0], s.lower_bound[1]),
+                s.upper_bound[0] - s.lower_bound[0],
+                s.upper_bound[1] - s.lower_bound[1],
+                color=color,
+                fill=False,
+                linewidth=2,
+                label=label,
+            )
+            ax.add_patch(rect)
         elif isinstance(s, SphereSet):
             circle = plt.Circle((s.center[0], s.center[1]), s.radius, color=color, fill=False, linewidth=2, label=label)
             ax.add_patch(circle)
@@ -634,7 +651,7 @@ def plot_set_2d_matplotlib(X_set: "Set", color: str, label: str = "", ax=None):
 
     if isinstance(X_set, MultiSet):
         for i, subset in enumerate(X_set):
-            plot_set_2d_matplotlib(subset, color, label if i == 0 else "")
+            plot_set_2d_matplotlib(subset, color, label if i == 0 else "", ax)
     else:
         plot_rect_2d_helper(X_set, color, label)
 
@@ -717,7 +734,9 @@ def plot_function_2d_matplotlib(
 
     # Create streamplot
     if True:
-        ax.streamplot(X, Y, U, V, color="gray", density=1.5, linewidth=0.8, arrowsize=1.2)
+        ax.streamplot(
+            X, Y, U, V, color="lightgray" if args.dark_mode else "gray", density=1.5, linewidth=0.8, arrowsize=1.2
+        )
         for noise in np.linspace(-0.01, 0.01, 10, endpoint=True):
             xp_noise = f(x_samples) + noise
             Xn = xp_noise[:, 0].reshape(n, n)
@@ -725,7 +744,7 @@ def plot_function_2d_matplotlib(
             U_noise = Xn - X
             V_noise = Yn - Y
             # Use a lower alpha for noise to avoid clutter
-            color = (0.5, 0.5, 0.5, 0.3)  # Gray with transparency
+            color = (0.5, 0.5, 0.5, 0.4)  # Gray with transparency
             ax.streamplot(X, Y, U_noise, V_noise, color=color, linewidth=0.3, density=1.5, arrowsize=0)
     else:
         import gstools as gs
@@ -745,7 +764,7 @@ def plot_function_2d_matplotlib(
 
     # Plot sets
     if X_init is not None:
-        plot_set_2d_matplotlib(X_init, "blue", r"$X_0$", ax)
+        plot_set_2d_matplotlib(X_init, "lightskyblue" if args.dark_mode else "blue", r"$X_0$", ax)
     if X_unsafe is not None:
         plot_set_2d_matplotlib(X_unsafe, "red", r"$X_U$", ax)
 
@@ -1063,6 +1082,9 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Plot the solution of a barrier certificate.")
+    parser.add_argument(
+        "plot_type", type=str, choices=["solution", "function", "data"], help="The type of plot to generate."
+    )
     parser.add_argument("experiment", type=str, help="The case study to plot.")
     parser.add_argument("-p", "--points", type=int, help="The number of points for the plot.", default=200)
     parser.add_argument("-e", "--elevation", type=float, help="The elevation angle for the plot.", default=30)
@@ -1071,5 +1093,33 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verify", action="store_true", help="Verify the barrier certificate.")
     parser.add_argument("--plot_bxp", action="store_true", help="Plot the B(xp) surface.")
     parser.add_argument("--plot_bxe", action="store_true", help="Plot the B(xp) est. surface.")
+    parser.add_argument("-o", "--output", type=str, help="Output file path for the plot.", default=None)
+    parser.add_argument("-d", "--dark-mode", action="store_true", help="Enable dark mode for the plot.", default=False)
     args = parser.parse_args()
-    plot_solution(f"benchmarks/integration/{args.experiment}", args)
+    if args.dark_mode:
+        plt.style.use("dark_background")
+    fig = None
+    if args.plot_type == "solution":
+        plot_solution(f"benchmarks/integration/{args.experiment}", args)
+    elif args.plot_type == "function":
+        config = load_configuration(f"benchmarks/integration/{args.experiment}.yaml")
+        fig = plot_function_matplotlib(
+            X_bounds=config.X_bounds,
+            f=config.system_dynamics,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            n=args.points,
+            show=not args.output,
+        )
+    elif args.plot_type == "data":
+        config = load_configuration(f"benchmarks/integration/{args.experiment}.yaml")
+        fig = plot_data_matplotlib(
+            x_samples=config.x_samples,
+            xp_samples=config.xp_samples,
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            show=not args.output,
+        )
+    if args.output is not None and fig is not None:
+        fig.savefig(args.output, bbox_inches="tight", dpi=300)
