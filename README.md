@@ -292,3 +292,19 @@ pylucid config.yaml
 
 [//]: # "@end-tab"
 [//]: # "@end-tabbed"
+
+## Citing LUCID
+
+If you use LUCID in your research, please cite the following paper:
+
+```bibtex
+@misc{casablanca2025lucidlearningenableduncertaintyawarecertification,
+  title         = {LUCID: Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems},
+  author        = {Ernesto Casablanca, Oliver Schön, Paolo Zuliani and Sadegh Soudjani},
+  year          = {2025},
+  eprint        = {2512.11750},
+  archiveprefix = {arXiv},
+  primaryclass  = {eess.SY},
+  url           = {https://arxiv.org/abs/2512.11750}
+}
+```
