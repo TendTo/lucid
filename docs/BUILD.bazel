@@ -126,6 +126,7 @@ doxygen(
         "docs/_static/doxygen-awesome-paragraph-link.js",
         "docs/_static/doxygen-awesome-tabs.js",
         "docs/_static/highlight.min.js",
+        "docs/_static/highlight.latex.min.js",
         "docs/_static/mermaid.dist.js",
         "docs/_static/plotly.js",
         "docs/_static/plotly.min.js",

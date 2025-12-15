@@ -28,12 +28,14 @@
   <script type="text/javascript" src="$relpath^doxygen-awesome-interactive-toc.js"></script>
   <script type="text/javascript" src="$relpath^doxygen-awesome-tabs.js"></script>
   <script type="text/javascript" src="$relpath^highlight.min.js"></script>
+  <script type="text/javascript" src="$relpath^highlight.latex.min.js"></script>
   <script type="text/javascript">
     window.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll("pre code.fragment").forEach((block) => {
         if (block.textContent.includes("\\f$")) block.textContent = block.textContent.replace("\\f$", "$");
       });
       hljs.registerAliases("bzl", { languageName: 'python' });
+      hljs.registerAliases("bibtex", { languageName: 'latex' });
       hljs.highlightAll();
     });
     DoxygenAwesomeFragmentCopyButton.init();
