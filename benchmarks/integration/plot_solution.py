@@ -145,6 +145,104 @@ def plot_solution_1d_matplotlib(
     return fig, ax
 
 
+def plot_contours_2d_matplotlib(
+    args: "argparse.Namespace",
+    X_bounds: "RectSet",
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    feature_map: "FeatureMap | None" = None,
+    sol: "NVector | None" = None,
+    eta: "float | None" = None,
+    gamma: "float | None" = None,
+    num_samples: "int | None" = None,
+    show: bool = True,
+):
+    """Plot the barrier certificate as 2D contours with eta and gamma level sets."""
+    fig, ax = plt.subplots()
+
+    # Set plot bounds
+    ax.set_xlim([X_bounds.lower_bound[0], X_bounds.upper_bound[0]])
+    ax.set_ylim([X_bounds.lower_bound[1], X_bounds.upper_bound[1]])
+
+    # Plot the barrier certificate as contours
+    if feature_map is not None and sol is not None:
+        x = np.linspace(X_bounds.lower_bound[0], X_bounds.upper_bound[0], num_samples or 100)
+        y = np.linspace(X_bounds.lower_bound[1], X_bounds.upper_bound[1], num_samples or 100)
+        X, Y = np.meshgrid(x, y)
+        points = np.stack([X.ravel(), Y.ravel()], axis=1)
+        Z = feature_map(points) @ sol.T
+        Z = Z.reshape(X.shape)
+
+        # Plot filled contours for the barrier function
+        contourf = ax.contourf(X, Y, Z, levels=15, cmap="viridis", alpha=0.6)
+        fig.colorbar(contourf, ax=ax, label=r"$B(x)$")
+
+        # Plot contour lines at eta and gamma levels
+        contour_levels = []
+        contour_colors = []
+        contour_labels = []
+        if eta is not None:
+            contour_levels.append(eta)
+            contour_colors.append("green")
+            contour_labels.append(r"$\eta$")
+        if gamma is not None:
+            contour_levels.append(gamma)
+            contour_colors.append("purple")
+            contour_labels.append(r"$\gamma$")
+
+        if contour_levels:
+            contours = ax.contour(
+                X, Y, Z, levels=contour_levels, colors=contour_colors, linewidths=2, linestyles="dashed"
+            )
+            # Add labels to the contour lines
+            # for i, (level, label) in enumerate(zip(contour_levels, contour_labels)):
+                # contours.collections[i].set_label(label)
+
+    # Plot sets
+    if X_init is not None:
+        plot_set_2d_matplotlib(X_init, "lightskyblue" if X_init else "blue", r"$X_0$", ax)
+    if X_unsafe is not None:
+        plot_set_2d_matplotlib(X_unsafe, "red", r"$X_U$", ax)
+
+    # Set labels
+    ax.set_xlabel("$x_0$", fontsize=FONTSIZE_LABEL)
+    ax.set_ylabel("$x_1$", fontsize=FONTSIZE_LABEL)
+    ax.set_aspect("equal")
+
+    # Add legend
+    ax.legend(loc="best", fontsize=FONTSIZE_LABEL, frameon=True)
+
+    fig.tight_layout()
+    fig.savefig(f"benchmarks/integration/{args.experiment.lower()}_contours.pgf", bbox_inches="tight", dpi=300)
+
+    if show:
+        plt.show()
+
+    return fig, ax
+
+
+def plot_contours_2d(
+    args: "argparse.Namespace",
+    X_bounds: "RectSet",
+    X_init: "Set | None" = None,
+    X_unsafe: "Set | None" = None,
+    feature_map: "FeatureMap | None" = None,
+    sol: "NVector | None" = None,
+    eta: "float | None" = None,
+    gamma: "float | None" = None,
+    num_samples: "int | None" = None,
+    show: bool = True,
+):
+    assert X_bounds.dimension > 0, "X_bounds must have a positive dimension."
+    if X_bounds.dimension == 2:
+        return plot_contours_2d_matplotlib(
+            args, X_bounds, X_init, X_unsafe, feature_map, sol, eta, gamma, num_samples, show
+        )
+    raise exception.LucidNotSupportedException(
+        f"Plotting is not supported for {X_bounds.dimension}-dimensional sets. Only 2D sets are supported."
+    )
+
+
 def plot_solution_2d_matplotlib(
     args: "argparse.Namespace",
     X_bounds: "RectSet",
@@ -1083,7 +1181,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Plot the solution of a barrier certificate.")
     parser.add_argument(
-        "plot_type", type=str, choices=["solution", "function", "data"], help="The type of plot to generate."
+        "plot_type", type=str, choices=["solution", "function", "data", "contour"], help="The type of plot to generate."
     )
     parser.add_argument("experiment", type=str, help="The case study to plot.")
     parser.add_argument("-p", "--points", type=int, help="The number of points for the plot.", default=200)
@@ -1120,6 +1218,22 @@ if __name__ == "__main__":
             X_init=config.X_init,
             X_unsafe=config.X_unsafe,
             show=not args.output,
+        )
+    elif args.plot_type == "contour":
+        config = load_configuration(f"benchmarks/integration/{args.experiment}.yaml")
+        data = pd.read_pickle(f"benchmarks/integration/{args.experiment}.pkl")
+        data.sort_values("obj_val", inplace=True)
+        row = data.iloc[0]
+        fig, _ = plot_contours_2d(
+            args,
+            X_bounds=config.X_bounds,
+            X_init=config.X_init,
+            X_unsafe=config.X_unsafe,
+            feature_map=config.feature_map,
+            gamma=config.gamma,
+            eta=row["eta"],
+            show=not args.output,
+            sol=row["solution"],
         )
     if args.output is not None and fig is not None:
         fig.savefig(args.output, bbox_inches="tight", dpi=300)
