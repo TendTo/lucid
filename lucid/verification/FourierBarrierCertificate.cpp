@@ -393,7 +393,7 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   if (Stats::Scoped::top()) {
     Stats::Scoped::top()->value().lattice_resolution = lattice_resolution;
     Stats::Scoped::top()->value().dimension = n;
-    Stats::Scoped::top()->value().lattice_resolution_active = std::pow(x_include_mask.size(), 1.0/n);
+    Stats::Scoped::top()->value().lattice_size_active = x_include_mask.size();
     Stats::Scoped::top()->value().C = C;
     Stats::Scoped::top()->value().A_xn_wo_x0 = A_x0;
     Stats::Scoped::top()->value().A_xn_wo_xu = A_xu;
