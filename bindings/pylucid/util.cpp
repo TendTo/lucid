@@ -134,6 +134,11 @@ void init_util(py::module_& m) {
       .def_property_readonly("total_time", STATS_PROPERTY(total_timer.seconds()), Stats_total_timer)
       .def_property_readonly("num_constraints", STATS_PROPERTY(num_constraints), Stats_num_constraints)
       .def_property_readonly("num_variables", STATS_PROPERTY(num_variables), Stats_num_variables)
+      .def_property_readonly(
+          "lattice_resolution", STATS_PROPERTY(lattice_resolution), Stats_lattice_resolution)
+      .def_property_readonly("dimension", STATS_PROPERTY(dimension), Stats_dimension)
+      .def_property_readonly(
+          "lattice_resolution_active", STATS_PROPERTY(lattice_resolution_active), Stats_lattice_resolution_active)
       .def_property_readonly("C", STATS_PROPERTY(C), Stats_C)
       .def_property_readonly("A_xn_wo_x", STATS_PROPERTY(A_xn_wo_x), Stats_A_xn_wo_x)
       .def_property_readonly("A_xn_wo_x0", STATS_PROPERTY(A_xn_wo_x0), Stats_A_xn_wo_x0)
@@ -169,6 +174,9 @@ void init_util(py::module_& m) {
              d["total_time"] = stats.total_timer.seconds();
              d["num_constraints"] = stats.num_constraints;
              d["num_variables"] = stats.num_variables;
+             d["lattice_resolution"] = fmt::format("{}^{}", stats.lattice_resolution, stats.dimension);
+             d["lattice_resolution_active"] = fmt::format("{}^{}", stats.lattice_resolution_active, stats.dimension);
+             d["dimension"] = stats.dimension;
              d["C"] = stats.C;
              d["A_xn_wo_x"] = stats.A_xn_wo_x;
              d["A_xn_wo_x0"] = stats.A_xn_wo_x;

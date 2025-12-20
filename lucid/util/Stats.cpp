@@ -30,6 +30,8 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  No. of hyperparameter tuning:      {}\n"
              "  No. of constraints:                {}\n"
              "  No. of variables:                  {}\n"
+             "  Lattice size (periodic):           {}\n",
+             "  Lattice size (active):             {}\n",
              "  eta:                               {:.3f}\n"
              "  gamma:                             {:.3f}\n"
              "  c:                                 {:.3f}\n"
@@ -61,6 +63,8 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              stats.num_tuning,                    //
              stats.num_constraints,               //
              stats.num_variables,                 //
+             fmt::format("{}^{}", stats.lattice_resolution, stats.dimension),  //
+             fmt::format("{}^{}", stats.lattice_resolution_active, stats.dimension),     //
              stats.eta,                           //
              stats.gamma,                         //
              stats.c,                             //
