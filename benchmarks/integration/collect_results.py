@@ -364,8 +364,16 @@ def main(args: Args):
         )
         if args.output:
             data = export_solution(args, data)
-            data.to_hdf(f"{args.output}-{i}.h5", mode="w")
-            print(f"Exported solution to {args.output}-{i}.h5")
+            name, file_extension = os.path.splitext(args.output)
+            filename = f"{name}-{i}{file_extension}"
+            if file_extension == ".h5" or file_extension == ".hdf5":
+                data.to_hdf(filename, key="df", mode="w")
+                print(f"Exported solution to {filename}")
+            elif file_extension == ".mat":
+                sio.savemat(filename, {"df": data.to_dict(orient="list")})
+                print(f"Exported solution to {filename}")
+            else:
+                print(f"Unsupported file extension: {file_extension}")
         if args.plot:
             r = input(f"Run {row.Index} - Print?...")
             if r.lower() == "y" or r.lower() == "yes":
@@ -403,7 +411,7 @@ if __name__ == "__main__":
         "--output",
         type=str,
         default="",
-        help="Output file path if the solution is to be exported, without the extension.",
+        help="Output file path if the solution is to be exported, WITH the extension (.mat, .h5, or .hdf5).",
     )
     parser.add_argument("-f", "--filter", type=str, default=FILTER, help="Filter for the MLflow runs.")
     parser.add_argument("--to-config", action="store_true", help="Export the configuration corresponding to each run.")
