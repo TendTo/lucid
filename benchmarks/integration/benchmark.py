@@ -3,6 +3,7 @@ import itertools
 import multiprocessing
 import os
 import traceback
+import numpy as np
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
