@@ -35,7 +35,7 @@ struct Stats {
   std::size_t num_variables{0};                 ///< Number of variables in the last optimisation problem
   double lattice_resolution{0};                 ///< Resolution of the lattice on the periodic domain
   double dimension{0};                          ///< Dimension of the state space
-  double lattice_resolution_active{0};          ///< Active resolution of the lattice on the state space
+  double lattice_size_active{0};                ///< Active total size of the lattice on the state space
   double eta{0};                                ///< Constant @eta_ found in the barrier
   double gamma{0};                              ///< Constant @gamma_ found in the barrier
   double c{0};                                  ///< Constant @c_ found in the barrier

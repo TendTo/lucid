@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              stats.num_constraints,               //
              stats.num_variables,                 //
              fmt::format("{}^{}", stats.lattice_resolution, stats.dimension),  //
-             fmt::format("{}^{}", stats.lattice_resolution_active, stats.dimension),     //
+             stats.lattice_size_active,     //
              stats.eta,                           //
              stats.gamma,                         //
              stats.c,                             //
