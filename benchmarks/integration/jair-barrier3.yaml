@@ -3,10 +3,12 @@ estimator: KernelRidgeRegressor
 feature_map: LinearTruncatedFourierFeatureMap
 feature_sigma_l: [0.05, 0.15]
 gamma: 1.0
+print_stats: true
 kernel: GaussianKernel
 lambda: 1.e-8
 noise_scale: 0.01
 num_frequencies: 7
+oversample_factor: 22 # Corresponds to lattice_resolution of 330^2
 num_samples: 1000
 optimiser: GurobiOptimiser
 plot: true
