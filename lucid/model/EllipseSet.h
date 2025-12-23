@@ -71,6 +71,8 @@ class EllipseSet final : public Set {
   [[nodiscard]] std::string to_string() const override;
 
   [[nodiscard]] std::unique_ptr<Set> clone() const override;
+
+ private:
   void increase_size_impl(ConstVectorRef size_increase) override;
 
   Vector center_;  ///< Center of the ellipsoid. Determines the dimension of the ellipsoid set
