@@ -125,33 +125,38 @@ class Configuration(Namespace):
         """Get the kernel instance based on the configuration."""
         if isinstance(self.kernel, Kernel):
             return self.kernel
-        if isinstance(self.kernel, type) and issubclass(self.kernel, Kernel):
-            return self.kernel(sigma_l=self.sigma_l, sigma_f=self.sigma_f)
+        if isinstance(self.kernel, type):
+            if issubclass(self.kernel, GaussianKernel):
+                return self.kernel(sigma_l=self.sigma_l, sigma_f=self.sigma_f)
         raise raise_error("kernel must be either a Kernel instance or a callable that returns a Kernel")
 
-    def get_estimator(self) -> Estimator:
+    def get_estimator(self, model_function: "Callable[[NMatrix], NMatrix] | None" = None) -> Estimator:
         """Get the estimator instance based on the configuration."""
         if isinstance(self.estimator, Estimator):
             return self.estimator
-        if isinstance(self.estimator, type) and issubclass(self.estimator, Estimator):
-            return self.estimator(
-                kernel=self.get_kernel(),
-                regularization_constant=self.lambda_,
-                **({"tuner": self.tuner} if self.tuner is not None else {}),
-            )
+        if isinstance(self.estimator, type):
+            if issubclass(self.estimator, KernelRidgeRegressor):
+                return self.estimator(
+                    kernel=self.get_kernel(),
+                    regularization_constant=self.lambda_,
+                    **({"tuner": self.tuner} if self.tuner is not None else {}),
+                )
+            if issubclass(self.estimator, ModelEstimator):
+                return self.estimator(model_function=model_function)
         raise raise_error("estimator must be either an Estimator instance or a callable that returns an Estimator")
 
     def get_feature_map(self) -> FeatureMap:
         """Get the feature map instance based on the configuration."""
         if isinstance(self.feature_map, FeatureMap):
             return self.feature_map
-        if isinstance(self.feature_map, type) and issubclass(self.feature_map, FeatureMap):
-            return self.feature_map(
-                num_frequencies=self.num_frequencies,
-                sigma_l=self.feature_sigma_l,
-                sigma_f=self.sigma_f,
-                X_bounds=self.X_bounds,
-            )
+        if isinstance(self.feature_map, type):
+            if issubclass(self.feature_map, TruncatedFourierFeatureMap):
+                return self.feature_map(
+                    num_frequencies=self.num_frequencies,
+                    sigma_l=self.feature_sigma_l,
+                    sigma_f=self.sigma_f,
+                    X_bounds=self.X_bounds,
+                )
         raise raise_error("feature_map must be either a FeatureMap instance or a callable that returns a FeatureMap")
 
     def populate_samples(self):

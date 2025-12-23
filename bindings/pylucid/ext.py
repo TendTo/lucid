@@ -7,7 +7,7 @@ import numpy as np
 import scipy.io
 import yaml
 
-from ._pylucid import Estimator, Parameter, Stats
+from ._pylucid import Estimator, Parameter, Stats, TruncatedFourierFeatureMap, FeatureMap
 from .cli import Configuration
 from .pipeline import OptimiserResult
 from .util import raise_error
@@ -86,6 +86,13 @@ def save_result(output_file: str, config: Configuration, stats: Stats, result: O
     merged_dict["run_safety"] = 1 - result["obj_val"]
     merged_dict["run_norm"] = result["norm"]
     merged_dict["run_sol"] = result["sol"].tolist()
+    estimator = config.get_estimator()
+    for param in estimator.parameters:
+        value = estimator.get(param)
+        merged_dict[f"estimator_{str(param)[10:].lower()}"] = value.tolist() if isinstance(value, np.ndarray) else value
+    feature_map: TruncatedFourierFeatureMap = config.get_feature_map()
+    merged_dict["feature_map_weights"] = feature_map.weights.tolist()
+    merged_dict["feature_map_omega"] = feature_map.omega.tolist()
 
     output_path = Path(output_file)
     if output_path.suffix in [".yaml", ".yml"]:
