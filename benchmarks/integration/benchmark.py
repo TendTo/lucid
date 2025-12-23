@@ -3,13 +3,13 @@ import itertools
 import multiprocessing
 import os
 import traceback
-import numpy as np
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 import mlflow
 import mlflow.data
 import mlflow.entities
+import numpy as np
 
 from pylucid import *
 from pylucid.plot import plot_solution

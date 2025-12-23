@@ -4,11 +4,11 @@ import argparse
 import pandas as pd
 from benchmark import single_benchmark
 from collect_results import config_from_df_row
+from mlflow import MlflowClient
 
 from pylucid import *
 from pylucid import __version__
 from pylucid.pipeline import pipeline
-from mlflow import MlflowClient
 
 
 class BenchmarkArgs(argparse.Namespace):

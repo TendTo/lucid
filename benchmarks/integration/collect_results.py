@@ -1,4 +1,3 @@
-from pylucid import RectSet, MultiSet
 import argparse
 import json
 import os
@@ -6,6 +5,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
+import scipy.io as sio
 from mlflow import MlflowClient
 from mlflow.entities import Run
 from plot_solution import (
@@ -14,9 +14,8 @@ from plot_solution import (
     plot_contour_benchmarks,
     plot_solution_matplotlib,
 )
-import scipy.io as sio
 
-from pylucid import ModelEstimator
+from pylucid import ModelEstimator, MultiSet, RectSet
 
 FILTER = "metrics.run.safety > 0 and metrics.run.safety < 1 and metrics.run.success = 1"
 
@@ -122,6 +121,7 @@ def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
             data["xp_barrier_values"] = feature_map(config.system_dynamics(x_lattice)) @ run.solution.T
 
         return data
+
 
 def get_bounds(bounds: "MultiSet | RectSet") -> tuple[list[np.ndarray], list[np.ndarray]]:
     if isinstance(bounds, RectSet):

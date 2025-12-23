@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-import numpy as np
-import itertools
 import time
 
+import numpy as np
 from benchmark import parse_args, run_grid
 
 from pylucid import *

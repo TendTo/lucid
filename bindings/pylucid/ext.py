@@ -7,7 +7,7 @@ import numpy as np
 import scipy.io
 import yaml
 
-from ._pylucid import Estimator, Parameter, Stats, TruncatedFourierFeatureMap, FeatureMap
+from ._pylucid import Estimator, Parameter, Stats, TruncatedFourierFeatureMap
 from .cli import Configuration
 from .pipeline import OptimiserResult
 from .util import raise_error
