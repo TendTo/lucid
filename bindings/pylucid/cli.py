@@ -121,6 +121,39 @@ class Configuration(Namespace):
     optimiser: "type[Optimiser]" = GurobiOptimiser if GUROBI_BUILD else HighsOptimiser
     tuner: "Tuner | None" = None
 
+    def get_kernel(self) -> Kernel:
+        """Get the kernel instance based on the configuration."""
+        if isinstance(self.kernel, Kernel):
+            return self.kernel
+        if isinstance(self.kernel, type) and issubclass(self.kernel, Kernel):
+            return self.kernel(sigma_l=self.sigma_l, sigma_f=self.sigma_f)
+        raise raise_error("kernel must be either a Kernel instance or a callable that returns a Kernel")
+
+    def get_estimator(self) -> Estimator:
+        """Get the estimator instance based on the configuration."""
+        if isinstance(self.estimator, Estimator):
+            return self.estimator
+        if isinstance(self.estimator, type) and issubclass(self.estimator, Estimator):
+            return self.estimator(
+                kernel=self.get_kernel(),
+                regularization_constant=self.lambda_,
+                **({"tuner": self.tuner} if self.tuner is not None else {}),
+            )
+        raise raise_error("estimator must be either an Estimator instance or a callable that returns an Estimator")
+
+    def get_feature_map(self) -> FeatureMap:
+        """Get the feature map instance based on the configuration."""
+        if isinstance(self.feature_map, FeatureMap):
+            return self.feature_map
+        if isinstance(self.feature_map, type) and issubclass(self.feature_map, FeatureMap):
+            return self.feature_map(
+                num_frequencies=self.num_frequencies,
+                sigma_l=self.feature_sigma_l,
+                sigma_f=self.sigma_f,
+                X_bounds=self.X_bounds,
+            )
+        raise raise_error("feature_map must be either a FeatureMap instance or a callable that returns a FeatureMap")
+
     def populate_samples(self):
         if len(self.x_samples) == 0:
             # If x_samples is not provided, sample it from the bounds

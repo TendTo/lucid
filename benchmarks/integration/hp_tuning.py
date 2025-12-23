@@ -59,10 +59,7 @@ def hp_tuning(file_path: str, grid: "dict[Parameter, ParameterValuesType]"):
         f = lambda x: config.system_dynamics(x) + (np.random.normal(scale=config.noise_scale))
         config.x_samples = config.X_bounds.sample(config.num_samples)
         config.xp_samples = f(config.x_samples)
-    config.estimator = config.estimator(
-        kernel=config.kernel(sigma_l=config.sigma_l, sigma_f=config.sigma_f),
-        regularization_constant=config.lambda_,
-    )
+    config.estimator = config.get_estimator()
 
     assert_or_raise(len(config.x_samples) > 0, "No samples to use for the scenario")
     assert_or_raise(len(config.xp_samples) > 0, "No transition samples to use for the scenario")
