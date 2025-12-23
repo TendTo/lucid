@@ -91,6 +91,7 @@ class Objective {
    */
   template <class Derived>
   double operator()(const Eigen::MatrixBase<Derived>& x) const {
+    // If we are dealing with a non-rect set, check if the point is actually in the set. Otherwise, return 0.
     if (needs_set_check_ && !X_.contains(x)) return 0;
 
     LUCID_ASSERT(x.size() == lattice_.cols(), "The input dimension must be equal to the lattice dimension");
@@ -146,7 +147,6 @@ double run_pso(int lattice_resolution, int f_max, const Set& X, const ConstMatri
   PsoOptimiser optimiser{n_tilde, lattice_resolution, f_max, filtered_lattice, X};
   // Bounds of the optimization. They ensure the particles stay within the X_periodic set
   Matrix matrix_bounds{2, d};
-  // TODO(tend): in case of ellipse, these bounds are not enough. We are currently getting a more conservative estimate.
   matrix_bounds.row(0) = X.general_lower_bound().transpose();
   matrix_bounds.row(1) = X.general_upper_bound().transpose();
   // Configure optimiser
