@@ -1,31 +1,24 @@
-# yaml-language-server: $schema=../bindings/pylucid/configuration_schema.json
-verbose: 4
+# yaml-language-server: $schema=../../bindings/pylucid/configuration_schema.json
+b_norm: 5.0
+estimator: KernelRidgeRegressor
+feature_map: LinearTruncatedFourierFeatureMap
+feature_sigma_l: [0.525, 0.05, 0.525]
+gamma: 1.0
+kernel: GaussianKernel
+lambda: 1.0e-05
+num_frequencies: 5
+optimiser: GurobiOptimiser
+plot: true
 seed: 42
+set_scaling: 0.03
+sigma_f: 7.0
+sigma_l: [0.05414576430336046, 0.09360528166417184, 5.078332038463804]
+time_horizon: 5
+verbose: 4
 X_bounds:
   - RectSet: [[1, 90], [-7, 19], [-3.14159265358979, 3.14159265358979]]
 X_init:
   - RectSet: [[1, 3], [-1, 1], [-0.5, 0.5]]
-X_unsafe:
-  - RectSet: [[1, 90], [-7, -6], [-3.14159265358979, 3.14159265358979]]
-  - RectSet: [[1, 90], [18, 19], [-3.14159265358979, 3.14159265358979]]
-  - RectSet: [[40, 45], [-6, 6], [-3.14159265358979, 3.14159265358979]]
-print_stats: true
-num_frequencies: 5
-gamma: 0.5
-c_coefficient: 1.0
-lambda: 1.0e-05
-sigma_f: 7
-# sigma_l: [3.59381, 0.278256, 0.278256]
-# sigma_l: [3.57182, 3.12249, 1.10899]
-sigma_l: [10.0, 7.0, 5.0]
-time_horizon: 5
-plot: true
-verify: false
-num_oversample: 77
-estimator: KernelRidgeRegressor
-kernel: GaussianKernel
-feature_map: LinearTruncatedFourierFeatureMap
-optimiser: GurobiOptimiser
 x_samples:
   - - 57.8512086061783
     - -1.18446309747368
@@ -3027,6 +3020,10 @@ x_samples:
   - - 22.5946556480471
     - 15.4584771643533
     - -1.74768843862982
+X_unsafe:
+  - RectSet: [[1, 90], [-7, -6], [-3.14159265358979, 3.14159265358979]]
+  - RectSet: [[1, 90], [18, 19], [-3.14159265358979, 3.14159265358979]]
+  - RectSet: [[40, 45], [-6, 6], [-3.14159265358979, 3.14159265358979]]
 xp_samples:
   - - 57.8188781738281
     - 0.153296858072281
@@ -6028,4 +6025,3 @@ xp_samples:
   - - 23.5608749389648
     - 14.869288444519
     - -1.14058113098145
-

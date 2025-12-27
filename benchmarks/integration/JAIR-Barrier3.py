@@ -19,9 +19,11 @@ if __name__ == "__main__":
     grid = {
         "num_samples": [1000],
         "seed": [42],
-        "num_frequencies": [5, 7, 9, 11, 13],
-        "oversample_factor": [10, 20, 30],
+        "num_frequencies": [10],
+        "oversample_factor": [40, 50],
         "set_scaling": [0.02],
+        "epsilon": [0.001],
+        "b_norm": [7],
         "feature_sigma_l": [np.array([0.05, 0.15])],
         # "feature_sigma_l": [
         #     np.array([sigma_l1, sigma_l2])
