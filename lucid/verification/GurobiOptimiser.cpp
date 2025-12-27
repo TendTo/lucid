@@ -133,7 +133,7 @@ bool GurobiOptimiser::solve_fourier_barrier_synthesis_impl(const FourierBarrierS
   env.start();
   GRBModel model{env};
   model.set(GRB_DoubleParam_FeasibilityTol, FourierBarrierSynthesisProblem::tolerance);
-  model.set(GRB_DoubleParam_TimeLimit, 10000);
+  model.set(GRB_DoubleParam_TimeLimit, 50000);
 #ifdef LUCID_PYTHON_BUILD
   PyInterruptCallback callback;
   model.setCallback(&callback);
