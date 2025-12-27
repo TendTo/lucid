@@ -89,38 +89,43 @@ def get_bounds(bounds: "MultiSet | RectSet") -> tuple[list[np.ndarray], list[np.
     raise TypeError("Unsupported bounds type")
 
 
-def export_solution(args: Args, data: pd.DataFrame) -> pd.DataFrame:
+def export_solution(args: Args, data):
     config = base_load_configuration(f"benchmarks/integration/{args.experiment.lower()}.yaml")
-    if isinstance(data, tuple):
-        data = pd.DataFrame([data._asdict()])
-    for run in data.itertuples():
-        feature_map = config.feature_map(
-            num_frequencies=run.num_frequencies,
-            sigma_l=run.sigma_l,
-            sigma_f=run.sigma_f,
-            X_bounds=config.X_bounds,
-        )
-        estimator = config.estimator(
-            kernel=config.kernel(sigma_l=run.sigma_l, sigma_f=run.sigma_f),
-            regularization_constant=run.lambda_,
-        )
-        estimator.consolidate(config.x_samples, feature_map(config.xp_samples))
+    # if isinstance(data, tuple):
+    #     data = pd.DataFrame([data._asdict()])
+    # for run in data.itertuples():
+    feature_map = config.feature_map(
+        num_frequencies=data.num_frequencies,
+        sigma_l=data.feature_sigma_l,
+        sigma_f=data.sigma_f,
+        X_bounds=config.X_bounds,
+    )
+    estimator = config.estimator(
+        kernel=config.kernel(sigma_l=data.feature_sigma_l, sigma_f=data.sigma_f),
+        regularization_constant=data.lambda_,
+    )
+    estimator.consolidate(config.x_samples, feature_map(config.xp_samples))
 
-        data = data.copy()
-        x_lattice = config.X_bounds.lattice(config.num_samples or 1000, True)
-        assert isinstance(config.X_bounds, RectSet)
+    solution = data.solution
+    data = data._asdict() # Convert to dict to modify
+    #print("datarun:", data)
+    x_lattice = config.X_bounds.lattice(config.num_samples or 1000, True)
+    assert isinstance(config.X_bounds, RectSet)
 
-        data["X_bounds_lower"], data["X_bounds_upper"] = get_bounds(config.X_bounds)
-        data["X_init_lower"], data["X_init_upper"] = get_bounds(config.X_init)
-        data["X_unsafe_lower"], data["X_unsafe_upper"] = get_bounds(config.X_unsafe)
+    data["X_bounds_lower"] = get_bounds(config.X_bounds)[0]
+    data["X_bounds_upper"] = get_bounds(config.X_bounds)[1]
+    data["X_init_lower"] = get_bounds(config.X_init)[0]
+    data["X_init_upper"] = get_bounds(config.X_init)[1]
+    data["X_unsafe_lower"] = get_bounds(config.X_unsafe)[0]
+    data["X_unsafe_upper"] = get_bounds(config.X_unsafe)[1]
 
-        data["x_lattice"] = x_lattice
-        data["x_barrier_values"] = feature_map(x_lattice) @ run.solution.T
-        data["xp_est_barrier_values"] = estimator(x_lattice) @ run.solution.T
-        if config.system_dynamics:
-            data["xp_barrier_values"] = feature_map(config.system_dynamics(x_lattice)) @ run.solution.T
+    data["x_lattice"] = x_lattice.tolist()
+    data["x_barrier_values"] = (feature_map(x_lattice) @ solution.T).tolist()
+    data["xp_est_barrier_values"] = (estimator(x_lattice) @ solution.T).tolist()
+    if config.system_dynamics:
+        data["xp_barrier_values"] = (feature_map(config.system_dynamics(x_lattice)) @ solution.T).tolist()
 
-        return data
+    return data
 
 
 def get_bounds(bounds: "MultiSet | RectSet") -> tuple[list[np.ndarray], list[np.ndarray]]:
@@ -242,7 +247,7 @@ def get_data_from_mlflow(args: Args):
     )
     data.sort_values(by=["obj_val"], ascending=True, inplace=True)
     data.to_pickle(f"benchmarks/integration/{args.experiment.lower()}.pkl")
-    return data
+    return data.copy()
 
 
 def get_data_from_pickle(args: Args):
@@ -363,14 +368,14 @@ def main(args: Args):
             f"Experiment {args.experiment} took {row.time} ms\nSuccess: {row.percentage:.2f}%, c {row.c}, eta {row.eta}, lambda {row.lambda_}, num_frequencies {row.num_frequencies}, lattice_resolution {row.lattice_resolution}, oversample_factor {row.oversample_factor}, sigma_l {row.sigma_l}, sigma_f {row.sigma_f}, T {row.T}"
         )
         if args.output:
-            data = export_solution(args, data)
+            datarun = export_solution(args, row)
             name, file_extension = os.path.splitext(args.output)
             filename = f"{name}-{i}{file_extension}"
             if file_extension == ".h5" or file_extension == ".hdf5":
-                data.to_hdf(filename, key="df", mode="w")
+                datarun.to_hdf(filename, key="df", mode="w")
                 print(f"Exported solution to {filename}")
             elif file_extension == ".mat":
-                sio.savemat(filename, {"df": data.to_dict(orient="list")})
+                sio.savemat(filename, {"df": datarun})
                 print(f"Exported solution to {filename}")
             else:
                 print(f"Unsupported file extension: {file_extension}")
