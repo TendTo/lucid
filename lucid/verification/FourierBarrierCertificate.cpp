@@ -391,9 +391,9 @@ bool FourierBarrierCertificate::synthesize(const Optimiser& optimiser, const int
   LUCID_DEBUG_FMT("min_sx_coeff: 2 * A_x / x_denom = 2 * {:.3} / {:.3} = {:.3}", A_x, x_denom, min_sx_coeff);
 
   if (Stats::Scoped::top()) {
-    Stats::Scoped::top()->value().lattice_resolution = lattice_resolution;
-    Stats::Scoped::top()->value().dimension = n;
-    Stats::Scoped::top()->value().lattice_size_active = static_cast<double>(x_include_mask.size());
+    Stats::Scoped::top()->value().lattice_resolution = static_cast<std::size_t>(lattice_resolution);
+    Stats::Scoped::top()->value().dimension = static_cast<std::size_t>(n);
+    Stats::Scoped::top()->value().lattice_size_active = x_include_mask.size();
     Stats::Scoped::top()->value().C = C;
     Stats::Scoped::top()->value().A_xn_wo_x0 = A_x0;
     Stats::Scoped::top()->value().A_xn_wo_xu = A_xu;
