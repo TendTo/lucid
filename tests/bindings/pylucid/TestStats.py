@@ -35,6 +35,27 @@ class TestStats:
             assert stats.num_tuning == 0
             assert stats.num_constraints == 0
             assert stats.num_variables == 0
+            assert stats.lattice_resolution == 0
+            assert stats.lattice_size == 0
+            assert stats.dimension == 0
+            assert stats.lattice_size_active == 0
+            assert stats.eta == 0.0
+            assert stats.gamma == 0.0
+            assert stats.c == 0.0
+            assert stats.safety == 0.0
+            assert stats.b_norm == 0.0
+            assert stats.C == 0.0
+            assert stats.A_xn_wo_x == 0.0
+            assert stats.A_xn_wo_x0 == 0.0
+            assert stats.A_xn_wo_xu == 0.0
+            assert stats.min_x0 == 0.0
+            assert stats.max_sx0 == 0.0
+            assert stats.max_xu == 0.0
+            assert stats.min_sxu == 0.0
+            assert stats.max_x == 0.0
+            assert stats.min_sx == 0.0
+            assert stats.min_d == 0.0
+            assert stats.max_d_sx == 0.0
             assert stats.peak_rss_memory_usage == 0
             assert str(stats).startswith("Stats:")
             stats.collect_peak_rss_memory_usage()
@@ -122,10 +143,20 @@ class TestStats:
             o.solve_fourier_barrier_synthesis(
                 num_constraints=1,
                 fxn_lattice=f_x_lattice,
-                cb=lambda a, b, c, d, e, f: print("Callback called"),
+                cb=lambda a, b, c, d, e, f: None,
             )
 
             assert stats.num_constraints == 1
             assert stats.num_variables == f_x_lattice.shape[1] + 10
+            assert stats.c == 0.0
+            assert stats.eta == 0.0
+            assert stats.min_x0 == 0.0
+            assert stats.max_sx0 == 0.0
+            assert stats.max_xu == 0.0
+            assert stats.min_sxu == 0.0
+            assert stats.max_x == 0.0
+            assert stats.min_sx == 0.0
+            assert stats.min_d == 0.0
+            assert stats.max_d_sx == 0.0
             assert stats.optimiser_time > 0
             assert str(stats).startswith("Stats:")

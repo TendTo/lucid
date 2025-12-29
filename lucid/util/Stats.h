@@ -25,8 +25,8 @@ struct Stats {
   Timer barrier_timer;                          ///< Metric measuring the time spent in barrier certificate synthesis
   Timer tuning_timer;                           ///< Metric measuring the time spent for hyperparameter tuning
   Timer kernel_timer;                           ///< Metric measuring the time spent for kernel evaluations
+  Timer cross_validation_timer;                 ///< Metric measuring the time spent in cross-validation
   Timer total_timer;                            ///< Metric measuring the total time spent in the whole pipeline
-  Timer cross_validation_timer_;                ///< Metric measuring the time spent in cross-validation
   std::size_t num_estimator_consolidations{0};  ///< Number of times an estimator was consolidated
   std::size_t num_kernel_applications{0};       ///< Number of times a kernel was applied
   std::size_t num_feature_map_applications{0};  ///< Number of times a feature map was applied
@@ -34,6 +34,7 @@ struct Stats {
   std::size_t num_constraints{0};               ///< Number of constraints in the last optimisation problem
   std::size_t num_variables{0};                 ///< Number of variables in the last optimisation problem
   std::size_t lattice_resolution{0};            ///< Resolution of the lattice on the periodic domain
+  std::size_t lattice_size{0};                  ///< Number of points in the lattice on the periodic domain
   std::size_t dimension{0};                     ///< Dimension of the state space
   std::size_t lattice_size_active{0};           ///< Active total size of the lattice on the state space
   double eta{0};                                ///< Constant @eta_ found in the barrier

@@ -23,6 +23,7 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  Tuning time (s):                   {:.3f}\n"
              "  Barrier time (s):                  {:.3f}\n"
              "  Optimiser time (s):                {:.3f}\n"
+             "  Cross validation time (s):         {:.3f}\n"
              "  Total time (s):                    {:.3f}\n"
              "  No. of estimator consolidations:   {}\n"
              "  No. of kernel applications:        {}\n"
@@ -30,6 +31,7 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  No. of hyperparameter tuning:      {}\n"
              "  No. of constraints:                {}\n"
              "  No. of variables:                  {}\n"
+             "  Lattice resolution (periodic):     {}\n"
              "  Lattice size (periodic):           {}\n"
              "  Lattice size (active):             {}\n"
              "  eta:                               {:.3f}\n"
@@ -50,39 +52,41 @@ std::ostream& operator<<(std::ostream& os, const Stats& stats) {
              "  Min d:                             {:.3f}\n"
              "  Max d xn/x:                        {:.3f}\n"
              "  Peak memory usage ({}):            {:.3f}\n",
-             stats.kernel_timer.seconds(),                                     //
-             stats.feature_map_timer.seconds(),                                //
-             stats.estimator_timer.seconds(),                                  //
-             stats.tuning_timer.seconds(),                                     //
-             stats.barrier_timer.seconds(),                                    //
-             stats.optimiser_timer.seconds(),                                  //
-             stats.total_timer.seconds(),                                      //
-             stats.num_estimator_consolidations,                               //
-             stats.num_kernel_applications,                                    //
-             stats.num_feature_map_applications,                               //
-             stats.num_tuning,                                                 //
-             stats.num_constraints,                                            //
-             stats.num_variables,                                              //
-             fmt::format("{}^{}", stats.lattice_resolution, stats.dimension),  //
-             stats.lattice_size_active,                                        //
-             stats.eta,                                                        //
-             stats.gamma,                                                      //
-             stats.c,                                                          //
-             stats.safety * 100.0,                                             //
-             stats.b_norm,                                                     //
-             stats.C,                                                          //
-             stats.A_xn_wo_x,                                                  //
-             stats.A_xn_wo_x0,                                                 //
-             stats.A_xn_wo_xu,                                                 //
-             stats.min_x0,                                                     //
-             stats.max_sx0,                                                    //
-             stats.max_xu,                                                     //
-             stats.min_sxu,                                                    //
-             stats.max_x,                                                      //
-             stats.min_sx,                                                     //
-             stats.min_d,                                                      //
-             stats.max_d_sx,                                                   //
-             unit,                                                             //
+             stats.kernel_timer.seconds(),            //
+             stats.feature_map_timer.seconds(),       //
+             stats.estimator_timer.seconds(),         //
+             stats.tuning_timer.seconds(),            //
+             stats.barrier_timer.seconds(),           //
+             stats.optimiser_timer.seconds(),         //
+             stats.cross_validation_timer.seconds(),  //
+             stats.total_timer.seconds(),             //
+             stats.num_estimator_consolidations,      //
+             stats.num_kernel_applications,           //
+             stats.num_feature_map_applications,      //
+             stats.num_tuning,                        //
+             stats.num_constraints,                   //
+             stats.num_variables,                     //
+             stats.lattice_resolution,                //
+             stats.lattice_size,                      //
+             stats.lattice_size_active,               //
+             stats.eta,                               //
+             stats.gamma,                             //
+             stats.c,                                 //
+             stats.safety * 100.0,                    //
+             stats.b_norm,                            //
+             stats.C,                                 //
+             stats.A_xn_wo_x,                         //
+             stats.A_xn_wo_x0,                        //
+             stats.A_xn_wo_xu,                        //
+             stats.min_x0,                            //
+             stats.max_sx0,                           //
+             stats.max_xu,                            //
+             stats.min_sxu,                           //
+             stats.max_x,                             //
+             stats.min_sx,                            //
+             stats.min_d,                             //
+             stats.max_d_sx,                          //
+             unit,                                    //
              metrics::bytes_to(stats.peak_rss_memory_usage, unit));
 }
 

@@ -127,16 +127,31 @@ void init_util(py::module_& m) {
       .def("collect_peak_rss_memory_usage", &ScopedStats::collect_peak_rss_memory_usage)
       .def_property_readonly("estimator_time", STATS_PROPERTY(estimator_timer.seconds()), Stats_estimator_timer)
       .def_property_readonly("feature_map_time", STATS_PROPERTY(feature_map_timer.seconds()), Stats_feature_map_timer)
-      .def_property_readonly("barrier_time", STATS_PROPERTY(barrier_timer.seconds()), Stats_barrier_timer)
       .def_property_readonly("optimiser_time", STATS_PROPERTY(optimiser_timer.seconds()), Stats_optimiser_timer)
+      .def_property_readonly("barrier_time", STATS_PROPERTY(barrier_timer.seconds()), Stats_barrier_timer)
       .def_property_readonly("tuning_time", STATS_PROPERTY(tuning_timer.seconds()), Stats_tuning_timer)
       .def_property_readonly("kernel_time", STATS_PROPERTY(kernel_timer.seconds()), Stats_kernel_timer)
+      .def_property_readonly("cross_validation_time", STATS_PROPERTY(cross_validation_timer.seconds()),
+                             Stats_cross_validation_timer)
       .def_property_readonly("total_time", STATS_PROPERTY(total_timer.seconds()), Stats_total_timer)
+      .def_property_readonly("num_estimator_consolidations", STATS_PROPERTY(num_estimator_consolidations),
+                             Stats_num_estimator_consolidations)
+      .def_property_readonly("num_kernel_applications", STATS_PROPERTY(num_kernel_applications),
+                             Stats_num_kernel_applications)
+      .def_property_readonly("num_feature_map_applications", STATS_PROPERTY(num_feature_map_applications),
+                             Stats_num_feature_map_applications)
+      .def_property_readonly("num_tuning", STATS_PROPERTY(num_tuning), Stats_num_tuning)
       .def_property_readonly("num_constraints", STATS_PROPERTY(num_constraints), Stats_num_constraints)
       .def_property_readonly("num_variables", STATS_PROPERTY(num_variables), Stats_num_variables)
       .def_property_readonly("lattice_resolution", STATS_PROPERTY(lattice_resolution), Stats_lattice_resolution)
+      .def_property_readonly("lattice_size", STATS_PROPERTY(lattice_size), Stats_lattice_size)
       .def_property_readonly("dimension", STATS_PROPERTY(dimension), Stats_dimension)
       .def_property_readonly("lattice_size_active", STATS_PROPERTY(lattice_size_active), Stats_lattice_size_active)
+      .def_property_readonly("eta", STATS_PROPERTY(eta), Stats_eta)
+      .def_property_readonly("gamma", STATS_PROPERTY(gamma), Stats_gamma)
+      .def_property_readonly("c", STATS_PROPERTY(c), Stats_c)
+      .def_property_readonly("safety", STATS_PROPERTY(safety), Stats_safety)
+      .def_property_readonly("b_norm", STATS_PROPERTY(b_norm), Stats_b_norm)
       .def_property_readonly("C", STATS_PROPERTY(C), Stats_C)
       .def_property_readonly("A_xn_wo_x", STATS_PROPERTY(A_xn_wo_x), Stats_A_xn_wo_x)
       .def_property_readonly("A_xn_wo_x0", STATS_PROPERTY(A_xn_wo_x0), Stats_A_xn_wo_x0)
@@ -151,13 +166,6 @@ void init_util(py::module_& m) {
       .def_property_readonly("max_d_sx", STATS_PROPERTY(max_d_sx), Stats_max_d_sx)
       .def_property_readonly("peak_rss_memory_usage", STATS_PROPERTY(peak_rss_memory_usage),
                              Stats_peak_rss_memory_usage)
-      .def_property_readonly("num_estimator_consolidations", STATS_PROPERTY(num_estimator_consolidations),
-                             Stats_num_estimator_consolidations)
-      .def_property_readonly("num_feature_map_applications", STATS_PROPERTY(num_feature_map_applications),
-                             Stats_num_feature_map_applications)
-      .def_property_readonly("num_kernel_applications", STATS_PROPERTY(num_kernel_applications),
-                             Stats_num_kernel_applications)
-      .def_property_readonly("num_tuning", STATS_PROPERTY(num_tuning), Stats_num_tuning)
       .def("to_dict",
            [](const ScopedStats& self) {
              if (!self.has_stats()) THROW_NOT_STATS_AVAILABLE_ERROR();
@@ -165,19 +173,30 @@ void init_util(py::module_& m) {
              const Stats& stats = self.stats();
              d["estimator_time"] = stats.estimator_timer.seconds();
              d["feature_map_time"] = stats.feature_map_timer.seconds();
-             d["barrier_time"] = stats.barrier_timer.seconds();
              d["optimiser_time"] = stats.optimiser_timer.seconds();
+             d["barrier_time"] = stats.barrier_timer.seconds();
              d["tuning_time"] = stats.tuning_timer.seconds();
              d["kernel_time"] = stats.kernel_timer.seconds();
+             d["cross_validation_time"] = stats.cross_validation_timer.seconds();
              d["total_time"] = stats.total_timer.seconds();
+             d["num_estimator_consolidations"] = stats.num_estimator_consolidations;
+             d["num_kernel_applications"] = stats.num_kernel_applications;
+             d["num_feature_map_applications"] = stats.num_feature_map_applications;
+             d["num_tuning"] = stats.num_tuning;
              d["num_constraints"] = stats.num_constraints;
              d["num_variables"] = stats.num_variables;
-             d["lattice_resolution"] = fmt::format("{}^{}", stats.lattice_resolution, stats.dimension);
-             d["lattice_size_active"] = stats.lattice_size_active;
+             d["lattice_resolution"] = stats.lattice_resolution;
+             d["lattice_size"] = stats.lattice_size;
              d["dimension"] = stats.dimension;
+             d["lattice_size_active"] = stats.lattice_size_active;
+             d["eta"] = stats.eta;
+             d["gamma"] = stats.gamma;
+             d["c"] = stats.c;
+             d["safety"] = stats.safety;
+             d["b_norm"] = stats.b_norm;
              d["C"] = stats.C;
              d["A_xn_wo_x"] = stats.A_xn_wo_x;
-             d["A_xn_wo_x0"] = stats.A_xn_wo_x;
+             d["A_xn_wo_x0"] = stats.A_xn_wo_x0;
              d["A_xn_wo_xu"] = stats.A_xn_wo_xu;
              d["min_x0"] = stats.min_x0;
              d["max_sx0"] = stats.max_sx0;
@@ -188,10 +207,6 @@ void init_util(py::module_& m) {
              d["min_d"] = stats.min_d;
              d["max_d_sx"] = stats.max_d_sx;
              d["peak_rss_memory_usage"] = stats.peak_rss_memory_usage;
-             d["num_estimator_consolidations"] = stats.num_estimator_consolidations;
-             d["num_feature_map_applications"] = stats.num_feature_map_applications;
-             d["num_kernel_applications"] = stats.num_kernel_applications;
-             d["num_tuning"] = stats.num_tuning;
              return d;
            })
       .def("__enter__", &ScopedStats::enter)
