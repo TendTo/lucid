@@ -116,6 +116,8 @@ def export_solution(args: Args, data: pd.DataFrame):
     data["X_unsafe_upper"] = get_bounds(config.X_unsafe)[1]
 
     data["x_lattice"] = x_lattice.tolist()
+    data["feature_map_omega"] = feature_map.omega.tolist()
+    data["feature_map_weights"] = feature_map.weights.tolist()
     data["x_barrier_values"] = (feature_map(x_lattice) @ solution.T).tolist()
     data["xp_est_barrier_values"] = (estimator(x_lattice) @ solution.T).tolist()
     if config.system_dynamics:
