@@ -89,11 +89,8 @@ def get_bounds(bounds: "MultiSet | RectSet") -> tuple[list[np.ndarray], list[np.
     raise TypeError("Unsupported bounds type")
 
 
-def export_solution(args: Args, data):
+def export_solution(args: Args, data: pd.DataFrame):
     config = base_load_configuration(f"benchmarks/integration/{args.experiment.lower()}.yaml")
-    # if isinstance(data, tuple):
-    #     data = pd.DataFrame([data._asdict()])
-    # for run in data.itertuples():
     feature_map = config.feature_map(
         num_frequencies=data.num_frequencies,
         sigma_l=data.feature_sigma_l,
@@ -107,8 +104,7 @@ def export_solution(args: Args, data):
     estimator.consolidate(config.x_samples, feature_map(config.xp_samples))
 
     solution = data.solution
-    data = data._asdict() # Convert to dict to modify
-    #print("datarun:", data)
+    data = data._asdict()  # Convert to dict to modify
     x_lattice = config.X_bounds.lattice(config.num_samples or 1000, True)
     assert isinstance(config.X_bounds, RectSet)
 
@@ -128,23 +124,9 @@ def export_solution(args: Args, data):
     return data
 
 
-def get_bounds(bounds: "MultiSet | RectSet") -> tuple[list[np.ndarray], list[np.ndarray]]:
-    if isinstance(bounds, RectSet):
-        return [bounds.lower_bound], [bounds.upper_bound]
-    if isinstance(bounds, MultiSet):
-        lb, ub = np.array([]), np.array([])
-        for s in bounds:
-            if isinstance(s, RectSet):
-                lb = np.vstack([lb, s.lower_bound]) if lb.size else s.lower_bound
-                ub = np.vstack([ub, s.upper_bound]) if ub.size else s.upper_bound
-        return [lb], [ub]
-    raise TypeError("Unsupported bounds type")
-
-
 def get_solution(run: "Run") -> np.ndarray:
     _, path = run.info.artifact_uri.split("/mlruns/")
     # Get the path of this python script
-    #
     file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "mlruns", path, "solution.json")
     print(f"Loading solution from {file_path} ...")
     if not os.path.exists(file_path):
