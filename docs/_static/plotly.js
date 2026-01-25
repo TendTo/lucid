@@ -161,8 +161,6 @@ function plotlyJS() {
             } : {}),
         }];
 
-        console.log(data);
-
         const layout = {
             title: {
                 text: conf.title,

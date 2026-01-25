@@ -117,7 +117,7 @@ export default function App() {
             b_norm,
             fig = undefined,
           } = await runJslucid(data, (msg: string) => {
-            console.warn("Jslucid log:", msg);
+            console.log("Jslucid log:", msg);
             setLogs((prevLogs) => [...prevLogs, parseLogEntry(msg)]);
           });
           if (fig !== undefined) updateFigure(fig);
@@ -314,7 +314,7 @@ export default function App() {
         // @ts-expect-error methods is not typed properly
         methods={methods}
       />
-      <main className="h-[calc(100vh-4rem)] min-w-full mx-auto flex flex-row justify-evenly relative overflow-y-hidden">
+      <main className="h-[calc(100vh-4rem)] min-w-full mx-auto flex flex-col lg:flex-row justify-evenly relative overflow-y-auto lg:overflow-y-hidden">
         <InputSection
           // @ts-expect-error methods is not typed properly
           methods={methods}

@@ -41,11 +41,11 @@ export type HeaderProps = {
 export function advancedError(errors: FieldErrors<Configuration>): boolean {
   return Boolean(
     errors.system_dynamics ||
-      errors.X_bounds ||
-      errors.X_init ||
-      errors.X_unsafe ||
-      errors.x_samples ||
-      errors.xp_samples
+    errors.X_bounds ||
+    errors.X_init ||
+    errors.X_unsafe ||
+    errors.x_samples ||
+    errors.xp_samples,
   );
 }
 
@@ -81,7 +81,9 @@ export default function Header({ reset, methods }: HeaderProps) {
         <div className="flex items-center justify-between h-16 px-6">
           <div className="flex items-center">
             <img alt="Lucid logo" src={Logo} className="size-8" />
-            <h1 className="text-white">Lucid</h1>
+            <a href="https://github.com/TendTo/lucid" target="_blank">
+              <h1 className="text-white">Lucid</h1>
+            </a>
           </div>
           <Drawer fixed={false}>
             <DrawerTrigger asChild>
@@ -113,7 +115,7 @@ export default function Header({ reset, methods }: HeaderProps) {
               </DrawerFooter>
             </DrawerContent>
           </Drawer>
-          <div className="ml-10 flex items-center space-x-4">
+          <div className="lg:ml-10 flex items-center space-x-4">
             <JsonImportModal reset={reset} />
             <Sheet>
               <SheetTrigger asChild>

@@ -40,8 +40,8 @@ export default function OutputSection({
   fig.layout.width = dimensions.width;
   fig.layout.height = dimensions.height;
   return (
-    <section className="flex-grow basis-0 mx-auto p-4 flex flex-col items-center relative">
-      <div ref={figContainerRef} className="w-full flex-grow-2 basis-0">
+    <section className="w-full flex-grow basis-0 p-4 flex flex-col items-center relative">
+      <div ref={figContainerRef} className="w-full min-h-[50vh] lg:min-h-0 flex-grow-2 basis-0">
         {fig.data.length > 0 && <Figure {...fig} />}
         {fig.data.length === 0 && loading && (
           <Skeleton className="h-full w-full rounded" />
@@ -51,7 +51,7 @@ export default function OutputSection({
         type="single"
         collapsible
         defaultValue="results"
-        className="w-full flex-grow-1 basis-0"
+        className="w-full flex-shrink-0 lg:flex-shrink lg:flex-grow lg:basis-0 lg:min-h-0 lg:overflow-y-auto"
       >
         <AccordionItem value="results">
           <AccordionTrigger>

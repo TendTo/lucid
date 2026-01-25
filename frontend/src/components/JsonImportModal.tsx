@@ -177,7 +177,7 @@ export default function JsonImportModal({ reset }: JsonImportModalProps) {
         </Select>
         <Textarea
           aria-invalid={!!error}
-          className="h-64 border font-mono text-sm"
+          className="h-12 lg:h-64 border font-mono text-sm"
           value={jsonText}
           onChange={(e) => setJsonText(e.target.value)}
           placeholder={`{
