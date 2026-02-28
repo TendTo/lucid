@@ -1,0 +1,11 @@
+diff --git a/BUILD.bazel b/BUILD.bazel
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -146,6 +146,7 @@ cc_library(
+         "include/boost/spirit/home/x3/directive/expect.hpp",
+         "include/boost/spirit/home/x3/directive/repeat.hpp",
+         "include/boost/spirit/home/x3/nonterminal.hpp",
++        "include/boost/spirit/home/x3/nonterminal/detail/rule.hpp", # This line must be added
+         "include/boost/spirit/home/x3/nonterminal/rule.hpp",
+         "include/boost/spirit/home/x3/numeric.hpp",
+         "include/boost/spirit/home/x3/numeric/bool.hpp",
