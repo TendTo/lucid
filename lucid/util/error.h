@@ -257,6 +257,13 @@
 #define LUCID_NOT_SUPPORTED(msg) LUCID_ERROR_LOG_AND_THROW(LucidNotSupportedException, "{} is not supported.", msg)
 
 /**
+ * Throw a LucidNotSupportedException when a functionality is not supported.
+ * @param msg functionality or feature that is not supported
+ */
+#define LUCID_PARSE_FAIL(type, input, error) \
+  LUCID_ERROR_LOG_AND_THROW(LucidParserException, "Could not parse {} input '{}'\n{}", type, input, error)
+
+/**
  * Throw a LucidNotSupportedException when a functionality is not supported because the software was compiled without
  * a required dependency.
  * @param msg functionality or feature that is not supported

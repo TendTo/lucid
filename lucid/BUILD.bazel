@@ -10,6 +10,7 @@ lucid_srcs(
         "//lucid/model:all_srcs",
         "//lucid/util:all_srcs",
         "//lucid/verification:all_srcs",
+        "//lucid/parser:all_srcs",
     ],
 )
 

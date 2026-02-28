@@ -1,0 +1,36 @@
+load("//tools:rules_cc.bzl", "lucid_cc_library", "lucid_srcs")
+
+package(default_visibility = [
+    "//bindings:__subpackages__",
+    "//lucid:__subpackages__",
+    "//tests:__subpackages__",
+])
+
+lucid_srcs(name = "srcs")
+
+lucid_cc_library(
+    name = "stl",
+    srcs = ["stl/Parser.cpp"],
+    hdrs = ["stl/Parser.h"],
+    deps = [
+        "@boost.spirit",
+        "//lucid/parser:base_parser",
+    ],
+    implementation_deps = ["//lucid/util:error"],
+)
+
+lucid_cc_library(
+    name = "base_parser",
+    srcs = ["Parser.cpp"],
+    hdrs = ["Parser.h"],
+    implementation_deps = ["//lucid/util:error"],
+)
+
+lucid_cc_library(
+    name = "parser",
+    hdrs = ["parser.h"],
+    deps = [
+        ":base_parser",
+        ":stl",
+    ],
+)

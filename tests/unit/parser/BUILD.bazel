@@ -1,0 +1,8 @@
+"""Tests for the parser submodule."""
+
+load("//tools:rules_cc.bzl", "lucid_cc_googletest")
+
+lucid_cc_googletest(
+    name = "test_stl",
+    deps = ["//lucid/parser:stl"],
+)
