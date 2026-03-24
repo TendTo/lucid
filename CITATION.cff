@@ -33,6 +33,12 @@ identifiers:
   - type: url
     value: "https://arxiv.org/abs/2512.11750"
     description: arXiv
+  - type: url
+    value: "https://ojs.aaai.org/index.php/AAAI/article/view/39075"
+    description: AAAI26
+  - type: doi
+    value: 10.1609/aaai.v40i24.39075
+    description: AAAI26
 repository-code: "https://github.com/TendTo/lucid"
 url: "https://tendto.github.io/lucid/"
 abstract: >-
@@ -76,3 +82,35 @@ license: CC-BY-4.0
 commit: 93b77e9fa9ca1443b460ff1c0187cdeb0dd22adf
 version: 0.0.2
 date-released: "2025-12-14"
+preferred-citation:
+  type: article
+  authors:
+    - given-names: Ernesto
+      family-names: Casablanca
+      email: e.casablanca2@newcastle.ac.uk
+      name-particle: Ernesto
+      affiliation: Newcastle Univeristy
+      orcid: "https://orcid.org/0009-0009-3741-1624"
+    - given-names: Oliver
+      family-names: Schön
+      email: o.schoen2@newcastle.ac.uk
+      affiliation: Newcastle University
+      orcid: "https://orcid.org/0000-0002-0214-6455"
+    - given-names: Paolo
+      family-names: Zuliani
+      email: zuliani@di.uniroma1.it
+      affiliation: Universita di Roma "La Sapienza"
+      orcid: "https://orcid.org/0000-0001-6033-5919"
+    - given-names: Sadegh
+      family-names: Soudjani
+      email: sadegh@mpi-sws.org
+      affiliation: Max Planck Institute for Software
+  doi: "10.1609/aaai.v40i24.39075"
+  journal: "Proceedings of the AAAI Conference on Artificial Intelligence"
+  month: 3
+  start: 19916
+  end: 19924
+  title: "LUCID: Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems"
+  issue: 24
+  volume: 40
+  year: 2026
