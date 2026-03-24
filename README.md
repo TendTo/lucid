@@ -298,13 +298,16 @@ pylucid config.yaml
 If you use LUCID in your research, please cite the following paper:
 
 ```bibtex
-@misc{casablanca2025lucidlearningenableduncertaintyawarecertification,
-  title         = {LUCID: Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems},
-  author        = {Ernesto Casablanca, Oliver Schön, Paolo Zuliani and Sadegh Soudjani},
-  year          = {2025},
-  eprint        = {2512.11750},
-  archiveprefix = {arXiv},
-  primaryclass  = {eess.SY},
-  url           = {https://arxiv.org/abs/2512.11750}
+@article{casablanca2025lucidlearningenableduncertaintyawarecertification,
+  title        = {LUCID: Learning-Enabled Uncertainty-Aware Certification of Stochastic Dynamical Systems},
+  volume       = {40},
+  url          = {https://ojs.aaai.org/index.php/AAAI/article/view/39075},
+  doi          = {10.1609/aaai.v40i24.39075},
+  number       = {24},
+  journal      = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  author       = {Casablanca, Ernesto and Sch{\"o}n, Oliver and Zuliani, Paolo and Soudjani, Sadegh},
+  year         = {2026},
+  month        = {Mar.},
+  pages        = {19916-19924}
 }
 ```
