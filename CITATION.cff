@@ -79,8 +79,8 @@ keywords:
   - Control Systems
   - Machine Learning
 license: CC-BY-4.0
-commit: 93b77e9fa9ca1443b460ff1c0187cdeb0dd22adf
-version: 0.0.2
+commit: 317f454d220671b9b204213020e8e8285b041b68
+version: 0.0.3
 date-released: "2025-12-14"
 preferred-citation:
   type: article
