@@ -1,5 +1,5 @@
 LUCID_NAME = "lucid"
-LUCID_VERSION = "0.0.2"
+LUCID_VERSION = "0.0.3"
 LUCID_AUTHOR = "Ernesto Casablanca"
 LUCID_AUTHOR_EMAIL = "casablancaernesto@gmail.com"
 LUCID_DESCRIPTION = "Lifting-based Uncertain Control Invariant Dynamics"

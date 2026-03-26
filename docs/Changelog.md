@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved documentation
 - Responsive design for the GUI
+- Update dependencies version
 
 ## [0.0.2]
 
