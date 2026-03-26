@@ -266,7 +266,7 @@ pylucid-gui
 
 ### Configuration file (flexible)
 
-Assuming we have a [config.yaml](./tests/config/linear.yaml) configuration file.
+Assuming we have a [config.yaml](/tests/config/linear.yaml) configuration file.
 
 **Docker**
 
