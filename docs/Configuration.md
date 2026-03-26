@@ -64,6 +64,9 @@ seed: 42
 # Each element of the list corresponds to a component of the output state space
 # E.g., the following system has 3D input state space (x1, x2, x3)
 # and 3D output state space (y1, y2, y3)
+# Additional user-defined variables can be used,
+# but the user must also provide a map between the user-defined variables and their values at each time step.
+# This function is only available when using the Python configuration.
 system_dynamics:
   - x1^2 + x2 / 2 + cos(x3) # y1
   - 2 * x1 + sin(-x2) # y2
@@ -139,6 +142,9 @@ You can use the following example as a template:
    * Each element of the list corresponds to a component of the output state space
    * E.g., the following system has 3D input state space (x1, x2, x3)
    * and 3D output state space (y1, y2, y3)
+   * Additional user-defined variables can be used,
+   * but the user must also provide a map between the user-defined variables and their values at each time step.
+   * This function is only available when using the Python configuration.
    */
   "system_dynamics": [
     "x1^2 + x2 / 2 + cos(x3)", // y1

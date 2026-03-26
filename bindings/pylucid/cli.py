@@ -38,7 +38,10 @@ class Configuration(Namespace):
         iis_log_file: File to save the irreducible infeasible set (IIS) in ILP format. If empty, the IIS will not be saved
         print_stats: Whether to print detailed statistics after completing the synthesis
 
-        system_dynamics: Deterministic function that maps the state variable x to the next state variable x+
+        system_dynamics: Deterministic function that maps the state variable x to the next state variable x+.
+            By default, the names `x1`, `x2`, ..., `xn` stand for the n-dimensional input state space components. 
+            All components of the input state space must be present in the function.
+            This function can also take an additional dictionary parameter that maps user-defined variable names to their values at each time step.
         X_bounds: Set that bounds the state space
         X_init: Set of initial states
         X_unsafe: Set of unsafe states
@@ -82,7 +85,7 @@ class Configuration(Namespace):
     print_stats: bool = False
 
     # System dynamics and specification
-    system_dynamics: "Callable[[NMatrix], NMatrix] | None" = None
+    system_dynamics: "Callable[[NMatrix, dict[str, NMatrix] | None], NMatrix] | None" = None
     X_bounds: "Set | None" = None
     X_init: "Set | None" = None
     X_unsafe: "Set | None" = None
@@ -408,10 +411,12 @@ class SystemDynamicsAction(Action):
         sym_parser = SympyParser()
         functions = sym_parser.parse_to_lambda(values)
 
-        def system_dynamics_func(x: "NMatrix") -> "NMatrix":
+        def system_dynamics_func(x: "NMatrix", user_map: "dict[str, NMatrix] | None" = None) -> "NMatrix":
             """Dynamic function that takes a state vector and returns the next state."""
             assert x.ndim == 2, "Input must be a 2D array with shape (n_samples, n_features)"
             cols = {f"x{i + 1}": x[:, i] for i in range(x.shape[1])}
+            if user_map is not None:
+                cols.update(user_map)
             f_cols = [f(**cols) for f in functions]
             rows = max(len(f_col) for f_col in f_cols if isinstance(f_col, np.ndarray))
             # Broadcast scalar values to match the number of rows of the output
@@ -667,7 +672,12 @@ def arg_parser() -> "ArgumentParser":
         "Variables `x1`, `x2`, ..., `xn` stand for the n-dimensional input state space components. "
         "All components of the input state space must be present in the function. "
         "For example, `--system_dynamics 'x1^2 + x2 / 2' '2 * x1 + sin(-x2)' 'cos(x1)'` "
-        "will produce a function that takes a 2D input (x1, x2) and returns a 3D output (y1, y2, y3)",
+        "will produce a function that takes a 2D input (x1, x2) and returns a 3D output (y1, y2, y3)."
+        "The function can also include arbitrary user-defined intermediate variables, "
+        "e.g., `--system_dynamics 'x1^2 + x2 / 2 + u1' '2 * x1 + sin(-x2) - u2' 'cos(x1) + 2 * u3'` "
+        "but if that is the case, the user must also take care of providing an additional dictionary parameter with the map"
+        "between the user-defined variables and their values at each time step, "
+        "e.g., system_dynamics(x, user_map={'u1': u1_value, 'u2': u2_value, 'u3': u3_value}). ",
     )
     parser.add_argument(
         "--X_bounds",
