@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [NEXT.VERSION] - UNRELEASED
+## [0.0.3]
+
+### Added
+
+- Utility function on `Configuration` class to correctly initialize the configuration after load
+- Ability to use user-defined variables in the system dynamics function when using the Python configuration, with a map between the user-defined variable names and their values at each time step
+- More variables exposed by `Stats`
+- More plot utility functions for visualizing the results
+
+### Changed
+
+- Improved documentation
+- Responsive design for the GUI
 
 ## [0.0.2]
 
@@ -44,4 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [0.0.1]: https://github.com/TendTo/lucid/tree/0.0.1
 [0.0.2]: https://github.com/TendTo/lucid/compare/0.0.1...0.0.2
+[0.0.3]: https://github.com/TendTo/lucid/compare/0.0.2...0.0.3
+[NEXT.VERSION]: https://github.com/TendTo/lucid/compare/0.0.3...main
 [NEXT.VERSION]: https://github.com/TendTo/lucid
