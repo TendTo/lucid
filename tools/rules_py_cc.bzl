@@ -4,6 +4,7 @@ Inspired by JBPennington @ https://github.com/JBPennington/pybind_cpp_w_python_e
 """
 
 load("//tools:rules_cc.bzl", "lucid_cc_binary", "lucid_cc_library", "lucid_cc_test")
+load("@rules_python//python:defs.bzl", "PyInfo")
 
 def _cc_py_runtime_impl(ctx):
     py3_runtime = ctx.toolchains[ctx.attr._python_toolchain].py3_runtime

@@ -117,7 +117,7 @@ docker run --name lucid -it --rm \
 
 **Requirements**
 
-- [Python](https://www.python.org/) 3.8 or higher
+- [Python](https://www.python.org/) 3.9 or higher
 - [Linux, Glibc >= 2.35](https://gist.github.com/richardlau/6a01d7829cc33ddab35269dacc127680), [Windows](https://www.microsoft.com/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
 - (_Optional_) [Gurobi licence](https://www.gurobi.com/)
 
@@ -145,7 +145,7 @@ python3 -c "import pylucid; print(pylucid.__version__)"
 **Requirements**
 
 - [Bazel](https://bazel.build/) 8.1.1
-- [Python](https://www.python.org/) 3.8 or higher
+- [Python](https://www.python.org/) 3.9 or higher
 - C++ compiler with C++20 support.  
   We tested in particular:
   - **On Linux**: [gcc](https://gcc.gnu.org/) 11.4.0

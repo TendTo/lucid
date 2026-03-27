@@ -94,7 +94,7 @@ def _get_copts(rule_copts, cc_test = False):
     """
     return rule_copts + select({
         "//tools:gcc_build": GCC_FLAGS + (GCC_TEST_FLAGS if cc_test else []),
-        "//tools:clang_build": CLANG_FLAGS + (CLANG_CL_TEST_FLAGS if cc_test else []),
+        "//tools:clang_build": CLANG_FLAGS + (CLANG_TEST_FLAGS if cc_test else []),
         "//tools:msvc_cl_build": MSVC_CL_FLAGS + (MSVC_CL_TEST_FLAGS if cc_test else []),
         "//tools:clang_cl_build": CLANG_CL_FLAGS + (CLANG_CL_TEST_FLAGS if cc_test else []),
         "//conditions:default": CXX_FLAGS,

@@ -13,12 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ability to use user-defined variables in the system dynamics function when using the Python configuration, with a map between the user-defined variable names and their values at each time step
 - More variables exposed by `Stats`
 - More plot utility functions for visualizing the results
+- Prepare support for Python 3.14 (need to upgrade gurobi to 13 first) 
 
 ### Changed
 
 - Improved documentation
 - Responsive design for the GUI
 - Update dependencies version
+
+### Removed
+
+- Support for Python 3.8
 
 ## [0.0.2]
 

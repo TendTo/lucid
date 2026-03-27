@@ -17,7 +17,7 @@ We provide a pre-built Pylucid package that can be installed directly with pip w
 
 ### Requirements
 
-- [Python](https://www.python.org/) 3.8 or higher
+- [Python](https://www.python.org/) 3.9 or higher
 - [Linux, Glibc >= 2.35](https://gist.github.com/richardlau/6a01d7829cc33ddab35269dacc127680), [Windows](https://www.microsoft.com/windows) or [ARM macOS](https://www.apple.com/macos/) operating system
 - (_Optional_) [Gurobi licence](https://www.gurobi.com/)
 
