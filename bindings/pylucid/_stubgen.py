@@ -119,20 +119,6 @@ def copy_lib(out_dir: str, lib: "list[str]"):
 def main():
     argparser = argparse.ArgumentParser(description="Generate stub files for pylucid")
     argparser.add_argument(
-        "-d",
-        "--pyd",
-        type=str,
-        help="Path to the shared object file (e.g., _pylucid.pyd)",
-        required=True,
-    )
-    argparser.add_argument(
-        "-s",
-        "--so",
-        type=str,
-        help="Path to the shared object file (e.g., _pylucid.so)",
-        required=True,
-    )
-    argparser.add_argument(
         "-l",
         "--lib",
         type=str,

@@ -31,7 +31,7 @@ E.g.,
 # Cannot install the [gurobi] optional dependency on Python 3.8.
 # You either remove it and use a local gurobi installation instead, or upgrade Python to a newer version.
 
-pip install "pylucid[gui,gurobi]==0.0.3" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
+pip install "pylucid[gui,gurobi]==0.0.2" --index-url "https://gitlab.com/api/v4/projects/71977529/packages/pypi/simple"
 # ERROR: No matching distribution found for gurobipy<=12.0.3,>=12.0.0; extra == "gurobi"
 ```
 

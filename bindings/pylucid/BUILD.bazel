@@ -81,15 +81,21 @@ py_library(
         "//conditions:default": [],
     }),
     data = [
-        ":_constants.pyd",
-        ":_constants.so",
-        ":_pylucid.pyd",
-        ":_pylucid.so",
-        ":configuration_schema.json",
-    ] + select({
-        "//tools:gui_build": [":frontend"],
-        "//conditions:default": [],
-    }),
+               ":configuration_schema.json",
+           ] + select({
+               "@platforms//os:windows": [
+                   ":_constants.pyd",
+                   ":_pylucid.pyd",
+               ],
+               "//conditions:default": [
+                   ":_constants.so",
+                   ":_pylucid.so",
+               ],
+           }) +
+           select({
+               "//tools:gui_build": [":frontend"],
+               "//conditions:default": [],
+           }),
     imports = [".."],
     srcs_version = "PY3",
     visibility = ["//visibility:public"],
@@ -159,11 +165,16 @@ genrule(
     name = "stubgen",
     srcs = [
         ":pylucid_lib",
-        ":_pylucid.pyd",
-        ":_pylucid.so",
-        "_constants.pyd",
-        "_constants.so",
-    ],
+    ] + select({
+        "@platforms//os:windows": [
+            ":_constants.pyd",
+            ":_pylucid.pyd",
+        ],
+        "//conditions:default": [
+            ":_constants.so",
+            ":_pylucid.so",
+        ],
+    }),
     outs = [
         "_pylucid/__init__.pyi",
         "_pylucid/random.pyi",
@@ -172,8 +183,8 @@ genrule(
         "__init__.pyi",
         "py.typed",
     ],
-    cmd = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
-    cmd_bat = "$(location :stubgen_bin) --pyd $(location :_pylucid.pyd) --so $(location :_pylucid.so) --lib $(locations :pylucid_lib) --outs $(OUTS)",
+    cmd = "$(location :stubgen_bin) --lib $(locations :pylucid_lib) --outs $(OUTS)",
+    cmd_bat = "$(location :stubgen_bin) --lib $(locations :pylucid_lib) --outs $(OUTS)",
     tools = [":stubgen_bin"],
 )
 

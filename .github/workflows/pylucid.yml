@@ -32,12 +32,12 @@ jobs:
           - macos-latest
           - windows-latest
         python_version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
 
     steps:
       - uses: actions/checkout@v6
@@ -67,18 +67,12 @@ jobs:
           - macos-14
           - windows-latest
         python_version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
-        exclude:
-          # Gurobipy is not available for Python 3.8 on macOS arm
-          - os: macos-latest
-            python_version: "3.8"
-          - os: macos-14
-            python_version: "3.8"
+          - "3.14"
 
     steps:
       - uses: actions/checkout@v6
@@ -88,7 +82,6 @@ jobs:
           os: ${{ matrix.os }}
           version: "12.0.0"
       - uses: ./.github/actions/bazel-cache
-        if: matrix.os != 'windows-latest'
       - uses: ./.github/actions/frontend-setup
         if: matrix.os == 'windows-latest'
 
