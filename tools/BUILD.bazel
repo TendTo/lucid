@@ -132,7 +132,7 @@ config_setting(
     flag_values = {
         "@highs//:cupdlp_gpu": "True",
         "@rules_cuda//cuda:enable": "True",
-        "@local_cuda//:valid_toolchain_found": "True",
+        "@cuda//:valid_toolchain_found": "True",
     },
 )
 
