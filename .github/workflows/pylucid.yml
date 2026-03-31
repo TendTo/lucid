@@ -112,7 +112,7 @@ jobs:
           LD_LIBRARY_PATH: ${{ steps.gurobi-lib.outputs.gurobi-home }}/lib
 
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: python-package-${{ matrix.os }}-${{ matrix.python_version }}
           path: dist/
@@ -126,7 +126,7 @@ jobs:
 
     steps:
       - name: Retrieve release distributions
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: dist/
           merge-multiple: true
