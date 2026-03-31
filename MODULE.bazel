@@ -67,7 +67,7 @@ bazel_dep(name = "yaml-cpp", version = "0.9.0")
 bazel_dep(name = "rules_python", version = "1.9.0")
 
 # https://github.com/pybind/pybind11_bazel/blob/master/LICENSE | pybind11 for binding C++ and Python
-bazel_dep(name = "pybind11_bazel", version = "3.0.1")
+bazel_dep(name = "pybind11_bazel", version = "3.0.0") # https://github.com/pybind/pybind11_bazel/issues/132
 
 # Apache License 2.0 | Bazel rules for packaging the project
 bazel_dep(name = "rules_pkg", version = "1.2.0")
