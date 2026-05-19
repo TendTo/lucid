@@ -1,3 +1,5 @@
+startup --windows_enable_symlinks
+
 # Workspace status command
 build --enable_platform_specific_config
 build --experimental_cc_shared_library

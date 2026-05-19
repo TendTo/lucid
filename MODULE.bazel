@@ -63,7 +63,7 @@ bazel_dep(name = "yaml-cpp", version = "0.9.0")
 bazel_dep(name = "rules_python", version = "2.0.1")
 
 # https://github.com/pybind/pybind11_bazel/blob/master/LICENSE | pybind11 for binding C++ and Python
-bazel_dep(name = "pybind11_bazel", version = "3.0.1")  # https://github.com/pybind/pybind11_bazel/issues/132
+bazel_dep(name = "pybind11_bazel", version = "3.0.0")  # https://github.com/pybind/pybind11_bazel/issues/132
 
 # Apache License 2.0 | Bazel rules for packaging the project
 bazel_dep(name = "rules_pkg", version = "1.2.0")
@@ -78,7 +78,7 @@ bazel_dep(name = "rules_cuda", version = "0.3.0")
 bazel_dep(name = "rules_nodejs", version = "6.7.4")
 
 # Apache License 2.0 | rules for running javascript applications in Bazel
-bazel_dep(name = "aspect_rules_js", version = "2.9.2")
+bazel_dep(name = "aspect_rules_js", version = "3.1.2")
 
 # MIT | Emscripten SDK for compiling to WebAssembly
 bazel_dep(name = "emsdk", version = "5.0.7")
@@ -188,7 +188,6 @@ npm.npm_translate_lock(
     ],
     npmrc = "//frontend:.npmrc",
     pnpm_lock = "//frontend:pnpm-lock.yaml",
-    verify_node_modules_ignored = "//:.bazelignore",
     # update_pnpm_lock = 1, # Only needed if you want to update the pnpm lock file
 )
 use_repo(npm, "npm")
