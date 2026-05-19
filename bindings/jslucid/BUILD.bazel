@@ -37,10 +37,10 @@ DEBUG_OPTS = [
     "-sSAFE_HEAP=1",
 ]
 
-lucid_cc_library(
-    name = "emscripten_hdrs",
-    deps = ["@emscripten_bin_linux//:cc_includes"],
-)
+#lucid_cc_library(
+#    name = "emscripten_hdrs",
+#    deps = ["@emscripten_bin_linux//:cc_includes"],
+#)
 
 lucid_cc_binary(
     name = "jslucid",

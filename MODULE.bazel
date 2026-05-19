@@ -10,7 +10,7 @@ module(
 #################################################################################
 
 # Apache License 2.0 | rules_cc for building C++ libraries with Bazel
-bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_cc", version = "0.2.18")
 
 # Apache License 2.0 | utility rules for Bazel
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
@@ -19,7 +19,7 @@ bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 
 # Apache License 2.0 | rules housing all canonical settings for cross-platform builds
-bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "platforms", version = "1.1.0")
 
 # Mozilla Public License 2.0 | C++ library that handles matrices and vectors
 bazel_dep(name = "eigen", version = "5.0.1")
@@ -34,13 +34,9 @@ bazel_dep(name = "fmt", version = "12.1.0")
 bazel_dep(name = "spdlog", version = "1.17.0")
 
 # MIT | Linear optimization software
-bazel_dep(name = "highs", version = "1.13.1")
-git_override(
-    module_name = "highs",
-    commit = "847e8ed1edd36e64f4990e37f2e4783bbfc797a2",
-    remote = "https://github.com/TendTo/HiGHS.git",
-)
+bazel_dep(name = "highs", version = "1.14.0")
 
+# MIT | Particle Swarm Optimization library in C++
 bazel_dep(name = "psocpp", version = "0.1.0")
 git_override(
     module_name = "psocpp",
@@ -64,34 +60,28 @@ bazel_dep(name = "exprtk", version = "0.0.3.bcr.1")
 bazel_dep(name = "yaml-cpp", version = "0.9.0")
 
 # Apache License 2.0 | rules_python for building python targets
-bazel_dep(name = "rules_python", version = "1.9.0")
+bazel_dep(name = "rules_python", version = "2.0.1")
 
 # https://github.com/pybind/pybind11_bazel/blob/master/LICENSE | pybind11 for binding C++ and Python
-bazel_dep(name = "pybind11_bazel", version = "3.0.0") # https://github.com/pybind/pybind11_bazel/issues/132
+bazel_dep(name = "pybind11_bazel", version = "3.0.1")  # https://github.com/pybind/pybind11_bazel/issues/132
 
 # Apache License 2.0 | Bazel rules for packaging the project
 bazel_dep(name = "rules_pkg", version = "1.2.0")
 
 # Apache License 2.0 | Bazel rules for shell scripts
-bazel_dep(name = "rules_shell", version = "0.7.1")
+bazel_dep(name = "rules_shell", version = "0.8.0")
 
 # Apache License 2.0 | Bazel rules for CUDA
 bazel_dep(name = "rules_cuda", version = "0.3.0")
 
 # Apache License 2.0 | Node.js toolchain for Bazel
-bazel_dep(name = "rules_nodejs", version = "6.7.3")
+bazel_dep(name = "rules_nodejs", version = "6.7.4")
 
 # Apache License 2.0 | rules for running javascript applications in Bazel
-bazel_dep(name = "aspect_rules_js", version = "2.8.2")
+bazel_dep(name = "aspect_rules_js", version = "2.9.2")
 
 # MIT | Emscripten SDK for compiling to WebAssembly
-bazel_dep(name = "emsdk", version = "5.0.4")
-git_override(
-    module_name = "emsdk",
-    strip_prefix = "bazel",
-    commit = "ef57ae66e612c0ed636a713d550d39afe1cd9f60",
-    remote = "https://github.com/emscripten-core/emsdk.git",
-)
+bazel_dep(name = "emsdk", version = "5.0.7")
 
 # https://github.com/cpplint/cpplint/blob/develop/LICENSE | Google C++ Style Guide
 bazel_dep(name = "cpplint", version = "2.0.2", dev_dependency = True)
@@ -103,10 +93,10 @@ bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
 bazel_dep(name = "google_benchmark", version = "1.9.5")
 
 # Apache License 2.0 | Doxygen documentation generator
-bazel_dep(name = "rules_doxygen", version = "2.6.2", dev_dependency = True)
+bazel_dep(name = "rules_doxygen", version = "2.6.3", dev_dependency = True)
 
 # MIT | rules for dealing with target dependencies
-bazel_dep(name = "depend_on_what_you_use", version = "0.14.0", dev_dependency = True)
+bazel_dep(name = "depend_on_what_you_use", version = "0.16.0", dev_dependency = True)
 
 #################################################################################
 # External dependencies not available in the Bazel registry
